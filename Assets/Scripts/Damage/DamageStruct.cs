@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Unity.Mathematics.FixedPoint;
 
-public class DamageStruct : MonoBehaviour
+public struct DamageInfo
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public UnitCore source;
+    public UnitCore target;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public fp physicalDamage;
+    public fp magicDamage;
+    public fp trueDamage;
+
+    public DamageType damageType;
+
+    public object extraInfo;
+}
+
+public enum DamageType
+{ 
+
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "技能系统/Ability")]
+[CreateAssetMenu(menuName = "技能系统/新建技能配置")]
 public class AbilityData : ScriptableObject
 {
     public int AbilityId;

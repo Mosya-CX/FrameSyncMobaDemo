@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Mathematics.FixedPoint;
+using Sirenix.OdinInspector;
 
 public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
 {
@@ -15,36 +17,38 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         GameOver
     }
 
-    [SerializeField] private GameObject[] managedObjects;
+    [SerializeField, LabelText("受控管理器")] 
+    private GameObject[] managedObjects;
     private IGameFlowManaged[] manageds;
 
-    [SerializeField] private ushort tickPerSecond = 30;
-    private float tickInterval;
+    [SerializeField, LabelText("每秒逻辑帧")] 
+    private ushort tickPerSecond = 30;
 
-    private NetworkVariable<GameFlowState> currentState =
-        new(GameFlowState.None,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
+    [ReadOnly]
+    public NetworkVariable<GameFlowState> currentState =new(GameFlowState.None,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    private NetworkVariable<ulong> currentTick =
-        new(0,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
-
-    public NetworkVariable<bool> isSpawnHero = 
-        new(false, 
-            NetworkVariableReadPermission.Everyone, 
-            NetworkVariableWritePermission.Owner);
+    [ReadOnly]
+    public NetworkVariable<bool> isSpawnHero = new(false, 
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     private HashSet<ulong> readyClients = new();
 
-    private float serverTickTimer;
-    private ulong localExecutedTick;
+    private uint localTick;
+    private float localTickTimer;
     private bool isRunning;
+    private float serverTickTimer;
+    private float tickInterval;
 
+    [ReadOnly]// 服务器权威帧号
+    public NetworkVariable<uint> authoritativeTick = new(0, 
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    public uint CurrentLocalTick => localTick;
     public float ServerTickTimer => serverTickTimer;
-    public ulong LocalExecutedTick => localExecutedTick;
     public bool IsRunning => isRunning;
+    public float TickInterval => tickInterval;
+    public fp TickIntervalFP => (fp)tickInterval;
 
     protected override void Awake()
     {
@@ -68,8 +72,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         base.OnNetworkSpawn();
         StartCoroutine(LocalInitRoutine());
     }
-
-    #region Init 
 
     private IEnumerator LocalInitRoutine()
     {
@@ -112,10 +114,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         StartCoroutine(BeginPhaseRoutine());
     }
 
-    #endregion
-
-    #region Begin
-
     private IEnumerator BeginPhaseRoutine()
     {
         currentState.Value = GameFlowState.PreGame;
@@ -124,9 +122,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
             yield return m.Begin();
 
         yield return null;
-
-        currentTick.Value = 0;
-        localExecutedTick = 0;
 
         currentState.Value = GameFlowState.Running;
         isRunning = true;
@@ -137,8 +132,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         }
     }
 
-    #endregion
-
     #region Tick
 
     private void Update()
@@ -146,42 +139,82 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         if (!isRunning) return;
 
         if (IsServer)
+        {
             ServerTick();
+        }
 
-        ClientTickSync();
+        if (IsClient)
+        {
+            ClientTick();
+        }
     }
 
     private void ServerTick()
     {
-        if (currentState.Value != GameFlowState.Running)
-            return;
-
         serverTickTimer += Time.deltaTime;
-
         while (serverTickTimer >= tickInterval)
         {
             serverTickTimer -= tickInterval;
-            currentTick.Value++;
-            ExecuteTick(currentTick.Value);
+            authoritativeTick.Value++;
+            ExecuteTick(authoritativeTick.Value); // 服务器执行该帧
         }
     }
 
-    private void ClientTickSync()
+    private void ClientTick()
     {
-        if (currentState.Value != GameFlowState.Running)
-            return;
+        // 优化时钟同步算法
+        int tickDelta = (int)authoritativeTick.Value - (int)localTick;
 
-        while (localExecutedTick < currentTick.Value)
+        // 如果落后超过阈值，瞬移逻辑帧追赶
+        if (tickDelta > 10)
         {
-            localExecutedTick++;
-            ExecuteTick(localExecutedTick);
+            Debug.Log($"Client lagging behind. Jumping from {localTick} to {authoritativeTick.Value}");
+            while (localTick < authoritativeTick.Value)
+            {
+                localTick++;
+                ExecuteTick(localTick);
+            }
+            localTickTimer = 0;
+        }
+        else
+        {
+            // 正常推进
+            localTickTimer += Time.deltaTime;
+            if (localTickTimer >= tickInterval)
+            {
+                localTickTimer -= tickInterval;
+                localTick++;
+                ExecuteTick(localTick);
+            }
         }
     }
 
-    private void ExecuteTick(ulong tick)
+    private void ExecuteTick(uint tick)
     {
+        // 处理网络指令分发
+        FrameSyncCoreSystem.Instance?.Tick(tick);
+
+        // 驱动所有单位逻辑
         foreach (var m in manageds)
             m.Tick(tick);
+
+        // 客户端保存快照
+        if (IsClient)
+        {
+            RollbackSystem.Instance?.TakeSnapshot(tick);
+
+            // 收集并发送本地输入
+            LocalController.Local?.GenerateCommandsForTick(tick);
+
+            // 发送指令
+            var cmds = LocalController.Local?.FlushOutgoingCommands();
+            if (cmds != null && cmds.Count > 0)
+            {
+                // 通过 FrameSyncCoreSystem 发送 (原逻辑在 LocalController 里，建议移到这里统一管理)
+                // FrameSyncCoreSystem.Instance.SendCommands(cmds); 
+                // 注：需在 FrameSyncCoreSystem 增加公开的发送方法
+            }
+        }
     }
 
     #endregion
@@ -214,5 +247,4 @@ public interface IGameFlowManaged
     IEnumerator Begin();
     void Tick(ulong currentTick);
     IEnumerator Clean();
-    int GetStateHash();
 }

@@ -135,9 +135,4 @@ public sealed class RandomManager : MonoSingleton<RandomManager>, IGameFlowManag
     {
         return GetRandom(0f, 1f) < probability;
     }
-
-    public int GetStateHash()
-    {
-        return 0;
-    }
 }

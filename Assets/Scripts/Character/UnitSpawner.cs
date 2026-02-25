@@ -1,142 +1,152 @@
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.UOS.Matchmaking.Server.Model;
 using UnityEngine;
 using UnityEngine.Rendering;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
-public class UnitSpawner : MonoSingleton<UnitSpawner>, IGameFlowManaged
+public class UnitSpawner : MonoSingleton<UnitSpawner>, IGameFlowManaged, IGlobalCommandHandler
 {
     [SerializeField, LabelText("单位预制体表")]
     private SerializedDictionary<int, UnitCore> spawnableDict;
 
+    // 已生成单位的查找表
     private Dictionary<UnitUID, UnitCore> spawnedUnitTable = new();
 
-    private Queue<UnitSpawnRequest> spawnRequestQueue = new ();
-    private Queue<UnitDespawnRequest> despawnRequestQueue = new ();
+    // 对象池表
+    public Dictionary<int, UnityEngine.Pool.ObjectPool<UnitCore>> unitPoolTable = new();
 
-    public Dictionary<int, UnityEngine.Pool.ObjectPool<UnitCore>> unitPoolTabel = new();
+    // 每帧的序列号计数器（键为目标帧号）
+    private Dictionary<uint, byte> tickSequenceMap = new();
 
     public IEnumerator Init()
     {
-        if (spawnedUnitTable == null)
-            spawnedUnitTable = new();
-        if (spawnRequestQueue == null)
-            spawnRequestQueue = new();
-        if (despawnRequestQueue == null)
-            despawnRequestQueue = new();
-        if (unitPoolTabel == null)
-            unitPoolTabel = new();
-
+        spawnedUnitTable ??= new Dictionary<UnitUID, UnitCore>();
+        unitPoolTable ??= new Dictionary<int, UnityEngine.Pool.ObjectPool<UnitCore>>();
+        tickSequenceMap ??= new Dictionary<uint, byte>();
+        FrameSyncCoreSystem.Instance?.RegisterGlobalHandler(this);
         yield break;
     }
 
     public IEnumerator Begin()
     {
         spawnedUnitTable.Clear();
-        spawnRequestQueue.Clear();
-        despawnRequestQueue.Clear();
-        foreach (var pool in unitPoolTabel.Values)
-            pool.Clear();
-        unitPoolTabel.Clear();
-
+        unitPoolTable.Clear();
+        tickSequenceMap.Clear();
         yield break;
     }
 
     public IEnumerator Clean()
     {
+        foreach (var unit in spawnedUnitTable.Values)
+        {
+            if (unit != null)
+                Destroy(unit.gameObject);
+        }
         spawnedUnitTable.Clear();
-        spawnRequestQueue.Clear();
-        despawnRequestQueue.Clear();
-        foreach (var pool in unitPoolTabel.Values)
+        foreach (var pool in unitPoolTable.Values)
             pool.Clear();
-        unitPoolTabel.Clear();
-        spawnedUnitTable = null;
-        spawnRequestQueue = null;
-        despawnRequestQueue = null;
-        unitPoolTabel = null;
-
+        unitPoolTable.Clear();
+        tickSequenceMap.Clear();
         yield break;
     }
 
     public void Tick(ulong currentTick)
     {
-        if (spawnRequestQueue.Count > 0)
+        // 每帧开始时清理旧帧的序列号记录
+        var keysToRemove = new List<uint>();
+        foreach (var tick in tickSequenceMap.Keys)
         {
-            byte spawnSequence = 0;
-            while (spawnRequestQueue.Count > 0)
-            {
-                var request = spawnRequestQueue.Dequeue();
-                if (spawnableDict.TryGetValue(request.spawnableId, out var unitPrefab))
-                {
-                    UnitCore core = null;
-                    switch (request.mode)
-                    {
-                        case SpawnableMode.Default:
-                            core = Instantiate(unitPrefab);
-                            break;
-                        case SpawnableMode.Pool:
-                            if (!unitPoolTabel.TryGetValue(request.spawnableId, out var pool))
-                            {
-                                pool = CreateNewUnitPool(unitPrefab);
-                                unitPoolTabel.Add(request.spawnableId, pool);
-                            }
-                            core = pool.Get();
-                            break;
-                    }
+            if (tick < currentTick)
+                keysToRemove.Add(tick);
+        }
+        foreach (var tick in keysToRemove)
+            tickSequenceMap.Remove(tick);
+    }
 
-                    if (!core)
-                        continue;
-
-                    core.transform.position = request.spawnPos;
-                    core.transform.rotation = request.spawnRot;
-
-                    core.OnSpawn(new UnitUID(
-                        request.spawnableId, 
-                        currentTick, 
-                        request.assignedTeamId, 
-                        spawnSequence),  
-                        request.startLevel);
-
-                    spawnSequence++;
-
-                    spawnedUnitTable.Add(core.UnitID, core);
-                }
-            }
+    // 处理生成指令
+    public void HandleSpawnCommand(SpawnUnitCommand cmd)
+    {
+        if (!spawnableDict.TryGetValue(cmd.PrefabId, out var prefab))
+        {
+            Debug.LogError($"Spawn failed: prefabId {cmd.PrefabId} not found.");
+            return;
         }
 
-        if (despawnRequestQueue.Count > 0)
+        // 获取或创建该目标帧的序列号
+        if (!tickSequenceMap.TryGetValue(cmd.TargetTick, out byte seq))
+            seq = 0;
+
+        UnitCore core = null;
+        switch (cmd.Mode)
         {
-            while (despawnRequestQueue.Count > 0)
-            {
-                var request = despawnRequestQueue.Dequeue();
-                if (spawnedUnitTable.TryGetValue(request.despawnableId, out var unit))
+            case SpawnableMode.Default:
+                core = Instantiate(prefab);
+                break;
+            case SpawnableMode.Pool:
+                if (!unitPoolTable.TryGetValue(cmd.PrefabId, out var pool))
                 {
-                    unit?.OnDespawn();
-                    switch (request.mode)
-                    {
-                        case SpawnableMode.Default:
-                            Destroy(unit.gameObject);
-                            break;
-                        case SpawnableMode.Pool:
-                            if (!unitPoolTabel.TryGetValue(unit.PrefabId, out var pool))
-                            {
-                                Destroy(unit.gameObject);
-                                break;
-                            }
-                            pool.Release(unit);
-                            break;
-                    }
+                    pool = CreateNewUnitPool(prefab);
+                    unitPoolTable.Add(cmd.PrefabId, pool);
                 }
-                spawnedUnitTable.Remove(request.despawnableId);
-            }
+                core = pool.Get();
+                break;
         }
+
+        if (core == null)
+        {
+            Debug.LogError($"Failed to instantiate unit of prefabId {cmd.PrefabId}");
+            return;
+        }
+
+        core.transform.position = cmd.SpawnPosition;
+        core.transform.rotation = cmd.SpawnRotation;
+
+        // 生成唯一ID：帧号使用指令的目标帧，序列号使用当前计数
+        var uid = new UnitUID(cmd.PrefabId, cmd.TargetTick, cmd.TeamId, seq);
+        core.OnSpawn(uid, cmd.StartLevel);
+
+        // 注册指令接收器（如果单位实现了ICommandReceiver）
+        if (core is ICommandReceiver receiver)
+            FrameSyncCoreSystem.Instance.RegisterReceiver(receiver);
+
+        // 存入查找表
+        spawnedUnitTable[uid] = core;
+
+        // 更新该帧的序列号
+        tickSequenceMap[cmd.TargetTick] = (byte)(seq + 1);
+    }
+
+    // 处理销毁指令
+    public void HandleDespawnCommand(DespawnUnitCommand cmd)
+    {
+        if (!spawnedUnitTable.TryGetValue(cmd.UnitId, out var core))
+            return;
+
+        // 注销指令接收器
+        if (core is ICommandReceiver)
+            FrameSyncCoreSystem.Instance.UnregisterReceiver(cmd.UnitId);
+
+        core.OnDespawn();
+
+        switch (cmd.Mode)
+        {
+            case SpawnableMode.Default:
+                Destroy(core.gameObject);
+                break;
+            case SpawnableMode.Pool:
+                if (unitPoolTable.TryGetValue(core.PrefabId, out var pool))
+                    pool.Release(core);
+                else
+                    Destroy(core.gameObject);
+                break;
+        }
+
+        spawnedUnitTable.Remove(cmd.UnitId);
     }
 
     private UnityEngine.Pool.ObjectPool<UnitCore> CreateNewUnitPool(UnitCore prefab)
     {
-        return new(
+        return new UnityEngine.Pool.ObjectPool<UnitCore>(
             createFunc: () => Instantiate(prefab),
             actionOnGet: unit => unit.gameObject.SetActive(true),
             actionOnRelease: unit => unit.gameObject.SetActive(false),
@@ -147,55 +157,15 @@ public class UnitSpawner : MonoSingleton<UnitSpawner>, IGameFlowManaged
         );
     }
 
-    public void SendUnitSpawnRequest(
-        byte spawnableId, Vector3 spawnPos, Quaternion spawnRot,
-        byte assignedTeamId, int startLevel = 1, SpawnableMode mode = SpawnableMode.Default)
+    public bool CanHandle(CommandType type) =>
+        type == CommandType.SpawnUnit || type == CommandType.DespawnUnit;
+
+    public void HandleCommand(ICommand command)
     {
-        spawnRequestQueue.Enqueue(new UnitSpawnRequest(
-            spawnableId, spawnPos, spawnRot, assignedTeamId, startLevel, mode));
-    }
-
-    public void SendUnitDespawnRequest(UnitUID despawnableId, SpawnableMode mode = SpawnableMode.Default)
-    {
-        despawnRequestQueue.Enqueue(new UnitDespawnRequest(despawnableId, mode));
-    }
-
-    private struct UnitSpawnRequest
-    {
-        public readonly byte spawnableId;
-        public readonly Vector3 spawnPos;
-        public readonly Quaternion spawnRot;
-        public readonly int startLevel;
-        public readonly SpawnableMode mode;
-        public readonly byte assignedTeamId;
-
-        public UnitSpawnRequest(byte spawnableId, Vector3 spawnPos, Quaternion spawnRot,
-            byte assignedTeamId, int startLevel = 1, SpawnableMode mode = SpawnableMode.Default)
-        {
-            this.spawnableId = spawnableId;
-            this.spawnPos = spawnPos;
-            this.spawnRot = spawnRot;
-            this.startLevel = startLevel;
-            this.mode = mode;
-            this.assignedTeamId = assignedTeamId;
-        }
-    }
-
-    private struct UnitDespawnRequest
-    {
-        public readonly UnitUID despawnableId;
-        public readonly SpawnableMode mode;
-
-        public UnitDespawnRequest(UnitUID despawnableId, SpawnableMode mode = SpawnableMode.Default)
-        {
-            this.despawnableId = despawnableId;
-            this.mode = mode;
-        }
-    }
-
-    public int GetStateHash()
-    {
-        return 0;
+        if (command.Type == CommandType.SpawnUnit)
+            HandleSpawnCommand((SpawnUnitCommand)command);
+        else if (command.Type == CommandType.DespawnUnit)
+            HandleDespawnCommand((DespawnUnitCommand)command);
     }
 }
 

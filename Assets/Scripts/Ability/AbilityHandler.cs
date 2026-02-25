@@ -2,17 +2,9 @@ using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 
-public class AbilityHandler : MonoBehaviour
+public class AbilityHandler : UnitBaseHandler
 {
-    private UnitCore core;
-    public UnitCore Core => core;
-
     private readonly Dictionary<int, AbilityInfo> abilities = new();
-
-    private void Awake()
-    {
-        core ??= GetComponent<UnitCore>();
-    }
 
     public void AddAbility(AbilityData data)
     {
@@ -37,11 +29,23 @@ public class AbilityHandler : MonoBehaviour
             ability.OnCancel();
     }
 
-    public void Tick(fp deltaTime)
+    public override void Tick(fp deltaTime)
     {
         foreach (var ability in abilities.Values)
             ability.Tick(deltaTime);
     }
+
+    #region øÏ’’∫Õª÷∏¥
+    public override object CaptureHandlerState()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void RestoreHandlerState(object state)
+    {
+        throw new System.NotImplementedException();
+    }
+    #endregion
 }
 
 public struct AbilityCastContext

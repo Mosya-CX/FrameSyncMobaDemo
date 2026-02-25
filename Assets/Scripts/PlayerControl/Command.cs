@@ -11,44 +11,43 @@ public enum CommandType : byte
     AbilityPress,
     AbilityRelease,
     AbilityCancel,
-    PurchaseItem
+    PurchaseItem,
+    SpawnUnit,
+    DespawnUnit,
 }
 
 public interface ICommand
 {
     CommandType Type { get; }
     UnitUID ControlledUnitId { get; set; }
+    uint TargetTick { get; set; } 
 }
 
 public struct MoveCommand : ICommand, INetworkSerializable
 {
     public CommandType Type => CommandType.Move;
-
-    private UnitUID controlledUnitId;
-    public UnitUID ControlledUnitId
-    {
-        get => controlledUnitId;
-        set => controlledUnitId = value;
-    }
+    public UnitUID ControlledUnitId { get; set; }
+    public uint TargetTick { get; set; }
 
     public Vector3 TargetPosition;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        int prefabId = controlledUnitId.PrefabId;
-        ulong frame = controlledUnitId.Frame;
-        byte teamId = controlledUnitId.TeamId;
-        byte sequence = controlledUnitId.Sequence;
+        var targetTick = TargetTick;
+        serializer.SerializeValue(ref targetTick);
+        if (serializer.IsReader)
+            TargetTick = targetTick;
 
+        int prefabId = ControlledUnitId.PrefabId;
+        ulong frame = ControlledUnitId.Frame;
+        byte teamId = ControlledUnitId.TeamId;
+        byte sequence = ControlledUnitId.Sequence;
         serializer.SerializeValue(ref prefabId);
         serializer.SerializeValue(ref frame);
         serializer.SerializeValue(ref teamId);
         serializer.SerializeValue(ref sequence);
-
         if (serializer.IsReader)
-        {
-            controlledUnitId = new UnitUID(prefabId, frame, teamId, sequence);
-        }
+            ControlledUnitId = new UnitUID(prefabId, frame, teamId, sequence);
 
         serializer.SerializeValue(ref TargetPosition);
     }
@@ -57,28 +56,28 @@ public struct MoveCommand : ICommand, INetworkSerializable
 public struct AttackCommand : ICommand, INetworkSerializable
 {
     public CommandType Type => CommandType.Attack;
-
-    private UnitUID controlledUnitId;
-    public UnitUID ControlledUnitId
-    {
-        get => controlledUnitId;
-        set => controlledUnitId = value;
-    }
+    public UnitUID ControlledUnitId { get; set; }
+    public uint TargetTick { get; set; }
 
     public UnitUID TargetUnitId;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        int cprefab = controlledUnitId.PrefabId;
-        ulong cf = controlledUnitId.Frame;
-        byte ct = controlledUnitId.TeamId;
-        byte cs = controlledUnitId.Sequence;
+        var targetTick = TargetTick;
+        serializer.SerializeValue(ref targetTick);
+        if (serializer.IsReader)
+            TargetTick = targetTick;
+
+        int cprefab = ControlledUnitId.PrefabId;
+        ulong cf = ControlledUnitId.Frame;
+        byte ct = ControlledUnitId.TeamId;
+        byte cs = ControlledUnitId.Sequence;
         serializer.SerializeValue(ref cprefab);
         serializer.SerializeValue(ref cf);
         serializer.SerializeValue(ref ct);
         serializer.SerializeValue(ref cs);
         if (serializer.IsReader)
-            controlledUnitId = new UnitUID(cprefab, cf, ct, cs);
+            ControlledUnitId = new UnitUID(cprefab, cf, ct, cs);
 
         int tprefab = TargetUnitId.PrefabId;
         ulong tf = TargetUnitId.Frame;
@@ -95,61 +94,41 @@ public struct AttackCommand : ICommand, INetworkSerializable
 
 public struct AbilityCommand : ICommand, INetworkSerializable
 {
-    // ===== 实际数据 =====
+    public CommandType Type => CommandType;
+    public UnitUID ControlledUnitId { get; set; }
+    public uint TargetTick { get; set; }
 
-    public CommandType CommandType;
-
-    private UnitUID controlledUnitUid;
-
+    public CommandType CommandType;  // AbilityPress / AbilityRelease / AbilityCancel
     public int AbilityId;
-
     public bool HasTargetUnit;
     public UnitUID TargetUnit;
-
     public bool HasTargetPosition;
     public Vector3 TargetPosition;
 
-    // ===== 接口实现 =====
-
-    public CommandType Type => CommandType;
-
-    public UnitUID ControlledUnitId
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        get => controlledUnitUid;
-        set => controlledUnitUid = value;
-    }
+        var targetTick = TargetTick;
+        serializer.SerializeValue(ref targetTick);
+        if (serializer.IsReader)
+            TargetTick = targetTick;
 
-    public UnitUID ControlledUnitUID
-    {
-        get => controlledUnitUid;
-        set => controlledUnitUid = value;
-    }
-
-    // ===== 序列化 =====
-
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer)
-        where T : IReaderWriter
-    {
         byte type = (byte)CommandType;
         serializer.SerializeValue(ref type);
         if (serializer.IsReader)
             CommandType = (CommandType)type;
 
-        int cprefab = controlledUnitUid.PrefabId;
-        ulong cf = controlledUnitUid.Frame;
-        byte ct = controlledUnitUid.TeamId;
-        byte cs = controlledUnitUid.Sequence;
-
+        int cprefab = ControlledUnitId.PrefabId;
+        ulong cf = ControlledUnitId.Frame;
+        byte ct = ControlledUnitId.TeamId;
+        byte cs = ControlledUnitId.Sequence;
         serializer.SerializeValue(ref cprefab);
         serializer.SerializeValue(ref cf);
         serializer.SerializeValue(ref ct);
         serializer.SerializeValue(ref cs);
-
         if (serializer.IsReader)
-            controlledUnitUid = new UnitUID(cprefab, cf, ct, cs);
+            ControlledUnitId = new UnitUID(cprefab, cf, ct, cs);
 
         serializer.SerializeValue(ref AbilityId);
-
         serializer.SerializeValue(ref HasTargetUnit);
         if (HasTargetUnit)
         {
@@ -157,64 +136,123 @@ public struct AbilityCommand : ICommand, INetworkSerializable
             ulong tf = TargetUnit.Frame;
             byte tt = TargetUnit.TeamId;
             byte ts = TargetUnit.Sequence;
-
             serializer.SerializeValue(ref tprefab);
             serializer.SerializeValue(ref tf);
             serializer.SerializeValue(ref tt);
             serializer.SerializeValue(ref ts);
-
             if (serializer.IsReader)
                 TargetUnit = new UnitUID(tprefab, tf, tt, ts);
         }
-
         serializer.SerializeValue(ref HasTargetPosition);
         if (HasTargetPosition)
-        {
             serializer.SerializeValue(ref TargetPosition);
-        }
     }
 }
 
 public struct PurchaseItemCommand : ICommand, INetworkSerializable
 {
     public CommandType Type => CommandType.PurchaseItem;
-
-    private UnitUID controlledUnitId;
-    public UnitUID ControlledUnitId
-    {
-        get => controlledUnitId;
-        set => controlledUnitId = value;
-    }
-
+    public UnitUID ControlledUnitId { get; set; }
+    public uint TargetTick { get; set; }
     public int ItemId;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        // 分解 controlledUnitId
-        int prefab = controlledUnitId.PrefabId;
-        ulong frame = controlledUnitId.Frame;
-        byte team = controlledUnitId.TeamId;
-        byte seq = controlledUnitId.Sequence;
+        var targetTick = TargetTick;
+        serializer.SerializeValue(ref targetTick);
+        if (serializer.IsReader)
+            TargetTick = targetTick;
+
+        int prefab = ControlledUnitId.PrefabId;
+        ulong frame = ControlledUnitId.Frame;
+        byte team = ControlledUnitId.TeamId;
+        byte seq = ControlledUnitId.Sequence;
         serializer.SerializeValue(ref prefab);
         serializer.SerializeValue(ref frame);
         serializer.SerializeValue(ref team);
         serializer.SerializeValue(ref seq);
         if (serializer.IsReader)
-            controlledUnitId = new UnitUID(prefab, frame, team, seq);
-
+            ControlledUnitId = new UnitUID(prefab, frame, team, seq);
         serializer.SerializeValue(ref ItemId);
+    }
+}
+
+public struct SpawnUnitCommand : ICommand, INetworkSerializable
+{
+    public CommandType Type => CommandType.SpawnUnit;
+    public UnitUID ControlledUnitId { get; set; } 
+    public uint TargetTick { get; set; }
+
+    public int PrefabId;
+    public Vector3 SpawnPosition;
+    public Quaternion SpawnRotation;
+    public byte TeamId;
+    public int StartLevel;
+    public SpawnableMode Mode;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        var targetTick = TargetTick;
+        serializer.SerializeValue(ref targetTick);
+        if (serializer.IsReader)
+            TargetTick = targetTick;
+
+        serializer.SerializeValue(ref PrefabId);
+        serializer.SerializeValue(ref SpawnPosition);
+        serializer.SerializeValue(ref SpawnRotation);
+        serializer.SerializeValue(ref TeamId);
+        serializer.SerializeValue(ref StartLevel);
+        byte mode = (byte)Mode;
+        serializer.SerializeValue(ref mode);
+        if (serializer.IsReader)
+            Mode = (SpawnableMode)mode;
+    }
+}
+
+public struct DespawnUnitCommand : ICommand, INetworkSerializable
+{
+    public CommandType Type => CommandType.DespawnUnit;
+    public UnitUID ControlledUnitId { get; set; } 
+    public uint TargetTick { get; set; }
+
+    public UnitUID UnitId;          // 要销毁的单位ID
+    public SpawnableMode Mode;       // 销毁模式（直接销毁或回池）
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        var targetTick = TargetTick;
+        serializer.SerializeValue(ref targetTick);
+        if (serializer.IsReader)
+            TargetTick = targetTick;
+
+        // 序列化 UnitId 的四个字段
+        int prefab = UnitId.PrefabId;
+        ulong frame = UnitId.Frame;
+        byte team = UnitId.TeamId;
+        byte seq = UnitId.Sequence;
+        serializer.SerializeValue(ref prefab);
+        serializer.SerializeValue(ref frame);
+        serializer.SerializeValue(ref team);
+        serializer.SerializeValue(ref seq);
+        if (serializer.IsReader)
+            UnitId = new UnitUID(prefab, frame, team, seq);
+
+        byte mode = (byte)Mode;
+        serializer.SerializeValue(ref mode);
+        if (serializer.IsReader)
+            Mode = (SpawnableMode)mode;
     }
 }
 
 public static class CommandSerializer
 {
-    /// <summary> 将指令列表写入 FastBufferWriter </summary>
     public static void Serialize(FastBufferWriter writer, IList<ICommand> commands)
     {
         writer.WriteValueSafe(commands.Count);
         foreach (var cmd in commands)
         {
             writer.WriteValueSafe((byte)cmd.Type);
+            // 注意：每个指令序列化时内部会处理 TargetTick，不需要在此额外写
             switch (cmd.Type)
             {
                 case CommandType.Move:
@@ -231,6 +269,9 @@ public static class CommandSerializer
                 case CommandType.PurchaseItem:
                     writer.WriteNetworkSerializable((PurchaseItemCommand)cmd);
                     break;
+                case CommandType.SpawnUnit:
+                    writer.WriteNetworkSerializable((SpawnUnitCommand)cmd);
+                    break;
                 default:
                     Debug.LogError($"Unknown command type: {cmd.Type}");
                     break;
@@ -238,7 +279,6 @@ public static class CommandSerializer
         }
     }
 
-    /// <summary> 从 FastBufferReader 读取指令列表 </summary>
     public static List<ICommand> Deserialize(FastBufferReader reader)
     {
         reader.ReadValueSafe(out int count);
@@ -266,6 +306,10 @@ public static class CommandSerializer
                 case CommandType.PurchaseItem:
                     reader.ReadNetworkSerializable(out PurchaseItemCommand purchaseCmd);
                     list.Add(purchaseCmd);
+                    break;
+                case CommandType.SpawnUnit:
+                    reader.ReadNetworkSerializable(out SpawnUnitCommand spawnCmd);
+                    list.Add(spawnCmd);
                     break;
                 default:
                     Debug.LogError($"Unsupported command type: {type}");

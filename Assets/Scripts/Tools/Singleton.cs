@@ -10,12 +10,9 @@ public abstract class Singleton<T> where T : Singleton<T>, new()
             if (instance == null)
             {
                 instance = new T();
-                instance.Init();
             }
                 
             return instance;
         }
     }
-
-    protected abstract void Init();
 }
