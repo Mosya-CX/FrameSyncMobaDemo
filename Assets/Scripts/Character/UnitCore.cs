@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using Unity.Mathematics.FixedPoint;
 using System;
 
-public abstract class UnitCore : MonoBehaviour, IStateful
+public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
 {
     #region 基础信息
     [SerializeField, LabelText("预制体ID"), ReadOnly]
@@ -18,6 +18,8 @@ public abstract class UnitCore : MonoBehaviour, IStateful
     private byte teamId;
     public byte TeamID => teamId;
 
+    [SerializeField, LabelText("模型根节点")]
+    private Transform modelRoot;
     #endregion
 
     #region 单位状态
@@ -49,11 +51,13 @@ public abstract class UnitCore : MonoBehaviour, IStateful
 
     #region 行为数据
     [ShowInInspector, ReadOnly, LabelText("移动方向")]
-    protected fp2 moveDirection;
+    protected fp3 direction;
     protected PathFinder pathFinder;
     
-    protected fp3? destination;
+    protected fp3? currentDestination;
     protected UnitCore currentTarget;
+
+    private fp attackExcuteTimer;
     #endregion
 
     #region 行为限制
@@ -69,6 +73,9 @@ public abstract class UnitCore : MonoBehaviour, IStateful
     public Action<DamageInfo> OnGetDamage;
     public Action<DamageInfo> OnKill;
     public Action<DamageInfo> OnDeath;
+
+    public Action OnReachDestination;
+    public Action OnTrackCompleted;
     #endregion
 
     #region 额外功能
@@ -90,6 +97,7 @@ public abstract class UnitCore : MonoBehaviour, IStateful
 
     #endregion
 
+    #region 生命周期
     protected virtual void Awake()
     {
         handlers = GetComponents<UnitBaseHandler>();
@@ -109,12 +117,16 @@ public abstract class UnitCore : MonoBehaviour, IStateful
         level = startLevel;
         stats.Init(propertyConfig);
         stats.SetLevel(level);
+
+        RegisterRVOGenerator();
     }
 
     public virtual void OnDespawn()
     {
         stats.Clean();
         unitId = default;
+
+        UnregisterRVOGenerator();
     }
 
     private void LateUpdate()
@@ -122,13 +134,7 @@ public abstract class UnitCore : MonoBehaviour, IStateful
         SyncTransform();
     }
 
-    public void SyncTransform()
-    {
-        transform.position = new Vector3((float)logicPosition.x, (float)logicPosition.y, (float)logicPosition.z);
-        transform.rotation = new Quaternion(0, (float)logicRotation.x, 0, (float)logicRotation.y);
-    }
-
-    protected void Tick(fp dt)
+    public void Tick(fp dt)
     {
         buffHandler.Tick(dt);
         abilityHandler.Tick(dt);
@@ -137,28 +143,32 @@ public abstract class UnitCore : MonoBehaviour, IStateful
 
         switch (currentActionState)
         {
+            case UnitActionState.Idle:
+                OnIdleTick(dt);
+                break;
             case UnitActionState.Move:
-                UpdateMoveDirection(dt);
-                ApplyRotateByDir(moveDirection);
+                OnMoveTick(dt);   
                 break;
             case UnitActionState.Track:
-                UpdateMoveDirection(dt);
-                ApplyRotateByDir(moveDirection);
+                OnTrackTick(dt);
                 break;
             case UnitActionState.Attack:
-                var dir = (currentTarget.transform.position - transform.position).normalized;
-                ApplyRotateByDir(new fp2((fp)dir.x, (fp)dir.z));
+                OnAttackTick(dt);
                 break;
             case UnitActionState.Casting:
-                // 暂时什么都做不了
+                OnCastingTick(dt);
                 break;
         }
-        ApplyMove(dt);
     }
 
-    #region 状态切换
+    #endregion
+
+    #region 状态机部分
     protected void ChangeActionState(UnitActionState nextState)
     {
+        if (nextState == currentActionState) 
+            return;
+
         OnStateExit(currentActionState);
         OnStateEnter(nextState);
         currentActionState = nextState;
@@ -166,36 +176,192 @@ public abstract class UnitCore : MonoBehaviour, IStateful
 
     private void OnStateExit(UnitActionState current)
     {
-
+        switch (currentActionState)
+        {
+            case UnitActionState.Idle:
+                OnIdleExit();
+                break;
+            case UnitActionState.Move:
+                OnMoveExit();
+                break;
+            case UnitActionState.Track:
+                OnTrackExit();
+                break;
+            case UnitActionState.Attack:
+                OnAttackExit();
+                break;
+            case UnitActionState.Casting:
+                OnCastingExit();
+                break;
+        }
     }
 
     private void OnStateEnter(UnitActionState next)
+    {
+        switch (currentActionState)
+        {
+            case UnitActionState.Idle:
+                OnIdleEnter();
+                break;
+            case UnitActionState.Move:
+                OnMoveEnter();
+                break;
+            case UnitActionState.Track:
+                OnTrackEnter();
+                break;
+            case UnitActionState.Attack:
+                OnAttackEnter();
+                break;
+            case UnitActionState.Casting:
+                OnCastingEnter();
+                break;
+        }
+    }
+
+    #region Idle
+    protected virtual void OnIdleEnter()
+    {
+
+    }
+    protected virtual void OnIdleTick(fp dt)
+    {
+
+    }
+    protected virtual void OnIdleExit()
     {
 
     }
     #endregion
 
-    #region 寻路
-    private void UpdateMoveDirection(fp dt)
+    #region Move
+    protected virtual void OnMoveEnter()
     {
-        // TODO通过PathFind更新moveDirection
-        // 根据当前状态选择不同的寻路方式
+
+    }
+    protected virtual void OnMoveTick(fp dt)
+    {
+        if (!currentDestination.HasValue)
+        {
+            ChangeActionState(UnitActionState.Idle);
+            return;
+        }
+        if (IsReach(currentDestination.Value, 0.01m))
+        {
+            OnReachDestination?.Invoke();
+            currentDestination = null;
+            ChangeActionState(UnitActionState.Idle);
+            return;
+        }
+
+        ApplyRotateByDir();
+    }
+    protected virtual void OnMoveExit()
+    {
         
     }
+    #endregion
 
-    public void ApplyRotateByDir(fp2 xzDir)
+    #region Track
+    protected virtual void OnTrackEnter()
     {
-        if (lockRotateion)
-            return;
 
-        var rot = TurnXZDirectionToRotation(xzDir);
-        logicRotation = new fp2(rot.y, rot.w);
+    }
+    protected virtual void OnTrackTick(fp dt)
+    {
+        if (currentTarget == null)
+        {
+            ChangeActionState(UnitActionState.Idle);
+            return;
+        }
+        if (IsReach(currentTarget.logicPosition, stats.RealAttackDistance))
+        {
+            OnTrackCompleted?.Invoke();
+            ChangeActionState(UnitActionState.Attack);
+            return;
+        }
+
+        ApplyRotateByDir();
     }
 
-    public void ApplyMove(fp dt)
+    protected virtual void OnTrackExit()
+    {
+        
+    }
+    #endregion
+    
+    #region Attack
+    protected virtual void OnAttackEnter()
+    {
+        attackExcuteTimer = 0;
+    }
+
+    protected virtual void OnAttackTick(fp dt)
+    {
+        if (currentTarget == null)
+        {
+            ChangeActionState(UnitActionState.Idle);
+            return;
+        }
+        if (IsReach(currentTarget.logicPosition, 0.1m))
+        {
+            ChangeActionState(UnitActionState.Track);
+            return;
+        }
+
+        direction = fpmath.normalize(currentTarget.logicPosition - logicPosition);
+        ApplyRotateByDir();
+
+        attackExcuteTimer += dt;
+        if (attackExcuteTimer > stats.AttackInterval)
+        {
+            ExcuteAttack();
+            attackExcuteTimer -= stats.AttackInterval;
+        }
+    }
+
+    protected virtual void OnAttackExit()
+    {
+
+    }
+    #endregion
+
+    #region Casting
+    protected virtual void OnCastingEnter()
+    {
+
+    }
+    protected virtual void OnCastingTick(fp dt)
+    {
+
+    }
+    protected virtual void OnCastingExit()
+    {
+
+    }
+    #endregion
+
+    #endregion
+
+    #region 寻路
+
+    protected bool IsReach(fp3? targetDestination, fp reachThshold)
+    {
+        if (!targetDestination.HasValue) return true;
+        return fpmath.distance(logicPosition, targetDestination.Value) < reachThshold;
+    }
+
+    public abstract void UpdateAStarPath();
+    public abstract void UpdateMoveDirection();
+
+    public void ApplyMove(fp dt, fp3 modifier)
     {
         if (lockMove) 
             return;
+
+        if (currentActionState != UnitActionState.Move && currentActionState != UnitActionState.Track)
+            return;
+
+        var moveDirection = fpmath.normalize(direction + modifier);
 
         logicPosition += dt * new fp3(moveDirection.x, 0, moveDirection.y) * stats.RealMoveSpeed;
     }
@@ -286,17 +452,51 @@ public abstract class UnitCore : MonoBehaviour, IStateful
     public fp MagicReduction => stats.MagicDamageReduction;
     #endregion
 
-    private fp4 TurnXZDirectionToRotation(fp2 dirXZ)
+    #region IDynamicObstacle接口实现
+    public fp3 ObstaclePosition => logicPosition;
+
+    public fp3 ObstacleDirection => direction;
+
+    public fp3 ObstacleSpeed => stats.RealMoveSpeed;
+
+    public IDynamicObstacle Ingore => currentTarget;
+
+    fp3 IDynamicObstacle.ObstaclePosition => throw new NotImplementedException();
+
+    fp3 IDynamicObstacle.ObstacleDirection => throw new NotImplementedException();
+
+    fp3 IDynamicObstacle.ObstacleSpeed => throw new NotImplementedException();
+
+    IDynamicObstacle IDynamicObstacle.Ingore => throw new NotImplementedException();
+
+    public void RegisterRVOGenerator() => RVOGenerator.Instance.Register(this);
+
+    public void UnregisterRVOGenerator() => RVOGenerator.Instance.Unregister(this);
+
+    #endregion
+
+    public void SyncTransform()
     {
-        fp angle = fpmath.atan2(dirXZ.x, dirXZ.y); 
+        transform.position = new Vector3((float)logicPosition.x, (float)logicPosition.y, (float)logicPosition.z);
+        modelRoot.rotation = new Quaternion(0, (float)logicRotation.x, 0, (float)logicRotation.y);
+    }
+
+    public void ApplyRotateByDir()
+    {
+        if (lockRotateion)
+            return;
+        fp angle = fpmath.atan2(direction.x, direction.z);
 
         // 绕 Y 轴旋转的四元数 (0, sin(θ/2), 0, cos(θ/2))
         fp halfAngle = angle / 2;
         fp sinHalf = fpmath.sin(halfAngle);
         fp cosHalf = fpmath.cos(halfAngle);
 
-        return new fp4(0, sinHalf, 0, cosHalf);
+        var rot = new fp4(0, sinHalf, 0, cosHalf);
+        logicRotation = new fp2(rot.y, rot.w);
     }
+
+
 }
 
 public readonly struct UnitUID : IEquatable<UnitUID>, IComparable<UnitUID>

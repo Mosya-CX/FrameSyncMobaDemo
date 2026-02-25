@@ -11,6 +11,7 @@ public class UnitSpawner : MonoSingleton<UnitSpawner>, IGameFlowManaged, IGlobal
 
     // 已生成单位的查找表
     private Dictionary<UnitUID, UnitCore> spawnedUnitTable = new();
+    public IReadOnlyDictionary<UnitUID, UnitCore> Spawns => spawnedUnitTable;
 
     // 对象池表
     public Dictionary<int, UnityEngine.Pool.ObjectPool<UnitCore>> unitPoolTable = new();

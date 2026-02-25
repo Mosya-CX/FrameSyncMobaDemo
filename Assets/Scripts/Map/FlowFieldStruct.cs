@@ -59,7 +59,7 @@ namespace FlowField
     [System.Serializable]
     public struct CostCell
     {
-        /// <summary>基础代价（离线构建时计算）</summary>
+        /// <summary>基础代价</summary>
         public int baseCost;
         
         /// <summary>是否可通行</summary>
@@ -73,7 +73,7 @@ namespace FlowField
     }
 
     /// <summary>
-    /// 价值场数据（可序列化）
+    /// 价值场数据
     /// 存储每个格子的基础代价和可通行性
     /// </summary>
     [System.Serializable]

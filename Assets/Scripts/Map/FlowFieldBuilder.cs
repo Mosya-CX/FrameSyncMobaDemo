@@ -14,165 +14,113 @@ namespace FlowField
     {
         #region 地图基础配置
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("地图基础配置")]
         [LabelText("地图中心点")]
         [InfoBox("地图网格将以该Transform为中心生成", InfoMessageType.Info)]
         [Required("请设置地图中心点Transform")]
-#endif
         public Transform mapCenter;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("地图基础配置")]
         [LabelText("网格大小")]
-#endif
         public float gridSize = 1f;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("地图基础配置")]
         [LabelText("地图宽度(X方向格子数)")]
         [MinValue(1)]
-#endif
         public int mapSizeX = 50;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("地图基础配置")]
         [LabelText("地图深度(Z方向格子数)")]
         [MinValue(1)]
-#endif
         public int mapSizeZ = 50;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("地图基础配置")]
         [LabelText("障碍物父物体")]
         [InfoBox("将自动检测该物体下所有标记为Obstacle的子物体", InfoMessageType.Info)]
-#endif
         public Transform obstaclesParent;
 
         #endregion
 
         #region 流场生成配置
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场生成配置")]
         [LabelText("障碍物影响半径")]
         [Range(0f, 2f)]
-#endif
         public float obstacleInfluenceRadius = 0.3f;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场生成配置")]
         [LabelText("走廊惩罚系数")]
         [InfoBox("距离兵线每增加1格的额外代价，值越大越贴近兵线")]
         [Range(1, 30)]
-#endif
         public int corridorPenaltyPerCell = 8;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场生成配置")]
         [LabelText("方向平滑迭代次数")]
         [Range(0, 5)]
-#endif
         public int directionSmoothingIterations = 2;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场生成配置")]
         [LabelText("障碍物边缘平滑强度")]
         [Range(0f, 1f)]
-#endif
         public float obstacleEdgeSmoothStrength = 0.8f;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场生成配置")]
         [LabelText("启用障碍物边缘对齐")]
-#endif
         public bool enableObstacleEdgeAlignment = true;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场生成配置")]
         [LabelText("路径融合权重")]
         [Range(0f, 1f)]
-#endif
         public float pathMergeWeight = 0.5f;
 
         #endregion
 
         #region 兵线关键点配置
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("蓝队兵线配置")]
         [LabelText("上路")]
-#endif
         public LanePathConfig blueLane1 = new LanePathConfig { pathName = "蓝队上路", pathColor = new Color(0.3f, 0.3f, 1f) };
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("蓝队兵线配置")]
         [LabelText("中路")]
-#endif
         public LanePathConfig blueLane2 = new LanePathConfig { pathName = "蓝队中路", pathColor = new Color(0.4f, 0.4f, 1f) };
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("蓝队兵线配置")]
         [LabelText("下路")]
-#endif
         public LanePathConfig blueLane3 = new LanePathConfig { pathName = "蓝队下路", pathColor = new Color(0.5f, 0.5f, 1f) };
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("红队兵线配置")]
         [LabelText("上路")]
-#endif
         public LanePathConfig redLane1 = new LanePathConfig { pathName = "红队上路", pathColor = new Color(1f, 0.3f, 0.3f) };
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("红队兵线配置")]
         [LabelText("中路")]
-#endif
         public LanePathConfig redLane2 = new LanePathConfig { pathName = "红队中路", pathColor = new Color(1f, 0.4f, 0.4f) };
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("红队兵线配置")]
         [LabelText("下路")]
-#endif
         public LanePathConfig redLane3 = new LanePathConfig { pathName = "红队下路", pathColor = new Color(1f, 0.5f, 0.5f) };
 
         #endregion
 
         #region 序列化数据
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("构建结果数据")]
         [LabelText("基础价值场")]
         [ReadOnly]
-#endif
         [SerializeField] private CostFieldData baseCostField = new CostFieldData();
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("构建结果数据")]
         [LabelText("蓝队价值场")]
         [ReadOnly]
-#endif
         [SerializeField] private CostFieldData blueTeamCostField = new CostFieldData();
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("构建结果数据")]
         [LabelText("红队价值场")]
         [ReadOnly]
-#endif
         [SerializeField] private CostFieldData redTeamCostField = new CostFieldData();
 
-#if ODIN_INSPECTOR
-        [FoldoutGroup("构建结果数据")]
-        [LabelText("蓝队方向场")]
-        [ReadOnly]
-#endif
-        [SerializeField] private DirectionFieldData blueTeamDirectionField = new DirectionFieldData();
-
-#if ODIN_INSPECTOR
-        [FoldoutGroup("构建结果数据")]
-        [LabelText("红队方向场")]
-        [ReadOnly]
-#endif
-        [SerializeField] private DirectionFieldData redTeamDirectionField = new DirectionFieldData();
+        // 注意：方向场字段已移除，方向不再存储，可视化时动态计算
 
         #endregion
 
@@ -181,8 +129,6 @@ namespace FlowField
         public CostFieldData BaseCostField => baseCostField;
         public CostFieldData BlueTeamCostField => blueTeamCostField;
         public CostFieldData RedTeamCostField => redTeamCostField;
-        public DirectionFieldData BlueTeamDirectionField => blueTeamDirectionField;
-        public DirectionFieldData RedTeamDirectionField => redTeamDirectionField;
 
         /// <summary>地图中心世界坐标</summary>
         public Vector3 MapCenterPosition => mapCenter != null ? mapCenter.position : Vector3.zero;
@@ -199,8 +145,6 @@ namespace FlowField
             baseCostField.Initialize(sizeX, sizeZ);
             blueTeamCostField.Initialize(sizeX, sizeZ);
             redTeamCostField.Initialize(sizeX, sizeZ);
-            blueTeamDirectionField.Initialize(sizeX, sizeZ);
-            redTeamDirectionField.Initialize(sizeX, sizeZ);
         }
 
         public void EnsureInitialized()
@@ -256,40 +200,35 @@ namespace FlowField
         public void SetBlueTeamCell(int x, int z, CostCell cell) => blueTeamCostField.SetCell(x, z, cell);
         public void SetRedTeamCell(int x, int z, CostCell cell) => redTeamCostField.SetCell(x, z, cell);
 
-        public Vector3 GetBlueTeamDirection(int x, int z) => blueTeamDirectionField.GetDirection(x, z);
-        public Vector3 GetRedTeamDirection(int x, int z) => redTeamDirectionField.GetDirection(x, z);
-
         #endregion
 
         #region 构建方法
 
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.Button("构建流场数据", Sirenix.OdinInspector.ButtonSizes.Large)]
-        [Sirenix.OdinInspector.GUIColor(0.4f, 0.8f, 0.4f)]
-        [Sirenix.OdinInspector.PropertyOrder(-1)]
-#endif
+        [Button("构建流场数据", ButtonSizes.Large)]
+        [GUIColor(0.4f, 0.8f, 0.4f)]
+        [PropertyOrder(-1)]
         public void BuildFlowField()
         {
             EnsureInitialized();
 
             // 收集障碍物
-            var obstacleBounds = CollectObstacles();
+            var obstacleColliders = CollectObstacles();
 
             // 构建基础价值场
-            BuildBaseCostField(obstacleBounds);
+            BuildBaseCostField(obstacleColliders);
 
-            // 构建队伍价值场和方向场
-            BuildTeamFlowField(blueTeamCostField, blueTeamDirectionField, blueLane1, blueLane2, blueLane3);
-            BuildTeamFlowField(redTeamCostField, redTeamDirectionField, redLane1, redLane2, redLane3);
+            // 构建队伍价值场
+            BuildTeamCostField(blueTeamCostField, blueLane1, blueLane2, blueLane3);
+            BuildTeamCostField(redTeamCostField, redLane1, redLane2, redLane3);
 
-            // 输出统计信息以便调试
+            // 输出统计信息
 #if UNITY_EDITOR
             Debug.Log(GetCostFieldStats(blueTeamCostField, "蓝队"));
             Debug.Log(GetCostFieldStats(redTeamCostField, "红队"));
 
             UnityEditor.EditorUtility.SetDirty(this);
             UnityEditor.AssetDatabase.SaveAssets();
-            Debug.Log($"流场构建完成！地图尺寸: {mapSizeX}x{mapSizeZ}, 障碍物: {obstacleBounds.Count}");
+            Debug.Log($"流场构建完成！地图尺寸: {mapSizeX}x{mapSizeZ}, 障碍物: {obstacleColliders.Count}");
 #endif
         }
 
@@ -376,8 +315,8 @@ namespace FlowField
             }
         }
 
-        /// <summary>构建队伍流场（价值场 + 方向场）</summary>
-        private void BuildTeamFlowField(CostFieldData costField, DirectionFieldData directionField,
+        /// <summary>构建队伍价值场（不再包含方向场计算）</summary>
+        private void BuildTeamCostField(CostFieldData costField,
             LanePathConfig lane1, LanePathConfig lane2, LanePathConfig lane3)
         {
             // 初始化价值场
@@ -425,16 +364,6 @@ namespace FlowField
 
             // 融合多条兵线的价值场
             MergeLaneCostFields(costField, laneCostFields, laneGridPaths);
-
-            // 计算方向场
-            CalculateDirectionField(costField, directionField);
-
-            // 障碍物边缘对齐
-            if (enableObstacleEdgeAlignment)
-                AlignDirectionNearObstacles(directionField, costField, laneGridPaths);
-
-            // 平滑方向场
-            SmoothDirectionField(directionField, costField, directionSmoothingIterations);
         }
 
         /// <summary>构建单条兵线的价值场</summary>
@@ -635,182 +564,6 @@ namespace FlowField
                     }
 
                     result.SetCell(x, z, new CostCell(cost, true));
-                }
-            }
-        }
-
-        /// <summary>计算方向场</summary>
-        private void CalculateDirectionField(CostFieldData costField, DirectionFieldData directionField)
-        {
-            for (int x = 0; x < mapSizeX; x++)
-            {
-                for (int z = 0; z < mapSizeZ; z++)
-                {
-                    var cell = costField.GetCell(x, z);
-                    if (!cell.canMove || cell.baseCost <= 0 || cell.baseCost >= int.MaxValue)
-                    {
-                        directionField.SetDirection(x, z, Vector3.zero);
-                        continue;
-                    }
-
-                    int lowest = cell.baseCost;
-                    Vector3 bestDir = Vector3.zero;
-
-                    for (int dx = -1; dx <= 1; dx++)
-                    {
-                        for (int dz = -1; dz <= 1; dz++)
-                        {
-                            if (dx == 0 && dz == 0) continue;
-                            int nx = x + dx, nz = z + dz;
-                            if (!IsValidCoord(nx, nz)) continue;
-
-                            var neighbor = costField.GetCell(nx, nz);
-                            if (!neighbor.canMove || neighbor.baseCost < 0 || neighbor.baseCost >= int.MaxValue) continue;
-
-                            if (neighbor.baseCost < lowest)
-                            {
-                                lowest = neighbor.baseCost;
-                                bestDir = new Vector3(dx, 0, dz).normalized;
-                            }
-                        }
-                    }
-                    directionField.SetDirection(x, z, bestDir);
-                }
-            }
-        }
-
-        /// <summary>障碍物边缘方向对齐</summary>
-        private void AlignDirectionNearObstacles(DirectionFieldData directionField, CostFieldData costField, List<List<Vector2Int>> lanePaths)
-        {
-            var adjustments = new List<(int x, int z, Vector3 newDir)>();
-
-            for (int x = 0; x < mapSizeX; x++)
-            {
-                for (int z = 0; z < mapSizeZ; z++)
-                {
-                    var cell = costField.GetCell(x, z);
-                    if (!cell.canMove) continue;
-
-                    Vector3 obstacleNormal = Vector3.zero;
-                    int obstacleCount = 0;
-
-                    for (int dx = -1; dx <= 1; dx++)
-                    {
-                        for (int dz = -1; dz <= 1; dz++)
-                        {
-                            if (dx == 0 && dz == 0) continue;
-                            int nx = x + dx, nz = z + dz;
-                            if (!IsValidCoord(nx, nz)) continue;
-
-                            var neighbor = costField.GetCell(nx, nz);
-                            if (!neighbor.canMove)
-                            {
-                                obstacleNormal += new Vector3(dx, 0, dz);
-                                obstacleCount++;
-                            }
-                        }
-                    }
-
-                    if (obstacleCount > 0)
-                    {
-                        obstacleNormal.Normalize();
-                        var parallelDir = Vector3.Cross(Vector3.up, obstacleNormal).normalized;
-                        var laneDir = GetLaneDirectionAt(new Vector2Int(x, z), lanePaths);
-
-                        if (Vector3.Dot(parallelDir, laneDir) < 0)
-                            parallelDir = -parallelDir;
-
-                        var currentDir = directionField.GetDirection(x, z);
-                        var blendedDir = Vector3.Lerp(currentDir, parallelDir, obstacleEdgeSmoothStrength);
-
-                        if (blendedDir.sqrMagnitude > 0.01f)
-                            adjustments.Add((x, z, blendedDir.normalized));
-                    }
-                }
-            }
-
-            foreach (var adj in adjustments)
-                directionField.SetDirection(adj.x, adj.z, adj.newDir);
-        }
-
-        /// <summary>获取指定位置的兵线方向</summary>
-        private Vector3 GetLaneDirectionAt(Vector2Int pos, List<List<Vector2Int>> lanePaths)
-        {
-            Vector3 bestDir = Vector3.forward;
-            float minDist = float.PositiveInfinity;
-
-            foreach (var path in lanePaths)
-            {
-                if (path.Count < 2) continue;
-
-                for (int i = 0; i < path.Count - 1; i++)
-                {
-                    var a = new Vector2(path[i].x, path[i].y);
-                    var b = new Vector2(path[i + 1].x, path[i + 1].y);
-                    var p = new Vector2(pos.x, pos.y);
-
-                    var ab = b - a;
-                    float t = Vector2.Dot(p - a, ab) / (ab.sqrMagnitude + 1e-6f);
-                    t = Mathf.Clamp01(t);
-                    var proj = a + t * ab;
-                    float d = Vector2.Distance(p, proj);
-
-                    if (d < minDist)
-                    {
-                        minDist = d;
-                        var dir = new Vector3(ab.x, 0, ab.y).normalized;
-                        if (dir.sqrMagnitude > 0.01f) bestDir = dir;
-                    }
-                }
-            }
-            return bestDir;
-        }
-
-        /// <summary>平滑方向场</summary>
-        private void SmoothDirectionField(DirectionFieldData directionField, CostFieldData costField, int iterations)
-        {
-            for (int iter = 0; iter < iterations; iter++)
-            {
-                var tempDirs = new Vector3[mapSizeX, mapSizeZ];
-
-                for (int x = 0; x < mapSizeX; x++)
-                    for (int z = 0; z < mapSizeZ; z++)
-                        tempDirs[x, z] = directionField.GetDirection(x, z);
-
-                for (int x = 0; x < mapSizeX; x++)
-                {
-                    for (int z = 0; z < mapSizeZ; z++)
-                    {
-                        var cell = costField.GetCell(x, z);
-                        if (!cell.canMove) continue;
-
-                        var avgDir = tempDirs[x, z];
-                        float totalWeight = 1f;
-
-                        for (int dx = -1; dx <= 1; dx++)
-                        {
-                            for (int dz = -1; dz <= 1; dz++)
-                            {
-                                if (dx == 0 && dz == 0) continue;
-                                int nx = x + dx, nz = z + dz;
-                                if (!IsValidCoord(nx, nz)) continue;
-
-                                var neighbor = costField.GetCell(nx, nz);
-                                if (!neighbor.canMove) continue;
-
-                                var neighborDir = tempDirs[nx, nz];
-                                if (neighborDir.sqrMagnitude > 0.01f)
-                                {
-                                    float weight = (dx != 0 && dz != 0) ? 0.7f : 1f;
-                                    avgDir += neighborDir * weight;
-                                    totalWeight += weight;
-                                }
-                            }
-                        }
-
-                        if (totalWeight > 1f && avgDir.sqrMagnitude > 0.01f)
-                            directionField.SetDirection(x, z, (avgDir / totalWeight).normalized);
-                    }
                 }
             }
         }

@@ -224,8 +224,11 @@ public class UnitStats
     public fp PhysicalDamageReduction { get; private set; }
     public fp MagicDamageReduction { get; private set; }
     public fp RealMoveSpeed {  get; private set; }
+    public fp RealAttackDistance { get; private set; }
+    public fp AttackInterval { get; private set; }
 
     // 基准常熟
+    private fp REAL_ATTACK_DISTANCE_AMP => 0.006m;
     private fp REAL_MOVE_SPEED_AMP => 0.017m;
     private fp ARMOR_BASE => 100;
     private fp MAGIC_RESIST_BASE => 100;
@@ -352,12 +355,16 @@ public class UnitStats
     private void RecalculateDerived()
     {
         fp armor = Get(UnitStatType.Armor);
-        fp mr = Get(UnitStatType.MagicResist);
-        fp ms = Get(UnitStatType.MoveSpeed);
+        fp magicResist = Get(UnitStatType.MagicResist);
+        fp moveSpeed = Get(UnitStatType.MoveSpeed);
+        fp attackRange = Get(UnitStatType.AttackRange);
+        fp attackSpeed = Get(UnitStatType.AttackSpeed);
 
         PhysicalDamageReduction = armor / (ARMOR_BASE + armor);
-        MagicDamageReduction = mr / (MAGIC_RESIST_BASE + mr);
-        RealMoveSpeed = REAL_MOVE_SPEED_AMP * ms;
+        MagicDamageReduction = magicResist / (MAGIC_RESIST_BASE + magicResist);
+        RealMoveSpeed = REAL_MOVE_SPEED_AMP * moveSpeed;
+        RealAttackDistance = REAL_ATTACK_DISTANCE_AMP * attackRange;
+        AttackInterval = 1m / attackSpeed;
     }
 
     public void Clean()

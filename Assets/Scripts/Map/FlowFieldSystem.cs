@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Sirenix.OdinInspector;
+using System;
 
 namespace FlowField
 {
@@ -14,94 +15,83 @@ namespace FlowField
     {
         #region 配置
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场配置")]
         [LabelText("流场构建器")]
         [Required("请设置流场构建器")]
-        [InfoBox("流场构建器包含预计算的价值场和方向场数据", Sirenix.OdinInspector.InfoMessageType.Info)]
-#endif
+        [InfoBox("流场构建器包含预计算的价值场数据", InfoMessageType.Info)]
         public FlowFieldBuilder flowFieldBuilder;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("流场配置")]
         [LabelText("自动初始化")]
-#endif
         public bool autoInitialize = true;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("运行时设置")]
         [LabelText("使用插值获取方向")]
-#endif
         public bool useInterpolation = true;
 
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.FoldoutGroup("运行时设置")]
-        [Sirenix.OdinInspector.LabelText("方向平滑迭代次数")]
+        [FoldoutGroup("运行时设置")]
+        [LabelText("方向平滑迭代次数")]
         [Range(0, 5)]
-#endif
         public int directionSmoothingIterations = 1;
 
         #endregion
 
         #region 可视化配置
+#if UNITY_EDITOR
 
-#if ODIN_INSPECTOR
+        /// <summary>当前要显示的队伍</summary>
+        [FoldoutGroup("可视化配置")]
+        [LabelText("显示队伍")]
+        [Tooltip("选择要查看蓝队还是红队的数据")]
+        public ViewTeam viewTeam = ViewTeam.Blue;
+
+        /// <summary>当前显示模式</summary>
+        [FoldoutGroup("可视化配置")]
+        [LabelText("显示模式")]
+        [Tooltip("选择流场的可视化模式")]
+        public DisplayMode displayMode = DisplayMode.None;
+
         [FoldoutGroup("可视化配置")]
         [LabelText("显示网格")]
-#endif
         public bool showGrid = true;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("可视化配置")]
         [LabelText("显示障碍物")]
-#endif
         public bool showObstacles = true;
 
-#if ODIN_INSPECTOR
-        [FoldoutGroup("可视化配置")]
-        [LabelText("显示兵线路径")]
-#endif
-        public bool showLanePaths = true;
-
-#if ODIN_INSPECTOR
-        [FoldoutGroup("可视化配置")]
-        [LabelText("显示蓝队流场")]
-#endif
-        public bool showBlueTeamFlow = true;
-
-#if ODIN_INSPECTOR
-        [FoldoutGroup("可视化配置")]
-        [LabelText("显示红队流场")]
-#endif
-        public bool showRedTeamFlow = false;
-
-#if ODIN_INSPECTOR
-        [FoldoutGroup("可视化配置")]
-        [LabelText("显示价值场热力图")]
-#endif
-        public bool showCostHeatmap = false;
-
-#if ODIN_INSPECTOR
         [FoldoutGroup("可视化配置")]
         [LabelText("向量缩放")]
         [Range(0.1f, 2f)]
-#endif
         public float vectorScale = 0.5f;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("可视化配置")]
         [LabelText("流场采样间隔")]
         [Range(1, 5)]
-#endif
         public int flowSampleInterval = 2;
 
-#if ODIN_INSPECTOR
         [FoldoutGroup("可视化配置")]
         [LabelText("关键点大小")]
         [Range(0.1f, 1f)]
-#endif
         public float waypointSize = 0.3f;
 
+        /// <summary>当前要显示的队伍</summary>
+        public enum ViewTeam
+        {
+            Blue,
+            Red
+        }
+
+        /// <summary>当前显示模式</summary>
+        public enum DisplayMode
+        {
+            None,           // 不显示流场
+            VectorField,    // 显示矢量场
+            Heatmap         // 显示热力图
+        }
+
+        [NonSerialized] private DirectionFieldData previewBlueDirectionField;
+        [NonSerialized] private DirectionFieldData previewRedDirectionField;
+#endif
         #endregion
 
         #region 运行时数据
@@ -126,11 +116,9 @@ namespace FlowField
             if (autoInitialize) Initialize();
         }
 
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.Button("初始化系统", Sirenix.OdinInspector.ButtonSizes.Medium)]
-        [Sirenix.OdinInspector.GUIColor(0.4f, 0.8f, 0.4f)]
-        [Sirenix.OdinInspector.PropertyOrder(-1)]
-#endif
+        [Button("初始化系统", ButtonSizes.Medium)]
+        [GUIColor(0.4f, 0.8f, 0.4f)]
+        [PropertyOrder(-1)]
         public void Initialize()
         {
             if (flowFieldBuilder == null)
@@ -160,22 +148,19 @@ namespace FlowField
             int sizeZ = flowFieldBuilder.mapSizeZ;
 
             var costField = isBlueTeam ? flowFieldBuilder.BlueTeamCostField : flowFieldBuilder.RedTeamCostField;
-            var dirField = isBlueTeam ? flowFieldBuilder.BlueTeamDirectionField : flowFieldBuilder.RedTeamDirectionField;
 
             for (int x = 0; x < sizeX; x++)
             {
                 for (int z = 0; z < sizeZ; z++)
                 {
                     var costCell = costField.GetCell(x, z);
-                    var direction = dirField.GetDirection(x, z);
-                    runtimeField[x, z] = new FlowFieldCell(costCell.baseCost, costCell.canMove) { direction = direction };
+                    // 初始方向为零，需要时通过 CalculateDirectionField 计算
+                    runtimeField[x, z] = new FlowFieldCell(costCell.baseCost, costCell.canMove);
                 }
             }
         }
 
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.Button("重置运行时数据", Sirenix.OdinInspector.ButtonSizes.Small)]
-#endif
+        [Button("重置运行时数据", ButtonSizes.Small)]
         public void ResetRuntimeData()
         {
             if (!isInitialized) return;
@@ -190,9 +175,7 @@ namespace FlowField
 
         #region 修改器管理
 
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.Button("清除所有修改器", Sirenix.OdinInspector.ButtonSizes.Small)]
-#endif
+        [Button("清除所有修改器", ButtonSizes.Small)]
         public void ClearAllModifiers()
         {
             modifierManager.ClearAll();
@@ -203,6 +186,7 @@ namespace FlowField
         {
             int id = modifierManager.AddModifier(modifier);
             ApplyModifier(modifier);
+            // 修改器影响后，重新计算受影响区域的方向（可选）
             RecalculateDirectionField(modifier, true);
             RecalculateDirectionField(modifier, false);
             return id;
@@ -274,16 +258,15 @@ namespace FlowField
 
         private void RecalculateDirectionField(FlowFieldModifier modifier, bool isBlueTeam)
         {
+            // 修改器影响后，可重新计算局部方向，这里简化为使用预计算的方向（但预计算已移除）
+            // 实际可根据需要重新计算整个场，但为了性能，此处仅清零受影响区域的方向
             var runtimeField = isBlueTeam ? blueTeamRuntimeField : redTeamRuntimeField;
-            var dirField = isBlueTeam ? flowFieldBuilder.BlueTeamDirectionField : flowFieldBuilder.RedTeamDirectionField;
             var affectedCells = modifier.GetAffectedCells(MapSizeX, MapSizeZ);
 
             foreach (var cell in affectedCells)
             {
-                if (runtimeField[cell.x, cell.y].canMove)
-                    runtimeField[cell.x, cell.y].direction = dirField.GetDirection(cell.x, cell.y);
-                else
-                    runtimeField[cell.x, cell.y].direction = Vector3.zero;
+                // 方向将在下一次可视化或路径查询时重新计算
+                runtimeField[cell.x, cell.y].direction = Vector3.zero;
             }
         }
 
@@ -300,7 +283,6 @@ namespace FlowField
                 return;
             }
 
-            // 确保目标点可移动，否则寻找最近可移动点
             var runtimeField = isBlueTeam ? blueTeamRuntimeField : redTeamRuntimeField;
             if (!runtimeField[target.x, target.y].canMove)
             {
@@ -403,7 +385,6 @@ namespace FlowField
                     if (!neighborCell.canMove) continue;
 
                     int step = (d.x != 0 && d.y != 0) ? 14 : 10;
-                    // 防止溢出：如果邻居总代价过大，则跳过
                     if (neighborCell.totalCost >= int.MaxValue - step - curCost) continue;
 
                     int newCost = curCost + step + neighborCell.totalCost;
@@ -643,7 +624,7 @@ namespace FlowField
         #endregion
 
         #region 可视化
-
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             if (!isInitialized || flowFieldBuilder == null) return;
@@ -652,24 +633,56 @@ namespace FlowField
             float gridSz = GridSize;
             var center = flowFieldBuilder.MapCenterPosition;
 
-            // 绘制网格
             if (showGrid) DrawGrid(center, sizeX, sizeZ, gridSz);
-
-            // 绘制障碍物
             if (showObstacles) DrawObstacles(sizeX, sizeZ, gridSz);
 
-            // 绘制兵线路径
-            if (showLanePaths) DrawLanePaths();
+            // 绘制当前队伍的兵线路径
+            DrawLanePathsForTeam(viewTeam);
 
-            // 绘制流场方向
-            if (showBlueTeamFlow && blueTeamRuntimeField != null)
-                DrawFlowField(blueTeamRuntimeField, sizeX, sizeZ, gridSz, new Color(0.2f, 0.5f, 1f, 0.8f));
+            // 根据显示模式绘制流场数据
+            if (displayMode == DisplayMode.None) return;
 
-            if (showRedTeamFlow && redTeamRuntimeField != null)
-                DrawFlowField(redTeamRuntimeField, sizeX, sizeZ, gridSz, new Color(1f, 0.4f, 0.4f, 0.8f));
+            switch (displayMode)
+            {
+                case DisplayMode.VectorField:
+                    EnsurePreviewDirectionFields();
+                    var dirField = (viewTeam == ViewTeam.Blue) ? previewBlueDirectionField : previewRedDirectionField;
+                    if (dirField != null)
+                    {
+                        Color teamColor = (viewTeam == ViewTeam.Blue)
+                            ? new Color(0.2f, 0.5f, 1f, 0.8f)
+                            : new Color(1f, 0.4f, 0.4f, 0.8f);
+                        DrawPreviewVectorField(dirField, sizeX, sizeZ, gridSz, teamColor);
+                    }
+                    break;
+                case DisplayMode.Heatmap:
+                    var costField = (viewTeam == ViewTeam.Blue)
+                        ? flowFieldBuilder.BlueTeamCostField
+                        : flowFieldBuilder.RedTeamCostField;
+                    DrawCostHeatmap(costField, sizeX, sizeZ, gridSz);
+                    break;
+            }
+        }
 
-            // 绘制价值场热力图
-            if (showCostHeatmap) DrawCostHeatmap(sizeX, sizeZ, gridSz);
+        private void DrawPreviewVectorField(DirectionFieldData dirField, int sizeX, int sizeZ, float gridSz, Color color)
+        {
+            Gizmos.color = color;
+            for (int x = 0; x < sizeX; x += flowSampleInterval)
+            {
+                for (int z = 0; z < sizeZ; z += flowSampleInterval)
+                {
+                    var dir = dirField.GetDirection(x, z);
+                    if (dir.sqrMagnitude < 0.01f) continue;
+
+                    var pos = flowFieldBuilder.GridToWorld(new Vector2Int(x, z));
+                    var vec = dir * gridSz * vectorScale;
+
+                    Gizmos.DrawRay(pos, vec);
+                    var right = Vector3.Cross(Vector3.up, vec).normalized * gridSz * 0.1f;
+                    Gizmos.DrawRay(pos + vec, -vec * 0.25f + right);
+                    Gizmos.DrawRay(pos + vec, -vec * 0.25f - right);
+                }
+            }
         }
 
         private void DrawGrid(Vector3 center, int sizeX, int sizeZ, float gridSz)
@@ -709,14 +722,25 @@ namespace FlowField
             }
         }
 
-        private void DrawLanePaths()
+        private void DrawLanePathsForTeam(ViewTeam team)
         {
-            DrawSingleLanePath(flowFieldBuilder.blueLane1);
-            DrawSingleLanePath(flowFieldBuilder.blueLane2);
-            DrawSingleLanePath(flowFieldBuilder.blueLane3);
-            DrawSingleLanePath(flowFieldBuilder.redLane1);
-            DrawSingleLanePath(flowFieldBuilder.redLane2);
-            DrawSingleLanePath(flowFieldBuilder.redLane3);
+            LanePathConfig lane1, lane2, lane3;
+            if (team == ViewTeam.Blue)
+            {
+                lane1 = flowFieldBuilder.blueLane1;
+                lane2 = flowFieldBuilder.blueLane2;
+                lane3 = flowFieldBuilder.blueLane3;
+            }
+            else
+            {
+                lane1 = flowFieldBuilder.redLane1;
+                lane2 = flowFieldBuilder.redLane2;
+                lane3 = flowFieldBuilder.redLane3;
+            }
+
+            DrawSingleLanePath(lane1);
+            DrawSingleLanePath(lane2);
+            DrawSingleLanePath(lane3);
         }
 
         private void DrawSingleLanePath(LanePathConfig lane)
@@ -726,46 +750,17 @@ namespace FlowField
             Gizmos.color = lane.pathColor;
             var points = lane.wayPoints.Where(t => t != null).ToList();
 
-            // 绘制连接线
             for (int i = 0; i < points.Count - 1; i++)
                 Gizmos.DrawLine(points[i].position, points[i + 1].position);
 
-            // 绘制关键点
             foreach (var point in points)
                 Gizmos.DrawSphere(point.position, waypointSize);
         }
 
-        private void DrawFlowField(FlowFieldCell[,] runtimeField, int sizeX, int sizeZ, float gridSz, Color color)
+        private void DrawCostHeatmap(CostFieldData costField, int sizeX, int sizeZ, float gridSz)
         {
-            Gizmos.color = color;
-
-            for (int x = 0; x < sizeX; x += flowSampleInterval)
-            {
-                for (int z = 0; z < sizeZ; z += flowSampleInterval)
-                {
-                    var cell = runtimeField[x, z];
-                    if (cell.canMove && cell.direction.sqrMagnitude > 0.01f)
-                    {
-                        var pos = flowFieldBuilder.GridToWorld(new Vector2Int(x, z));
-                        var dir = cell.direction * gridSz * vectorScale;
-
-                        Gizmos.DrawRay(pos, dir);
-
-                        // 绘制箭头
-                        var right = Vector3.Cross(Vector3.up, dir).normalized * gridSz * 0.1f;
-                        Gizmos.DrawRay(pos + dir, -dir * 0.25f + right);
-                        Gizmos.DrawRay(pos + dir, -dir * 0.25f - right);
-                    }
-                }
-            }
-        }
-
-        private void DrawCostHeatmap(int sizeX, int sizeZ, float gridSz)
-        {
-            var costField = flowFieldBuilder.BlueTeamCostField;
             if (costField.cells == null || costField.cells.Length == 0) return;
 
-            // 找最大代价用于归一化
             int maxCost = 0;
             for (int x = 0; x < sizeX; x++)
                 for (int z = 0; z < sizeZ; z++)
@@ -792,7 +787,247 @@ namespace FlowField
                 }
             }
         }
+#endif
+        #endregion
 
+        #region 预览方向场构建
+#if UNITY_EDITOR
+        /// <summary>确保预览方向场已构建</summary>
+        private void EnsurePreviewDirectionFields()
+        {
+            if (previewBlueDirectionField == null || previewBlueDirectionField.directions == null || previewBlueDirectionField.directions.Length == 0)
+            {
+                previewBlueDirectionField = new DirectionFieldData();
+                previewBlueDirectionField.Initialize(MapSizeX, MapSizeZ);
+                BuildPreviewDirectionField(true, previewBlueDirectionField);
+            }
+            if (previewRedDirectionField == null || previewRedDirectionField.directions == null || previewRedDirectionField.directions.Length == 0)
+            {
+                previewRedDirectionField = new DirectionFieldData();
+                previewRedDirectionField.Initialize(MapSizeX, MapSizeZ);
+                BuildPreviewDirectionField(false, previewRedDirectionField);
+            }
+        }
+
+        /// <summary>为指定队伍构建预览方向场</summary>
+        private void BuildPreviewDirectionField(bool isBlue, DirectionFieldData dirField)
+        {
+            if (flowFieldBuilder == null) return;
+            var costField = isBlue ? flowFieldBuilder.BlueTeamCostField : flowFieldBuilder.RedTeamCostField;
+            var lanes = isBlue
+                ? new[] { flowFieldBuilder.blueLane1, flowFieldBuilder.blueLane2, flowFieldBuilder.blueLane3 }
+                : new[] { flowFieldBuilder.redLane1, flowFieldBuilder.redLane2, flowFieldBuilder.redLane3 };
+
+            CalculateDirectionFieldFromCost(costField, dirField);
+
+            var laneGridPaths = new List<List<Vector2Int>>();
+            foreach (var lane in lanes)
+            {
+                if (lane.IsValid)
+                {
+                    var worldPath = lane.GetWorldPositions();
+                    var gridPath = worldPath.Select(p => flowFieldBuilder.WorldToGridCoord(p))
+                                             .Where(flowFieldBuilder.IsValidCoord).ToList();
+                    if (gridPath.Count >= 2) laneGridPaths.Add(gridPath);
+                }
+            }
+
+            if (flowFieldBuilder.enableObstacleEdgeAlignment && laneGridPaths.Count > 0)
+                AlignDirectionNearObstacles(dirField, costField, laneGridPaths);
+
+            SmoothDirectionField(dirField, costField, flowFieldBuilder.directionSmoothingIterations);
+        }
+
+        /// <summary>从价值场计算方向场</summary>
+        private void CalculateDirectionFieldFromCost(CostFieldData costField, DirectionFieldData dirField)
+        {
+            int sizeX = MapSizeX, sizeZ = MapSizeZ;
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int z = 0; z < sizeZ; z++)
+                {
+                    var cell = costField.GetCell(x, z);
+                    if (!cell.canMove || cell.baseCost <= 0 || cell.baseCost >= int.MaxValue)
+                    {
+                        dirField.SetDirection(x, z, Vector3.zero);
+                        continue;
+                    }
+
+                    int lowest = cell.baseCost;
+                    Vector3 bestDir = Vector3.zero;
+
+                    for (int dx = -1; dx <= 1; dx++)
+                    {
+                        for (int dz = -1; dz <= 1; dz++)
+                        {
+                            if (dx == 0 && dz == 0) continue;
+                            int nx = x + dx, nz = z + dz;
+                            if (!flowFieldBuilder.IsValidCoord(nx, nz)) continue;
+
+                            var neighbor = costField.GetCell(nx, nz);
+                            if (!neighbor.canMove || neighbor.baseCost < 0 || neighbor.baseCost >= int.MaxValue) continue;
+
+                            if (neighbor.baseCost < lowest)
+                            {
+                                lowest = neighbor.baseCost;
+                                bestDir = new Vector3(dx, 0, dz).normalized;
+                            }
+                        }
+                    }
+                    dirField.SetDirection(x, z, bestDir);
+                }
+            }
+        }
+
+        /// <summary>障碍物边缘方向对齐</summary>
+        private void AlignDirectionNearObstacles(DirectionFieldData directionField, CostFieldData costField, List<List<Vector2Int>> lanePaths)
+        {
+            int sizeX = MapSizeX, sizeZ = MapSizeZ;
+            var adjustments = new List<(int x, int z, Vector3 newDir)>();
+
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int z = 0; z < sizeZ; z++)
+                {
+                    var cell = costField.GetCell(x, z);
+                    if (!cell.canMove) continue;
+
+                    Vector3 obstacleNormal = Vector3.zero;
+                    int obstacleCount = 0;
+
+                    for (int dx = -1; dx <= 1; dx++)
+                    {
+                        for (int dz = -1; dz <= 1; dz++)
+                        {
+                            if (dx == 0 && dz == 0) continue;
+                            int nx = x + dx, nz = z + dz;
+                            if (!flowFieldBuilder.IsValidCoord(nx, nz)) continue;
+
+                            var neighbor = costField.GetCell(nx, nz);
+                            if (!neighbor.canMove)
+                            {
+                                obstacleNormal += new Vector3(dx, 0, dz);
+                                obstacleCount++;
+                            }
+                        }
+                    }
+
+                    if (obstacleCount > 0)
+                    {
+                        obstacleNormal.Normalize();
+                        var parallelDir = Vector3.Cross(Vector3.up, obstacleNormal).normalized;
+                        var laneDir = GetLaneDirectionAt(new Vector2Int(x, z), lanePaths);
+
+                        if (Vector3.Dot(parallelDir, laneDir) < 0)
+                            parallelDir = -parallelDir;
+
+                        var currentDir = directionField.GetDirection(x, z);
+                        var blendedDir = Vector3.Lerp(currentDir, parallelDir, flowFieldBuilder.obstacleEdgeSmoothStrength);
+
+                        if (blendedDir.sqrMagnitude > 0.01f)
+                            adjustments.Add((x, z, blendedDir.normalized));
+                    }
+                }
+            }
+
+            foreach (var adj in adjustments)
+                directionField.SetDirection(adj.x, adj.z, adj.newDir);
+        }
+
+        /// <summary>获取指定位置的兵线方向</summary>
+        private Vector3 GetLaneDirectionAt(Vector2Int pos, List<List<Vector2Int>> lanePaths)
+        {
+            Vector3 bestDir = Vector3.forward;
+            float minDist = float.PositiveInfinity;
+
+            foreach (var path in lanePaths)
+            {
+                if (path.Count < 2) continue;
+
+                for (int i = 0; i < path.Count - 1; i++)
+                {
+                    var a = new Vector2(path[i].x, path[i].y);
+                    var b = new Vector2(path[i + 1].x, path[i + 1].y);
+                    var p = new Vector2(pos.x, pos.y);
+
+                    var ab = b - a;
+                    float t = Vector2.Dot(p - a, ab) / (ab.sqrMagnitude + 1e-6f);
+                    t = Mathf.Clamp01(t);
+                    var proj = a + t * ab;
+                    float d = Vector2.Distance(p, proj);
+
+                    if (d < minDist)
+                    {
+                        minDist = d;
+                        var dir = new Vector3(ab.x, 0, ab.y).normalized;
+                        if (dir.sqrMagnitude > 0.01f) bestDir = dir;
+                    }
+                }
+            }
+            return bestDir;
+        }
+
+        /// <summary>平滑方向场</summary>
+        private void SmoothDirectionField(DirectionFieldData directionField, CostFieldData costField, int iterations)
+        {
+            int sizeX = MapSizeX, sizeZ = MapSizeZ;
+            for (int iter = 0; iter < iterations; iter++)
+            {
+                var tempDirs = new Vector3[sizeX, sizeZ];
+
+                for (int x = 0; x < sizeX; x++)
+                    for (int z = 0; z < sizeZ; z++)
+                        tempDirs[x, z] = directionField.GetDirection(x, z);
+
+                for (int x = 0; x < sizeX; x++)
+                {
+                    for (int z = 0; z < sizeZ; z++)
+                    {
+                        var cell = costField.GetCell(x, z);
+                        if (!cell.canMove) continue;
+
+                        var avgDir = tempDirs[x, z];
+                        float totalWeight = 1f;
+
+                        for (int dx = -1; dx <= 1; dx++)
+                        {
+                            for (int dz = -1; dz <= 1; dz++)
+                            {
+                                if (dx == 0 && dz == 0) continue;
+                                int nx = x + dx, nz = z + dz;
+                                if (!flowFieldBuilder.IsValidCoord(nx, nz)) continue;
+
+                                var neighbor = costField.GetCell(nx, nz);
+                                if (!neighbor.canMove) continue;
+
+                                var neighborDir = tempDirs[nx, nz];
+                                if (neighborDir.sqrMagnitude > 0.01f)
+                                {
+                                    float weight = (dx != 0 && dz != 0) ? 0.7f : 1f;
+                                    avgDir += neighborDir * weight;
+                                    totalWeight += weight;
+                                }
+                            }
+                        }
+
+                        if (totalWeight > 1f && avgDir.sqrMagnitude > 0.01f)
+                            directionField.SetDirection(x, z, (avgDir / totalWeight).normalized);
+                    }
+                }
+            }
+        }
+
+        /// <summary>手动重建预览方向场</summary>
+        [Button("重建预览方向场")]
+        [GUIColor(0.8f, 0.6f, 0.2f)]
+        private void RebuildPreviewDirectionFields()
+        {
+            previewBlueDirectionField = null;
+            previewRedDirectionField = null;
+            EnsurePreviewDirectionFields();
+            Debug.Log("预览方向场重建完成");
+        }
+#endif
         #endregion
     }
 }
