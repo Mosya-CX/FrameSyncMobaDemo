@@ -6,11 +6,11 @@ using Sirenix.OdinInspector;
 namespace FlowField
 {
     /// <summary>
-    /// 流场构建器（ScriptableObject）
+    /// 流场构建器
     /// 负责离线构建和存储价值场数据
     /// </summary>
-    [CreateAssetMenu(fileName = "FlowFieldBuilder", menuName = "FlowField/流场构建器")]
-    public class FlowFieldBuilder : ScriptableObject
+    //[CreateAssetMenu(fileName = "FlowFieldBuilder", menuName = "FlowField/流场构建器")]
+    public class FlowFieldBuilder : MonoBehaviour
     {
         #region 地图基础配置
 

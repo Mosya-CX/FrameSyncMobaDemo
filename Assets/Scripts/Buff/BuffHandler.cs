@@ -47,7 +47,7 @@ public class BuffHandler : UnitBaseHandler
             return;
         }
 
-        var info = new BuffInfo(data, source, core);
+        var info = new BuffInfo(data, source, owner);
         buffs.Add(info);
         buffIndex[data.Id] = info;
 
@@ -107,58 +107,40 @@ public class BuffHandler : UnitBaseHandler
     {
         var handle = ModifierHandleGenerator.Create();
         var modifier = new StatModifier(handle, modType, value);
-        core.Stats.AddModifier(type, modifier);
+        owner.Stats.AddModifier(type, modifier);
 
         buff.AddModifierHandle(type, handle);  // 调用 BuffInfo 的公开方法记录句柄
     }
 
-    #region 事件分发
-
-    public void DispatchOnHit(Dictionary<string, object> eventData)
-    {
-        foreach (var buff in buffs)
-        {
-            var ctx = new BuffCallbackContext { Buff = buff, Handler = this, EventData = eventData };
-            buff.buffData.OnHit?.Apply(ctx);
-        }
-    }
-
-    public void DispatchOnHurt(Dictionary<string, object> eventData)
-    {
-        foreach (var buff in buffs)
-        {
-            var ctx = new BuffCallbackContext { Buff = buff, Handler = this, EventData = eventData };
-            buff.buffData.OnHurt?.Apply(ctx);
-        }
-    }
-
-    public void DispatchOnKill(Dictionary<string, object> eventData)
-    {
-        foreach (var buff in buffs)
-        {
-            var ctx = new BuffCallbackContext { Buff = buff, Handler = this, EventData = eventData };
-            buff.buffData.OnKill?.Apply(ctx);
-        }
-    }
-
-    public void DispatchOnDeath(Dictionary<string, object> eventData)
-    {
-        foreach (var buff in buffs)
-        {
-            var ctx = new BuffCallbackContext { Buff = buff, Handler = this, EventData = eventData };
-            buff.buffData.OnDeath?.Apply(ctx);
-        }
-    }
-
-    #endregion
-
-    #region 快照和恢复
-    public override object CaptureHandlerState()
+    #region 伤害回调事件
+    protected override void OnDamageDealt(in DamageInfo info)
     {
         throw new System.NotImplementedException();
     }
 
-    public override void RestoreHandlerState(object state)
+    protected override void OnDamageTaken(in DamageInfo info)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void OnKill(in DamageInfo info)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void OnDeath(in DamageInfo info)
+    {
+        throw new System.NotImplementedException();
+    }
+    #endregion
+
+    #region 快照和恢复
+    public override object CaptureState()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void RestoreState(object state)
     {
         throw new System.NotImplementedException();
     }

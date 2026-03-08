@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 
@@ -9,9 +10,7 @@ public class MonsterUnit : UnitCore
         get => isInBattle;
         set
         {
-            if (isInBattle == value)
-                return;
-
+            if (isInBattle == value) return;
             isInBattle = value;
             if (isInBattle)
                 OnBattleEnter();
@@ -20,64 +19,65 @@ public class MonsterUnit : UnitCore
         }
     }
 
-    [SerializeField]
+    [SerializeField, ReadOnly]
     private MonsterCamp camp;
+    [SerializeField, ReadOnly]
+    private fp3 originPosition;
+    [SerializeField, ReadOnly]
+    private fp2 originRotation;
+
+    public void SetBelongTo(MonsterCamp camp, fp3 position, fp2 rotation)
+    {
+        this.camp = camp;
+        originPosition = position;
+        originRotation = rotation;
+        LogicPosition = originPosition;
+        LogicRotation = originRotation;
+    }
 
     private void OnBattleEnter()
     {
-        // TODO查找最近的英雄单位
-
-        ChangeActionState(UnitActionState.Track);
+        // 寻找最近的敌方英雄
+        currentTarget = FindNearestHero();
+        if (currentTarget != null)
+        {
+            pathFinder.SetTarget(currentTarget);
+            ChangeActionState(UnitActionState.Track);
+        }
+        else
+        {
+            ChangeActionState(UnitActionState.Idle);
+        }
     }
 
     private void OnBattleExit()
     {
         currentTarget = null;
-        currentDestination = camp.LogicPosition;
+        currentDestination = originPosition;
+        pathFinder.SetDestination(currentDestination.Value);
         ChangeActionState(UnitActionState.Move);
     }
 
-    public override void UpdateMoveDirection()
+    private UnitCore FindNearestHero()
     {
-        switch (currentActionState)
-        {
-            case UnitActionState.Move:
-                if (currentDestination.HasValue)
-                {
-                    // TODO
-                    // 根据路径更新方向
-                }
-                break;
-            case UnitActionState.Track:
-                if (currentTarget)
-                {
-                    // TODO
-                    // 根据路径更新方向
-                }
-                break;
-        }
+        UnitCore nearest = null;
+        fp minDist = fp.max_value;
+
+        
+        return nearest;
     }
 
-    public override void UpdateAStarPath()
+    protected override void OnTrackEnter()
     {
-        switch (currentActionState)
-        {
-            case UnitActionState.Move:
-                if (currentDestination.HasValue)
-                {
-                    // TODO
-                    // 更新路径
+        base.OnTrackEnter();
+        if (currentTarget != null)
+            pathFinder.SetTarget(currentTarget);
+    }
 
-                }
-                break;
-            case UnitActionState.Track:
-                if (currentTarget)
-                {
-                    // TODO
-                    // 更新路径
-
-                }
-                break;
-        }
+    protected override void OnMoveEnter()
+    {
+        base.OnMoveEnter();
+        if (currentDestination.HasValue)
+            pathFinder.SetDestination(currentDestination.Value);
     }
 }

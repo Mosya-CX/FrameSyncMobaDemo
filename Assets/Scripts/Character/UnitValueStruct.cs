@@ -20,7 +20,7 @@ public enum UnitStatType
     AttackRange,
 
     CritChance,
-    CritDamage,
+    CritMultiplier,
 
     MoveSpeed,
     HealthRegen,
@@ -223,18 +223,21 @@ public class UnitStats
     // ===== 派生属性 =====
     public fp PhysicalDamageReduction { get; private set; }
     public fp MagicDamageReduction { get; private set; }
-    public fp RealMoveSpeed {  get; private set; }
-    public fp RealAttackDistance { get; private set; }
+    public fp MoveDistancePerSecond {  get; private set; }
+    public fp AttackDistance { get; private set; }
     public fp AttackInterval { get; private set; }
+    public bool IsRanged {  get; private set; }
 
-    // 基准常熟
-    private fp REAL_ATTACK_DISTANCE_AMP => 0.006m;
-    private fp REAL_MOVE_SPEED_AMP => 0.017m;
+    // 基准常量
+    private fp ATTACK_DISTANCE_AMP => 0.006m;
+    private fp MOVE_SPEED_AMP => 0.005m;
     private fp ARMOR_BASE => 100;
     private fp MAGIC_RESIST_BASE => 100;
+    private fp RANGED_UNIT_DETECT_VALUE => 300;
+
     #region 初始化
 
-    public void Init(UnitPropertyConfig config)
+    public void Init(UnitDefinition config)
     {
         Add(UnitStatType.MaxHealth, config.baseHealth, config.healthGrowth);
         Add(UnitStatType.MaxMana, config.baseMana, config.manaGrowth);
@@ -249,7 +252,7 @@ public class UnitStats
         Add(UnitStatType.AttackRange, config.baseAttackRange, 0);
 
         Add(UnitStatType.CritChance, config.baseCritChance, 0);
-        Add(UnitStatType.CritDamage, config.baseCritDamage, 0);
+        Add(UnitStatType.CritMultiplier, config.baseCritDamage, 0);
 
         Add(UnitStatType.MoveSpeed, config.baseMoveSpeed, 0);
         Add(UnitStatType.HealthRegen, config.baseHealthRegen, 0);
@@ -362,9 +365,10 @@ public class UnitStats
 
         PhysicalDamageReduction = armor / (ARMOR_BASE + armor);
         MagicDamageReduction = magicResist / (MAGIC_RESIST_BASE + magicResist);
-        RealMoveSpeed = REAL_MOVE_SPEED_AMP * moveSpeed;
-        RealAttackDistance = REAL_ATTACK_DISTANCE_AMP * attackRange;
+        MoveDistancePerSecond = MOVE_SPEED_AMP * moveSpeed;
+        AttackDistance = ATTACK_DISTANCE_AMP * attackRange;
         AttackInterval = 1m / attackSpeed;
+        IsRanged = attackRange >= RANGED_UNIT_DETECT_VALUE;
     }
 
     public void Clean()

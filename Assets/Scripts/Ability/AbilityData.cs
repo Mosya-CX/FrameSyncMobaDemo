@@ -1,40 +1,102 @@
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [CreateAssetMenu(menuName = "技能系统/新建技能配置")]
 public class AbilityData : ScriptableObject
 {
-    public int AbilityId;
-    public string AbilityName;
+    [Title("基础")]
+    public int Id;
+    public string Name;
+    public string Description;
 
-    public SkillTriggerMode TriggerMode;
+    [Title("成长性")]
+    public AbilityLevelData[] Levels;
 
-    public bool RefundOnInterrupt;
-    public fp RefundPercent;
+    [Title("条件和返还")]
+    public AbilityBaseCondition[] TriggerConditions;
+    [Range(0, 1)]
+    public float CancelReturnCooldownPercent;
 
-    public fp GlobalCooldown;
+    [Title("技能段")]
+    public AbilityPhase[] Phases;
 
-    public List<AbilityLevelData> Levels;
-    public List<SkillPhase> Phases;
+    [Title("冷却开始时机")]
+    public AbilityStartCooldownTiming CooldownApplyTiming = AbilityStartCooldownTiming.OnEnterPhase;
+    [ValueDropdown(nameof(GetPhaseIndexList))]
+    public int StartCooldownPhase;
+
+    private int[] GetPhaseIndexList()
+    {
+        if (Phases == null)
+            return new int[0];
+
+        var list = new int[Phases.Length];
+        for (int i = 0; i < Phases.Length; i++)
+            list[i] = i;
+        return list;
+    }
 }
 
 [System.Serializable]
 public class AbilityLevelData
 {
-    public fp ManaCost;
-    public fp Cooldown;
-    public List<fp> Parameters;
+    public float Cooldown;
+    public SerializedDictionary<string, float> Parameters;
 }
 
 [System.Serializable]
-public class SkillPhase
+public class AbilityPhase
 {
-    public fp PreCastTime;
-    public fp ChannelTime;
-    public fp RecoverTime;
+    public Sprite Icon;
+    public string[] Tags;
+    public bool IsPersistent;
+    public float PhaseKeepDuration;
 
-    public List<AbilityBaseMoudle> Modules;
-    public List<SkillIndicatorModule> IndicatorModules;
+    public AbilityBaseMoudle[] OnPhaseEnter;
+    public AbilityBaseMoudle[] OnPhaseTick;
+    public AbilityBaseMoudle[] OnPhaseExit;
+    public AbilityBaseMoudle[] OnPhaseTrigger;
+
+    [Title("前摇")]
+    public float PrecastDuration;
+    public AbilityBaseMoudle[] OnPrecastEnter;
+    public AbilityBaseMoudle[] OnPrecastTick;
+    public AbilityBaseMoudle[] OnPrecastExit;
+
+    [Title("引导")]
+    public float ChannelingDuration;
+    public AbilityBaseMoudle[] OnChannelingEnter;
+    public AbilityBaseMoudle[] OnChannelingTick;
+    public AbilityBaseMoudle[] OnChannelingExit;
+    public AbilityBaseMoudle[] OnChannelingTimeOut;
+    public bool CanTriggerChanneling;
+    public AbilityBaseMoudle[] OnChannelingTrigger;
+    public float ChannelingTriggerCooldown;
+    public short ChannelingRecycleTriggerChance = 1;
+
+    //[Title("后摇")]
+    //public float RecoveryDuration;
+}
+
+public enum AbilityChannelingMode
+{
+    Default,// 默认
+    Charge,// 蓄力型
+    Recycle,// 可重复使用的
+}
+
+public enum AbilityStartCooldownTiming
+{
+    OnEnterPhase,
+    OnExitPhase,
+    //OnEnterPrecast,
+    //OnExitPrecast,
+    //OnEnterChanneling,
+    //OnExitChanneling,
+    //OnEnterKeep,
+    //OnExitKeep,
 }

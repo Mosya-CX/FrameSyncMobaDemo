@@ -1,40 +1,71 @@
 using Unity.Mathematics.FixedPoint;
-using UnityEngine;
 
 public class MobUnit : UnitCore
 {
-    public override void UpdateMoveDirection()
+    private bool isInBattle;
+    public bool IsInBattle
     {
-        switch (currentActionState)
+        get => isInBattle;
+        set
         {
-            case UnitActionState.Move:
-                // TODO
-                // 根据当前位置和附近流场价值更新方向
-
-                break;
-            case UnitActionState.Track:
-                if (currentTarget)
-                {
-                    // TODO
-                    // 根据路径更新方向
-
-                }
-                break;
+            if (isInBattle == value) return;
+            isInBattle = value;
+            if (isInBattle)
+                OnBattleEnter();
+            else
+                OnBattleExit();
         }
+    }
+
+    private void Start()
+    {
+        // 默认使用流场
+        pathFinder.SetFlowFieldMode();
+    }
+
+    private void OnBattleEnter()
+    {
+        // 进入战斗，查找最近单位
+        currentTarget = FindNearestEnemy();
+        pathFinder.SetTarget(currentTarget);
+        ChangeActionState(UnitActionState.Track);
+    }
+
+    private void OnBattleExit()
+    {
+        currentTarget = null;
+        // 回到流场模式
+        pathFinder.SetFlowFieldMode();
+        ChangeActionState(UnitActionState.Move);
+    }
+
+    private UnitCore FindNearestEnemy()
+    {
+        UnitCore nearest = null;
+        // TODO
+        
+        return nearest;
+    }
+
+    protected override void OnTrackEnter()
+    {
+        base.OnTrackEnter();
+        if (currentTarget != null)
+            pathFinder.SetTarget(currentTarget);
+    }
+
+    protected override void OnTrackExit()
+    {
+        base.OnTrackExit();
+        pathFinder.Stop();
+        pathFinder.SetFlowFieldMode();
     }
 
     public override void UpdateAStarPath()
     {
-        switch (currentActionState)
+        if (currentActionState == UnitActionState.Track && currentTarget != null)
         {
-            case UnitActionState.Track:
-                if (currentTarget)
-                {
-                    // TODO
-                    // 更新路径
-
-                }
-                break;
+            base.UpdateAStarPath();
         }
     }
 }

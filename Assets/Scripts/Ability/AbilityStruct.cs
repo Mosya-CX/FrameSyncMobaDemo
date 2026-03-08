@@ -3,304 +3,317 @@ using Unity.Mathematics.FixedPoint;
 
 public class AbilityInfo
 {
-    public AbilityData Data { get; }
-    public AbilityLevelData LevelData => Data.Levels[level - 1];
+    public AbilityData data;
+    public AbilityHandler handler;
 
-    public SkillState State { get; private set; } = SkillState.Idle;
+    public AbilityContext blackBoard = new();
+    public AbilityState state = AbilityState.Idle;
+    public AbilityTriggerContext? context;
 
-    public int CurrentPhaseIndex { get; private set; }
-    public SkillPhase CurrentPhase => Data.Phases[CurrentPhaseIndex];
+    public int currentPhaseIndex;
+    private ushort level;
+    public fp cooldownMultiplier = 1;
 
-    public SkillContext Context { get; } = new();
+    private bool isAbilityActive;
+    private bool isPhaseActive;
 
-    private AbilityHandler handler;
+    public fp localDeltaTime;
+    public fp cooldownRemaining;
+    public fp precastTimer;
+    public fp channelingTimer;
+    public bool isPersistentKeep;
+    public fp phaseKeepTimer;
+    public fp triggerCooldown;
+    public short channelingTriggerChance;
 
-    private int level = 1;
-    private fp stateTimer;
-    private fp cooldownRemaining;
-
-    private AbilityCastContext castContext;
-
-    private List<ISkillIndicatorRuntime> activeIndicators = new();
+    #region 快捷访问
+    public ushort CurrentLevel => level;
+    public AbilityPhase CurrentPhase => data.Phases[currentPhaseIndex];
+    public AbilityLevelData CurrentLevelData => level > 0 ? data.Levels[level-1] : null;
+    public fp CurrentCooldownDuration => ((fp)CurrentLevelData.Cooldown) * cooldownMultiplier;
+    #endregion
 
     public AbilityInfo(AbilityData data, AbilityHandler handler)
     {
-        Data = data;
+        this.data = data;
         this.handler = handler;
+        currentPhaseIndex = 0;
+        level = 0;
     }
 
-    // ===== 外部接口 =====
-
-    public void OnPress(AbilityCastContext context)
+    public void Trigger(in AbilityTriggerContext? context = null)
     {
-        if (!CanStart()) return;
-
-        castContext = context;
-
-        switch (Data.TriggerMode)
-        {
-            case SkillTriggerMode.PressCast:
-                BeginPreCast();
-                break;
-
-            case SkillTriggerMode.PressReleaseCast:
-                EnterAiming();
-                break;
-
-            case SkillTriggerMode.PressCastAndCharge:
-                BeginChanneling();
-                break;
-        }
-    }
-
-    public void OnRelease(AbilityCastContext context)
-    {
-        castContext = context;
-
-        if (State == SkillState.Aiming)
-        {
-            BeginPreCast();
-        }
-        else if (State == SkillState.Channeling &&
-                 Data.TriggerMode == SkillTriggerMode.PressCastAndCharge)
-        {
-            EnterCasting();
-        }
-    }
-
-    public void OnCancel()
-    {
-        Interrupt();
-    }
-
-    public void Tick(fp deltaTime)
-    {
-        if (cooldownRemaining > 0)
-            cooldownRemaining -= deltaTime;
-
-        switch (State)
-        {
-            case SkillState.PreCast:
-            case SkillState.Aiming:
-            case SkillState.Channeling:
-                UpdateIndicators();
-                break;
-            case SkillState.Recover:
-                UpdateTimedState(deltaTime);
-                break;
-
-            case SkillState.Casting:
-                UpdateCasting(deltaTime);
-                break;
-        }
-    }
-
-    // ===== 状态切换 =====
-
-    private void EnterAiming()
-    {
-        State = SkillState.Aiming;
-        CreateIndicators();
-    }
-
-    private void BeginPreCast()
-    {
-        State = SkillState.PreCast;
-        stateTimer = CurrentPhase.PreCastTime;
-
-        foreach (var m in CurrentPhase.Modules)
-            m.OnPhaseEnter(this, handler);
-
-        DestroyIndicators();
-    }
-
-    private void BeginChanneling()
-    {
-        State = SkillState.Channeling;
-        stateTimer = CurrentPhase.ChannelTime;
-
-        CreateIndicators();
-    }
-
-    private void EnterCasting()
-    {
-        State = SkillState.Casting;
-        stateTimer = 0;
-
-        foreach (var m in CurrentPhase.Modules)
-            m.OnPhaseEnter(this, handler);
-
-        DestroyIndicators();
-    }
-
-    private void EnterRecover()
-    {
-        State = SkillState.Recover;
-        stateTimer = CurrentPhase.RecoverTime;
-    }
-
-    private void EnterCooldown()
-    {
-        State = SkillState.Cooldown;
-        cooldownRemaining = LevelData.Cooldown;
-        CurrentPhaseIndex = 0;
-
-        DestroyIndicators();
-    }
-
-    private void UpdateTimedState(fp deltaTime)
-    {
-        stateTimer -= deltaTime;
-
-        if (stateTimer <= 0)
-        {
-            if (State == SkillState.PreCast)
-                EnterCasting();
-            else if (State == SkillState.Channeling)
-                EnterCasting();
-            else if (State == SkillState.Recover)
-                EnterCooldown();
-        }
-    }
-
-    private void UpdateCasting(fp deltaTime)
-    {
-        foreach (var m in CurrentPhase.Modules)
-            m.OnPhaseUpdate(this, handler, deltaTime);
-
-        foreach (var m in CurrentPhase.Modules)
-            m.OnPhaseExit(this, handler);
-
-        AdvancePhaseOrFinish();
-    }
-
-    private void AdvancePhaseOrFinish()
-    {
-        CurrentPhaseIndex++;
-
-        if (CurrentPhaseIndex >= Data.Phases.Count)
-        {
-            EnterRecover();
-        }
-        else
-        {
-            BeginPreCast();
-        }
-    }
-
-    private void Interrupt()
-    {
-        if (State == SkillState.Idle || State == SkillState.Cooldown)
+        if (level == 0)
+            return;
+        if (triggerCooldown > 0)
             return;
 
-        if (Data.RefundOnInterrupt)
+        switch (state)
         {
-            var refund = LevelData.ManaCost * Data.RefundPercent;
-            handler.Core.Stats.ModifyMana(refund);
+            case AbilityState.Idle:
+                if (isPhaseActive)
+                    TriggerPhaseKeep(context);
+                else
+                {
+                    if (!isAbilityActive)
+                    {
+                        for (int i = 0; i < data.TriggerConditions.Length; i++)
+                            data.TriggerConditions[i].PayAbilityCost(this);
+                        isAbilityActive = true;
+                    }
+
+                    StartPhase(context);
+                }
+                break;
+            case AbilityState.Channeling:
+                TriggerChanneling(context);
+                break;
         }
-
-        DestroyIndicators();
-
-        State = SkillState.Interrupted;
-        Context.Clear();
-        CurrentPhaseIndex = 0;
     }
 
-    private bool CanStart()
+    public void Tick(fp dt)
     {
-        if (State != SkillState.Idle) return false;
-        if (cooldownRemaining > 0) return false;
-        if (handler.Core.CurrentMana < LevelData.ManaCost) return false;
+        localDeltaTime = dt;
 
-        handler.Core.Stats.ModifyMana(-LevelData.ManaCost);
+        if (cooldownRemaining > 0)
+            cooldownRemaining -= dt;
+
+        if (isPhaseActive)
+        {
+            ExecuteAbilityMoudles(CurrentPhase.OnPhaseTick);
+            if (phaseKeepTimer > 0)
+                phaseKeepTimer -= dt;
+        }
+
+        switch (state)
+        {
+            case AbilityState.Idle:
+                if (isPhaseActive)
+                    if (phaseKeepTimer <= 0)
+                        ExitPhase();
+                break;
+            case AbilityState.Precast:
+                ExecuteAbilityMoudles(CurrentPhase.OnPrecastTick);
+                break;
+            case AbilityState.Channeling:
+                channelingTimer -= dt;
+                ExecuteAbilityMoudles(CurrentPhase.OnChannelingTick);
+                if (channelingTimer <= 0)
+                {
+                    ExecuteAbilityMoudles(CurrentPhase.OnChannelingTimeOut);
+                    ExitChanneling();
+                }
+                break;
+            case AbilityState.Cooldown:
+                if (cooldownRemaining <= 0)
+                    ExitCooldown();
+                break;
+        }
+    }
+
+    public void StartPhase(in AbilityTriggerContext? context = null)
+    {
+        if (data.StartCooldownPhase == currentPhaseIndex && data.CooldownApplyTiming == AbilityStartCooldownTiming.OnEnterPhase)
+            cooldownRemaining = CurrentCooldownDuration;
+
+        handler.activeAbilities.Add(this);
+        isPhaseActive = true;
+
+        this.context = context;
+        ExecuteAbilityMoudles(CurrentPhase.OnPhaseEnter);
+        this.context = null;
+
+        isPersistentKeep = CurrentPhase.IsPersistent;
+        phaseKeepTimer = (fp)CurrentPhase.PhaseKeepDuration;
+        precastTimer = (fp)CurrentPhase.PrecastDuration;
+        channelingTimer = (fp)CurrentPhase.ChannelingDuration;
+        channelingTriggerChance = CurrentPhase.ChannelingRecycleTriggerChance;
+        StartPrecast();
+    }
+
+    private void StartPrecast()
+    {
+        if (state == AbilityState.Precast)
+            return;
+        state = AbilityState.Precast;
+        //if (data.StartCooldownPhase == currentPhaseIndex && data.CooldownApplyTiming == AbilityStartCooldownTiming.OnEnterPrecast)
+        //   cooldownRemaining = CurrentCooldownDuration;
+
+        ExecuteAbilityMoudles(CurrentPhase.OnPrecastEnter);
+    }
+
+    private void ExitPrecast()
+    {
+        if (state != AbilityState.Precast)
+            return;
+        //if (data.StartCooldownPhase == currentPhaseIndex && data.CooldownApplyTiming == AbilityStartCooldownTiming.OnExitPrecast)
+        //    cooldownRemaining = CurrentCooldownDuration;
+
+        ExecuteAbilityMoudles(CurrentPhase.OnPrecastExit);
+    }
+
+    public void StartChannel()
+    {
+        if (state == AbilityState.Channeling)
+            return;
+        state = AbilityState.Channeling;
+        //if (data.StartCooldownPhase == currentPhaseIndex && data.CooldownApplyTiming == AbilityStartCooldownTiming.OnEnterChanneling)
+        //    cooldownRemaining = CurrentCooldownDuration;
+        ExecuteAbilityMoudles(CurrentPhase.OnChannelingEnter);
+    }
+
+    private void TriggerChanneling(in AbilityTriggerContext? context)
+    {
+        if (!CurrentPhase.CanTriggerChanneling)
+            return;
+
+        if (channelingTriggerChance > 0)
+        {
+            this.context = context;
+            ExecuteAbilityMoudles(CurrentPhase.OnChannelingTrigger);
+            this.context = null;
+            triggerCooldown = (fp)CurrentPhase.ChannelingTriggerCooldown;
+            channelingTriggerChance--;
+        }
+        if (channelingTriggerChance <= 0)
+            ExitChanneling();
+    }
+
+    public void ExitChanneling()
+    {
+        if (state != AbilityState.Channeling)
+            return;
+        //if (data.StartCooldownPhase == currentPhaseIndex && data.CooldownApplyTiming == AbilityStartCooldownTiming.OnExitChanneling)
+        //    cooldownRemaining = CurrentCooldownDuration;
+        ExecuteAbilityMoudles(CurrentPhase.OnChannelingExit);
+        state = AbilityState.Idle;
+    }
+
+    private void TriggerPhaseKeep(in AbilityTriggerContext? context)
+    {
+        this.context = context;
+        ExecuteAbilityMoudles(CurrentPhase.OnPhaseTick);
+        this.context = null;
+    }
+
+
+    public void ExitPhase()
+    {
+        if (data.StartCooldownPhase == currentPhaseIndex && data.CooldownApplyTiming == AbilityStartCooldownTiming.OnEnterPhase)
+            cooldownRemaining = CurrentCooldownDuration;
+
+        ExecuteAbilityMoudles(CurrentPhase.OnPhaseExit);
+
+        precastTimer = 0;
+        channelingTimer = 0;
+        isPersistentKeep = false;
+        phaseKeepTimer = 0;
+        channelingTriggerChance = 0;
+
+        handler.activeAbilities.Remove(this);
+        isPhaseActive = false;
+
+        currentPhaseIndex++;
+        if (currentPhaseIndex >= data.Phases.Length)
+        {
+            isAbilityActive = false;
+            currentPhaseIndex = 0;
+            EnterCooldown();
+        }
+    }
+
+    public void EnterCooldown()
+    {
+        if (state == AbilityState.Cooldown)
+            return;
+        state = AbilityState.Cooldown;
+    }
+
+    private void ExitCooldown()
+    {
+        if (state != AbilityState.Cooldown)
+            return;
+        state = AbilityState.Idle;
+    }
+
+    public void ReturnResources()
+    {
+        for (int i = 0; i < data.TriggerConditions.Length; i++)
+            data.TriggerConditions[i].CancelReturn(this);
+        cooldownRemaining *= 1 - (fp)data.CancelReturnCooldownPercent;
+    }
+
+    public void StopAbility()
+    {
+        phaseKeepTimer = 0;
+        channelingTimer = 0;
+        isAbilityActive = false;
+        currentPhaseIndex = 0;
+        EnterCooldown();
+    }
+
+    private void ExecuteAbilityMoudles(in AbilityBaseMoudle[] moudles)
+    {
+        if (moudles != null)
+            for (int i = 0; i < moudles.Length; i++)
+                moudles[i].Apply(this);
+    }
+
+    public void UpLevel()
+    {
+        if (level + 1 <= data.Levels.Length)
+            level++;
+    }
+
+    public bool CanTrigger(in InputInfo inputInfo)
+    {
+        if (state == AbilityState.Cooldown)
+            return false;
+
+        for (int i = 0; i <= data.TriggerConditions.Length; i++)
+            if (!data.TriggerConditions[i].CanTrigger(this, inputInfo))
+                return false;
+
         return true;
     }
-
-    private void CreateIndicators()
-    {
-        var modules = CurrentPhase.IndicatorModules;
-
-        if (modules == null) return;
-
-        foreach (var m in modules)
-        {
-            var runtime = m.CreateRuntime();
-            runtime.OnCreate(this);
-            activeIndicators.Add(runtime);
-        }
-    }
-
-    private void UpdateIndicators()
-    {
-        foreach (var r in activeIndicators)
-            r.OnUpdate(this);
-    }
-
-    private void DestroyIndicators()
-    {
-        foreach (var r in activeIndicators)
-            r.OnDestroy();
-
-        activeIndicators.Clear();
-    }
 }
 
-public enum SkillState
+public enum AbilityState
 {
     Idle,
-    Aiming,        // 仅指示器阶段
-    PreCast,
+    Precast,
     Channeling,
-    Casting,
-    Recover,
     Cooldown,
-    Interrupted
 }
 
-public enum SkillTriggerMode
-{
-    PressCast,             // 按下立即释放
-    PressReleaseCast,      // 按下瞄准，松开释放
-    PressCastAndCharge     // 按下开始蓄力，松开释放
-}
-
-public enum SkillIndicatorType
-{
-    None,
-    Circle,
-    Line,
-    Sector,
-    Target
-}
-
-public interface ISkillIndicatorRuntime
-{
-    void OnCreate(AbilityInfo info);
-    void OnUpdate(AbilityInfo info);
-    void OnDestroy();
-}
-
-public readonly struct SkillContextKey<T>
+public readonly struct AbilityContextKey<T>
 {
     public readonly string Name;
-    public SkillContextKey(string name) => Name = name;
+    public AbilityContextKey(string name) => Name = name;
 }
 
-public class SkillContext
+public class AbilityContext
 {
     private readonly Dictionary<string, object> data = new();
 
-    public void Set<T>(SkillContextKey<T> key, T value)
+    public AbilityContextKey<T> Set<T>(string keyName, T value)
+    {
+        var contextKey = new AbilityContextKey<T>(keyName);
+        data[contextKey.Name] = value;
+        return contextKey;
+    }
+
+    public void Set<T>(AbilityContextKey<T> key, T value)
     {
         data[key.Name] = value;
     }
 
-    public T Get<T>(SkillContextKey<T> key)
+    public T Get<T>(AbilityContextKey<T> key)
     {
         return (T)data[key.Name];
     }
 
-    public bool TryGet<T>(SkillContextKey<T> key, out T value)
+    public bool TryGet<T>(AbilityContextKey<T> key, out T value)
     {
         if (data.TryGetValue(key.Name, out var obj) && obj is T t)
         {
@@ -312,5 +325,55 @@ public class SkillContext
         return false;
     }
 
+    public T Take<T>(AbilityContextKey<T> key)
+    {
+        var value = data[key.Name];
+        Remove(key.Name);
+        return (T)value;
+    }
+
+    public bool TryTake<T>(AbilityContextKey<T> key, out T value)
+    {
+        if (data.TryGetValue(key.Name, out var obj) && obj is T t)
+        {
+            Remove(key.Name);
+            value = t;
+            return true;
+        }
+
+        value = default;
+        return false;
+    }
+
+    public void Remove(string keyName) => data.Remove(keyName);
+
     public void Clear() => data.Clear();
+}
+
+public struct AbilityTriggerContext
+{
+    public UnitUID? TargetUID;
+    public fp3? TargetPosition;
+}
+
+public static class AbilityTagAnalyzer
+{
+    private static Dictionary<string, HashSet<string>> tagConflictDict = new Dictionary<string, HashSet<string>>
+    {
+        { "Test1", new HashSet<string> { "Test2", "Test3" } },
+    };
+
+    public static bool CheckConflict(in string[] source, in string[] target)
+    {
+        for (int i = 0; i < source.Length; i++)
+            for (int j = 0; j < target.Length; j++)
+                if (CheckConflict(source[i], target[j]))
+                    return true;
+        return false;
+    }
+
+    public static bool CheckConflict(in string source, in string target)
+    {
+        return tagConflictDict.TryGetValue(source, out var conflictSet) && conflictSet.Contains(target);
+    }
 }

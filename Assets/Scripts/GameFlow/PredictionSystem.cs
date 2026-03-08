@@ -2,39 +2,56 @@ using System.Collections.Generic;
 
 public class PredictionSystem : MonoSingleton<PredictionSystem>
 {
-    // 本地预测指令历史
-    private Dictionary<uint, List<ICommand>> predictedCommands = new();
+    // 客户端本地预测指令表
+    private Dictionary<uint, List<CommandBase>> localPredictedCommands = new();
+    public IReadOnlyDictionary<uint, List<CommandBase>> LocalPredictedCommands => localPredictedCommands;
 
-    public void AddLocalCommand(ICommand cmd)
+    protected override void Awake()
     {
-        if (!predictedCommands.ContainsKey(cmd.TargetTick))
-            predictedCommands[cmd.TargetTick] = new List<ICommand>();
-
-        predictedCommands[cmd.TargetTick].Add(cmd);
-
-        // 立即预测执行
-        ExecuteCommand(cmd);
+        base.Awake();
+        localPredictedCommands.Clear();
     }
 
-    // 供 RollbackSystem 重放使用
-    public void ExecuteCommand(ICommand cmd)
+    protected override void OnDestroy()
     {
-        FrameSyncCoreSystem.Instance.ExecuteSingleCommand(cmd);
+        localPredictedCommands.Clear();
+        base.OnDestroy();
     }
 
-    public bool GetPredictedCommands(uint tick, out List<ICommand> cmds)
+    public void ExcutePredicte(uint tick)
     {
-        return predictedCommands.TryGetValue(tick, out cmds);
+        if (localPredictedCommands.TryGetValue(tick, out var _commands))
+            for (int i = 0; i < _commands.Count; i++)
+                FrameSyncCoreSystem.Instance.ExecuteCommand(_commands[i]);
     }
 
-    public void ClearHistoryBeforeTick(uint tick)
+    public bool CheckPredicteSuccess(uint tick)
     {
-        // 清理过旧的预测记录
-        var keys = new List<uint>(predictedCommands.Keys);
-        foreach (var k in keys)
+        var predictedCommands = localPredictedCommands[tick];
+        var authoritativeCommands = FrameSyncCoreSystem.Instance.AuthoritativeCommands[tick].Commands;
+
+        if ((authoritativeCommands == null || authoritativeCommands.Count == 0) &&
+            (predictedCommands == null || predictedCommands.Count == 0))
+            return true;
+
+        if (authoritativeCommands.Count != predictedCommands.Count)
+            return false;
+
+        for (int i = 0; i < authoritativeCommands.Count; i++)
+            if (authoritativeCommands[i].CommandId != predictedCommands[i].CommandId)
+                return false;
+        return true;
+    }
+
+    public List<CommandBase> GetPredictedCommandList(uint tick)
+    {
+        if (localPredictedCommands.TryGetValue(tick, out var commands))
         {
-            if (k < tick) predictedCommands.Remove(k);
+            commands = new();
+            localPredictedCommands.Add(tick, commands);
         }
+
+        return commands;
     }
 }
 

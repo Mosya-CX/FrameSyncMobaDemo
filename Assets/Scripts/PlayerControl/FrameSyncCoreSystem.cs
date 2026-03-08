@@ -1,225 +1,146 @@
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEngine;
-using System.Linq;
-using Unity.Collections;
-using System.Collections;
 
-public sealed class FrameSyncCoreSystem : NetworkSingleton<FrameSyncCoreSystem>, IGameFlowManaged
+public sealed class FrameSyncCoreSystem : NetworkSingleton<FrameSyncCoreSystem>
 {
-    // 服务器：待调度指令队列
-    private Dictionary<uint, List<ICommand>> pendingCommands = new(); // key = target tick
+    // 待调度指令队列
+    private PriorityQueue<CommandBase> pendingSchedulingCommands = new(Comparer<CommandBase>.Create((a, b)=>b.TargetTick.CompareTo(a.TargetTick)));
 
-    // 客户端：已接收的权威指令
-    private Dictionary<uint, List<ICommand>> authoritativeCommands = new();
+    // 权威帧数据表
+    private Dictionary<uint, FrameData> authoritativeCommands = new();
+    public IReadOnlyDictionary<uint, FrameData> AuthoritativeCommands => authoritativeCommands;
 
-    // 本地指令历史
-    private Dictionary<uint, List<ICommand>> localPredictedCommands = new();
+    // 指令接收者字典
+    public readonly Dictionary<UnitUID, ICommandReceiver> commandReceivers = new();
+    // 指令缓存
+    public readonly List<CommandBase> commandCache = new();
 
-    [SerializeField] private uint stateHashInterval = 30;
+    #region 快捷访问
+    private uint LocalTick => GameFlowManager.Instance.CurrentLocalTick;
+    private uint ServerTick => GameFlowManager.Instance.AuthoritativeTick.Value;
+    #endregion
 
-    private uint currentServerTick; // 服务器当前帧
-    private uint currentLocalTick;   // 客户端本地帧（由GameFlowManager驱动）
-
-    public uint LocalTick => currentLocalTick;
-
-    public IEnumerator Init()
+    protected override void Awake()
     {
-        pendingCommands.Clear();
+        base.Awake();
+        pendingSchedulingCommands.Clear();
         authoritativeCommands.Clear();
-        localPredictedCommands.Clear();
-        currentServerTick = 0;
-        currentLocalTick = 0;
-        yield break;
     }
 
-    public IEnumerator Begin() { yield break; }
-
-    public IEnumerator Clean()
+    public override void OnDestroy()
     {
-        pendingCommands.Clear();
+        pendingSchedulingCommands.Clear();
         authoritativeCommands.Clear();
-        localPredictedCommands.Clear();
-        yield break;
+        base.OnDestroy();
     }
 
-    // 由GameFlowManager每逻辑帧调用
-    public void Tick(ulong tick)
+    public void Tick(uint tick)
     {
         if (IsServer)
-        {
-            ServerTick((uint)tick);
-        }
-        else if (IsClient)
-        {
-            ClientTick((uint)tick);
-        }
-
-        // 执行已就绪的指令
-        ExecuteTickCommands((uint)tick);
+            TickServer(tick);
+        if (IsClient)
+            TickClient(tick);
     }
 
-    #region Server
-
-    private void ServerTick(uint tick)
+    private void TickServer(uint tick)
     {
-        currentServerTick = tick;
+        commandCache.Clear();
 
-        if (pendingCommands.TryGetValue(tick, out var commands))
+        while (pendingSchedulingCommands.Count > 0 && pendingSchedulingCommands.Peek().TargetTick <= tick)
         {
-            BroadcastCommandsForTick(tick, commands);
-            pendingCommands.Remove(tick);
+            var excuteCommand = pendingSchedulingCommands.Dequeue();
+            excuteCommand.TargetTick = tick;
+            commandCache.Add(excuteCommand);
         }
+
+        var currentTickFrameData = new FrameData(tick, commandCache);
+        authoritativeCommands.Add(tick, currentTickFrameData);
+        BroadcastFrameDataClientRpc(currentTickFrameData);
+
+        for (int i = 0; i < commandCache.Count; i++)
+            ExecuteCommand(commandCache[i]);
+
+        commandCache.Clear();
     }
 
-    private void BroadcastCommandsForTick(uint tick, List<ICommand> commands)
+    private void TickClient(uint localTick)
     {
-        // 可以在这里计算状态 Hash 并下发，防止客户端作弊
-
-        using var writer = new FastBufferWriter(2048, Allocator.Temp);
-        CommandSerializer.Serialize(writer, commands);
-        BroadcastCommandsClientRpc(writer.ToArray(), tick);
-    }
-
-    [ClientRpc]
-    private void BroadcastCommandsClientRpc(byte[] commandData, uint executeTick)
-    {
-        var authoritativeCmds = CommandSerializer.Deserialize(commandData);
-
-        // 核心逻辑：对比与回滚
-        if (PredictionSystem.Instance.GetPredictedCommands(executeTick, out var predCmds))
+        commandCache.Clear();
+        if (pendingSchedulingCommands.Count > 0)
         {
-            if (!AreCommandsEqual(authoritativeCmds, predCmds))
+            while (pendingSchedulingCommands.Count > 0)
+                commandCache.Add(pendingSchedulingCommands.Dequeue());
+
+            byte seq = 0;
+            for (int i = 0;i < commandCache.Count;i++)
             {
-                // 预测失败，触发回滚
-                RollbackSystem.Instance.PerformRollback(executeTick, authoritativeCmds);
+                var commands = PredictionSystem.Instance.GetPredictedCommandList(commandCache[i].TargetTick);
+                commandCache[i].CommandId = new CommandId(NetworkManager.LocalClientId, localTick, seq);
+                commands.Add(commandCache[i]);
+                seq++;
             }
-            // 预测正确：无需额外操作，状态已经是对的
+
+            var frameData = new FrameData(localTick, commandCache);
+            SubmitFrameDataServerRpc(frameData);
+
+            commandCache.Clear();
         }
-        else
+
+        // 检查是否需要回滚重建
+        RollbackSystem.Instance.CheckRollback(localTick);
+
+        // 存储当前Tick快照
+        RollbackSystem.Instance.TakeSnapshot(localTick);
+
+        // 执行当前帧的预测指令
+        PredictionSystem.Instance.ExcutePredicte(localTick);
+    }
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    private void BroadcastFrameDataClientRpc(FrameData data)
+    {
+        if (!authoritativeCommands.TryAdd(data.ExcuteTick, data))
+            return;
+
+        if (LocalTick < data.ExcuteTick)
+            return;
+
+        if (PredictionSystem.Instance.CheckPredicteSuccess(data.ExcuteTick))
         {
-            // 没有预测记录，直接执行
-            foreach (var cmd in authoritativeCmds)
-                ExecuteSingleCommand(cmd);
+            RollbackSystem.Instance.EraseTickSnapshot(data.ExcuteTick);
+            return;
         }
+
+        RollbackSystem.Instance.CreateNewRollbackRequest(data.ExcuteTick);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SubmitCommandsServerRpc(byte[] commandData, ServerRpcParams rpcParams = default)
+    private void SubmitFrameDataServerRpc(FrameData data)
     {
-        if (commandData == null || commandData.Length == 0)
-            return;
-
-        var commands = CommandSerializer.Deserialize(commandData);
-        ulong clientId = rpcParams.Receive.SenderClientId;
-
-        foreach (var cmd in commands)
-        {
-            // 检查目标帧
-            if (cmd.TargetTick <= currentServerTick)
-            {
-                // 来晚了，强制改到下一帧
-                cmd.TargetTick = currentServerTick + 1;
-                Debug.LogWarning($"Client {clientId} command arrived late, rescheduled to tick {cmd.TargetTick}");
-            }
-
-            if (!pendingCommands.ContainsKey(cmd.TargetTick))
-                pendingCommands[cmd.TargetTick] = new List<ICommand>();
-            pendingCommands[cmd.TargetTick].Add(cmd);
-        }
+        for (int i = 0; i < data.Commands.Count; i++)
+            pendingSchedulingCommands.Enqueue(data.Commands[i]);
     }
 
-    #endregion
-
-    #region Client
-
-    private void ClientTick(uint localTick)
+    // 客户端本地添加待处理命令队列
+    public void AddPendingCommand(CommandBase command)
     {
-        currentLocalTick = localTick;
-
-        // 收集本地预测指令
-        if (LocalController.Local != null)
-        {
-            var outgoing = LocalController.Local.FlushOutgoingCommands();
-            if (outgoing.Count > 0)
-            {
-                // 保存到本地历史
-                localPredictedCommands[localTick] = outgoing;
-
-                // 发送到服务器
-                using var writer = new FastBufferWriter(2048, Allocator.Temp);
-                CommandSerializer.Serialize(writer, outgoing);
-                SubmitCommandsServerRpc(writer.ToArray());
-            }
-        }
-
-        // 2. 检查是否需要回滚
-        CheckAndRollback(localTick);
+        command.TargetTick = LocalTick + GetTragetTickOffset();
+        pendingSchedulingCommands.Enqueue(command);
     }
 
-    private void CheckAndRollback(uint localTick)
+    // TODO 待改进
+    private uint GetTragetTickOffset()
     {
-        // 每帧检查当前帧的权威指令是否已到达，并与本地预测对比
-        if (authoritativeCommands.TryGetValue(localTick, out var authCmds))
-        {
-            // 获取本地预测指令
-            localPredictedCommands.TryGetValue(localTick, out var predCmds);
-
-            // 比较两个列表是否一致（顺序、内容）
-            if (!AreCommandsEqual(authCmds, predCmds))
-            {
-                // 触发回滚
-                RollbackSystem.Instance.RollbackToTick(localTick - 1, authCmds, predCmds);
-            }
-
-            // 清除已处理的权威指令
-            authoritativeCommands.Remove(localTick);
-            localPredictedCommands.Remove(localTick);
-        }
+        return 3;
     }
 
-    private bool AreCommandsEqual(List<ICommand> a, List<ICommand> b)
+    public void ExecuteCommand(CommandBase cmd)
     {
-        // 简单实现：比较长度和序列化后数据（需要序列化比较）
-        // 实际应比较每个指令的关键字段
-        if (a == null && b == null) return true;
-        if (a == null || b == null) return false;
-        if (a.Count != b.Count) return false;
-        for (int i = 0; i < a.Count; i++)
-        {
-            if (!a[i].Equals(b[i])) return false; // 需要重写ICommand的Equals
-        }
-        return true;
-    }
-
-    #endregion
-
-    private void ExecuteTickCommands(uint tick)
-    {
-        if (authoritativeCommands.TryGetValue(tick, out var cmds))
-        {
-            foreach (var cmd in cmds)
-            {
-                ExecuteSingleCommand(cmd);
-            }
-        }
-    }
-
-    public void ExecuteSingleCommand(ICommand cmd)
-    {
-        if (globalHandlers.Exists(h => h.CanHandle(cmd.Type)))
-        {
-            globalHandlers.Find(h => h.CanHandle(cmd.Type)).HandleCommand(cmd);
-        }
-        else if (commandReceivers.TryGetValue(cmd.ControlledUnitId, out var receiver))
-        {
+        if (commandReceivers.TryGetValue(cmd.ReceiverUnitId, out var receiver))
             receiver.ReceiveCommand(cmd);
-        }
     }
 
     #region 注册指令同步对象
-
-    public readonly Dictionary<UnitUID, ICommandReceiver> commandReceivers = new();
 
     public void RegisterReceiver(ICommandReceiver receiver)
     {
@@ -232,19 +153,6 @@ public sealed class FrameSyncCoreSystem : NetworkSingleton<FrameSyncCoreSystem>,
         commandReceivers.Remove(unitId);
     }
 
-    private List<IGlobalCommandHandler> globalHandlers = new();
-
-    public void RegisterGlobalHandler(IGlobalCommandHandler handler)
-    {
-        if (!globalHandlers.Contains(handler))
-            globalHandlers.Add(handler);
-    }
-
-    public void UnregisterGlobalHandler(IGlobalCommandHandler handler)
-    {
-        globalHandlers.Remove(handler);
-    }
-
     public bool TryGetReceiver(UnitUID uid, out ICommandReceiver receiver)
     {
         return commandReceivers.TryGetValue(uid, out receiver);
@@ -253,14 +161,39 @@ public sealed class FrameSyncCoreSystem : NetworkSingleton<FrameSyncCoreSystem>,
     #endregion
 }
 
-public interface IGlobalCommandHandler// 管理器用
+public interface ICommandReceiver
 {
-    bool CanHandle(CommandType type);
-    void HandleCommand(ICommand command);
+    void ReceiveCommand(CommandBase command);
+    UnitUID ReceiverID { get; }
 }
 
-public interface ICommandReceiver// 单位用
+public struct FrameData : INetworkSerializable
 {
-    void ReceiveCommand(ICommand command);
-    UnitUID ReceiverID { get; }
+    private uint excuteTick;
+    private List<CommandBase> commands;
+
+    public uint ExcuteTick => excuteTick;
+    public IReadOnlyList<CommandBase> Commands => commands;
+
+    public FrameData(in uint excuteTick, in List<CommandBase> commands = null)
+    {
+        this.excuteTick = excuteTick;
+        this.commands = commands != null ? new(commands) : null;
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref excuteTick);
+
+        if (serializer.IsReader)
+        {
+            var reader = serializer.GetFastBufferReader();
+            commands = CommandSerializer.Deserialize(reader);
+        }
+        else
+        {
+            var writer = serializer.GetFastBufferWriter();
+            CommandSerializer.Serialize(writer, commands);
+        }
+    }
 }

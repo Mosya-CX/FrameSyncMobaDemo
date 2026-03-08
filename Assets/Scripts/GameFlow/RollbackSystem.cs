@@ -1,142 +1,91 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using static RollbackSystem;
+using static EntitiesSimulation;
+using static MissleManager;
 
 public class RollbackSystem : MonoSingleton<RollbackSystem>
 {
-    // 快照数据结构
     [Serializable]
     public class WorldSnapshot
     {
-        public uint tick;
-        public Dictionary<UnitUID, object> unitStates = new(); // 每个单位的状态快照
+        public uint Tick;
+        public UnitManager.GlobalUnitSnapshot GlobalUnitSnapshot;// 单位快照
+        public MissleManager.GlobalMissleSnapshot GlobalMissleSnapshot;// 投掷物快照
+        public EntitiesSimulation.SimulationSnapshot SimulationSnapshot;
+        public uint RandomState;
     }
 
-    // 环形缓冲区，存储最近N帧的快照（N可配置）
-    private List<WorldSnapshot> snapshots = new List<WorldSnapshot>();
-    [SerializeField] private int maxSnapshotCount = 100; // 对应约3秒（30fps）
+    private Dictionary<uint, WorldSnapshot> worldSnapshots;
 
-    // 快照间隔（每多少帧存一次快照）
-    [SerializeField] private int snapshotInterval = 10;
+    private PriorityQueue<uint> rollbackRequest = new(Comparer<uint>.Create((a, b)=>b.CompareTo(a)));
 
-    private uint lastSnapshotTick = 0;
-
-    // 由GameFlowManager在每帧Tick后调用，保存当前帧快照
     public void TakeSnapshot(uint tick)
     {
-        if (tick - lastSnapshotTick < snapshotInterval) return;
-
-        var snap = new WorldSnapshot { tick = tick };
-        // 收集所有需要回滚的单元的状态
-        foreach (var kv in FrameSyncCoreSystem.Instance.commandReceivers) // 注意：commandReceivers现在是private，需要公开访问或另寻途径
+        var snapshot = new WorldSnapshot
         {
-            if (kv.Value is IStateful stateful) // 定义接口IStateful
-            {
-                snap.unitStates[kv.Key] = stateful.CaptureState();
-            }
-        }
-        snapshots.Add(snap);
-        if (snapshots.Count > maxSnapshotCount)
-            snapshots.RemoveAt(0);
-        lastSnapshotTick = tick;
+            Tick = tick,
+            GlobalUnitSnapshot = UnitManager.Instance.CaptureState() as UnitManager.GlobalUnitSnapshot,
+            GlobalMissleSnapshot = MissleManager.Instance.CaptureState() as MissleManager.GlobalMissleSnapshot,
+            SimulationSnapshot = EntitiesSimulation.Instance.CaptureState() as EntitiesSimulation.SimulationSnapshot,
+            RandomState = (uint)DeterministicRandom.Instance.CaptureState(),
+
+        };
     }
 
-    // 回滚到指定帧（不包括该帧，即到前一帧），然后应用权威指令重新模拟
-    public void RollbackToTick(uint targetTick, List<ICommand> authCmds, List<ICommand> predCmds)
+    public void EraseTickSnapshot(uint targetTick)
     {
-        Debug.Log($"Rolling back to tick {targetTick}");
-
-        // 找到最近的快照，其tick ≤ targetTick
-        WorldSnapshot snapshot = null;
-        for (int i = snapshots.Count - 1; i >= 0; i--)
-        {
-            if (snapshots[i].tick <= targetTick)
-            {
-                snapshot = snapshots[i];
-                break;
-            }
-        }
-        if (snapshot == null)
-        {
-            Debug.LogError("No snapshot available for rollback!");
-            return;
-        }
-
-        // 恢复所有单位状态到快照时刻
-        foreach (var kv in snapshot.unitStates)
-        {
-            if (FrameSyncCoreSystem.Instance.commandReceivers.TryGetValue(kv.Key, out var receiver) && receiver is IStateful stateful)
-            {
-                stateful.RestoreState(kv.Value);
-            }
-        }
-
-        // 从 snapshot.tick+1 开始到 targetTick，重新模拟权威指令
-        for (uint t = snapshot.tick + 1; t <= targetTick; t++)
-        {
-            // 这里需要获取tick t的权威指令，可能来自 authoritativeCommands 或者本地预测（如果尚未收到）
-            // 实际实现时，应在 FrameSyncCoreSystem 中存储所有接收到的权威指令，并在此重新应用
-            // 简化起见，我们可以让 FrameSyncCoreSystem 提供一个方法 ReplayTick(tick)
-        }
-
-        // 然后继续正常模拟直到当前帧
-        // 这部分需要在 GameFlowManager 中驱动重新模拟
+        worldSnapshots.Remove(targetTick);
     }
 
-    public void PerformRollback(uint mismatchedTick, List<ICommand> authoritativeCmds)
+    public void CreateNewRollbackRequest(uint rollbackTick)
     {
-        Debug.Log($"[Rollback] Detected mismatch at tick {mismatchedTick}");
+        rollbackRequest.Enqueue(rollbackTick);
+    }
 
-        // 寻找最近的有效快照
-        WorldSnapshot snapshot = GetClosestSnapshot(mismatchedTick);
-        if (snapshot == null) return; // 无法回滚
-
-        // 恢复全局状态
-        foreach (var kv in snapshot.unitStates)
+    public void CheckRollback(uint localTick)
+    {
+        if (rollbackRequest.Count > 0)
         {
-            if (FrameSyncCoreSystem.Instance.TryGetReceiver(kv.Key, out var receiver) && receiver is IStateful stateful)
-            {
-                stateful.RestoreState(kv.Value);
-            }
-        }
-
-        // TODO 恢复随机数状态
- 
-
-        // 重新模拟
-        uint currentLocalTick = GameFlowManager.Instance.CurrentLocalTick;
-
-        for (uint t = snapshot.tick + 1; t <= currentLocalTick; t++)
-        {
-            // 优先使用权威指令
-            if (authoritativeCmds != null && t == mismatchedTick)
-            {
-                foreach (var cmd in authoritativeCmds)
-                    PredictionSystem.Instance.ExecuteCommand(cmd);
-            }
-            else
-            {
-                // 如果是未来的帧，尝试使用本地预测 (如果是本地玩家输入)
-                // 注意：纯服务端权威的游戏通常只回滚到收到权威帧为止，
-                // 但这里我们要修正当前的状态，所以需要重放预测
-                if (PredictionSystem.Instance.GetPredictedCommands(t, out var predCmds))
-                {
-                    foreach (var cmd in predCmds)
-                        PredictionSystem.Instance.ExecuteCommand(cmd);
-                }
-            }
-
-            // 模拟这一帧的逻辑
-            // 注意：这里需要手动调用单位的 Tick，或者由 GameFlowManager 提供接口
-            // GameFlowManager.Instance.SimulateSingleTick(t); 
+            var rollbackTick = rollbackRequest.Dequeue();
+            while (rollbackRequest.Count > 0)
+                EraseTickSnapshot(rollbackRequest.Dequeue());
+            Rollback(rollbackTick, localTick);
         }
     }
 
-    // TODO
-    private WorldSnapshot GetClosestSnapshot(uint tick)
+    // 回滚到指定帧，然后应用权威指令重新模拟
+    public void Rollback(uint rollbackTick, uint currentTick)
     {
-        
-        return null;
+        Debug.Log($"Rolling back to tick {rollbackTick}");
+        if (worldSnapshots.TryGetValue(rollbackTick, out var worldSnapshot))
+        {
+            // 复原状态
+            Restore(worldSnapshot);
+
+            // 重建
+            for (uint rebuildTick = rollbackTick; rebuildTick < currentTick; rebuildTick++)
+            {
+                if (FrameSyncCoreSystem.Instance.AuthoritativeCommands.TryGetValue(rebuildTick, out var frameData))
+                    for (int i = 0; i < frameData.Commands.Count; i++)
+                        FrameSyncCoreSystem.Instance.ExecuteCommand(frameData.Commands[i]);
+                else
+                    PredictionSystem.Instance.ExcutePredicte(rebuildTick);
+
+                GameFlowManager.Instance.GameTick(rebuildTick);
+            }
+
+            worldSnapshots.Remove(rollbackTick);
+        }
+    }
+
+    public void Restore(in WorldSnapshot worldSnapshot)
+    {
+        UnitManager.Instance.RestoreState(worldSnapshot.GlobalUnitSnapshot);
+        MissleManager.Instance.RestoreState(worldSnapshot.GlobalMissleSnapshot);
+        EntitiesSimulation.Instance.RestoreState(worldSnapshot.SimulationSnapshot);
+        DeterministicRandom.Instance.RestoreState(worldSnapshot.RandomState);
     }
 }
 
@@ -145,10 +94,4 @@ public interface IStateful
 {
     object CaptureState();
     void RestoreState(object state);
-}
-
-public interface IHandlerStateful
-{
-    object CaptureHandlerState();
-    void RestoreHandlerState(object state);
 }

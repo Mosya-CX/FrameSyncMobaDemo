@@ -17,12 +17,11 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         GameOver
     }
 
-    [SerializeField, LabelText("受控管理器")] 
-    private GameObject[] managedObjects;
-    private IGameFlowManaged[] manageds;
-
     [SerializeField, LabelText("每秒逻辑帧")] 
     private ushort tickPerSecond = 30;
+
+    [SerializeField, LabelText("正式开始延迟时长")]
+    private float startDelay = 3;
 
     [ReadOnly]
     public NetworkVariable<GameFlowState> currentState =new(GameFlowState.None,
@@ -41,7 +40,7 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
     private float tickInterval;
 
     [ReadOnly]// 服务器权威帧号
-    public NetworkVariable<uint> authoritativeTick = new(0, 
+    public NetworkVariable<uint> AuthoritativeTick = new(0, 
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public uint CurrentLocalTick => localTick;
@@ -50,21 +49,23 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
     public float TickInterval => tickInterval;
     public fp TickIntervalFP => (fp)tickInterval;
 
+    #region 管理器列表
+    public UnitManager UnitManager => UnitManager.Instance;
+    public DamageManager DamageManager => DamageManager.Instance;
+    public RVOGenerator RVOGenerator => RVOGenerator.Instance;
+    public MissleManager MissleManager => MissleManager.Instance;
+    public FrameSyncCoreSystem FrameSyncCoreSystem => FrameSyncCoreSystem.Instance;
+    public DeterministicRandom DeterministicRandom => DeterministicRandom.Instance;
+    public RollbackSystem RollbackSystem => RollbackSystem.Instance;
+    public TimeSyncSytem TimeSyncSytem => TimeSyncSytem.Instance;
+    public PredictionSystem PredictionSystem => PredictionSystem.Instance;
+    public EntitiesSimulation EntitiesSimulation => EntitiesSimulation.Instance;
+    #endregion
+
     protected override void Awake()
     {
         base.Awake();
         tickInterval = 1f / tickPerSecond;
-    }
-
-    private void Start()
-    {
-        List<IGameFlowManaged> list = new();
-        foreach (var go in managedObjects)
-        {
-            if (go.TryGetComponent(out IGameFlowManaged m))
-                list.Add(m);
-        }
-        manageds = list.ToArray();
     }
 
     public override void OnNetworkSpawn()
@@ -78,8 +79,11 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         if (IsServer)
             currentState.Value = GameFlowState.Initializing;
 
-        foreach (var m in manageds)
-            yield return m.Init();
+        yield return RVOGenerator.Init();
+        yield return UnitManager.Init();
+        yield return MissleManager.Init();
+        yield return EntitiesSimulation.Init();
+        yield return DamageManager.Init();
 
         yield return null; // 等待一帧确保初始化完成
 
@@ -90,9 +94,7 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
             CheckAllClientsReady();
         }
         else
-        {
             NotifyInitCompleteServerRpc();
-        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -106,22 +108,32 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
     private void CheckAllClientsReady()
     {
         foreach (var clientId in NetworkManager.Singleton.ConnectedClientsIds)
-        {
             if (!readyClients.Contains(clientId))
                 return;
-        }
 
-        StartCoroutine(BeginPhaseRoutine());
+        StartCoroutine(BeginPhaseRoutine(0));
+        BoardcastGameStartClientRpc((float)NetworkManager.ServerTime.Time);
     }
 
-    private IEnumerator BeginPhaseRoutine()
+    [ClientRpc]
+    private void BoardcastGameStartClientRpc(float serverSendTime)
+    {
+        var recevieDelay = ((float)NetworkManager.LocalTime.Time) - serverSendTime;
+        StartCoroutine(BeginPhaseRoutine(recevieDelay));
+    }
+
+    private IEnumerator BeginPhaseRoutine(float beginDelay)
     {
         currentState.Value = GameFlowState.PreGame;
 
-        foreach (var m in manageds)
-            yield return m.Begin();
+        var delay = startDelay - beginDelay;
+        yield return new WaitForSecondsRealtime(delay);
 
-        yield return null;
+        RVOGenerator.Begin();
+        UnitManager.Begin();
+        MissleManager.Begin();
+        EntitiesSimulation.Begin();
+        DamageManager.Begin();
 
         currentState.Value = GameFlowState.Running;
         isRunning = true;
@@ -140,36 +152,36 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
 
         if (IsServer)
         {
-            ServerTick();
+            TickServer();
         }
 
         if (IsClient)
         {
-            ClientTick();
+            TickClient();
         }
     }
 
-    private void ServerTick()
+    private void TickServer()
     {
         serverTickTimer += Time.deltaTime;
         while (serverTickTimer >= tickInterval)
         {
             serverTickTimer -= tickInterval;
-            authoritativeTick.Value++;
-            ExecuteTick(authoritativeTick.Value); // 服务器执行该帧
+            AuthoritativeTick.Value++;
+            ExecuteTick(AuthoritativeTick.Value); // 服务器执行该帧
         }
     }
 
-    private void ClientTick()
+    private void TickClient()
     {
         // 优化时钟同步算法
-        int tickDelta = (int)authoritativeTick.Value - (int)localTick;
+        int tickDelta = (int)AuthoritativeTick.Value - (int)localTick;
 
         // 如果落后超过阈值，瞬移逻辑帧追赶
         if (tickDelta > 10)
         {
-            Debug.Log($"Client lagging behind. Jumping from {localTick} to {authoritativeTick.Value}");
-            while (localTick < authoritativeTick.Value)
+            Debug.Log($"Client lagging behind. Jumping from {localTick} to {AuthoritativeTick.Value}");
+            while (localTick < AuthoritativeTick.Value)
             {
                 localTick++;
                 ExecuteTick(localTick);
@@ -191,30 +203,28 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
 
     private void ExecuteTick(uint tick)
     {
-        // 处理网络指令分发
-        FrameSyncCoreSystem.Instance?.Tick(tick);
+        FrameSyncCoreSystem.Tick(tick);
+        GameTick(tick);
+    }
 
-        // 驱动所有单位逻辑
-        foreach (var m in manageds)
-            m.Tick(tick);
+    public void GameTick(uint tick)
+    {
+        UnitManager.UpdateLocalTick(tick);
+        MissleManager.UpdateLocalTick(tick);
 
-        // 客户端保存快照
-        if (IsClient)
-        {
-            RollbackSystem.Instance?.TakeSnapshot(tick);
+        UnitManager.TickSpawnUnit();
+        MissleManager.TickSpawnMissle();
 
-            // 收集并发送本地输入
-            LocalController.Local?.GenerateCommandsForTick(tick);
+        RVOGenerator.Tick(tick);
+        UnitManager.TickUpdateUnitTransform();
+        MissleManager.TickUpdateMissTransform();
 
-            // 发送指令
-            var cmds = LocalController.Local?.FlushOutgoingCommands();
-            if (cmds != null && cmds.Count > 0)
-            {
-                // 通过 FrameSyncCoreSystem 发送 (原逻辑在 LocalController 里，建议移到这里统一管理)
-                // FrameSyncCoreSystem.Instance.SendCommands(cmds); 
-                // 注：需在 FrameSyncCoreSystem 增加公开的发送方法
-            }
-        }
+        EntitiesSimulation.Tick(tick);
+        UnitManager.TickUpdateUnitState();
+        MissleManager.TickUpdateMissleState();
+
+        DamageManager.Tick(tick);
+        UnitManager.TickDeathDecision();
     }
 
     #endregion
@@ -234,17 +244,12 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
     [ClientRpc]
     private void CleanClientRpc()
     {
-        foreach (var m in manageds)
-            m.Clean();
+        RVOGenerator.Clean();
+        UnitManager.Clean();
+        MissleManager.Clean();
+        EntitiesSimulation.Clean();
+        DamageManager.Clean();
     }
 
     #endregion
-}
-
-public interface IGameFlowManaged
-{
-    IEnumerator Init();
-    IEnumerator Begin();
-    void Tick(ulong currentTick);
-    IEnumerator Clean();
 }
