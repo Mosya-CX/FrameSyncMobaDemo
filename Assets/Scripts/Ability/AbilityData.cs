@@ -1,7 +1,4 @@
 using Sirenix.OdinInspector;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -13,32 +10,32 @@ public class AbilityData : ScriptableObject
     public string Name;
     public string Description;
 
-    [Title("成长性")]
+    [Title("成长")]
     public AbilityLevelData[] Levels;
 
-    [Title("条件和返还")]
+    [Title("门禁")]
     public AbilityBaseCondition[] TriggerConditions;
-    [Range(0, 1)]
-    public float CancelReturnCooldownPercent;
 
-    [Title("技能段")]
-    public AbilityPhase[] Phases;
+    [Title("目标")]
+    public AbilityTargetMode TargetMode = AbilityTargetMode.PointOrUnit;
+    public float CastRange = 6f;
+    public bool AllowAutoApproach = true;
 
-    [Title("冷却开始时机")]
-    public AbilityStartCooldownTiming CooldownApplyTiming = AbilityStartCooldownTiming.OnEnterPhase;
-    [ValueDropdown(nameof(GetPhaseIndexList))]
-    public int StartCooldownPhase;
+    [Title("行为规则")]
+    public bool Queueable = true;
+    public bool ResumeSuspendedOrderIfNoBufferedCast = true;
+    public bool CancelByMove = true;
+    public bool CancelByAttack = true;
+    public bool CancelByCast = true;
+    public bool CancelByStop = true;
+    public bool CancelByHardControl = true;
 
-    private int[] GetPhaseIndexList()
-    {
-        if (Phases == null)
-            return new int[0];
+    [Title("执行段")]
+    public CastStageData[] Stages;
 
-        var list = new int[Phases.Length];
-        for (int i = 0; i < Phases.Length; i++)
-            list[i] = i;
-        return list;
-    }
+    [Title("指示器")]
+    public AbilityIndicatorBase Indicator;
+    public LocalCastInteractionType LocalInteractionType = LocalCastInteractionType.PressOrRelease;
 }
 
 [System.Serializable]
@@ -48,55 +45,43 @@ public class AbilityLevelData
     public SerializedDictionary<string, float> Parameters;
 }
 
+public enum AbilityTargetMode
+{
+    None,
+    Point,
+    Unit,
+    PointOrUnit,
+    Direction,
+}
+
+public enum LocalCastInteractionType
+{
+    Instant,
+    PressOrRelease,
+    HoldAndRelease,
+}
+
 [System.Serializable]
-public class AbilityPhase
+public class CastStageData
 {
-    public Sprite Icon;
-    public string[] Tags;
-    public bool IsPersistent;
-    public float PhaseKeepDuration;
+    public CastStageType Type;
+    public float Duration;
 
-    public AbilityBaseMoudle[] OnPhaseEnter;
-    public AbilityBaseMoudle[] OnPhaseTick;
-    public AbilityBaseMoudle[] OnPhaseExit;
-    public AbilityBaseMoudle[] OnPhaseTrigger;
+    [Title("进入")]
+    public AbilityBaseMoudle[] OnEnter;
 
-    [Title("前摇")]
-    public float PrecastDuration;
-    public AbilityBaseMoudle[] OnPrecastEnter;
-    public AbilityBaseMoudle[] OnPrecastTick;
-    public AbilityBaseMoudle[] OnPrecastExit;
+    [Title("持续")]
+    public AbilityBaseMoudle[] OnTick;
 
-    [Title("引导")]
-    public float ChannelingDuration;
-    public AbilityBaseMoudle[] OnChannelingEnter;
-    public AbilityBaseMoudle[] OnChannelingTick;
-    public AbilityBaseMoudle[] OnChannelingExit;
-    public AbilityBaseMoudle[] OnChannelingTimeOut;
-    public bool CanTriggerChanneling;
-    public AbilityBaseMoudle[] OnChannelingTrigger;
-    public float ChannelingTriggerCooldown;
-    public short ChannelingRecycleTriggerChance = 1;
-
-    //[Title("后摇")]
-    //public float RecoveryDuration;
+    [Title("退出")]
+    public AbilityBaseMoudle[] OnExit;
 }
 
-public enum AbilityChannelingMode
+public enum CastStageType : byte
 {
-    Default,// 默认
-    Charge,// 蓄力型
-    Recycle,// 可重复使用的
-}
-
-public enum AbilityStartCooldownTiming
-{
-    OnEnterPhase,
-    OnExitPhase,
-    //OnEnterPrecast,
-    //OnExitPrecast,
-    //OnEnterChanneling,
-    //OnExitChanneling,
-    //OnEnterKeep,
-    //OnExitKeep,
+    None,
+    Windup,
+    Execute,
+    Channel,
+    Recovery,
 }

@@ -57,7 +57,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
     public FrameSyncCoreSystem FrameSyncCoreSystem => FrameSyncCoreSystem.Instance;
     public DeterministicRandom DeterministicRandom => DeterministicRandom.Instance;
     public RollbackSystem RollbackSystem => RollbackSystem.Instance;
-    public TimeSyncSytem TimeSyncSytem => TimeSyncSytem.Instance;
     public PredictionSystem PredictionSystem => PredictionSystem.Instance;
     public EntitiesSimulation EntitiesSimulation => EntitiesSimulation.Instance;
     #endregion

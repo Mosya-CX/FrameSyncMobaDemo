@@ -153,7 +153,7 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
         SyncTransform();
     }
 
-    public void Tick(fp dt)
+    public virtual void Tick(fp dt)
     {
         buffHandler.Tick(dt);
         abilityHandler.Tick(dt);
@@ -163,26 +163,29 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
         if (IsInAttackRecovery)
             attackRecoveryTimer -= dt;
 
+        var snapshot = crowdControlHandler.CurrentSnapshot;
+
         switch (currentActionState)
         {
             case UnitActionState.Idle:
                 OnIdleTick(dt);
                 break;
+
             case UnitActionState.Move:
-                if (capability.HasFlag(UnitCapability.Move))
-                    break;
-                OnMoveTick(dt);   
+                if (!snapshot.BlockMove)
+                    OnMoveTick(dt);
                 break;
+
             case UnitActionState.Track:
-                if (capability.HasFlag(UnitCapability.Track))
-                    break;
-                OnTrackTick(dt);
+                if (!snapshot.BlockTrack)
+                    OnTrackTick(dt);
                 break;
+
             case UnitActionState.Attack:
-                if (capability.HasFlag(UnitCapability.Attack))
-                    break;
-                OnAttackTick(dt);
+                if (!snapshot.BlockAttack)
+                    OnAttackTick(dt);
                 break;
+
             case UnitActionState.Revive:
                 OnReviveTick(dt);
                 break;
@@ -229,54 +232,29 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
 
     private void OnStateExit(UnitActionState current)
     {
-        switch (currentActionState)
+        switch (current)
         {
-            case UnitActionState.Idle:
-                OnIdleExit();
-                break;
-            case UnitActionState.Move:
-                OnMoveExit();
-                break;
-            case UnitActionState.Track:
-                OnTrackExit();
-                break;
-            case UnitActionState.Attack:
-                OnAttackExit();
-                break;
-            case UnitActionState.Dead:
-                OnDeadExit();
-                break;
-            case UnitActionState.Revive:
-                OnReviveExit();
-                break;
+            case UnitActionState.Idle: OnIdleExit(); break;
+            case UnitActionState.Move: OnMoveExit(); break;
+            case UnitActionState.Track: OnTrackExit(); break;
+            case UnitActionState.Attack: OnAttackExit(); break;
+            case UnitActionState.Dead: OnDeadExit(); break;
+            case UnitActionState.Revive: OnReviveExit(); break;
+            case UnitActionState.Siffness: OnSiffnessExit(); break;
         }
     }
 
     private void OnStateEnter(UnitActionState next)
     {
-        switch (currentActionState)
+        switch (next)
         {
-            case UnitActionState.Idle:
-                OnIdleEnter();
-                break;
-            case UnitActionState.Move:
-                OnMoveEnter();
-                break;
-            case UnitActionState.Track:
-                OnTrackEnter();
-                break;
-            case UnitActionState.Attack:
-                OnAttackEnter();
-                break;
-            case UnitActionState.Dead:
-                OnDeadEnter();
-                break;
-            case UnitActionState.Revive:
-                OnReviveEnter();
-                break;
-            case UnitActionState.Siffness:
-                OnSiffnessEnter();
-                break;
+            case UnitActionState.Idle: OnIdleEnter(); break;
+            case UnitActionState.Move: OnMoveEnter(); break;
+            case UnitActionState.Track: OnTrackEnter(); break;
+            case UnitActionState.Attack: OnAttackEnter(); break;
+            case UnitActionState.Dead: OnDeadEnter(); break;
+            case UnitActionState.Revive: OnReviveEnter(); break;
+            case UnitActionState.Siffness: OnSiffnessEnter(); break;
         }
     }
 
@@ -761,12 +739,12 @@ public enum UnitActionState : byte
 [Flags]
 public enum UnitCapability
 {
-    None,
-    Move = 1,
-    Track = 2,
-    Attack = 3,
-    Cast = 4,
-    Dash = 5,
+    None = 0,
+    Move = 1 << 0,
+    Track = 1 << 1,
+    Attack = 1 << 2,
+    Cast = 1 << 3,
+    Dash = 1 << 4,
     All = Move | Track | Attack | Cast | Dash,
 }
 
