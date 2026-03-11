@@ -1,10 +1,10 @@
-using UnityEngine;
 using Sirenix.OdinInspector;
-using Unity.Mathematics.FixedPoint;
 using System;
 using System.Collections.Generic;
+using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
-public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
+public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDamageModifierProvider, IHealModifierProvider
 {
     #region 基础信息
     [SerializeField, LabelText("预制体ID"), ReadOnly]
@@ -19,7 +19,7 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
     public byte TeamID => teamId;
 
     [SerializeField, LabelText("模型根节点")]
-    private Transform modelRoot;
+    protected Transform modelRoot;
 
     [SerializeField, LabelText("单位大小半径")]
     public fp unitSizeRadius = 0.3m;
@@ -34,9 +34,10 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
 
     [SerializeField, LabelText("当前等级")]
     protected int level;
+    public int Level => level;
 
     [ShowInInspector, ReadOnly, LabelText("逻辑坐标")]
-    protected fp3 logicPosition;// 实际只有xz有用，但是为了方便运算就使用fp3
+    protected fp3 logicPosition;
     public fp3 LogicPosition
     {
         get => logicPosition;
@@ -44,71 +45,39 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
     }
 
     [ShowInInspector, ReadOnly, LabelText("逻辑旋转")]
-    protected fp2 logicRotation;// x代表四元数的y，y代表四元数的w
+    protected fp2 logicRotation;
     public fp2 LogicRotation
     {
         get => logicRotation;
         set => logicRotation = value;
     }
 
-    [ShowInInspector, ReadOnly, LabelText("状态")]
-    protected UnitActionState currentActionState;
-    public UnitActionState CurrentActionState => currentActionState;
+    [ShowInInspector, ReadOnly, LabelText("基础运动状态")]
+    protected UnitLocomotionState locomotionState = UnitLocomotionState.Idle;
+    public UnitLocomotionState LocomotionState => locomotionState;
+
+    public bool IsDead => locomotionState == UnitLocomotionState.Dead;
     #endregion
 
-    #region 行为数据
+    #region 运动基础
     [ShowInInspector, ReadOnly, LabelText("移动方向")]
     protected fp3 direction;
+    public fp3 Direction => direction;
+
     protected PathFinder pathFinder;
-
-    protected fp3? currentDestination;
-    protected UnitCore currentTarget;
-
-    [SerializeField, LabelText("攻击投掷物")]
-    protected AttackMissle attackMisslePrefab;
-    [SerializeField, LabelText("基础攻击前摇时长")]
-    private float baseAttackWindupDuration = 0.2f;
-    [SerializeField, LabelText("基础攻击后摇时长")]
-    private float baseAttackRecoveryDuration = 0.8f;
-    private fp attackPrecastTimer;
-    private fp attackRecoveryTimer;
-    public bool IsInAttackRecovery => attackRecoveryTimer > 0;
-
-    protected int reviveRecoveryTickRemaining;// 复活回血Tick次数
-    protected fp reviveRecoveryTickInterval;// 复活回血Tick触发间隔
-    protected fp reviveRecoveryTickIntervalTimer;// 回血Tick计时器
-    protected fp reviveRecoveryHealAmountPerTick = 99999;// 复活每Tick回多少血
-    protected fp reviveRecoveryManaRestorationPerTick = 99999;// 复活每Tick回多少蓝
-    #endregion
-
-    #region 行为限制
-    public UnitCapability capability = UnitCapability.All;
-    public bool IsInControlSiffness => CrowdControlHandler.IsInControlSiffness();
-    public bool IsInAbilityPrecast => AbilityHandler.IsInAbilityPrecast();
-    //public bool lockInput;// 禁用状态转移
-    //public bool lockMove;// 禁用移动
-    //public bool lockRotateion;// 禁用更新旋转
-    //public bool lockAttack;// 禁用攻击(但可以追踪目标)
-    //public bool lockCasting;// 禁用施法
     #endregion
 
     #region 额外功能
-
     protected UnitBaseHandler[] handlers;
     protected AbilityHandler abilityHandler;
     protected BuffHandler buffHandler;
     protected CrowdControlHandler crowdControlHandler;
     protected EquipmentHandler equipmentHandler;
 
-    [ShowInInspector, ReadOnly]
     public AbilityHandler AbilityHandler => abilityHandler;
-    [ShowInInspector, ReadOnly]
     public BuffHandler BuffHandler => buffHandler;
-    [ShowInInspector, ReadOnly]
     public CrowdControlHandler CrowdControlHandler => crowdControlHandler;
-    [ShowInInspector, ReadOnly]
     public EquipmentHandler EquipmentHandler => equipmentHandler;
-
     #endregion
 
     #region 生命周期
@@ -133,13 +102,13 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
         stats.SetLevel(level);
 
         RegisterRVOGenerator();
+        SetLocomotionState(UnitLocomotionState.Idle);
     }
 
     public virtual void OnDespawn()
     {
         stats.Clean();
         unitId = default;
-
         UnregisterRVOGenerator();
     }
 
@@ -153,322 +122,106 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
         SyncTransform();
     }
 
-    public virtual void Tick(fp dt)
+    public virtual void Tick(fp dt, uint currentTick)
     {
-        buffHandler.Tick(dt);
-        abilityHandler.Tick(dt);
-        crowdControlHandler.Tick(dt);
-        equipmentHandler.Tick(dt);
+        buffHandler?.Tick(dt);
+        abilityHandler?.Tick(dt);
+        crowdControlHandler?.Tick(dt);
+        equipmentHandler?.Tick(dt);
 
-        if (IsInAttackRecovery)
-            attackRecoveryTimer -= dt;
+        TickLocomotion(dt);
+    }
+    #endregion
 
-        var snapshot = crowdControlHandler.CurrentSnapshot;
+    #region 基础运动状态
+    protected void SetLocomotionState(UnitLocomotionState next)
+    {
+        if (locomotionState == next)
+            return;
 
-        switch (currentActionState)
+        OnLocomotionExit(locomotionState);
+        locomotionState = next;
+        OnLocomotionEnter(next);
+    }
+
+    protected virtual void TickLocomotion(fp dt)
+    {
+        switch (locomotionState)
         {
-            case UnitActionState.Idle:
+            case UnitLocomotionState.Idle:
                 OnIdleTick(dt);
                 break;
 
-            case UnitActionState.Move:
-                if (!snapshot.BlockMove)
-                    OnMoveTick(dt);
+            case UnitLocomotionState.Move:
+                OnMoveTick(dt);
                 break;
 
-            case UnitActionState.Track:
-                if (!snapshot.BlockTrack)
-                    OnTrackTick(dt);
-                break;
-
-            case UnitActionState.Attack:
-                if (!snapshot.BlockAttack)
-                    OnAttackTick(dt);
-                break;
-
-            case UnitActionState.Revive:
-                OnReviveTick(dt);
+            case UnitLocomotionState.Dead:
+                OnDeadTick(dt);
                 break;
         }
     }
 
-    #endregion
-
-    #region 状态机部分
-    protected void ChangeActionState(UnitActionState nextState)
+    private void OnLocomotionEnter(UnitLocomotionState state)
     {
-        if (nextState == currentActionState) 
-            return;
-
-        switch (nextState)
+        switch (state)
         {
-            case UnitActionState.Move:
-                if (capability.HasFlag(UnitCapability.Move))
-                {
-                    currentDestination = null;
-                    return;
-                }   
-                break;
-            case UnitActionState.Attack:
-                if (capability.HasFlag(UnitCapability.Attack))
-                {
-                    currentTarget = null;
-                    return;
-                }
-                break;
-            case UnitActionState.Track:
-                if (capability.HasFlag(UnitCapability.Track))
-                {
-                    currentTarget = null;
-                    return;
-                }
-                break;
+            case UnitLocomotionState.Idle: OnIdleEnter(); break;
+            case UnitLocomotionState.Move: OnMoveEnter(); break;
+            case UnitLocomotionState.Dead: OnDeadEnter(); break;
         }
-
-        OnStateExit(currentActionState);
-        OnStateEnter(nextState);
-        currentActionState = nextState;
     }
 
-    private void OnStateExit(UnitActionState current)
+    private void OnLocomotionExit(UnitLocomotionState state)
     {
-        switch (current)
+        switch (state)
         {
-            case UnitActionState.Idle: OnIdleExit(); break;
-            case UnitActionState.Move: OnMoveExit(); break;
-            case UnitActionState.Track: OnTrackExit(); break;
-            case UnitActionState.Attack: OnAttackExit(); break;
-            case UnitActionState.Dead: OnDeadExit(); break;
-            case UnitActionState.Revive: OnReviveExit(); break;
-            case UnitActionState.Siffness: OnSiffnessExit(); break;
+            case UnitLocomotionState.Idle: OnIdleExit(); break;
+            case UnitLocomotionState.Move: OnMoveExit(); break;
+            case UnitLocomotionState.Dead: OnDeadExit(); break;
         }
     }
 
-    private void OnStateEnter(UnitActionState next)
-    {
-        switch (next)
-        {
-            case UnitActionState.Idle: OnIdleEnter(); break;
-            case UnitActionState.Move: OnMoveEnter(); break;
-            case UnitActionState.Track: OnTrackEnter(); break;
-            case UnitActionState.Attack: OnAttackEnter(); break;
-            case UnitActionState.Dead: OnDeadEnter(); break;
-            case UnitActionState.Revive: OnReviveEnter(); break;
-            case UnitActionState.Siffness: OnSiffnessEnter(); break;
-        }
-    }
+    protected virtual void OnIdleEnter() { }
+    protected virtual void OnIdleTick(fp dt) { }
+    protected virtual void OnIdleExit() { }
 
-    #region Idle
-    protected virtual void OnIdleEnter()
-    {
-
-    }
-    protected virtual void OnIdleTick(fp dt)
-    {
-
-    }
-    protected virtual void OnIdleExit()
-    {
-
-    }
-    #endregion
-
-    #region Move
-    protected virtual void OnMoveEnter()
-    {
-        
-    }
+    protected virtual void OnMoveEnter() { }
     protected virtual void OnMoveTick(fp dt)
     {
-        if (!currentDestination.HasValue)
-        {
-            ChangeActionState(UnitActionState.Idle);
-            return;
-        }
-        if (IsReach(currentDestination.Value, 0.01m))
-        {
-            currentDestination = null;
-            ChangeActionState(UnitActionState.Idle);
-            return;
-        }
-
         UpdateRotation();
     }
     protected virtual void OnMoveExit()
     {
-        pathFinder.Stop();
+        pathFinder?.Stop();
     }
+
+    protected virtual void OnDeadEnter() { }
+    protected virtual void OnDeadTick(fp dt) { }
+    protected virtual void OnDeadExit() { }
     #endregion
 
-    #region Track
-    protected virtual void OnTrackEnter()
+    #region 动作通道查询入口
+    public virtual bool IsActionChannelBlocked(ActionChannelMask channel)
     {
-
-    }
-    protected virtual void OnTrackTick(fp dt)
-    {
-        if (currentTarget == null)
-        {
-            ChangeActionState(UnitActionState.Idle);
-            return;
-        }
-        if (IsReach(currentTarget.logicPosition, stats.AttackDistance))
-        {
-            ChangeActionState(UnitActionState.Attack);
-            return;
-        }
-
-        UpdateRotation();
+        return crowdControlHandler != null && crowdControlHandler.CurrentSnapshot.IsChannelBlocked(channel);
     }
 
-    protected virtual void OnTrackExit()
-    {
-        pathFinder.Stop();
-    }
-    #endregion
-    
-    #region Attack
-    protected virtual void OnAttackEnter()
-    {
-        attackPrecastTimer = stats.AttackInterval * (fp)baseAttackWindupDuration;
-    }
-
-    protected virtual void OnAttackTick(fp dt)
-    {
-        if (currentTarget == null)
-        {
-            ChangeActionState(UnitActionState.Idle);
-            return;
-        }
-        if (!IsReach(currentTarget.logicPosition, 0.1m))
-        {
-            ChangeActionState(UnitActionState.Track);
-            return;
-        }
-
-        direction = fpmath.normalize(currentTarget.logicPosition - logicPosition);
-        UpdateRotation();
-
-        if (!IsInAttackRecovery)
-        {
-            attackPrecastTimer -= dt;
-            if (attackPrecastTimer <= 0)
-            {
-                attackPrecastTimer = stats.AttackInterval * (fp)baseAttackWindupDuration;
-                attackRecoveryTimer = stats.AttackInterval * (fp)baseAttackRecoveryDuration;
-                ExecuteAttack();
-            }
-        }
-    }
-
-    protected virtual void OnAttackExit()
-    {
-        
-    }
+    public virtual bool CanStartMove() => !IsActionChannelBlocked(ActionChannelMask.Move);
+    public virtual bool CanStartTrack() => !IsActionChannelBlocked(ActionChannelMask.Track);
+    public virtual bool CanStartAttack() => !IsActionChannelBlocked(ActionChannelMask.Attack);
+    public virtual bool CanStartCast() => !IsActionChannelBlocked(ActionChannelMask.Cast);
+    public virtual bool CanStartDash() => !IsActionChannelBlocked(ActionChannelMask.Dash);
+    public virtual bool CanRotate() => !IsActionChannelBlocked(ActionChannelMask.Rotate);
     #endregion
 
-    #region Dead
-    public virtual void CheckDead()
+    #region 移动基础能力
+    public bool IsReach(fp3? targetDestination, fp reachThreshold)
     {
-        if (Stats.CurrentHealth == 0)
-        {
-            TriggerDamageCallback(UnitDamageCallbackType.OnDying, lastDamageInfoCache);
-            if (currentActionState == UnitActionState.Revive)
-                return;
+        if (!targetDestination.HasValue)
+            return true;
 
-            TriggerDamageCallback(UnitDamageCallbackType.OnDeath, lastDamageInfoCache);
-            ChangeActionState(UnitActionState.Dead);
-            lastDamageInfoCache.Source?.TriggerDamageCallback(UnitDamageCallbackType.OnKill, lastDamageInfoCache);
-            // TODO向UnitManager申请死亡事件请求
-        }
-    }
-
-    protected virtual void OnDeadEnter()
-    {
-        // TODO
-        // 结束仍在激活的技能
-        // 清除非永久性的Buff
-        // 清除控制
-
-        capability = UnitCapability.None;
-    }
-
-    protected virtual void OnDeadExit()
-    {
-        capability = UnitCapability.All;
-        ResetStats();
-
-        
-    }
-    #endregion
-
-    #region Revive
-    public void SetRevive(int recoveryTickCount, fp recoveryTickInterval, fp healAmountPerTick, fp manaRestorationPerTick)
-    {
-        if (stats.CurrentHealth > 0)
-            return;
-
-        reviveRecoveryTickRemaining = recoveryTickCount;
-        reviveRecoveryTickInterval = recoveryTickInterval;
-        reviveRecoveryTickIntervalTimer = 0;
-        reviveRecoveryHealAmountPerTick = healAmountPerTick;
-        reviveRecoveryManaRestorationPerTick = manaRestorationPerTick;
-
-        ChangeActionState(UnitActionState.Revive);
-    }
-
-    protected virtual void OnReviveEnter()
-    {
-        // TODO
-        // 结束仍在激活的技能
-        // 清除非永久性的Buff
-        // 清除控制
-
-        capability = UnitCapability.None;
-    }
-
-    protected virtual void OnReviveTick(fp dt)
-    {
-        if (reviveRecoveryTickRemaining <= 0)
-        {
-            ChangeActionState(UnitActionState.Idle);
-            reviveRecoveryTickRemaining = 0;
-            return;
-        }
-        
-        if (reviveRecoveryTickIntervalTimer > 0)
-            reviveRecoveryTickIntervalTimer -= dt;
-        else
-        {
-            reviveRecoveryTickIntervalTimer = reviveRecoveryTickInterval;
-            stats.ModifyHealth(reviveRecoveryHealAmountPerTick);
-            stats.ModifyMana(reviveRecoveryManaRestorationPerTick);
-            reviveRecoveryTickRemaining--;
-        }
-    }
-
-    protected virtual void OnReviveExit()
-    {
-        capability = UnitCapability.All;
-    }
-    #endregion
-
-    #region Siffness
-    protected virtual void OnSiffnessEnter()
-    {
-        currentDestination = null;
-        currentTarget = null;
-    }
-    #endregion
-
-    #endregion
-
-    #region 寻路
-
-    protected bool IsReach(fp3? targetDestination, fp reachThshold)
-    {
-        if (!targetDestination.HasValue) return true;
-        return fpmath.distance(logicPosition, targetDestination.Value) < reachThshold;
+        return fpmath.distance(logicPosition, targetDestination.Value) < reachThreshold;
     }
 
     public virtual void UpdateMoveDirection()
@@ -482,34 +235,202 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
         if (pathFinder != null)
             pathFinder.UpdatePath();
     }
-    #endregion
 
-    #region 攻击和受伤
-
-    public virtual void ExecuteAttack()
+    public virtual void ApplyMove(fp dt, fp3 modifier)
     {
-        if (attackMisslePrefab)
-        {
-            MissleManager.Instance.CreateNewMissleRequest(
-                attackMisslePrefab.PrefabID,
-                new TargetTrackMissleInitialData(this, currentTarget));
-        }
-        else
-            DamageManager.Instance.CreateAttackDamageRequest(this, currentTarget);
+        if (!CanStartMove())
+            return;
+
+        var raw = direction + modifier;
+        if (fpmath.lengthsq(raw) <= 0)
+            return;
+
+        var moveDirection = fpmath.normalize(raw);
+        logicPosition += dt * moveDirection * stats.MoveDistancePerSecond;
     }
 
-    public virtual void GetDamage(in DamageInfo info)
+    public virtual void UpdateRotation()
     {
-        info.Source?.TriggerDamageCallback(UnitDamageCallbackType.OnDamageDealt, info);
-        TriggerDamageCallback(UnitDamageCallbackType.OnDamageTaken, info);
-        stats.ModifyHealth(-info.GetTotal());
-        lastDamageInfoCache = info;
+        if (!CanRotate())
+            return;
+
+        if (fpmath.lengthsq(direction) <= 0)
+            return;
+
+        fp angle = fpmath.atan2(direction.x, direction.z);
+        fp halfAngle = angle / 2;
+        fp sinHalf = fpmath.sin(halfAngle);
+        fp cosHalf = fpmath.cos(halfAngle);
+
+        var rot = new fp4(0, sinHalf, 0, cosHalf);
+        logicRotation = new fp2(rot.y, rot.w);
+    }
+    #endregion
+
+    #region 战斗相关
+    [Serializable]
+    public struct RecentAttackerInfo
+    {
+        public UnitUID AttackerUid;
+        public uint LastDamageTick;
+        public fp AccumulatedDamage;
+    }
+
+    [SerializeField]
+    private uint assistRecordDurationTick = 600; // 例如10秒，按60tick/s自行换
+    protected readonly Dictionary<UnitUID, RecentAttackerInfo> recentAttackers = new();
+    protected DamageResult lastDamageResultCache;
+
+    public void RecordRecentAttacker(UnitCore attacker, fp damage, uint currentTick)
+    {
+        if (attacker == null || attacker == this)
+            return;
+
+        if (recentAttackers.TryGetValue(attacker.UnitID, out var info))
+        {
+            info.LastDamageTick = currentTick;
+            info.AccumulatedDamage += damage;
+            recentAttackers[attacker.UnitID] = info;
+        }
+        else
+        {
+            recentAttackers[attacker.UnitID] = new RecentAttackerInfo
+            {
+                AttackerUid = attacker.UnitID,
+                LastDamageTick = currentTick,
+                AccumulatedDamage = damage,
+            };
+        }
+    }
+
+    public void CleanupExpiredRecentAttackers(uint currentTick)
+    {
+        var toRemove = ListPool<UnitUID>.Get();
+
+        foreach (var pair in recentAttackers)
+        {
+            if (currentTick - pair.Value.LastDamageTick > assistRecordDurationTick)
+                toRemove.Add(pair.Key);
+        }
+
+        for (int i = 0; i < toRemove.Count; i++)
+            recentAttackers.Remove(toRemove[i]);
+
+        ListPool<UnitUID>.Release(toRemove);
+    }
+
+    public List<UnitCore> GetCurrentAssistContributors(UnitCore killer, uint currentTick)
+    {
+        CleanupExpiredRecentAttackers(currentTick);
+
+        var result = new List<UnitCore>();
+
+        foreach (var pair in recentAttackers)
+        {
+            if (killer != null && pair.Key == killer.UnitID)
+                continue;
+
+            if (UnitManager.Instance.Spawns.TryGetValue(pair.Key, out var unit) && unit != null && !unit.IsDead)
+                result.Add(unit);
+        }
+
+        return result;
+    }
+
+    public virtual void ApplyDamageResult(DamageResult result, uint currentTick)
+    {
+        if (result.Source != null && result.TotalDamage > 0)
+            RecordRecentAttacker(result.Source, result.TotalDamage, currentTick);
+
+        stats.ModifyHealth(-result.TotalDamage);
+        lastDamageResultCache = result;
+
+        CheckDead(currentTick);
+    }
+
+    public virtual void ApplyHealResult(HealResult result, uint currentTick)
+    {
+        if (result.FinalHeal <= 0)
+            return;
+
+        stats.ModifyHealth(result.FinalHeal);
+    }
+
+    public virtual void CheckDead(uint currentTick = 0)
+    {
+        if (Stats.CurrentHealth != 0)
+            return;
+
+        if (IsDead)
+            return;
+
+        var killer = lastDamageResultCache.Source;
+        var assisters = GetCurrentAssistContributors(killer, currentTick);
+
+        OnDying(killer);
+
+        SetLocomotionState(UnitLocomotionState.Dead);
+
+        if (killer != null)
+            killer.OnKillPerformed(this);
+
+        for (int i = 0; i < assisters.Count; i++)
+            assisters[i].OnAssistPerformed(this, killer);
+
+        OnDeath(killer, assisters);
+    }
+
+    public virtual void ModifyOutgoingDamage(DamageContext context)
+    {
+        if (context == null)
+            return;
+
+        for (int i = 0; i < handlers.Length; i++)
+        {
+            if (handlers[i] is IDamageModifierProvider provider)
+                provider.ModifyOutgoingDamage(context);
+        }
+    }
+
+    public virtual void ModifyIncomingDamage(DamageContext context)
+    {
+        if (context == null)
+            return;
+
+        for (int i = 0; i < handlers.Length; i++)
+        {
+            if (handlers[i] is IDamageModifierProvider provider)
+                provider.ModifyIncomingDamage(context);
+        }
+    }
+
+    public virtual void ModifyOutgoingHeal(HealContext context)
+    {
+        if (context == null)
+            return;
+
+        for (int i = 0; i < handlers.Length; i++)
+        {
+            if (handlers[i] is IHealModifierProvider provider)
+                provider.ModifyOutgoingHeal(context);
+        }
+    }
+
+    public virtual void ModifyIncomingHeal(HealContext context)
+    {
+        if (context == null)
+            return;
+
+        for (int i = 0; i < handlers.Length; i++)
+        {
+            if (handlers[i] is IHealModifierProvider provider)
+                provider.ModifyIncomingHeal(context);
+        }
     }
     #endregion
 
     #region 快照和恢复
-
-    public object CaptureState()
+    public virtual object CaptureState()
     {
         var handlerStates = new object[handlers.Length];
         for (int i = 0; i < handlers.Length; i++)
@@ -520,27 +441,26 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
             Position = logicPosition,
             Rotation = logicRotation,
             Level = level,
-            StatsSnapshot = stats.Capture(),  
+            LocomotionState = locomotionState,
+            Direction = direction,
+            StatsSnapshot = stats.Capture(),
             HandlerStates = handlerStates
         };
     }
 
-    public void RestoreState(object state)
+    public virtual void RestoreState(object state)
     {
         var snap = (UnitCoreSnapshot)state;
 
-        // 恢复位置
         logicPosition = snap.Position;
         logicRotation = snap.Rotation;
-
-        // 恢复等级
         level = snap.Level;
-        stats.SetLevel(level);  
+        locomotionState = snap.LocomotionState;
+        direction = snap.Direction;
 
-        // 恢复 stats
+        stats.SetLevel(level);
         stats.Restore(snap.StatsSnapshot);
 
-        // 恢复每个 handler 的状态
         for (int i = 0; i < handlers.Length; i++)
             handlers[i].RestoreState(snap.HandlerStates[i]);
     }
@@ -550,11 +470,10 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
     {
         public fp3 Position;
         public fp2 Rotation;
-        public fp3 Destination;
-        public UnitUID TargetID;
-        public UnitActionState ActionState;
+        public fp3 Direction;
+        public UnitLocomotionState LocomotionState;
         public int Level;
-        public UnitStats.UnitStatsSnapshot StatsSnapshot; 
+        public UnitStats.UnitStatsSnapshot StatsSnapshot;
         public object[] HandlerStates;
     }
     #endregion
@@ -574,109 +493,121 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle
     public fp MagicReduction => stats.MagicDamageReduction;
     #endregion
 
-    #region IDynamicObstacle接口实现
+    #region IDynamicObstacle
     public fp3 ObstaclePosition => logicPosition;
-
     public fp3 ObstacleDirection => direction;
-
     public fp ObstacleSpeed => stats.MoveDistancePerSecond;
-
-    public IDynamicObstacle Ingore => currentTarget;
+    public IDynamicObstacle Ingore => null;
 
     public void RegisterRVOGenerator() => RVOGenerator.Instance.Register(this);
-
     public void UnregisterRVOGenerator() => RVOGenerator.Instance.Unregister(this);
-
     #endregion
 
     #region 回调事件
-    public DamageModifier DamageModifier;
+    public event Action<DamageDealtEvent> DamageDealt;
+    public event Action<DamageTakenEvent> DamageTaken;
+    public event Action<HealDealtEvent> HealDealt;
+    public event Action<HealTakenEvent> HealTaken;
+    public event Action<AttackEvent> AttackPerformed;
+    public event Action<AbilityCastStageEvent> AbilityCastStagePerformed;
+    public event Action<KillEvent> KillPerformed;
+    public event Action<AssistEvent> AssistPerformed;
+    public event Action<DyingEvent> Dying;
+    public event Action<DeathEvent> Death;
 
-    protected DamageInfo lastDamageInfoCache;
-    private Dictionary<UnitDamageCallbackType, List<DamageCallback>> damageCallbacks = new Dictionary<UnitDamageCallbackType, List<DamageCallback>>
+    public virtual void OnDamageDealt(DamageResult result)
     {
-        {UnitDamageCallbackType.OnDamageDealt, new()},
-        {UnitDamageCallbackType.OnDamageTaken, new()},
-        {UnitDamageCallbackType.OnKill, new()},
-        {UnitDamageCallbackType.OnDeath, new()},
-        {UnitDamageCallbackType.OnDying, new()},
-    };
-
-    public void RegisterDamageCallback(UnitDamageCallbackType type, DamageCallback callback)
-    {
-        if (damageCallbacks.TryGetValue(type, out var callbackList))
-            callbackList.Add(callback);
+        DamageDealt?.Invoke(new DamageDealtEvent(result.Source, result.Target, result));
     }
 
-    public void UnregisterDamageCallback(UnitDamageCallbackType type, DamageCallback callback)
+    public virtual void OnDamageTaken(DamageResult result)
     {
-        if (damageCallbacks.TryGetValue(type, out var callbackList))
-            callbackList.Remove(callback);
+        DamageTaken?.Invoke(new DamageTakenEvent(result.Source, result.Target, result));
     }
 
-    public void UnregisterDamageCallback(DamageCallback callback)
+    public virtual void OnHealDealt(HealResult result)
     {
-        foreach (var callbackList in damageCallbacks.Values)
-            callbackList.Remove(callback);
+        HealDealt?.Invoke(new HealDealtEvent(result.Source, result.Target, result));
     }
 
-    protected void TriggerDamageCallback(UnitDamageCallbackType type, in DamageInfo info)
+    public virtual void OnHealTaken(HealResult result)
     {
-        if (damageCallbacks.TryGetValue(type, out var callbackList))
-            for (int i = 0; i < callbackList.Count; i++)
-                callbackList[i].Invoke(info);
-
-        buffHandler.OnDamageCallback(type, info);
-        abilityHandler.OnDamageCallback(type, info);
-        crowdControlHandler.OnDamageCallback(type, info);
-        equipmentHandler.OnDamageCallback(type, info);
+        HealTaken?.Invoke(new HealTakenEvent(result.Source, result.Target, result));
     }
 
+    public virtual void OnAttackPerformed(UnitCore target)
+    {
+        AttackPerformed?.Invoke(new AttackEvent(this, target));
+    }
+
+    public virtual void OnAbilityCastStagePerformed(int abilityId, CastStageType stageType, UnitCore targetUnit, fp3? targetPosition)
+    {
+        if (this is HeroUnit hero)
+            AbilityCastStagePerformed?.Invoke(new AbilityCastStageEvent(hero, abilityId, stageType, targetUnit, targetPosition));
+    }
+
+    public virtual void OnKillPerformed(UnitCore victim)
+    {
+        KillPerformed?.Invoke(new KillEvent(this, victim));
+    }
+
+    public virtual void OnAssistPerformed(UnitCore victim, UnitCore killer)
+    {
+        AssistPerformed?.Invoke(new AssistEvent(this, victim, killer));
+    }
+
+    public virtual void OnDying(UnitCore killer)
+    {
+        Dying?.Invoke(new DyingEvent(this, killer));
+    }
+
+    public virtual void OnDeath(UnitCore killer, IReadOnlyList<UnitCore> assisters)
+    {
+        Death?.Invoke(new DeathEvent(this, killer, assisters));
+    }
     #endregion
 
-    // TODO 自制动画播放器
-    #region 动画机
-    public void UpdateAnimation()
+    #region 表现
+    public virtual void UpdateAnimation()
     {
-
     }
-    #endregion
 
-    public void SyncTransform()
+    public virtual void SyncTransform()
     {
         transform.position = new Vector3((float)logicPosition.x, (float)logicPosition.y, (float)logicPosition.z);
-        modelRoot.rotation = new Quaternion(0, (float)logicRotation.x, 0, (float)logicRotation.y);
-    }
 
-    public void ApplyMove(fp dt, fp3 modifier)
+        if (modelRoot != null)
+            modelRoot.rotation = new Quaternion(0, (float)logicRotation.x, 0, (float)logicRotation.y);
+    }
+    #endregion
+
+    public virtual void ResetStats()
     {
-        if (IsInControlSiffness || IsInAbilityPrecast) return;
-
-        var moveDirection = fpmath.normalize(direction + modifier);
-        logicPosition += dt * moveDirection * stats.MoveDistancePerSecond;
     }
 
-    public void UpdateRotation()
+    public virtual SimulationEntityType SimulationEntityType => SimulationEntityType.None;
+
+    public SimulationTeamMask SimulationTeamMask
     {
-        if (IsInControlSiffness || IsInAbilityPrecast) return;
-
-        fp angle = fpmath.atan2(direction.x, direction.z);
-
-        // 绕 Y 轴旋转的四元数 (0, sin(θ/2), 0, cos(θ/2))
-        fp halfAngle = angle / 2;
-        fp sinHalf = fpmath.sin(halfAngle);
-        fp cosHalf = fpmath.cos(halfAngle);
-
-        var rot = new fp4(0, sinHalf, 0, cosHalf);
-        logicRotation = new fp2(rot.y, rot.w);
+        get
+        {
+            return TeamID switch
+            {
+                1 => SimulationTeamMask.Neutral,
+                2 => SimulationTeamMask.Blue,
+                3 => SimulationTeamMask.Red,
+                _ => SimulationTeamMask.None,
+            };
+        }
     }
+}
 
-    public void ResetStats()
-    {
-        // TODO
-        // 重置当前状态
-
-    }
+public enum UnitLocomotionState : byte
+{
+    None,
+    Idle,
+    Move,
+    Dead,
 }
 
 public readonly struct UnitUID : IEquatable<UnitUID>, IComparable<UnitUID>
@@ -701,14 +632,10 @@ public readonly struct UnitUID : IEquatable<UnitUID>, IComparable<UnitUID>
         Sequence == other.Sequence;
 
     public override bool Equals(object obj) => obj is UnitUID other && Equals(other);
-
     public static bool operator ==(UnitUID left, UnitUID right) => left.Equals(right);
     public static bool operator !=(UnitUID left, UnitUID right) => !left.Equals(right);
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(PrefabId, Frame, TeamId, Sequence);
-    }
+    public override int GetHashCode() => HashCode.Combine(PrefabId, Frame, TeamId, Sequence);
 
     public int CompareTo(UnitUID other)
     {
@@ -722,30 +649,6 @@ public readonly struct UnitUID : IEquatable<UnitUID>, IComparable<UnitUID>
     }
 
     public override string ToString() => $"{PrefabId}:{Frame}:{TeamId}:{Sequence}";
-}
-
-public enum UnitActionState : byte
-{
-    None,
-    Idle,// 待机
-    Move,// 正常移动
-    Track,// 追踪
-    Attack,// 攻击
-    Dead,// 死亡状态
-    Revive,// 复活状态
-    Siffness,// 僵直状态
-}
-
-[Flags]
-public enum UnitCapability
-{
-    None = 0,
-    Move = 1 << 0,
-    Track = 1 << 1,
-    Attack = 1 << 2,
-    Cast = 1 << 3,
-    Dash = 1 << 4,
-    All = Move | Track | Attack | Cast | Dash,
 }
 
 public enum UnitDamageCallbackType : byte

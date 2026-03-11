@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public sealed class LocalCastSessionController
 {
     private readonly HeroUnit owner;
@@ -11,33 +13,33 @@ public sealed class LocalCastSessionController
         this.indicatorPresenter = indicatorPresenter;
     }
 
-    public bool TryBeginSession(int abilityId, in InputInfo input)
+    public bool TryBeginPreview(int abilityId, in InputInfo inputInfo)
     {
-        if (!owner.AbilityHandler.TryGetRuntime(abilityId, out var ability))
+        if (!owner.AbilityHandler.TryGetRuntime(abilityId, out var runtime))
             return false;
 
-        var intent = ability.CheckIntent(owner);
-        if (!intent.Success || !intent.ShowIndicator)
+        if (!runtime.CanStartPreview())
             return false;
 
         CurrentSession = new LocalCastSession
         {
             AbilityId = abilityId,
             State = LocalCastSessionState.Preview,
-            Aim = BuildAim(input),
         };
 
-        indicatorPresenter.Show(CurrentSession);
+        UpdatePreviewInput(inputInfo, 0f);
+        indicatorPresenter.Show(runtime, CurrentSession);
         return true;
     }
 
-    public void UpdateSession(in InputInfo input)
+    public void UpdatePreviewInput(in InputInfo inputInfo, float deltaTime)
     {
-        if (CurrentSession == null || CurrentSession.State != LocalCastSessionState.Preview)
+        if (CurrentSession == null)
             return;
 
-        CurrentSession.Aim = BuildAim(input);
-        indicatorPresenter.Update(CurrentSession);
+        CurrentSession.Aim.TargetPosition = inputInfo.mousePosition;
+        CurrentSession.Aim.SelectedUnit = inputInfo.selectedUnit;
+        CurrentSession.Aim.HeldSeconds += deltaTime;
     }
 
     public bool TryConfirm(out AbilityCommand command)
@@ -51,35 +53,21 @@ public sealed class LocalCastSessionController
         {
             ReceiverUnitId = owner.UnitID,
             AbilityId = CurrentSession.AbilityId,
-            context = new AbilityTriggerContext
+            QueueIfBusy = true,
+            Context = new AbilityTriggerContext
             {
                 TargetPosition = CurrentSession.Aim.TargetPosition,
-                TargetUID = CurrentSession.Aim.TargetUnitId,
+                TargetUID = CurrentSession.Aim.SelectedUnit != null ? CurrentSession.Aim.SelectedUnit.UnitID : null,
             }
         };
 
-        indicatorPresenter.Hide();
-        CurrentSession.State = LocalCastSessionState.Confirmed;
-        CurrentSession = null;
+        Cancel();
         return true;
     }
 
     public void Cancel()
     {
-        if (CurrentSession == null)
-            return;
-
         indicatorPresenter.Hide();
-        CurrentSession.State = LocalCastSessionState.Cancelled;
         CurrentSession = null;
-    }
-
-    private LocalAimData BuildAim(in InputInfo input)
-    {
-        return new LocalAimData
-        {
-            TargetPosition = input.mousePosition,
-            TargetUnitId = input.selectedUnit != null ? input.selectedUnit.UnitID : null,
-        };
     }
 }

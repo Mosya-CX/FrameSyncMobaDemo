@@ -1,10 +1,10 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
-using UnityEngine.Rendering;
 using UnityEngine;
-using System;
+using UnityEngine.Rendering;
 
 public class MissleManager : MonoSingleton<MissleManager>, IStateful
 {
@@ -12,123 +12,121 @@ public class MissleManager : MonoSingleton<MissleManager>, IStateful
     private SerializedDictionary<short, BaseMissle> spawnablePrefabDict;
 
     private readonly Dictionary<short, UnityEngine.Pool.ObjectPool<BaseMissle>> missleFactory = new();
-
     private readonly Dictionary<MissleUID, BaseMissle> spawnedMissles = new();
-    public IReadOnlyDictionary<MissleUID, BaseMissle> Spawns => spawnedMissles;
 
-    private Queue<MissleSpawnRequest> missleSpawnRequests = new();
-    private Queue<MissleDespawnRequest> missleDespawnRequests = new();
+    public IReadOnlyDictionary<MissleUID, BaseMissle> Spawns => spawnedMissles;
 
     private uint localTick;
     private byte frameSequence;
 
     private fp DeltaTime => GameFlowManager.Instance.TickIntervalFP;
-    
-    public IEnumerator Init()
-    {
-
-        yield break;
-    }
+    public uint CurrentTick => localTick;
 
     public void Begin()
     {
         missleFactory.Clear();
         spawnedMissles.Clear();
-        missleSpawnRequests.Clear();
-        missleDespawnRequests.Clear();
+        localTick = 0;
+        frameSequence = 0;
     }
 
     public void Clean()
     {
-        missleFactory.Clear();
+        foreach (var missle in spawnedMissles.Values)
+        {
+            if (missle != null)
+                Destroy(missle.gameObject);
+        }
+
         spawnedMissles.Clear();
-        missleSpawnRequests.Clear();
-        missleDespawnRequests.Clear();
+
+        foreach (var pool in missleFactory.Values)
+            pool.Clear();
+
+        missleFactory.Clear();
+    }
+
+    public void UpdateLocalTick(uint currentTick)
+    {
+        localTick = currentTick;
+        frameSequence = 0;
     }
 
     #region Tick
-    public void UpdateLocalTick(uint currentTick) => localTick = currentTick;
-
-    public void TickSpawnMissle()
-    {
-        frameSequence = 0;
-
-        while (missleDespawnRequests.Count > 0)
-        {
-            var request = missleDespawnRequests.Dequeue();
-            if (spawnedMissles.TryGetValue(request.missleInstanceId, out var missle))
-            {
-                missle.OnDespawn();
-                spawnedMissles.Remove(missle.MissleUid);
-                request.pool.Release(missle);
-            }
-        }
-
-        while (missleSpawnRequests.Count > 0)
-        {
-            var request = missleSpawnRequests.Dequeue();
-            var missle = request.pool.Get();
-            missle.MissleUid = request.missleInstanceId;
-            missle.OnSpawn(request.initialData);
-            spawnedMissles.Add(missle.MissleUid, missle);
-        }
-    }
 
     public void TickUpdateMissTransform()
     {
         foreach (var missle in spawnedMissles.Values)
-            if (missle.gameObject.activeSelf)
-                missle.UpdateTransform(DeltaTime);
+        {
+            if (missle != null && missle.gameObject.activeSelf)
+                missle.UpdateTransform(DeltaTime, localTick);
+        }
     }
 
     public void TickUpdateMissleState()
     {
+        var recycleList = ListPool<BaseMissle>.Get();
+
         foreach (var missle in spawnedMissles.Values)
-            if (missle.gameObject.activeSelf)
-                missle.Tick(DeltaTime);
+        {
+            if (missle == null || !missle.gameObject.activeSelf)
+                continue;
+
+            missle.Tick(DeltaTime, localTick);
+
+            if (missle.ShouldRecycleNow)
+                recycleList.Add(missle);
+        }
+
+        for (int i = 0; i < recycleList.Count; i++)
+            RecycleNow(recycleList[i]);
+
+        ListPool<BaseMissle>.Release(recycleList);
     }
 
     #endregion
 
-    #region 生成与销毁
+    #region Spawn / Recycle
 
-    public void Recycle(BaseMissle missle)
+    public T SpawnNow<T>(short prefabId, IMissleInitialData initialData) where T : BaseMissle
+    {
+        if (!TryGetMisslePool(prefabId, out var pool))
+        {
+            Debug.LogError($"[{nameof(MissleManager)}] 未找到投掷物池，PrefabId={prefabId}");
+            return null;
+        }
+
+        var missle = pool.Get();
+        missle.MissleUid = new MissleUID(prefabId, localTick, frameSequence++);
+        missle.OnSpawn(initialData);
+        missle.SyncTransform();
+
+        spawnedMissles[missle.MissleUid] = missle;
+        return missle as T;
+    }
+
+    public BaseMissle SpawnNow(short prefabId, IMissleInitialData initialData)
+    {
+        return SpawnNow<BaseMissle>(prefabId, initialData);
+    }
+
+    public void RecycleNow(BaseMissle missle)
     {
         if (missle == null)
             return;
-        if (!spawnedMissles.ContainsKey(missle.MissleUid))
+
+        if (!spawnedMissles.Remove(missle.MissleUid))
         {
             Destroy(missle.gameObject);
             return;
         }
-        if (!TryGetMisslePool(missle.PrefabID, out var pool))
-        {
+
+        missle.OnDespawn();
+
+        if (TryGetMisslePool(missle.PrefabID, out var pool))
+            pool.Release(missle);
+        else
             Destroy(missle.gameObject);
-            return;
-        }
-
-        missle.gameObject.SetActive(false);
-        missleDespawnRequests.Enqueue(new MissleDespawnRequest
-        {
-            missleInstanceId = missle.MissleUid,
-            pool = pool,
-        });
-    }
-
-    public MissleSpawnHandle CreateNewMissleRequest<T>(short prefabId, T initialData = default(T)) where T : IMissleInitialData
-    {
-        if (!TryGetMisslePool(prefabId, out var pool))
-            return default;
-
-        var request = new MissleSpawnRequest
-        {
-            missleInstanceId = new MissleUID(prefabId, localTick + 1, frameSequence),
-            initialData = initialData,
-            pool = pool,
-        };
-
-        frameSequence++;
-        return new MissleSpawnHandle(request);
     }
 
     private bool TryGetMisslePool(short prefabId, out UnityEngine.Pool.ObjectPool<BaseMissle> pool)
@@ -136,127 +134,125 @@ public class MissleManager : MonoSingleton<MissleManager>, IStateful
         if (missleFactory.TryGetValue(prefabId, out pool))
             return true;
 
-        if (spawnablePrefabDict.TryGetValue(prefabId, out var misslePrefab))
+        if (!spawnablePrefabDict.TryGetValue(prefabId, out var misslePrefab) || misslePrefab == null)
         {
-            pool = new UnityEngine.Pool.ObjectPool<BaseMissle>(
-                () =>
-                {
-                    var missle = Instantiate(misslePrefab);
-                    return missle;
-                },
-                (missle) => missle.gameObject.SetActive(true),
-                (missle) => missle.gameObject.SetActive(false),
-                (missle) => Destroy(missle.gameObject),
-                false, 4, 32);
-            missleFactory[prefabId] = pool;
-            return true;
+            pool = null;
+            return false;
         }
 
-        return false;
-    }
+        pool = new UnityEngine.Pool.ObjectPool<BaseMissle>(
+            createFunc: () =>
+            {
+                var missle = Instantiate(misslePrefab);
+                return missle;
+            },
+            actionOnGet: missle => missle.gameObject.SetActive(true),
+            actionOnRelease: missle => missle.gameObject.SetActive(false),
+            actionOnDestroy: missle => Destroy(missle.gameObject),
+            collectionCheck: false,
+            defaultCapacity: 8,
+            maxSize: 256);
 
-    public class MissleSpawnRequest : ICloneable
-    {
-        public MissleUID missleInstanceId;
-        public UnityEngine.Pool.ObjectPool<BaseMissle> pool;
-        public IMissleInitialData initialData;
-
-        public object Clone() => MemberwiseClone();
-    }
-
-    public class MissleDespawnRequest : ICloneable
-    {
-        public MissleUID missleInstanceId;
-        public UnityEngine.Pool.ObjectPool<BaseMissle> pool;
-
-        public object Clone() => MemberwiseClone();
+        missleFactory[prefabId] = pool;
+        return true;
     }
 
     #endregion
 
-    #region 快照和回滚
+    #region Snapshot
 
-    [System.Serializable]
+    [Serializable]
     public class GlobalMissleSnapshot
     {
-        public uint tick;
-        public List<MissleSpawnRequest> missleSpawnRequests = new();
-        public List<MissleDespawnRequest> missleDespawnRequests = new();
-        public Dictionary<MissleUID, object> missleSnapshots = new(); 
+        public uint Tick;
+        public byte FrameSequence;
+        public Dictionary<MissleUID, object> MissleSnapshots = new();
     }
 
     public object CaptureState()
     {
-        var snapshot = new GlobalMissleSnapshot();
-        snapshot.tick = localTick;
+        var snapshot = new GlobalMissleSnapshot
+        {
+            Tick = localTick,
+            FrameSequence = frameSequence,
+        };
 
-        foreach (var request in missleSpawnRequests)
-            snapshot.missleSpawnRequests.Add((MissleSpawnRequest)request.Clone());
-        foreach (var request in missleDespawnRequests)
-            snapshot.missleDespawnRequests.Add((MissleDespawnRequest)request.Clone());
-
-        foreach (var missleInfo in spawnedMissles)
-            snapshot.missleSnapshots.Add(missleInfo.Key, missleInfo.Value.CaptureState());
+        foreach (var pair in spawnedMissles)
+            snapshot.MissleSnapshots.Add(pair.Key, pair.Value.CaptureState());
 
         return snapshot;
     }
 
     public void RestoreState(object state)
     {
-        if (state is GlobalMissleSnapshot snapshot)
+        if (state is not GlobalMissleSnapshot snapshot)
+            return;
+
+        localTick = snapshot.Tick;
+        frameSequence = snapshot.FrameSequence;
+
+        var existingKeys = new List<MissleUID>(spawnedMissles.Keys);
+        var redundant = new Queue<MissleUID>();
+
+        for (int i = 0; i < existingKeys.Count; i++)
         {
-            localTick = snapshot.tick;
-
-            missleDespawnRequests.Clear();
-            missleSpawnRequests.Clear();
-
-            for (int i = 0; i < snapshot.missleSpawnRequests.Count; i++) 
-                missleSpawnRequests.Enqueue((MissleSpawnRequest)snapshot.missleSpawnRequests[i].Clone());
-            for (int i = 0; i < snapshot.missleDespawnRequests.Count; i++)
-                missleDespawnRequests.Enqueue((MissleDespawnRequest)snapshot.missleDespawnRequests[i].Clone());
-
-            Queue<MissleUID> redundant = new();
-            foreach (var presentMissleInfo in spawnedMissles)
+            var id = existingKeys[i];
+            if (snapshot.MissleSnapshots.TryGetValue(id, out var missleState))
             {
-                if (snapshot.missleSnapshots.TryGetValue(presentMissleInfo.Key, out var missleStateSnapshot))
-                {
-                    presentMissleInfo.Value.RestoreState(missleStateSnapshot);
-                    snapshot.missleSnapshots.Remove(presentMissleInfo.Key);
-                }
-                else
-                {
-                    redundant.Enqueue(presentMissleInfo.Key);
-                }
+                spawnedMissles[id].RestoreState(missleState);
+                spawnedMissles[id].SyncTransform();
+                snapshot.MissleSnapshots.Remove(id);
             }
-
-            foreach (var remainSpawnMissleInfo in snapshot.missleSnapshots)
+            else
             {
-                if (TryGetMisslePool(remainSpawnMissleInfo.Key.PrefabId, out var pool))
-                {
-                    var missle = pool.Get();
-                    missle.MissleUid = remainSpawnMissleInfo.Key;
-                    missle.RestoreState(remainSpawnMissleInfo.Value);
-                    spawnedMissles.Add(remainSpawnMissleInfo.Key, missle);
-                }
+                redundant.Enqueue(id);
             }
+        }
 
-            while (redundant.Count > 0)
-            {
-                var redundantMissleId = redundant.Dequeue();
-                if (spawnedMissles.TryGetValue(redundantMissleId, out var missle))
-                {
-                    if (TryGetMisslePool(redundantMissleId.PrefabId, out var pool))
-                        pool.Release(missle);
-                    else
-                        Destroy(missle);
+        foreach (var remain in snapshot.MissleSnapshots)
+        {
+            if (!TryGetMisslePool(remain.Key.PrefabId, out var pool))
+                continue;
 
-                    spawnedMissles.Remove(redundantMissleId);
-                }
-            }
+            var missle = pool.Get();
+            missle.MissleUid = remain.Key;
+            missle.RestoreState(remain.Value);
+            missle.SyncTransform();
+
+            spawnedMissles[remain.Key] = missle;
+        }
+
+        while (redundant.Count > 0)
+        {
+            var id = redundant.Dequeue();
+
+            if (!spawnedMissles.Remove(id, out var missle))
+                continue;
+
+            if (TryGetMisslePool(id.PrefabId, out var pool))
+                pool.Release(missle);
+            else
+                Destroy(missle.gameObject);
         }
     }
 
     #endregion
+}
+
+public static class ListPool<T>
+{
+    private static readonly Stack<List<T>> pool = new();
+
+    public static List<T> Get()
+    {
+        return pool.Count > 0 ? pool.Pop() : new List<T>();
+    }
+
+    public static void Release(List<T> list)
+    {
+        list.Clear();
+        pool.Push(list);
+    }
 }
 
 public readonly struct MissleUID : IEquatable<MissleUID>, IComparable<MissleUID>
@@ -297,23 +293,4 @@ public readonly struct MissleUID : IEquatable<MissleUID>, IComparable<MissleUID>
     }
 
     public override string ToString() => $"{PrefabId}:{Frame}:{Sequence}";
-}
-
-public struct MissleSpawnHandle
-{
-    private MissleManager.MissleSpawnRequest request;
-    public bool IsRequestSuccess => request != null;
-    public bool IsSpawned => MissleManager.Instance.Spawns.ContainsKey(request.missleInstanceId);
-    public T GetMissle<T>() where T : BaseMissle
-    {
-        if (MissleManager.Instance.Spawns.TryGetValue(request.missleInstanceId, out var missle))
-            return missle as T;
-        return null;
-    }
-
-
-    public MissleSpawnHandle(MissleManager.MissleSpawnRequest request)
-    {
-        this.request = request;
-    }
 }

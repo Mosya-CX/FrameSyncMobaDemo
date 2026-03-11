@@ -37,48 +37,6 @@ public sealed class AbilityRuntime
             Level++;
     }
 
-    public bool CanStartPreview()
-    {
-        if (Level == 0)
-            return false;
-
-        if (CooldownRemaining > 0)
-            return false;
-
-        var conditions = Data.TriggerConditions;
-        if (conditions == null)
-            return true;
-
-        for (int i = 0; i < conditions.Length; i++)
-        {
-            if (!conditions[i].CanStartPreview(this))
-                return false;
-        }
-
-        return true;
-    }
-
-    public bool CanCommit(in AbilityTriggerContext context)
-    {
-        if (Level == 0)
-            return false;
-
-        if (CooldownRemaining > 0)
-            return false;
-
-        var conditions = Data.TriggerConditions;
-        if (conditions == null)
-            return true;
-
-        for (int i = 0; i < conditions.Length; i++)
-        {
-            if (!conditions[i].CanCommit(this, context))
-                return false;
-        }
-
-        return true;
-    }
-
     public void PayCost()
     {
         var conditions = Data.TriggerConditions;
@@ -102,6 +60,38 @@ public sealed class AbilityRuntime
     public void EnterCooldown()
     {
         CooldownRemaining = CurrentCooldownDuration;
+    }
+
+    public bool CanStartPreview()
+    {
+        if (Level == 0 || CooldownRemaining > 0)
+            return false;
+
+        var conditions = Data.TriggerConditions;
+        if (conditions == null)
+            return true;
+
+        for (int i = 0; i < conditions.Length; i++)
+            if (!conditions[i].CanStartPreview(this))
+                return false;
+
+        return true;
+    }
+
+    public bool CanCommit(in AbilityTriggerContext context)
+    {
+        if (Level == 0 || CooldownRemaining > 0)
+            return false;
+
+        var conditions = Data.TriggerConditions;
+        if (conditions == null)
+            return true;
+
+        for (int i = 0; i < conditions.Length; i++)
+            if (!conditions[i].CanCommit(this, context))
+                return false;
+
+        return true;
     }
 }
 
@@ -132,6 +122,11 @@ public sealed class AbilityContext
         return (T)data[key.Name];
     }
 
+    public T Get<T>(string keyName)
+    {
+        return (T)data[keyName];
+    }
+
     public bool TryGet<T>(AbilityContextKey<T> key, out T value)
     {
         if (data.TryGetValue(key.Name, out var obj) && obj is T t)
@@ -144,6 +139,27 @@ public sealed class AbilityContext
         return false;
     }
 
+    public bool TryGet<T>(string keyName, out T value)
+    {
+        if (data.TryGetValue(keyName, out var obj) && obj is T t)
+        {
+            value = t;
+            return true;
+        }
+
+        value = default;
+        return false;
+    }
+
     public void Remove(string keyName) => data.Remove(keyName);
     public void Clear() => data.Clear();
+
+    public AbilityContext Clone()
+    {
+        var clone = new AbilityContext();
+        foreach (var kv in data)
+            clone.data[kv.Key] = kv.Value;
+        return clone;
+    }
 }
+

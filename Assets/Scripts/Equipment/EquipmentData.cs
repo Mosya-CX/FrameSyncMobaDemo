@@ -1,4 +1,3 @@
-// EquipmentData.cs
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -13,16 +12,17 @@ public class EquipmentData : ScriptableObject
     public int Value;
     public string[] Tags;
 
+    [Title("合成关系")]
     public int[] BuildFrom;
     public int[] BuildInto;
-
     public bool IsFullItem;
 
+    [Title("基础属性")]
     public EquipmentStatModifierData[] Stats;
 
-    // 被动效果
-    public EquipmentBaseEffect[] PassiveEffects;
+    [Title("被动效果")]
+    public EquipmentPassiveData[] Passives;
 
-    // 主动效果
-    public EquipmentBaseEffect ActiveEffect;
+    [Title("主动效果")]
+    public EquipmentActiveData Active;
 }

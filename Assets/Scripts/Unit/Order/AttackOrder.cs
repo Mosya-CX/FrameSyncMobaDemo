@@ -3,6 +3,8 @@ using Unity.Mathematics.FixedPoint;
 public sealed class AttackOrder : UnitOrder
 {
     private readonly UnitUID targetUid;
+    public UnitUID TargetUid => targetUid;
+
     private UnitCore target;
 
     public AttackOrder(HeroUnit owner, UnitUID targetUid) : base(owner)
@@ -12,7 +14,7 @@ public sealed class AttackOrder : UnitOrder
 
     public override void OnEnter()
     {
-        if (Owner.CrowdControlHandler.CurrentSnapshot.BlockAttack)
+        if (Owner is not HeroUnit hero || !hero.CanStartAttack())
         {
             IsCancelled = true;
             return;
@@ -24,18 +26,18 @@ public sealed class AttackOrder : UnitOrder
             return;
         }
 
-        ((HeroUnit)Owner).SetTargetByOrder(target);
+        hero.SetTargetByOrder(target);
     }
 
     public override void Tick(fp dt)
     {
-        if (Owner.CrowdControlHandler.CurrentSnapshot.BlockAttack)
+        if (Owner is not HeroUnit hero || !hero.CanStartAttack())
         {
             IsCancelled = true;
             return;
         }
 
-        if (target == null || target.CurrentActionState == UnitActionState.Dead)
+        if (target == null || target.IsDead)
         {
             IsFinished = true;
             return;

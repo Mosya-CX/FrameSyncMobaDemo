@@ -7,14 +7,22 @@ public sealed class CastOrder : UnitOrder
     private CastExecution execution;
     private UnitCore targetUnit;
 
+    private CastExecutionSnapshot pausedSnapshot;
+
     private enum State
     {
         Prepare,
         Approaching,
         Executing,
+        PausedForInsertedCast,
     }
 
     private State state;
+
+    public int AbilityId => command.AbilityId;
+    public bool QueueIfBusy => command.QueueIfBusy;
+    public AbilityTriggerContext CommandContext => command.Context;
+    public bool HasPausedSnapshot => pausedSnapshot != null;
 
     public CastOrder(HeroUnit owner, AbilityCommand command) : base(owner)
     {
@@ -29,31 +37,36 @@ public sealed class CastOrder : UnitOrder
             return;
         }
 
-        if (Owner.CrowdControlHandler.CurrentSnapshot.BlockCast)
+        if (Owner is not HeroUnit hero || !hero.CanStartCast())
         {
             IsCancelled = true;
             return;
         }
 
-        state = State.Prepare;
+        state = pausedSnapshot != null ? State.PausedForInsertedCast : State.Prepare;
     }
 
-    public override void Tick(fp dt)
+    public void Tick(fp dt, uint currentTick)
     {
         switch (state)
         {
             case State.Prepare:
-                TickPrepare();
+                TickPrepare(currentTick);
                 break;
+
             case State.Approaching:
-                TickApproaching();
+                TickApproaching(currentTick);
                 break;
+
             case State.Executing:
-                execution.Tick(dt);
+                execution.Tick(dt, currentTick);
                 if (execution.IsFinished)
                     IsFinished = true;
                 else if (execution.IsCancelled)
                     IsCancelled = true;
+                break;
+
+            case State.PausedForInsertedCast:
                 break;
         }
     }
@@ -63,7 +76,51 @@ public sealed class CastOrder : UnitOrder
         if (state == State.Approaching)
             return true;
 
+        if (state == State.Executing && newOrder is CastOrder newCast && execution != null)
+        {
+            var window = execution.ResolveCastWindow(newCast.AbilityId);
+            if (window.HasValue)
+                return true;
+        }
+
         return execution == null || execution.CanBeInterruptedBy(newOrder);
+    }
+
+    public CastWindowType? ResolveCastWindow(int newAbilityId)
+    {
+        if (state != State.Executing || execution == null)
+            return null;
+
+        return execution.ResolveCastWindow(newAbilityId);
+    }
+
+    public CastExecutionSnapshot PauseForInsert()
+    {
+        if (state != State.Executing || execution == null)
+            return null;
+
+        pausedSnapshot = execution.CreateSnapshot();
+        state = State.PausedForInsertedCast;
+        return pausedSnapshot;
+    }
+
+    public void ResumeFromPausedSnapshot()
+    {
+        if (pausedSnapshot == null)
+        {
+            IsCancelled = true;
+            return;
+        }
+
+        execution = new CastExecution(
+            (HeroUnit)Owner,
+            pausedSnapshot.Runtime,
+            pausedSnapshot.TriggerContext,
+            pausedSnapshot.CastStartTick);
+
+        execution.RestoreFromSnapshot(pausedSnapshot);
+        pausedSnapshot = null;
+        state = State.Executing;
     }
 
     public override void Cancel()
@@ -72,7 +129,46 @@ public sealed class CastOrder : UnitOrder
         base.Cancel();
     }
 
-    private void TickPrepare()
+    public object CaptureOrderState()
+    {
+        return new CastOrderStateSnapshot
+        {
+            StateValue = (byte)state,
+            HasPausedSnapshot = pausedSnapshot != null,
+            PausedSnapshot = pausedSnapshot,
+            HasExecutionSnapshot = execution != null && state == State.Executing,
+            ExecutionSnapshot = execution != null && state == State.Executing ? execution.CreateSnapshot() : null,
+        };
+    }
+
+    public void RestoreOrderState(object stateObj)
+    {
+        if (stateObj is not CastOrderStateSnapshot snap)
+            return;
+
+        state = (State)snap.StateValue;
+        pausedSnapshot = snap.HasPausedSnapshot ? snap.PausedSnapshot : null;
+
+        if (snap.HasExecutionSnapshot && snap.ExecutionSnapshot != null)
+        {
+            if (Owner.AbilityHandler.TryGetRuntime(command.AbilityId, out runtime))
+            {
+                execution = new CastExecution(
+                    (HeroUnit)Owner,
+                    runtime,
+                    snap.ExecutionSnapshot.TriggerContext,
+                    snap.ExecutionSnapshot.CastStartTick);
+
+                execution.RestoreFromSnapshot(snap.ExecutionSnapshot);
+            }
+        }
+        else
+        {
+            execution = null;
+        }
+    }
+
+    private void TickPrepare(uint currentTick)
     {
         if (!runtime.CanCommit(command.Context))
         {
@@ -99,13 +195,12 @@ public sealed class CastOrder : UnitOrder
             return;
         }
 
-        BeginExecution();
+        BeginExecution(currentTick);
     }
 
-    private void TickApproaching()
+    private void TickApproaching(uint currentTick)
     {
-        var snapshot = Owner.CrowdControlHandler.CurrentSnapshot;
-        if (snapshot.BlockMove || snapshot.BlockCast)
+        if (Owner is not HeroUnit hero || !hero.CanStartMove() || !hero.CanStartCast())
         {
             IsCancelled = true;
             return;
@@ -120,8 +215,8 @@ public sealed class CastOrder : UnitOrder
         if (needApproach)
             return;
 
-        ((HeroUnit)Owner).StopMoveByOrder();
-        BeginExecution();
+        hero.StopMoveByOrder();
+        BeginExecution(currentTick);
     }
 
     private void BeginApproach()
@@ -138,10 +233,10 @@ public sealed class CastOrder : UnitOrder
             ((HeroUnit)Owner).SetDestinationByOrder(command.Context.TargetPosition.Value);
     }
 
-    private void BeginExecution()
+    private void BeginExecution(uint currentTick)
     {
-        execution = new CastExecution((HeroUnit)Owner, runtime, command.Context);
-        execution.Start();
+        execution = new CastExecution((HeroUnit)Owner, runtime, command.Context, currentTick);
+        execution.Start(currentTick);
         state = State.Executing;
     }
 
@@ -175,5 +270,15 @@ public sealed class CastOrder : UnitOrder
         }
 
         return targetMode == AbilityTargetMode.None;
+    }
+
+    [System.Serializable]
+    public struct CastOrderStateSnapshot
+    {
+        public byte StateValue;
+        public bool HasPausedSnapshot;
+        public CastExecutionSnapshot PausedSnapshot;
+        public bool HasExecutionSnapshot;
+        public CastExecutionSnapshot ExecutionSnapshot;
     }
 }

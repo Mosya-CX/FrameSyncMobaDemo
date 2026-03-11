@@ -112,28 +112,6 @@ public class BuffHandler : UnitBaseHandler
         buff.AddModifierHandle(type, handle);  // 调用 BuffInfo 的公开方法记录句柄
     }
 
-    #region 伤害回调事件
-    protected override void OnDamageDealt(in DamageInfo info)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    protected override void OnDamageTaken(in DamageInfo info)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    protected override void OnKill(in DamageInfo info)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    protected override void OnDeath(in DamageInfo info)
-    {
-        throw new System.NotImplementedException();
-    }
-    #endregion
-
     #region 快照和恢复
     public override object CaptureState()
     {

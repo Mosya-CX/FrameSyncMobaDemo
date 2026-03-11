@@ -1,12 +1,11 @@
-using Sirenix.OdinInspector;
-using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using Unity.Mathematics.FixedPoint;
 
 public class HeroInputHandler : MonoBehaviour
 {
     [HideInInspector] public HeroUnit owner;
 
-    private LocalCastSession currentSession;
+    private LocalCastSessionController castSessionController;
     private AbilityIndicatorPresenter indicatorPresenter;
 
     private void Awake()
@@ -21,26 +20,35 @@ public class HeroInputHandler : MonoBehaviour
 
         enabled = true;
         owner = GetComponent<HeroUnit>();
+
         indicatorPresenter = new AbilityIndicatorPresenter(owner);
+        castSessionController = new LocalCastSessionController(owner, indicatorPresenter);
     }
 
     private void Update()
     {
-        indicatorPresenter?.Tick(Time.deltaTime);
+        if (!enabled || owner == null)
+            return;
+
+        indicatorPresenter?.Update(Time.deltaTime);
+
+        if (castSessionController?.CurrentSession != null && LocalController.Local != null)
+            castSessionController.UpdatePreviewInput(LocalController.Local.BuildCurrentInputInfo(), Time.deltaTime);
     }
 
     public void HandleRightMouseInput(in InputInfo info)
     {
+        if (owner.DashMotor.IsInputLocked_Move() && owner.DashMotor.IsInputLocked_Attack())
+            return;
+
         if (owner.CrowdControlHandler.CurrentSnapshot.BlockMoveInput &&
             owner.CrowdControlHandler.CurrentSnapshot.BlockAttackInput)
             return;
 
-        CancelCurrentSession();
+        castSessionController.Cancel();
 
-        if (info.selectedUnit != null &&
-            !owner.CrowdControlHandler.CurrentSnapshot.BlockAttackInput &&
-            info.selectedUnit.TeamID != owner.TeamID &&
-            info.selectedUnit.CurrentActionState != UnitActionState.Dead)
+        if (info.selectedUnit != null && info.selectedUnit.TeamID != owner.TeamID &&
+            !info.selectedUnit.IsDead && !owner.CrowdControlHandler.CurrentSnapshot.BlockAttackInput)
         {
             SendAttackCommand(info.selectedUnit.UnitID);
             return;
@@ -52,72 +60,56 @@ public class HeroInputHandler : MonoBehaviour
 
     public void HandlePressAbilityButton(in int abilityId, in InputInfo inputInfo)
     {
+        if (owner.DashMotor.IsInputLocked_Cast())
+            return;
+
         if (owner.CrowdControlHandler.CurrentSnapshot.BlockCastInput)
             return;
 
         if (!owner.AbilityHandler.TryGetRuntime(abilityId, out var runtime))
             return;
 
-        if (!runtime.CanStartPreview())
-            return;
-
-        var interaction = runtime.Data.LocalInteractionType;
-        var context = BuildContext(inputInfo);
-
-        switch (interaction)
+        switch (runtime.Data.LocalInteractionType)
         {
             case LocalCastInteractionType.Instant:
-                SendAbilityCommand(abilityId, context, false);
+                if (runtime.CanCommit(new AbilityTriggerContext
+                {
+                    TargetPosition = inputInfo.mousePosition,
+                    TargetUID = inputInfo.selectedUnit != null ? inputInfo.selectedUnit.UnitID : null,
+                }))
+                {
+                    SendAbilityCommand(abilityId, new AbilityTriggerContext
+                    {
+                        TargetPosition = inputInfo.mousePosition,
+                        TargetUID = inputInfo.selectedUnit != null ? inputInfo.selectedUnit.UnitID : null,
+                    }, true);
+                }
                 break;
 
             case LocalCastInteractionType.PressOrRelease:
             case LocalCastInteractionType.HoldAndRelease:
-                currentSession = new LocalCastSession
-                {
-                    AbilityId = abilityId,
-                    State = LocalCastSessionState.Preview,
-                    Aim = new LocalAimData
-                    {
-                        TargetPosition = inputInfo.mousePosition,
-                        TargetUnitId = inputInfo.selectedUnit != null ? inputInfo.selectedUnit.UnitID : null,
-                    }
-                };
-                indicatorPresenter.Show(runtime);
+                castSessionController.TryBeginPreview(abilityId, inputInfo);
                 break;
         }
     }
 
     public void HandleReleaseAbilityButton(int abilityId, in InputInfo inputInfo)
     {
-        if (currentSession == null || currentSession.AbilityId != abilityId)
+        if (castSessionController.CurrentSession == null)
             return;
 
-        var context = BuildContext(inputInfo);
-        SendAbilityCommand(abilityId, context, true);
-        CancelCurrentSession();
+        if (castSessionController.CurrentSession.AbilityId != abilityId)
+            return;
+
+        castSessionController.UpdatePreviewInput(inputInfo, 0f);
+
+        if (castSessionController.TryConfirm(out var command))
+            FrameSyncCoreSystem.Instance.AddPendingCommand(command);
     }
 
     public void CancelCurrentIndicator()
     {
-        CancelCurrentSession();
-    }
-
-    private void CancelCurrentSession()
-    {
-        if (currentSession != null)
-        {
-            indicatorPresenter.Hide();
-            currentSession = null;
-        }
-    }
-
-    private AbilityTriggerContext BuildContext(in InputInfo inputInfo)
-    {
-        return new AbilityTriggerContext
-        {
-            TargetPosition = inputInfo.mousePosition,
-            TargetUID = inputInfo.selectedUnit != null ? inputInfo.selectedUnit.UnitID : null,
-        };
+        castSessionController?.Cancel();
     }
 
     public void SendAttackCommand(UnitUID targetUid)

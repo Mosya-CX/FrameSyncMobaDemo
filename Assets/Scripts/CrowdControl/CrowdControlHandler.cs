@@ -5,11 +5,15 @@ public sealed class CrowdControlRuntime
 {
     public readonly CrowdControlData Data;
     public fp RemainingTime;
+    public UnitCore Source;
+    public object UserData;
 
-    public CrowdControlRuntime(CrowdControlData data, fp duration)
+    public CrowdControlRuntime(CrowdControlData data, fp duration, UnitCore source = null, object userData = null)
     {
         Data = data;
         RemainingTime = duration;
+        Source = source;
+        UserData = userData;
     }
 }
 
@@ -18,14 +22,18 @@ public class CrowdControlHandler : UnitBaseHandler
     public readonly List<CrowdControlRuntime> ActiveControls = new();
     public ControlConstraintSnapshot CurrentSnapshot { get; private set; } = ControlConstraintSnapshot.Default;
 
-    public void AddControl(CrowdControlData data, fp duration)
+    public void AddControl(CrowdControlData data, fp duration, UnitCore source = null, object userData = null)
     {
         if (data == null)
             return;
 
-        var runtime = new CrowdControlRuntime(data, duration);
+        var runtime = new CrowdControlRuntime(data, duration, source, userData);
         ActiveControls.Add(runtime);
-        data.OnTakeEffect?.Apply(null);
+
+        var context = BuildContext(runtime);
+        data.OnTakeEffect?.Apply(context);
+        data.SpecialBehavior?.OnApply(context);
+
         RebuildSnapshot();
     }
 
@@ -36,11 +44,13 @@ public class CrowdControlHandler : UnitBaseHandler
 
         for (int i = ActiveControls.Count - 1; i >= 0; i--)
         {
-            if (ActiveControls[i].Data.Id == data.Id)
-            {
-                data.OnWearOff?.Apply(null);
-                ActiveControls.RemoveAt(i);
-            }
+            if (ActiveControls[i].Data.Id != data.Id)
+                continue;
+
+            var context = BuildContext(ActiveControls[i]);
+            data.SpecialBehavior?.OnRemove(context);
+            data.OnWearOff?.Apply(context);
+            ActiveControls.RemoveAt(i);
         }
 
         RebuildSnapshot();
@@ -48,35 +58,38 @@ public class CrowdControlHandler : UnitBaseHandler
 
     public override void Tick(fp deltaTime)
     {
-        bool changed = false;
+        bool dirty = false;
 
         for (int i = ActiveControls.Count - 1; i >= 0; i--)
         {
-            ActiveControls[i].RemainingTime -= deltaTime;
+            var runtime = ActiveControls[i];
+            runtime.RemainingTime -= deltaTime;
 
-            if (ActiveControls[i].RemainingTime <= 0)
+            if (runtime.RemainingTime <= 0)
             {
-                ActiveControls[i].Data.OnWearOff?.Apply(null);
+                var removeContext = BuildContext(runtime);
+                runtime.Data.SpecialBehavior?.OnRemove(removeContext);
+                runtime.Data.OnWearOff?.Apply(removeContext);
                 ActiveControls.RemoveAt(i);
-                changed = true;
+                dirty = true;
+                continue;
             }
-            else
-            {
-                ActiveControls[i].Data.OnTick?.Apply(null);
-            }
+
+            var tickContext = BuildContext(runtime);
+            runtime.Data.OnTick?.Apply(tickContext);
+            runtime.Data.SpecialBehavior?.OnTick(tickContext, deltaTime);
         }
 
-        if (changed)
+        if (dirty)
             RebuildSnapshot();
     }
 
     public bool HasControl(ControlType type)
     {
         for (int i = 0; i < ActiveControls.Count; i++)
-        {
             if ((ActiveControls[i].Data.Type & type) != 0)
                 return true;
-        }
+
         return false;
     }
 
@@ -84,6 +97,18 @@ public class CrowdControlHandler : UnitBaseHandler
     {
         ActiveControls.Clear();
         CurrentSnapshot = ControlConstraintSnapshot.Default;
+    }
+
+    private CrowdControlRuntimeContext BuildContext(CrowdControlRuntime runtime)
+    {
+        return new CrowdControlRuntimeContext
+        {
+            Owner = owner,
+            Data = runtime.Data,
+            RemainingTime = runtime.RemainingTime,
+            Source = runtime.Source,
+            UserData = runtime.UserData,
+        };
     }
 
     private void RebuildSnapshot()
@@ -106,19 +131,27 @@ public class CrowdControlHandler : UnitBaseHandler
 
             snapshot.ForceInterruptCast |= data.ForceInterruptCast;
             snapshot.ForceInterruptAttack |= data.ForceInterruptAttack;
+            snapshot.ForceInterruptDash |= data.ForceInterruptDash;
 
-            var mul = (fp)data.MoveSpeedMultiplier;
-            if (mul < snapshot.MoveSpeedMultiplier)
-                snapshot.MoveSpeedMultiplier = mul;
+            var moveMul = (fp)data.MoveSpeedMultiplier;
+            if (moveMul < snapshot.MoveSpeedMultiplier)
+                snapshot.MoveSpeedMultiplier = moveMul;
+
+            if (data.BlockMove) snapshot.BlockedChannels |= ActionChannelMask.Move;
+            if (data.BlockTrack) snapshot.BlockedChannels |= ActionChannelMask.Track;
+            if (data.BlockAttack) snapshot.BlockedChannels |= ActionChannelMask.Attack;
+            if (data.BlockCast) snapshot.BlockedChannels |= ActionChannelMask.Cast;
+            if (data.BlockDash) snapshot.BlockedChannels |= ActionChannelMask.Dash;
+
+            if (data.Type.HasFlag(ControlType.Root))
+                snapshot.BlockedChannels |= ActionChannelMask.Move | ActionChannelMask.Track;
+
+            if (data.Type.HasFlag(ControlType.Stun) || data.Type.HasFlag(ControlType.Suppress) || data.Type.HasFlag(ControlType.Knockup))
+                snapshot.BlockedChannels |= ActionChannelMask.Move | ActionChannelMask.Track | ActionChannelMask.Attack | ActionChannelMask.Cast | ActionChannelMask.Dash | ActionChannelMask.Rotate;
         }
 
         CurrentSnapshot = snapshot;
     }
-
-    protected override void OnDamageDealt(in DamageInfo info) { }
-    protected override void OnDamageTaken(in DamageInfo info) { }
-    protected override void OnKill(in DamageInfo info) { }
-    protected override void OnDeath(in DamageInfo info) => Clean();
 
     public override object CaptureState() => null;
     public override void RestoreState(object state) { }

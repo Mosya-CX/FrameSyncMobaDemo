@@ -67,6 +67,13 @@ public class CastStageData
     public CastStageType Type;
     public float Duration;
 
+    [Title("阶段控制")]
+    public bool AllowMoveDuringStage;
+    public bool AllowRotateDuringStage = true;
+
+    [Title("插入窗口")]
+    public CastWindowRule[] CastWindows;
+
     [Title("进入")]
     public AbilityBaseMoudle[] OnEnter;
 
@@ -84,4 +91,18 @@ public enum CastStageType : byte
     Execute,
     Channel,
     Recovery,
+}
+
+public enum CastWindowType : byte
+{
+    QueueOnly,      // 仅排队
+    ReplaceCurrent, // 直接打断替换
+    InsertBeforeExecute, // 插入后返回当前施法（如剑魔QE）
+}
+
+[System.Serializable]
+public class CastWindowRule
+{
+    public int AbilityId;
+    public CastWindowType Type = CastWindowType.QueueOnly;
 }

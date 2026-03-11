@@ -7,111 +7,193 @@ using UnityEngine;
 public class MonsterCamp : MonoBehaviour, IStateful
 {
     [SerializeField, LabelText("野怪刷新时间")]
-    public float monsterFreshDuration;
+    private float monsterFreshDuration = 90f;
 
-    [SerializeField, LabelText("选择主野怪"), ValueDropdown(nameof(GetItemIndices))]
+    [SerializeField, LabelText("主野怪索引"), ValueDropdown(nameof(GetItemIndices))]
     private int selectedMainMonsterIndex;
 
     [SerializeField, LabelText("野怪点位")]
     private CampSpawn[] campSpawns;
 
-    [System.Serializable]
+    [Serializable]
     public struct CampSpawn
     {
         [LabelText("生成点位")]
-        public Transform spanwPoint;
-        [LabelText("预制体")]
+        public Transform spawnPoint;
+
+        [LabelText("野怪预制体")]
         public MonsterUnit monsterPrefab;
     }
+
+    [Serializable]
+    public struct MonsterCampSnapshot
+    {
+        public bool ShouldRefresh;
+        public fp RefreshTimer;
+        public UnitUID[] SpawnedMonsterIds;
+    }
+
+    protected readonly List<MonsterUnit> spawnedMonster = new();
+
+    protected bool shouldRefresh;
+    protected fp refreshTimer;
+
+    public IReadOnlyList<MonsterUnit> SpawnedMonster => spawnedMonster;
+    public bool ShouldRefresh => shouldRefresh;
+    public fp RefreshTimer => refreshTimer;
 
     private IEnumerable<ValueDropdownItem<int>> GetItemIndices()
     {
         for (int i = 0; i < campSpawns.Length; i++)
         {
-            yield return new ValueDropdownItem<int>
-            {
-                Text = $"【{i}/{campSpawns[i]}】",  // 下拉显示的文本
-                Value = i                    // 实际存储的下标
-            };
+            string name = campSpawns[i].monsterPrefab != null ? campSpawns[i].monsterPrefab.name : "空";
+            yield return new ValueDropdownItem<int>($"[{i}] {name}", i);
         }
     }
 
-    protected List<MonsterUnit> spawnedMonster = new();
-
-    protected bool shouldRefresh;
-    protected fp refreshTimer;
-
-    public virtual void RefreshMonster()
+    public virtual void Tick(fp dt)
     {
-        // 1销毁所有已存在的怪物（需确保 spawnedMonster 准确记录所有生成的怪物）
-        for (int i = 0; i < spawnedMonster.Count; i++)
-            UnitManager.Instance.CreateDespawnRequest(spawnedMonster[i], 0);
-        spawnedMonster.Clear(); // 清空列表，因为这些怪物即将销毁
+        CleanupNullMonsters();
 
-        // 生成新怪物
-        for (int i = 0; i < campSpawns.Length; i++)
-        {
-            // 保存当前索引的副本，避免闭包问题
-            int index = i;
-            var spawnPos = campSpawns[i].spanwPoint.position;
-            var spawnRot = campSpawns[i].spanwPoint.rotation;
+        if (!shouldRefresh)
+            return;
 
-            UnitManager.Instance.CreateSpawnRequest(campSpawns[i].monsterPrefab.PrefabId, 1, 0, (spawned) =>
-            {
-                // 安全类型转换
-                MonsterUnit monster = spawned as MonsterUnit;
-                if (monster == null)
-                {
-                    Debug.LogError($"生成的单位不是 MonsterUnit 类型: {spawned}");
-                    return;
-                }
+        refreshTimer -= dt;
+        if (refreshTimer > 0)
+            return;
 
-                // 设置所属关系
-                monster.SetBelongTo(this,
-                    new fp3((fp)spawnPos.x, (fp)spawnPos.y, (fp)spawnPos.z),
-                    new fp2((fp)spawnRot.y, (fp)spawnRot.w));
-
-                // 将野怪加入管理列表
-                spawnedMonster.Add(monster);
-
-                // 如果是主野怪，注册死亡回调
-                if (index == selectedMainMonsterIndex)
-                    monster.RegisterDamageCallback(UnitDamageCallbackType.OnDeath, OnMainMonsterDeath);
-            });
-        }
+        RefreshMonster();
+        shouldRefresh = false;
+        refreshTimer = 0;
     }
 
-    protected void OnMainMonsterDeath(in DamageInfo _)
-    {
-        _.Target.UnregisterDamageCallback(UnitDamageCallbackType.OnDeath, OnMainMonsterDeath);
-        SetRefresh((fp)monsterFreshDuration);
-    }
-
-    public void Tick(fp dt)
-    {
-        if (shouldRefresh)
-        {
-            if (refreshTimer <= 0)
-            {
-                RefreshMonster();
-                shouldRefresh = false;
-            }
-        }
-    }
-
-    public void SetRefresh(fp delay)
+    public virtual void SetRefresh(fp delay)
     {
         shouldRefresh = true;
         refreshTimer = delay;
     }
 
+    public virtual void RefreshMonster()
+    {
+        // 先清掉现有野怪
+        for (int i = 0; i < spawnedMonster.Count; i++)
+        {
+            var monster = spawnedMonster[i];
+            if (monster == null)
+                continue;
+
+            UnbindMainMonsterIfNeeded(monster, i);
+            UnitManager.Instance.DespawnNow(monster);
+        }
+
+        spawnedMonster.Clear();
+
+        // 重新生成
+        for (int i = 0; i < campSpawns.Length; i++)
+        {
+            int index = i;
+            var config = campSpawns[index];
+
+            if (config.monsterPrefab == null || config.spawnPoint == null)
+                continue;
+
+            var spawnPos = config.spawnPoint.position;
+            var spawnRot = config.spawnPoint.rotation;
+
+            var monster = UnitManager.Instance.SpawnNow<MonsterUnit>(config.monsterPrefab.PrefabId, 1, 1, spawned =>
+            {
+                spawned.SetBelongTo(
+                    this,
+                    new fp3((fp)spawnPos.x, (fp)spawnPos.y, (fp)spawnPos.z),
+                    new fp2((fp)spawnRot.y, (fp)spawnRot.w));
+            });
+
+            if (monster == null)
+                continue;
+
+            spawnedMonster.Add(monster);
+
+            if (index == selectedMainMonsterIndex)
+                BindMainMonsterDeath(monster);
+        }
+    }
+
+    protected virtual void OnMainMonsterDeath(DeathEvent evt)
+    {
+        if (evt.Victim is MonsterUnit monster)
+            monster.Death -= OnMainMonsterDeath;
+
+        SetRefresh((fp)monsterFreshDuration);
+    }
+
+    protected void BindMainMonsterDeath(MonsterUnit monster)
+    {
+        if (monster == null)
+            return;
+
+        monster.Death -= OnMainMonsterDeath;
+        monster.Death += OnMainMonsterDeath;
+    }
+
+    protected void UnbindMainMonsterIfNeeded(MonsterUnit monster, int index)
+    {
+        if (monster == null)
+            return;
+
+        if (index == selectedMainMonsterIndex)
+            monster.Death -= OnMainMonsterDeath;
+    }
+
+    protected void CleanupNullMonsters()
+    {
+        for (int i = spawnedMonster.Count - 1; i >= 0; i--)
+        {
+            if (spawnedMonster[i] == null)
+                spawnedMonster.RemoveAt(i);
+        }
+    }
+
     public object CaptureState()
     {
-        throw new System.NotImplementedException();
+        CleanupNullMonsters();
+
+        var ids = new List<UnitUID>(spawnedMonster.Count);
+        for (int i = 0; i < spawnedMonster.Count; i++)
+        {
+            if (spawnedMonster[i] != null)
+                ids.Add(spawnedMonster[i].UnitID);
+        }
+
+        return new MonsterCampSnapshot
+        {
+            ShouldRefresh = shouldRefresh,
+            RefreshTimer = refreshTimer,
+            SpawnedMonsterIds = ids.ToArray(),
+        };
     }
 
     public void RestoreState(object state)
     {
-        throw new System.NotImplementedException();
+        var snap = (MonsterCampSnapshot)state;
+
+        shouldRefresh = snap.ShouldRefresh;
+        refreshTimer = snap.RefreshTimer;
+
+        spawnedMonster.Clear();
+
+        if (snap.SpawnedMonsterIds == null)
+            return;
+
+        for (int i = 0; i < snap.SpawnedMonsterIds.Length; i++)
+        {
+            if (UnitManager.Instance.Spawns.TryGetValue(snap.SpawnedMonsterIds[i], out var unit) &&
+                unit is MonsterUnit monster)
+            {
+                spawnedMonster.Add(monster);
+
+                if (i == selectedMainMonsterIndex)
+                    BindMainMonsterDeath(monster);
+            }
+        }
     }
 }

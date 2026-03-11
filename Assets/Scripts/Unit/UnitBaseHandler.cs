@@ -8,36 +8,31 @@ public abstract class UnitBaseHandler : MonoBehaviour, IStateful
 
     protected virtual void Awake()
     {
-        owner ??= GetComponent<UnitCore>();
+        owner = GetComponent<UnitCore>();
     }
 
-    public abstract void Tick(fp deltaTime);
-
-    #region ÉËº¦»Øµ÷
-    public void OnDamageCallback(UnitDamageCallbackType type, in DamageInfo info)
+    protected virtual void OnEnable()
     {
-        switch (type)
-        {
-            case UnitDamageCallbackType.OnDamageDealt:
-                OnDamageDealt(info); 
-                break;
-            case UnitDamageCallbackType.OnDamageTaken:
-                OnDamageTaken(info); 
-                break;
-            case UnitDamageCallbackType.OnKill:
-                OnKill(info);
-                break;
-            case UnitDamageCallbackType.OnDeath:
-                OnDeath(info);
-                break;
-        }
-    }
-    protected abstract void OnDamageDealt(in DamageInfo info);
-    protected abstract void OnDamageTaken(in DamageInfo info);
-    protected abstract void OnKill(in DamageInfo info);
-    protected abstract void OnDeath(in DamageInfo info);
+        if (owner == null)
+            owner = GetComponent<UnitCore>();
 
-    #endregion
+        BindEvents();
+    }
+
+    protected virtual void OnDisable()
+    {
+        UnbindEvents();
+    }
+
+    protected virtual void OnDestroy()
+    {
+        UnbindEvents();
+    }
+
+    protected virtual void BindEvents() { }
+    protected virtual void UnbindEvents() { }
+
+    public virtual void Tick(fp deltaTime) { }
 
     public abstract object CaptureState();
     public abstract void RestoreState(object state);

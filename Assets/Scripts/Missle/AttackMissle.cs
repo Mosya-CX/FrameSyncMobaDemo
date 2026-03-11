@@ -1,8 +1,10 @@
-public class AttackMissle : TargetTrackMissle
+public class AttackMissle : TargetTrackFlyingMissleBase
 {
     protected override void OnMissleApply()
     {
-        DamageManager.Instance.CreateAttackDamageRequest(owner, target);
+        if (Owner != null && Target != null && !Target.IsDead)
+            DamageManager.Instance.CreateAttackDamageRequest(Owner, Target);
+
         base.OnMissleApply();
     }
 }

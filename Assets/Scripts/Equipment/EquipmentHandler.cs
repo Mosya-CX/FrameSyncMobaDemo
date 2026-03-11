@@ -1,74 +1,92 @@
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Mathematics.FixedPoint;
 
 public class EquipmentHandler : UnitBaseHandler
 {
     public ushort EquipmentLimitCount = 6;
-    public EquipmentInfo[] EquippedItems;
-    private Dictionary<EquipmentData, EquipmentEffectRuntime> EquipmentEffectTable = new();
+
+    /// <summary>
+    /// 每个格子的装备实例
+    /// </summary>
+    public EquipmentItemRuntime[] EquippedItems;
+
+    /// <summary>
+    /// 同种装备共享一个效果组
+    /// </summary>
+    private readonly Dictionary<EquipmentData, EquipmentEffectGroupRuntime> effectGroupTable = new();
 
     protected override void Awake()
     {
-        base.Awake();   
-        EquippedItems = new EquipmentInfo[EquipmentLimitCount];
+        base.Awake();
+        EquippedItems = new EquipmentItemRuntime[EquipmentLimitCount];
     }
 
     public override void Tick(fp deltaTime)
     {
-        foreach (var effectRuntime in EquipmentEffectTable.Values)
-            effectRuntime.Tick(deltaTime);
+        uint currentTick = UnitManager.Instance.CurrentTick;
+
+        foreach (var groupRuntime in effectGroupTable.Values)
+            groupRuntime.Tick(deltaTime, currentTick);
     }
 
     public bool TryAddEquipment(EquipmentData data)
     {
-        if (data == null || EquippedItems.Length >= EquipmentLimitCount)
+        if (data == null)
             return false;
 
-        var info = new EquipmentInfo(data, this);
+        int slot = FindEmptySlot();
+        if (slot < 0)
+            return false;
 
-        // 应用基础属性
-        ApplyStats(info);
+        var itemRuntime = new EquipmentItemRuntime(data, this);
 
-        if (!EquipmentEffectTable.TryGetValue(data, out var effectRuntime))
+        // 先加基础属性（每件装备都要加）
+        ApplyStats(itemRuntime);
+
+        // 再接入共享效果组
+        if (!effectGroupTable.TryGetValue(data, out var groupRuntime))
         {
-            effectRuntime = new EquipmentEffectRuntime(data, this);
-            effectRuntime.OnCreate();
+            groupRuntime = new EquipmentEffectGroupRuntime(data, this);
+            groupRuntime.ItemCount = 1;
+            groupRuntime.OnCreate();
+            effectGroupTable.Add(data, groupRuntime);
         }
-        effectRuntime.referenceCount++;
-        info.EffectRuntime = effectRuntime;
-
-        for (int i = 0; i < EquippedItems.Length; i++)
+        else
         {
-            if (EquippedItems[i] == null)
-            {
-                EquippedItems[i] = info;
-                break;
-            }
+            groupRuntime.ItemCount++;
         }
-        
+
+        itemRuntime.EffectGroupRuntime = groupRuntime;
+        EquippedItems[slot] = itemRuntime;
         return true;
     }
 
     public bool TryRemoveEquipment(int equipmentIndex)
     {
-        var info = EquippedItems[equipmentIndex];
-        if (info == null) return false;
+        if (equipmentIndex < 0 || equipmentIndex >= EquippedItems.Length)
+            return false;
 
-        if (EquipmentEffectTable.TryGetValue(info.data, out var effectRuntime))
+        var itemRuntime = EquippedItems[equipmentIndex];
+        if (itemRuntime == null)
+            return false;
+
+        // 先移除这件装备自身的基础属性
+        for (int i = 0; i < itemRuntime.StatModifierHandles.Count; i++)
+            owner.Stats.RemoveModifierFromAllStats(itemRuntime.StatModifierHandles[i]);
+
+        itemRuntime.StatModifierHandles.Clear();
+
+        // 再处理共享效果组
+        if (itemRuntime.EffectGroupRuntime != null)
         {
-            effectRuntime.referenceCount--;
-            if (effectRuntime.referenceCount <= 0)
+            itemRuntime.EffectGroupRuntime.ItemCount--;
+
+            if (itemRuntime.EffectGroupRuntime.ItemCount <= 0)
             {
-                effectRuntime.OnRemove();
-                EquipmentEffectTable.Remove(info.data);
+                itemRuntime.EffectGroupRuntime.OnRemove();
+                effectGroupTable.Remove(itemRuntime.Data);
             }
         }
-
-        // 移除属性修饰器
-        foreach (var handle in info.statModifierHandlers)
-            owner.Stats.RemoveModifierFromAllStats(handle);
-        info.statModifierHandlers.Clear();
 
         EquippedItems[equipmentIndex] = null;
         return true;
@@ -76,96 +94,51 @@ public class EquipmentHandler : UnitBaseHandler
 
     public bool TryUseActiveEffect(int equipmentIndex, fp3? targetPos = null, UnitUID? targetId = null)
     {
-        var info = EquippedItems[equipmentIndex];
-        if (info == null ||  info.data.ActiveEffect == null) 
+        if (equipmentIndex < 0 || equipmentIndex >= EquippedItems.Length)
             return false;
 
-        if (!EquipmentEffectTable.TryGetValue(info.data, out var effectRuntime) || effectRuntime == null)
+        var itemRuntime = EquippedItems[equipmentIndex];
+        if (itemRuntime == null)
             return false;
 
-        if (targetPos.HasValue)
-            effectRuntime.context.Set("TargetPosition", targetPos.Value);
-        if (targetId.HasValue && UnitManager.Instance.Spawns.TryGetValue(targetId.Value, out var targetUnit))
-            effectRuntime.context.Set("TargetUnit", targetUnit);
+        var groupRuntime = itemRuntime.EffectGroupRuntime;
+        if (groupRuntime == null || groupRuntime.ActiveRuntime == null)
+            return false;
 
-        var isApplied = effectRuntime.data.ActiveEffect.Apply(effectRuntime);
-        effectRuntime.context.Remove("TargetPosition");
-        effectRuntime.context.Remove("TargetUnit");
-        return isApplied;
+        UnitCore targetUnit = null;
+        if (targetId.HasValue)
+            UnitManager.Instance.Spawns.TryGetValue(targetId.Value, out targetUnit);
+
+        var useContext = new EquipmentUseContext(targetPos, targetUnit);
+        return groupRuntime.ActiveRuntime.TryUse(useContext);
     }
 
-    private void ApplyStats(EquipmentInfo info)
+    private int FindEmptySlot()
     {
-        if (info.data.Stats == null) return;
-
-        foreach (var stat in info.data.Stats)
+        for (int i = 0; i < EquippedItems.Length; i++)
         {
+            if (EquippedItems[i] == null)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private void ApplyStats(EquipmentItemRuntime itemRuntime)
+    {
+        if (itemRuntime.Data.Stats == null)
+            return;
+
+        for (int i = 0; i < itemRuntime.Data.Stats.Length; i++)
+        {
+            var stat = itemRuntime.Data.Stats[i];
             var handle = ModifierHandleGenerator.Create();
             var modifier = new StatModifier(handle, stat.Mode, stat.Value);
             owner.Stats.AddModifier(stat.Type, modifier);
-            info.statModifierHandlers.Add(handle);
+            itemRuntime.StatModifierHandles.Add(handle);
         }
     }
 
-    #region 伤害回调
-    protected override void OnDamageDealt(in DamageInfo info)
-    {
-        foreach (var effectRuntime in EquipmentEffectTable.Values)
-        {
-            effectRuntime.context.Set("DamageInfo", info);
-
-            foreach (var passiveEffect in effectRuntime.data.PassiveEffects)
-                if (passiveEffect.Timing == EquipmentBaseEffect.ApplyTiming.OnDamageDealt)
-                    effectRuntime.ApplyEffect(passiveEffect);
-
-            effectRuntime.context.Remove("DamageInfo");
-        }
-    }
-
-    protected override void OnDamageTaken(in DamageInfo info)
-    {
-        foreach (var effectRuntime in EquipmentEffectTable.Values)
-        {
-            effectRuntime.context.Set("DamageInfo", info);
-
-            foreach (var passiveEffect in effectRuntime.data.PassiveEffects)
-                if (passiveEffect.Timing == EquipmentBaseEffect.ApplyTiming.OnDamageTaken)
-                    effectRuntime.ApplyEffect(passiveEffect);
-
-            effectRuntime.context.Remove("DamageInfo");
-        }
-    }
-
-    protected override void OnKill(in DamageInfo info)
-    {
-        foreach (var effectRuntime in EquipmentEffectTable.Values)
-        {
-            effectRuntime.context.Set("DamageInfo", info);
-
-            foreach (var passiveEffect in effectRuntime.data.PassiveEffects)
-                if (passiveEffect.Timing == EquipmentBaseEffect.ApplyTiming.OnKill)
-                    effectRuntime.ApplyEffect(passiveEffect);
-
-            effectRuntime.context.Remove("DamageInfo");
-        }
-    }
-
-    protected override void OnDeath(in DamageInfo info)
-    {
-        foreach (var effectRuntime in EquipmentEffectTable.Values)
-        {
-            effectRuntime.context.Set("DamageInfo", info);
-
-            foreach (var passiveEffect in effectRuntime.data.PassiveEffects)
-                if (passiveEffect.Timing == EquipmentBaseEffect.ApplyTiming.OnDeath)
-                    effectRuntime.ApplyEffect(passiveEffect);
-
-            effectRuntime.context.Remove("DamageInfo");
-        }
-    }
-    #endregion
-
-    #region 快照和回滚
     public override object CaptureState()
     {
         return null;
@@ -173,7 +146,5 @@ public class EquipmentHandler : UnitBaseHandler
 
     public override void RestoreState(object state)
     {
-
     }
-    #endregion
 }

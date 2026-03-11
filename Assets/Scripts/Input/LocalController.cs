@@ -245,6 +245,15 @@ public class LocalController : MonoBehaviour
             AbilityId = abilityId;
         }
     }
+
+    public InputInfo BuildCurrentInputInfo()
+    {
+        return new InputInfo
+        {
+            mousePosition = MousePositionFixedPoint,
+            selectedUnit = SelectedUnit,
+        };
+    }
 }
 
 /// <summary>

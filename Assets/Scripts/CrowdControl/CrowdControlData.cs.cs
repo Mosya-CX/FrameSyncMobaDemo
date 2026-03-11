@@ -22,12 +22,16 @@ public class CrowdControlData : ScriptableObject
     public bool BlockCast;
     public bool BlockDash;
 
-    [Title("是否强制打断当前技能/攻击")]
+    [Title("是否强制打断当前技能/攻击/Dash")]
     public bool ForceInterruptCast = true;
     public bool ForceInterruptAttack = true;
+    public bool ForceInterruptDash = true;
 
     [Title("移动倍率")]
     public float MoveSpeedMultiplier = 1f;
+
+    [Title("特殊行为")]
+    public ControlBehaviorBase SpecialBehavior;
 
     [Title("回调")]
     public CrowdControlBaseMoudle OnTakeEffect;

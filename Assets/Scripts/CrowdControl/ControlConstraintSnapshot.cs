@@ -14,11 +14,20 @@ public struct ControlConstraintSnapshot
 
     public bool ForceInterruptCast;
     public bool ForceInterruptAttack;
+    public bool ForceInterruptDash;
 
     public fp MoveSpeedMultiplier;
 
+    public ActionChannelMask BlockedChannels;
+
     public static ControlConstraintSnapshot Default => new ControlConstraintSnapshot
     {
-        MoveSpeedMultiplier = (fp)1
+        MoveSpeedMultiplier = (fp)1,
+        BlockedChannels = ActionChannelMask.None,
     };
+
+    public bool IsChannelBlocked(ActionChannelMask channel)
+    {
+        return (BlockedChannels & channel) != 0;
+    }
 }

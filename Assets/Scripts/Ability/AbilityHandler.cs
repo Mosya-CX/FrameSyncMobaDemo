@@ -34,9 +34,4 @@ public class AbilityHandler : UnitBaseHandler
 
     public override object CaptureState() => null;
     public override void RestoreState(object state) { }
-
-    protected override void OnDamageDealt(in DamageInfo info) { }
-    protected override void OnDamageTaken(in DamageInfo info) { }
-    protected override void OnKill(in DamageInfo info) { }
-    protected override void OnDeath(in DamageInfo info) { }
 }

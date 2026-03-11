@@ -1,26 +1,52 @@
 using Unity.Mathematics.FixedPoint;
 
-public class HeroUnit : UnitCore, ICommandReceiver
+public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
 {
     protected HeroInputHandler inputHandler;
+
     public OrderController OrderController { get; private set; }
     public DashMotor DashMotor { get; private set; }
+    public AbilityLinkController AbilityLinkController { get; private set; }
 
     protected override void Awake()
     {
         base.Awake();
+
         inputHandler = GetComponentInChildren<HeroInputHandler>(true);
         OrderController = new OrderController(this);
         DashMotor = new DashMotor(this);
+        AbilityLinkController = new AbilityLinkController(this);
     }
 
     public UnitUID ReceiverID => UnitID;
 
-    public override void Tick(fp dt)
+    public override void OnSpawn(UnitUID instanceUid, int startLevel = 1)
     {
-        base.Tick(dt);
+        base.OnSpawn(instanceUid, startLevel);
+        FrameSyncCoreSystem.Instance?.RegisterReceiver(this);
+    }
+
+    public override void OnDespawn()
+    {
+        FrameSyncCoreSystem.Instance?.UnregisterReceiver(UnitID);
+        base.OnDespawn();
+    }
+
+    public override void Tick(fp dt, uint currentTick)
+    {
+        base.Tick(dt, currentTick);
+
         DashMotor.Tick(dt);
-        OrderController.Tick(dt);
+        OrderController.Tick(dt, currentTick);
+    }
+
+    public override bool IsActionChannelBlocked(ActionChannelMask channel)
+    {
+        if (base.IsActionChannelBlocked(channel))
+            return true;
+
+        var dashLocks = DashMotor.BuildActionLockSnapshot();
+        return dashLocks.IsBlocked(channel);
     }
 
     public void ReceiveCommand(CommandBase command)
@@ -42,50 +68,88 @@ public class HeroUnit : UnitCore, ICommandReceiver
         }
     }
 
-    protected override void OnSiffnessEnter()
-    {
-        base.OnSiffnessEnter();
-        inputHandler?.CancelCurrentIndicator();
-    }
-
     public void SetDestinationByOrder(fp3 targetPosition)
     {
-        currentTarget = null;
-        currentDestination = targetPosition;
-        pathFinder.SetDestination(targetPosition);
-        ChangeActionState(UnitActionState.Move);
+        BeginMoveTo(targetPosition);
     }
 
     public void SetTargetByOrder(UnitCore target)
     {
-        currentDestination = null;
-        currentTarget = target;
-        pathFinder.SetTarget(target);
-        ChangeActionState(UnitActionState.Track);
+        BeginTrackTarget(target);
     }
 
     public void StopMoveByOrder()
     {
-        currentDestination = null;
-        pathFinder.Stop();
-        ChangeActionState(UnitActionState.Idle);
+        StopCurrentAction();
     }
 
-    protected override void OnMoveTick(fp dt)
+    protected override bool DashBlocked()
     {
-        if (!currentDestination.HasValue)
-        {
-            ChangeActionState(UnitActionState.Idle);
-            return;
-        }
+        return DashMotor.IsDashing;
+    }
 
-        if (IsReach(currentDestination.Value, 0.01m))
-        {
-            currentDestination = null;
-            ChangeActionState(UnitActionState.Idle);
-            return;
-        }
+    protected override void TickNonCombat(fp dt)
+    {
+        if (!IsDead && LocomotionState != UnitLocomotionState.Idle)
+            SetLocomotionState(UnitLocomotionState.Idle);
+    }
 
-        UpdateRotation();
+    protected override void OnDeadEnter()
+    {
+        base.OnDeadEnter();
+
+        StopCurrentAction();
+        DashMotor.Cancel();
+        OrderController.ClearBufferedOrders();
+        OrderController.ClearSuspendedOrder();
+        inputHandler?.CancelCurrentIndicator();
+    }
+
+    public bool IsHero => true;
+    public bool IsSummonedUnit => false;
+    public bool IsSiegeOrSuperMinion => false;
+    public bool IsLaneMinion => false;
+    public bool IsMonster => false;
+
+    public bool IsAttackingTarget(UnitCore target)
+    {
+        if (target == null)
+            return false;
+
+        return CurrentCombatMode == CombatMode.AttackTarget && CurrentTarget == target;
+    }
+
+    public override SimulationEntityType SimulationEntityType => SimulationEntityType.Hero;
+
+    public override object CaptureState()
+    {
+        var baseState = (CombatUnitSnapshot)base.CaptureState();
+
+        return new HeroUnitSnapshot
+        {
+            Base = baseState,
+            DashState = DashMotor.CaptureState(),
+            OrderState = OrderController.CaptureState(),
+            LinkState = AbilityLinkController.CaptureState(),
+        };
+    }
+
+    public override void RestoreState(object state)
+    {
+        var snap = (HeroUnitSnapshot)state;
+
+        base.RestoreState(snap.Base);
+        DashMotor.RestoreState(snap.DashState);
+        OrderController.RestoreState(snap.OrderState);
+        AbilityLinkController.RestoreState(snap.LinkState);
+    }
+
+    [System.Serializable]
+    public struct HeroUnitSnapshot
+    {
+        public CombatUnitSnapshot Base;
+        public object DashState;
+        public object OrderState;
+        public object LinkState;
     }
 }

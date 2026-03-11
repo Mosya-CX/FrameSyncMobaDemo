@@ -78,12 +78,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         if (IsServer)
             currentState.Value = GameFlowState.Initializing;
 
-        yield return RVOGenerator.Init();
-        yield return UnitManager.Init();
-        yield return MissleManager.Init();
-        yield return EntitiesSimulation.Init();
-        yield return DamageManager.Init();
-
         yield return null; // 等待一帧确保初始化完成
 
         if (IsServer)
@@ -132,7 +126,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         UnitManager.Begin();
         MissleManager.Begin();
         EntitiesSimulation.Begin();
-        DamageManager.Begin();
 
         currentState.Value = GameFlowState.Running;
         isRunning = true;
@@ -210,9 +203,6 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
     {
         UnitManager.UpdateLocalTick(tick);
         MissleManager.UpdateLocalTick(tick);
-
-        UnitManager.TickSpawnUnit();
-        MissleManager.TickSpawnMissle();
 
         RVOGenerator.Tick(tick);
         UnitManager.TickUpdateUnitTransform();

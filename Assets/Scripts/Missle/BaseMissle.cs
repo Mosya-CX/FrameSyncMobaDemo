@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
-using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using System;
 
 public abstract class BaseMissle : MonoBehaviour, IStateful
 {
@@ -21,7 +21,7 @@ public abstract class BaseMissle : MonoBehaviour, IStateful
     protected Transform modelRoot;
 
     [ShowInInspector, ReadOnly, LabelText("逻辑坐标")]
-    protected fp3 logicPosition;// 实际只有xz有用，但是为了方便运算就使用fp3
+    protected fp3 logicPosition;
     public fp3 LogicPosition
     {
         get => logicPosition;
@@ -29,107 +29,140 @@ public abstract class BaseMissle : MonoBehaviour, IStateful
     }
 
     [ShowInInspector, ReadOnly, LabelText("逻辑旋转")]
-    protected fp2 logicRotation;// x代表四元数的y，y代表四元数的w
+    protected fp2 logicRotation;
     public fp2 LogicRotation
     {
         get => logicRotation;
         set => logicRotation = value;
     }
 
-    protected fp3 logicSize;// // 实际只有xz有用，但是为了方便运算就使用fp3
+    [ShowInInspector, ReadOnly, LabelText("逻辑尺寸")]
+    protected fp3 logicSize;
     public fp3 LogicSize
     {
         get => logicSize;
         set => logicSize = value;
     }
 
+    protected UnitUID ownerUid;
+    public UnitUID OwnerUid => ownerUid;
 
-    private void Awake()
+    protected bool shouldRecycleNow;
+    public bool ShouldRecycleNow => shouldRecycleNow;
+
+    protected virtual void Awake()
     {
-        var bound = modelRoot.GetComponentInChildren<Collider>(true).bounds;
-        logicSize = new fp3((fp)bound.size.x, (fp)bound.size.y, (fp)bound.size.z);
+        if (modelRoot != null)
+        {
+            var collider = modelRoot.GetComponentInChildren<Collider>(true);
+            if (collider != null)
+            {
+                var bound = collider.bounds;
+                logicSize = new fp3((fp)bound.size.x, (fp)bound.size.y, (fp)bound.size.z);
+            }
+        }
     }
 
-    private void LateUpdate()
+    protected virtual void LateUpdate()
     {
         SyncTransform();
     }
 
-    protected virtual void SyncTransform()
+    public virtual void SyncTransform()
     {
         transform.position = new Vector3((float)logicPosition.x, (float)logicPosition.y, (float)logicPosition.z);
-        modelRoot.rotation = new Quaternion(0, (float)logicRotation.x, 0, (float)logicRotation.y);
+
+        if (modelRoot != null)
+            modelRoot.rotation = new Quaternion(0, (float)logicRotation.x, 0, (float)logicRotation.y);
     }
 
-    public void Tick(fp dt)
+    public void Tick(fp dt, uint currentTick)
     {
-        UpdateMissleState(dt);
+        if (shouldRecycleNow)
+            return;
+
+        UpdateMissleState(dt, currentTick);
 
         if (CanApply())
             OnMissleApply();
 
         if (IsRecycle())
-            MissleManager.Instance.Recycle(this);
+            shouldRecycleNow = true;
     }
 
-    public virtual void UpdateTransform(fp dt)// 更新位置和旋转
+    public virtual void UpdateTransform(fp dt, uint currentTick)
     {
-        UpdatePosition(dt);
-        UpdateRotation(dt);
-        UpdateSize(dt);
+        UpdatePosition(dt, currentTick);
+        UpdateRotation(dt, currentTick);
+        UpdateSize(dt, currentTick);
     }
 
-    protected virtual void UpdatePosition(fp dt) { }
-    protected virtual void UpdateRotation(fp dt) { }
-    protected virtual void UpdateSize(fp dt) { }
+    protected virtual void UpdatePosition(fp dt, uint currentTick) { }
+    protected virtual void UpdateRotation(fp dt, uint currentTick) { }
+    protected virtual void UpdateSize(fp dt, uint currentTick) { }
 
-    protected virtual void UpdateMissleState(fp dt) { }// 更新投掷物状态
+    protected virtual void UpdateMissleState(fp dt, uint currentTick) { }
 
-    protected abstract bool CanApply();// 判定是否调用投掷物触发事件
+    protected abstract bool CanApply();
+    protected abstract void OnMissleApply();
+    protected abstract bool IsRecycle();
 
-    protected abstract void OnMissleApply();// 投掷物触发事件
-
-    protected abstract bool IsRecycle();// 判定是否应该被回收
-
-    public abstract void OnSpawn(IMissleInitialData initialData);// 投掷物生成时触发;
-    
-    public abstract void OnDespawn();// 投掷物销毁时触发
+    public abstract void OnSpawn(IMissleInitialData initialData);
+    public abstract void OnDespawn();
 
     public virtual void OnMissleTrigger(UnitCore target) { }
 
-    #region 快照和回滚
-    
+    protected UnitCore ResolveOwner()
+    {
+        return UnitManager.Instance.Spawns.TryGetValue(ownerUid, out var owner) ? owner : null;
+    }
 
-    [System.Serializable]
+    #region Snapshot
+
+    [Serializable]
     public class MissleSnapshot
     {
-        public fp3 position;
-        public fp2 rotation;    
-        public fp3 size;
-        public readonly Dictionary<string, object> stateSnapshotDict = new();
+        public short PrefabId;
+        public MissleUID InstanceUid;
+        public UnitUID OwnerUid;
+        public fp3 Position;
+        public fp2 Rotation;
+        public fp3 Size;
+        public bool ShouldRecycleNow;
     }
 
     public virtual object CaptureState()
     {
         return new MissleSnapshot
         {
-            position = LogicPosition,
-            rotation = LogicRotation,
-            size = LogicSize,
+            PrefabId = prefabId,
+            InstanceUid = instanceUid,
+            OwnerUid = ownerUid,
+            Position = logicPosition,
+            Rotation = logicRotation,
+            Size = logicSize,
+            ShouldRecycleNow = shouldRecycleNow,
         };
     }
 
     public virtual void RestoreState(object state)
     {
-        if (state is MissleSnapshot snapshot)
-        {
-            LogicPosition = snapshot.position;
-            LogicRotation = snapshot.rotation;
-            LogicSize = snapshot.size;
-        }
+        if (state is not MissleSnapshot snapshot)
+            return;
+
+        prefabId = snapshot.PrefabId;
+        instanceUid = snapshot.InstanceUid;
+        ownerUid = snapshot.OwnerUid;
+        logicPosition = snapshot.Position;
+        logicRotation = snapshot.Rotation;
+        logicSize = snapshot.Size;
+        shouldRecycleNow = snapshot.ShouldRecycleNow;
     }
 
     #endregion
 }
 
-public interface IMissleInitialData { }
+public interface IMissleInitialData
+{
+    UnitUID OwnerUid { get; }
+}

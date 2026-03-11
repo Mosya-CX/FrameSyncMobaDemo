@@ -26,11 +26,6 @@ public class BuffData : ScriptableObject
     public BuffBaseModule OnCreate;
     public BuffBaseModule OnRemove;
     public BuffBaseModule OnTick;
-    [Title("伤害回调点")]
-    public BuffBaseModule OnHit;// 当 攻击 时
-    public BuffBaseModule OnHurt;// 当 受伤 时
-    public BuffBaseModule OnKill;// 当 击杀 时
-    public BuffBaseModule OnDeath;// 当 死亡 时
 }
 
 

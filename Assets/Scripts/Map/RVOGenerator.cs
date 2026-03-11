@@ -62,7 +62,6 @@ public sealed class RVOGenerator : MonoSingleton<RVOGenerator>
         return obstacle.ObstacleDirection;
     }
 
-    public IEnumerator Init() { yield break; }
     public void Begin() { }
     public void Clean()
     {
