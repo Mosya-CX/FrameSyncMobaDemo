@@ -2,7 +2,7 @@ using Unity.Mathematics.FixedPoint;
 
 public sealed class DashMotor
 {
-    private readonly HeroUnit owner;
+    private readonly CombatUnitBase owner;
 
     private bool isDashing;
     private fp elapsed;
@@ -14,7 +14,7 @@ public sealed class DashMotor
     public bool IsDashing => isDashing;
     public DashStateLock StateLock => stateLock;
 
-    public DashMotor(HeroUnit owner)
+    public DashMotor(CombatUnitBase owner)
     {
         this.owner = owner;
         stateLock = DashStateLock.Default;

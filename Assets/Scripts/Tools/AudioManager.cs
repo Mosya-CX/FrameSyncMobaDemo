@@ -92,6 +92,19 @@ public class AudioManager : MonoSingleton<AudioManager>
         spawnedAudios.Clear();
     }
 
+    public void Rollback(uint rollbackTick)
+    {
+        for (int i = spawnedAudios.Count - 1; i >= 0; i--)
+        {
+            if (spawnedAudios[i].startTick >= rollbackTick)
+            {
+                spawnedAudios[i].source.Stop();
+                audioSourcePool.Release(spawnedAudios[i].source);
+                spawnedAudios.RemoveAt(i);
+            }
+        }
+    }
+
     public void Correct(uint currentTick)
     {
         for (int i = 0; i < spawnedAudios.Count; i++)

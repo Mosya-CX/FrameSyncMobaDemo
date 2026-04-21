@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Mathematics.FixedPoint;
@@ -8,23 +7,22 @@ using Sirenix.OdinInspector;
 public sealed class RVOGenerator : MonoSingleton<RVOGenerator>
 {
     [SerializeField, LabelText("更新间隔")]
-
-    private fp simulationUpdateInterval = 0.1m;
+    private float simulationUpdateInterval = 0.1f;
 
     [SerializeField, LabelText("避障半径")]
-    private fp avoidanceRadius = 3.0m;
+    private float avoidanceRadius = 3;
 
     [SerializeField, LabelText("最大避障力")]
-    private fp maxForce = 2.0m;
+    private float maxForce = 2;
 
     [SerializeField, LabelText("时间视野")]
-    private fp timeHorizon = 1.0m;
+    private float timeHorizon = 1;
 
     [SerializeField, LabelText("切向因子")]
-    private fp tangentialFactor = 0.5m;
+    private float tangentialFactor = 0.5f;
 
     [SerializeField, LabelText("径向因子")]
-    private fp radialFactor = 0.8m;
+    private float radialFactor = 0.8f;
 
     [SerializeField, LabelText("启用异步计算")]
     private bool enableAsync = true;
@@ -72,9 +70,9 @@ public sealed class RVOGenerator : MonoSingleton<RVOGenerator>
     public void Tick(uint currentTick)
     {
         simulationTimer += DeltaTime;
-        if (simulationTimer > simulationUpdateInterval)
+        if (simulationTimer > (fp)simulationUpdateInterval)
         {
-            simulationTimer -= simulationUpdateInterval;
+            simulationTimer -= (fp)simulationUpdateInterval;
             Simulate();
         }
     }
@@ -233,7 +231,7 @@ public sealed class RVOGenerator : MonoSingleton<RVOGenerator>
             fp3 relVel = velA - velB;
 
             fp distSq = fpmath.lengthsq(relPos);
-            if (distSq > avoidanceRadius * avoidanceRadius) continue;
+            if (distSq > (fp)(avoidanceRadius * avoidanceRadius)) continue;
 
             fp dist = fpmath.sqrt(distSq);
             fp3 dirToOther = relPos / (dist + FP_EPSILON); // 从 B 指向 A
@@ -249,28 +247,28 @@ public sealed class RVOGenerator : MonoSingleton<RVOGenerator>
 
             fp3 force = fp3.zero;
 
-            if (timeToCollision < timeHorizon)
+            if (timeToCollision < (fp)timeHorizon)
             {
                 // 径向强度：距离碰撞越近，力越大
-                fp radialStrength = fp.one - fpmath.clamp(timeToCollision / timeHorizon, fp.zero, fp.one);
+                fp radialStrength = fp.one - fpmath.clamp(timeToCollision / (fp)timeHorizon, fp.zero, fp.one);
 
                 // 径向力（推开）
-                fp3 radialForce = dirToOther * radialStrength * maxForce * radialFactor;
+                fp3 radialForce = dirToOther * radialStrength * (fp)(maxForce * radialFactor);
 
                 // 切向力（横向避让）
                 fp3 perp = new fp3(-dirToOther.z, 0, dirToOther.x); // 垂直于 dirToOther
                 // 根据相对速度的切向分量决定左右
                 fp3 relVelTangent = relVel - dirToOther * radialSpeed;
                 fp tangentSign = fpmath.sign(fpmath.dot(relVelTangent, perp));
-                fp3 tangentialForce = perp * tangentSign * radialStrength * maxForce * tangentialFactor;
+                fp3 tangentialForce = perp * tangentSign * radialStrength * (fp)(maxForce * tangentialFactor);
 
                 force = radialForce + tangentialForce;
             }
             else
             {
                 // 即使不会立即碰撞，距离过近也施加基础排斥
-                fp closeness = fp.one - fpmath.clamp(dist / avoidanceRadius, fp.zero, fp.one);
-                force = dirToOther * closeness * maxForce * 0.5m;
+                fp closeness = fp.one - fpmath.clamp(dist / (fp)avoidanceRadius, fp.zero, fp.one);
+                force = dirToOther * closeness * (fp)(maxForce * 0.5f);
             }
 
             totalForce += force;
@@ -314,7 +312,7 @@ public sealed class RVOGenerator : MonoSingleton<RVOGenerator>
             fp3 relVel = velA - velB;
 
             fp distSq = fpmath.lengthsq(relPos);
-            if (distSq > avoidanceRadius * avoidanceRadius) continue;
+            if (distSq > (fp)(avoidanceRadius * avoidanceRadius)) continue;
 
             fp dist = fpmath.sqrt(distSq);
             fp3 dirToOther = relPos / (dist + FP_EPSILON);
@@ -329,20 +327,20 @@ public sealed class RVOGenerator : MonoSingleton<RVOGenerator>
 
             fp3 force = fp3.zero;
 
-            if (timeToCollision < timeHorizon)
+            if (timeToCollision < (fp)timeHorizon)
             {
-                fp radialStrength = fp.one - fpmath.clamp(timeToCollision / timeHorizon, fp.zero, fp.one);
-                fp3 radialForce = dirToOther * radialStrength * maxForce * radialFactor;
+                fp radialStrength = fp.one - fpmath.clamp(timeToCollision / (fp)timeHorizon, fp.zero, fp.one);
+                fp3 radialForce = dirToOther * radialStrength * (fp)(maxForce * radialFactor);
                 fp3 perp = new fp3(-dirToOther.z, 0, dirToOther.x);
                 fp3 relVelTangent = relVel - dirToOther * radialSpeed;
                 fp tangentSign = fpmath.sign(fpmath.dot(relVelTangent, perp));
-                fp3 tangentialForce = perp * tangentSign * radialStrength * maxForce * tangentialFactor;
+                fp3 tangentialForce = perp * tangentSign * radialStrength * (fp)(maxForce * tangentialFactor);
                 force = radialForce + tangentialForce;
             }
             else
             {
-                fp closeness = fp.one - fpmath.clamp(dist / avoidanceRadius, fp.zero, fp.one);
-                force = dirToOther * closeness * maxForce * 0.5m;
+                fp closeness = fp.one - fpmath.clamp(dist / (fp)avoidanceRadius, fp.zero, fp.one);
+                force = dirToOther * closeness * (fp)maxForce * 0.5m;
             }
 
             totalForce += force;

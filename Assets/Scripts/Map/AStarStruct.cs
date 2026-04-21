@@ -8,19 +8,21 @@ public struct GridNode
 
     public bool Walkable;
 
-    public fp G;   // 起点到当前代价
-    public fp H;   // 启发式
-    public fp F;   // G + H
+    public fp G;
+    public fp H;
+    public fp F;
 
     public int ParentIndex;
+
+    public bool Opened;
+    public bool Closed;
 }
 
 public class GridGraph
 {
-    private int width;
-    private int height;
-
-    private GridNode[] nodes;
+    private readonly int width;
+    private readonly int height;
+    private readonly GridNode[] nodes;
 
     public int Width => width;
     public int Height => height;
@@ -41,7 +43,12 @@ public class GridGraph
                     X = x,
                     Y = y,
                     Walkable = true,
-                    ParentIndex = -1
+                    ParentIndex = -1,
+                    Opened = false,
+                    Closed = false,
+                    G = fp.zero,
+                    H = fp.zero,
+                    F = fp.zero,
                 };
             }
     }
@@ -70,12 +77,25 @@ public class GridGraph
     {
         nodes[GetIndex(x, y)].Walkable = walkable;
     }
+
+    public void ResetSearchState()
+    {
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            nodes[i].G = fp.zero;
+            nodes[i].H = fp.zero;
+            nodes[i].F = fp.zero;
+            nodes[i].ParentIndex = -1;
+            nodes[i].Opened = false;
+            nodes[i].Closed = false;
+        }
+    }
 }
 
 public class BinaryHeap
 {
-    private List<int> heap;
-    private GridGraph graph;
+    private readonly List<int> heap;
+    private readonly GridGraph graph;
 
     public BinaryHeap(GridGraph graph)
     {
@@ -93,14 +113,20 @@ public class BinaryHeap
 
     public int Pop()
     {
+        int lastIndex = heap.Count - 1;
         int first = heap[0];
-        int last = heap[heap.Count - 1];
 
+        if (lastIndex == 0)
+        {
+            heap.RemoveAt(0);
+            return first;
+        }
+
+        int last = heap[lastIndex];
         heap[0] = last;
-        heap.RemoveAt(heap.Count - 1);
+        heap.RemoveAt(lastIndex);
 
         SortDown(0);
-
         return first;
     }
 
@@ -115,7 +141,10 @@ public class BinaryHeap
                 Swap(index, parent);
                 index = parent;
             }
-            else break;
+            else
+            {
+                break;
+            }
         }
     }
 
@@ -133,7 +162,8 @@ public class BinaryHeap
             if (right < heap.Count && Compare(heap[right], heap[smallest]) < 0)
                 smallest = right;
 
-            if (smallest == index) break;
+            if (smallest == index)
+                break;
 
             Swap(index, smallest);
             index = smallest;

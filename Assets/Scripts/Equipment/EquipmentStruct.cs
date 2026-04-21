@@ -16,7 +16,6 @@ public enum EquipmentTriggerType : byte
     OnHealTaken,
 }
 
-
 public readonly struct EquipmentContextKey<T>
 {
     public readonly string Name;

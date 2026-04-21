@@ -1,21 +1,27 @@
+using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 
 public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
 {
-    protected HeroInputHandler inputHandler;
-
     public OrderController OrderController { get; private set; }
-    public DashMotor DashMotor { get; private set; }
-    public AbilityLinkController AbilityLinkController { get; private set; }
+
+    private SkillGroupController skillGroupController;
+    private PlayerSkillInputController playerSkillInputController;
+    private SkillIndicatorDriver skillIndicatorDriver;
+
+    public SkillGroupController SkillGroupController => skillGroupController;
+    public PlayerSkillInputController PlayerSkillInputController => playerSkillInputController;
+    public SkillIndicatorDriver SkillIndicatorDriver => skillIndicatorDriver;
+
 
     protected override void Awake()
     {
         base.Awake();
 
-        inputHandler = GetComponentInChildren<HeroInputHandler>(true);
         OrderController = new OrderController(this);
-        DashMotor = new DashMotor(this);
-        AbilityLinkController = new AbilityLinkController(this);
+        skillGroupController = GetComponent<SkillGroupController>();
+        playerSkillInputController = GetComponent<PlayerSkillInputController>();
+        skillIndicatorDriver = GetComponent<SkillIndicatorDriver>();
     }
 
     public UnitUID ReceiverID => UnitID;
@@ -35,9 +41,7 @@ public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
     public override void Tick(fp dt, uint currentTick)
     {
         base.Tick(dt, currentTick);
-
-        DashMotor.Tick(dt);
-        OrderController.Tick(dt, currentTick);
+        OrderController.Tick(dt);
     }
 
     public override bool IsActionChannelBlocked(ActionChannelMask channel)
@@ -56,14 +60,25 @@ public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
             case CommandType.Move:
                 OrderController.Submit(new MoveOrder(this, ((MoveCommand)command).TargetPosition));
                 break;
-
             case CommandType.Attack:
                 OrderController.Submit(new AttackOrder(this, ((AttackCommand)command).TargetUnitId));
                 break;
+            case CommandType.TriggerSkill:
+                var skillCmd = (SkillCastCommand)command;
 
-            case CommandType.TriggerAbility:
-                var abilityCmd = (AbilityCommand)command;
-                OrderController.Submit(new CastOrder(this, abilityCmd), abilityCmd.QueueIfBusy);
+                var request = new SkillCastRequest
+                {
+                    CasterUid = UnitID,
+                    SkillId = skillCmd.SkillId,
+                    IsPreview = false,
+                    SmartCast = skillCmd.SmartCast,
+                    TargetUnitUid = skillCmd.Context.TargetUID,
+                    TargetPoint = skillCmd.Context.TargetPosition,
+                    AimDirection = skillCmd.Context.TargetPosition.HasValue ? fpmath.normalize(skillCmd.Context.TargetPosition.Value - LogicPosition) : fp3.zero,
+                    RequestTick = skillCmd.RequestTick,
+                };
+
+                SkillCommandResolver.TrySubmit(this, request);
                 break;
         }
     }
@@ -83,11 +98,6 @@ public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
         StopCurrentAction();
     }
 
-    protected override bool DashBlocked()
-    {
-        return DashMotor.IsDashing;
-    }
-
     protected override void TickNonCombat(fp dt)
     {
         if (!IsDead && LocomotionState != UnitLocomotionState.Idle)
@@ -99,10 +109,8 @@ public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
         base.OnDeadEnter();
 
         StopCurrentAction();
-        DashMotor.Cancel();
         OrderController.ClearBufferedOrders();
         OrderController.ClearSuspendedOrder();
-        inputHandler?.CancelCurrentIndicator();
     }
 
     public bool IsHero => true;
@@ -121,6 +129,19 @@ public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
 
     public override SimulationEntityType SimulationEntityType => SimulationEntityType.Hero;
 
+    public void IssueMoveOrder(fp3 destination)
+    {
+        OrderController?.Submit(new MoveOrder(this, destination));
+    }
+
+    public void IssueAttackOrder(UnitCore target)
+    {
+        if (target == null)
+            return;
+
+        OrderController?.Submit(new AttackOrder(this, target.UnitID));
+    }
+
     public override object CaptureState()
     {
         var baseState = (CombatUnitSnapshot)base.CaptureState();
@@ -128,9 +149,8 @@ public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
         return new HeroUnitSnapshot
         {
             Base = baseState,
-            DashState = DashMotor.CaptureState(),
             OrderState = OrderController.CaptureState(),
-            LinkState = AbilityLinkController.CaptureState(),
+            SkillGroupState = skillGroupController != null ? skillGroupController.CaptureState() : null,
         };
     }
 
@@ -139,17 +159,18 @@ public class HeroUnit : CombatUnitBase, ICommandReceiver, ITurretTargetInfo
         var snap = (HeroUnitSnapshot)state;
 
         base.RestoreState(snap.Base);
-        DashMotor.RestoreState(snap.DashState);
+
         OrderController.RestoreState(snap.OrderState);
-        AbilityLinkController.RestoreState(snap.LinkState);
+
+        if (skillGroupController != null && snap.SkillGroupState != null)
+            skillGroupController.RestoreState(snap.SkillGroupState);
     }
 
     [System.Serializable]
     public struct HeroUnitSnapshot
     {
         public CombatUnitSnapshot Base;
-        public object DashState;
         public object OrderState;
-        public object LinkState;
+        public object SkillGroupState; 
     }
 }

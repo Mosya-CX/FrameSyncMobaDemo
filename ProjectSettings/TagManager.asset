@@ -14,6 +14,7 @@ TagManager:
   - UI
   - Obstacle
   - 
+  - Missle
   - 
   - 
   - 
@@ -36,8 +37,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - MiniMap
   m_SortingLayers:
   - name: Default
     uniqueID: 0

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fc31147a173e4a499df6d028c97f684, type: 3}
+  m_Name: Aatrox_W
+  m_EditorClassIdentifier: 
+  Id: 100002
+  SkillName: 
+  Description: 
+  IsPassive: 0
+  OnCreate: []
+  OnExit: []
+  TargetMode: 3
+  RangePolicy: 0
+  CastRange: 0
+  ExecutionLane: 0
+  DefaultActionLock:
+    Enabled: 1
+    OccupiedChannels: 39
+    BlockedChannels: 0
+  CheckControlBlocked: 1
+  CheckCooldown: 1
+  CheckManaCost: 1
+  AutoPayManaOnStart: 1
+  Cooldown: 0
+  ManaCost: 0
+  AutoStartCooldownOnFinish: 1
+  UseRepeatCast: 0
+  RepeatCastWindow: 0
+  StartCooldownOnRepeatTimeout: 1
+  Indicator: {fileID: 0}
+  Steps: []
+  Windows: []

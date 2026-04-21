@@ -9,7 +9,7 @@ public enum CommandType : byte
 {
     Move,
     Attack,
-    TriggerAbility,
+    TriggerSkill,
     BuyItem,
     SellItem,
     UseItem,
@@ -48,7 +48,7 @@ public abstract class CommandBase : INetworkSerializable
 
     public abstract CommandType GetCommandType();
 
-    public bool IsOwner => LocalController.Local ? (LocalController.Local.ControlledUnitUID == ReceiverUnitId) : false;
+    public bool IsOwner => LocalController.Local ? (LocalController.Local.LocalHero.UnitID == ReceiverUnitId) : false;
 }
 
 public class MoveCommand : CommandBase
@@ -97,32 +97,39 @@ public class AttackCommand : CommandBase
     }
 }
 
-public struct AbilityTriggerContext
+public struct SkillTriggerContext
 {
     public UnitUID? TargetUID;
     public fp3? TargetPosition;
+    public fp3? AimDirection;
 }
 
-public class AbilityCommand : CommandBase
+public class SkillCastCommand : CommandBase
 {
-    public override CommandType GetCommandType() => CommandType.TriggerAbility;
+    public override CommandType GetCommandType() => CommandType.TriggerSkill;
 
-    public int AbilityId;
+    public int SkillId;
     public bool QueueIfBusy;
-    public AbilityTriggerContext Context;
+    public bool SmartCast;
+    public uint RequestTick;
+    public SkillTriggerContext Context;
 
     public override void NetworkSerialize<T>(BufferSerializer<T> serializer)
     {
         base.NetworkSerialize(serializer);
 
-        serializer.SerializeValue(ref AbilityId);
+        serializer.SerializeValue(ref SkillId);
         serializer.SerializeValue(ref QueueIfBusy);
+        serializer.SerializeValue(ref SmartCast);
+        serializer.SerializeValue(ref RequestTick);
 
         bool hasTargetUnit = Context.TargetUID.HasValue;
         bool hasTargetPosition = Context.TargetPosition.HasValue;
+        bool hasAimDirection = Context.AimDirection.HasValue;
 
         serializer.SerializeValue(ref hasTargetUnit);
         serializer.SerializeValue(ref hasTargetPosition);
+        serializer.SerializeValue(ref hasAimDirection);
 
         if (hasTargetUnit)
         {
@@ -160,6 +167,24 @@ public class AbilityCommand : CommandBase
         else if (serializer.IsReader)
         {
             Context.TargetPosition = null;
+        }
+
+        if (hasAimDirection)
+        {
+            long x = Context.AimDirection.Value.x.RawValue;
+            long y = Context.AimDirection.Value.y.RawValue;
+            long z = Context.AimDirection.Value.z.RawValue;
+
+            serializer.SerializeValue(ref x);
+            serializer.SerializeValue(ref y);
+            serializer.SerializeValue(ref z);
+
+            if (serializer.IsReader)
+                Context.AimDirection = new fp3(fp.FromRaw(x), fp.FromRaw(y), fp.FromRaw(z));
+        }
+        else if (serializer.IsReader)
+        {
+            Context.AimDirection = null;
         }
     }
 }
@@ -264,8 +289,8 @@ public static class CommandSerializer
                 case CommandType.Attack:
                     writer.WriteNetworkSerializable((AttackCommand)cmd);
                     break;
-                case CommandType.TriggerAbility:
-                    writer.WriteNetworkSerializable((AbilityCommand)cmd);
+                case CommandType.TriggerSkill:
+                    writer.WriteNetworkSerializable((SkillCastCommand)cmd);
                     break;
                 case CommandType.BuyItem:
                     writer.WriteNetworkSerializable((BuyItemCommand)cmd);
@@ -303,9 +328,9 @@ public static class CommandSerializer
                     reader.ReadNetworkSerializable(out AttackCommand attackCmd);
                     list.Add(attackCmd);
                     break;
-                case CommandType.TriggerAbility:
-                    reader.ReadNetworkSerializable(out AbilityCommand abilityCmd);
-                    list.Add(abilityCmd);
+                case CommandType.TriggerSkill:
+                    reader.ReadNetworkSerializable(out SkillCastCommand castCmd);
+                    list.Add(castCmd);
                     break;
                 case CommandType.BuyItem:
                     reader.ReadNetworkSerializable(out BuyItemCommand buyItemCmd);

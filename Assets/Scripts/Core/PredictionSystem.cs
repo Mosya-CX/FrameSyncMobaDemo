@@ -54,4 +54,3 @@ public class PredictionSystem : MonoSingleton<PredictionSystem>
         return commands;
     }
 }
-

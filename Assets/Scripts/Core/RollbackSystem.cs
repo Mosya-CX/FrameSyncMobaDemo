@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using static RollbackSystem;
-using static EntitiesSimulation;
-using static MissleManager;
 
 public class RollbackSystem : MonoSingleton<RollbackSystem>
 {
+    //[SerializeField]
+    //public uint maxSnapshotCount = 120;
+
     [Serializable]
     public class WorldSnapshot
     {
@@ -14,6 +14,8 @@ public class RollbackSystem : MonoSingleton<RollbackSystem>
         public UnitManager.GlobalUnitSnapshot GlobalUnitSnapshot;// 单位快照
         public MissleManager.GlobalMissleSnapshot GlobalMissleSnapshot;// 投掷物快照
         public EntitiesSimulation.SimulationSnapshot SimulationSnapshot;
+        public DamageManager.DamageManagerSnapshot DamageRequestsSnapshot;
+        public HealManager.HealManagerSnapshot HealRequestsSnapshot;
         public uint RandomState;
     }
 
@@ -29,9 +31,12 @@ public class RollbackSystem : MonoSingleton<RollbackSystem>
             GlobalUnitSnapshot = UnitManager.Instance.CaptureState() as UnitManager.GlobalUnitSnapshot,
             GlobalMissleSnapshot = MissleManager.Instance.CaptureState() as MissleManager.GlobalMissleSnapshot,
             SimulationSnapshot = EntitiesSimulation.Instance.CaptureState() as EntitiesSimulation.SimulationSnapshot,
+            DamageRequestsSnapshot = DamageManager.Instance.CaptureState() as DamageManager.DamageManagerSnapshot,
+            HealRequestsSnapshot = HealManager.Instance.CaptureState() as HealManager.HealManagerSnapshot,
             RandomState = (uint)DeterministicRandom.Instance.CaptureState(),
-
         };
+
+        worldSnapshots[tick] = snapshot;
     }
 
     public void EraseTickSnapshot(uint targetTick)
@@ -64,6 +69,13 @@ public class RollbackSystem : MonoSingleton<RollbackSystem>
             // 复原状态
             Restore(worldSnapshot);
 
+            foreach (var unit in UnitManager.Instance.Spawns.Values)
+                if (unit is CombatUnitBase combatUnit)
+                    combatUnit.AnimationController?.RemoveRecordsAfter(rollbackTick);
+
+            ParticleManager.Instance.Rollback(rollbackTick);
+            AudioManager.Instance.Rollback(rollbackTick);
+
             // 重建
             for (uint rebuildTick = rollbackTick; rebuildTick < currentTick; rebuildTick++)
             {
@@ -76,6 +88,13 @@ public class RollbackSystem : MonoSingleton<RollbackSystem>
                 GameFlowManager.Instance.GameTick(rebuildTick);
             }
 
+            ParticleManager.Instance.Correct(currentTick);
+            AudioManager.Instance.Correct(currentTick);
+
+            foreach (var unit in UnitManager.Instance.Spawns.Values)
+                if (unit is CombatUnitBase combatUnit)
+                    combatUnit.AnimationController?.RebuildOverlayToTick(currentTick, GameFlowManager.Instance.TickInterval);
+
             worldSnapshots.Remove(rollbackTick);
         }
     }
@@ -85,6 +104,8 @@ public class RollbackSystem : MonoSingleton<RollbackSystem>
         UnitManager.Instance.RestoreState(worldSnapshot.GlobalUnitSnapshot);
         MissleManager.Instance.RestoreState(worldSnapshot.GlobalMissleSnapshot);
         EntitiesSimulation.Instance.RestoreState(worldSnapshot.SimulationSnapshot);
+        DamageManager.Instance.RestoreState(worldSnapshot.DamageRequestsSnapshot);
+        HealManager.Instance.RestoreState(worldSnapshot.HealRequestsSnapshot);
         DeterministicRandom.Instance.RestoreState(worldSnapshot.RandomState);
     }
 }

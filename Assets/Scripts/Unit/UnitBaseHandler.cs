@@ -11,27 +11,6 @@ public abstract class UnitBaseHandler : MonoBehaviour, IStateful
         owner = GetComponent<UnitCore>();
     }
 
-    protected virtual void OnEnable()
-    {
-        if (owner == null)
-            owner = GetComponent<UnitCore>();
-
-        BindEvents();
-    }
-
-    protected virtual void OnDisable()
-    {
-        UnbindEvents();
-    }
-
-    protected virtual void OnDestroy()
-    {
-        UnbindEvents();
-    }
-
-    protected virtual void BindEvents() { }
-    protected virtual void UnbindEvents() { }
-
     public virtual void Tick(fp deltaTime) { }
 
     public abstract object CaptureState();

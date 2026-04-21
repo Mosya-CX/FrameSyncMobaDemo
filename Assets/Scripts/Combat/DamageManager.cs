@@ -2,27 +2,9 @@ using System;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 
-public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
+public sealed class DamageManager : MonoSingleton<DamageManager>
 {
     private readonly Queue<DamageRequest> damageRequestQueue = new();
-
-    [Serializable]
-    public class DamageManagerSnapshot
-    {
-        public List<DamageRequestSnapshot> Requests = new();
-    }
-
-    [Serializable]
-    public class DamageRequestSnapshot
-    {
-        public UnitUID SourceUid;
-        public UnitUID TargetUid;
-        public DamageSourceKind SourceKind;
-        public fp BasePhysicalDamage;
-        public fp BaseMagicalDamage;
-        public bool CanCrit;
-        public List<string> Tags = new();
-    }
 
     public void Clean()
     {
@@ -42,8 +24,8 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
     {
         var request = new DamageRequest
         {
-            SourceUid = source.UnitID,
-            TargetUid = target.UnitID,
+            Source = source,
+            Target = target,
             SourceKind = DamageSourceKind.Attack,
             BasePhysicalDamage = source.AttackDamage,
             BaseMagicalDamage = 0,
@@ -56,12 +38,12 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
         damageRequestQueue.Enqueue(request);
     }
 
-    public void CreateAbilityDamageRequest(UnitCore source, UnitCore target, fp basePhysicalDamage, fp baseMagicalDamage, string[] additionalTags)
+    public void CreateAbilityDamageRequest(UnitCore source, UnitCore target, fp basePhysicalDamage, fp baseMagicalDamage, params string[] additionalTags)
     {
         var request = new DamageRequest
         {
-            SourceUid = source.UnitID,
-            TargetUid = target.UnitID,
+            Source = source,
+            Target = target,
             SourceKind = DamageSourceKind.Ability,
             BasePhysicalDamage = basePhysicalDamage,
             BaseMagicalDamage = baseMagicalDamage,
@@ -79,8 +61,8 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
     {
         var request = new DamageRequest
         {
-            SourceUid = source.UnitID,
-            TargetUid = target.UnitID,
+            Source = source,
+            Target = target,
             SourceKind = DamageSourceKind.Buff,
             BasePhysicalDamage = basePhysicalDamage,
             BaseMagicalDamage = baseMagicalDamage,
@@ -98,8 +80,8 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
     {
         var request = new DamageRequest
         {
-            SourceUid = source.UnitID,
-            TargetUid = target.UnitID,
+            Source = source,
+            Target = target,
             SourceKind = DamageSourceKind.Equipment,
             BasePhysicalDamage = basePhysicalDamage,
             BaseMagicalDamage = baseMagicalDamage,
@@ -115,13 +97,13 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
 
     private void ProcessDamageRequest(DamageRequest request, uint currentTick)
     {
-        if (!UnitManager.Instance.Spawns.TryGetValue(request.SourceUid, out var source))
+        if (request.Source == null)
             return;
-        if (!UnitManager.Instance.Spawns.TryGetValue(request.TargetUid, out var target))
-            return;
-        if (target.IsDead)
+        if (request.Target == null || request.Target.IsDead)
             return;
 
+        var source = request.Source;
+        var target = request.Target;
         var context = new DamageContext
         {
             Source = source,
@@ -210,6 +192,24 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
         }
     }
 
+    [System.Serializable]
+    public class DamageManagerSnapshot
+    {
+        public List<DamageRequestSnapshot> Requests = new();
+    }
+
+    [System.Serializable]
+    public class DamageRequestSnapshot
+    {
+        public UnitUID SourceUid;
+        public UnitUID TargetUid;
+        public DamageSourceKind SourceKind;
+        public fp BasePhysicalDamage;
+        public fp BaseMagicalDamage;
+        public bool CanCrit;
+        public List<string> Tags = new();
+    }
+
     public object CaptureState()
     {
         var snap = new DamageManagerSnapshot();
@@ -218,8 +218,8 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
         {
             snap.Requests.Add(new DamageRequestSnapshot
             {
-                SourceUid = req.SourceUid,
-                TargetUid = req.TargetUid,
+                SourceUid = req.Source.UnitID,
+                TargetUid = req.Target.UnitID,
                 SourceKind = req.SourceKind,
                 BasePhysicalDamage = req.BasePhysicalDamage,
                 BaseMagicalDamage = req.BaseMagicalDamage,
@@ -243,8 +243,8 @@ public sealed class DamageManager : MonoSingleton<DamageManager>, IStateful
             var item = snap.Requests[i];
             var req = new DamageRequest
             {
-                SourceUid = item.SourceUid,
-                TargetUid = item.TargetUid,
+                Source = UnitManager.Instance.GetActiveUnit(item.SourceUid),
+                Target = UnitManager.Instance.GetActiveUnit(item.TargetUid),
                 SourceKind = item.SourceKind,
                 BasePhysicalDamage = item.BasePhysicalDamage,
                 BaseMagicalDamage = item.BaseMagicalDamage,

@@ -73,15 +73,13 @@ public readonly struct AbilityCastStageEvent
 {
     public readonly HeroUnit Caster;
     public readonly int AbilityId;
-    public readonly CastStageType StageType;
     public readonly UnitCore TargetUnit;
     public readonly fp3? TargetPosition;
 
-    public AbilityCastStageEvent(HeroUnit caster, int abilityId, CastStageType stageType, UnitCore targetUnit, fp3? targetPosition)
+    public AbilityCastStageEvent(HeroUnit caster, int abilityId, UnitCore targetUnit, fp3? targetPosition)
     {
         Caster = caster;
         AbilityId = abilityId;
-        StageType = stageType;
         TargetUnit = targetUnit;
         TargetPosition = targetPosition;
     }
@@ -136,5 +134,19 @@ public readonly struct DeathEvent
         Victim = victim;
         Killer = killer;
         Assisters = assisters;
+    }
+}
+
+public readonly struct ContactEvent
+{
+    public readonly UnitCore Self;
+    public readonly UnitCore Other;
+    public readonly UnitContactEventType ContactType;
+
+    public ContactEvent(UnitCore self, UnitCore other, UnitContactEventType contactType)
+    {
+        Self = self;
+        Other = other;
+        ContactType = contactType;
     }
 }

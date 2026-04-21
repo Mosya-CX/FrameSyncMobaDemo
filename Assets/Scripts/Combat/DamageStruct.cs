@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 
@@ -13,8 +12,8 @@ public enum DamageSourceKind : byte
 
 public sealed class DamageRequest
 {
-    public UnitUID SourceUid;
-    public UnitUID TargetUid;
+    public UnitCore Source;
+    public UnitCore Target;
 
     public DamageSourceKind SourceKind;
 

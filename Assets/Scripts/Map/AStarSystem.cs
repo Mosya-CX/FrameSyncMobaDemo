@@ -6,21 +6,31 @@ using Unity.Mathematics.FixedPoint;
 
 public class AStarSystem : MonoSingleton<AStarSystem>
 {
-    [SerializeField, LabelText("宽"), HorizontalGroup] 
+    [SerializeField, LabelText("宽"), HorizontalGroup]
     private int width = 128;
-    [SerializeField, LabelText("高"), HorizontalGroup] 
+
+    [SerializeField, LabelText("高"), HorizontalGroup]
     private int height = 128;
-    [SerializeField, LabelText("格子大小")] 
+
+    [SerializeField, LabelText("格子大小")]
     private float cellSize = 1f;
-    [SerializeField, LabelText("静态障碍物层级")] 
+
+    [SerializeField, LabelText("静态障碍物层级")]
     private LayerMask obstacleLayer;
-    [SerializeField, LabelText("偏移")] 
+
+    [SerializeField, LabelText("偏移")]
     private Vector3 offset;
 
     [SerializeField, ReadOnly, LabelText("烘焙数据")]
     private bool[] walkable;
 
     private GridGraph graph;
+
+    private static readonly (int x, int y, fp cost)[] Directions =
+    {
+        (0,1,10),(1,0,10),(0,-1,10),(-1,0,10),
+        (1,1,14),(-1,1,14),(1,-1,14),(-1,-1,14)
+    };
 
     public Vector3 Center => transform.position + offset;
 
@@ -36,11 +46,7 @@ public class AStarSystem : MonoSingleton<AStarSystem>
         }
     }
 
-    private static readonly (int x, int y, fp cost)[] Directions =
-    {
-        (0,1,10),(1,0,10),(0,-1,10),(-1,0,10),
-        (1,1,14),(-1,1,14),(1,-1,14),(-1,-1,14)
-    };
+    private fp CellSizeFP => (fp)cellSize;
 
     protected override void Awake()
     {
@@ -62,12 +68,55 @@ public class AStarSystem : MonoSingleton<AStarSystem>
         }
     }
 
-    // ===================== Pathfinding =======================
+    private fp3 GetOriginFP()
+    {
+        Vector3 o = Origin;
+        return new fp3((fp)o.x, (fp)o.y, (fp)o.z);
+    }
+
+    public bool WorldToGrid(fp3 world, out int x, out int y)
+    {
+        fp3 bottomLeft = GetOriginFP();
+
+        x = (int)fpmath.floor((world.x - bottomLeft.x) / CellSizeFP);
+        y = (int)fpmath.floor((world.z - bottomLeft.z) / CellSizeFP);
+
+        return graph != null && graph.IsValid(x, y);
+    }
+
+    public fp3 GridToWorldFP(int x, int y)
+    {
+        fp3 bottomLeft = GetOriginFP();
+
+        return bottomLeft + new fp3(
+            (fp)x * CellSizeFP + CellSizeFP * (fp)0.5m,
+            fp.zero,
+            (fp)y * CellSizeFP + CellSizeFP * (fp)0.5m
+        );
+    }
+
+    public List<fp3> FindPathFP(fp3 startWorld, fp3 endWorld)
+    {
+        if (!WorldToGrid(startWorld, out int sx, out int sy))
+            return null;
+        if (!WorldToGrid(endWorld, out int ex, out int ey))
+            return null;
+
+        var gridPath = FindPath(sx, sy, ex, ey);
+        if (gridPath == null)
+            return null;
+
+        List<fp3> result = new List<fp3>(gridPath.Count);
+        for (int i = 0; i < gridPath.Count; i++)
+            result.Add(GridToWorldFP(gridPath[i].x, gridPath[i].y));
+
+        return result;
+    }
 
     public List<Vector3> FindPathWorld(Vector3 startWorld, Vector3 endWorld)
     {
-        WorldToGrid(startWorld, out int sx, out int sy);
-        WorldToGrid(endWorld, out int ex, out int ey);
+        WorldToGridFloat(startWorld, out int sx, out int sy);
+        WorldToGridFloat(endWorld, out int ex, out int ey);
 
         var gridPath = FindPath(sx, sy, ex, ey);
         if (gridPath == null) return null;
@@ -75,39 +124,50 @@ public class AStarSystem : MonoSingleton<AStarSystem>
         List<Vector3> result = new();
 
         foreach (var p in gridPath)
-            result.Add(GridToWorld(p.x, p.y));
+            result.Add(GridToWorldFloat(p.x, p.y));
 
         return result;
     }
 
     public List<(int x, int y)> FindPath(int startX, int startY, int endX, int endY)
     {
-        if (graph == null) return null;
+        if (graph == null)
+            return null;
+
+        if (!graph.IsValid(startX, startY) || !graph.IsValid(endX, endY))
+            return null;
+
+        if (!graph.GetNode(startX, startY).Walkable || !graph.GetNode(endX, endY).Walkable)
+            return null;
+
+        graph.ResetSearchState();
 
         var openSet = new BinaryHeap(graph);
-        var closedSet = new HashSet<int>();
 
         int startIndex = graph.GetIndex(startX, startY);
         int endIndex = graph.GetIndex(endX, endY);
 
         ref var startNode = ref graph.GetNode(startIndex);
-        startNode.G = 0;
+        startNode.G = fp.zero;
         startNode.H = Heuristic(startX, startY, endX, endY);
         startNode.F = startNode.H;
         startNode.ParentIndex = -1;
+        startNode.Opened = true;
 
         openSet.Push(startIndex);
 
         while (openSet.Count > 0)
         {
             int currentIndex = openSet.Pop();
+            ref var currentNode = ref graph.GetNode(currentIndex);
+
+            if (currentNode.Closed)
+                continue;
+
+            currentNode.Closed = true;
 
             if (currentIndex == endIndex)
                 return RetracePath(startIndex, endIndex);
-
-            closedSet.Add(currentIndex);
-
-            ref var currentNode = ref graph.GetNode(currentIndex);
 
             foreach (var dir in Directions)
             {
@@ -117,26 +177,39 @@ public class AStarSystem : MonoSingleton<AStarSystem>
                 if (!graph.IsValid(nx, ny))
                     continue;
 
+                // 禁止斜角穿墙
+                if (dir.x != 0 && dir.y != 0)
+                {
+                    if (!graph.GetNode(currentNode.X + dir.x, currentNode.Y).Walkable ||
+                        !graph.GetNode(currentNode.X, currentNode.Y + dir.y).Walkable)
+                        continue;
+                }
+
                 int neighborIndex = graph.GetIndex(nx, ny);
-
-                if (closedSet.Contains(neighborIndex))
-                    continue;
-
                 ref var neighbor = ref graph.GetNode(neighborIndex);
 
-                if (!neighbor.Walkable)
+                if (!neighbor.Walkable || neighbor.Closed)
                     continue;
 
                 fp newCost = currentNode.G + dir.cost;
 
-                if (neighbor.ParentIndex == -1 || newCost < neighbor.G)
+                if (!neighbor.Opened || newCost < neighbor.G)
                 {
                     neighbor.G = newCost;
                     neighbor.H = Heuristic(nx, ny, endX, endY);
                     neighbor.F = neighbor.G + neighbor.H;
                     neighbor.ParentIndex = currentIndex;
 
-                    openSet.Push(neighborIndex);
+                    if (!neighbor.Opened)
+                    {
+                        neighbor.Opened = true;
+                        openSet.Push(neighborIndex);
+                    }
+                    else
+                    {
+                        // 简化处理：重复入堆，Pop 时用 Closed 过滤
+                        openSet.Push(neighborIndex);
+                    }
                 }
             }
         }
@@ -154,6 +227,9 @@ public class AStarSystem : MonoSingleton<AStarSystem>
             ref var node = ref graph.GetNode(current);
             path.Add((node.X, node.Y));
             current = node.ParentIndex;
+
+            if (current < 0)
+                return null;
         }
 
         path.Reverse();
@@ -171,15 +247,14 @@ public class AStarSystem : MonoSingleton<AStarSystem>
         return (fp)14 * min + (fp)10 * (max - min);
     }
 
-    private void WorldToGrid(Vector3 world, out int x, out int y)
+    private void WorldToGridFloat(Vector3 world, out int x, out int y)
     {
         Vector3 bottomLeft = Origin;
-
         x = Mathf.FloorToInt((world.x - bottomLeft.x) / cellSize);
         y = Mathf.FloorToInt((world.z - bottomLeft.z) / cellSize);
     }
 
-    private Vector3 GridToWorld(int x, int y)
+    private Vector3 GridToWorldFloat(int x, int y)
     {
         Vector3 bottomLeft = Origin;
 
@@ -193,12 +268,13 @@ public class AStarSystem : MonoSingleton<AStarSystem>
 #if UNITY_EDITOR
     [SerializeField, LabelText("是否开启可视化")]
     private bool isShowAStarGrids = true;
+
     [SerializeField, LabelText("可通行格子颜色")]
     private Color walkableColor = Color.blue;
+
     [SerializeField, LabelText("不可通行格子颜色")]
     private Color obstacleColor = Color.red;
 
-    // ===================== Editor Bake =======================
     [Button("烘焙网格", ButtonSizes.Large)]
     private void BakeGrid()
     {
@@ -228,18 +304,15 @@ public class AStarSystem : MonoSingleton<AStarSystem>
         Debug.Log("AStar Grid Bake Complete");
     }
 
-    // ===================== Gizmo Draw ========================
     private void OnDrawGizmos()
     {
         if (!isShowAStarGrids) return;
-
         if (walkable == null) return;
 
         for (int y = 0; y < height; y++)
             for (int x = 0; x < width; x++)
             {
                 bool canWalk = walkable[y * width + x];
-
                 Gizmos.color = canWalk ? walkableColor : obstacleColor;
 
                 Vector3 pos = Origin + new Vector3(
@@ -251,6 +324,5 @@ public class AStarSystem : MonoSingleton<AStarSystem>
                 Gizmos.DrawCube(pos, Vector3.one * cellSize * 0.9f);
             }
     }
-
 #endif
 }

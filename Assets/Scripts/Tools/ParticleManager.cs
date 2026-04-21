@@ -107,7 +107,6 @@ public class ParticleManager : MonoSingleton<ParticleManager>
         for (int i = 0; i < spawnedParticles.Count; i++)
         {
             var runtime = spawnedParticles[i];
-            runtime.timer -= DeltaTime;
             if (TryGetPool(runtime.instance.PrefabId, out var pool))
                 pool.Release(runtime.instance.gameObject);
             else
@@ -116,7 +115,22 @@ public class ParticleManager : MonoSingleton<ParticleManager>
         spawnedParticles.Clear();
     }
 
-    public void CorrectParticle(uint currentTick)
+    public void Rollback(uint rollbackTick)
+    {
+        for (int i = spawnedParticles.Count - 1; i >= 0; i--)
+        {
+            var runtime = spawnedParticles[i];
+            if (runtime.instance.startTick >= rollbackTick)
+            {
+                if (TryGetPool(runtime.instance.PrefabId, out var pool))
+                    pool.Release(runtime.instance.gameObject);
+                else
+                    Destroy(runtime.instance.gameObject);
+            }
+        }
+    }
+
+    public void Correct(uint currentTick)
     {
         for (int i = 0; i < spawnedParticles.Count; i++)
             spawnedParticles[i].instance.CheckCorrect(currentTick, DeltaTime, ParticleCorrectThreshold);

@@ -52,6 +52,7 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
     #region 管理器列表
     public UnitManager UnitManager => UnitManager.Instance;
     public DamageManager DamageManager => DamageManager.Instance;
+    public HealManager HealManager => HealManager.Instance;
     public RVOGenerator RVOGenerator => RVOGenerator.Instance;
     public MissleManager MissleManager => MissleManager.Instance;
     public FrameSyncCoreSystem FrameSyncCoreSystem => FrameSyncCoreSystem.Instance;
@@ -132,6 +133,7 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
 
         if (IsClient)
         {
+            // TODO
             // 关闭加载界面
         }
     }
@@ -193,8 +195,22 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         }
     }
 
+    [ServerRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
+    private void TickUpdateRttServerRpc(double sendTime)
+    {
+        TickUpdateRttClientRpc(sendTime);
+    }
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    private void TickUpdateRttClientRpc(double sendTime)
+    {
+        var rtt = NetworkManager.Singleton.LocalTime.Time - sendTime;
+        FrameSyncCoreSystem.ReportRttSample((float)rtt * 1000);
+    }
+
     private void ExecuteTick(uint tick)
     {
+        TickUpdateRttServerRpc(NetworkManager.Singleton.LocalTime.Time);
         FrameSyncCoreSystem.Tick(tick);
         GameTick(tick);
     }
@@ -213,6 +229,7 @@ public sealed class GameFlowManager : NetworkSingleton<GameFlowManager>
         MissleManager.TickUpdateMissleState();
 
         DamageManager.Tick(tick);
+        HealManager.Tick(tick);
         UnitManager.TickDeathDecision();
     }
 

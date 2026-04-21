@@ -6,11 +6,11 @@ using UnityEngine;
 
 public class MapManager : MonoSingleton<MapManager>, IStateful
 {
-    [SerializeField, LabelText("蓝方初始势力配置")]
-    private TeamOriginPower blueTeamOriginPowerConfig;
+    [SerializeField, LabelText("蓝方配置")]
+    private TeamConfig blueTeamConfig;
 
-    [SerializeField, LabelText("红方初始势力配置")]
-    private TeamOriginPower redTeamOriginPowerConfig;
+    [SerializeField, LabelText("红方配置")]
+    private TeamConfig redTeamConfig;
 
     [SerializeField, LabelText("野怪营地")]
     private MonsterCamp[] monsterCamps;
@@ -25,7 +25,7 @@ public class MapManager : MonoSingleton<MapManager>, IStateful
     private byte neutralTeamId = 1;
 
     [Serializable]
-    public struct TeamOriginPower
+    public struct TeamConfig
     {
         [SerializeField, LabelText("外塔预制体")]
         public Turret TurretPrefab;
@@ -65,6 +65,9 @@ public class MapManager : MonoSingleton<MapManager>, IStateful
 
         [SerializeField, LabelText("下路内塔位置"), FoldoutGroup("防御塔配置")]
         public Transform BottomInnerTurretTransform;
+
+        [SerializeField, LabelText("每路每波生成的小兵列表")]
+        public List<MinionUnit> BatchSpawnMinions;
     }
 
     [SerializeField, LabelText("开局出兵延迟")]
@@ -79,9 +82,6 @@ public class MapManager : MonoSingleton<MapManager>, IStateful
     [SerializeField, LabelText("每批次生成间隔")]
     private float batchSpawnInterval = 0.5f;
 
-    [SerializeField, LabelText("每路每波生成的小兵列表")]
-    private List<MinionUnit> batchSpawnMinions = new();
-
     private bool hasBuiltStaticStructures;
     private bool isStartMinionSpawn;
 
@@ -89,7 +89,7 @@ public class MapManager : MonoSingleton<MapManager>, IStateful
     private fp minionSpawnIntervalTimer;
 
     /// <summary>
-    /// 待生成小兵调度表（方案A核心）
+    /// 待生成小兵调度表
     /// </summary>
     private readonly List<ScheduledMinionSpawn> scheduledMinionSpawns = new();
 
@@ -188,11 +188,11 @@ public class MapManager : MonoSingleton<MapManager>, IStateful
 
     private void ScheduleMinionWave()
     {
-        ScheduleLaneWaveForTeam(blueTeamOriginPowerConfig, blueTeamId);
-        ScheduleLaneWaveForTeam(redTeamOriginPowerConfig, redTeamId);
+        ScheduleLaneWaveForTeam(blueTeamConfig, blueTeamId);
+        ScheduleLaneWaveForTeam(redTeamConfig, redTeamId);
     }
 
-    private void ScheduleLaneWaveForTeam(TeamOriginPower config, byte teamId)
+    private void ScheduleLaneWaveForTeam(TeamConfig config, byte teamId)
     {
         ScheduleLane(config.MobTopSpawn, teamId, LaneId.Top);
         ScheduleLane(config.MobMiddleSpawn, teamId, LaneId.Middle);
@@ -207,9 +207,10 @@ public class MapManager : MonoSingleton<MapManager>, IStateful
         var spawnPos = laneSpawn.position;
         var spawnRot = laneSpawn.rotation;
 
-        for (int i = 0; i < batchSpawnMinions.Count; i++)
+        var batch = teamId == blueTeamId ? blueTeamConfig.BatchSpawnMinions : redTeamConfig.BatchSpawnMinions;
+        for (int i = 0; i < batch.Count; i++)
         {
-            var prefab = batchSpawnMinions[i];
+            var prefab = batch[i];
             if (prefab == null)
                 continue;
 
@@ -242,11 +243,11 @@ public class MapManager : MonoSingleton<MapManager>, IStateful
 
     private void BuildStaticStructures()
     {
-        BuildTeamStructures(blueTeamOriginPowerConfig, blueTeamId);
-        BuildTeamStructures(redTeamOriginPowerConfig, redTeamId);
+        BuildTeamStructures(blueTeamConfig, blueTeamId);
+        BuildTeamStructures(redTeamConfig, redTeamId);
     }
 
-    private void BuildTeamStructures(TeamOriginPower config, byte teamId)
+    private void BuildTeamStructures(TeamConfig config, byte teamId)
     {
         SpawnTurret(config.TurretPrefab, config.TopOuterTurretTransform, teamId);
         SpawnTurret(config.TurretPrefab, config.TopInnerTurretTransform, teamId);

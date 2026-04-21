@@ -11,8 +11,8 @@ public enum HealSourceKind : byte
 
 public sealed class HealRequest
 {
-    public UnitUID SourceUid;
-    public UnitUID TargetUid;
+    public UnitCore Source;
+    public UnitCore Target;
     public HealSourceKind SourceKind;
     public fp BaseHeal;
     public HashSet<string> Tags = new();

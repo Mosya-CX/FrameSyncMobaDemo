@@ -8,5 +8,3 @@ public class AttackMissle : TargetTrackFlyingMissleBase
         base.OnMissleApply();
     }
 }
-
-

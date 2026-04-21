@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "单位定义配置")]
+[CreateAssetMenu(menuName = "单位基础定义配置")]
 public class UnitDefinition : ScriptableObject
 {
     [BoxGroup("属性"), LabelText("基础生命")]
@@ -32,8 +32,8 @@ public class UnitDefinition : ScriptableObject
     public float baseAttackRange;
     [BoxGroup("属性"), LabelText("基础暴击率")]
     public float baseCritChance;
-    [BoxGroup("属性"), LabelText("基础暴击伤害")]
-    public float baseCritDamage;
+    [BoxGroup("属性"), LabelText("基础暴击倍率")]
+    public float baseCritMultiplier;
     [BoxGroup("属性"), LabelText("基础护甲")]
     public uint baseArmor;
     [BoxGroup("属性"), LabelText("护甲成长")]
@@ -44,7 +44,4 @@ public class UnitDefinition : ScriptableObject
     public float magicResistGrowth;
     [BoxGroup("属性"), LabelText("基础移速")]
     public float baseMoveSpeed;
-
-    [BoxGroup("其它"), LabelText("技能列表")]
-    public AbilityData[] abilityList;
 }

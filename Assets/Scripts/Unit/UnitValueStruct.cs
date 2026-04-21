@@ -19,10 +19,13 @@ public enum UnitStatType
     AttackSpeed,
     AttackRange,
 
+    SkillHaste,
+
     CritChance,
     CritMultiplier,
 
     MoveSpeed,
+
     HealthRegen,
     ManaRegen,
 
@@ -251,10 +254,13 @@ public class UnitStats
         Add(UnitStatType.AttackSpeed, config.baseAttackSpeed, config.attackSpeedGrowth);
         Add(UnitStatType.AttackRange, config.baseAttackRange, 0);
 
+        Add(UnitStatType.SkillHaste, 0, 0);
+
         Add(UnitStatType.CritChance, config.baseCritChance, 0);
-        Add(UnitStatType.CritMultiplier, config.baseCritDamage, 0);
+        Add(UnitStatType.CritMultiplier, config.baseCritMultiplier, 0);
 
         Add(UnitStatType.MoveSpeed, config.baseMoveSpeed, 0);
+        
         Add(UnitStatType.HealthRegen, config.baseHealthRegen, 0);
         Add(UnitStatType.ManaRegen, config.baseManaRegen, 0);
 

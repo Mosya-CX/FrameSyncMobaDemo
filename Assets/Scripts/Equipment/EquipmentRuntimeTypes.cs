@@ -1,5 +1,39 @@
+using System;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
+
+[Serializable]
+public struct EquipmentPassiveRuntimeSnapshot
+{
+    public int PassiveId;
+    public fp CooldownRemaining;
+    public int StackCount;
+    public int ChargeCount;
+}
+
+[Serializable]
+public struct EquipmentActiveRuntimeSnapshot
+{
+    public int ActiveId;
+    public fp CooldownRemaining;
+}
+
+[Serializable]
+public struct EquipmentEffectGroupRuntimeSnapshot
+{
+    public int EquipmentId;
+    public int ItemCount;
+    public EquipmentPassiveRuntimeSnapshot[] Passives;
+    public bool HasActive;
+    public EquipmentActiveRuntimeSnapshot Active;
+}
+
+[Serializable]
+public struct EquipmentItemRuntimeSnapshot
+{
+    public bool Occupied;
+    public int EquipmentId;
+}
 
 public sealed class EquipmentItemRuntime
 {
@@ -7,9 +41,6 @@ public sealed class EquipmentItemRuntime
     public readonly EquipmentHandler Handler;
     public readonly List<ModifierHandle> StatModifierHandles = new();
 
-    /// <summary>
-    /// 指向同装备类型共享的效果组
-    /// </summary>
     public EquipmentEffectGroupRuntime EffectGroupRuntime;
 
     public EquipmentItemRuntime(EquipmentData data, EquipmentHandler handler)
@@ -28,9 +59,6 @@ public sealed class EquipmentEffectGroupRuntime
     public readonly List<EquipmentPassiveRuntime> PassiveRuntimes = new();
     public EquipmentActiveRuntime ActiveRuntime;
 
-    /// <summary>
-    /// 当前该装备在该单位身上的持有数量
-    /// </summary>
     public int ItemCount;
 
     public EquipmentEffectGroupRuntime(EquipmentData data, EquipmentHandler handler)
@@ -75,5 +103,51 @@ public sealed class EquipmentEffectGroupRuntime
         PassiveRuntimes.Clear();
         ActiveRuntime = null;
         Context.Clear();
+    }
+
+    public EquipmentEffectGroupRuntimeSnapshot CaptureSnapshot()
+    {
+        var passives = new EquipmentPassiveRuntimeSnapshot[PassiveRuntimes.Count];
+        for (int i = 0; i < PassiveRuntimes.Count; i++)
+        {
+            var p = PassiveRuntimes[i];
+            passives[i] = new EquipmentPassiveRuntimeSnapshot
+            {
+                PassiveId = p.Data != null ? p.Data.Id : 0,
+                CooldownRemaining = p.CooldownRemaining,
+                StackCount = p.StackCount,
+                ChargeCount = p.ChargeCount,
+            };
+        }
+
+        return new EquipmentEffectGroupRuntimeSnapshot
+        {
+            EquipmentId = Data != null ? Data.Id : 0,
+            ItemCount = ItemCount,
+            Passives = passives,
+            HasActive = ActiveRuntime != null,
+            Active = ActiveRuntime != null
+                ? new EquipmentActiveRuntimeSnapshot
+                {
+                    ActiveId = ActiveRuntime.Data != null ? ActiveRuntime.Data.Id : 0,
+                    CooldownRemaining = ActiveRuntime.CooldownRemaining,
+                }
+                : default
+        };
+    }
+
+    public void RestoreSnapshot(EquipmentEffectGroupRuntimeSnapshot snap)
+    {
+        ItemCount = snap.ItemCount;
+
+        for (int i = 0; i < snap.Passives.Length && i < PassiveRuntimes.Count; i++)
+        {
+            PassiveRuntimes[i].CooldownRemaining = snap.Passives[i].CooldownRemaining;
+            PassiveRuntimes[i].StackCount = snap.Passives[i].StackCount;
+            PassiveRuntimes[i].ChargeCount = snap.Passives[i].ChargeCount;
+        }
+
+        if (ActiveRuntime != null && snap.HasActive)
+            ActiveRuntime.CooldownRemaining = snap.Active.CooldownRemaining;
     }
 }

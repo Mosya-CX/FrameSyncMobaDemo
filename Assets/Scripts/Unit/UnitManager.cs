@@ -1,6 +1,5 @@
 using Sirenix.OdinInspector;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
@@ -107,6 +106,11 @@ public class UnitManager : MonoSingleton<UnitManager>, IStateful
             unit.gameObject.SetActive(false);
             Destroy(unit.gameObject);
         }
+    }
+
+    public UnitCore GetActiveUnit(UnitUID uid)
+    {
+        return spawnedUnits.ContainsKey(uid) ? spawnedUnits[uid] : null;
     }
 
     #endregion
@@ -228,7 +232,6 @@ public class UnitManager : MonoSingleton<UnitManager>, IStateful
             if (snapshot.UnitSnapshots.TryGetValue(uid, out var unitSnapshot))
             {
                 spawnedUnits[uid].RestoreState(unitSnapshot);
-                spawnedUnits[uid].SyncTransform();
                 snapshot.UnitSnapshots.Remove(uid);
             }
             else
@@ -250,7 +253,6 @@ public class UnitManager : MonoSingleton<UnitManager>, IStateful
             var unit = pool.Get();
             unit.OnSpawn(uid, 1);
             unit.RestoreState(restorePair.Value);
-            unit.SyncTransform();
 
             spawnedUnits[uid] = unit;
         }

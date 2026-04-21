@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 
@@ -165,11 +164,8 @@ public sealed class EntitiesSimulation : MonoSingleton<EntitiesSimulation>, ISta
                 !UnitManager.Instance.Spawns.TryGetValue(evt.UnitB, out var b))
                 continue;
 
-            if (a is IUnitContactListener listenerA)
-                listenerA.OnUnitContact(evt.EventType, b);
-
-            if (b is IUnitContactListener listenerB)
-                listenerB.OnUnitContact(evt.EventType, a);
+            a.OnUnitContact(evt.EventType, b);
+            b.OnUnitContact(evt.EventType, a);
         }
     }
 

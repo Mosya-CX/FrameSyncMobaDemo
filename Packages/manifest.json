@@ -5,6 +5,7 @@
     "cn.unity.uos.matchmaking.server": "https://cnb.cool/unity/uos/matchmaking-server-sdk.git?path=/unity",
     "cn.unity.uos.multiverse": "https://cnb.cool/unity/uos/multiverse-sdk.git?path=/unity",
     "com.danielmansson.mathematics.fixedpoint": "https://github.com/danielmansson/Unity.Mathematics.FixedPoint.git",
+    "com.gamebooom.unity.mcp": "https://github.com/FunplayAI/funplay-unity-mcp.git",
     "com.siccity.gltfutility": "https://github.com/siccity/gltfutility.git",
     "com.unity.collab-proxy": "2.7.1",
     "com.unity.feature.2d": "2.0.1",

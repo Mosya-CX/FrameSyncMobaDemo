@@ -36,12 +36,34 @@ public abstract class CombatUnitBase : UnitCore
     public bool HasTarget => currentTarget != null;
     public UnitCore CurrentTarget => currentTarget;
     public fp3? CurrentDestination => currentDestination;
+
+    protected DashMotor dashMotor;
+    protected SkillExecutionController skillExecutionController;
+    protected SkillBook skillBook;
+    protected UnitAnimationController animationController;
+
+    public DashMotor DashMotor => dashMotor;
+    public SkillExecutionController SkillExecutionController => skillExecutionController;
+    public SkillBook SkillBook => skillBook;
+    public UnitAnimationController AnimationController => animationController;
+
     #endregion
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        dashMotor = new DashMotor(this);
+        skillExecutionController = GetComponent<SkillExecutionController>();
+        skillBook = GetComponent<SkillBook>();
+        animationController = GetComponent<UnitAnimationController>();
+    }
 
     public override void Tick(fp dt, uint currentTick)
     {
         base.Tick(dt, currentTick);
 
+        animationController?.Tick(dt);
         if (IsDead)
             return;
 
@@ -53,6 +75,8 @@ public abstract class CombatUnitBase : UnitCore
         }
 
         TickCombat(dt);
+        dashMotor?.Tick(dt);
+        skillExecutionController?.Tick(dt, currentTick);
     }
 
     protected virtual void TickCombat(fp dt)
@@ -164,6 +188,12 @@ public abstract class CombatUnitBase : UnitCore
         }
     }
 
+    protected override void OnDeadEnter()
+    {
+        base.OnDeadEnter();
+        DashMotor?.Cancel();
+    }
+
     #region 公开行为入口
     public virtual void BeginMoveTo(fp3 destination)
     {
@@ -255,11 +285,11 @@ public abstract class CombatUnitBase : UnitCore
 
     protected virtual bool DashBlocked()
     {
-        return false;
+        return DashMotor.IsDashing;
     }
     #endregion
 
-    #region 快照
+    #region 快照和回滚
     public override object CaptureState()
     {
         var coreState = (UnitCoreSnapshot)base.CaptureState();
@@ -273,6 +303,9 @@ public abstract class CombatUnitBase : UnitCore
             HasTarget = currentTarget != null,
             AttackPrecastTimer = attackPrecastTimer,
             AttackRecoveryTimer = attackRecoveryTimer,
+            DashState = DashMotor.CaptureState(),
+            SkillExecutionControllerState = skillExecutionController != null ? skillExecutionController.CaptureState() : null,
+            SkillBookState = skillBook != null ? skillBook.CaptureState() : null,
         };
     }
 
@@ -291,6 +324,16 @@ public abstract class CombatUnitBase : UnitCore
             currentTarget = target;
         else
             currentTarget = null;
+
+        DashMotor.RestoreState(snap.DashState);
+
+        if (skillExecutionController != null && snap.SkillExecutionControllerState != null)
+            skillExecutionController.RestoreState(snap.SkillExecutionControllerState);
+
+        if (skillBook != null && snap.SkillBookState != null)
+            skillBook.RestoreState(snap.SkillBookState);
+
+        RebuildCombatNavigationState();
     }
 
     [System.Serializable]
@@ -303,6 +346,67 @@ public abstract class CombatUnitBase : UnitCore
         public bool HasTarget;
         public fp AttackPrecastTimer;
         public fp AttackRecoveryTimer;
+
+        public object DashState;
+        public object SkillExecutionControllerState;
+        public object SkillBookState;
+    }
+
+    protected virtual void RebuildCombatNavigationState()
+    {
+        switch (combatMode)
+        {
+            case CombatMode.None:
+                pathFinder?.Stop();
+                if (!IsDead)
+                    SetLocomotionState(UnitLocomotionState.Idle);
+                break;
+
+            case CombatMode.MoveToPoint:
+                if (currentDestination.HasValue)
+                {
+                    pathFinder?.SetDestination(currentDestination.Value);
+                    if (!IsDead)
+                        SetLocomotionState(UnitLocomotionState.Move);
+                }
+                else
+                {
+                    StopCurrentAction();
+                }
+                break;
+
+            case CombatMode.TrackTarget:
+                if (currentTarget != null && !currentTarget.IsDead)
+                {
+                    pathFinder?.SetTarget(currentTarget);
+                    if (!IsDead)
+                        SetLocomotionState(UnitLocomotionState.Move);
+                }
+                else
+                {
+                    StopCurrentAction();
+                }
+                break;
+
+            case CombatMode.AttackTarget:
+                if (currentTarget == null || currentTarget.IsDead)
+                {
+                    StopCurrentAction();
+                }
+                else
+                {
+                    if (!IsDead)
+                        SetLocomotionState(UnitLocomotionState.Idle);
+                }
+                break;
+        }
+    }
+    #endregion
+
+    #region 动画接口实现
+    public virtual bool ShouldPlayAttackAnimation()
+    {
+        return combatMode == CombatMode.AttackTarget && attackPrecastTimer > 0;
     }
     #endregion
 }

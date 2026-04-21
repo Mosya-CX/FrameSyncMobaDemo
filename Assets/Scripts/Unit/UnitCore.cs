@@ -1,13 +1,14 @@
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 
-public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDamageModifierProvider, IHealModifierProvider
+public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDamageModifierProvider, IHealModifierProvider, IUnitContactListener
 {
     #region 基础信息
-    [SerializeField, LabelText("预制体ID"), ReadOnly]
+    [SerializeField, LabelText("预制体ID")]
     public int PrefabId;
 
     [SerializeField, LabelText("单位实例ID"), ReadOnly]
@@ -69,12 +70,10 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
 
     #region 额外功能
     protected UnitBaseHandler[] handlers;
-    protected AbilityHandler abilityHandler;
     protected BuffHandler buffHandler;
     protected CrowdControlHandler crowdControlHandler;
     protected EquipmentHandler equipmentHandler;
 
-    public AbilityHandler AbilityHandler => abilityHandler;
     public BuffHandler BuffHandler => buffHandler;
     public CrowdControlHandler CrowdControlHandler => crowdControlHandler;
     public EquipmentHandler EquipmentHandler => equipmentHandler;
@@ -84,13 +83,20 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
     protected virtual void Awake()
     {
         handlers = GetComponents<UnitBaseHandler>();
-        abilityHandler = GetComponent<AbilityHandler>();
         buffHandler = GetComponent<BuffHandler>();
         crowdControlHandler = GetComponent<CrowdControlHandler>();
         equipmentHandler = GetComponent<EquipmentHandler>();
+        
         pathFinder = GetComponent<PathFinder>();
 
         stats.Init(definitionConfig);
+        DamageDealt += (damageInfo) =>
+        {
+            var healAmount = stats.Get(UnitStatType.SpellVamp) * damageInfo.Result.TotalDamage;
+            if (damageInfo.Result.Tags.Contains(DamageTagConst.FromAttack))
+                healAmount += stats.Get(UnitStatType.LifeSteal) * damageInfo.Result.TotalDamage;
+            HealManager.Instance.CreateHealRequest(this, this, healAmount);
+        };
     }
 
     public virtual void OnSpawn(UnitUID instanceUid, int startLevel = 1)
@@ -112,11 +118,6 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
         UnregisterRVOGenerator();
     }
 
-    private void Update()
-    {
-        UpdateAnimation();
-    }
-
     private void LateUpdate()
     {
         SyncTransform();
@@ -125,7 +126,6 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
     public virtual void Tick(fp dt, uint currentTick)
     {
         buffHandler?.Tick(dt);
-        abilityHandler?.Tick(dt);
         crowdControlHandler?.Tick(dt);
         equipmentHandler?.Tick(dt);
 
@@ -199,12 +199,38 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
     protected virtual void OnDeadEnter() { }
     protected virtual void OnDeadTick(fp dt) { }
     protected virtual void OnDeadExit() { }
+
     #endregion
 
     #region 动作通道查询入口
+    protected ActionLockSnapshot BuildExternalActionLockSnapshot()
+    {
+        var snapshot = ActionLockSnapshot.Default;
+
+        for (int i = 0; i < handlers.Length; i++)
+        {
+            if (handlers[i] is not IActionLockProvider provider)
+                continue;
+
+            var lockSnap = provider.BuildActionLockSnapshot();
+            snapshot.OccupiedChannels |= lockSnap.OccupiedChannels;
+            snapshot.BlockedChannels |= lockSnap.BlockedChannels;
+        }
+
+        return snapshot;
+    }
+
     public virtual bool IsActionChannelBlocked(ActionChannelMask channel)
     {
-        return crowdControlHandler != null && crowdControlHandler.CurrentSnapshot.IsChannelBlocked(channel);
+        if (crowdControlHandler != null && crowdControlHandler.CurrentSnapshot.IsChannelBlocked(channel))
+            return true;
+
+        var externalLocks = BuildExternalActionLockSnapshot();
+
+        if ((externalLocks.OccupiedChannels & channel) != 0)
+            return true;
+
+        return externalLocks.IsBlocked(channel);
     }
 
     public virtual bool CanStartMove() => !IsActionChannelBlocked(ActionChannelMask.Move);
@@ -276,8 +302,8 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
         public fp AccumulatedDamage;
     }
 
-    [SerializeField]
-    private uint assistRecordDurationTick = 600; // 例如10秒，按60tick/s自行换
+    [SerializeField, LabelText("攻击者缓存Tick数")]
+    private uint assistRecordDurationTick = 600;
     protected readonly Dictionary<UnitUID, RecentAttackerInfo> recentAttackers = new();
     protected DamageResult lastDamageResultCache;
 
@@ -444,7 +470,8 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
             LocomotionState = locomotionState,
             Direction = direction,
             StatsSnapshot = stats.Capture(),
-            HandlerStates = handlerStates
+            HandlerStates = handlerStates,
+            RecentAttackersState = CaptureRecentAttackersState(),
         };
     }
 
@@ -454,6 +481,7 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
 
         logicPosition = snap.Position;
         logicRotation = snap.Rotation;
+        SyncTransform();
         level = snap.Level;
         locomotionState = snap.LocomotionState;
         direction = snap.Direction;
@@ -463,6 +491,8 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
 
         for (int i = 0; i < handlers.Length; i++)
             handlers[i].RestoreState(snap.HandlerStates[i]);
+
+        RestoreRecentAttackersState(snap.RecentAttackersState);
     }
 
     [System.Serializable]
@@ -475,6 +505,49 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
         public int Level;
         public UnitStats.UnitStatsSnapshot StatsSnapshot;
         public object[] HandlerStates;
+        public object RecentAttackersState;
+    }
+
+    [System.Serializable]
+    public struct RecentAttackerInfoSnapshot
+    {
+        public UnitUID AttackerUid;
+        public uint LastDamageTick;
+        public fp AccumulatedDamage;
+    }
+
+    protected object CaptureRecentAttackersState()
+    {
+        var list = new List<RecentAttackerInfoSnapshot>(recentAttackers.Count);
+        foreach (var pair in recentAttackers)
+        {
+            list.Add(new RecentAttackerInfoSnapshot
+            {
+                AttackerUid = pair.Value.AttackerUid,
+                LastDamageTick = pair.Value.LastDamageTick,
+                AccumulatedDamage = pair.Value.AccumulatedDamage,
+            });
+        }
+        return list.ToArray();
+    }
+
+    protected void RestoreRecentAttackersState(object state)
+    {
+        recentAttackers.Clear();
+
+        if (state is not RecentAttackerInfoSnapshot[] snaps)
+            return;
+
+        for (int i = 0; i < snaps.Length; i++)
+        {
+            var s = snaps[i];
+            recentAttackers[s.AttackerUid] = new RecentAttackerInfo
+            {
+                AttackerUid = s.AttackerUid,
+                LastDamageTick = s.LastDamageTick,
+                AccumulatedDamage = s.AccumulatedDamage,
+            };
+        }
     }
     #endregion
 
@@ -514,6 +587,7 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
     public event Action<AssistEvent> AssistPerformed;
     public event Action<DyingEvent> Dying;
     public event Action<DeathEvent> Death;
+    public event Action<ContactEvent> Contact;
 
     public virtual void OnDamageDealt(DamageResult result)
     {
@@ -540,12 +614,6 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
         AttackPerformed?.Invoke(new AttackEvent(this, target));
     }
 
-    public virtual void OnAbilityCastStagePerformed(int abilityId, CastStageType stageType, UnitCore targetUnit, fp3? targetPosition)
-    {
-        if (this is HeroUnit hero)
-            AbilityCastStagePerformed?.Invoke(new AbilityCastStageEvent(hero, abilityId, stageType, targetUnit, targetPosition));
-    }
-
     public virtual void OnKillPerformed(UnitCore victim)
     {
         KillPerformed?.Invoke(new KillEvent(this, victim));
@@ -565,12 +633,14 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
     {
         Death?.Invoke(new DeathEvent(this, killer, assisters));
     }
+
+    public void OnUnitContact(UnitContactEventType eventType, UnitCore other)
+    {
+        Contact?.Invoke(new ContactEvent(this, other, eventType));
+    }
     #endregion
 
     #region 表现
-    public virtual void UpdateAnimation()
-    {
-    }
 
     public virtual void SyncTransform()
     {
@@ -583,7 +653,7 @@ public abstract class UnitCore : MonoBehaviour, IStateful, IDynamicObstacle, IDa
 
     public virtual void ResetStats()
     {
-    }
+    }  
 
     public virtual SimulationEntityType SimulationEntityType => SimulationEntityType.None;
 

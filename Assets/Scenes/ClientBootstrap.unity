@@ -152,9 +152,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDestoryOnUnloadScene: 0
+  GlobalDatabase: {fileID: 11400000, guid: 702c7b3ee6218bf4aa1fabe033f1e648, type: 2}
+  UIManagerGO: {fileID: 1884406964133135993, guid: 8a91ee0be144b914592a46e74cfcb3b7,
+    type: 3}
   launchMode: 0
   lobbySceneName: Lobby
   gameSceneName: GameScene
+  selectPanelName: SelectPanel
+  lobbyPanelName: LobbyPanel
+  loadingPanelName: LoadingPanel
+  gameplayHUDPanelName: GameplayHUD
+  matchmakingPollIntervalMs: 2000
 --- !u!4 &665779035
 Transform:
   m_ObjectHideFlags: 0

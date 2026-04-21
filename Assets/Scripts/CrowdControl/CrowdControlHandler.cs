@@ -1,5 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
+
+[Serializable]
+public struct CrowdControlRuntimeSnapshot
+{
+    public int DataId;
+    public fp RemainingTime;
+    public UnitUID SourceUid;
+}
+
+[Serializable]
+public struct CrowdControlHandlerSnapshot
+{
+    public CrowdControlRuntimeSnapshot[] Controls;
+    public ControlConstraintSnapshot Snapshot;
+}
 
 public sealed class CrowdControlRuntime
 {
@@ -107,7 +123,7 @@ public class CrowdControlHandler : UnitBaseHandler
             Data = runtime.Data,
             RemainingTime = runtime.RemainingTime,
             Source = runtime.Source,
-            UserData = runtime.UserData,
+            UserData = null, // 回滚体系里先不保留 object UserData
         };
     }
 
@@ -153,6 +169,58 @@ public class CrowdControlHandler : UnitBaseHandler
         CurrentSnapshot = snapshot;
     }
 
-    public override object CaptureState() => null;
-    public override void RestoreState(object state) { }
+    public bool IsInControlStiffness()
+    {
+        return CurrentSnapshot.BlockMove
+            && CurrentSnapshot.BlockTrack
+            && CurrentSnapshot.BlockAttack
+            && CurrentSnapshot.BlockCast
+            && CurrentSnapshot.BlockDash;
+    }
+
+    public override object CaptureState()
+    {
+        var arr = new CrowdControlRuntimeSnapshot[ActiveControls.Count];
+
+        for (int i = 0; i < ActiveControls.Count; i++)
+        {
+            var c = ActiveControls[i];
+            arr[i] = new CrowdControlRuntimeSnapshot
+            {
+                DataId = c.Data != null ? c.Data.Id : 0,
+                RemainingTime = c.RemainingTime,
+                SourceUid = c.Source != null ? c.Source.UnitID : default,
+            };
+        }
+
+        return new CrowdControlHandlerSnapshot
+        {
+            Controls = arr,
+            Snapshot = CurrentSnapshot,
+        };
+    }
+
+    public override void RestoreState(object state)
+    {
+        ActiveControls.Clear();
+        CurrentSnapshot = ControlConstraintSnapshot.Default;
+
+        if (state is not CrowdControlHandlerSnapshot snap || snap.Controls == null)
+            return;
+
+        for (int i = 0; i < snap.Controls.Length; i++)
+        {
+            var item = snap.Controls[i];
+            if (!GameManager.Instance.GlobalDatabase.ControlDatabase.TryGetValue(item.DataId, out var data))
+                continue;
+
+            UnitCore source = null;
+            if (!item.SourceUid.Equals(default))
+                UnitManager.Instance.Spawns.TryGetValue(item.SourceUid, out source);
+
+            ActiveControls.Add(new CrowdControlRuntime(data, item.RemainingTime, source));
+        }
+
+        RebuildSnapshot();
+    }
 }

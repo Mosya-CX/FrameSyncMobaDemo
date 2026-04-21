@@ -2,25 +2,9 @@ using System;
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 
-public sealed class HealManager : MonoSingleton<HealManager>, IStateful
+public sealed class HealManager : MonoSingleton<HealManager>
 {
     private readonly Queue<HealRequest> healRequestQueue = new();
-
-    [Serializable]
-    public class HealManagerSnapshot
-    {
-        public List<HealRequestSnapshot> Requests = new();
-    }
-
-    [Serializable]
-    public class HealRequestSnapshot
-    {
-        public UnitUID SourceUid;
-        public UnitUID TargetUid;
-        public HealSourceKind SourceKind;
-        public fp BaseHeal;
-        public List<string> Tags = new();
-    }
 
     public void Clean()
     {
@@ -36,13 +20,12 @@ public sealed class HealManager : MonoSingleton<HealManager>, IStateful
         }
     }
 
-    public void CreateHealRequest(UnitCore source, UnitCore target, HealSourceKind sourceKind, fp baseHeal, string[] additionalTags = null)
+    public void CreateHealRequest(UnitCore source, UnitCore target, fp baseHeal, params string[] additionalTags)
     {
         var request = new HealRequest
         {
-            SourceUid = source.UnitID,
-            TargetUid = target.UnitID,
-            SourceKind = sourceKind,
+            Source = source,
+            Target = target,
             BaseHeal = baseHeal,
         };
 
@@ -55,11 +38,12 @@ public sealed class HealManager : MonoSingleton<HealManager>, IStateful
 
     private void ProcessHealRequest(HealRequest request, uint currentTick)
     {
-        if (!UnitManager.Instance.Spawns.TryGetValue(request.SourceUid, out var source))
+        var source = request.Source;
+        var target = request.Target;
+
+        if (source == null)
             return;
-        if (!UnitManager.Instance.Spawns.TryGetValue(request.TargetUid, out var target))
-            return;
-        if (target.IsDead)
+        if (target == null || target.IsDead)
             return;
 
         var context = new HealContext
@@ -86,6 +70,22 @@ public sealed class HealManager : MonoSingleton<HealManager>, IStateful
         target.OnHealTaken(result);
     }
 
+    [System.Serializable]
+    public class HealManagerSnapshot
+    {
+        public List<HealRequestSnapshot> Requests = new();
+    }
+
+    [System.Serializable]
+    public class HealRequestSnapshot
+    {
+        public UnitUID SourceUid;
+        public UnitUID TargetUid;
+        public HealSourceKind SourceKind;
+        public fp BaseHeal;
+        public List<string> Tags = new();
+    }
+
     public object CaptureState()
     {
         var snap = new HealManagerSnapshot();
@@ -94,8 +94,8 @@ public sealed class HealManager : MonoSingleton<HealManager>, IStateful
         {
             snap.Requests.Add(new HealRequestSnapshot
             {
-                SourceUid = req.SourceUid,
-                TargetUid = req.TargetUid,
+                SourceUid = req.Source.UnitID,
+                TargetUid = req.Target.UnitID,
                 SourceKind = req.SourceKind,
                 BaseHeal = req.BaseHeal,
                 Tags = new List<string>(req.Tags),
@@ -117,8 +117,8 @@ public sealed class HealManager : MonoSingleton<HealManager>, IStateful
             var item = snap.Requests[i];
             var req = new HealRequest
             {
-                SourceUid = item.SourceUid,
-                TargetUid = item.TargetUid,
+                Source = UnitManager.Instance.GetActiveUnit(item.SourceUid),
+                Target = UnitManager.Instance.GetActiveUnit(item.TargetUid),
                 SourceKind = item.SourceKind,
                 BaseHeal = item.BaseHeal,
             };

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 444cb055bce216d49aeda7f15d84cb7c, type: 3}
+  m_Name: Q1Query
+  m_EditorClassIdentifier: 
+  Shape: 0
+  EnemyOnly: 1
+  UseEntityTypeFilter: 1
+  EntityTypeFilter: 8
+  CountKey: Targets.Count
+  TargetPrefix: Targets
+  RectLength: 1
+  RectWidth: 1
+  LadderBottom: 1
+  LadderTop: 1
+  LadderHeight: 1
+  RoundRadius: 1
+  UseSweetQuery: 1
+  SweetCountKey: Sweet.Count
+  SweetTargetPrefix: Sweet
+  SweetRectLength: 1
+  SweetRectWidth: 1
+  SweetRectForwardOffset: 0
+  SweetLadderBottom: 1
+  SweetLadderTop: 1
+  SweetLadderHeight: 1
+  SweetLadderForwardOffset: 0
+  SweetRoundRadius: 1
+  SweetRoundForwardOffset: 0

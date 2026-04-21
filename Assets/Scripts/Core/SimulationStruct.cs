@@ -9,6 +9,7 @@ public enum SimulationEntityType
     Summon = 1 << 4,
     All = ~0,
 }
+
 [System.Flags]
 public enum SimulationTeamMask
 {
