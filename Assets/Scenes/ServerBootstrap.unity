@@ -131,37 +131,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 315663584}
-  - component: {fileID: 315663583}
+  - component: {fileID: 315663585}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: GameBootstrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &315663583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 315663582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a627d3b658d9699458e486cfd9cb4ddb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isDestoryOnUnloadScene: 0
-  GlobalDatabase: {fileID: 11400000, guid: 702c7b3ee6218bf4aa1fabe033f1e648, type: 2}
-  UIManagerGO: {fileID: 0}
-  launchMode: 1
-  lobbySceneName: Lobby
-  gameSceneName: GameScene
-  selectPanelName: SelectPanel
-  lobbyPanelName: LobbyPanel
-  loadingPanelName: LoadingPanel
-  gameplayHUDPanelName: GameplayHUD
-  matchmakingPollIntervalMs: 2000
 --- !u!4 &315663584
 Transform:
   m_ObjectHideFlags: 0
@@ -177,6 +154,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &315663585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 315663582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36f3934a9416b444e9263afe45218556, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  globalGameplayData: {fileID: 11400000, guid: 8b0cdcd39dbb2964baebdd8475f1e60e, type: 2}
+  dedicatedServer: 1
+  playerInputController: {fileID: 0}
+  gameplayCamera: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

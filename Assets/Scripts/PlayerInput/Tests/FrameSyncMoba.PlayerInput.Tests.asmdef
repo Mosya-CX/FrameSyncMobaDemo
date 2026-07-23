@@ -1,0 +1,25 @@
+{
+  "name": "FrameSyncMoba.PlayerInput.Tests",
+  "rootNamespace": "FrameSyncMoba.PlayerInput.Tests",
+  "references": [
+    "FrameSyncMoba.Deterministic",
+    "FrameSyncMoba.FrameSync",
+    "FrameSyncMoba.Physics",
+    "FrameSyncMoba.PlayerInput",
+    "FrameSyncMoba.Testing",
+    "FrameSyncMoba.Unit",
+    "Unity.InputSystem",
+    "Unity.Mathematics",
+    "Unity.Mathematics.FixedPoint"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "noEngineReferences": false
+}

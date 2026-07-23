@@ -1,0 +1,22 @@
+{
+    "name": "FrameSyncMoba.Deterministic.Tests",
+    "rootNamespace": "FrameSyncMoba.Deterministic.Tests",
+    "references": [
+        "FrameSyncMoba.Deterministic",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "noEngineReferences": false
+}

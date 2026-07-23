@@ -1,0 +1,16 @@
+{
+    "name": "FrameSyncMoba.RuntimeConfig",
+    "rootNamespace": "FrameSyncMoba.RuntimeConfig",
+    "references": [
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

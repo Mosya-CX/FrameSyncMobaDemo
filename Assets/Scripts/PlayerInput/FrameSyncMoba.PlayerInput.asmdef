@@ -1,0 +1,22 @@
+{
+    "name": "FrameSyncMoba.PlayerInput",
+    "rootNamespace": "FrameSyncMoba.PlayerInput",
+    "references": [
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

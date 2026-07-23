@@ -1,0 +1,33 @@
+using System.Collections.Generic;
+
+namespace FrameSyncMoba.Unit
+{
+    public struct BuffRuntimeSnapshot
+    {
+        public BuffConfigId ConfigId;
+        public UnitUid SourceUnitUid;
+        public int RemainingTicks;
+        public int CurrentStacks;
+        public int ElapsedTicks;
+        public bool IsPermanent;
+        public int PeriodicTimer;
+        public RemovalReason RemovalReason;
+        public bool IsRemoving;
+        public BuffBlackboardSnapshot Blackboard;
+
+        public static readonly BuffRuntimeSnapshot Default = new BuffRuntimeSnapshot
+        {
+            ConfigId = BuffConfigId.Invalid,
+        };
+    }
+
+    public struct BuffHandlerSnapshot
+    {
+        public List<BuffRuntimeSnapshot> Buffs;
+
+        public static readonly BuffHandlerSnapshot Empty = new BuffHandlerSnapshot
+        {
+            Buffs = new List<BuffRuntimeSnapshot>(),
+        };
+    }
+}

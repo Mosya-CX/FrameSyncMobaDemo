@@ -1,0 +1,36 @@
+{
+    "name":  "FrameSyncMoba.FrameSync.Tests",
+    "rootNamespace":  "FrameSyncMoba.FrameSync.Tests",
+    "references":  [
+                       "FrameSyncMoba.FrameSync",
+                       "FrameSyncMoba.Unit",
+                       "FrameSyncMoba.Deterministic",
+                       "Unity.Mathematics",
+                       "Unity.Mathematics.FixedPoint",
+                       "FrameSyncMoba.Physics",
+                       "FrameSyncMoba.RuntimeConfig",
+                       "FrameSyncMoba.Testing"
+                   ],
+    "includePlatforms":  [
+                             "Editor"
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  false,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "optionalUnityReferences":  [
+                                    "TestAssemblies"
+                                ],
+    "noEngineReferences":  false
+}

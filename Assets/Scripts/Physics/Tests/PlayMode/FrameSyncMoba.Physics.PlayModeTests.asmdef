@@ -1,0 +1,21 @@
+{
+    "name": "FrameSyncMoba.Physics.PlayModeTests",
+    "rootNamespace": "FrameSyncMoba.Physics.PlayModeTests",
+    "references": [
+        "FrameSyncMoba.Physics",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "noEngineReferences": false
+}

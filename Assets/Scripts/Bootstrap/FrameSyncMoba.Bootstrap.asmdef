@@ -1,0 +1,22 @@
+{
+    "name": "FrameSyncMoba.Bootstrap",
+    "rootNamespace": "FrameSyncMoba.Bootstrap",
+    "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.PlayerInput",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,23 @@
+{
+    "name": "FrameSyncMoba.Bootstrap.PlayModeTests",
+    "rootNamespace": "FrameSyncMoba.Bootstrap.Tests",
+    "references": [
+        "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.PlayerInput",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Physics",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "noEngineReferences": false
+}

@@ -1,0 +1,17 @@
+{
+    "name": "FrameSyncMoba.Physics",
+    "rootNamespace": "FrameSyncMoba.Physics",
+    "references": [
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
