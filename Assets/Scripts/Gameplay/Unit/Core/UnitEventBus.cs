@@ -84,6 +84,12 @@ namespace FrameSyncMoba.Unit
             owner.BuffHandler?.OnUnitCollisionExit(data);
         }
 
+        internal void PublishOnHit(in OnHitEventData data)
+        {
+            owner.BuffHandler?.OnHitDealt(data);
+            owner.EquipmentHandler?.OnHitDealt(data);
+        }
+
         internal void Clear()
         {
             // There is intentionally no dynamic routing state to clear.

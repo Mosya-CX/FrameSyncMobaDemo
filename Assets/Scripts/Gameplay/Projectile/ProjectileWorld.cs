@@ -150,36 +150,12 @@ namespace FrameSyncMoba.Unit
 
         public void Capture(ref ProjectileWorldSnapshot state)
         {
-            // Pending spawns (not yet activated this Tick)
-            if (state.PendingSpawns == null)
-                state.PendingSpawns = new List<PendingSpawnRecordSnapshot>();
-            else
-                state.PendingSpawns.Clear();
-
-            for (int i = 0; i < _pendingSpawns.Count; i++)
-            {
-                var ps = _pendingSpawns[i];
-                state.PendingSpawns.Add(new PendingSpawnRecordSnapshot
-                {
-                    Uid = ps.Uid,
-                    DefId = ps.Def.DefId,
-                    OwnerUnitUid = ps.OwnerUnitUid,
-                    TeamSnapshot = ps.TeamSnapshot,
-                    StartPosition = ps.Position,
-                    Direction = ps.Direction,
-                });
-            }
-
             // Active projectiles
-            if (state.ActiveProjectiles == null)
-                state.ActiveProjectiles = new List<ProjectileRuntimeSnapshot>();
-            else
-                state.ActiveProjectiles.Clear();
-
+            var apList = new List<ProjectileRuntimeSnapshot>(_ordered.Count);
             for (int i = 0; i < _ordered.Count; i++)
             {
                 var rt = _ordered[i];
-                state.ActiveProjectiles.Add(new ProjectileRuntimeSnapshot
+                apList.Add(new ProjectileRuntimeSnapshot
                 {
                     Uid = rt.Uid,
                     DefId = rt.Def.DefId,
@@ -191,9 +167,27 @@ namespace FrameSyncMoba.Unit
                     RemainingLifetimeTicks = rt.RemainingLifetimeTicks,
                     IsActive = rt.IsActive,
                     HitCount = rt.HitCount,
-                    HitTargets = new List<UnitUid>(rt.HitTargets),
+                    HitTargets = rt.HitTargets != null ? rt.HitTargets.ToArray() : Array.Empty<UnitUid>(),
                 });
             }
+            state.ActiveProjectiles = apList.ToArray();
+
+            // Pending spawns (not yet activated this Tick)
+            var psList = new List<PendingSpawnRecordSnapshot>(_pendingSpawns.Count);
+            for (int i = 0; i < _pendingSpawns.Count; i++)
+            {
+                var ps = _pendingSpawns[i];
+                psList.Add(new PendingSpawnRecordSnapshot
+                {
+                    Uid = ps.Uid,
+                    DefId = ps.Def.DefId,
+                    OwnerUnitUid = ps.OwnerUnitUid,
+                    TeamSnapshot = ps.TeamSnapshot,
+                    StartPosition = ps.Position,
+                    Direction = ps.Direction,
+                });
+            }
+            state.PendingSpawns = psList.ToArray();
         }
 
         public void Restore(in ProjectileWorldSnapshot state)
@@ -203,7 +197,7 @@ namespace FrameSyncMoba.Unit
             // Restore pending spawns
             if (state.PendingSpawns != null)
             {
-                for (int i = 0; i < state.PendingSpawns.Count; i++)
+                for (int i = 0; i < state.PendingSpawns.Length; i++)
                 {
                     var ps = state.PendingSpawns[i];
                     ProjectileDef def = GetProjectileDef(ps.DefId);
@@ -230,7 +224,7 @@ namespace FrameSyncMoba.Unit
             // Restore active projectiles
             if (state.ActiveProjectiles != null)
             {
-                for (int i = 0; i < state.ActiveProjectiles.Count; i++)
+                for (int i = 0; i < state.ActiveProjectiles.Length; i++)
                 {
                     var ps = state.ActiveProjectiles[i];
                     var def = GetProjectileDef(ps.DefId);

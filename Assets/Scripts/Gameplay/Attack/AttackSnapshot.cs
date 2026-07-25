@@ -39,4 +39,27 @@ namespace FrameSyncMoba.Unit
             AttackSequenceIndex = 0,
         };
     }
+
+    /// <summary>
+    /// Animation-facing snapshot of the current attack state for presentation.
+    /// Computed each LateUpdate by reading deterministic AttackHandler state.
+    /// </summary>
+    public struct AttackAnimationSnapshot
+    {
+        public bool IsAttacking;
+        public byte SequenceIndex;
+        public bool ImpactCommitted;
+        public float WindupProgress;
+        public float RecoveryProgress;
+    }
+
+    /// <summary>
+    /// Animation-facing snapshot of the current hit reaction state.
+    /// </summary>
+    public struct HitReactionAnimationInfo
+    {
+        public bool IsActive;
+        public HitReactionKind ActiveReaction;
+        public float RemainingRatio;
+    }
 }

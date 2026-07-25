@@ -20,6 +20,26 @@ namespace FrameSyncMoba.Unit
             definitions.Add(definition.AbilityId, definition);
         }
 
+        /// <summary>
+        /// Register an AbilityDef baked from an AbilityAsset (ScriptableObject).
+        /// This is the Editor-time entry point called by AbilityRegistryPopulator.
+        /// </summary>
+        public bool TryRegisterFromAsset(AbilityAsset asset)
+        {
+            if (asset == null) return false;
+
+            try
+            {
+                var def = asset.Bake();
+                Register(def);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public bool TryGet(int abilityId, out AbilityDef definition) =>
             definitions.TryGetValue(abilityId, out definition);
 

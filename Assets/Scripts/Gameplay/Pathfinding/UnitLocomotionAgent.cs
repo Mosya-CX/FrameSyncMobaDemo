@@ -1,6 +1,5 @@
-﻿using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
-
 
 namespace FrameSyncMoba.Unit
 {
@@ -10,9 +9,13 @@ namespace FrameSyncMoba.Unit
         private readonly PathGridMap2D _grid;
         private readonly AStarPathService _aStar;
         private readonly PathFollower2D _follower;
+        private readonly TeamFlowFieldService _flowFieldService;
 
         private MovementTask _currentTask;
         private RouteRuntime _route;
+
+        // Flow-field registry for runtime lookup
+        private FlowFieldRegistry _flowFieldRegistry;
 
         private static readonly fp RepathCooldownTicks = (fp)10m;
 
@@ -22,6 +25,7 @@ namespace FrameSyncMoba.Unit
             _grid = grid;
             _aStar = new AStarPathService(grid);
             _follower = new PathFollower2D(grid);
+            _flowFieldService = new TeamFlowFieldService(grid);
             _currentTask = MovementTask.None;
             _route = RouteRuntime.Empty;
         }
@@ -31,7 +35,19 @@ namespace FrameSyncMoba.Unit
         public ref readonly MovementTask CurrentTask => ref _currentTask;
         public ref readonly RouteRuntime Route => ref _route;
 
-        public fp2 Position => _owner.MovementHandler?.Snapshot.Position ?? fp2.zero;
+        /// <summary>
+        /// Current logical position. Reads from PhysicsEntity2D per
+        /// Pathfinding Design v13.1 section 1.1 contract.
+        /// </summary>
+        public fp2 Position => _owner.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
+
+        /// <summary>
+        /// Set the flow-field registry for runtime flow-field lookups.
+        /// </summary>
+        public void SetFlowFieldRegistry(FlowFieldRegistry registry)
+        {
+            _flowFieldRegistry = registry;
+        }
 
         public MoveAcceptResult AcceptRouteRequest(RouteMoveRequest request)
         {
@@ -53,7 +69,7 @@ namespace FrameSyncMoba.Unit
 
             _route = new RouteRuntime
             {
-                Kind = RouteKind.Direct,
+                Kind = request.Kind != RouteKind.None ? request.Kind : RouteKind.Direct,
                 NeedRepath = true,
                 LastPathTargetPosition = request.Target.Position ?? fp2.zero,
                 FollowerState = PathFollowerState.Empty,
@@ -71,9 +87,23 @@ namespace FrameSyncMoba.Unit
             _follower.Reset();
         }
 
+        /// <summary>
+        /// Clear all locomotion-owned runtime state on formal death.
+        /// (Pathfinding Design v13.1 section 11.10)
+        /// Ownership rules:
+        ///   - UnitLocomotionAgent owns: MovementTask, A* path, PathCursor, NeedRepath, Route
+        ///   - UnitLocomotionAgent does NOT own: LifeState, PhysicsEntity2D position, CrowdControl instances
+        /// </summary>
+        public void ClearForDeath()
+        {
+            CancelRoute(MoveCancelReason.Death);
+            _route = RouteRuntime.Empty;
+            _follower.Reset();
+        }
+
         public LocomotionResult Evaluate()
         {
-            // D-008 spawn-Tick gate: only run active gameplay after spawn tick
+            // D-008 spawn-Tick gate
             if (!_owner.CanRunActiveGameplayThisTick)
                 return LocomotionResult.Idle(_owner.UnitUid);
 
@@ -81,6 +111,13 @@ namespace FrameSyncMoba.Unit
                 return LocomotionResult.Idle(_owner.UnitUid);
 
             fp2 currentPos = Position;
+            fp moveSpeed = _owner.StatHandler?.GetStat(StatId.MoveSpeed) ?? fp.one;
+
+            // Flow-field route: sample direction from baked field
+            if (_route.Kind == RouteKind.FlowField)
+            {
+                return EvaluateFlowField(currentPos, moveSpeed);
+            }
 
             // Determine target position
             fp2 targetPos = ResolveTargetPosition();
@@ -95,6 +132,7 @@ namespace FrameSyncMoba.Unit
                 {
                     UnitUid = _owner.UnitUid,
                     HasMovement = false,
+                    AllowRVO = _currentTask.AllowRVO,
                     Status = RouteEvaluationStatus.Reached,
                 };
             }
@@ -109,6 +147,7 @@ namespace FrameSyncMoba.Unit
                     {
                         UnitUid = _owner.UnitUid,
                         HasMovement = false,
+                        AllowRVO = _currentTask.AllowRVO,
                         Status = RouteEvaluationStatus.NoRoute,
                     };
                 }
@@ -127,6 +166,7 @@ namespace FrameSyncMoba.Unit
                 {
                     UnitUid = _owner.UnitUid,
                     HasMovement = false,
+                    AllowRVO = _currentTask.AllowRVO,
                     Status = RouteEvaluationStatus.Reached,
                 };
             }
@@ -137,9 +177,32 @@ namespace FrameSyncMoba.Unit
                 _route.NeedRepath = true;
             }
 
-            // Build locomotion result from follower
-            fp moveSpeed = _owner.MovementHandler?.Snapshot.MoveSpeed ?? fp.one;
-            return _follower.BuildLocomotionResult(currentPos, moveSpeed, _owner.UnitUid);
+            return _follower.BuildLocomotionResult(currentPos, moveSpeed, _owner.UnitUid, _currentTask.AllowRVO);
+        }
+
+        private LocomotionResult EvaluateFlowField(fp2 currentPos, fp moveSpeed)
+        {
+            if (_flowFieldRegistry == null)
+                return new LocomotionResult
+                {
+                    UnitUid = _owner.UnitUid,
+                    HasMovement = false,
+                    AllowRVO = _currentTask.AllowRVO,
+                    Status = RouteEvaluationStatus.NoRoute,
+                };
+
+            var key = new FlowFieldKey(_owner.TeamId.Value, RadiusClass.Medium);
+            if (!_flowFieldRegistry.TryGet(key, out var field))
+                return new LocomotionResult
+                {
+                    UnitUid = _owner.UnitUid,
+                    HasMovement = false,
+                    AllowRVO = _currentTask.AllowRVO,
+                    Status = RouteEvaluationStatus.NoRoute,
+                };
+
+            return _follower.BuildFlowFieldLocomotionResult(
+                currentPos, moveSpeed, _owner.UnitUid, field, _flowFieldService, _currentTask.AllowRVO);
         }
 
         private fp2 ResolveTargetPosition()
@@ -152,7 +215,8 @@ namespace FrameSyncMoba.Unit
                 UnitUid targetUid = _currentTask.Target.TargetUid.Value;
                 if (_owner.World != null && _owner.World.TryGetUnit(targetUid, out Unit targetUnit))
                 {
-                    return targetUnit.MovementHandler?.Snapshot.Position ?? fp2.zero;
+                    // Read target position from PhysicsEntity2D per design v13.1 section 1.1
+                    return targetUnit.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
                 }
                 _currentTask.State = MovementTaskState.Cancelled;
                 return fp2.zero;
@@ -192,7 +256,13 @@ namespace FrameSyncMoba.Unit
                 return true;
             }
 
-            // FlowField not yet implemented; fall back to Direct
+            // FlowField: no repath needed - per-tick direction query handles it
+            if (_route.Kind == RouteKind.FlowField)
+            {
+                _route.LastPathTargetPosition = targetPos;
+                return true;
+            }
+
             _route.Kind = RouteKind.Direct;
             _follower.Reset();
             return true;

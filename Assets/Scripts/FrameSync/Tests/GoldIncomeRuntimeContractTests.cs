@@ -36,7 +36,9 @@ namespace FrameSyncMoba.FrameSync.Tests
             runtime.SealTick(0);
             GoldIncomeSnapshot snapshot = default;
             runtime.Capture(ref snapshot);
-            snapshot.UnconfirmedBatches[0].Digest = new GoldIncomeBatchDigest(1);
+            var batch0 = snapshot.UnconfirmedBatches[0];
+            batch0.Digest = new GoldIncomeBatchDigest(1);
+            snapshot.UnconfirmedBatches[0] = batch0;
 
             var restored = new GoldIncomeRuntime();
             Assert.Throws<FrameSyncMoba.Deterministic.DeterministicSimulationException>(

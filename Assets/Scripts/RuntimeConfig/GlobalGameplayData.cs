@@ -33,6 +33,9 @@ namespace FrameSyncMoba.RuntimeConfig
         [Min(0)] public float JungleResetDurationSeconds = 3f;
         [Min(0)] public float JungleRespawnDelaySeconds = 60f;
         [Range(0f, 1f)] public float EquipmentSellRate = 0.7f;
+        [Min(1)] public uint RandomSeed = 12345u;
+        [Min(1)] public int PeriodicGoldIntervalTicks = 15;
+        [Min(0)] public int PeriodicGoldAmount = 2;
     }
 
     [Serializable]
@@ -67,6 +70,9 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly int JungleResetDurationTicks;
         public readonly int JungleRespawnDelayTicks;
         public readonly fp EquipmentSellRate;
+        public readonly uint RandomSeed;
+        public readonly int PeriodicGoldIntervalTicks;
+        public readonly int PeriodicGoldAmount;
 
         public BakedGlobalGameplayData(
             GlobalPrefabTable prefabTable,
@@ -84,7 +90,10 @@ namespace FrameSyncMoba.RuntimeConfig
             int jungleResetTimeoutTicks,
             int jungleResetDurationTicks,
             int jungleRespawnDelayTicks,
-            fp equipmentSellRate)
+            fp equipmentSellRate,
+            uint randomSeed,
+            int periodicGoldIntervalTicks,
+            int periodicGoldAmount)
         {
             PrefabTable = prefabTable;
             TickRate = tickRate;
@@ -103,6 +112,9 @@ namespace FrameSyncMoba.RuntimeConfig
             JungleResetDurationTicks = jungleResetDurationTicks;
             JungleRespawnDelayTicks = jungleRespawnDelayTicks;
             EquipmentSellRate = equipmentSellRate;
+            RandomSeed = randomSeed;
+            PeriodicGoldIntervalTicks = periodicGoldIntervalTicks;
+            PeriodicGoldAmount = periodicGoldAmount;
         }
     }
 
@@ -171,7 +183,10 @@ namespace FrameSyncMoba.RuntimeConfig
                 SecondsToTicks(gameMode.JungleResetTimeoutSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.JungleResetDurationSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.JungleRespawnDelaySeconds, frameSync.TickRate),
-                (fp)gameMode.EquipmentSellRate);
+                (fp)gameMode.EquipmentSellRate,
+                gameMode.RandomSeed,
+                gameMode.PeriodicGoldIntervalTicks,
+                gameMode.PeriodicGoldAmount);
         }
 
         private static int SecondsToTicks(float seconds, int tickRate)

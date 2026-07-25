@@ -126,6 +126,36 @@ namespace FrameSyncMoba.PlayerInput
             return ref abilityStates[slot];
         }
 
+        /// <summary>
+        /// Query the aim configuration for an ability slot.
+        /// Used by the indicator driver to show the correct indicator shape.
+        /// </summary>
+        public bool TryGetAimInfo(
+            byte slot,
+            out AimKind aimKind,
+            out fp castRange,
+            out fp2 casterPos,
+            out fp2 casterForward)
+        {
+            aimKind = AimKind.None;
+            castRange = (fp)5m; // default range
+            casterPos = fp2.zero;
+            casterForward = new fp2(fp.zero, fp.one);
+
+            if (profileProvider == null) return false;
+            if (!profileProvider.TryGetAimKind(slot, out aimKind)) return false;
+            if (aimKind == AimKind.None) return false;
+
+            // Get caster position from controlled unit
+            if (controlledUnit?.MovementHandler != null)
+            {
+                casterPos = controlledUnit.MovementHandler.Snapshot.Position;
+                casterForward = controlledUnit.MovementHandler.Snapshot.Facing;
+            }
+
+            return true;
+        }
+
         public void SetControlledUnit(UnitType unit)
         {
             if (controlledUnit == unit) return;

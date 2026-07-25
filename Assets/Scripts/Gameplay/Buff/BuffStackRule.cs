@@ -11,5 +11,8 @@ namespace FrameSyncMoba.Unit
 
         /// <summary>Add one additional stack (up to MaxStacks); duration handled independently.</summary>
         Independent,
+
+        /// <summary>All stacks share a single duration; new application refreshes that duration.</summary>
+        Dependent,
     }
 }

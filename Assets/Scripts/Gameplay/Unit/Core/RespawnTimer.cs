@@ -71,7 +71,7 @@ namespace FrameSyncMoba.Unit
 
         public void Capture(ref RespawnTimerSnapshot state)
         {
-            state.Entries = new List<RespawnEntry>(_entries);
+            state.Entries = new System.Collections.Generic.List<RespawnEntry>(_entries);
         }
 
         public void Restore(in RespawnTimerSnapshot state)
@@ -111,6 +111,6 @@ namespace FrameSyncMoba.Unit
 
     public struct RespawnTimerSnapshot
     {
-        public List<RespawnEntry> Entries;
+        public System.Collections.Generic.List<RespawnEntry> Entries;
     }
 }

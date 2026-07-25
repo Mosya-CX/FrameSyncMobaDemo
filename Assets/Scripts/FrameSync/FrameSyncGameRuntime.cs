@@ -19,6 +19,7 @@ namespace FrameSyncMoba.FrameSync
         public CommandCollector CommandCollector => _pipeline.CommandCollector;
         public int CurrentTick => _pipeline.LocalSimulationTick;
         public uint LastChecksum => _pipeline.LastChecksum;
+        public SimulationTickPipeline TickPipeline => _pipeline;
 
         public FrameSyncGameRuntime(
             Unit.UnitWorld unitWorld,
@@ -32,7 +33,8 @@ namespace FrameSyncMoba.FrameSync
                 config.EndingDurationTicks,
                 config.HeroRespawnBaseTicks,
                 config.HeroRespawnPerLevelTicks,
-                config.EquipmentSellRate)
+                config.EquipmentSellRate,
+                config.RandomSeed)
         {
             var minionSystem = new Unit.MinionSystem(
                 unitWorld, 0, config.MinionWaveIntervalTicks);
@@ -56,7 +58,8 @@ namespace FrameSyncMoba.FrameSync
             int endingDurationTicks,
             int heroRespawnBaseTicks,
             int heroRespawnPerLevelTicks,
-            fp equipmentSellRate)
+            fp equipmentSellRate,
+            uint randomSeed)
         {
             UnitWorld = unitWorld;
             PhysicsWorld = physicsWorld;
@@ -88,6 +91,13 @@ namespace FrameSyncMoba.FrameSync
                 new Unit.DeathEffectDispatcher(unitWorld, CombatSystem);
             CombatSystem.RespawnTimer = unitWorld.RespawnTimer;
             CombatSystem.DeathEffectDispatcher = unitWorld.DeathEffectDispatcher;
+            unitWorld.CombatSystem = CombatSystem;
+            unitWorld.ProjectileWorld = projectileWorld;
+            if (physicsWorld != null)
+                unitWorld.RangeQuery = new Unit.RangeQueryService(physicsWorld);
+            var randomService = new DeterministicRandomService(randomSeed);
+            _pipeline.RandomService = randomService;
+            unitWorld.RandomService = randomService;
             _tickController = new SimulationTickContextController();
             _rollbackCoordinator = new PredictionRollbackCoordinator(
                 new SnapshotStore(), _pipeline, _tickController);

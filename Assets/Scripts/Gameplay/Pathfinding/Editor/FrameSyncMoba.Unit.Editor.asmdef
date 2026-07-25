@@ -1,0 +1,1 @@
+﻿{"name":"FrameSyncMoba.Unit.Editor","rootNamespace":"FrameSyncMoba.Unit.Editor","references":["FrameSyncMoba.Unit","Unity.Mathematics.FixedPoint"],"includePlatforms":["Editor"],"excludePlatforms":[],"allowUnsafeCode":false,"overrideReferences":false,"precompiledReferences":[],"autoReferenced":false,"defineConstraints":[],"versionDefines":[],"noEngineReferences":false}

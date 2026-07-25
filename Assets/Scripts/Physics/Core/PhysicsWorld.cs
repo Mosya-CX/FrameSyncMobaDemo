@@ -173,6 +173,36 @@ namespace FrameSyncMoba.Physics
             }
         }
 
+        /// <summary>
+        /// RVO pre-move spatial grid (Pathfinding Design v13.1 section 10.1-10.2).
+        /// Built from unit positions BEFORE movement is applied.
+        /// Independent from UnitFinalGrid — must not share the same instance.
+        /// </summary>
+        public PhysicsSpatialGrid2D RvoGrid { get; private set; }
+
+        /// <summary>
+        /// Build the RVO grid from current (pre-move) unit positions.
+        /// Called after locomotion evaluation, before movement application.
+        /// </summary>
+        public void BuildRvoGrid()
+        {
+            if (RvoGrid == null)
+            {
+                RvoGrid = new PhysicsSpatialGrid2D(Settings.GridCellSize);
+            }
+            else
+            {
+                RvoGrid.Clear();
+            }
+
+            for (int i = 0; i < unitEntities.Count; i++)
+            {
+                PhysicsEntity2D entity = unitEntities[i];
+                if (entity.QueryInfo.Owner == null) continue;
+                RvoGrid.Insert(entity, entity.Bounds);
+            }
+        }
+
         public void DetectUnitCollisionEvents() =>
             UnitCollisionEvents.DetectAndPublish(readOnlyUnitEntities);
 

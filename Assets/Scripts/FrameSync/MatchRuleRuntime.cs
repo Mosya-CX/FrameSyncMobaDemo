@@ -33,7 +33,7 @@ namespace FrameSyncMoba.FrameSync
 
     public struct MatchStatisticsRuntimeSnapshot
     {
-        public MatchStatisticsEntry[] Entries;
+        public System.Collections.Generic.List<MatchStatisticsEntry> Entries;
         public static readonly MatchStatisticsRuntimeSnapshot Empty = default;
     }
 
@@ -99,14 +99,14 @@ namespace FrameSyncMoba.FrameSync
         }
 
         public void Capture(ref MatchStatisticsRuntimeSnapshot state) =>
-            state.Entries = entries.ToArray();
+            state.Entries = new System.Collections.Generic.List<MatchStatisticsEntry>(entries);
 
         public void Restore(in MatchStatisticsRuntimeSnapshot state)
         {
             entries.Clear();
-            MatchStatisticsEntry[] restored = state.Entries ?? Array.Empty<MatchStatisticsEntry>();
+            var restored = state.Entries ?? new System.Collections.Generic.List<MatchStatisticsEntry>();
             UnitUid previous = default;
-            for (int i = 0; i < restored.Length; i++)
+            for (int i = 0; i < restored.Count; i++)
             {
                 MatchStatisticsEntry entry = restored[i];
                 if (!entry.HeroUnitUid.IsValid() ||

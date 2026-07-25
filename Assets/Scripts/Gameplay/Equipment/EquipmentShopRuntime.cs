@@ -343,10 +343,9 @@ namespace FrameSyncMoba.Unit
         public void Capture(ref EquipmentShopRuntimeSnapshot state)
         {
             if (state.CreatedTraders == null)
-                state.CreatedTraders = new List<ShopTraderRuntimeSnapshot>();
+                state.CreatedTraders = new System.Collections.Generic.List<ShopTraderRuntimeSnapshot>();
             else
                 state.CreatedTraders.Clear();
-
             for (int i = 0; i < _tradersByPlayerSlot.Length; i++)
             {
                 var trader = _tradersByPlayerSlot[i];
@@ -361,16 +360,16 @@ namespace FrameSyncMoba.Unit
 
                 if (trader.OperationLog.Count > 0)
                 {
-                    ts.OperationLog = new ShopOperationRecord[trader.OperationLog.Count];
+                    ts.OperationLog = new System.Collections.Generic.List<ShopOperationRecord>(trader.OperationLog.Count);
                     for (int j = 0; j < trader.OperationLog.Count; j++)
-                        ts.OperationLog[j] = trader.OperationLog[j];
+                        ts.OperationLog.Add(trader.OperationLog[j]);
                 }
 
                 if (trader.UndoableOperationStack.Count > 0)
                 {
-                    ts.UndoableOperationStack = new int[trader.UndoableOperationStack.Count];
+                    ts.UndoableOperationStack = new System.Collections.Generic.List<int>(trader.UndoableOperationStack.Count);
                     for (int j = 0; j < trader.UndoableOperationStack.Count; j++)
-                        ts.UndoableOperationStack[j] = trader.UndoableOperationStack[j];
+                        ts.UndoableOperationStack.Add(trader.UndoableOperationStack[j]);
                 }
 
                 state.CreatedTraders.Add(ts);
@@ -402,7 +401,7 @@ namespace FrameSyncMoba.Unit
 
                 int previousOperationSequence = -1;
                 if (ts.OperationLog != null)
-                    for (int j = 0; j < ts.OperationLog.Length; j++)
+                    for (int j = 0; j < ts.OperationLog.Count; j++)
                     {
                         ShopOperationRecord record = ts.OperationLog[j];
                         if (record.OperationSequence <= previousOperationSequence ||
@@ -422,7 +421,7 @@ namespace FrameSyncMoba.Unit
                 if (ts.UndoableOperationStack != null)
                 {
                     int previousUndoSequence = -1;
-                    for (int j = 0; j < ts.UndoableOperationStack.Length; j++)
+                    for (int j = 0; j < ts.UndoableOperationStack.Count; j++)
                     {
                         int sequence = ts.UndoableOperationStack[j];
                         if (sequence <= previousUndoSequence ||
@@ -526,14 +525,14 @@ namespace FrameSyncMoba.Unit
         public int Player;
         public UnitUid ControlledUnitUid;
         public int NextOperationSequence;
-        public ShopOperationRecord[] OperationLog;
-        public int[] UndoableOperationStack;
+        public System.Collections.Generic.List<ShopOperationRecord> OperationLog;
+        public System.Collections.Generic.List<int> UndoableOperationStack;
     }
 
     public struct EquipmentShopRuntimeSnapshot
     {
-        public List<ShopTraderRuntimeSnapshot> CreatedTraders;
+        public System.Collections.Generic.List<ShopTraderRuntimeSnapshot> CreatedTraders;
         public static readonly EquipmentShopRuntimeSnapshot Empty = new EquipmentShopRuntimeSnapshot
-        { CreatedTraders = new List<ShopTraderRuntimeSnapshot>() };
+        { CreatedTraders = new System.Collections.Generic.List<ShopTraderRuntimeSnapshot>() };
     }
 }

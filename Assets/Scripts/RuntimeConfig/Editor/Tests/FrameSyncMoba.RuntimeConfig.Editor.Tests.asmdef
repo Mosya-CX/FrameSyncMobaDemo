@@ -1,0 +1,22 @@
+{
+    "name": "FrameSyncMoba.RuntimeConfig.Editor.Tests",
+    "rootNamespace": "FrameSyncMoba.RuntimeConfig.Editor.Tests",
+    "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.RuntimeConfig.Editor",
+        "FrameSyncMoba.Unit",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "noEngineReferences": false
+}

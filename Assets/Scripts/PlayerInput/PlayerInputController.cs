@@ -24,6 +24,7 @@ namespace FrameSyncMoba.PlayerInput
         private MouseWorldResolver pointerResolver;
         private PlayerCommandRequester commandRequester;
         private bool subscribed;
+        private SkillIndicatorDriver indicatorDriver;
 
         public LocalInputEventBuffer Buffer => buffer;
 
@@ -43,6 +44,14 @@ namespace FrameSyncMoba.PlayerInput
             }
         }
 
+        /// <summary>
+        /// Set the indicator driver for ability aim visual feedback.
+        /// </summary>
+        public void SetIndicatorDriver(SkillIndicatorDriver driver)
+        {
+            indicatorDriver = driver;
+        }
+
         private void OnEnable()
         {
             if (inputActions == null || buffer == null) return;
@@ -59,6 +68,46 @@ namespace FrameSyncMoba.PlayerInput
         {
             if (buffer == null || commandRequester == null) return;
             commandRequester.ProcessFrame(buffer, pointerResolver);
+            UpdateIndicator();
+        }
+
+        private void UpdateIndicator()
+        {
+            if (indicatorDriver == null || pointerResolver == null) return;
+            if (commandRequester == null || commandRequester.ControlledUnit == null) return;
+
+            // Check if any slot is in LocalAiming state
+            for (byte slot = 0; slot < 4; slot++)
+            {
+                ref readonly var state = ref commandRequester.GetAbilityState(slot);
+                if (state.Kind == LocalAbilityInputStateKind.LocalAiming)
+                {
+                    // Get the aim kind and cast range for this slot
+                    if (commandRequester.TryGetAimInfo(slot, out var aimKind, out var castRange, out var casterPos, out var casterForward))
+                    {
+                        if (!indicatorDriver.IsVisible || indicatorDriver.ActiveKind != aimKind)
+                        {
+                            indicatorDriver.Show(aimKind, castRange, casterPos, casterForward);
+                        }
+
+                        Vector2 screenPos = pointerResolver != null
+                            ? pointerResolver.LastScreenPosition
+                            : Vector2.zero;
+                        var cursorWorld = pointerResolver.ResolveGroundPoint(screenPos);
+                        if (cursorWorld.HasValue)
+                        {
+                            indicatorDriver.UpdateCursor(cursorWorld.Value, casterPos, casterForward);
+                        }
+                    }
+                    return;
+                }
+            }
+
+            // No slot is aiming — hide indicator
+            if (indicatorDriver.IsVisible)
+            {
+                indicatorDriver.Hide();
+            }
         }
 
         private void CacheActionsOrThrow()
@@ -146,6 +195,7 @@ namespace FrameSyncMoba.PlayerInput
             Vector2 screenPosition = pointerPosition != null
                 ? pointerPosition.ReadValue<Vector2>()
                 : Vector2.zero;
+            if (pointerResolver != null) pointerResolver.LastScreenPosition = screenPosition;
             if (!buffer.Push(kind, slot, screenPosition))
             {
                 Debug.LogWarning(

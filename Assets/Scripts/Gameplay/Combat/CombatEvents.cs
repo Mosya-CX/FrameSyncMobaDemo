@@ -1,11 +1,11 @@
-using Unity.Mathematics.FixedPoint;
+﻿using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
     /// Combat-related UnitEventBus events (Combat v13.2 section 1.6).
     /// Dual-role: global static bus for systems without per-Unit access,
-    /// AND auto-forwarder to per-Unit EventBus when TryResolveUnit is set (Unit v27.3 §6).
+    /// AND auto-forwarder to per-Unit EventBus when TryResolveUnit is set (Unit v27.3 section 6).
     /// </summary>
     public static class CombatEvents
     {
@@ -30,12 +30,14 @@ namespace FrameSyncMoba.Unit
         public delegate void DamageEventHandler(DamageEventData data);
         public delegate void HealEventHandler(HealEventData data);
         public delegate void ShieldEventHandler(ShieldEventData data);
+        public delegate void OnHitEventHandler(OnHitEventData data);
 
         private static DamageEventHandler _onDamageTaken;
         private static DamageEventHandler _onDamageDealt;
         private static HealEventHandler _onHealTaken;
         private static HealEventHandler _onHealDealt;
         private static ShieldEventHandler _onShieldApplied;
+        private static OnHitEventHandler _onHitDealt;
 
         public static event DamageEventHandler OnDamageTaken
         { add { _onDamageTaken += value; } remove { _onDamageTaken -= value; } }
@@ -47,6 +49,8 @@ namespace FrameSyncMoba.Unit
         { add { _onHealDealt += value; } remove { _onHealDealt -= value; } }
         public static event ShieldEventHandler OnShieldApplied
         { add { _onShieldApplied += value; } remove { _onShieldApplied -= value; } }
+        public static event OnHitEventHandler OnHitDealt
+        { add { _onHitDealt += value; } remove { _onHitDealt -= value; } }
 
         private static void TryForwardToTarget(UnitUid uid, System.Action<Unit> publish)
         {
@@ -86,6 +90,12 @@ namespace FrameSyncMoba.Unit
             TryForwardToTarget(data.TargetUid, u => u.EventBus?.PublishShieldApplied(data));
         }
 
+        internal static void RaiseOnHit(OnHitEventData data)
+        {
+            _onHitDealt?.Invoke(data);
+            TryForwardToTarget(data.SourceUid, u => u.EventBus?.PublishOnHit(data));
+        }
+
         internal static void RaiseUnitDeath(UnitUid victim, UnitUid killer)
         {
             _onUnitDeath?.Invoke(victim, killer);
@@ -116,6 +126,7 @@ namespace FrameSyncMoba.Unit
             _onHealTaken = null;
             _onHealDealt = null;
             _onShieldApplied = null;
+            _onHitDealt = null;
             TryResolveUnit = null;
             OnCombatParticipation = null;
             OnCombatParticipationUnit = null;
@@ -133,6 +144,7 @@ namespace FrameSyncMoba.Unit
         public fp MitigatedDamage;
         public fp ActualDamage;
         public DamageType DamageType;
+        public bool IsCritical;
     }
 
     public struct HealEventData
@@ -149,5 +161,17 @@ namespace FrameSyncMoba.Unit
         public UnitUid TargetUid;
         public fp ShieldAmount;
         public ShieldType ShieldType;
+    }
+
+    /// <summary>
+    /// On-hit event data published when an attack impacts its target.
+    /// </summary>
+    public struct OnHitEventData
+    {
+        public UnitUid SourceUid;
+        public UnitUid TargetUid;
+        public DamageType DamageType;
+        public bool IsCritical;
+        public byte AttackSequenceIndex;
     }
 }

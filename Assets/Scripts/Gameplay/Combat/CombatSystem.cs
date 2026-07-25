@@ -6,6 +6,7 @@ namespace FrameSyncMoba.Unit
 {
     public sealed class CombatSystem : IRollback<CombatSnapshot>
     {
+        public MatchEventTracker MatchEventTracker { get; set; }
         private readonly UnitWorld _unitWorld;
         private CombatSnapshot _snapshot;
 
@@ -144,7 +145,36 @@ namespace FrameSyncMoba.Unit
             _pendingKillerHeroUids.Clear();
         }
 
-        public void EndTick() { FreezeSnapshot(); }
+        public void EndTick()
+        {
+            ValidateCaptureState();
+            FreezeSnapshot();
+        }
+
+        /// <summary>
+        /// Verifies that all per-Tick transient state is cleared before Capture.
+        /// (Snapshot Appendix v7.2 section 7.3 -- Capture assertions)
+        /// </summary>
+        private void ValidateCaptureState()
+        {
+            if (_shieldQueue.Count != 0)
+                throw new DeterministicSimulationException("Combat active ShieldQueue must be empty before Capture.");
+            if (_damageQueue.Count != 0)
+                throw new DeterministicSimulationException("Combat active DamageQueue must be empty before Capture.");
+            if (_healQueue.Count != 0)
+                throw new DeterministicSimulationException("Combat active HealQueue must be empty before Capture.");
+            if (_pendingDying.Count != 0)
+                throw new DeterministicSimulationException("Combat PendingDying must be empty before Capture.");
+            // Verify all DeferredRequests target future ticks
+            for (int i = 0; i < _deferredBuffer.Count; i++)
+            {
+                var dr = _deferredBuffer[i];
+                if (dr.ExecuteLogicTick != SimulationTickContext.Current.Tick + 1)
+                    throw new DeterministicSimulationException(
+                        $"Deferred request ExecuteLogicTick={dr.ExecuteLogicTick} " +
+                        $"must equal CurrentTick+1={SimulationTickContext.Current.Tick + 1}.");
+            }
+        }
 
         public IReadOnlyList<DeathResult> DeathResults => _deathResults;
 
@@ -211,6 +241,22 @@ namespace FrameSyncMoba.Unit
             if (req.DamageType == DamageType.Physical) res = stats.GetStat(StatId.Armor);
             else if (req.DamageType == DamageType.Magic) res = stats.GetStat(StatId.MagicResistance);
             fp mitigated = CalculateResistedDamage(raw, res);
+            bool isCrit = false;
+            if (_unitWorld.TryGetUnit(req.SourceUnitUid, out Unit sourceUnit) &&
+                sourceUnit.StatHandler != null && _unitWorld.RandomService != null)
+            {
+                fp critChance = sourceUnit.StatHandler.GetStat(StatId.CriticalStrikeChance);
+                if (critChance > fp.zero)
+                {
+                    if (_unitWorld.RandomService.Chance01(critChance))
+                    {
+                        fp critDmg = sourceUnit.StatHandler.GetStat(StatId.CriticalStrikeDamage);
+                        if (critDmg <= fp.zero) critDmg = (fp)2;
+                        mitigated *= critDmg;
+                        isCrit = true;
+                    }
+                }
+            }
             if (target.CombatModifiers != null) { fp mf = target.CombatModifiers.CalculateDamageMultiplier(req.DamageType, req.SourceUnitUid); mitigated *= mf; }
             if (mitigated <= fp.zero) return;
             fp afterShields = mitigated; fp shieldAbs = fp.zero;
@@ -219,13 +265,36 @@ namespace FrameSyncMoba.Unit
             fp actualLifeDamage = afterShields > cur ? cur : afterShields;
             fp nw = cur - actualLifeDamage;
             stats.SetCurrentHealth(nw);
+            // Death recap tracking (per Combat Design v13.2 section 8)
+            if (MatchEventTracker != null)
+            {
+                MatchEventTracker.RecordDamage(
+                    req.TargetUnitUid,
+                    req.SourceUnitUid,
+                    (int)(shieldAbs + actualLifeDamage),
+                    0 /* DamageRequest has no AbilityId */,
+                    SimulationTickContext.Current.Tick,
+                    0 /* DamageRequest has no AbilityId */ == 0);
+            }
             SubmitHitVfx(req.TargetUnitUid, req.SourceUnitUid);
             RecordContribution(
                 req.SourceUnitUid,
                 target,
                 shieldAbs + actualLifeDamage);
-            var evt = new DamageEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawDamage = raw, MitigatedDamage = mitigated, ActualDamage = actualLifeDamage + shieldAbs, DamageType = req.DamageType };
+            var evt = new DamageEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawDamage = raw, MitigatedDamage = mitigated, ActualDamage = actualLifeDamage + shieldAbs, DamageType = req.DamageType, IsCritical = isCrit };
             CombatEvents.RaiseDamageTaken(evt); CombatEvents.RaiseDamageDealt(evt);
+            // Fire on-hit event for attack damage
+            if (req.AttackSequenceIndex > 0 || req.ProjectileSourceUid.HasValue)
+            {
+                CombatEvents.RaiseOnHit(new OnHitEventData
+                {
+                    SourceUid = req.SourceUnitUid,
+                    TargetUid = req.TargetUnitUid,
+                    DamageType = req.DamageType,
+                    IsCritical = isCrit,
+                    AttackSequenceIndex = req.AttackSequenceIndex,
+                });
+            }
             CombatEvents.OnCombatParticipationUnit?.Invoke(req.SourceUnitUid, req.TargetUnitUid, CombatParticipationFlags.DamageDealt | CombatParticipationFlags.DamageTaken);
             if (nw <= fp.zero && target.LifeState == LifeState.Alive)
             {
@@ -451,31 +520,31 @@ namespace FrameSyncMoba.Unit
 
             var trackers = new List<DamageContributionTracker>(_contributionTrackers.Values);
             trackers.Sort((a, b) => a.VictimUid.CompareTo(b.VictimUid));
-            _snapshot.ContributionTrackers = new DamageContributionTrackerSnapshot[trackers.Count];
+            _snapshot.ContributionTrackers = new System.Collections.Generic.List<DamageContributionTrackerSnapshot>(trackers.Count);
             for (int index = 0; index < trackers.Count; index++)
             {
                 DamageContributionTracker tracker = trackers[index];
                 var contributors = tracker.GetContributorsByUid();
-                var records = new DamageContributionRecordSnapshot[contributors.Count];
+                var records = new System.Collections.Generic.List<DamageContributionRecordSnapshot>(contributors.Count);
                 for (int i = 0; i < contributors.Count; i++)
                 {
                     DamageContributionRecord record = contributors[i];
-                    records[i] = new DamageContributionRecordSnapshot
+                    records.Add(new DamageContributionRecordSnapshot
                     {
                         ContributorHeroUid = record.ContributorHeroUid,
                         LastContributionLogicTick = record.LastContributionLogicTick,
                         ContributionValue = record.ContributionValue,
                         ExpireLogicTick = record.ExpireLogicTick,
-                    };
+                    });
                 }
-                _snapshot.ContributionTrackers[index] = new DamageContributionTrackerSnapshot
+                _snapshot.ContributionTrackers.Add(new DamageContributionTrackerSnapshot
                 {
                     VictimUnitUid = tracker.VictimUid,
                     Records = records,
-                };
+                });
             }
             _deferredBuffer.Sort(CompareDeferredRequests);
-            _snapshot.DeferredRequests = _deferredBuffer.ToArray();
+            _snapshot.DeferredRequests = new System.Collections.Generic.List<DeferredCombatRequest>(_deferredBuffer);
         }
 
         public void Capture(ref CombatSnapshot snapshot) { FreezeSnapshot(); snapshot = _snapshot; }
@@ -489,7 +558,7 @@ namespace FrameSyncMoba.Unit
             if (snapshot.ContributionTrackers != null)
             {
                 UnitUid previousVictim = default;
-                for (int i = 0; i < snapshot.ContributionTrackers.Length; i++)
+                for (int i = 0; i < snapshot.ContributionTrackers.Count; i++)
                 {
                     DamageContributionTrackerSnapshot trackerState = snapshot.ContributionTrackers[i];
                     if (!trackerState.VictimUnitUid.IsValid() ||
@@ -502,7 +571,7 @@ namespace FrameSyncMoba.Unit
                     if (trackerState.Records != null)
                     {
                         UnitUid previousContributor = default;
-                        for (int j = 0; j < trackerState.Records.Length; j++)
+                        for (int j = 0; j < trackerState.Records.Count; j++)
                         {
                             UnitUid contributor =
                                 trackerState.Records[j].ContributorHeroUid;

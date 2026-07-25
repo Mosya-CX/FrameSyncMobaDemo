@@ -13,6 +13,12 @@ namespace FrameSyncMoba.Unit
         public int PeriodicIntervalTicks;
         public BuffEffect[] Effects;
 
+        /// <summary>Dispel priority (0 = highest, 255 = lowest). Used when MaxBuffs is reached.</summary>
+        public byte Priority;
+
+        /// <summary>Optional tag for mass dispel (RemoveBuffsByTag). 0 = no tag.</summary>
+        public byte Tag;
+
         public bool IsValid => ConfigId.IsValid;
     }
 }

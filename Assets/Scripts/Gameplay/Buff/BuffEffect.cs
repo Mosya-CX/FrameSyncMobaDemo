@@ -9,6 +9,9 @@ namespace FrameSyncMoba.Unit
         public abstract void OnRemoved(BuffRuntime runtime, Unit owner);
         public virtual void OnStackChanged(BuffRuntime runtime, Unit owner, int oldStacks, int newStacks) { }
 
+        /// <summary>Called each tick from BuffHandler.Advance(). Override for periodic effects.</summary>
+        public virtual void OnTick(BuffRuntime runtime, Unit owner) { }
+
         public virtual void ClearForDeath(BuffRuntime runtime, Unit owner) { }
 
         public virtual void ClearForRespawn(BuffRuntime runtime, Unit owner) { }
@@ -20,6 +23,7 @@ namespace FrameSyncMoba.Unit
         public virtual void OnUnitDying(BuffRuntime runtime, Unit owner) { }
         public virtual void OnUnitDeath(BuffRuntime runtime, Unit owner) { }
         public virtual void OnUnitKill(BuffRuntime runtime, Unit owner, Unit victim) { }
+        public virtual void OnHitDealt(BuffRuntime runtime, Unit owner, in OnHitEventData data) { }
         public virtual void OnUnitCollisionEnter(
             BuffRuntime runtime,
             Unit owner,

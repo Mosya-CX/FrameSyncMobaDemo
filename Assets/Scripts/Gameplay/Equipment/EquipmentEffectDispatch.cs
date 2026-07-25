@@ -10,6 +10,12 @@ namespace FrameSyncMoba.Unit
     {
         private readonly Unit _owner;
 
+        // Context data for event-driven modules. Set by event handlers before dispatch.
+        internal DamageEventData LastDamageDealt;
+        internal HealEventData LastHealDealt;
+        internal UnitUid LastKillVictimUid;
+        internal OnHitEventData LastOnHit;
+
         public EquipmentEffectDispatch(Unit owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -86,11 +92,12 @@ namespace FrameSyncMoba.Unit
         }
 
         public void OnDamageTaken(in DamageEventData data) => DispatchForTiming(EquipmentEffectInvokeTiming.DamageTaken);
-        public void OnDamageDealt(in DamageEventData data) => DispatchForTiming(EquipmentEffectInvokeTiming.DamageDealt);
+        public void OnDamageDealt(in DamageEventData data) { LastDamageDealt = data; DispatchForTiming(EquipmentEffectInvokeTiming.DamageDealt); }
         public void OnHealTaken(in HealEventData data) => DispatchForTiming(EquipmentEffectInvokeTiming.HealTaken);
-        public void OnHealDealt(in HealEventData data) => DispatchForTiming(EquipmentEffectInvokeTiming.HealDealt);
+        public void OnHealDealt(in HealEventData data) { LastHealDealt = data; DispatchForTiming(EquipmentEffectInvokeTiming.HealDealt); }
         public void OnUnitDying(Unit unit) => DispatchForTiming(EquipmentEffectInvokeTiming.UnitDying);
         public void OnUnitDeath(Unit unit) => DispatchForTiming(EquipmentEffectInvokeTiming.UnitDeath);
-        public void OnUnitKill(Unit unit) => DispatchForTiming(EquipmentEffectInvokeTiming.UnitKill);
+        public void OnUnitKill(Unit unit) { LastKillVictimUid = unit?.UnitUid ?? default; DispatchForTiming(EquipmentEffectInvokeTiming.UnitKill); }
+        public void OnHitDealt(in OnHitEventData data) { LastOnHit = data; DispatchForTiming(EquipmentEffectInvokeTiming.OnHitDealt); }
     }
 }

@@ -3,8 +3,17 @@ using UnityEngine;
 
 namespace FrameSyncMoba.Physics
 {
+    /// <summary>
+    /// MonoBehaviour component owning the authoritative 2D logical transform.
+    /// Pathfinding Design v13.1 v13.1 patch note:
+    /// "冻结所有帧同步 GameObject 的 Unity Transform 唯一写入点为 PhysicsEntity2D.LateUpdate"
+    /// </summary>
     public sealed class PhysicsEntity2D : MonoBehaviour
     {
+        [SerializeField]
+        [Tooltip("When enabled, LateUpdate syncs the logical Transform2D to the Unity Transform.")]
+        private bool syncTransform = true;
+
         public PhysicsTransform2D Transform2D { get; private set; }
 
         public PhysicsShape2D Shape { get; private set; }
@@ -114,6 +123,31 @@ namespace FrameSyncMoba.Physics
             Bounds = default;
             QueryInfo = default;
         }
+
+        /// <summary>
+        /// Sole write point for Unity Transform from logical position.
+        /// (Pathfinding Design v13.1 v13.1 patch note)
+        /// Converts fp Transform2D to Vector3 and assigns to transform.position/forward.
+        /// </summary>
+        private void LateUpdate()
+        {
+            if (!syncTransform) return;
+
+            var pos2D = Transform2D.Position;
+            transform.position = new Vector3(
+                (float)pos2D.x,
+                0f,
+                (float)pos2D.y);
+
+            var fwd2D = Transform2D.Forward;
+            if (fwd2D.x != fp.zero || fwd2D.y != fp.zero)
+            {
+                var fwd = new Vector3((float)fwd2D.x, 0f, (float)fwd2D.y);
+                if (fwd.sqrMagnitude > 0.0001f)
+                    transform.forward = fwd.normalized;
+            }
+        }
+
         private void CommitTransform(in PhysicsTransform2D transform)
         {
             PhysicsBounds2D bounds = PhysicsGeometry2D.CalculateBounds(transform, Shape);

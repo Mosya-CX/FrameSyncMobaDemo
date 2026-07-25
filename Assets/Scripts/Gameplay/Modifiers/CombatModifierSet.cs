@@ -147,35 +147,23 @@ namespace FrameSyncMoba.Unit
         /// </summary>
         public void Capture(ref CombatModifierSetSnapshot state)
         {
-            if (state.Ids == null)
-            {
-                state.Ids = new List<ulong>(records.Count);
-            }
-            else
-            {
-                state.Ids.Clear();
-            }
-
-            if (state.Records == null)
-            {
-                state.Records = new List<CombatModifierRecord>(records.Count);
-            }
-            else
-            {
-                state.Records.Clear();
-            }
+            var idsList = new List<ulong>(records.Count);
+            var recordsList = new List<CombatModifierRecord>(records.Count);
 
             for (int i = 0; i < records.Count; i++)
             {
                 CombatModifierRecord original = records[i];
-                state.Ids.Add(original.Id);
+                idsList.Add(original.Id);
 
                 var copy = new CombatModifierRecord
                 {
                     Id = original.Id,
                 };
-                state.Records.Add(copy);
+                recordsList.Add(copy);
             }
+
+            state.Ids = idsList.ToArray();
+            state.Records = recordsList.ToArray();
         }
 
         /// <summary>
@@ -189,7 +177,7 @@ namespace FrameSyncMoba.Unit
             records.Clear();
             idToIndex.Clear();
 
-            for (int i = 0; i < state.Records.Count; i++)
+            for (int i = 0; i < state.Records.Length; i++)
             {
                 CombatModifierRecord record = state.Records[i];
                 idToIndex[record.Id] = records.Count;

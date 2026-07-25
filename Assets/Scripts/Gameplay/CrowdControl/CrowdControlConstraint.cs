@@ -82,9 +82,9 @@ namespace FrameSyncMoba.Unit
 
     public struct CrowdControlHandlerSnapshot
     {
-        public CrowdControlConstraint[] Instances;
-        public CrowdControlImmunitySnapshot[] Immunities;
-        public CrowdControlUnstoppableSnapshot[] Unstoppables;
+        public System.Collections.Generic.List<CrowdControlConstraint> Instances;
+        public System.Collections.Generic.List<CrowdControlImmunitySnapshot> Immunities;
+        public System.Collections.Generic.List<CrowdControlUnstoppableSnapshot> Unstoppables;
         public int NextInstanceId;
         public int NextImmunityId;
         public int NextUnstoppableId;

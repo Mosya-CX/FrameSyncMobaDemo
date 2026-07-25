@@ -1,0 +1,21 @@
+{
+    "name": "FrameSyncMoba.LuaBridge",
+    "rootNamespace": "FrameSyncMoba.LuaBridge",
+    "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.FrameSync",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

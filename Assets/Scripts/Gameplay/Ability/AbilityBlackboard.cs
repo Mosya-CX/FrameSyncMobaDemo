@@ -34,7 +34,7 @@ namespace FrameSyncMoba.Unit
 
     public struct AbilityBlackboardSnapshot
     {
-        public AbilityBlackboardEntrySnapshot[] Entries;
+        public System.Collections.Generic.List<AbilityBlackboardEntrySnapshot> Entries;
     }
 
     public sealed class AbilityBlackboard
@@ -71,17 +71,16 @@ namespace FrameSyncMoba.Unit
                 int comparison = a.KeyId.CompareTo(b.KeyId);
                 return comparison != 0 ? comparison : a.Kind.CompareTo(b.Kind);
             });
-            return new AbilityBlackboardSnapshot { Entries = entries.ToArray() };
+            return new AbilityBlackboardSnapshot { Entries = new System.Collections.Generic.List<AbilityBlackboardEntrySnapshot>(entries) };
         }
 
         public void Restore(in AbilityBlackboardSnapshot snapshot)
         {
             Clear();
-            AbilityBlackboardEntrySnapshot[] entries =
-                snapshot.Entries ?? Array.Empty<AbilityBlackboardEntrySnapshot>();
+            var entries = snapshot.Entries ?? new System.Collections.Generic.List<AbilityBlackboardEntrySnapshot>();
             int previousKey = -1;
             AbilityBlackboardValueKind previousKind = 0;
-            for (int i = 0; i < entries.Length; i++)
+            for (int i = 0; i < entries.Count; i++)
             {
                 AbilityBlackboardEntrySnapshot entry = entries[i];
                 if (entry.KeyId <= 0 ||

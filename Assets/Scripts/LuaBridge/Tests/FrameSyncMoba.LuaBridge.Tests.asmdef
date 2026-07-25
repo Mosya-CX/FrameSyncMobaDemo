@@ -1,0 +1,23 @@
+{
+    "name": "FrameSyncMoba.LuaBridge.Tests",
+    "rootNamespace": "FrameSyncMoba.LuaBridge.Tests",
+    "references": [
+        "FrameSyncMoba.LuaBridge",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Deterministic",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "noEngineReferences": false
+}

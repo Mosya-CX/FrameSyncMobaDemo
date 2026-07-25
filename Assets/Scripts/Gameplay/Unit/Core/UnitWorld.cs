@@ -30,6 +30,11 @@ namespace FrameSyncMoba.Unit
         public RespawnTimer RespawnTimer { get; set; }
         public DeathEffectDispatcher DeathEffectDispatcher { get; set; }
         public PathGridMap2D PathGrid { get; set; }
+        public FlowFieldRegistry FlowFieldRegistry { get; set; }
+        public CombatSystem CombatSystem { get; set; }
+        public ProjectileWorld ProjectileWorld { get; set; }
+        public RangeQueryService RangeQuery { get; set; }
+        public DeterministicRandomService RandomService { get; set; }
         public IReadOnlyList<UnitAIController> AIControllers => aiControllers;
         public int RuntimeRevision => runtimeRevision;
 
@@ -234,6 +239,7 @@ namespace FrameSyncMoba.Unit
                 RegisterUnit(unit);
                 unitRegistered = true;
                 if (PathGrid != null) unit.Locomotion = new UnitLocomotionAgent(unit, PathGrid);
+                if (FlowFieldRegistry != null) unit.Locomotion?.SetFlowFieldRegistry(FlowFieldRegistry);
                 runtimeRevision++;
                 return unit;
             }
@@ -317,6 +323,13 @@ namespace FrameSyncMoba.Unit
         {
             if (unit == null) throw new ArgumentNullException(nameof(unit));
             ValidateTransition(unit, LifeState.Dead, LifeState.Dying);
+
+            // Pathfinding Design v13.1 section 11.10 — formal death cleanup chain
+            // Each module clears only its own runtime state.
+            unit.CrowdControl?.ClearForDeath();
+            unit.MovementHandler?.ClearForDeath();
+            unit.Locomotion?.ClearForDeath();
+
             unit.ApplyLifeStateFromUnitWorld(LifeState.Dead);
             ref CapabilityState capability = ref unit.RefCapabilityState();
             capability.DisableAllActions();

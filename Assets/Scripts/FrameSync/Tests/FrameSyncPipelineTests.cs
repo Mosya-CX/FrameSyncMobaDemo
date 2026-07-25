@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
@@ -108,7 +108,7 @@ namespace FrameSyncMoba.FrameSync.Tests
 
             var pipeline = new SimulationTickPipeline(_world);
             var runtime = new FrameSyncGameRuntime(
-                _world, null, 0, 0, 180, 300, 60, (fp)7 / (fp)10);
+                _world, null, 0, 0, 180, 300, 60, (fp)7 / (fp)10, 42u);
 
             // Submit a move command
             var unit2 = _world.GetAllUnits()[0];
@@ -215,7 +215,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             var world = CreateWorldWithUnit();
             world.GetAllUnits()[0].MovementHandler.SetMoveSpeed(4m);
             return new FrameSyncGameRuntime(
-                world, null, 0, 0, 180, 300, 60, (fp)7 / (fp)10);
+                world, null, 0, 0, 180, 300, 60, (fp)7 / (fp)10, 42u);
         }
 
         private static CommandHeader CreateHeader(

@@ -133,9 +133,9 @@ namespace FrameSyncMoba.Unit
         {
             state.WaveIndex = _waveIndex;
             state.NextWaveLogicTick = _nextWaveLogicTick;
-            state.PendingTickets = new List<MinionTicket>(_pendingTickets);
+            state.PendingTickets = _pendingTickets.ToArray();
             state.NextTicketCursor = _nextTicketCursor;
-            state.ManagedMinionUids = new List<UnitUid>(_managedMinionUids);
+            state.ManagedMinionUids = _managedMinionUids.ToArray();
         }
 
         public void Restore(in MinionSystemSnapshot state)
@@ -146,7 +146,7 @@ namespace FrameSyncMoba.Unit
             UnitUid previousTicket = default;
             if (state.PendingTickets != null)
             {
-                for (int i = 0; i < state.PendingTickets.Count; i++)
+                for (int i = 0; i < state.PendingTickets.Length; i++)
                 {
                     MinionTicket ticket = state.PendingTickets[i];
                     if (!ticket.UnitUid.IsValid() ||
@@ -164,7 +164,7 @@ namespace FrameSyncMoba.Unit
             UnitUid previousManaged = default;
             if (state.ManagedMinionUids != null)
             {
-                for (int i = 0; i < state.ManagedMinionUids.Count; i++)
+                for (int i = 0; i < state.ManagedMinionUids.Length; i++)
                 {
                     UnitUid uid = state.ManagedMinionUids[i];
                     if (!uid.IsValid() || (i > 0 && previousManaged.CompareTo(uid) >= 0))

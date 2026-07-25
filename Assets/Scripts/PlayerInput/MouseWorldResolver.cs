@@ -14,6 +14,11 @@ namespace FrameSyncMoba.PlayerInput
         private readonly List<UnitHitCandidate> candidates = new List<UnitHitCandidate>();
         private readonly HashSet<UnitUid> deduplication = new HashSet<UnitUid>();
 
+        /// <summary>
+        /// Last recorded screen position, updated each frame by the input controller.
+        /// </summary>
+        public Vector2 LastScreenPosition { get; set; }
+
         public MouseWorldResolver(
             Camera camera,
             fp groundY,

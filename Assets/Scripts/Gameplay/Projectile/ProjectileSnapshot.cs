@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
@@ -15,12 +15,12 @@ namespace FrameSyncMoba.Unit
         public int RemainingLifetimeTicks;
         public bool IsActive;
         public int HitCount;
-        public List<UnitUid> HitTargets;
+        public UnitUid[] HitTargets;
     }
 
     /// <summary>
     /// A projectile spawn requested but not yet activated this Tick.
-    /// (Snapshot Appendix v7.2 §6)
+    /// (Snapshot Appendix v7.2 section 6)
     /// </summary>
     public struct PendingSpawnRecordSnapshot
     {
@@ -34,13 +34,13 @@ namespace FrameSyncMoba.Unit
 
     public struct ProjectileWorldSnapshot
     {
-        public List<PendingSpawnRecordSnapshot> PendingSpawns;
-        public List<ProjectileRuntimeSnapshot> ActiveProjectiles;
+        public PendingSpawnRecordSnapshot[] PendingSpawns;
+        public ProjectileRuntimeSnapshot[] ActiveProjectiles;
 
         public static readonly ProjectileWorldSnapshot Empty = new ProjectileWorldSnapshot
         {
-            PendingSpawns = new List<PendingSpawnRecordSnapshot>(),
-            ActiveProjectiles = new List<ProjectileRuntimeSnapshot>(),
+            PendingSpawns = Array.Empty<PendingSpawnRecordSnapshot>(),
+            ActiveProjectiles = Array.Empty<ProjectileRuntimeSnapshot>(),
         };
     }
 }

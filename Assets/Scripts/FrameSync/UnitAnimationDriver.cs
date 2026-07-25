@@ -4,13 +4,6 @@ using UnitType = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.FrameSync
 {
-    /// <summary>
-    /// MonoBehaviour that reads deterministic Gameplay state each frame
-    /// and drives the owner Unit's Animator accordingly.
-    ///
-    /// Does NOT write root Transform (PhysicsEntity2D owns that).
-    /// Does NOT read AbilityCastEvent or other presentation events.
-    /// </summary>
     public sealed class UnitAnimationDriver : MonoBehaviour
     {
         [SerializeField] private Animator _animator;
@@ -22,11 +15,15 @@ namespace FrameSyncMoba.FrameSync
         private static readonly int ParamMoveSpeed = Animator.StringToHash("MoveSpeed");
         private static readonly int ParamIsAttacking = Animator.StringToHash("IsAttacking");
         private static readonly int ParamAttackSpeed = Animator.StringToHash("AttackSpeed");
+        private static readonly int ParamAttackSequence = Animator.StringToHash("AttackSequence");
+        private static readonly int ParamAttackPhase = Animator.StringToHash("AttackPhase");
+        private static readonly int ParamWindupProgress = Animator.StringToHash("WindupProgress");
         private static readonly int ParamIsCasting = Animator.StringToHash("IsCasting");
         private static readonly int ParamCastStage = Animator.StringToHash("CastStage");
         private static readonly int ParamIsDead = Animator.StringToHash("IsDead");
         private static readonly int ParamHitReaction = Animator.StringToHash("HitReaction");
         private static readonly int ParamHitReactionKind = Animator.StringToHash("HitReactionKind");
+        private static readonly int ParamHitReactionProgress = Animator.StringToHash("HitReactionProgress");
 
         private void Awake()
         {
@@ -42,7 +39,6 @@ namespace FrameSyncMoba.FrameSync
 
             UnitType unit = _host.OwnerUnit;
 
-            // LifeState / death
             bool isDead = unit.LifeState == LifeState.Dead
                        || unit.LifeState == LifeState.Respawning;
             _animator.SetBool(ParamIsDead, isDead);
@@ -57,7 +53,6 @@ namespace FrameSyncMoba.FrameSync
                 return;
             }
 
-            // Movement
             var movement = unit.MovementHandler;
             bool isMoving = false;
             float moveSpeed = 0f;
@@ -75,18 +70,25 @@ namespace FrameSyncMoba.FrameSync
             _animator.SetBool(ParamIsMoving, isMoving);
             _animator.SetFloat(ParamMoveSpeed, moveSpeed);
 
-            // Attack
             var attack = unit.AttackHandler;
             bool isAttacking = false;
             float attackSpeed = 1f;
+            int attackSequence = 0;
+            float attackPhase = 0f;
+            float windupProgress = 0f;
             if (attack != null)
             {
+                var attackAnim = attack.GetAnimationSnapshot();
+                isAttacking = attackAnim.IsAttacking;
+                attackSequence = attackAnim.SequenceIndex;
+                windupProgress = attackAnim.WindupProgress;
+
+                if (attackAnim.ImpactCommitted)
+                    attackPhase = 0.5f + 0.5f * attackAnim.RecoveryProgress;
+                else if (isAttacking)
+                    attackPhase = 0.5f * windupProgress;
+
                 var attackSnap = attack.Snapshot;
-                int now = Deterministic.SimulationTickContext.Current.Tick;
-                isAttacking = attackSnap.CurrentTargetUid.IsValid()
-                           && now >= attackSnap.AttackStartLogicTick
-                           && now < attackSnap.NextAttackReadyLogicTick
-                           && !attackSnap.ImpactCommitted;
                 if (attackSnap.NextAttackReadyLogicTick > attackSnap.AttackStartLogicTick)
                 {
                     int totalTicks = attackSnap.NextAttackReadyLogicTick - attackSnap.AttackStartLogicTick;
@@ -95,20 +97,37 @@ namespace FrameSyncMoba.FrameSync
             }
             _animator.SetBool(ParamIsAttacking, isAttacking);
             _animator.SetFloat(ParamAttackSpeed, attackSpeed);
+            _animator.SetInteger(ParamAttackSequence, attackSequence);
+            _animator.SetFloat(ParamAttackPhase, attackPhase);
+            _animator.SetFloat(ParamWindupProgress, windupProgress);
 
-            // Ability cast — deferred: AbilityHandler does not expose ActiveSession publicly.
-            // When AbilityCastView or a public session getter is added, wire here.
-            _animator.SetBool(ParamIsCasting, false);
-            _animator.SetInteger(ParamCastStage, 0);
+            var abilityHandler = unit.AbilityHandler;
+            bool isCasting = false;
+            int castStage = 0;
+            if (abilityHandler != null)
+            {
+                var activeCasts = abilityHandler.ActiveCasts;
+                if (activeCasts != null && activeCasts.Count > 0)
+                {
+                    var first = activeCasts[0];
+                    isCasting = true;
+                    castStage = first.StageKey;
+                }
+            }
+            _animator.SetBool(ParamIsCasting, isCasting);
+            _animator.SetInteger(ParamCastStage, castStage);
 
-            // Hit reaction
             var hit = unit.HitReaction;
             bool hasHitReaction = hit.IsActive;
+            float hitReactionProgress = 0f;
             _animator.SetBool(ParamHitReaction, hasHitReaction);
             if (hasHitReaction)
             {
                 _animator.SetInteger(ParamHitReactionKind, (int)hit.ActiveReaction);
+                if (hit.TotalTicks > 0)
+                    hitReactionProgress = 1f - (float)hit.RemainingTicks / (float)hit.TotalTicks;
             }
+            _animator.SetFloat(ParamHitReactionProgress, hitReactionProgress);
         }
     }
 }

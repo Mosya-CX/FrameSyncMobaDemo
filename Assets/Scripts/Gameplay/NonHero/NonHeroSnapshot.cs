@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using FrameSyncMoba.Deterministic;
 
 namespace FrameSyncMoba.Unit
@@ -7,9 +7,9 @@ namespace FrameSyncMoba.Unit
     {
         public int WaveIndex;
         public int NextWaveLogicTick;
-        public List<MinionTicket> PendingTickets;
+        public MinionTicket[] PendingTickets;
         public int NextTicketCursor;
-        public List<UnitUid> ManagedMinionUids;
+        public UnitUid[] ManagedMinionUids;
     }
 
     public struct MinionTicket
@@ -26,8 +26,8 @@ namespace FrameSyncMoba.Unit
     {
         public int CampId;
         public JungleCampState State;
-        public List<UnitUid> MemberUidsBySlot;
-        public List<bool> MemberAliveBySlot;
+        public UnitUid[] MemberUidsBySlot;
+        public bool[] MemberAliveBySlot;
         public bool MainMonsterDead;
         public UnitUid PrimaryTargetUid;
         public int LastHostileActionLogicTick;
@@ -89,16 +89,16 @@ namespace FrameSyncMoba.Unit
     public struct NonHeroWorldSnapshot
     {
         public MinionSystemSnapshot MinionSystemState;
-        public List<JungleCampSnapshot> JungleCampStates;
-        public List<UnitAIControllerSnapshot> AIControllerStates;
+        public JungleCampSnapshot[] JungleCampStates;
+        public UnitAIControllerSnapshot[] AIControllerStates;
 
         public static NonHeroWorldSnapshot CreateEmpty()
         {
             return new NonHeroWorldSnapshot
             {
                 MinionSystemState = default,
-                JungleCampStates = new List<JungleCampSnapshot>(),
-                AIControllerStates = new List<UnitAIControllerSnapshot>(),
+                JungleCampStates = Array.Empty<JungleCampSnapshot>(),
+                AIControllerStates = Array.Empty<UnitAIControllerSnapshot>(),
             };
         }
     }

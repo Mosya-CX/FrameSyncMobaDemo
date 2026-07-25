@@ -27,6 +27,8 @@ namespace FrameSyncMoba.Unit
     {
         public AbilityDef Definition;
         public int Level;
+        public UnitWorld World { get; set; }
+        public UnitUid CasterUnitUid;
         public int CooldownEndsAtTick;
         public AbilitySession ActiveSession;
         public AbilityPassiveEffectRuntime PassiveEffectRuntime;
@@ -67,6 +69,7 @@ namespace FrameSyncMoba.Unit
             state.AbilityId = Definition?.AbilityId ?? 0;
             state.Level = Level;
             state.CooldownEndsAtTick = CooldownEndsAtTick;
+            state.CasterUnitUid = CasterUnitUid;
             state.HasActiveSession = ActiveSession != null;
             state.HasPassiveEffectRuntime = PassiveEffectRuntime != null;
             if (PassiveEffectRuntime != null)
@@ -93,6 +96,7 @@ namespace FrameSyncMoba.Unit
                     $"Ability runtime snapshot definition mismatch for AbilityId {state.AbilityId}.");
             Level = state.Level;
             CooldownEndsAtTick = state.CooldownEndsAtTick;
+            CasterUnitUid = state.CasterUnitUid;
             if (state.HasPassiveEffectRuntime)
             {
                 if (Definition.PassiveEffect == null)
@@ -140,6 +144,7 @@ namespace FrameSyncMoba.Unit
         public int AbilityId;
         public int Level;
         public int CooldownEndsAtTick;
+        public UnitUid CasterUnitUid;
         public bool HasActiveSession;
         public AbilitySessionSnapshot ActiveSession;
         public bool HasPassiveEffectRuntime;

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
 using FrameSyncMoba.Unit;
@@ -29,20 +29,24 @@ namespace FrameSyncMoba.FrameSync
         public EquipmentHandlerSnapshot EquipmentState;
     }
 
+    /// <summary>
+    /// Snapshot of the entire UnitWorld for rollback.
+    /// Uses T[] arrays per Snapshot Appendix v7.2 section 5.
+    /// </summary>
     public struct UnitWorldSnapshot
     {
-        public List<UnitSnapshot> Units;
+        public UnitSnapshot[] Units;
         public MinionSystemSnapshot MinionSystemState;
         public RespawnTimerSnapshot PendingUnitLifecycleState;
-        public List<JungleCampSnapshot> JungleCampStates;
-        public List<UnitAIControllerSnapshot> AIControllerStates;
+        public JungleCampSnapshot[] JungleCampStates;
+        public UnitAIControllerSnapshot[] AIControllerStates;
         public int RuntimeRevision;
 
         public static UnitWorldSnapshot CreateEmpty() => new UnitWorldSnapshot
         {
-            Units = new List<UnitSnapshot>(),
-            JungleCampStates = new List<JungleCampSnapshot>(),
-            AIControllerStates = new List<UnitAIControllerSnapshot>(),
+            Units = Array.Empty<UnitSnapshot>(),
+            JungleCampStates = Array.Empty<JungleCampSnapshot>(),
+            AIControllerStates = Array.Empty<UnitAIControllerSnapshot>(),
         };
     }
 

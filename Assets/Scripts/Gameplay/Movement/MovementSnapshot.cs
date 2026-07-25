@@ -21,7 +21,7 @@ namespace FrameSyncMoba.Unit
         /// Shallow-copied path cell indices for rollback restore.
         /// null when no path-following is active.
         /// </summary>
-        public int[] SnapshotPathCellIndices;
+        public System.Collections.Generic.List<int> SnapshotPathCellIndices;
 
         public static readonly MovementSnapshot Default = new MovementSnapshot
         {

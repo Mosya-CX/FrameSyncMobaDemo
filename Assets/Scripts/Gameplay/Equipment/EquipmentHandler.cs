@@ -29,6 +29,7 @@ namespace FrameSyncMoba.Unit
         public void OnUnitDying(Unit unit) => _effectDispatch?.OnUnitDying(unit);
         public void OnUnitDeath(Unit unit) => _effectDispatch?.OnUnitDeath(unit);
         public void OnUnitKill(Unit victim) => _effectDispatch?.OnUnitKill(victim);
+        public void OnHitDealt(in OnHitEventData data) => _effectDispatch?.OnHitDealt(data);
 
         public override void InitializeForNewRuntime()
         {
@@ -151,6 +152,7 @@ namespace FrameSyncMoba.Unit
 
             // Fire OnEquipped effect modules
             DispatchOnEquipped(instance);
+            TrackAppliedBuffs(instance);
             return true;
         }
 
@@ -160,6 +162,7 @@ namespace FrameSyncMoba.Unit
             var instance = _slots[slot];
             if (instance == null) return false;
 
+            RemoveAppliedBuffs(instance);
             ReleaseFixedStats(instance);
             ReleaseEffectRuntimes(instance);
             DispatchOnUnequipped(instance);
@@ -199,12 +202,47 @@ namespace FrameSyncMoba.Unit
             instance.EffectRuntimes = null;
         }
 
+        private void TrackAppliedBuffs(EquipmentInstance instance)
+        {
+            // BuffEquipmentModules are dispatched via OnEquipped timing.
+            // After dispatch, find which buffs were applied and track them.
+            if (instance.Definition?.Effects == null || _owner.BuffHandler == null)
+                return;
+            for (int fxIdx = 0; fxIdx < instance.Definition.Effects.Length; fxIdx++)
+            {
+                var fxDef = instance.Definition.Effects[fxIdx];
+                if (fxDef?.Modules == null) continue;
+                for (int modIdx = 0; modIdx < fxDef.Modules.Length; modIdx++)
+                {
+                    if (fxDef.Modules[modIdx] is BuffEquipmentModule buffMod &&
+                        buffMod.BuffConfigId.IsValid)
+                    {
+                        if (instance._appliedBuffConfigIds == null)
+                            instance._appliedBuffConfigIds = new System.Collections.Generic.List<int>();
+                        instance._appliedBuffConfigIds.Add(buffMod.BuffConfigId.Value);
+                    }
+                }
+            }
+        }
+
+        private void RemoveAppliedBuffs(EquipmentInstance instance)
+        {
+            if (instance._appliedBuffConfigIds == null || _owner.BuffHandler == null)
+                return;
+            for (int i = 0; i < instance._appliedBuffConfigIds.Count; i++)
+            {
+                _owner.BuffHandler.Remove(new BuffConfigId(instance._appliedBuffConfigIds[i]));
+            }
+            instance._appliedBuffConfigIds = null;
+        }
+
         public override void ClearForDeath()
         {
             for (int i = 0; i < SlotCount; i++)
             {
                 var inst = _slots[i];
                 if (inst == null) continue;
+                RemoveAppliedBuffs(inst);
                 ReleaseFixedStats(inst);
                 ReleaseEffectRuntimes(inst);
             }
@@ -247,6 +285,7 @@ namespace FrameSyncMoba.Unit
             {
                 var inst = _slots[i];
                 if (inst == null) continue;
+                RemoveAppliedBuffs(inst);
                 ReleaseFixedStats(inst);
                 ReleaseEffectRuntimes(inst);
             }
@@ -258,6 +297,12 @@ namespace FrameSyncMoba.Unit
         {
             _effectDispatch?.Advance();
         }
+
+        /// <summary>
+        /// Expose the effect dispatch for modules that need context data.
+        /// Internal: used by EquipmentEffectModule subclasses.
+        /// </summary>
+        internal EquipmentEffectDispatch GetEffectDispatch() => _effectDispatch;
 
         private void DispatchOnEquipped(EquipmentInstance instance)
         {
@@ -294,9 +339,9 @@ namespace FrameSyncMoba.Unit
         public void Capture(ref EquipmentHandlerSnapshot state)
         {
             if (state.Slots == null)
-                state.Slots = new EquipmentSlotSnapshot[SlotCount];
-            else if (state.Slots.Length != SlotCount)
-                state.Slots = new EquipmentSlotSnapshot[SlotCount];
+                state.Slots = new System.Collections.Generic.List<EquipmentSlotSnapshot>(SlotCount);
+            else if (state.Slots.Count != SlotCount)
+                state.Slots = new System.Collections.Generic.List<EquipmentSlotSnapshot>(SlotCount);
 
             for (int i = 0; i < SlotCount; i++)
             {
@@ -311,17 +356,16 @@ namespace FrameSyncMoba.Unit
                         StackCount = inst.StackCount,
                         ChargeCount = inst.ChargeCount,
                         ReadyTick = inst.ReadyTick,
-                        FixedStatHandles = CloneHandles(inst._fixedStatHandles),
+                        FixedStatHandles = CloneHandles(new System.Collections.Generic.List<StatModifierHandle>(inst._fixedStatHandles)),
                         EffectStates = CaptureEffectStates(inst.EffectRuntimes),
                     }
                     : EquipmentSlotSnapshot.Empty;
             }
 
             if (state.SharedCooldowns == null)
-                state.SharedCooldowns = new List<EquipmentSharedCooldownSnapshot>();
+                state.SharedCooldowns = new System.Collections.Generic.List<EquipmentSharedCooldownSnapshot>();
             else
                 state.SharedCooldowns.Clear();
-
             foreach (var kv in _sharedCooldowns)
             {
                 state.SharedCooldowns.Add(new EquipmentSharedCooldownSnapshot
@@ -346,14 +390,14 @@ namespace FrameSyncMoba.Unit
             _sharedCooldowns.Clear();
             _runtimeRevision = state.RuntimeRevision;
 
-            EquipmentSlotSnapshot[] slots = state.Slots ?? Array.Empty<EquipmentSlotSnapshot>();
-            if (slots.Length != SlotCount)
+            var slots = state.Slots ?? new System.Collections.Generic.List<EquipmentSlotSnapshot>();
+            if (slots.Count != SlotCount)
             {
                 throw new DeterministicSimulationException(
-                    $"Equipment snapshot has {slots.Length} slots; expected {SlotCount}.");
+                    $"Equipment snapshot has {slots.Count} slots; expected {SlotCount}.");
             }
 
-            for (int i = 0; i < slots.Length; i++)
+            for (int i = 0; i < slots.Count; i++)
             {
                 var ss = slots[i];
                 if (!ss.Occupied) continue;
@@ -369,13 +413,12 @@ namespace FrameSyncMoba.Unit
                     StackCount = ss.StackCount,
                     ChargeCount = ss.ChargeCount,
                     ReadyTick = ss.ReadyTick,
-                    _fixedStatHandles = CloneHandles(ss.FixedStatHandles),
+                    _fixedStatHandles = CloneHandles(ss.FixedStatHandles).ToArray(),
                     EffectRuntimes = RestoreEffectStates(definition, ss.EffectStates),
                 };
             }
 
-            List<EquipmentSharedCooldownSnapshot> cooldowns =
-                state.SharedCooldowns ?? new List<EquipmentSharedCooldownSnapshot>();
+            var cooldowns = state.SharedCooldowns ?? new System.Collections.Generic.List<EquipmentSharedCooldownSnapshot>();
             for (int i = 0; i < cooldowns.Count; i++)
             {
                 var sc = cooldowns[i];
@@ -414,38 +457,38 @@ namespace FrameSyncMoba.Unit
             return definition?.Tier == EquipmentTier.Consumable ? definition.MaxStack : 0;
         }
 
-        private static StatModifierHandle[] CloneHandles(StatModifierHandle[] handles)
+        private static System.Collections.Generic.List<StatModifierHandle> CloneHandles(System.Collections.Generic.List<StatModifierHandle> handles)
         {
-            if (handles == null || handles.Length == 0) return Array.Empty<StatModifierHandle>();
-            var clone = new StatModifierHandle[handles.Length];
-            Array.Copy(handles, clone, handles.Length);
+            if (handles == null || handles.Count == 0) return new System.Collections.Generic.List<StatModifierHandle>();
+            var clone = new System.Collections.Generic.List<StatModifierHandle>(handles.Count);
+            clone.AddRange(handles);
             return clone;
         }
 
-        private static EquipmentEffectRuntimeSnapshot[] CaptureEffectStates(
+        private static System.Collections.Generic.List<EquipmentEffectRuntimeSnapshot> CaptureEffectStates(
             EquipmentEffectRuntime[] runtimes)
         {
             if (runtimes == null || runtimes.Length == 0)
-                return Array.Empty<EquipmentEffectRuntimeSnapshot>();
+                return new System.Collections.Generic.List<EquipmentEffectRuntimeSnapshot>();
 
-            var result = new EquipmentEffectRuntimeSnapshot[runtimes.Length];
+            var result = new System.Collections.Generic.List<EquipmentEffectRuntimeSnapshot>(runtimes.Length);
             for (int i = 0; i < runtimes.Length; i++)
             {
-                EquipmentEffectModuleRuntimeState[] modules = runtimes[i]?.ModuleStates;
+                var modules = runtimes[i]?.ModuleStates;
                 var moduleClone = modules == null
-                    ? Array.Empty<EquipmentEffectModuleRuntimeState>()
-                    : (EquipmentEffectModuleRuntimeState[])modules.Clone();
-                result[i] = new EquipmentEffectRuntimeSnapshot { ModuleStates = moduleClone };
+                    ? new System.Collections.Generic.List<EquipmentEffectModuleRuntimeState>()
+                    : new System.Collections.Generic.List<EquipmentEffectModuleRuntimeState>(modules);
+                result.Add(new EquipmentEffectRuntimeSnapshot { ModuleStates = moduleClone });
             }
             return result;
         }
 
         private static EquipmentEffectRuntime[] RestoreEffectStates(
             EquipmentDefinition definition,
-            EquipmentEffectRuntimeSnapshot[] states)
+            System.Collections.Generic.List<EquipmentEffectRuntimeSnapshot> states)
         {
             int expectedCount = definition.Effects?.Length ?? 0;
-            int stateCount = states?.Length ?? 0;
+            int stateCount = states?.Count ?? 0;
             if (stateCount != expectedCount)
             {
                 throw new DeterministicSimulationException(
@@ -456,14 +499,14 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < expectedCount; i++)
             {
                 var runtime = new EquipmentEffectRuntime(definition.Effects[i]);
-                EquipmentEffectModuleRuntimeState[] source = states[i].ModuleStates
-                    ?? Array.Empty<EquipmentEffectModuleRuntimeState>();
-                if (source.Length != runtime.ModuleStates.Length)
+                var source = states[i].ModuleStates
+                    ?? new System.Collections.Generic.List<EquipmentEffectModuleRuntimeState>();
+                if (source.Count != runtime.ModuleStates.Length)
                 {
                     throw new DeterministicSimulationException(
                         $"Equipment {definition.Id} effect {i} module-state count mismatch.");
                 }
-                Array.Copy(source, runtime.ModuleStates, source.Length);
+                for (int k = 0; k < source.Count; k++) runtime.ModuleStates[k] = source[k];
                 result[i] = runtime;
             }
             return result;
@@ -478,6 +521,7 @@ namespace FrameSyncMoba.Unit
         public int ReadyTick;
         public EquipmentEffectRuntime[] EffectRuntimes;
         internal StatModifierHandle[] _fixedStatHandles;
+        internal System.Collections.Generic.List<int> _appliedBuffConfigIds;
     }
 
     public readonly struct EquipmentFixedStat
@@ -508,14 +552,14 @@ namespace FrameSyncMoba.Unit
         public int StackCount;
         public int ChargeCount;
         public int ReadyTick;
-        public StatModifierHandle[] FixedStatHandles;
-        public EquipmentEffectRuntimeSnapshot[] EffectStates;
+        public System.Collections.Generic.List<StatModifierHandle> FixedStatHandles;
+        public System.Collections.Generic.List<EquipmentEffectRuntimeSnapshot> EffectStates;
         public static readonly EquipmentSlotSnapshot Empty = default;
     }
 
     public struct EquipmentEffectRuntimeSnapshot
     {
-        public EquipmentEffectModuleRuntimeState[] ModuleStates;
+        public System.Collections.Generic.List<EquipmentEffectModuleRuntimeState> ModuleStates;
     }
 
     public struct EquipmentSharedCooldownSnapshot
@@ -526,13 +570,13 @@ namespace FrameSyncMoba.Unit
 
     public struct EquipmentHandlerSnapshot
     {
-        public EquipmentSlotSnapshot[] Slots;
-        public List<EquipmentSharedCooldownSnapshot> SharedCooldowns;
+        public System.Collections.Generic.List<EquipmentSlotSnapshot> Slots;
+        public System.Collections.Generic.List<EquipmentSharedCooldownSnapshot> SharedCooldowns;
         public int RuntimeRevision;
         public static readonly EquipmentHandlerSnapshot Empty = new EquipmentHandlerSnapshot
         {
-            Slots = new EquipmentSlotSnapshot[EquipmentHandler.SlotCount],
-            SharedCooldowns = new List<EquipmentSharedCooldownSnapshot>(),
+            Slots = new System.Collections.Generic.List<EquipmentSlotSnapshot>(EquipmentHandler.SlotCount),
+            SharedCooldowns = new System.Collections.Generic.List<EquipmentSharedCooldownSnapshot>(),
         };
     }
 }

@@ -33,6 +33,7 @@ namespace FrameSyncMoba.Unit
     {
         public MoveTarget Target;
         public MovePurpose Purpose;
+        public RouteKind Kind;
         public fp StopDistance;
         public bool AllowRepath;
         public bool AllowRVO;

@@ -78,8 +78,8 @@ namespace FrameSyncMoba.FrameSync
     public struct GoldIncomeSnapshot
     {
         public int ConfirmedIncomeThroughTick;
-        public int[] ConfirmedEarnedGoldTotals;
-        public GoldIncomeRecordBatch[] UnconfirmedBatches;
+        public System.Collections.Generic.List<int> ConfirmedEarnedGoldTotals;
+        public System.Collections.Generic.List<GoldIncomeRecordBatch> UnconfirmedBatches;
         public static readonly GoldIncomeSnapshot Default = default;
     }
 
@@ -296,35 +296,35 @@ namespace FrameSyncMoba.FrameSync
                 throw new DeterministicSimulationException(
                     "Gold runtime cannot be captured while accepting requests.");
             state.ConfirmedIncomeThroughTick = confirmedIncomeThroughTick;
-            state.ConfirmedEarnedGoldTotals = confirmedEarnedGoldTotals.ToArray();
-            state.UnconfirmedBatches = new GoldIncomeRecordBatch[unconfirmedBatches.Count];
+            state.ConfirmedEarnedGoldTotals = new System.Collections.Generic.List<int>(confirmedEarnedGoldTotals);
+            state.UnconfirmedBatches = new System.Collections.Generic.List<GoldIncomeRecordBatch>(unconfirmedBatches.Count);
             for (int i = 0; i < unconfirmedBatches.Count; i++)
-                state.UnconfirmedBatches[i] = CloneBatch(unconfirmedBatches[i]);
+                state.UnconfirmedBatches.Add(CloneBatch(unconfirmedBatches[i]));
         }
 
         public void Restore(in GoldIncomeSnapshot state)
         {
-            int[] totals = state.ConfirmedEarnedGoldTotals ?? Array.Empty<int>();
-            GoldIncomeRecordBatch[] batches =
-                state.UnconfirmedBatches ?? Array.Empty<GoldIncomeRecordBatch>();
-            for (int i = 0; i < totals.Length; i++)
+            var totals = state.ConfirmedEarnedGoldTotals ?? new System.Collections.Generic.List<int>();
+            var batches =
+                state.UnconfirmedBatches ?? new System.Collections.Generic.List<GoldIncomeRecordBatch>();
+            for (int i = 0; i < totals.Count; i++)
                 if (totals[i] < 0)
                     throw new DeterministicSimulationException(
                         "Confirmed earned Gold totals must not be negative.");
-            for (int i = 0; i < batches.Length; i++)
+            for (int i = 0; i < batches.Count; i++)
             {
                 if (batches[i].LogicTick <= state.ConfirmedIncomeThroughTick ||
                     (i > 0 && batches[i - 1].LogicTick >= batches[i].LogicTick))
                     throw new DeterministicSimulationException(
                         "Unconfirmed Gold batch Ticks are not canonical.");
-                ValidateBatch(batches[i], totals.Length, digestWriter);
+                ValidateBatch(batches[i], totals.Count, digestWriter);
             }
 
             confirmedIncomeThroughTick = state.ConfirmedIncomeThroughTick;
             confirmedEarnedGoldTotals.Clear();
             confirmedEarnedGoldTotals.AddRange(totals);
             unconfirmedBatches.Clear();
-            for (int i = 0; i < batches.Length; i++)
+            for (int i = 0; i < batches.Count; i++)
                 unconfirmedBatches.Add(CloneBatch(batches[i]));
             currentRecords.Clear();
             currentBuildingTick = -1;

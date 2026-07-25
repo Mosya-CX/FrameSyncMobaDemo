@@ -48,7 +48,7 @@ namespace FrameSyncMoba.Physics
 
     public struct UnitCollisionEventBufferSnapshot
     {
-        public UnitContactPair[] PreviousPairs;
+        public System.Collections.Generic.List<UnitContactPair> PreviousPairs;
         public static readonly UnitCollisionEventBufferSnapshot Empty = default;
     }
 

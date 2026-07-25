@@ -12,6 +12,9 @@ namespace FrameSyncMoba.Unit
         private Unit _owner => Owner;
         public BuffDefinitionRegistry DefinitionRegistry { private get; set; }
 
+        /// <summary>Maximum active buffs before lowest-priority buff is dispelled. Default 255.</summary>
+        public byte MaxBuffs = 255;
+
         public override void InitializeForNewRuntime()
         {
             _store.Clear();
@@ -36,6 +39,7 @@ namespace FrameSyncMoba.Unit
         private bool ApplyNew(BuffConfigId configId, BuffDef definition, UnitUid sourceUnitUid)
         {
             var runtime = new BuffRuntime(configId, definition, sourceUnitUid);
+            EnforceMaxBuffs(definition);
             _store.Add(runtime);
 
             var effects = runtime.GetEffects();
@@ -58,6 +62,13 @@ namespace FrameSyncMoba.Unit
                 int newStacks = oldStacks + 1;
                 if (newStacks > definition.MaxStacks) newStacks = definition.MaxStacks;
                 runtime.SetStacks(newStacks);
+            }
+            else if (definition.StackRule == BuffStackRule.Dependent)
+            {
+                int newStacks = oldStacks + 1;
+                if (newStacks > definition.MaxStacks) newStacks = definition.MaxStacks;
+                runtime.SetStacks(newStacks);
+                runtime.MarkDependentStack();
             }
 
             int newStackCount = runtime.CurrentStacks;
@@ -111,6 +122,9 @@ namespace FrameSyncMoba.Unit
                 var runtime = ordered[i];
                 if (runtime.IsRemoving) continue;
                 runtime.Tick(deltaTicks);
+                var effects = runtime.GetEffects();
+                for (int j = 0; j < effects.Length; j++)
+                    effects[j].OnTick(runtime, _owner);
                 if (runtime.IsExpired())
                     _removalPending.Add(runtime);
             }
@@ -171,6 +185,8 @@ namespace FrameSyncMoba.Unit
 
         public void OnDamageTaken(DamageEventData data) =>
             DispatchReaction(BuffReactionKind.DamageTaken, data, default, default, null);
+        
+        public void OnHitDealt(OnHitEventData data) => DispatchOnHitReaction(data);
         public void OnDamageDealt(DamageEventData data) =>
             DispatchReaction(BuffReactionKind.DamageDealt, data, default, default, null);
         public void OnHealTaken(HealEventData data) =>
@@ -195,7 +211,59 @@ namespace FrameSyncMoba.Unit
         public bool HasBuff(BuffConfigId configId) => _store.TryGet(configId, out _);
         public IReadOnlyList<BuffRuntime> GetAllBuffs() => _store.GetAllOrdered();
 
+
+        // ---- Tag-based removal ----
+
+        /// <summary>Mass-remove all buffs with a given Tag value. Tag 0 buffs are unaffected.</summary>
+        public void RemoveBuffsByTag(byte tag)
+        {
+            if (tag == 0) return;
+            var ordered = _store.GetAllOrdered();
+            var toRemove = new System.Collections.Generic.List<BuffRuntime>();
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                if (ordered[i].Definition.Tag == tag)
+                    toRemove.Add(ordered[i]);
+            }
+            for (int i = 0; i < toRemove.Count; i++)
+                ExecuteRemoval(toRemove[i], RemovalReason.ManualRemove);
+        }
+
         // ---- Internal helpers ----
+
+        private void EnforceMaxBuffs(BuffDef incomingDef)
+        {
+            if (_store.Count < MaxBuffs) return;
+            // Find lowest-priority (highest Priority value) non-permanent buff
+            var ordered = _store.GetAllOrdered();
+            BuffRuntime lowest = null;
+            byte lowestPriority = 0;
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                var rt = ordered[i];
+                if (rt.IsPermanent) continue;
+                if (rt.Definition.Priority >= lowestPriority)
+                {
+                    lowestPriority = rt.Definition.Priority;
+                    lowest = rt;
+                }
+            }
+            if (lowest != null && (incomingDef == null || incomingDef.Priority <= lowestPriority))
+            {
+                ExecuteRemoval(lowest, RemovalReason.ManualRemove);
+            }
+        }
+
+        private void DispatchOnHitReaction(in OnHitEventData data)
+        {
+            IReadOnlyList<BuffRuntime> runtimes = _store.GetAllOrdered();
+            for (int i = 0; i < runtimes.Count; i++)
+            {
+                BuffEffect[] effects = runtimes[i].GetEffects();
+                for (int j = 0; j < effects.Length; j++)
+                    effects[j].OnHitDealt(runtimes[i], _owner, data);
+            }
+        }
 
         private void ExecuteRemoval(BuffRuntime runtime, RemovalReason reason)
         {
@@ -231,16 +299,13 @@ namespace FrameSyncMoba.Unit
 
         public void Capture(ref BuffHandlerSnapshot state)
         {
-            if (state.Buffs == null)
-                state.Buffs = new List<BuffRuntimeSnapshot>();
-            else
-                state.Buffs.Clear();
+            var buffList = new List<BuffRuntimeSnapshot>();
 
             var ordered = _store.GetAllOrdered();
             for (int i = 0; i < ordered.Count; i++)
             {
                 var runtime = ordered[i];
-                state.Buffs.Add(new BuffRuntimeSnapshot
+                buffList.Add(new BuffRuntimeSnapshot
                 {
                     ConfigId = runtime.ConfigId,
                     SourceUnitUid = runtime.SourceUnitUid,
@@ -254,14 +319,15 @@ namespace FrameSyncMoba.Unit
                     Blackboard = runtime.Blackboard.Capture(),
                 });
             }
+            state.Buffs = buffList.ToArray();
         }
 
         public void Restore(in BuffHandlerSnapshot state)
         {
             _store.Clear();
-            List<BuffRuntimeSnapshot> states = state.Buffs ?? new List<BuffRuntimeSnapshot>();
+            BuffRuntimeSnapshot[] states = state.Buffs ?? Array.Empty<BuffRuntimeSnapshot>();
             BuffConfigId previousId = default;
-            for (int i = 0; i < states.Count; i++)
+            for (int i = 0; i < states.Length; i++)
             {
                 BuffRuntimeSnapshot runtimeState = states[i];
                 if (!runtimeState.ConfigId.IsValid ||

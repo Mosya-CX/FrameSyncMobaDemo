@@ -29,7 +29,7 @@ namespace FrameSyncMoba.FrameSync
 
             _campSnapshotBuffer.Clear();
             _jungleCampSystem?.Capture(_campSnapshotBuffer);
-            state.JungleCampStates.AddRange(_campSnapshotBuffer);
+            state.JungleCampStates = _campSnapshotBuffer.ToArray();
 
             _aiSnapshotBuffer.Clear();
             var aiControllers = _unitWorld.AIControllers;
@@ -39,15 +39,15 @@ namespace FrameSyncMoba.FrameSync
                 ai.Capture(ref snap);
                 _aiSnapshotBuffer.Add(snap);
             }
-            state.AIControllerStates.AddRange(_aiSnapshotBuffer);
+            state.AIControllerStates = _aiSnapshotBuffer.ToArray();
         }
 
         public void RestoreNonHero(in NonHeroWorldSnapshot state)
         {
             _minionSystem?.Restore(state.MinionSystemState);
-            _jungleCampSystem?.Restore(state.JungleCampStates);
+            _jungleCampSystem?.Restore(new List<JungleCampSnapshot>(state.JungleCampStates));
 
-            RestoreAIControllers(state.AIControllerStates);
+            RestoreAIControllers(new List<UnitAIControllerSnapshot>(state.AIControllerStates));
         }
 
         public void ResolveNonHero(in RollbackContext context)

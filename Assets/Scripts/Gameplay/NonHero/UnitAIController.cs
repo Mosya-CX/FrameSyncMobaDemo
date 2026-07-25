@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
@@ -212,7 +212,28 @@ namespace FrameSyncMoba.Unit
         {
             if (OwnerUnit.Locomotion != null)
             {
-                // Route through locomotion agent using A* along lane direction
+                // Prefer FlowField lane navigation when registry is available.
+                // Falls back to A* waypoint movement.
+                // (Pathfinding Design v13.1 section 8, Non-Hero Design v5 section 5)
+                var registry = OwnerUnit.World?.FlowFieldRegistry;
+                if (registry != null)
+                {
+                    var key = new FlowFieldKey(OwnerUnit.TeamId.Value, RadiusClass.Small);
+                    if (registry.TryGet(key, out _))
+                    {
+                        var flowRequest = new RouteMoveRequest
+                        {
+                            Target = MoveTarget.None,
+                            Purpose = MovePurpose.MoveToLane,
+                            Kind = RouteKind.FlowField,
+                            AllowRVO = true,
+                        };
+                        OwnerUnit.Locomotion.AcceptRouteRequest(flowRequest);
+                        return;
+                    }
+                }
+
+                // Fallback: A* waypoint movement along lane direction
                 fp2 currentPos = OwnerUnit.MovementHandler?.Snapshot.Position ?? fp2.zero;
                 fp2 laneDir = LaneId == 0
                     ? new fp2(fp.one, fp.zero)
@@ -221,6 +242,7 @@ namespace FrameSyncMoba.Unit
 
                 var request = RouteMoveRequest.ToPosition(targetPos, (fp)0.3m);
                 request.Purpose = MovePurpose.MoveToLane;
+                request.AllowRVO = true;
                 OwnerUnit.Locomotion.AcceptRouteRequest(request);
             }
         }
@@ -309,6 +331,20 @@ namespace FrameSyncMoba.Unit
         public UnitUid PrimaryTargetUid { get; set; }
         public int CampId { get; set; }
 
+        private fp2 _campOrigin;
+        private fp _leashRadius = (fp)8m;
+        private fp _patrolRadius = (fp)2m;
+        private fp _aggroRange = (fp)5m;
+        private int _returnStartTick;
+
+        public void InitCampPosition(fp2 campOrigin, fp leashRadius = default, fp patrolRadius = default, fp aggroRange = default)
+        {
+            _campOrigin = campOrigin;
+            if (leashRadius > fp.zero) _leashRadius = leashRadius;
+            if (patrolRadius > fp.zero) _patrolRadius = patrolRadius;
+            if (aggroRange > fp.zero) _aggroRange = aggroRange;
+        }
+
         public MonsterAIController(Unit owner, int campId) : base(owner)
         {
             ControllerKind = UnitAIControllerKind.Monster;
@@ -337,7 +373,24 @@ namespace FrameSyncMoba.Unit
 
         private void ThinkChase()
         {
-            if (PrimaryTargetUid.IsValid() && OwnerUnit.AttackHandler != null)
+            // Leash check: return to camp if pulled too far
+            fp2 myPos = OwnerUnit.MovementHandler?.Snapshot.Position ?? fp2.zero;
+            fp distFromCamp = fpmath.distance(myPos, _campOrigin);
+            if (distFromCamp > _leashRadius)
+            {
+                PrimaryTargetUid = default;
+                _returnStartTick = SimulationTickContext.Current.Tick;
+                AIState = MonsterAIState.Returning;
+                return;
+            }
+            // Check if current target still valid
+            if (!PrimaryTargetUid.IsValid() || !IsTargetAlive(PrimaryTargetUid))
+            {
+                PrimaryTargetUid = default;
+                AIState = MonsterAIState.Idle;
+                return;
+            }
+            if (OwnerUnit.AttackHandler != null)
             {
                 OwnerUnit.AttackHandler.ApplyAttackInput(PrimaryTargetUid);
             }
@@ -345,10 +398,103 @@ namespace FrameSyncMoba.Unit
 
         private void ThinkReturn()
         {
-            if (OwnerUnit.MovementHandler != null)
+            // Regenerate health rapidly while returning to camp
+            if (OwnerUnit.StatHandler != null)
             {
-                OwnerUnit.MovementHandler.ApplyMoveInput(MoveIntent.None);
+                fp maxHp = OwnerUnit.StatHandler.GetStat(StatId.MaxHealth);
+                fp regen = maxHp / (fp)3m; // 33% max HP per tick while returning
+                fp newHp = OwnerUnit.StatHandler.CurrentHealth + regen;
+                if (newHp > maxHp) newHp = maxHp;
+                OwnerUnit.StatHandler.SetCurrentHealth(newHp);
             }
+            // Move toward camp origin
+            fp2 myPos = OwnerUnit.MovementHandler?.Snapshot.Position ?? fp2.zero;
+            fp distToCamp = fpmath.distance(myPos, _campOrigin);
+            if (distToCamp <= (fp)0.5m)
+            {
+                // Arrived at camp: full restore and go idle
+                if (OwnerUnit.StatHandler != null)
+                {
+                    OwnerUnit.StatHandler.SetCurrentHealth(OwnerUnit.StatHandler.GetStat(StatId.MaxHealth));
+                }
+                OwnerUnit.MovementHandler?.ApplyMoveInput(MoveIntent.None);
+                AIState = MonsterAIState.Idle;
+                return;
+            }
+            // Path toward camp origin
+            fp2 toCamp = _campOrigin - myPos;
+            fp2 dir = fpmath.normalize(toCamp);
+            OwnerUnit.MovementHandler?.ApplyMoveInput(MoveIntent.FromDirection(dir));
+            // Attack nearby enemies even while returning (optional: keep target priority)
+            TryAcquireTarget();
+            if (PrimaryTargetUid.IsValid())
+            {
+                AIState = MonsterAIState.Chasing;
+            }
+        }
+
+        
+
+        private void ThinkIdle()
+        {
+            // Try to acquire a target
+            TryAcquireTarget();
+            if (PrimaryTargetUid.IsValid())
+            {
+                AIState = MonsterAIState.Chasing;
+                return;
+            }
+            // No target: stay near camp origin (patrol-like)
+            fp2 myPos = OwnerUnit.MovementHandler?.Snapshot.Position ?? fp2.zero;
+            fp distFromCamp = fpmath.distance(myPos, _campOrigin);
+            if (distFromCamp > _patrolRadius)
+            {
+                // Wander back toward camp origin
+                fp2 toCamp = _campOrigin - myPos;
+                fp2 dir = fpmath.normalize(toCamp);
+                OwnerUnit.MovementHandler?.ApplyMoveInput(MoveIntent.FromDirection(dir));
+            }
+            else
+            {
+                // At camp: idle
+                OwnerUnit.MovementHandler?.ApplyMoveInput(MoveIntent.None);
+            }
+        }
+
+        private void TryAcquireTarget()
+        {
+            if (OwnerUnit.World == null) return;
+            var allUnits = OwnerUnit.World.GetAllUnits();
+            fp2 myPos = OwnerUnit.MovementHandler?.Snapshot.Position ?? fp2.zero;
+            TeamId myTeam = OwnerUnit.TeamId;
+
+            UnitUid bestTarget = default;
+            fp bestDist = _aggroRange;
+
+            for (int i = 0; i < allUnits.Count; i++)
+            {
+                var unit = allUnits[i];
+                if (unit == null || unit.UnitUid == OwnerUnit.UnitUid) continue;
+                if (unit.LifeState != LifeState.Alive) continue;
+                if (unit.TeamId == myTeam) continue; // Don't attack same team
+                // Only target heroes and minions
+                if (unit.UnitKind != UnitKind.Hero && unit.UnitKind != UnitKind.Minion) continue;
+
+                fp dist = fpmath.distance(myPos, unit.MovementHandler?.Snapshot.Position ?? fp2.zero);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    bestTarget = unit.UnitUid;
+                }
+            }
+
+            PrimaryTargetUid = bestTarget;
+        }
+
+        private bool IsTargetAlive(UnitUid uid)
+        {
+            if (!uid.IsValid() || OwnerUnit.World == null) return false;
+            return OwnerUnit.World.TryGetUnit(uid, out var unit) && unit.LifeState == LifeState.Alive;
         }
 
         public void SetState(MonsterAIState state, UnitUid target = default)

@@ -58,7 +58,7 @@ namespace FrameSyncMoba.Unit.Tests
             var moveHandler = unit.MovementHandler;
 
             moveHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            moveHandler.TickUpdate(fp.one);
+            moveHandler.TickUpdate();
 
             Assert.AreNotEqual(fp2.zero, moveHandler.Snapshot.Position);
             Assert.AreEqual(new fp2(fp.one, fp.zero), moveHandler.Snapshot.Facing);
@@ -78,8 +78,8 @@ namespace FrameSyncMoba.Unit.Tests
                 var intent = new MoveIntent(new fp2(fp.one, fp.zero));
                 u1.MovementHandler.ApplyMoveInput(intent);
                 u2.MovementHandler.ApplyMoveInput(intent);
-                u1.MovementHandler.TickUpdate(fp.one);
-                u2.MovementHandler.TickUpdate(fp.one);
+                u1.MovementHandler.TickUpdate();
+                u2.MovementHandler.TickUpdate();
             }
 
             Assert.AreEqual(
@@ -101,8 +101,8 @@ namespace FrameSyncMoba.Unit.Tests
                 var intent = new MoveIntent(new fp2(fp.one, fp.zero));
                 fast.MovementHandler.ApplyMoveInput(intent);
                 slow.MovementHandler.ApplyMoveInput(intent);
-                fast.MovementHandler.TickUpdate(fp.one);
-                slow.MovementHandler.TickUpdate(fp.one);
+                fast.MovementHandler.TickUpdate();
+                slow.MovementHandler.TickUpdate();
             }
 
             Assert.Greater(
@@ -123,8 +123,8 @@ namespace FrameSyncMoba.Unit.Tests
             {
                 right.MovementHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
                 up.MovementHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.zero, fp.one)));
-                right.MovementHandler.TickUpdate(fp.one);
-                up.MovementHandler.TickUpdate(fp.one);
+                right.MovementHandler.TickUpdate();
+                up.MovementHandler.TickUpdate();
             }
 
             Assert.AreEqual(new fp2(fp.one, fp.zero), right.MovementHandler.Snapshot.Facing);
@@ -161,7 +161,7 @@ namespace FrameSyncMoba.Unit.Tests
         {
             Unit unit = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
             unit.MovementHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            unit.MovementHandler.TickUpdate(fp.one);
+            unit.MovementHandler.TickUpdate();
 
             fp2 positionBeforeDeath = unit.MovementHandler.Snapshot.Position;
 
@@ -218,7 +218,7 @@ namespace FrameSyncMoba.Unit.Tests
 
             for (int i = 0; i < 5; i++)
             {
-                unit.MovementHandler.TickUpdate(fp.one);
+                unit.MovementHandler.TickUpdate();
             }
 
             Assert.AreEqual(fp2.zero, unit.MovementHandler.Snapshot.Position);
@@ -254,8 +254,8 @@ namespace FrameSyncMoba.Unit.Tests
                 var intent = new MoveIntent(new fp2(fp.one, fp.zero));
                 u1.MovementHandler.ApplyMoveInput(intent);
                 u2.MovementHandler.ApplyMoveInput(intent);
-                u1.MovementHandler.TickUpdate(fp.one);
-                u2.MovementHandler.TickUpdate(fp.one);
+                u1.MovementHandler.TickUpdate();
+                u2.MovementHandler.TickUpdate();
             }
 
             Assert.AreEqual(

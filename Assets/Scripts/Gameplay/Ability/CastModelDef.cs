@@ -8,6 +8,9 @@ namespace FrameSyncMoba.Unit
         HoldRelease = 1,
         Channel = 2,
         ActiveSignal = 3,
+        Toggle = 4,
+        GroundTarget = 5,
+        VectorTarget = 6,
     }
 
     public struct CastStage
@@ -90,5 +93,77 @@ namespace FrameSyncMoba.Unit
         }
         public override byte? ResolveIndicatorStage(byte currentStageKey) => Active.StageKey;
         public override bool TryInterrupt(byte currentStageKey) => Active.Interruptible;
+    }
+
+    public sealed class ToggleCastModelDef : CastModelDef
+    {
+        public CastStage Active;
+        public Unity.Mathematics.FixedPoint.fp ResourcePerTick;
+        public ToggleCastModelDef() { Kind = CastModelKind.Toggle; }
+        public override int? HandleSignal(AbilitySignal signal, byte currentStageKey)
+        {
+            if (signal.Verb == AbilitySignalVerb.Commit)
+            {
+                if (currentStageKey == byte.MaxValue) return Active.StageKey;
+                return null;
+            }
+            return null;
+        }
+        public override byte? ResolveIndicatorStage(byte currentStageKey) => Active.StageKey;
+        public override bool TryInterrupt(byte currentStageKey) => Active.Interruptible;
+    }
+
+    public sealed class GroundTargetCastModelDef : CastModelDef
+    {
+        public CastStage Aim;
+        public CastStage Execute;
+        public Unity.Mathematics.FixedPoint.fp MaxRange;
+        public Unity.Mathematics.FixedPoint.fp Radius;
+        public GroundTargetCastModelDef() { Kind = CastModelKind.GroundTarget; }
+        public override int? HandleSignal(AbilitySignal signal, byte currentStageKey)
+        {
+            switch (signal.Verb)
+            {
+                case AbilitySignalVerb.Focus:
+                    if (currentStageKey == byte.MaxValue) return Aim.StageKey;
+                    return currentStageKey;
+                case AbilitySignalVerb.Commit:
+                    if (currentStageKey == byte.MaxValue) return Aim.StageKey;
+                    if (currentStageKey == Aim.StageKey && signal.Aim.Kind == AimKind.Point)
+                        return Execute.StageKey;
+                    return null;
+                default: return null;
+            }
+        }
+        public override byte? ResolveIndicatorStage(byte currentStageKey) => Aim.StageKey;
+        public override bool TryInterrupt(byte currentStageKey)
+            => (currentStageKey == Aim.StageKey) ? Aim.Interruptible : Execute.Interruptible;
+    }
+
+    public sealed class VectorTargetCastModelDef : CastModelDef
+    {
+        public CastStage Aim;
+        public CastStage Execute;
+        public Unity.Mathematics.FixedPoint.fp MaxRange;
+        public Unity.Mathematics.FixedPoint.fp MinRange;
+        public VectorTargetCastModelDef() { Kind = CastModelKind.VectorTarget; }
+        public override int? HandleSignal(AbilitySignal signal, byte currentStageKey)
+        {
+            switch (signal.Verb)
+            {
+                case AbilitySignalVerb.Focus:
+                    if (currentStageKey == byte.MaxValue) return Aim.StageKey;
+                    return currentStageKey;
+                case AbilitySignalVerb.Commit:
+                    if (currentStageKey == byte.MaxValue) return Aim.StageKey;
+                    if (currentStageKey == Aim.StageKey && signal.Aim.Kind == AimKind.Direction)
+                        return Execute.StageKey;
+                    return null;
+                default: return null;
+            }
+        }
+        public override byte? ResolveIndicatorStage(byte currentStageKey) => Aim.StageKey;
+        public override bool TryInterrupt(byte currentStageKey)
+            => (currentStageKey == Aim.StageKey) ? Aim.Interruptible : Execute.Interruptible;
     }
 }

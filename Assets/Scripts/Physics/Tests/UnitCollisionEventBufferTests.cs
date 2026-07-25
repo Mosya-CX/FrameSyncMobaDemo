@@ -59,7 +59,7 @@ namespace FrameSyncMoba.Physics.Tests
 
                 PhysicsRuntimeSnapshot snapshot = default;
                 world.Capture(ref snapshot);
-                Assert.AreEqual(1, snapshot.CollisionBuffer.PreviousPairs.Length);
+                Assert.AreEqual(1, snapshot.CollisionBuffer.PreviousPairs.Count);
 
                 var restored = new PhysicsWorld();
                 restored.RegisterUnit(first);

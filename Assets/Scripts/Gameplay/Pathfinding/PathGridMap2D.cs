@@ -12,7 +12,15 @@ namespace FrameSyncMoba.Unit
         private fp _cellSize;
         private int _width;
         private int _height;
+
+        // Original flat walkable flag (backward-compatible, defaults to Medium layer)
         private bool[] _walkable;
+
+        // Per-radius-class walkability layers (RadiusClassHelper.Count layers)
+        // Layer 0 = Small, Layer 1 = Medium, Layer 2 = Large
+        // Each layer: true = walkable for units of that radius class or smaller
+        // Blocking Small also blocks Medium and Large layers.
+        private bool[][] _walkableByRadiusClass;
 
         public fp2 WorldCenter { get; private set; }
         public fp2 WorldMin => _worldMin;
@@ -53,9 +61,20 @@ namespace FrameSyncMoba.Unit
             if (_height <= 0) _height = 1;
 
             int totalCells = _width * _height;
+
+            // Legacy flat walkable
             _walkable = new bool[totalCells];
             for (int i = 0; i < totalCells; i++)
                 _walkable[i] = true;
+
+            // Initialize radius-clearance layers (all walkable by default)
+            _walkableByRadiusClass = new bool[RadiusClassHelper.Count][];
+            for (int layer = 0; layer < RadiusClassHelper.Count; layer++)
+            {
+                _walkableByRadiusClass[layer] = new bool[totalCells];
+                for (int i = 0; i < totalCells; i++)
+                    _walkableByRadiusClass[layer][i] = true;
+            }
 
             _worldMin = worldMin;
             WorldCenter = worldMin + (size * Half);
@@ -79,11 +98,68 @@ namespace FrameSyncMoba.Unit
                 _worldMin.y + ((fp)cy + Half) * _cellSize);
         }
 
+        /// <summary>
+        /// Legacy passability check. Defaults to Medium RadiusClass for backward compatibility.
+        /// </summary>
         public bool IsPassable(int cx, int cy)
+        {
+            return IsPassable(cx, cy, RadiusClass.Medium);
+        }
+
+        /// <summary>
+        /// Check cell passability for a specific unit radius class.
+        /// Larger radius classes are more restrictive (fewer walkable cells).
+        /// </summary>
+        public bool IsPassable(int cx, int cy, RadiusClass rc)
         {
             if (cx < 0 || cx >= _width || cy < 0 || cy >= _height)
                 return false;
-            return _walkable[CellIndex(cx, cy)];
+
+            if (_walkableByRadiusClass == null)
+                return _walkable != null && _walkable[CellIndex(cx, cy)];
+
+            int layer = (int)rc;
+            if (layer < 0 || layer >= _walkableByRadiusClass.Length)
+                return false;
+
+            return _walkableByRadiusClass[layer][CellIndex(cx, cy)];
+        }
+
+        /// <summary>
+        /// Check if a circle of given radius can be placed at the world position
+        /// without overlapping blocked cells. Used by wall constraint and movement.
+        /// </summary>
+        public bool IsCircleWalkable(fp2 worldPos, fp radius)
+        {
+            (int cx, int cy) = WorldToCell(worldPos);
+            if (!IsPassable(cx, cy)) return false;
+
+            // For radius larger than half cell, check neighbor cells too
+            fp cellRadius = radius / _cellSize;
+            int checkRadius = (int)(cellRadius + (fp)0.5m);
+            if (checkRadius <= 0) return IsPassable(cx, cy);
+
+            for (int dy = -checkRadius; dy <= checkRadius; dy++)
+            {
+                for (int dx = -checkRadius; dx <= checkRadius; dx++)
+                {
+                    int nx = cx + dx;
+                    int ny = cy + dy;
+                    if (!IsPassable(nx, ny)) return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Get the walkability layer array for a specific RadiusClass.
+        /// </summary>
+        public bool[] GetWalkableLayer(RadiusClass rc)
+        {
+            if (_walkableByRadiusClass == null) return null;
+            int layer = (int)rc;
+            if (layer < 0 || layer >= _walkableByRadiusClass.Length) return null;
+            return _walkableByRadiusClass[layer];
         }
 
         public ReadOnlySpan<(int cx, int cy)> GetNeighbors(int cx, int cy)
@@ -139,39 +215,98 @@ namespace FrameSyncMoba.Unit
 
             Initialise(min, max, cellSize);
 
+            // Mark obstructed cells by entity shape's RadiusClass
             for (int i = 0; i < entities.Count; i++)
             {
                 var entity = entities[i];
                 if (entity.QueryInfo.Owner == null) continue;
                 var bounds = entity.Bounds;
-                SetObstruction(bounds.Min, bounds.Max, blocked: true);
+                var shape = entity.Shape;
+                RadiusClass rc = RadiusClassHelper.FromRadius(shape.Radius);
+                SetObstruction(bounds.Min, bounds.Max, blocked: true, rc);
             }
         }
 
         public void SetObstruction(fp2 worldMin, fp2 worldMax, bool blocked)
         {
+            SetObstruction(worldMin, worldMax, blocked, RadiusClass.Medium);
+        }
+
+        /// <summary>
+        /// Set obstruction for a specific radius class and all larger classes.
+        /// Blocking a cell for Small also blocks it for Medium and Large.
+        /// Unblocking for Large also unblocks for Medium and Small.
+        /// </summary>
+        public void SetObstruction(fp2 worldMin, fp2 worldMax, bool blocked, RadiusClass minAffectedClass)
+        {
             (int cxMin, int cyMin) = WorldToCell(worldMin);
             (int cxMax, int cyMax) = WorldToCell(worldMax);
-            for (int cy = cyMin; cy <= cyMax; cy++)
+
+            int startLayer = (int)minAffectedClass;
+            if (blocked)
             {
-                for (int cx = cxMin; cx <= cxMax; cx++)
+                // Block affects this layer and all larger layers
+                for (int layer = startLayer; layer < RadiusClassHelper.Count; layer++)
                 {
-                    if (cx >= 0 && cx < _width && cy >= 0 && cy < _height)
-                        _walkable[CellIndex(cx, cy)] = !blocked;
+                    for (int cy = cyMin; cy <= cyMax; cy++)
+                    {
+                        for (int cx = cxMin; cx <= cxMax; cx++)
+                        {
+                            if (cx >= 0 && cx < _width && cy >= 0 && cy < _height)
+                                SetLayerWalkable(layer, cx, cy, false);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Unblock affects this layer and all smaller layers (down to Small)
+                for (int layer = startLayer; layer >= 0; layer--)
+                {
+                    for (int cy = cyMin; cy <= cyMax; cy++)
+                    {
+                        for (int cx = cxMin; cx <= cxMax; cx++)
+                        {
+                            if (cx >= 0 && cx < _width && cy >= 0 && cy < _height)
+                                SetLayerWalkable(layer, cx, cy, true);
+                        }
+                    }
                 }
             }
         }
 
         public void Clear()
         {
+            int totalCells = _width * _height;
             if (_walkable != null)
             {
                 for (int i = 0; i < _walkable.Length; i++)
                     _walkable[i] = true;
             }
+            if (_walkableByRadiusClass != null)
+            {
+                for (int layer = 0; layer < _walkableByRadiusClass.Length; layer++)
+                {
+                    if (_walkableByRadiusClass[layer] != null)
+                    {
+                        for (int i = 0; i < _walkableByRadiusClass[layer].Length; i++)
+                            _walkableByRadiusClass[layer][i] = true;
+                    }
+                }
+            }
         }
 
         private int CellIndex(int cx, int cy) => cy * _width + cx;
+
+        private void SetLayerWalkable(int layer, int cx, int cy, bool walkable)
+        {
+            if (_walkableByRadiusClass == null || layer < 0 || layer >= _walkableByRadiusClass.Length)
+                return;
+            _walkableByRadiusClass[layer][CellIndex(cx, cy)] = walkable;
+            // Also update the legacy _walkable for backward compatibility (Medium layer)
+            if (layer == (int)RadiusClass.Medium && _walkable != null)
+                _walkable[CellIndex(cx, cy)] = walkable;
+        }
 
         private void AddNeighbor(int cx, int cy)
         {

@@ -71,7 +71,7 @@ namespace FrameSyncMoba.Unit.Tests
         public void ApplyMoveInput_ThenTickUpdate_MovesPosition()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             fp2 expected = new fp2(DefaultSpeed, fp.zero);
             Assert.AreEqual(expected, handler.Snapshot.Position);
@@ -81,8 +81,8 @@ namespace FrameSyncMoba.Unit.Tests
         public void TickUpdate_WithoutInput_StopsMovement()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(fp.one);
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
+            handler.TickUpdate();
 
             Assert.AreEqual(new fp2(DefaultSpeed, fp.zero), handler.Snapshot.Position);
             Assert.AreEqual(fp2.zero, handler.Snapshot.Velocity);
@@ -93,7 +93,7 @@ namespace FrameSyncMoba.Unit.Tests
         {
             fp halfDt = 0.5m;
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(halfDt);
+            handler.TickUpdate();
 
             fp2 expected = new fp2(DefaultSpeed * halfDt, fp.zero);
             Assert.AreEqual(expected, handler.Snapshot.Position);
@@ -103,9 +103,9 @@ namespace FrameSyncMoba.Unit.Tests
         public void TickUpdate_MultipleTicks_AccumulatesPosition()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             fp2 expected = new fp2(DefaultSpeed * 2m, fp.zero);
             Assert.AreEqual(expected, handler.Snapshot.Position);
@@ -115,7 +115,7 @@ namespace FrameSyncMoba.Unit.Tests
         public void TickUpdate_UpdatesFacing()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.zero, fp.one)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             Assert.AreEqual(new fp2(fp.zero, fp.one), handler.Snapshot.Facing);
         }
@@ -126,7 +126,7 @@ namespace FrameSyncMoba.Unit.Tests
             fp2 initialFacing = handler.Snapshot.Facing;
 
             handler.ApplyMoveInput(MoveIntent.None);
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             Assert.AreEqual(initialFacing, handler.Snapshot.Facing);
         }
@@ -137,7 +137,7 @@ namespace FrameSyncMoba.Unit.Tests
             fp newSpeed = 10m;
             handler.SetMoveSpeed(newSpeed);
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             Assert.AreEqual(new fp2(newSpeed, fp.zero), handler.Snapshot.Position);
         }
@@ -146,7 +146,7 @@ namespace FrameSyncMoba.Unit.Tests
         public void ForceSetPosition_Teleports()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             handler.ForceSetPosition(new fp2(100m, 200m));
 
@@ -158,7 +158,7 @@ namespace FrameSyncMoba.Unit.Tests
         public void CaptureRestore_RoundTrip_PreservesState()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.zero, fp.one)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             MovementSnapshot captured = default;
             handler.Capture(ref captured);
@@ -176,14 +176,14 @@ namespace FrameSyncMoba.Unit.Tests
         public void Restore_ClearsPendingIntent()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             MovementSnapshot captured = default;
             handler.Capture(ref captured);
 
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.zero, fp.one)));
             handler.Restore(captured);
-            handler.TickUpdate(fp.one);
+            handler.TickUpdate();
 
             Assert.AreEqual(captured.Position, handler.Snapshot.Position);
         }
@@ -199,8 +199,8 @@ namespace FrameSyncMoba.Unit.Tests
                 var intent = new MoveIntent(new fp2(fp.one, fp.zero));
                 h1.ApplyMoveInput(intent);
                 h2.ApplyMoveInput(intent);
-                h1.TickUpdate(fp.one);
-                h2.TickUpdate(fp.one);
+                h1.TickUpdate();
+                h2.TickUpdate();
             }
 
             Assert.AreEqual(h1.Snapshot.Position, h2.Snapshot.Position);
@@ -216,14 +216,14 @@ namespace FrameSyncMoba.Unit.Tests
             for (int i = 0; i < 5; i++)
             {
                 original.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-                original.TickUpdate(fp.one);
+                original.TickUpdate();
             }
 
             var checkpoint = UnitTestFactory.CreateMovementHandler(new fp2(5m, 0m), 4m);
             checkpoint.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            checkpoint.TickUpdate(fp.one);
+            checkpoint.TickUpdate();
             checkpoint.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-            checkpoint.TickUpdate(fp.one);
+            checkpoint.TickUpdate();
 
             MovementSnapshot snap = default;
             checkpoint.Capture(ref snap);
@@ -233,7 +233,7 @@ namespace FrameSyncMoba.Unit.Tests
             for (int i = 0; i < 3; i++)
             {
                 replay.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
-                replay.TickUpdate(fp.one);
+                replay.TickUpdate();
             }
 
             Assert.AreEqual(original.Snapshot.Position, replay.Snapshot.Position);

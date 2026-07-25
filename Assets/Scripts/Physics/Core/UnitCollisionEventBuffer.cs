@@ -86,13 +86,13 @@ namespace FrameSyncMoba.Physics
 
         public void Capture(ref UnitCollisionEventBufferSnapshot state)
         {
-            state.PreviousPairs = previousPairs.ToArray();
+            state.PreviousPairs = new System.Collections.Generic.List<UnitContactPair>(previousPairs);
         }
 
         public void Restore(in UnitCollisionEventBufferSnapshot state)
         {
-            UnitContactPair[] pairs = state.PreviousPairs ?? Array.Empty<UnitContactPair>();
-            for (int i = 0; i < pairs.Length; i++)
+            var pairs = state.PreviousPairs ?? new System.Collections.Generic.List<UnitContactPair>();
+            for (int i = 0; i < pairs.Count; i++)
             {
                 UnitContactPair pair = pairs[i];
                 if (!pair.MinUid.IsValid || !pair.MaxUid.IsValid ||
@@ -101,7 +101,7 @@ namespace FrameSyncMoba.Physics
                     throw new InvalidOperationException(
                         "Physics PreviousPairs snapshot is not canonical.");
             }
-            pendingRestoredPairs = (UnitContactPair[])pairs.Clone();
+            pendingRestoredPairs = pairs.ToArray();
         }
 
         public void ApplyPendingRestore()

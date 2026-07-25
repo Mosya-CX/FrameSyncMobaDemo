@@ -20,5 +20,7 @@ namespace FrameSyncMoba.Unit
         public fp FlatCost;
         public StatId ResourceStat;
         public bool HasCost => FlatCost > fp.zero;
+        public fp ChannelCostPerTick;
+        public bool HasChannelCost => ChannelCostPerTick > fp.zero;
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System;
+using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
@@ -9,6 +10,8 @@ namespace FrameSyncMoba.Unit
             new Dictionary<string, StatModifierHandle>();
         private readonly Dictionary<string, CombatModifierHandle> _combatHandles =
             new Dictionary<string, CombatModifierHandle>();
+        private readonly Dictionary<string, fp> _numbers =
+            new Dictionary<string, fp>();
 
         public void SetStatHandle(string key, StatModifierHandle handle)
         {
@@ -40,6 +43,21 @@ namespace FrameSyncMoba.Unit
             return _combatHandles.TryGetValue(key, out var h) ? h : default;
         }
 
+        public void SetNumber(string key, fp value)
+        {
+            _numbers[key] = value;
+        }
+
+        public bool TryGetNumber(string key, out fp value)
+        {
+            return _numbers.TryGetValue(key, out value);
+        }
+
+        public fp GetNumberOrDefault(string key)
+        {
+            return _numbers.TryGetValue(key, out var v) ? v : fp.zero;
+        }
+
         public void InvalidateAll()
         {
             var statKeys = new List<string>(_statHandles.Keys);
@@ -53,12 +71,15 @@ namespace FrameSyncMoba.Unit
             {
                 _combatHandles[key] = default;
             }
+
+            _numbers.Clear();
         }
 
         public void Clear()
         {
             _statHandles.Clear();
             _combatHandles.Clear();
+            _numbers.Clear();
         }
 
         public BuffBlackboardSnapshot Capture()
@@ -71,18 +92,23 @@ namespace FrameSyncMoba.Unit
             foreach (var pair in _combatHandles)
                 combats.Add(new BuffCombatHandleSnapshot { Key = pair.Key, Handle = pair.Value });
             combats.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
+            var numbers = new List<BuffNumberSnapshot>(_numbers.Count);
+            foreach (var pair in _numbers)
+                numbers.Add(new BuffNumberSnapshot { Key = pair.Key, Value = pair.Value });
+            numbers.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
             return new BuffBlackboardSnapshot
             {
-                StatHandles = stats.ToArray(),
-                CombatHandles = combats.ToArray(),
+                StatHandles = new System.Collections.Generic.List<BuffStatHandleSnapshot>(stats),
+                CombatHandles = new System.Collections.Generic.List<BuffCombatHandleSnapshot>(combats),
+                Numbers = new System.Collections.Generic.List<BuffNumberSnapshot>(numbers),
             };
         }
 
         public void Restore(in BuffBlackboardSnapshot snapshot)
         {
             Clear();
-            BuffStatHandleSnapshot[] stats = snapshot.StatHandles ?? Array.Empty<BuffStatHandleSnapshot>();
-            for (int i = 0; i < stats.Length; i++)
+            var stats = snapshot.StatHandles ?? new System.Collections.Generic.List<BuffStatHandleSnapshot>();
+            for (int i = 0; i < stats.Count; i++)
             {
                 if (string.IsNullOrEmpty(stats[i].Key) ||
                     (i > 0 && string.CompareOrdinal(stats[i - 1].Key, stats[i].Key) >= 0))
@@ -90,8 +116,8 @@ namespace FrameSyncMoba.Unit
                         "Buff stat-handle snapshot is not in canonical key order.");
                 _statHandles.Add(stats[i].Key, stats[i].Handle);
             }
-            BuffCombatHandleSnapshot[] combats = snapshot.CombatHandles ?? Array.Empty<BuffCombatHandleSnapshot>();
-            for (int i = 0; i < combats.Length; i++)
+            var combats = snapshot.CombatHandles ?? new System.Collections.Generic.List<BuffCombatHandleSnapshot>();
+            for (int i = 0; i < combats.Count; i++)
             {
                 if (string.IsNullOrEmpty(combats[i].Key) ||
                     (i > 0 && string.CompareOrdinal(combats[i - 1].Key, combats[i].Key) >= 0))
@@ -99,14 +125,25 @@ namespace FrameSyncMoba.Unit
                         "Buff combat-handle snapshot is not in canonical key order.");
                 _combatHandles.Add(combats[i].Key, combats[i].Handle);
             }
+            var numbers = snapshot.Numbers ?? new System.Collections.Generic.List<BuffNumberSnapshot>();
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                if (string.IsNullOrEmpty(numbers[i].Key) ||
+                    (i > 0 && string.CompareOrdinal(numbers[i - 1].Key, numbers[i].Key) >= 0))
+                    throw new Deterministic.DeterministicSimulationException(
+                        "Buff number snapshot is not in canonical key order.");
+                _numbers.Add(numbers[i].Key, numbers[i].Value);
+            }
         }
     }
 
     public struct BuffStatHandleSnapshot { public string Key; public StatModifierHandle Handle; }
     public struct BuffCombatHandleSnapshot { public string Key; public CombatModifierHandle Handle; }
+    public struct BuffNumberSnapshot { public string Key; public fp Value; }
     public struct BuffBlackboardSnapshot
     {
-        public BuffStatHandleSnapshot[] StatHandles;
-        public BuffCombatHandleSnapshot[] CombatHandles;
+        public System.Collections.Generic.List<BuffStatHandleSnapshot> StatHandles;
+        public System.Collections.Generic.List<BuffCombatHandleSnapshot> CombatHandles;
+        public System.Collections.Generic.List<BuffNumberSnapshot> Numbers;
     }
 }

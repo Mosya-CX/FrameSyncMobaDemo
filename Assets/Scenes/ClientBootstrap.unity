@@ -238,6 +238,18 @@ MonoBehaviour:
   dedicatedServer: 0
   playerInputController: {fileID: 665779037}
   gameplayCamera: {fileID: 665779036}
+  indicatorDriver: {fileID: 0}
+  presentationDispatcher: {fileID: 0}
+  attackSfxHandler: {fileID: 0}
+  hitReactionPresenter: {fileID: 0}
+  deathPresenter: {fileID: 0}
+  luaBridge: {fileID: 0}
+  shopPage: {fileID: 0}
+  scoreboardController: {fileID: 0}
+  minimapController: {fileID: 0}
+  cooldownPresenter: {fileID: 0}
+  resultPageController: {fileID: 0}
+  jungleCampConfig: {fileID: 0}
 --- !u!114 &665779039
 MonoBehaviour:
   m_ObjectHideFlags: 0

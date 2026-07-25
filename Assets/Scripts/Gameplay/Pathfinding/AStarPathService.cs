@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
@@ -14,7 +14,7 @@ namespace FrameSyncMoba.Unit
         private const int MaxIterationsDefault = 1200;
         private const int BlockedTargetNeighborRadius = 3;
         private static readonly fp StraightCost = fp.one;
-        // Octile diagonal cost: sqrt(2) â‰ˆ 1.414213562. Use literal to avoid fpmath.sqrt precision.
+        // Octile diagonal cost: sqrt(2) ¡Ö 1.414213562. Use literal to avoid fpmath.sqrt precision.
         private static readonly fp DiagonalCost = (fp)1.414213562m;
 
         private readonly PathGridMap2D _grid;
@@ -75,6 +75,30 @@ namespace FrameSyncMoba.Unit
             // Validate start
             if (!_grid.IsPassable(startCx, startCy))
                 return PathResult.Failed(PathStatus.InvalidStart);
+            return FindPathImpl(startCx, startCy, targetCx, targetCy, maxIterations);
+        }
+
+        /// <summary>
+        /// Find a path from start to target for a specific RadiusClass.
+        /// Uses the appropriate clearance layer for passability checks.
+        /// </summary>
+        public PathResult FindPath(fp2 start, fp2 target, RadiusClass rc, int maxIterations = MaxIterationsDefault)
+        {
+            if (_grid.Width <= 0 || _grid.Height <= 0)
+                return PathResult.Failed(PathStatus.SystemNotReady);
+
+            (int startCx, int startCy) = _grid.WorldToCell(start);
+            (int targetCx, int targetCy) = _grid.WorldToCell(target);
+
+            // Validate start with radius-aware check
+            if (!_grid.IsPassable(startCx, startCy, rc))
+                return PathResult.Failed(PathStatus.InvalidStart);
+
+            return FindPathImplRadiusAware(startCx, startCy, targetCx, targetCy, rc, maxIterations);
+        }
+
+        private PathResult FindPathImpl(int startCx, int startCy, int targetCx, int targetCy, int maxIterations)
+        {
 
             // Check if start and target are the same cell
             if (startCx == targetCx && startCy == targetCy)
@@ -220,7 +244,7 @@ namespace FrameSyncMoba.Unit
                 current = _parentIndices[current];
             }
 
-            // Reverse to get start â†’ target order
+            // Reverse to get start ¡ú target order
             Array.Reverse(_pathBuffer, 0, _pathBufferCount);
 
             // Apply LOS smoothing
@@ -367,5 +391,111 @@ namespace FrameSyncMoba.Unit
         }
 
         private int CellIndex(int cx, int cy) => cy * _grid.Width + cx;
+
+        private PathResult FindPathImplRadiusAware(
+            int startCx, int startCy, int targetCx, int targetCy,
+            RadiusClass rc, int maxIterations)
+        {
+            if (startCx == targetCx && startCy == targetCy)
+            {
+                return PathResult.Ok(new int[] { CellIndex(startCx, startCy) });
+            }
+
+            int targetCellIndex = CellIndex(targetCx, targetCy);
+            int startCellIndex = CellIndex(startCx, startCy);
+
+            if (!_grid.IsPassable(targetCx, targetCy, rc))
+            {
+                int? fallbackCell = FindNearestPassable(targetCx, targetCy, startCx, startCy, rc);
+                if (!fallbackCell.HasValue)
+                    return PathResult.Failed(PathStatus.EndBlocked);
+                targetCellIndex = fallbackCell.Value;
+                targetCy = targetCellIndex / _grid.Width;
+                targetCx = targetCellIndex % _grid.Width;
+            }
+
+            BeginNewSearch();
+            fp hStart = OctileHeuristic(startCx, startCy, targetCx, targetCy);
+            PathNode startNode = new PathNode(startCx, startCy, fp.zero, hStart, -1);
+            _openSet.Push(startNode);
+            _gCosts[startCellIndex] = fp.zero;
+            _parentIndices[startCellIndex] = -1;
+
+            int iterations = 0;
+            while (_openSet.Count > 0 && iterations < maxIterations)
+            {
+                iterations++;
+                PathNode current = _openSet.Pop();
+                int currentIndex = CellIndex(current.CellX, current.CellY);
+                _closedSetSearchId[currentIndex] = _searchId;
+
+                if (current.CellX == targetCx && current.CellY == targetCy)
+                    return BuildPathResult(currentIndex, startCellIndex);
+
+                for (int i = 0; i < NeighborDirs.Length; i++)
+                {
+                    int nx = current.CellX + NeighborDirs[i].dx;
+                    int ny = current.CellY + NeighborDirs[i].dy;
+                    if (!_grid.IsPassable(nx, ny, rc)) continue;
+
+                    int dirIdx = i;
+                    if (dirIdx == 1 && (!_grid.IsPassable(current.CellX + 1, current.CellY, rc) || !_grid.IsPassable(current.CellX, current.CellY - 1, rc))) continue;
+                    if (dirIdx == 3 && (!_grid.IsPassable(current.CellX + 1, current.CellY, rc) || !_grid.IsPassable(current.CellX, current.CellY + 1, rc))) continue;
+                    if (dirIdx == 5 && (!_grid.IsPassable(current.CellX - 1, current.CellY, rc) || !_grid.IsPassable(current.CellX, current.CellY + 1, rc))) continue;
+                    if (dirIdx == 7 && (!_grid.IsPassable(current.CellX - 1, current.CellY, rc) || !_grid.IsPassable(current.CellX, current.CellY - 1, rc))) continue;
+
+                    int neighborIndex = CellIndex(nx, ny);
+                    if (_closedSetSearchId[neighborIndex] == _searchId) continue;
+
+                    bool isDiagonal = (dirIdx % 2 == 1);
+                    fp moveCost = isDiagonal ? DiagonalCost : StraightCost;
+                    fp tentativeG = current.GCost + moveCost;
+
+                    int heapIdx = _openSet.GetHeapIndex(neighborIndex);
+                    if (heapIdx >= 0)
+                    {
+                        if (tentativeG < _gCosts[neighborIndex])
+                        {
+                            _gCosts[neighborIndex] = tentativeG;
+                            _parentIndices[neighborIndex] = currentIndex;
+                            _openSet.DecreaseKey(neighborIndex, tentativeG);
+                        }
+                    }
+                    else
+                    {
+                        _gCosts[neighborIndex] = tentativeG;
+                        _parentIndices[neighborIndex] = currentIndex;
+                        fp h = OctileHeuristic(nx, ny, targetCx, targetCy);
+                        PathNode neighbor = new PathNode(nx, ny, tentativeG, h, currentIndex);
+                        _openSet.Push(neighbor);
+                    }
+                }
+            }
+
+            if (iterations >= maxIterations)
+                return PathResult.Failed(PathStatus.MaxIterationReached);
+            return PathResult.Failed(PathStatus.NoPath);
+        }
+
+        private int? FindNearestPassable(int blockedCx, int blockedCy, int startCx, int startCy, RadiusClass rc)
+        {
+            int bestCell = -1;
+            fp bestDist = (fp)999999m;
+            for (int dy = -BlockedTargetNeighborRadius; dy <= BlockedTargetNeighborRadius; dy++)
+            {
+                for (int dx = -BlockedTargetNeighborRadius; dx <= BlockedTargetNeighborRadius; dx++)
+                {
+                    if (dx == 0 && dy == 0) continue;
+                    int nx = blockedCx + dx;
+                    int ny = blockedCy + dy;
+                    if (nx == startCx && ny == startCy) continue;
+                    if (!_grid.IsPassable(nx, ny, rc)) continue;
+                    int distToStart = Math.Abs(nx - startCx) + Math.Abs(ny - startCy);
+                    fp dist = new fp(distToStart);
+                    if (dist < bestDist) { bestDist = dist; bestCell = CellIndex(nx, ny); }
+                }
+            }
+            return bestCell >= 0 ? bestCell : null;
+        }
     }
 }

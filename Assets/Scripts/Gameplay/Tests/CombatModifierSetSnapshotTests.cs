@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using NUnit.Framework;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
@@ -148,8 +149,8 @@ namespace FrameSyncMoba.Unit.Tests
             set1.Capture(ref s1);
             set2.Capture(ref s2);
 
-            Assert.AreEqual(s1.Records.Count, s2.Records.Count);
-            for (int i = 0; i < s1.Records.Count; i++)
+            Assert.AreEqual(s1.Records.Length, s2.Records.Length);
+            for (int i = 0; i < s1.Records.Length; i++)
             {
                 Assert.AreEqual(s1.Records[i].Id, s2.Records[i].Id);
                 Assert.AreEqual(s1.Ids[i], s2.Ids[i]);
@@ -165,8 +166,8 @@ namespace FrameSyncMoba.Unit.Tests
             CombatModifierSetSnapshot snapshot = default;
             set.Capture(ref snapshot);
 
-            Assert.AreEqual(0, snapshot.Records.Count);
-            Assert.AreEqual(0, snapshot.Ids.Count);
+            Assert.AreEqual(0, snapshot.Records.Length);
+            Assert.AreEqual(0, snapshot.Ids.Length);
         }
 
         [Test]
@@ -177,8 +178,8 @@ namespace FrameSyncMoba.Unit.Tests
             set.Attach(CreateRecord(100, "A"));
 
             var emptySnapshot = default(CombatModifierSetSnapshot);
-            emptySnapshot.Records = new List<CombatModifierRecord>();
-            emptySnapshot.Ids = new List<ulong>();
+            emptySnapshot.Records = Array.Empty<CombatModifierRecord>();
+            emptySnapshot.Ids = Array.Empty<ulong>();
 
             set.Restore(in emptySnapshot);
             Assert.AreEqual(0, set.Count);
@@ -196,7 +197,7 @@ namespace FrameSyncMoba.Unit.Tests
             CombatModifierSetSnapshot snapshot = default;
             set.Capture(ref snapshot);
 
-            Assert.AreEqual(1, snapshot.Records.Count);
+            Assert.AreEqual(1, snapshot.Records.Length);
             Assert.AreEqual(CombatModifierId.Create(200, "B"), snapshot.Records[0].Id);
         }
 
@@ -216,5 +217,3 @@ namespace FrameSyncMoba.Unit.Tests
         }
     }
 }
-
-

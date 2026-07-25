@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 
 namespace FrameSyncMoba.Unit
 {
@@ -23,11 +23,11 @@ namespace FrameSyncMoba.Unit
 
     public struct BuffHandlerSnapshot
     {
-        public List<BuffRuntimeSnapshot> Buffs;
+        public BuffRuntimeSnapshot[] Buffs;
 
         public static readonly BuffHandlerSnapshot Empty = new BuffHandlerSnapshot
         {
-            Buffs = new List<BuffRuntimeSnapshot>(),
+            Buffs = Array.Empty<BuffRuntimeSnapshot>(),
         };
     }
 }

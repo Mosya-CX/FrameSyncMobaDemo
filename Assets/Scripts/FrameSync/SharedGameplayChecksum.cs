@@ -39,9 +39,9 @@ namespace FrameSyncMoba.FrameSync
             WriteUnitUid(writer, state.RedBaseUnitUid); writer.WriteInt32(state.GameOverTick);
             writer.WriteInt32(state.FinishTick); writer.WriteByte(state.WinningTeamId.Value);
             writer.WriteByte((byte)state.EndReason);
-            MatchStatisticsEntry[] entries = state.Statistics.Entries ?? Array.Empty<MatchStatisticsEntry>();
-            writer.WriteInt32(entries.Length);
-            for (int i = 0; i < entries.Length; i++)
+            var entries = state.Statistics.Entries ?? new List<MatchStatisticsEntry>();
+            writer.WriteInt32(entries.Count);
+            for (int i = 0; i < entries.Count; i++)
             {
                 WriteUnitUid(writer, entries[i].HeroUnitUid); writer.WriteInt32(entries[i].Kills);
                 writer.WriteInt32(entries[i].Deaths); writer.WriteInt32(entries[i].Assists);
@@ -72,11 +72,11 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteUnitWorld(CanonicalByteWriter writer, in UnitWorldSnapshot state)
         {
-            List<UnitSnapshot> units = state.Units ?? new List<UnitSnapshot>();
-            writer.WriteInt32(units.Count);
-            for (int i = 0; i < units.Count; i++) WriteUnit(writer, units[i]);
+            UnitSnapshot[] units = state.Units ?? Array.Empty<UnitSnapshot>();
+            writer.WriteInt32(units.Length);
+            for (int i = 0; i < units.Length; i++) WriteUnit(writer, units[i]);
             writer.WriteInt32(state.RuntimeRevision);
-            List<RespawnEntry> lifecycleEntries =
+            var lifecycleEntries =
                 state.PendingUnitLifecycleState.Entries ?? new List<RespawnEntry>();
             writer.WriteInt32(lifecycleEntries.Count);
             for (int i = 0; i < lifecycleEntries.Count; i++)
@@ -88,25 +88,25 @@ namespace FrameSyncMoba.FrameSync
             writer.WriteInt32(state.MinionSystemState.WaveIndex);
             writer.WriteInt32(state.MinionSystemState.NextWaveLogicTick);
             writer.WriteInt32(state.MinionSystemState.NextTicketCursor);
-            List<MinionTicket> tickets = state.MinionSystemState.PendingTickets ?? new List<MinionTicket>();
-            writer.WriteInt32(tickets.Count);
-            for (int ticketIndex = 0; ticketIndex < tickets.Count; ticketIndex++)
+            MinionTicket[] tickets = state.MinionSystemState.PendingTickets ?? Array.Empty<MinionTicket>();
+            writer.WriteInt32(tickets.Length);
+            for (int ticketIndex = 0; ticketIndex < tickets.Length; ticketIndex++)
             {
                 MinionTicket ticket = tickets[ticketIndex];
                 WriteUnitUid(writer, ticket.UnitUid); writer.WriteInt32(ticket.SpawnLogicTick);
                 writer.WriteInt32(ticket.LaneId); writer.WriteBoolean(ticket.IsSpawned);
             }
             WriteUidList(writer, state.MinionSystemState.ManagedMinionUids);
-            List<JungleCampSnapshot> camps = state.JungleCampStates ?? new List<JungleCampSnapshot>();
-            writer.WriteInt32(camps.Count);
-            for (int i = 0; i < camps.Count; i++)
+            JungleCampSnapshot[] camps = state.JungleCampStates ?? Array.Empty<JungleCampSnapshot>();
+            writer.WriteInt32(camps.Length);
+            for (int i = 0; i < camps.Length; i++)
             {
                 JungleCampSnapshot camp = camps[i];
                 writer.WriteInt32(camp.CampId); writer.WriteByte((byte)camp.State);
                 WriteUidList(writer, camp.MemberUidsBySlot);
-                List<bool> alive = camp.MemberAliveBySlot ?? new List<bool>();
-                writer.WriteInt32(alive.Count);
-                for (int memberIndex = 0; memberIndex < alive.Count; memberIndex++)
+                bool[] alive = camp.MemberAliveBySlot ?? Array.Empty<bool>();
+                writer.WriteInt32(alive.Length);
+                for (int memberIndex = 0; memberIndex < alive.Length; memberIndex++)
                     writer.WriteBoolean(alive[memberIndex]);
                 writer.WriteBoolean(camp.MainMonsterDead);
                 WriteUnitUid(writer, camp.PrimaryTargetUid);
@@ -114,9 +114,9 @@ namespace FrameSyncMoba.FrameSync
                 writer.WriteInt32(camp.NextRespawnLogicTick);
                 writer.WriteInt32(camp.ResetBeginLogicTick);
             }
-            List<UnitAIControllerSnapshot> ais = state.AIControllerStates ?? new List<UnitAIControllerSnapshot>();
-            writer.WriteInt32(ais.Count);
-            for (int i = 0; i < ais.Count; i++)
+            UnitAIControllerSnapshot[] ais = state.AIControllerStates ?? Array.Empty<UnitAIControllerSnapshot>();
+            writer.WriteInt32(ais.Length);
+            for (int i = 0; i < ais.Length; i++)
             {
                 UnitAIControllerSnapshot ai = ais[i];
                 WriteUnitUid(writer, ai.OwnerUnitUid); writer.WriteByte((byte)ai.ControllerKind);
@@ -158,9 +158,9 @@ namespace FrameSyncMoba.FrameSync
             writer.WriteFp(state.CurrentCastResource); writer.WriteInt32(state.CurrentExperience);
             writer.WriteUInt32(state.NextStatSeq);
             writer.WriteInt32(state.NextShieldInstanceId);
-            List<ShieldInstance> shields = state.ShieldInstances ?? new List<ShieldInstance>();
-            writer.WriteInt32(shields.Count);
-            for (int i = 0; i < shields.Count; i++)
+            ShieldInstance[] shields = state.ShieldInstances ?? Array.Empty<ShieldInstance>();
+            writer.WriteInt32(shields.Length);
+            for (int i = 0; i < shields.Length; i++)
             {
                 ShieldInstance shield = shields[i];
                 writer.WriteInt32(shield.ShieldInstanceId); writer.WriteByte((byte)shield.ShieldType);
@@ -170,17 +170,17 @@ namespace FrameSyncMoba.FrameSync
                 WriteUnitUid(writer, shield.CrowdControlImmunityHandle.TargetUnitUid);
                 writer.WriteInt32(shield.CrowdControlImmunityHandle.ImmunityId);
             }
-            List<StatRuntimeEntrySnapshot> entries = state.Entries ?? new List<StatRuntimeEntrySnapshot>();
-            writer.WriteInt32(entries.Count);
-            for (int i = 0; i < entries.Count; i++)
+            StatRuntimeEntrySnapshot[] entries = state.Entries ?? Array.Empty<StatRuntimeEntrySnapshot>();
+            writer.WriteInt32(entries.Length);
+            for (int i = 0; i < entries.Length; i++)
             {
                 StatRuntimeEntrySnapshot entry = entries[i];
                 writer.WriteInt32((int)entry.StatId); writer.WriteFp(entry.LevelBaseValue);
                 writer.WriteFp(entry.FinalValue); writer.WriteFp(entry.PreviousLogicTickFinalValue);
                 writer.WriteBoolean(entry.Dirty);
-                List<StatModifier> modifiers = entry.Modifiers ?? new List<StatModifier>();
-                writer.WriteInt32(modifiers.Count);
-                for (int j = 0; j < modifiers.Count; j++)
+                StatModifier[] modifiers = entry.Modifiers ?? Array.Empty<StatModifier>();
+                writer.WriteInt32(modifiers.Length);
+                for (int j = 0; j < modifiers.Length; j++)
                 { writer.WriteUInt32(modifiers[j].StatSeq); writer.WriteByte((byte)modifiers[j].Operation); writer.WriteFp(modifiers[j].Value); }
             }
         }
@@ -190,7 +190,7 @@ namespace FrameSyncMoba.FrameSync
             WriteFp2(writer, state.Position); WriteFp2(writer, state.Velocity); WriteFp2(writer, state.Facing);
             writer.WriteFp(state.MoveSpeed); writer.WriteBoolean(state.IsMoving); WriteFp2(writer, state.TargetDirection);
             writer.WriteInt32(state.CurrentWaypointIndex);
-            WriteIntArray(writer, state.SnapshotPathCellIndices);
+            WriteIntArray(writer, state.SnapshotPathCellIndices?.ToArray());
         }
 
         private static void WriteAttack(CanonicalByteWriter writer, in AttackSnapshot state)
@@ -205,14 +205,14 @@ namespace FrameSyncMoba.FrameSync
             writer.WriteByte(state.PendingSkillPoints); writer.WriteInt32(state.NextSessionUid);
             writer.WriteBoolean(state.HasFixedPassive); writer.WriteInt32(state.FixedPassiveAbilityId);
             if (state.HasFixedPassive) WritePassiveState(writer, state.FixedPassiveRuntimeState);
-            AbilitySlotSnapshot[] slots = state.BookSnapshot.SlotSnapshots ?? Array.Empty<AbilitySlotSnapshot>();
-            writer.WriteInt32(slots.Length);
-            for (int i = 0; i < slots.Length; i++)
+            var slots = state.BookSnapshot.SlotSnapshots ?? new List<AbilitySlotSnapshot>();
+            writer.WriteInt32(slots.Count);
+            for (int i = 0; i < slots.Count; i++)
             {
                 writer.WriteByte(slots[i].SlotIndex); writer.WriteByte(slots[i].AllocatedPoints); writer.WriteInt32(slots[i].ActiveAbilityId);
-                AbilityRuntimeSnapshot[] runtimes = slots[i].AbilityRuntimes ?? Array.Empty<AbilityRuntimeSnapshot>();
-                writer.WriteInt32(runtimes.Length);
-                for (int j = 0; j < runtimes.Length; j++)
+                var runtimes = slots[i].AbilityRuntimes ?? new List<AbilityRuntimeSnapshot>();
+                writer.WriteInt32(runtimes.Count);
+                for (int j = 0; j < runtimes.Count; j++)
                 {
                     AbilityRuntimeSnapshot runtime = runtimes[j];
                     writer.WriteInt32(runtime.AbilityId); writer.WriteInt32(runtime.Level); writer.WriteInt32(runtime.CooldownEndsAtTick);
@@ -225,9 +225,9 @@ namespace FrameSyncMoba.FrameSync
                     writer.WriteInt32(session.SessionUid); writer.WriteByte(session.CurrentStageKey);
                     writer.WriteInt32(session.StartLogicTick); writer.WriteInt32(session.StageElapsedTicks);
                     WriteAim(writer, session.Aim); writer.WriteBoolean(session.Interrupted); writer.WriteBoolean(session.Cancelled);
-                    AbilityBlackboardEntrySnapshot[] entries = session.Blackboard.Entries ?? Array.Empty<AbilityBlackboardEntrySnapshot>();
-                    writer.WriteInt32(entries.Length);
-                    for (int k = 0; k < entries.Length; k++)
+                    var entries = session.Blackboard.Entries ?? new List<AbilityBlackboardEntrySnapshot>();
+                    writer.WriteInt32(entries.Count);
+                    for (int k = 0; k < entries.Count; k++)
                     { writer.WriteInt32(entries[k].KeyId); writer.WriteByte((byte)entries[k].Kind); writer.WriteFp(entries[k].Number); WriteUnitUid(writer, entries[k].UnitUid); WriteFp2(writer, entries[k].Vector); WriteProjectileUid(writer, entries[k].ProjectileUid); }
                 }
             }
@@ -249,38 +249,38 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteBuffs(CanonicalByteWriter writer, in BuffHandlerSnapshot state)
         {
-            List<BuffRuntimeSnapshot> buffs = state.Buffs ?? new List<BuffRuntimeSnapshot>();
-            writer.WriteInt32(buffs.Count);
-            for (int i = 0; i < buffs.Count; i++)
+            BuffRuntimeSnapshot[] buffs = state.Buffs ?? Array.Empty<BuffRuntimeSnapshot>();
+            writer.WriteInt32(buffs.Length);
+            for (int i = 0; i < buffs.Length; i++)
             {
                 BuffRuntimeSnapshot buff = buffs[i];
                 writer.WriteInt32(buff.ConfigId.Value); WriteUnitUid(writer, buff.SourceUnitUid);
                 writer.WriteInt32(buff.RemainingTicks); writer.WriteInt32(buff.CurrentStacks); writer.WriteInt32(buff.ElapsedTicks);
                 writer.WriteInt32(buff.PeriodicTimer); writer.WriteByte((byte)buff.RemovalReason); writer.WriteBoolean(buff.IsRemoving);
-                BuffStatHandleSnapshot[] stats = buff.Blackboard.StatHandles ?? Array.Empty<BuffStatHandleSnapshot>();
-                writer.WriteInt32(stats.Length);
-                for (int j = 0; j < stats.Length; j++)
+                var stats = buff.Blackboard.StatHandles ?? new List<BuffStatHandleSnapshot>();
+                writer.WriteInt32(stats.Count);
+                for (int j = 0; j < stats.Count; j++)
                 { writer.WriteString(stats[j].Key); WriteUnitUid(writer, stats[j].Handle.OwnerUnitUid); writer.WriteInt32((int)stats[j].Handle.StatId); writer.WriteUInt32(stats[j].Handle.StatSeq); }
-                BuffCombatHandleSnapshot[] combats = buff.Blackboard.CombatHandles ?? Array.Empty<BuffCombatHandleSnapshot>();
-                writer.WriteInt32(combats.Length);
-                for (int j = 0; j < combats.Length; j++)
+                var combats = buff.Blackboard.CombatHandles ?? new List<BuffCombatHandleSnapshot>();
+                writer.WriteInt32(combats.Count);
+                for (int j = 0; j < combats.Count; j++)
                 { writer.WriteString(combats[j].Key); WriteUnitUid(writer, combats[j].Handle.OwnerUnitUid); writer.WriteUInt64(combats[j].Handle.ModifierId); }
             }
         }
 
         private static void WriteCrowdControl(CanonicalByteWriter writer, in CrowdControlHandlerSnapshot state)
         {
-            CrowdControlConstraint[] instances = state.Instances ?? Array.Empty<CrowdControlConstraint>();
-            writer.WriteInt32(instances.Length);
-            for (int i = 0; i < instances.Length; i++)
+            var instances = state.Instances ?? new List<CrowdControlConstraint>();
+            writer.WriteInt32(instances.Count);
+            for (int i = 0; i < instances.Count; i++)
             { writer.WriteInt32(instances[i].InstanceId); writer.WriteByte((byte)instances[i].Type); writer.WriteInt32(instances[i].StartLogicTick); writer.WriteInt32(instances[i].RemainingTicks); writer.WriteByte(instances[i].Priority); WriteUnitUid(writer, instances[i].SourceUnitUid); writer.WriteBoolean(instances[i].IsForcedMove); WriteFp2(writer, instances[i].ForcedMoveDeltaPerTick); }
-            CrowdControlImmunitySnapshot[] immunities = state.Immunities ?? Array.Empty<CrowdControlImmunitySnapshot>();
-            writer.WriteInt32(immunities.Length);
-            for (int i = 0; i < immunities.Length; i++)
+            var immunities = state.Immunities ?? new List<CrowdControlImmunitySnapshot>();
+            writer.WriteInt32(immunities.Count);
+            for (int i = 0; i < immunities.Count; i++)
             { writer.WriteInt32(immunities[i].ImmunityId); writer.WriteInt32(immunities[i].RemainingTicks); }
-            CrowdControlUnstoppableSnapshot[] unstoppables = state.Unstoppables ?? Array.Empty<CrowdControlUnstoppableSnapshot>();
-            writer.WriteInt32(unstoppables.Length);
-            for (int i = 0; i < unstoppables.Length; i++)
+            var unstoppables = state.Unstoppables ?? new List<CrowdControlUnstoppableSnapshot>();
+            writer.WriteInt32(unstoppables.Count);
+            for (int i = 0; i < unstoppables.Count; i++)
             { writer.WriteInt32(unstoppables[i].UnstoppableId); writer.WriteInt32(unstoppables[i].RemainingTicks); }
             writer.WriteInt32(state.NextInstanceId); writer.WriteInt32(state.NextImmunityId); writer.WriteInt32(state.NextUnstoppableId);
             writer.WriteInt32(state.ActiveForcedMoveHandle.InstanceId);
@@ -288,30 +288,30 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteEquipment(CanonicalByteWriter writer, in EquipmentHandlerSnapshot state)
         {
-            EquipmentSlotSnapshot[] slots = state.Slots ?? Array.Empty<EquipmentSlotSnapshot>();
-            writer.WriteInt32(slots.Length);
-            for (int i = 0; i < slots.Length; i++)
+            var slots = state.Slots ?? new List<EquipmentSlotSnapshot>();
+            writer.WriteInt32(slots.Count);
+            for (int i = 0; i < slots.Count; i++)
             {
                 writer.WriteBoolean(slots[i].Occupied); writer.WriteInt32(slots[i].EquipmentId);
                 writer.WriteInt32(slots[i].StackCount); writer.WriteInt32(slots[i].ChargeCount);
                 writer.WriteInt32(slots[i].ReadyTick);
-                StatModifierHandle[] handles = slots[i].FixedStatHandles ?? Array.Empty<StatModifierHandle>();
-                writer.WriteInt32(handles.Length);
-                for (int handleIndex = 0; handleIndex < handles.Length; handleIndex++)
+                var handles = slots[i].FixedStatHandles ?? new List<StatModifierHandle>();
+                writer.WriteInt32(handles.Count);
+                for (int handleIndex = 0; handleIndex < handles.Count; handleIndex++)
                 {
                     WriteUnitUid(writer, handles[handleIndex].OwnerUnitUid);
                     writer.WriteInt32((int)handles[handleIndex].StatId);
                     writer.WriteUInt32(handles[handleIndex].StatSeq);
                 }
-                EquipmentEffectRuntimeSnapshot[] effects =
-                    slots[i].EffectStates ?? Array.Empty<EquipmentEffectRuntimeSnapshot>();
-                writer.WriteInt32(effects.Length);
-                for (int effectIndex = 0; effectIndex < effects.Length; effectIndex++)
+                var effects =
+                    slots[i].EffectStates ?? new List<EquipmentEffectRuntimeSnapshot>();
+                writer.WriteInt32(effects.Count);
+                for (int effectIndex = 0; effectIndex < effects.Count; effectIndex++)
                 {
-                    EquipmentEffectModuleRuntimeState[] modules =
-                        effects[effectIndex].ModuleStates ?? Array.Empty<EquipmentEffectModuleRuntimeState>();
-                    writer.WriteInt32(modules.Length);
-                    for (int moduleIndex = 0; moduleIndex < modules.Length; moduleIndex++)
+                    var modules =
+                        effects[effectIndex].ModuleStates ?? new List<EquipmentEffectModuleRuntimeState>();
+                    writer.WriteInt32(modules.Count);
+                    for (int moduleIndex = 0; moduleIndex < modules.Count; moduleIndex++)
                     {
                         writer.WriteInt32(modules[moduleIndex].NextExecuteTick);
                         writer.WriteInt32(modules[moduleIndex].InternalCooldownReadyTick);
@@ -320,7 +320,7 @@ namespace FrameSyncMoba.FrameSync
                     }
                 }
             }
-            List<EquipmentSharedCooldownSnapshot> cooldowns =
+            var cooldowns =
                 state.SharedCooldowns ?? new List<EquipmentSharedCooldownSnapshot>();
             writer.WriteInt32(cooldowns.Count);
             for (int i = 0; i < cooldowns.Count; i++)
@@ -333,13 +333,13 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteCombat(CanonicalByteWriter writer, in CombatSnapshot state)
         {
-            DamageContributionTrackerSnapshot[] trackers = state.ContributionTrackers ?? Array.Empty<DamageContributionTrackerSnapshot>();
-            writer.WriteInt32(trackers.Length);
-            for (int i = 0; i < trackers.Length; i++)
-            { WriteUnitUid(writer, trackers[i].VictimUnitUid); DamageContributionRecordSnapshot[] records = trackers[i].Records ?? Array.Empty<DamageContributionRecordSnapshot>(); writer.WriteInt32(records.Length); for (int j = 0; j < records.Length; j++) { WriteUnitUid(writer, records[j].ContributorHeroUid); writer.WriteInt32(records[j].LastContributionLogicTick); writer.WriteFp(records[j].ContributionValue); writer.WriteInt32(records[j].ExpireLogicTick); } }
-            DeferredCombatRequest[] deferred = state.DeferredRequests ?? Array.Empty<DeferredCombatRequest>();
-            writer.WriteInt32(deferred.Length);
-            for (int i = 0; i < deferred.Length; i++)
+            var trackers = state.ContributionTrackers ?? new List<DamageContributionTrackerSnapshot>();
+            writer.WriteInt32(trackers.Count);
+            for (int i = 0; i < trackers.Count; i++)
+            { WriteUnitUid(writer, trackers[i].VictimUnitUid); var records = trackers[i].Records ?? new List<DamageContributionRecordSnapshot>(); writer.WriteInt32(records.Count); for (int j = 0; j < records.Count; j++) { WriteUnitUid(writer, records[j].ContributorHeroUid); writer.WriteInt32(records[j].LastContributionLogicTick); writer.WriteFp(records[j].ContributionValue); writer.WriteInt32(records[j].ExpireLogicTick); } }
+            var deferred = state.DeferredRequests ?? new List<DeferredCombatRequest>();
+            writer.WriteInt32(deferred.Count);
+            for (int i = 0; i < deferred.Count; i++)
             { writer.WriteInt32(deferred[i].ExecuteLogicTick); writer.WriteInt32(deferred[i].SourceLogicTick); writer.WriteUInt32(deferred[i].DeferredSequenceInSourceTick); writer.WriteByte((byte)deferred[i].RequestKind); WriteCombatPayload(writer, deferred[i]); }
         }
 
@@ -355,22 +355,26 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteProjectiles(CanonicalByteWriter writer, in ProjectileWorldSnapshot state)
         {
-            List<PendingSpawnRecordSnapshot> pending = state.PendingSpawns ?? new List<PendingSpawnRecordSnapshot>(); writer.WriteInt32(pending.Count);
-            for (int i = 0; i < pending.Count; i++) { WriteProjectileUid(writer, pending[i].Uid); writer.WriteInt32(pending[i].DefId); WriteUnitUid(writer, pending[i].OwnerUnitUid); writer.WriteByte(pending[i].TeamSnapshot.Value); WriteFp2(writer, pending[i].StartPosition); WriteFp2(writer, pending[i].Direction); }
-            List<ProjectileRuntimeSnapshot> active = state.ActiveProjectiles ?? new List<ProjectileRuntimeSnapshot>(); writer.WriteInt32(active.Count);
-            for (int i = 0; i < active.Count; i++) { WriteProjectileUid(writer, active[i].Uid); writer.WriteInt32(active[i].DefId); WriteUnitUid(writer, active[i].OwnerUnitUid); writer.WriteByte(active[i].TeamSnapshot.Value); WriteFp2(writer, active[i].PreviousPosition); WriteFp2(writer, active[i].Position); WriteFp2(writer, active[i].Velocity); writer.WriteInt32(active[i].RemainingLifetimeTicks); writer.WriteBoolean(active[i].IsActive); writer.WriteInt32(active[i].HitCount); WriteUidList(writer, active[i].HitTargets); }
+            var pending = state.PendingSpawns ?? Array.Empty<PendingSpawnRecordSnapshot>();
+            writer.WriteInt32(pending.Length);
+            for (int i = 0; i < pending.Length; i++) { WriteProjectileUid(writer, pending[i].Uid); writer.WriteInt32(pending[i].DefId); WriteUnitUid(writer, pending[i].OwnerUnitUid); writer.WriteByte(pending[i].TeamSnapshot.Value); WriteFp2(writer, pending[i].StartPosition); WriteFp2(writer, pending[i].Direction); }
+            var active = state.ActiveProjectiles ?? Array.Empty<ProjectileRuntimeSnapshot>();
+            writer.WriteInt32(active.Length);
+            for (int i = 0; i < active.Length; i++) { WriteProjectileUid(writer, active[i].Uid); writer.WriteInt32(active[i].DefId); WriteUnitUid(writer, active[i].OwnerUnitUid); writer.WriteByte(active[i].TeamSnapshot.Value); WriteFp2(writer, active[i].PreviousPosition); WriteFp2(writer, active[i].Position); WriteFp2(writer, active[i].Velocity); writer.WriteInt32(active[i].RemainingLifetimeTicks); writer.WriteBoolean(active[i].IsActive); writer.WriteInt32(active[i].HitCount); WriteUidList(writer, active[i].HitTargets); }
         }
 
         private static void WriteEquipmentShop(CanonicalByteWriter writer, in EquipmentShopRuntimeSnapshot state)
         {
-            List<ShopTraderRuntimeSnapshot> traders = state.CreatedTraders ?? new List<ShopTraderRuntimeSnapshot>(); writer.WriteInt32(traders.Count);
-            for (int i = 0; i < traders.Count; i++) { writer.WriteInt32(traders[i].Player); WriteUnitUid(writer, traders[i].ControlledUnitUid); writer.WriteInt32(traders[i].NextOperationSequence); ShopOperationRecord[] ops = traders[i].OperationLog ?? Array.Empty<ShopOperationRecord>(); writer.WriteInt32(ops.Length); for (int j = 0; j < ops.Length; j++) { writer.WriteInt32(ops[j].OperationSequence); writer.WriteByte((byte)ops[j].OperationType); writer.WriteInt32(ops[j].Player); WriteUnitUid(writer, ops[j].ControlledUnitUid); writer.WriteInt32(ops[j].LogicTick); writer.WriteInt32(ops[j].GoldDelta); writer.WriteBoolean(ops[j].Reverted); writer.WriteInt32(ops[j].RevertedLogicTick); writer.WriteInt32(ops[j].EquipmentRevisionBefore); writer.WriteInt32(ops[j].EquipmentRevisionAfter); } WriteIntArray(writer, traders[i].UndoableOperationStack); }
+            var traders = state.CreatedTraders ?? new List<ShopTraderRuntimeSnapshot>();
+            writer.WriteInt32(traders.Count);
+            for (int i = 0; i < traders.Count; i++) { writer.WriteInt32(traders[i].Player); WriteUnitUid(writer, traders[i].ControlledUnitUid); writer.WriteInt32(traders[i].NextOperationSequence); var ops = traders[i].OperationLog ?? new List<ShopOperationRecord>(); writer.WriteInt32(ops.Count); for (int j = 0; j < ops.Count; j++) { writer.WriteInt32(ops[j].OperationSequence); writer.WriteByte((byte)ops[j].OperationType); writer.WriteInt32(ops[j].Player); WriteUnitUid(writer, ops[j].ControlledUnitUid); writer.WriteInt32(ops[j].LogicTick); writer.WriteInt32(ops[j].GoldDelta); writer.WriteBoolean(ops[j].Reverted); writer.WriteInt32(ops[j].RevertedLogicTick); writer.WriteInt32(ops[j].EquipmentRevisionBefore); writer.WriteInt32(ops[j].EquipmentRevisionAfter); } WriteIntArray(writer, traders[i].UndoableOperationStack?.ToArray()); }
         }
 
         private static void WritePhysics(CanonicalByteWriter writer, in PhysicsRuntimeSnapshot state)
         {
-            UnitContactPair[] pairs = state.CollisionBuffer.PreviousPairs ?? Array.Empty<UnitContactPair>(); writer.WriteInt32(pairs.Length);
-            for (int i = 0; i < pairs.Length; i++) { WriteRuntimeUid(writer, pairs[i].MinUid); WriteRuntimeUid(writer, pairs[i].MaxUid); }
+            var pairs = state.CollisionBuffer.PreviousPairs ?? new List<UnitContactPair>();
+            writer.WriteInt32(pairs.Count);
+            for (int i = 0; i < pairs.Count; i++) { WriteRuntimeUid(writer, pairs[i].MinUid); WriteRuntimeUid(writer, pairs[i].MaxUid); }
         }
 
         private static void WriteAim(CanonicalByteWriter writer, in AimSnapshot aim) { writer.WriteByte((byte)aim.Kind); WriteUnitUid(writer, aim.TargetUnitUid); WriteFp2(writer, aim.TargetPoint); WriteFp2(writer, aim.Direction); }

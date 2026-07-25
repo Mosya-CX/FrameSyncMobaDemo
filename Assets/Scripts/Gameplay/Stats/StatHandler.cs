@@ -269,8 +269,15 @@ namespace FrameSyncMoba.Unit
                 currentCastResource = ApplyLevelUpCurrentValueRule(
                     currentCastResource, previousMaxResource, newMaxResource,
                     levelExperienceConfig.CastResourceOnLevelUp);
-                levelsGained++;
-            }
+                  levelsGained++;
+              }
+
+              // Grant skill points for each level gained
+              if (levelsGained > 0 && Owner?.AbilityHandler != null)
+              {
+                  for (int i = 0; i < levelsGained; i++)
+                      Owner.AbilityHandler.GrantSkillPoint();
+              }
 
             return new ExperienceGainResult
             {
@@ -539,44 +546,30 @@ namespace FrameSyncMoba.Unit
             state.CurrentExperience = currentExperience;
             state.NextStatSeq = nextStatSeq;
             state.NextShieldInstanceId = nextShieldInstanceId;
-            if (state.ShieldInstances == null)
-                state.ShieldInstances = new List<ShieldInstance>(shieldInstances.Count);
-            else
-                state.ShieldInstances.Clear();
+            var shieldList = new List<ShieldInstance>(shieldInstances.Count);
             for (int i = 0; i < shieldInstances.Count; i++)
-                state.ShieldInstances.Add(shieldInstances[i]);
-
-            if (state.Entries == null)
-            {
-                state.Entries = new List<StatRuntimeEntrySnapshot>(entries.Count);
-            }
-            else
-            {
-                state.Entries.Clear();
-            }
+                shieldList.Add(shieldInstances[i]);
+            state.ShieldInstances = shieldList.ToArray();
 
             var captureStatIds = new List<StatId>(entries.Keys);
             captureStatIds.Sort((left, right) => left.CompareTo(right));
+            var entryList = new List<StatRuntimeEntrySnapshot>(entries.Count);
             for (int statIndex = 0; statIndex < captureStatIds.Count; statIndex++)
             {
                 StatId statId = captureStatIds[statIndex];
                 StatRuntimeEntry entry = entries[statId];
-                var mods = new List<StatModifier>(entry.Modifiers.Count);
-                for (int i = 0; i < entry.Modifiers.Count; i++)
-                {
-                    mods.Add(entry.Modifiers[i]);
-                }
 
-                state.Entries.Add(new StatRuntimeEntrySnapshot
+                entryList.Add(new StatRuntimeEntrySnapshot
                 {
                     StatId = statId,
                     LevelBaseValue = entry.LevelBaseValue,
                     FinalValue = entry.FinalValue,
                     PreviousLogicTickFinalValue = entry.PreviousLogicTickFinalValue,
                     Dirty = entry.Dirty,
-                    Modifiers = mods,
+                    Modifiers = entry.Modifiers.ToArray(),
                 });
             }
+            state.Entries = entryList.ToArray();
         }
 
         /// <summary>
@@ -599,7 +592,7 @@ namespace FrameSyncMoba.Unit
             int previousShieldInstanceId = 0;
             if (state.ShieldInstances != null)
             {
-                for (int i = 0; i < state.ShieldInstances.Count; i++)
+                for (int i = 0; i < state.ShieldInstances.Length; i++)
                 {
                     ShieldInstance instance = state.ShieldInstances[i];
                     if (instance.ShieldInstanceId <= previousShieldInstanceId ||
@@ -612,7 +605,7 @@ namespace FrameSyncMoba.Unit
                 }
             }
 
-            for (int i = 0; i < state.Entries.Count; i++)
+            for (int i = 0; i < state.Entries.Length; i++)
             {
                 StatRuntimeEntrySnapshot snap = state.Entries[i];
 
@@ -626,7 +619,7 @@ namespace FrameSyncMoba.Unit
 
                 if (snap.Modifiers != null)
                 {
-                    for (int j = 0; j < snap.Modifiers.Count; j++)
+                    for (int j = 0; j < snap.Modifiers.Length; j++)
                     {
                         entry.Modifiers.Add(snap.Modifiers[j]);
                     }

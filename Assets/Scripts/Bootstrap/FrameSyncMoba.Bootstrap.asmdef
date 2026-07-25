@@ -8,6 +8,8 @@
         "FrameSyncMoba.Unit",
         "FrameSyncMoba.FrameSync",
         "FrameSyncMoba.PlayerInput",
+        "FrameSyncMoba.LuaBridge",
+        "Unity.Mathematics",
         "Unity.Mathematics.FixedPoint"
     ],
     "includePlatforms": [],
@@ -15,7 +17,7 @@
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

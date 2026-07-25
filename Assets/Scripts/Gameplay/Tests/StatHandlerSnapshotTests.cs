@@ -159,13 +159,13 @@ namespace FrameSyncMoba.Unit.Tests
 
             Assert.AreEqual(s1.Level, s2.Level);
             Assert.AreEqual(s1.NextStatSeq, s2.NextStatSeq);
-            Assert.AreEqual(s1.Entries.Count, s2.Entries.Count);
+            Assert.AreEqual(s1.Entries.Length, s2.Entries.Length);
 
-            for (int i = 0; i < s1.Entries.Count; i++)
+            for (int i = 0; i < s1.Entries.Length; i++)
             {
                 Assert.AreEqual(s1.Entries[i].StatId, s2.Entries[i].StatId);
                 Assert.AreEqual(s1.Entries[i].FinalValue, s2.Entries[i].FinalValue);
-                Assert.AreEqual(s1.Entries[i].Modifiers.Count, s2.Entries[i].Modifiers.Count);
+                Assert.AreEqual(s1.Entries[i].Modifiers.Length, s2.Entries[i].Modifiers.Length);
             }
         }
     }

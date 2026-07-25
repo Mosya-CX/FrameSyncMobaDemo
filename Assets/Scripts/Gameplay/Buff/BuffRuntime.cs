@@ -19,6 +19,7 @@ namespace FrameSyncMoba.Unit
 
         private readonly BuffEffect[] _effects;
         private int _periodicTimer;
+        private bool _isDependentStack;
 
         internal BuffRuntime(BuffConfigId configId, BuffDef definition, UnitUid sourceUnitUid)
         {
@@ -106,6 +107,12 @@ namespace FrameSyncMoba.Unit
         {
             SourceUnitUid = sourceUnitUid;
         }
+
+        /// <summary>Mark this runtime as using Dependent stacking (all stacks share one duration).</summary>
+        public void MarkDependentStack() { _isDependentStack = true; }
+
+        /// <summary>True when stacks are Dependent (shared duration).</summary>
+        public bool IsDependentStack => _isDependentStack;
 
         public BuffEffect[] GetEffects()
         {

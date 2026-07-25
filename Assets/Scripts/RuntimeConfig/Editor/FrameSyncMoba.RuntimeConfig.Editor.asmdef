@@ -1,0 +1,20 @@
+{
+    "name": "FrameSyncMoba.RuntimeConfig.Editor",
+    "rootNamespace": "FrameSyncMoba.RuntimeConfig.Editor",
+    "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

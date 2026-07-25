@@ -4,20 +4,20 @@ namespace FrameSyncMoba.Unit
 {
     public struct CombatSnapshot
     {
-        public DamageContributionTrackerSnapshot[] ContributionTrackers;
-        public DeferredCombatRequest[] DeferredRequests;
+        public System.Collections.Generic.List<DamageContributionTrackerSnapshot> ContributionTrackers;
+        public System.Collections.Generic.List<DeferredCombatRequest> DeferredRequests;
 
         public static readonly CombatSnapshot Default = new CombatSnapshot
         {
-            ContributionTrackers = System.Array.Empty<DamageContributionTrackerSnapshot>(),
-            DeferredRequests = System.Array.Empty<DeferredCombatRequest>(),
+            ContributionTrackers = new System.Collections.Generic.List<DamageContributionTrackerSnapshot>(),
+            DeferredRequests = new System.Collections.Generic.List<DeferredCombatRequest>(),
         };
     }
 
     public struct DamageContributionTrackerSnapshot
     {
         public UnitUid VictimUnitUid;
-        public DamageContributionRecordSnapshot[] Records;
+        public System.Collections.Generic.List<DamageContributionRecordSnapshot> Records;
     }
 
     public struct DamageContributionRecordSnapshot

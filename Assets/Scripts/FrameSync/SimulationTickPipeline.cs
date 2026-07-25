@@ -19,17 +19,24 @@ namespace FrameSyncMoba.FrameSync
         private readonly List<JungleCampSnapshot> _campStateBuffer = new List<JungleCampSnapshot>();
         private readonly List<LocomotionResult> _locomotionBuffer = new List<LocomotionResult>();
 
+        // RVO system instance (created once, reused per Tick)
+        private DeterministicRVOSystem _rvoSystem;
+        private readonly List<UnitLocomotionAgent> _rvoAgentBuffer = new List<UnitLocomotionAgent>();
+        private readonly List<MovementHandler> _rvoHandlerBuffer = new List<MovementHandler>();
+
         public CombatSystem CombatSystem { get; set; }
         public GoldIncomeRuntime GoldIncome { get; set; }
         public ProjectileWorld ProjectileWorld { get; set; }
         public EquipmentShopRuntime EquipmentShop { get; set; }
         public MinionSystem MinionSystem { get; set; }
+        public NaturalGoldIncomeSystem NaturalGoldIncome { get; set; }
         public JungleCampSystem JungleCampSystem { get; set; }
         public NonHeroRestoreHelper NonHeroHelper { get; set; }
         public ProjectileHitResolver ProjectileHitResolver { get; set; }
         public PresentationSyncManager PresentationSync { get; set; }
         public DeterministicRandomService RandomService { get; set; }
         public MatchRuleRuntime MatchRule { get; set; }
+        public FrameSyncMoba.Unit.MatchEventTracker MatchEventTracker { get; set; }
         public CommandCollector CommandCollector => _collector;
         internal int AuthorityReplayTick { get; set; } = -1;
 
@@ -44,6 +51,7 @@ namespace FrameSyncMoba.FrameSync
             _collector = new CommandCollector();
             _checksumWriter = new CanonicalByteWriter(new byte[262144]);
             LocalSimulationTick = 0;
+            _rvoSystem = new DeterministicRVOSystem(RVOConfig.Default);
         }
 
         public void SubmitCommand(GameplayCommand command)
@@ -88,6 +96,24 @@ namespace FrameSyncMoba.FrameSync
                     _locomotionBuffer.Add(locomotion);
                 }
 
+                // Phase 1.5: RVO avoidance step (Pathfinding Design v13.1 section 10.6)
+                _rvoAgentBuffer.Clear();
+                _rvoHandlerBuffer.Clear();
+                for (int i = 0; i < units.Count; i++)
+                {
+                    var unit = units[i];
+                    if (unit?.Locomotion != null && unit.MovementHandler != null)
+                    {
+                        _rvoAgentBuffer.Add(unit.Locomotion);
+                        _rvoHandlerBuffer.Add(unit.MovementHandler);
+                    }
+                }
+                _physicsWorld?.BuildRvoGrid();
+                if (_rvoAgentBuffer.Count > 0)
+                {
+                    RvoOrchestrator.Step(_rvoSystem, _rvoAgentBuffer, _rvoHandlerBuffer);
+                }
+
                 // Phase 2: Apply route movement
                 for (int i = 0; i < units.Count; i++)
                 {
@@ -108,10 +134,33 @@ namespace FrameSyncMoba.FrameSync
                     unit.CrowdControl?.TickUpdate();
                     unit.HitReaction.TickUpdate();
                     unit.AbilityHandler?.TickUpdate();
-                    unit.MovementHandler?.TickUpdate(fp.one);
+                    unit.MovementHandler?.TickUpdate();
                     var damageRequest = unit.AttackHandler?.TickUpdate();
                     if (damageRequest.HasValue && CombatSystem != null)
                         CombatSystem.SubmitDamage(damageRequest.Value);
+                }
+
+                // Phase 3.5: Wall penetration detection and correction
+                // Runs after all movement has been applied for this Tick.
+                // (Pathfinding Design v13.1 section 12.2)
+                if (_unitWorld.PathGrid != null)
+                {
+                    foreach (var unit in units)
+                    {
+                        if (unit?.MovementHandler == null) continue;
+                        var correction = WallPenetrationResolver.Detect(
+                            unit.UnitUid,
+                            unit.MovementHandler.Snapshot.Position,
+                            RadiusClassHelper.GetRadius(RadiusClass.Medium),
+                            _unitWorld.PathGrid);
+
+                        if (correction.HasValue)
+                        {
+                            unit.MovementHandler.ApplyForcedMovement(
+                                correction.Value.Delta,
+                                allowRVO: false);
+                        }
+                    }
                 }
 
                 ProjectileWorld?.CommitSpawns();
@@ -127,12 +176,28 @@ namespace FrameSyncMoba.FrameSync
                 {
                     MatchRule.Statistics.Consume(CombatSystem?.DeathResults, _unitWorld);
                     MatchRule.AdvanceTick(tick);
+
+                    // Process kill streaks and multikills (per-design kill feedback)
+                    var deathResults = CombatSystem?.DeathResults;
+                    if (deathResults != null && MatchEventTracker != null)
+                    {
+                        for (int di = 0; di < deathResults.Count; di++)
+                        {
+                            var dr = deathResults[di];
+                            if (!dr.KillerHeroUid.IsValid()) continue;
+                            if (!_unitWorld.TryGetUnit(dr.KillerHeroUid, out var killer)) continue;
+                            if (!_unitWorld.TryGetUnit(dr.VictimUid, out var victim)) continue;
+                            int killerSlot = killer.ControlledByPlayerSlot;
+                            int victimSlot = victim.ControlledByPlayerSlot;
+                            if (killerSlot < 0 || victimSlot < 0) continue;
+                            MatchEventTracker.RecordKill(killerSlot, victimSlot, tick);
+                        }
+                    }
                     if (executionMode == ExecutionMode.ServerAuthority ||
                         (executionMode == ExecutionMode.ClientReplay && AuthorityReplayTick == tick))
                         MatchRule.EvaluateAuthorityConfirmedTick(tick, _unitWorld);
                 }
 
-                // Wire gold allocations to GoldIncomeRuntime
                 // Wire gold allocations from CombatSystem to GoldIncomeRuntime
                 var combatGoldAllocs = MatchRule?.Statistics.GoldAllocations;
                 if (combatGoldAllocs != null && GoldIncome != null)
@@ -152,6 +217,9 @@ namespace FrameSyncMoba.FrameSync
                     }
                 }
                 GoldIncome?.SealTick(tick);
+
+                // Natural gold income (periodic, per design section 5 / step 07)
+                NaturalGoldIncome?.Tick();
                 TickNonHeroSystems(tick);
                 GameplaySnapshot checksumState = CaptureAggregateSnapshot();
                 GoldIncomeBatchDigest goldDigest = GoldIncome?.GetBatchDigest(tick)
@@ -201,7 +269,7 @@ namespace FrameSyncMoba.FrameSync
                 unit.EquipmentHandler?.Capture(ref us.EquipmentState);
                 _unitStateBuffer.Add(us);
             }
-            snapshot.UnitWorldState.Units.AddRange(_unitStateBuffer);
+            snapshot.UnitWorldState.Units = _unitStateBuffer.ToArray();
             snapshot.UnitWorldState.RuntimeRevision = _unitWorld.RuntimeRevision;
             if (RandomService != null) snapshot.RandomState = RandomService.Capture();
             MatchRule?.Capture(ref snapshot.MatchRuleState);
@@ -213,10 +281,10 @@ namespace FrameSyncMoba.FrameSync
             _unitWorld.RespawnTimer?.Capture(
                 ref snapshot.UnitWorldState.PendingUnitLifecycleState);
             JungleCampSystem?.Capture(_campStateBuffer);
-            snapshot.UnitWorldState.JungleCampStates.AddRange(_campStateBuffer);
+            snapshot.UnitWorldState.JungleCampStates = _campStateBuffer.ToArray();
             _aiStateBuffer.Clear();
             foreach (var ai in _unitWorld.AIControllers) { var s = new UnitAIControllerSnapshot(); ai.Capture(ref s); _aiStateBuffer.Add(s); }
-            snapshot.UnitWorldState.AIControllerStates.AddRange(_aiStateBuffer);
+            snapshot.UnitWorldState.AIControllerStates = _aiStateBuffer.ToArray();
             return snapshot;
         }
 
@@ -241,7 +309,7 @@ namespace FrameSyncMoba.FrameSync
 
         private void RestorePhase(in GameplaySnapshot snapshot)
         {
-            List<UnitSnapshot> states = snapshot.UnitWorldState.Units;
+            UnitSnapshot[] states = snapshot.UnitWorldState.Units;
             if (states == null)
             {
                 throw new DeterministicSimulationException(
@@ -249,7 +317,7 @@ namespace FrameSyncMoba.FrameSync
             }
 
             UnitUid previousUid = default;
-            for (int i = 0; i < states.Count; i++)
+            for (int i = 0; i < states.Length; i++)
             {
                 UnitSnapshot us = states[i];
                 if (!us.UnitUid.IsValid() || (i > 0 && previousUid.CompareTo(us.UnitUid) >= 0))
@@ -264,7 +332,7 @@ namespace FrameSyncMoba.FrameSync
             ReconcileUnitTopology(states);
             _unitWorld.RestoreRuntimeRevision(snapshot.UnitWorldState.RuntimeRevision);
 
-            for (int i = 0; i < states.Count; i++)
+            for (int i = 0; i < states.Length; i++)
             {
                 UnitSnapshot us = states[i];
                 if (!_unitWorld.TryGetUnit(us.UnitUid, out UnitType unit))
@@ -317,19 +385,19 @@ namespace FrameSyncMoba.FrameSync
             NonHeroHelper?.RestoreNonHero(nonHeroState);
         }
 
-        private void ReconcileUnitTopology(List<UnitSnapshot> states)
+        private void ReconcileUnitTopology(UnitSnapshot[] states)
         {
             var runtimeUnits = new List<UnitType>(_unitWorld.GetAllUnits());
             int runtimeIndex = 0;
             int snapshotIndex = 0;
-            while (runtimeIndex < runtimeUnits.Count || snapshotIndex < states.Count)
+            while (runtimeIndex < runtimeUnits.Count || snapshotIndex < states.Length)
             {
                 if (runtimeIndex >= runtimeUnits.Count)
                 {
                     CreateUnitForRestore(states[snapshotIndex++]);
                     continue;
                 }
-                if (snapshotIndex >= states.Count)
+                if (snapshotIndex >= states.Length)
                 {
                     _unitWorld.RemoveUnitForRollbackRestore(runtimeUnits[runtimeIndex++]);
                     continue;
@@ -421,9 +489,22 @@ namespace FrameSyncMoba.FrameSync
             if (!_unitWorld.TryGetUnit(command.UnitUid, out UnitType unit)) return;
             if (command.Kind == GameplayCommandKind.Move)
             {
-                fp2 currentPosition = unit.MovementHandler?.Snapshot.Position ?? fp2.zero;
-                unit.MovementHandler?.ApplyMoveInput(
-                    new MoveIntent(command.MoveTargetPoint - currentPosition));
+                // Route player move commands through UnitLocomotionAgent for
+                // A* pathfinding, RVO avoidance, and FlowField integration.
+                // Falls back to direct MoveIntent when Locomotion is not configured.
+                // (Pathfinding Design v13.1 section 5, section 10.6)
+                if (unit.Locomotion != null)
+                {
+                    var request = RouteMoveRequest.ToPosition(command.MoveTargetPoint);
+                    request.AllowRVO = true;
+                    unit.Locomotion.AcceptRouteRequest(request);
+                }
+                else
+                {
+                    fp2 currentPosition = unit.MovementHandler?.Snapshot.Position ?? fp2.zero;
+                    unit.MovementHandler?.ApplyMoveInput(
+                        new MoveIntent(command.MoveTargetPoint - currentPosition));
+                }
             }
             else if (command.Kind == GameplayCommandKind.Attack) unit.AttackHandler?.ApplyAttackInput(command.AttackTargetUid);
             else if (command.Kind == GameplayCommandKind.CastAbility) unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = command.AbilityVerb, Aim = command.Aim });
@@ -437,13 +518,5 @@ namespace FrameSyncMoba.FrameSync
                 if (entity.QueryInfo.Owner is UnitType unit && unit.MovementHandler != null)
                 { ref readonly var snap = ref unit.MovementHandler.Snapshot; entity.SetLogicPose(snap.Position, snap.Facing); }
         }
-
-    }
-
-    internal struct RvoResult
-    {
-        public UnitUid UnitUid;
-        public fp2 FinalVelocity;
-        public static readonly RvoResult Zero = default;
     }
 }

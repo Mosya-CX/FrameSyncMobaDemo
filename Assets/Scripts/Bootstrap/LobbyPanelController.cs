@@ -1,0 +1,112 @@
+using FrameSyncMoba.LuaBridge;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace FrameSyncMoba.Bootstrap
+{
+    /// <summary>
+    /// Lobby panel managing hero select and ready states.
+    /// Orchestrates HeroSelectPageController visibility.
+    /// Presentation-only.
+    /// (ExecPlan 0093, UI/Lua Design v9.1)
+    /// </summary>
+    [DisallowMultipleComponent]
+    public sealed class LobbyPanelController : MonoBehaviour
+    {
+        [SerializeField] private HeroSelectPageController heroSelectPage;
+        [SerializeField] private Text readyStatusText;
+        [SerializeField] private Button readyButton;
+
+        private bool _isReady;
+        private Font _font;
+
+        private void Awake()
+        {
+            _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            EnsureUI();
+            if (readyButton != null)
+                readyButton.onClick.AddListener(ToggleReady);
+        }
+
+        public void Show()
+        {
+            heroSelectPage?.Show();
+            if (readyStatusText != null)
+                readyStatusText.text = "Select a hero and lock in";
+        }
+
+        public void Hide()
+        {
+            heroSelectPage?.Hide();
+        }
+
+        public void OnHeroLocked(int heroId)
+        {
+            if (readyStatusText != null)
+                readyStatusText.text = $"Hero {heroId} locked. Ready up!";
+        }
+
+        private void ToggleReady()
+        {
+            _isReady = !_isReady;
+            if (readyStatusText != null)
+                readyStatusText.text = _isReady ? "Ready! Waiting for others..." : "Not ready";
+            if (readyButton != null)
+            {
+                var label = readyButton.GetComponentInChildren<Text>();
+                if (label != null) label.text = _isReady ? "Unready" : "Ready";
+            }
+        }
+
+        private void EnsureUI()
+        {
+            if (heroSelectPage == null)
+            {
+                var go = new GameObject("HeroSelectPage",
+                    typeof(HeroSelectPageController));
+                go.transform.SetParent(transform, false);
+                heroSelectPage = go.GetComponent<HeroSelectPageController>();
+            }
+
+            if (readyStatusText == null)
+            {
+                var go = new GameObject("ReadyStatus", typeof(Text));
+                go.transform.SetParent(transform, false);
+                readyStatusText = go.GetComponent<Text>();
+                readyStatusText.font = _font;
+                readyStatusText.fontSize = 16;
+                readyStatusText.alignment = TextAnchor.MiddleCenter;
+                readyStatusText.color = Color.white;
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0.3f, 0.05f);
+                rt.anchorMax = new Vector2(0.7f, 0.12f);
+                rt.offsetMin = Vector2.zero;
+                rt.offsetMax = Vector2.zero;
+            }
+
+            if (readyButton == null)
+            {
+                var go = new GameObject("ReadyButton", typeof(RectTransform),
+                    typeof(Image), typeof(Button));
+                go.transform.SetParent(transform, false);
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0.4f, 0.14f);
+                rt.anchorMax = new Vector2(0.6f, 0.2f);
+                rt.offsetMin = Vector2.zero;
+                rt.offsetMax = Vector2.zero;
+                go.GetComponent<Image>().color = new Color(0.2f, 0.5f, 0.7f);
+                readyButton = go.GetComponent<Button>();
+                readyButton.onClick.AddListener(ToggleReady);
+
+                var label = new GameObject("Label", typeof(Text));
+                label.transform.SetParent(go.transform, false);
+                var text = label.GetComponent<Text>();
+                text.font = _font;
+                text.fontSize = 20;
+                text.alignment = TextAnchor.MiddleCenter;
+                text.color = Color.white;
+                text.text = "Ready";
+            }
+        }
+    }
+}

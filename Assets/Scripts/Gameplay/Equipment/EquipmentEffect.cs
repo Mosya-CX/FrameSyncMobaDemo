@@ -45,6 +45,7 @@ namespace FrameSyncMoba.Unit
         UnitDying = 8,
         UnitDeath = 9,
         UnitKill = 10,
+        OnHitDealt = 14,
         DynamicStatModifier = 11,
         CombatModifier = 12,
         ActiveUse = 13,

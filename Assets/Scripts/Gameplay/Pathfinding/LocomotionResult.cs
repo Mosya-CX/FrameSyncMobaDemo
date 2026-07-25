@@ -28,11 +28,18 @@ namespace FrameSyncMoba.Unit
         public bool HasMovement;
         public fp2 DesiredDirection;
         public fp DesiredSpeed;
+        /// <summary>
+        /// True when RVO avoidance should be applied this Tick.
+        /// Set by UnitLocomotionAgent based on MovementTask.AllowRVO.
+        /// (Pathfinding Design v13.1 section 14.7)
+        /// </summary>
+        public bool AllowRVO;
         public RouteEvaluationStatus Status;
 
         public static LocomotionResult Idle(UnitUid uid) => new LocomotionResult
         {
             UnitUid = uid,
+            AllowRVO = false,
             Status = RouteEvaluationStatus.Idle,
         };
 
@@ -42,6 +49,7 @@ namespace FrameSyncMoba.Unit
             HasMovement = true,
             DesiredDirection = direction,
             DesiredSpeed = speed,
+            AllowRVO = false,
             Status = RouteEvaluationStatus.Moving,
         };
     }

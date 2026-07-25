@@ -1,23 +1,23 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
     /// Serializable snapshot of CombatModifierSet cross-Tick state
-    /// (Unit v27.3 §5.9.4). Captures all immutable CombatModifierRecords.
-    /// Restore directly replaces — does not call Attach/Detach/Clear.
+    /// (Unit v27.3 ��5.9.4). Captures all immutable CombatModifierRecords.
+    /// Restore directly replaces �� does not call Attach/Detach/Clear.
     /// </summary>
     public struct CombatModifierSetSnapshot
     {
         /// <summary>
         /// All modifier Ids in insertion order. Used for validation during restore.
         /// </summary>
-        public List<ulong> Ids;
+        public ulong[] Ids;
 
         /// <summary>
         /// Deep copies of all attached CombatModifierRecords.
         /// Records are duplicated by value (they are immutable after Attach).
         /// </summary>
-        public List<CombatModifierRecord> Records;
+        public CombatModifierRecord[] Records;
     }
 }

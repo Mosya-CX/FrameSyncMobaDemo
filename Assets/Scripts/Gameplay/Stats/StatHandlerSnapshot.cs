@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
-    /// Serializable snapshot of all StatHandler cross-Tick state (Unit v27.3 §5.9.1).
+    /// Serializable snapshot of all StatHandler cross-Tick state (Unit v27.3 ��5.9.1).
     /// </summary>
     public struct StatHandlerSnapshot
     {
@@ -15,13 +15,13 @@ namespace FrameSyncMoba.Unit
         public uint NextStatSeq;
 
         public int NextShieldInstanceId;
-        public List<ShieldInstance> ShieldInstances;
+        public ShieldInstance[] ShieldInstances;
 
-        public List<StatRuntimeEntrySnapshot> Entries;
+        public StatRuntimeEntrySnapshot[] Entries;
     }
 
     /// <summary>
-    /// Snapshot of one StatRuntimeEntry (Unit v27.3 §5.9.1).
+    /// Snapshot of one StatRuntimeEntry (Unit v27.3 ��5.9.1).
     /// </summary>
     public struct StatRuntimeEntrySnapshot
     {
@@ -30,6 +30,6 @@ namespace FrameSyncMoba.Unit
         public fp FinalValue;
         public fp PreviousLogicTickFinalValue;
         public bool Dirty;
-        public List<StatModifier> Modifiers;
+        public StatModifier[] Modifiers;
     }
 }

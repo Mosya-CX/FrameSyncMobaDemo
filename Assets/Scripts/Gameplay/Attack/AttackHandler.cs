@@ -9,6 +9,8 @@ namespace FrameSyncMoba.Unit
         private AttackSnapshot _state;
         private fp runtimeWindupRatio;
         private int runtimeTickRate;
+        private int _lastAttackCompleteTick;
+        public int IdleResetWindowTicks = 90;
 
         [Header("Authoring")]
         [Tooltip("Fraction of the attack period before impact. Converted to fixed point once at runtime initialization.")]
@@ -99,7 +101,16 @@ namespace FrameSyncMoba.Unit
             {
                 _state.ImpactCommitted = true;
                 _state.NextAttackReadyLogicTick = tick;
+                _lastAttackCompleteTick = tick;
                 return null;
+            }
+
+            // Sequence idle reset: if no attack active and idle window expired, reset sequence to 0
+            if (!_state.CurrentTargetUid.IsValid() || tick >= _state.NextAttackReadyLogicTick)
+            {
+                int idleTicks = tick - _lastAttackCompleteTick;
+                if (IdleResetWindowTicks > 0 && idleTicks >= IdleResetWindowTicks)
+                    _state.AttackSequenceIndex = 0;
             }
 
             if (_state.ImpactCommitted) return null;
@@ -108,6 +119,7 @@ namespace FrameSyncMoba.Unit
             if (tick < _state.ImpactLogicTick) return null;
 
             _state.ImpactCommitted = true;
+            _lastAttackCompleteTick = tick;
 
             SubmitCommitSfx();
 
@@ -213,6 +225,49 @@ namespace FrameSyncMoba.Unit
         public void Rebuild(in RollbackContext context)
         {
             // AttackSnapshot contains no derived index or Unity reference.
+        }
+
+        /// <summary>
+        /// Builds an animation-facing snapshot of the current attack state.
+        /// Safe to call from Presentation (LateUpdate).
+        /// </summary>
+        public AttackAnimationSnapshot GetAnimationSnapshot()
+        {
+            int now = SimulationTickContext.Current.Tick;
+            bool isAttacking = _state.CurrentTargetUid.IsValid()
+                           && now >= _state.AttackStartLogicTick
+                           && now < _state.NextAttackReadyLogicTick
+                           && !_state.ImpactCommitted;
+
+            float windupProgress = 0f;
+            float recoveryProgress = 0f;
+
+            if (isAttacking)
+            {
+                int windupTicks = _state.ImpactLogicTick - _state.AttackStartLogicTick;
+                int totalTicks = _state.NextAttackReadyLogicTick - _state.AttackStartLogicTick;
+                int elapsed = now - _state.AttackStartLogicTick;
+
+                if (windupTicks > 0 && !_state.ImpactCommitted)
+                    windupProgress = (float)elapsed / (float)windupTicks;
+
+                if (_state.ImpactCommitted && totalTicks > windupTicks)
+                {
+                    int recoveryElapsed = now - _state.ImpactLogicTick;
+                    int recoveryTicks = totalTicks - windupTicks;
+                    if (recoveryTicks > 0)
+                        recoveryProgress = (float)recoveryElapsed / (float)recoveryTicks;
+                }
+            }
+
+            return new AttackAnimationSnapshot
+            {
+                IsAttacking = isAttacking,
+                SequenceIndex = _state.AttackSequenceIndex,
+                ImpactCommitted = _state.ImpactCommitted,
+                WindupProgress = windupProgress,
+                RecoveryProgress = recoveryProgress,
+            };
         }
 
         public override void ClearForDeath()

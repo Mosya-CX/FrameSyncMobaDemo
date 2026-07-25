@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
+using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
@@ -7,7 +8,11 @@ namespace FrameSyncMoba.Unit
     {
         private readonly AbilityBook _book = new AbilityBook();
         private int _nextSessionUid = 1;
+        private readonly List<ActiveAbilityCastInfo> _activeCasts = new List<ActiveAbilityCastInfo>(8);
         public AbilityDefinitionRegistry DefinitionRegistry { private get; set; }
+
+        /// <summary>Read-only view of currently active ability sessions for presentation/animation.</summary>
+        public IReadOnlyList<ActiveAbilityCastInfo> ActiveCasts => _activeCasts;
         public byte PendingSkillPoints { get; private set; }
         public PassiveAbilityRuntime FixedPassive { get; private set; }
 
@@ -34,6 +39,7 @@ namespace FrameSyncMoba.Unit
             var slot = _book.GetSlot(signal.Slot);
             if (slot == null) return false;
             var runtime = slot.GetActiveAbility();
+            if (runtime != null) { runtime.World = Owner.World; runtime.CasterUnitUid = Owner.UnitUid; }
             if (runtime?.Definition?.CastModel == null) return false;
             var model = runtime.Definition.CastModel;
 
@@ -53,6 +59,18 @@ namespace FrameSyncMoba.Unit
                     return false;
                 if (!runtime.IsReady(SimulationTickContext.Current.Tick)) return false;
                 int? nextKey = model.HandleSignal(signal, byte.MaxValue);
+
+                // Resource cost check (Ability Design v15.2 section 4)
+                var costPlan = runtime.Definition.CostPlan;
+                if (costPlan.HasCost && signal.Verb == AbilitySignalVerb.Commit)
+                {
+                    if (Owner.StatHandler == null)
+                        return false;
+                    fp currentResource = Owner.StatHandler.CurrentCastResource;
+                    if (currentResource < costPlan.FlatCost)
+                        return false;
+                    Owner.StatHandler.SetCurrentCastResource(currentResource - costPlan.FlatCost);
+                }
                 if (nextKey == null) return false;
                 if (_nextSessionUid == int.MaxValue)
                     throw new DeterministicSimulationException("Ability session UID exhausted.");
@@ -103,6 +121,7 @@ namespace FrameSyncMoba.Unit
             foreach (var slot in _book.Slots)
             {
                 var runtime = slot.GetActiveAbility();
+                if (runtime != null) { runtime.World = Owner.World; runtime.CasterUnitUid = Owner.UnitUid; }
                 if (Owner.HitReaction.InterruptsAbility && runtime?.ActiveSession != null)
                 {
                     runtime.ActiveSession.Interrupted = true;
@@ -114,6 +133,44 @@ namespace FrameSyncMoba.Unit
                 var model = runtime.Definition.CastModel;
                 var stage = GetCastStage(model, session.CurrentStageKey);
                 session.StageElapsedTicks++;
+
+                // Channel CC-interrupt check (Ability Design v15.2 section 5.3)
+                if (model.Kind == CastModelKind.Channel)
+                {
+                    if (ChannelStageHelper.ShouldInterrupt(Owner))
+                    {
+                        session.Interrupted = true;
+                        runtime.EndSession(SimulationTickContext.Current.Tick, 0);
+                        continue;
+                    }
+                    var (isActive, progress) = ChannelStageHelper.EvaluateChannel(
+                        Owner, SimulationTickContext.Current.Tick, session.StartLogicTick, stage.DurationTicks);
+                    if (!isActive) { runtime.EndSession(SimulationTickContext.Current.Tick, 0); continue; }
+                }
+
+                // Toggle resource-drain check (Ability Design v15.2 section 5.4)
+                if (model is ToggleCastModelDef toggleModel)
+                {
+                    var resource = Owner.StatHandler?.CurrentCastResource ?? Unity.Mathematics.FixedPoint.fp.zero;
+                    var (canContinue, _) = ToggleStageHelper.EvaluateToggle(
+                        Owner, isToggledOn: true, toggleModel.ResourcePerTick, ref resource);
+                    if (Owner.StatHandler != null) Owner.StatHandler.SetCurrentCastResource(resource);
+                    if (!canContinue) { runtime.EndSession(SimulationTickContext.Current.Tick, 0); continue; }
+                }
+
+                // Generic channel/tick resource drain (Ability Design v15.2 section 4)
+                var costPlan = runtime.Definition.CostPlan;
+                if (costPlan.HasChannelCost && Owner.StatHandler != null)
+                {
+                    fp currentResource = Owner.StatHandler.CurrentCastResource;
+                    fp remaining = currentResource - costPlan.ChannelCostPerTick;
+                    if (remaining < fp.zero)
+                    {
+                        runtime.EndSession(SimulationTickContext.Current.Tick, 0);
+                        continue;
+                    }
+                    Owner.StatHandler.SetCurrentCastResource(remaining);
+                }
 
                 StageResult tickResult = StageResult.Running;
                 if (stage.Def != null) tickResult = stage.Def.OnTick(session, runtime);
@@ -138,6 +195,25 @@ namespace FrameSyncMoba.Unit
                             runtime.EndSession(SimulationTickContext.Current.Tick, 0);
                     }
                 }
+            }
+
+            // Populate ActiveCasts for presentation/animation consumption
+            _activeCasts.Clear();
+            for (int si = 0; si < _book.Slots.Count; si++)
+            {
+                var rt = _book.Slots[si].GetActiveAbility();
+                if (rt?.ActiveSession == null) continue;
+                var sess = rt.ActiveSession;
+                _activeCasts.Add(new ActiveAbilityCastInfo
+                  {
+                      Slot = (byte)si,
+                      AbilityId = rt.Definition?.AbilityId ?? 0,
+                      Kind = rt.Definition?.CastModel?.Kind ?? CastModelKind.Commit,
+                      StageKey = sess.CurrentStageKey,
+                      StageElapsedTicks = sess.StageElapsedTicks,
+                      CastRange = rt.Definition?.CastRange ?? Unity.Mathematics.FixedPoint.fp.zero,
+                      AimKind = sess.Aim.Kind,
+                });
             }
         }
 
@@ -170,6 +246,22 @@ namespace FrameSyncMoba.Unit
             var slotRuntime = _book.GetSlot(slot);
             var ability = slotRuntime?.GetActiveAbility();
             return ability?.Definition;
+        }
+
+        public int GetCooldownRemainingTicks(byte slot, int currentTick)
+        {
+            var slotRuntime = _book.GetSlot(slot);
+            var ability = slotRuntime?.GetActiveAbility();
+            if (ability == null) return 0;
+            int remaining = ability.CooldownEndsAtTick - currentTick;
+            return remaining > 0 ? remaining : 0;
+        }
+
+        public int GetCooldownTotalTicks(byte slot)
+        {
+            var slotRuntime = _book.GetSlot(slot);
+            var ability = slotRuntime?.GetActiveAbility();
+            return ability?.Definition?.CooldownTicks ?? 0;
         }
 
         public bool TryAllocateSkillPoint(byte slotIndex)
@@ -269,6 +361,28 @@ namespace FrameSyncMoba.Unit
             IReadOnlyList<AbilitySlotRuntime> slots = _book.Slots;
             for (int i = 0; i < slots.Count; i++)
                 slots[i].GetActiveAbility()?.PassiveEffectRuntime?.Rebuild(Owner);
+        }
+
+        /// <summary>
+        /// Apply a percentage cooldown reduction to all abilities currently on cooldown.
+        /// Internal: used by equipment passive modules (OnCastCooldownModule).
+        /// </summary>
+        internal void ApplyCooldownReductionPercent(fp percent, int currentTick)
+        {
+            if (percent <= fp.zero) return;
+            IReadOnlyList<AbilitySlotRuntime> slots = _book.Slots;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                var runtime = slots[i].GetActiveAbility();
+                if (runtime == null || runtime.CooldownEndsAtTick <= currentTick) continue;
+                int totalTicks = runtime.Definition?.CooldownTicks ?? 0;
+                if (totalTicks <= 0) continue;
+                int reduction = (int)((fp)totalTicks * percent);
+                if (reduction <= 0) continue;
+                runtime.CooldownEndsAtTick -= reduction;
+                if (runtime.CooldownEndsAtTick < currentTick)
+                    runtime.CooldownEndsAtTick = currentTick;
+            }
         }
 
         public override void ClearForDeath()
@@ -396,19 +510,18 @@ namespace FrameSyncMoba.Unit
 
         public AbilityBookSnapshot Capture()
         {
-            var snap = new AbilityBookSnapshot { SlotSnapshots = new AbilitySlotSnapshot[_slots.Count] };
+            var snap = new AbilityBookSnapshot { SlotSnapshots = new System.Collections.Generic.List<AbilitySlotSnapshot>(_slots.Count) };
             for (int i = 0; i < _slots.Count; i++)
-                snap.SlotSnapshots[i] = _slots[i].Capture();
+                snap.SlotSnapshots.Add(_slots[i].Capture());
             return snap;
         }
         public void Restore(AbilityBookSnapshot snapshot)
         {
-            AbilitySlotSnapshot[] states =
-                snapshot.SlotSnapshots ?? System.Array.Empty<AbilitySlotSnapshot>();
-            if (states.Length != _slots.Count)
+            var states = snapshot.SlotSnapshots ?? new System.Collections.Generic.List<AbilitySlotSnapshot>();
+            if (states.Count != _slots.Count)
                 throw new DeterministicSimulationException(
-                    $"Ability slot topology mismatch: runtime={_slots.Count}, snapshot={states.Length}.");
-            for (int i = 0; i < states.Length; i++)
+                    $"Ability slot topology mismatch: runtime={_slots.Count}, snapshot={states.Count}.");
+            for (int i = 0; i < states.Count; i++)
             {
                 if (_slots[i].SlotIndex != states[i].SlotIndex)
                     throw new DeterministicSimulationException(
@@ -444,9 +557,13 @@ namespace FrameSyncMoba.Unit
         }
         public AbilitySlotSnapshot Capture()
         {
-            var runtimes = new AbilityRuntimeSnapshot[_abilities.Count];
+            var runtimes = new System.Collections.Generic.List<AbilityRuntimeSnapshot>(_abilities.Count);
             for (int i = 0; i < _abilities.Count; i++)
-                _abilities[i].Capture(ref runtimes[i]);
+            {
+                var rt = new AbilityRuntimeSnapshot();
+                _abilities[i].Capture(ref rt);
+                runtimes.Add(rt);
+            }
             return new AbilitySlotSnapshot
             {
                 SlotIndex = SlotIndex,
@@ -457,14 +574,13 @@ namespace FrameSyncMoba.Unit
         }
         public void Restore(AbilitySlotSnapshot snap)
         {
-            AbilityRuntimeSnapshot[] states =
-                snap.AbilityRuntimes ?? System.Array.Empty<AbilityRuntimeSnapshot>();
-            if (states.Length != _abilities.Count)
+            var states = snap.AbilityRuntimes ?? new System.Collections.Generic.List<AbilityRuntimeSnapshot>();
+            if (states.Count != _abilities.Count)
                 throw new DeterministicSimulationException(
                     $"Ability runtime topology mismatch in slot {SlotIndex}.");
             AllocatedPoints = snap.AllocatedPoints;
             ActiveAbilityId = snap.ActiveAbilityId;
-            for (int i = 0; i < states.Length; i++)
+            for (int i = 0; i < states.Count; i++)
                 _abilities[i].Restore(states[i]);
         }
 
@@ -480,11 +596,26 @@ namespace FrameSyncMoba.Unit
         public byte SlotIndex;
         public byte AllocatedPoints;
         public int ActiveAbilityId;
-        public AbilityRuntimeSnapshot[] AbilityRuntimes;
+        public System.Collections.Generic.List<AbilityRuntimeSnapshot> AbilityRuntimes;
     }
 
     public struct AbilityBookSnapshot
     {
-        public AbilitySlotSnapshot[] SlotSnapshots;
+        public System.Collections.Generic.List<AbilitySlotSnapshot> SlotSnapshots;
+    }
+
+    /// <summary>
+    /// Published each Tick by AbilityHandler to allow presentation
+    /// systems (animator, UI cast bar) to observe active casts.
+    /// </summary>
+    public struct ActiveAbilityCastInfo
+    {
+        public byte Slot;
+        public int AbilityId;
+        public CastModelKind Kind;
+        public byte StageKey;
+        public int StageElapsedTicks;
+        public Unity.Mathematics.FixedPoint.fp CastRange;
+        public AimKind AimKind;
     }
 }

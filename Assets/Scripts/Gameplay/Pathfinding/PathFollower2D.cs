@@ -1,11 +1,11 @@
-﻿using Unity.Mathematics.FixedPoint;
+using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
     /// Waypoint follower that consumes a cell-index path and produces
     /// per-tick LocomotionResult outputs. Owned by RouteRuntime / UnitLocomotionAgent.
-    /// State must be captured/restored for rollback (Pathfinding Design v13.1 §9, §15.3).
+    /// State must be captured/restored for rollback (Pathfinding Design v13.1 section 9, section 15.3).
     /// </summary>
     public sealed class PathFollower2D
     {
@@ -176,7 +176,7 @@ namespace FrameSyncMoba.Unit
         /// Build a LocomotionResult from the current follower state.
         /// Computes desired direction toward the current waypoint.
         /// </summary>
-        public LocomotionResult BuildLocomotionResult(fp2 currentPosition, fp moveSpeed, UnitUid unitUid)
+        public LocomotionResult BuildLocomotionResult(fp2 currentPosition, fp moveSpeed, UnitUid unitUid, bool allowRVO = false)
         {
             if (RouteFinished || _pathCellIndices == null || PathCursor < 0 || PathCursor >= _pathCellIndices.Length)
                 return LocomotionResult.Idle(unitUid);
@@ -195,7 +195,7 @@ namespace FrameSyncMoba.Unit
                 if (PathCursor < _pathCellIndices.Length - 1)
                 {
                     PathCursor++;
-                    return BuildLocomotionResult(currentPosition, moveSpeed, unitUid);
+                    return BuildLocomotionResult(currentPosition, moveSpeed, unitUid, allowRVO);
                 }
                 return LocomotionResult.Idle(unitUid);
             }
@@ -209,6 +209,7 @@ namespace FrameSyncMoba.Unit
                 HasMovement = true,
                 DesiredDirection = direction,
                 DesiredSpeed = moveSpeed,
+                AllowRVO = allowRVO,
                 Status = RouteEvaluationStatus.Moving,
             };
         }
@@ -249,6 +250,36 @@ namespace FrameSyncMoba.Unit
             {
                 _pathCellIndices = null;
             }
+        }
+
+        /// <summary>
+        /// Build a LocomotionResult from flow-field direction query.
+        /// (Pathfinding Design v13.1 section 9.7)
+        /// </summary>
+        public LocomotionResult BuildFlowFieldLocomotionResult(
+            fp2 currentPosition, fp moveSpeed, UnitUid unitUid,
+            in TeamFlowFieldData flowField, TeamFlowFieldService service, bool allowRVO = false)
+        {
+            fp2 direction = service.GetFlowDirection(flowField, currentPosition);
+            if (direction.x == fp.zero && direction.y == fp.zero)
+            {
+                return new LocomotionResult
+                {
+                    UnitUid = unitUid,
+                    HasMovement = false,
+                    AllowRVO = allowRVO,
+                    Status = RouteEvaluationStatus.Blocked,
+                };
+            }
+            return new LocomotionResult
+            {
+                UnitUid = unitUid,
+                HasMovement = true,
+                DesiredDirection = direction,
+                DesiredSpeed = moveSpeed,
+                AllowRVO = allowRVO,
+                Status = RouteEvaluationStatus.Moving,
+            };
         }
     }
 

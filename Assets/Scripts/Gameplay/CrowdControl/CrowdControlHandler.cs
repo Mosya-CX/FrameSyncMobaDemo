@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
+using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
@@ -122,7 +123,18 @@ namespace FrameSyncMoba.Unit
         {
             int delta = SimulationTickContext.Current.DeltaTick;
             if (activeForcedMoveHandle.IsValid && TryGet(activeForcedMoveHandle, out CrowdControlConstraint forced))
-                Owner.MovementHandler?.ApplyForcedMovement(forced.ForcedMoveDeltaPerTick * delta);
+            {
+                fp2 rawDelta = forced.ForcedMoveDeltaPerTick * delta;
+
+                // Wall resolution for forced movement (Pathfinding Design v13.1 section 11.4)
+                if (Owner.World?.PathGrid != null)
+                {
+                    fp2 currentPos = Owner.MovementHandler?.Snapshot.Position ?? fp2.zero;
+                    rawDelta = ForcedMoveExecutor.ResolveWall(currentPos, rawDelta, Owner.World.PathGrid);
+                }
+
+                Owner.MovementHandler?.ApplyForcedMovement(rawDelta, allowRVO: true);
+            }
             AdvanceInstances(delta);
             AdvanceImmunities(delta);
             AdvanceUnstoppables(delta);
@@ -135,9 +147,9 @@ namespace FrameSyncMoba.Unit
 
         public void Capture(ref CrowdControlHandlerSnapshot state)
         {
-            state.Instances = instances.ToArray();
-            state.Immunities = immunities.ToArray();
-            state.Unstoppables = unstoppables.ToArray();
+            state.Instances = new System.Collections.Generic.List<CrowdControlConstraint>(instances);
+            state.Immunities = new System.Collections.Generic.List<CrowdControlImmunitySnapshot>(immunities);
+            state.Unstoppables = new System.Collections.Generic.List<CrowdControlUnstoppableSnapshot>(unstoppables);
             state.NextInstanceId = nextInstanceId;
             state.NextImmunityId = nextImmunityId;
             state.NextUnstoppableId = nextUnstoppableId;

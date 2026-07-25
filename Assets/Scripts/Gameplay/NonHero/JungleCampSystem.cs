@@ -271,8 +271,8 @@ namespace FrameSyncMoba.Unit
         {
             state.CampId = CampId;
             state.State = State;
-            state.MemberUidsBySlot = new List<UnitUid>(MemberUidsBySlot);
-            state.MemberAliveBySlot = new List<bool>(MemberAliveBySlot);
+            state.MemberUidsBySlot = MemberUidsBySlot.ToArray();
+            state.MemberAliveBySlot = MemberAliveBySlot.ToArray();
             state.MainMonsterDead = MainMonsterDead;
             state.PrimaryTargetUid = PrimaryTargetUid;
             state.LastHostileActionLogicTick = LastHostileActionLogicTick;
