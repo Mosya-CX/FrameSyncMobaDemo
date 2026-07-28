@@ -48,11 +48,19 @@ namespace FrameSyncMoba.Unit
             PathGridMap2D grid)
         {
             (int cx, int cy) = grid.WorldToCell(position);
+            RadiusClass radiusClass =
+                RadiusClassHelper.FromRadius(radius);
 
             // If the cell itself is walkable, check nearby cells too for large units
-            if (!grid.IsPassable(cx, cy))
+            if (!grid.IsPassable(cx, cy, radiusClass))
             {
-                fp2 pushOut = ComputePushOut(position, radius, cx, cy, grid);
+                fp2 pushOut = ComputePushOut(
+                    position,
+                    radius,
+                    radiusClass,
+                    cx,
+                    cy,
+                    grid);
                 if (pushOut.x != fp.zero || pushOut.y != fp.zero)
                 {
                     // Clamp push-out magnitude
@@ -79,7 +87,13 @@ namespace FrameSyncMoba.Unit
         /// Compute a push-out vector from a blocked cell.
         /// Pushes toward the nearest walkable direction.
         /// </summary>
-        private static fp2 ComputePushOut(fp2 position, fp radius, int cx, int cy, PathGridMap2D grid)
+        private static fp2 ComputePushOut(
+            fp2 position,
+            fp radius,
+            RadiusClass radiusClass,
+            int cx,
+            int cy,
+            PathGridMap2D grid)
         {
             fp2 cellCenter = grid.CellToWorld(cx, cy);
             fp2 fromCenter = position - cellCenter;
@@ -96,7 +110,13 @@ namespace FrameSyncMoba.Unit
                 int ny = cy + dy;
 
                 if (nx < 0 || nx >= grid.Width || ny < 0 || ny >= grid.Height) continue;
-                if (!grid.IsPassable(nx, ny)) continue;
+                if (!grid.IsPassable(
+                        nx,
+                        ny,
+                        radiusClass))
+                {
+                    continue;
+                }
 
                 fp2 neighborCenter = grid.CellToWorld(nx, ny);
                 fp2 toNeighbor = neighborCenter - position;

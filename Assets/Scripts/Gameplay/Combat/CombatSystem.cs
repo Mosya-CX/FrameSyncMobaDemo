@@ -60,11 +60,12 @@ namespace FrameSyncMoba.Unit
             _shieldQueue.Add(request);
         }
 
-        public void SubmitDamage(DamageRequest request)
+        public bool SubmitDamage(DamageRequest request)
         {
-            if (!request.IsValid) return;
-            request.Header = AllocateActiveHeader();
+            if (!request.IsValid) return false;
+            request.Header = AllocateActiveHeader(request.Header);
             _damageQueue.Add(request);
+            return true;
         }
 
         public void SubmitHeal(HealRequest request)
@@ -237,30 +238,106 @@ namespace FrameSyncMoba.Unit
             if (!_unitWorld.TryGetUnit(req.TargetUnitUid, out Unit target)) return;
             if (target.LifeState != LifeState.Alive && target.LifeState != LifeState.Dying) return;
             StatHandler stats = target.StatHandler; if (stats == null) return;
-            fp raw = req.BaseDamage; fp res = fp.zero;
-            if (req.DamageType == DamageType.Physical) res = stats.GetStat(StatId.Armor);
-            else if (req.DamageType == DamageType.Magic) res = stats.GetStat(StatId.MagicResistance);
-            fp mitigated = CalculateResistedDamage(raw, res);
+            _unitWorld.TryGetUnit(
+                req.SourceUnitUid,
+                out Unit sourceUnit);
+            StatHandler sourceStats =
+                sourceUnit?.StatHandler;
+            CombatModifierSet sourceModifiers =
+                sourceUnit?.CombatModifiers;
+            CombatModifierSet targetModifiers =
+                target.CombatModifiers;
+            var policies = new CombatPolicyResolution();
+            fp raw = ApplyDamageModifierSlot(
+                sourceModifiers,
+                targetModifiers,
+                req,
+                CombatFormulaSlot.CoreValue,
+                req.BaseDamage,
+                req.BaseDamage,
+                sourceStats,
+                stats,
+                ref policies);
             bool isCrit = false;
-            if (_unitWorld.TryGetUnit(req.SourceUnitUid, out Unit sourceUnit) &&
-                sourceUnit.StatHandler != null && _unitWorld.RandomService != null)
+            if (!policies.ForbidCrit &&
+                sourceStats != null &&
+                _unitWorld.RandomService != null)
             {
-                fp critChance = sourceUnit.StatHandler.GetStat(StatId.CriticalStrikeChance);
-                if (critChance > fp.zero)
+                bool shouldCrit = policies.ForceCrit;
+                if (!shouldCrit)
                 {
-                    if (_unitWorld.RandomService.Chance01(critChance))
-                    {
-                        fp critDmg = sourceUnit.StatHandler.GetStat(StatId.CriticalStrikeDamage);
-                        if (critDmg <= fp.zero) critDmg = (fp)2;
-                        mitigated *= critDmg;
-                        isCrit = true;
-                    }
+                    fp critChance =
+                        sourceStats.GetStat(
+                            StatId.CriticalStrikeChance);
+                    shouldCrit =
+                        critChance > fp.zero &&
+                        _unitWorld.RandomService.Chance01(
+                            critChance);
+                }
+                if (shouldCrit)
+                {
+                    fp critDamage =
+                        sourceStats.GetStat(
+                            StatId.CriticalStrikeDamage);
+                    if (critDamage <= fp.zero)
+                        critDamage = (fp)2;
+                    raw *= critDamage;
+                    isCrit = true;
                 }
             }
-            if (target.CombatModifiers != null) { fp mf = target.CombatModifiers.CalculateDamageMultiplier(req.DamageType, req.SourceUnitUid); mitigated *= mf; }
+            raw = ApplyDamageModifierSlot(
+                sourceModifiers,
+                targetModifiers,
+                req,
+                CombatFormulaSlot.PreDefenseValue,
+                req.BaseDamage,
+                raw,
+                sourceStats,
+                stats,
+                ref policies);
+            fp res = fp.zero;
+            if (req.DamageType == DamageType.Physical) res = stats.GetStat(StatId.Armor);
+            else if (req.DamageType == DamageType.Magic) res = stats.GetStat(StatId.MagicResistance);
+            res = ApplyDamageModifierSlot(
+                sourceModifiers,
+                targetModifiers,
+                req,
+                CombatFormulaSlot.DefenseInput,
+                req.BaseDamage,
+                res,
+                sourceStats,
+                stats,
+                ref policies);
+            fp mitigated =
+                CalculateResistedDamage(raw, res);
+            mitigated = ApplyDamageModifierSlot(
+                sourceModifiers,
+                targetModifiers,
+                req,
+                CombatFormulaSlot.PostDefenseValue,
+                req.BaseDamage,
+                mitigated,
+                sourceStats,
+                stats,
+                ref policies);
+            mitigated = ApplyDamageModifierSlot(
+                sourceModifiers,
+                targetModifiers,
+                req,
+                CombatFormulaSlot.FinalValue,
+                req.BaseDamage,
+                mitigated,
+                sourceStats,
+                stats,
+                ref policies);
             if (mitigated <= fp.zero) return;
             fp afterShields = mitigated; fp shieldAbs = fp.zero;
-            shieldAbs = stats.AbsorbShields(ref afterShields, req.DamageType);
+            if (!policies.IgnoreAllShield)
+                shieldAbs = stats.AbsorbShields(
+                    ref afterShields,
+                    req.DamageType,
+                    policies.IgnorePhysicalShield,
+                    policies.IgnoreMagicShield);
             fp cur = stats.CurrentHealth;
             fp actualLifeDamage = afterShields > cur ? cur : afterShields;
             fp nw = cur - actualLifeDamage;
@@ -276,7 +353,10 @@ namespace FrameSyncMoba.Unit
                     SimulationTickContext.Current.Tick,
                     0 /* DamageRequest has no AbilityId */ == 0);
             }
-            SubmitHitVfx(req.TargetUnitUid, req.SourceUnitUid);
+            SubmitHitVfx(
+                req.TargetUnitUid,
+                req.SourceUnitUid,
+                req.Header.SequenceInTick);
             RecordContribution(
                 req.SourceUnitUid,
                 target,
@@ -284,7 +364,7 @@ namespace FrameSyncMoba.Unit
             var evt = new DamageEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawDamage = raw, MitigatedDamage = mitigated, ActualDamage = actualLifeDamage + shieldAbs, DamageType = req.DamageType, IsCritical = isCrit };
             CombatEvents.RaiseDamageTaken(evt); CombatEvents.RaiseDamageDealt(evt);
             // Fire on-hit event for attack damage
-            if (req.AttackSequenceIndex > 0 || req.ProjectileSourceUid.HasValue)
+            if (req.Header.SourceDescriptor.SourceType == CombatSourceType.Attack)
             {
                 CombatEvents.RaiseOnHit(new OnHitEventData
                 {
@@ -292,7 +372,6 @@ namespace FrameSyncMoba.Unit
                     TargetUid = req.TargetUnitUid,
                     DamageType = req.DamageType,
                     IsCritical = isCrit,
-                    AttackSequenceIndex = req.AttackSequenceIndex,
                 });
             }
             CombatEvents.OnCombatParticipationUnit?.Invoke(req.SourceUnitUid, req.TargetUnitUid, CombatParticipationFlags.DamageDealt | CombatParticipationFlags.DamageTaken);
@@ -308,14 +387,30 @@ namespace FrameSyncMoba.Unit
             ApplyHitReaction(target, mitigated);
         }
 
-        private void SubmitHitVfx(UnitUid targetUid, UnitUid sourceUid)
+        private void SubmitHitVfx(
+            UnitUid targetUid,
+            UnitUid sourceUid,
+            ushort requestSequence)
         {
             if (!_unitWorld.TryGetUnit(targetUid, out Unit target)) return;
             int tick = SimulationTickContext.Current.Tick;
             VisualEventOutput.SubmitVfx(new VfxEvent
             {
-                Id = new PresentationEventId { SourceLogicTick = tick, SourceKind = PresentationSourceKind.Unit, SourceRuntimeUid = sourceUid },
-                WorldPosition = target.MovementHandler?.Snapshot.Position ?? fp2.zero,
+                Id = new PresentationEventId
+                {
+                    SourceLogicTick = tick,
+                    SourceKind =
+                        PresentationSourceKind.Unit,
+                    SourceRuntimeUid = sourceUid,
+                    EventSequence =
+                        requestSequence,
+                    EventKey =
+                        PresentationEventKeys
+                            .CombatHit,
+                },
+                VfxDefId =
+                    PresentationEventKeys.CombatHit,
+                WorldPosition = target.MovementHandler?.Position ?? fp2.zero,
                 AttachToUnit = targetUid,
                 DurationScale = fp.one,
             });
@@ -372,10 +467,13 @@ namespace FrameSyncMoba.Unit
                 _deathResults.Add(death);
                 _unitWorld.ConfirmUnitDeath(unit);
                 CombatEvents.RaiseUnitDeath(duid, kid);
+                _unitWorld.FinalizeNonHeroDeath(unit);
                 if (kid.IsValid()) CombatEvents.RaiseUnitKill(kid, duid);
                 for (int assistantIndex = 0; assistantIndex < assists.Length; assistantIndex++)
                     CombatEvents.RaiseUnitAssist(assists[assistantIndex], duid);
-                SubmitDeathVfx(unit);
+                SubmitDeathPresentation(
+                    unit,
+                    deathSequence);
                 unit.ClearForDeath();
                 DeathEffectDispatcher?.DispatchDeathEffects(death);
                 RespawnTimer?.RegisterDeath(
@@ -387,16 +485,85 @@ namespace FrameSyncMoba.Unit
             }
         }
 
-        private void SubmitDeathVfx(Unit unit)
+        private void SubmitDeathPresentation(
+            Unit unit,
+            ushort deathSequence)
         {
             if (unit?.MovementHandler == null) return;
             int tick = SimulationTickContext.Current.Tick;
+            var eventId = new PresentationEventId
+            {
+                SourceLogicTick = tick,
+                SourceKind =
+                    PresentationSourceKind.Unit,
+                SourceRuntimeUid =
+                    unit.UnitUid,
+                EventSequence =
+                    deathSequence,
+                EventKey =
+                    PresentationEventKeys
+                        .CombatDeath,
+            };
+            fp2 position =
+                unit.MovementHandler.Position;
             VisualEventOutput.SubmitVfx(new VfxEvent
             {
-                Id = new PresentationEventId { SourceLogicTick = tick, SourceKind = PresentationSourceKind.Unit, SourceRuntimeUid = unit.UnitUid },
-                WorldPosition = unit.MovementHandler.Snapshot.Position,
+                Id = eventId,
+                VfxDefId =
+                    PresentationEventKeys
+                        .CombatDeath,
+                WorldPosition = position,
                 DurationScale = fp.one,
             });
+            VisualEventOutput.SubmitSfx(new SfxEvent
+            {
+                Id = eventId,
+                SfxDefId =
+                    PresentationEventKeys
+                        .CombatDeath,
+                Anchor = SfxAnchor.World,
+                WorldPosition = position,
+                PitchScale = fp.one,
+                VolumeScale = fp.one,
+            });
+        }
+
+        private static fp ApplyDamageModifierSlot(
+            CombatModifierSet sourceModifiers,
+            CombatModifierSet targetModifiers,
+            in DamageRequest request,
+            CombatFormulaSlot slot,
+            fp baseValue,
+            fp slotInput,
+            StatHandler sourceStats,
+            StatHandler targetStats,
+            ref CombatPolicyResolution policies)
+        {
+            CombatFormulaAccumulator accumulator =
+                CombatFormulaAccumulator.Create();
+            sourceModifiers?.AccumulateDamage(
+                CombatModifierScope.Outgoing,
+                request.Header,
+                request.DamageType,
+                slot,
+                baseValue,
+                slotInput,
+                sourceStats,
+                targetStats,
+                ref accumulator,
+                ref policies);
+            targetModifiers?.AccumulateDamage(
+                CombatModifierScope.Incoming,
+                request.Header,
+                request.DamageType,
+                slot,
+                baseValue,
+                slotInput,
+                sourceStats,
+                targetStats,
+                ref accumulator,
+                ref policies);
+            return accumulator.Apply(slotInput);
         }
 
         public int GetRespawnDelay(Unit unit)
@@ -520,31 +687,31 @@ namespace FrameSyncMoba.Unit
 
             var trackers = new List<DamageContributionTracker>(_contributionTrackers.Values);
             trackers.Sort((a, b) => a.VictimUid.CompareTo(b.VictimUid));
-            _snapshot.ContributionTrackers = new System.Collections.Generic.List<DamageContributionTrackerSnapshot>(trackers.Count);
+            _snapshot.ContributionTrackers = new DamageContributionTrackerSnapshot[trackers.Count];
             for (int index = 0; index < trackers.Count; index++)
             {
                 DamageContributionTracker tracker = trackers[index];
                 var contributors = tracker.GetContributorsByUid();
-                var records = new System.Collections.Generic.List<DamageContributionRecordSnapshot>(contributors.Count);
+                var records = new DamageContributionRecordSnapshot[contributors.Count];
                 for (int i = 0; i < contributors.Count; i++)
                 {
                     DamageContributionRecord record = contributors[i];
-                    records.Add(new DamageContributionRecordSnapshot
+                    records[i] = new DamageContributionRecordSnapshot
                     {
                         ContributorHeroUid = record.ContributorHeroUid,
                         LastContributionLogicTick = record.LastContributionLogicTick,
                         ContributionValue = record.ContributionValue,
                         ExpireLogicTick = record.ExpireLogicTick,
-                    });
+                    };
                 }
-                _snapshot.ContributionTrackers.Add(new DamageContributionTrackerSnapshot
+                _snapshot.ContributionTrackers[index] = new DamageContributionTrackerSnapshot
                 {
                     VictimUnitUid = tracker.VictimUid,
                     Records = records,
-                });
+                };
             }
             _deferredBuffer.Sort(CompareDeferredRequests);
-            _snapshot.DeferredRequests = new System.Collections.Generic.List<DeferredCombatRequest>(_deferredBuffer);
+            _snapshot.DeferredRequests = _deferredBuffer.ToArray();
         }
 
         public void Capture(ref CombatSnapshot snapshot) { FreezeSnapshot(); snapshot = _snapshot; }
@@ -558,7 +725,7 @@ namespace FrameSyncMoba.Unit
             if (snapshot.ContributionTrackers != null)
             {
                 UnitUid previousVictim = default;
-                for (int i = 0; i < snapshot.ContributionTrackers.Count; i++)
+                for (int i = 0; i < snapshot.ContributionTrackers.Length; i++)
                 {
                     DamageContributionTrackerSnapshot trackerState = snapshot.ContributionTrackers[i];
                     if (!trackerState.VictimUnitUid.IsValid() ||
@@ -571,7 +738,7 @@ namespace FrameSyncMoba.Unit
                     if (trackerState.Records != null)
                     {
                         UnitUid previousContributor = default;
-                        for (int j = 0; j < trackerState.Records.Count; j++)
+                        for (int j = 0; j < trackerState.Records.Length; j++)
                         {
                             UnitUid contributor =
                                 trackerState.Records[j].ContributorHeroUid;
@@ -609,7 +776,8 @@ namespace FrameSyncMoba.Unit
         public void Rebuild(in RollbackContext context) { }
         public static fp CalculateResistedDamage(fp b, fp r) { if (r < fp.zero) r = fp.zero; return b * (fp)100 / ((fp)100 + r); }
 
-        private CombatRequestHeader AllocateActiveHeader()
+        private CombatRequestHeader AllocateActiveHeader(
+            CombatRequestHeader submittedHeader = default)
         {
             int tick = SimulationTickContext.Current.Tick;
             if (_currentSequenceLogicTick != tick)
@@ -619,7 +787,9 @@ namespace FrameSyncMoba.Unit
             ushort sequence = _nextSequenceInTick;
             if (_nextSequenceInTick == ushort.MaxValue) _sequenceExhausted = true;
             else _nextSequenceInTick++;
-            return new CombatRequestHeader { SequenceInTick = sequence, SourceLogicTick = tick };
+            submittedHeader.SequenceInTick = sequence;
+            submittedHeader.SourceLogicTick = tick;
+            return submittedHeader;
         }
 
         private static int CompareDeferredRequests(DeferredCombatRequest a, DeferredCombatRequest b)

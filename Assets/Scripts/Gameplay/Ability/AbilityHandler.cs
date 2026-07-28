@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -9,7 +10,9 @@ namespace FrameSyncMoba.Unit
         private readonly AbilityBook _book = new AbilityBook();
         private int _nextSessionUid = 1;
         private readonly List<ActiveAbilityCastInfo> _activeCasts = new List<ActiveAbilityCastInfo>(8);
+        [SerializeField] private AbilityLoadoutAsset abilityLoadout;
         public AbilityDefinitionRegistry DefinitionRegistry { private get; set; }
+        public AbilityLoadoutAsset AbilityLoadout => abilityLoadout;
 
         /// <summary>Read-only view of currently active ability sessions for presentation/animation.</summary>
         public IReadOnlyList<ActiveAbilityCastInfo> ActiveCasts => _activeCasts;
@@ -25,6 +28,16 @@ namespace FrameSyncMoba.Unit
         }
         public void AddSlot(AbilitySlotRuntime slot) => _book.AddSlot(slot);
 
+        public void InitializeConfiguredLoadoutOrThrow()
+        {
+            if (abilityLoadout == null) return;
+            abilityLoadout.ApplyOrThrow(
+                this,
+                DefinitionRegistry ??
+                throw new DeterministicSimulationException(
+                    "AbilityHandler has no definition registry."));
+        }
+
         public void SetFixedPassive(PassiveAbilityDef definition)
         {
             FixedPassive?.EffectRuntime.Deactivate(Owner);
@@ -34,86 +47,236 @@ namespace FrameSyncMoba.Unit
 
         public bool HandleSignal(AbilitySignal signal)
         {
-            if (Owner.HitReaction.InterruptsAbility && signal.Verb != AbilitySignalVerb.Cancel)
+            if (Owner.HitReaction.InterruptsAbility &&
+                signal.Verb != AbilitySignalVerb.Cancel)
                 return false;
-            var slot = _book.GetSlot(signal.Slot);
+            AbilitySlotRuntime slot = _book.GetSlot(signal.Slot);
             if (slot == null) return false;
-            var runtime = slot.GetActiveAbility();
-            if (runtime != null) { runtime.World = Owner.World; runtime.CasterUnitUid = Owner.UnitUid; }
+            AbilityRuntime runtime = slot.GetActiveAbility();
+            if (runtime != null)
+            {
+                runtime.World = Owner.World;
+                runtime.CasterUnitUid = Owner.UnitUid;
+            }
             if (runtime?.Definition?.CastModel == null) return false;
-            var model = runtime.Definition.CastModel;
+            CastModelDef model = runtime.Definition.CastModel;
+            int currentTick = SimulationTickContext.Current.Tick;
 
-            // Cancel: interrupt active session, no cooldown
             if (signal.Verb == AbilitySignalVerb.Cancel)
             {
                 if (runtime.ActiveSession == null) return false;
-                var cancelStage = GetCastStage(model, runtime.ActiveSession.CurrentStageKey);
+                CastStage cancelStage =
+                    GetCastStage(
+                        model,
+                        runtime.ActiveSession.CurrentStageKey);
                 cancelStage.Def?.OnExit(runtime.ActiveSession, runtime);
-                runtime.CancelSession(SimulationTickContext.Current.Tick);
+                runtime.CancelSession(currentTick);
                 return true;
             }
 
             if (runtime.ActiveSession == null)
             {
-                if (signal.Verb != AbilitySignalVerb.Commit && signal.Verb != AbilitySignalVerb.Focus)
+                if (signal.Verb != AbilitySignalVerb.Commit &&
+                    signal.Verb != AbilitySignalVerb.Focus)
                     return false;
-                if (!runtime.IsReady(SimulationTickContext.Current.Tick)) return false;
-                int? nextKey = model.HandleSignal(signal, byte.MaxValue);
-
-                // Resource cost check (Ability Design v15.2 section 4)
-                var costPlan = runtime.Definition.CostPlan;
-                if (costPlan.HasCost && signal.Verb == AbilitySignalVerb.Commit)
-                {
-                    if (Owner.StatHandler == null)
-                        return false;
-                    fp currentResource = Owner.StatHandler.CurrentCastResource;
-                    if (currentResource < costPlan.FlatCost)
-                        return false;
-                    Owner.StatHandler.SetCurrentCastResource(currentResource - costPlan.FlatCost);
-                }
+                if (!runtime.IsReady(currentTick)) return false;
+                int? nextKey =
+                    model.HandleSignal(signal, byte.MaxValue);
                 if (nextKey == null) return false;
+                CastStage stage =
+                    GetCastStage(model, (byte)nextKey.Value);
+                if (stage.Def == null ||
+                    !ValidateCastRequest(runtime, signal) ||
+                    !CanAfford(runtime))
+                {
+                    return false;
+                }
                 if (_nextSessionUid == int.MaxValue)
-                    throw new DeterministicSimulationException("Ability session UID exhausted.");
-                var session = runtime.BeginSession(
-                    _nextSessionUid++, SimulationTickContext.Current.Tick, signal.Aim);
+                    throw new DeterministicSimulationException(
+                        "Ability session UID exhausted.");
+                AbilitySession session = runtime.BeginSession(
+                    _nextSessionUid++,
+                    currentTick,
+                    signal.Aim);
                 session.CurrentStageKey = (byte)nextKey.Value;
-                var stage = GetCastStage(model, session.CurrentStageKey);
-                if (stage.Def == null)
+                if (stage.Def.OnEnter(session, runtime) ==
+                    StageResult.Failed)
                 {
-                    runtime.EndSession(SimulationTickContext.Current.Tick, 0);
+                    runtime.EndSession(currentTick, 0);
                     return false;
                 }
-                if (stage.Def.OnEnter(session, runtime) == StageResult.Failed)
+                AbilityCostTiming timing =
+                    runtime.Definition.CostPlan.Timing;
+                if (timing == AbilityCostTiming.OnSessionStart ||
+                    (timing == AbilityCostTiming.OnFirstCommit &&
+                     signal.Verb == AbilitySignalVerb.Commit))
                 {
-                    runtime.EndSession(SimulationTickContext.Current.Tick, 0);
-                    return false;
-                }
-                return true;
-            }
-
-            var currentStage = GetCastStage(model, runtime.ActiveSession.CurrentStageKey);
-            int? transitionKey = model.HandleSignal(signal, runtime.ActiveSession.CurrentStageKey);
-
-            if (transitionKey != null && transitionKey.Value != runtime.ActiveSession.CurrentStageKey)
-            {
-                currentStage.Def?.OnExit(runtime.ActiveSession, runtime);
-                runtime.ActiveSession.CurrentStageKey = (byte)transitionKey.Value;
-                runtime.ActiveSession.StageElapsedTicks = 0;
-                var newStage = GetCastStage(model, runtime.ActiveSession.CurrentStageKey);
-                if (newStage.Def != null && newStage.Def.OnEnter(runtime.ActiveSession, runtime) == StageResult.Failed)
-                {
-                    runtime.EndSession(SimulationTickContext.Current.Tick, 0);
-                    return false;
+                    PayCost(runtime, session);
                 }
                 return true;
             }
 
-            if (signal.Verb == AbilitySignalVerb.Commit && currentStage.Def != null)
+            AbilitySession activeSession = runtime.ActiveSession;
+            CastStage currentStage =
+                GetCastStage(
+                    model,
+                    activeSession.CurrentStageKey);
+            int? transitionKey =
+                model.HandleSignal(
+                    signal,
+                    activeSession.CurrentStageKey);
+
+            if (transitionKey != null &&
+                transitionKey.Value != activeSession.CurrentStageKey)
             {
-                currentStage.Def.OnSignal(runtime.ActiveSession, runtime, signal);
+                if (!ValidateCastRequest(runtime, signal))
+                    return false;
+                bool mustPay =
+                    runtime.Definition.CostPlan.Timing ==
+                        AbilityCostTiming.OnFirstCommit &&
+                    signal.Verb == AbilitySignalVerb.Commit &&
+                    !activeSession.CostPaid;
+                if (mustPay && !CanAfford(runtime))
+                    return false;
+
+                CastStage newStage =
+                    GetCastStage(model, (byte)transitionKey.Value);
+                if (newStage.Def == null) return false;
+                currentStage.Def?.OnExit(activeSession, runtime);
+                activeSession.CurrentStageKey =
+                    (byte)transitionKey.Value;
+                activeSession.StageElapsedTicks = 0;
+                activeSession.Aim = signal.Aim;
+                if (newStage.Def.OnEnter(activeSession, runtime) ==
+                    StageResult.Failed)
+                {
+                    runtime.EndSession(currentTick, 0);
+                    return false;
+                }
+                if (mustPay) PayCost(runtime, activeSession);
+                return true;
+            }
+
+            if (signal.Verb == AbilitySignalVerb.Commit &&
+                currentStage.Def != null)
+            {
+                if (!ValidateCastRequest(runtime, signal))
+                    return false;
+                if (runtime.Definition.CostPlan.Timing ==
+                        AbilityCostTiming.OnFirstCommit &&
+                    !activeSession.CostPaid)
+                {
+                    if (!CanAfford(runtime)) return false;
+                    PayCost(runtime, activeSession);
+                }
+                activeSession.Aim = signal.Aim;
+                currentStage.Def.OnSignal(
+                    activeSession,
+                    runtime,
+                    signal);
                 return true;
             }
             return false;
+        }
+
+        private bool ValidateCastRequest(
+            AbilityRuntime runtime,
+            in AbilitySignal signal)
+        {
+            if (signal.Verb == AbilitySignalVerb.Commit &&
+                !ValidateAim(runtime.Definition, signal.Aim))
+            {
+                return false;
+            }
+
+            AbilityCastConditionDef[] conditions =
+                runtime.Definition.CastConditions;
+            var context =
+                new AbilityCastContext(Owner, runtime, signal);
+            for (int i = 0; i < conditions.Length; i++)
+            {
+                if (!conditions[i].CanCast(context))
+                    return false;
+            }
+            return true;
+        }
+
+        private bool ValidateAim(
+            AbilityDef definition,
+            in AimSnapshot aim)
+        {
+            if (aim.Kind != definition.AimKind)
+                return false;
+            if (aim.Kind == AimKind.Unit)
+            {
+                if (Owner.World == null ||
+                    !Owner.World.TryGetUnit(
+                        aim.TargetUnitUid,
+                        out Unit target) ||
+                    !target.CapabilityState.IsTargetable)
+                {
+                    return false;
+                }
+                return IsWithinCastRange(
+                    definition.CastRange,
+                    target.PhysicsEntity.Transform2D.Position);
+            }
+            if (aim.Kind == AimKind.Point)
+            {
+                return IsWithinCastRange(
+                    definition.CastRange,
+                    aim.TargetPoint);
+            }
+            return true;
+        }
+
+        private bool IsWithinCastRange(
+            fp castRange,
+            in fp2 targetPosition)
+        {
+            if (castRange <= fp.zero) return true;
+            fp2 delta =
+                targetPosition -
+                Owner.PhysicsEntity.Transform2D.Position;
+            return delta.x * delta.x + delta.y * delta.y <=
+                castRange * castRange;
+        }
+
+        private bool CanAfford(AbilityRuntime runtime)
+        {
+            AbilityCostPlan plan = runtime.Definition.CostPlan;
+            if (!plan.HasCost) return true;
+            if (Owner.StatHandler == null) return false;
+            plan.Resolve(
+                runtime.Level,
+                out fp resourceCost,
+                out fp healthCost);
+            return Owner.StatHandler.CurrentCastResource >=
+                       resourceCost &&
+                   Owner.StatHandler.CurrentHealth >
+                       healthCost;
+        }
+
+        private void PayCost(
+            AbilityRuntime runtime,
+            AbilitySession session)
+        {
+            if (session.CostPaid) return;
+            AbilityCostPlan plan = runtime.Definition.CostPlan;
+            if (plan.HasCost)
+            {
+                plan.Resolve(
+                    runtime.Level,
+                    out fp resourceCost,
+                    out fp healthCost);
+                Owner.StatHandler.SetCurrentCastResource(
+                    Owner.StatHandler.CurrentCastResource -
+                    resourceCost);
+                Owner.StatHandler.SetCurrentHealth(
+                    Owner.StatHandler.CurrentHealth -
+                    healthCost);
+            }
+            session.CostPaid = true;
         }
 
         public void TickUpdate()
@@ -156,20 +319,6 @@ namespace FrameSyncMoba.Unit
                         Owner, isToggledOn: true, toggleModel.ResourcePerTick, ref resource);
                     if (Owner.StatHandler != null) Owner.StatHandler.SetCurrentCastResource(resource);
                     if (!canContinue) { runtime.EndSession(SimulationTickContext.Current.Tick, 0); continue; }
-                }
-
-                // Generic channel/tick resource drain (Ability Design v15.2 section 4)
-                var costPlan = runtime.Definition.CostPlan;
-                if (costPlan.HasChannelCost && Owner.StatHandler != null)
-                {
-                    fp currentResource = Owner.StatHandler.CurrentCastResource;
-                    fp remaining = currentResource - costPlan.ChannelCostPerTick;
-                    if (remaining < fp.zero)
-                    {
-                        runtime.EndSession(SimulationTickContext.Current.Tick, 0);
-                        continue;
-                    }
-                    Owner.StatHandler.SetCurrentCastResource(remaining);
                 }
 
                 StageResult tickResult = StageResult.Running;
@@ -246,6 +395,27 @@ namespace FrameSyncMoba.Unit
             var slotRuntime = _book.GetSlot(slot);
             var ability = slotRuntime?.GetActiveAbility();
             return ability?.Definition;
+        }
+
+        public bool HasActiveSession(byte slot)
+        {
+            AbilityRuntime runtime =
+                _book.GetSlot(slot)?.GetActiveAbility();
+            return runtime?.ActiveSession != null;
+        }
+
+        public bool IsWaitingForCommit(byte slot)
+        {
+            AbilityRuntime runtime =
+                _book.GetSlot(slot)?.GetActiveAbility();
+            if (runtime?.ActiveSession == null ||
+                !(runtime.Definition.CastModel is
+                    HoldReleaseCastModelDef hold))
+            {
+                return false;
+            }
+            return runtime.ActiveSession.CurrentStageKey ==
+                hold.Hold.StageKey;
         }
 
         public int GetCooldownRemainingTicks(byte slot, int currentTick)

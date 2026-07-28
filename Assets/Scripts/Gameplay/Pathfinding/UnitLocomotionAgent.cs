@@ -191,7 +191,9 @@ namespace FrameSyncMoba.Unit
                     Status = RouteEvaluationStatus.NoRoute,
                 };
 
-            var key = new FlowFieldKey(_owner.TeamId.Value, RadiusClass.Medium);
+            var key = new FlowFieldKey(
+                _owner.TeamId.Value,
+                OwnerRadiusClass);
             if (!_flowFieldRegistry.TryGet(key, out var field))
                 return new LocomotionResult
                 {
@@ -241,7 +243,10 @@ namespace FrameSyncMoba.Unit
 
             if (_route.Kind == RouteKind.AStar)
             {
-                PathResult result = _aStar.FindPath(currentPos, targetPos);
+                PathResult result = _aStar.FindPath(
+                    currentPos,
+                    targetPos,
+                    OwnerRadiusClass);
                 if (!result.Success)
                 {
                     _route.Kind = RouteKind.Direct;
@@ -268,6 +273,11 @@ namespace FrameSyncMoba.Unit
             return true;
         }
 
+        private RadiusClass OwnerRadiusClass =>
+            RadiusClassHelper.FromRadius(
+                _owner.PhysicsEntity?.Shape.Radius ??
+                RadiusClassHelper.MediumRadius);
+
         public void Capture(ref LocomotionAgentSnapshot state)
         {
             state.HasActiveTask = _currentTask.State == MovementTaskState.Active;
@@ -280,16 +290,127 @@ namespace FrameSyncMoba.Unit
                     state.Route.AStarPathCellIndices, _route.AStarPathCellIndices.Length);
             }
             state.FollowerState = _follower.CaptureState();
+            state.Route.FollowerState = CloneFollowerState(state.FollowerState);
         }
 
         public void Restore(in LocomotionAgentSnapshot state)
         {
+            ValidateSnapshot(state);
             _currentTask = state.Task;
             _route = state.Route;
-            _follower.RestoreState(state.FollowerState);
+            if (state.Route.AStarPathCellIndices != null)
+            {
+                _route.AStarPathCellIndices =
+                    (int[])state.Route.AStarPathCellIndices.Clone();
+            }
+            _route.FollowerState = CloneFollowerState(state.FollowerState);
+            PathFollowerState restoredFollower = CloneFollowerState(state.FollowerState);
+            _follower.RestoreState(restoredFollower);
         }
 
-        public void Resolve(in RollbackContext context) { }
+        public void Resolve(in RollbackContext context)
+        {
+            if (_currentTask.Target.TargetUid.HasValue &&
+                (_owner.World == null ||
+                 !_owner.World.TryGetUnit(_currentTask.Target.TargetUid.Value, out _)))
+            {
+                throw new DeterministicSimulationException(
+                    $"Unit {_owner.UnitUid} restored locomotion target {_currentTask.Target.TargetUid.Value} does not exist.");
+            }
+        }
+
         public void Rebuild(in RollbackContext context) { }
+
+        private static void ValidateSnapshot(in LocomotionAgentSnapshot state)
+        {
+            if (state.Task.Purpose < MovePurpose.MoveToPosition ||
+                state.Task.Purpose > MovePurpose.MoveToLane ||
+                state.Task.State < MovementTaskState.Idle ||
+                state.Task.State > MovementTaskState.Cancelled ||
+                state.Route.Kind < RouteKind.None ||
+                state.Route.Kind > RouteKind.FlowField)
+            {
+                throw new DeterministicSimulationException(
+                    "Locomotion snapshot contains an invalid enum value.");
+            }
+
+            if (state.HasActiveTask !=
+                (state.Task.State == MovementTaskState.Active))
+            {
+                throw new DeterministicSimulationException(
+                    "Locomotion snapshot HasActiveTask does not match MovementTask state.");
+            }
+
+            if (state.HasActiveTask &&
+                (!state.Task.Target.HasTarget ||
+                 state.Task.StopDistance < fp.zero))
+            {
+                throw new DeterministicSimulationException(
+                    "Active locomotion snapshot requires a target and non-negative stop distance.");
+            }
+
+            ValidateFollowerState(state.FollowerState);
+            ValidateFollowerState(state.Route.FollowerState);
+            if (!FollowerStatesEqual(
+                    state.FollowerState,
+                    state.Route.FollowerState))
+            {
+                throw new DeterministicSimulationException(
+                    "Locomotion snapshot route and follower states disagree.");
+            }
+        }
+
+        private static void ValidateFollowerState(in PathFollowerState state)
+        {
+            int length = state.PathCellIndices?.Length ?? 0;
+            if (state.PathCursor < -1 ||
+                (length == 0 && state.PathCursor != -1) ||
+                (length > 0 && state.PathCursor >= length))
+            {
+                throw new DeterministicSimulationException(
+                    "Locomotion snapshot contains an invalid path cursor.");
+            }
+        }
+
+        private static bool FollowerStatesEqual(
+            in PathFollowerState left,
+            in PathFollowerState right)
+        {
+            if (left.PathCursor != right.PathCursor ||
+                left.RouteFinished != right.RouteFinished)
+            {
+                return false;
+            }
+
+            int[] leftPath = left.PathCellIndices;
+            int[] rightPath = right.PathCellIndices;
+            int leftLength = leftPath?.Length ?? 0;
+            int rightLength = rightPath?.Length ?? 0;
+            if (leftLength != rightLength)
+            {
+                return false;
+            }
+            for (int i = 0; i < leftLength; i++)
+            {
+                if (leftPath[i] != rightPath[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static PathFollowerState CloneFollowerState(
+            in PathFollowerState source)
+        {
+            return new PathFollowerState
+            {
+                PathCursor = source.PathCursor,
+                RouteFinished = source.RouteFinished,
+                PathCellIndices = source.PathCellIndices == null
+                    ? null
+                    : (int[])source.PathCellIndices.Clone(),
+            };
+        }
     }
 }

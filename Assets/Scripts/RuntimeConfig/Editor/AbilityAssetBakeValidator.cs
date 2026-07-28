@@ -59,8 +59,16 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
             ValidateAimKindConsistency(asset, castModel, errors);
             ValidateStages(asset, errors);
 
-            if (asset.HasResourceCost && asset.FlatCost <= 0f)
-                errors.Add(string.Format("AbilityAsset '{0}': Resource cost must be positive when enabled.", asset.name));
+            ValidateLevelValues(
+                asset,
+                asset.CastResourceCostByLevel,
+                "CastResourceCost",
+                errors);
+            ValidateLevelValues(
+                asset,
+                asset.HealthCostByLevel,
+                "HealthCost",
+                errors);
 
             if (errors.Count == 0)
                 return ValidationResult.Success;
@@ -83,9 +91,9 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                         errors.Add(string.Format("AbilityAsset '{0}': Commit cast model is null.", asset.name));
                         break;
                     }
-                    if (m.CastStageKey == 0 && asset.Stages.Length > 0)
-                        errors.Add(string.Format("AbilityAsset '{0}': Commit cast stage key is 0 (default), " +
-                            "but stages are defined. Assign an explicit stage key.", asset.name));
+                    if (!HasStage(asset, m.CastStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Commit stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.CastStageKey));
                     if (m.DurationTicks < 0)
                         errors.Add(string.Format("AbilityAsset '{0}': DurationTicks must be non-negative.", asset.name));
                     break;
@@ -106,15 +114,12 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                     if (m.ReleaseDurationTicks < 0)
                         errors.Add(string.Format("AbilityAsset '{0}': ReleaseDurationTicks must be non-negative.", asset.name));
 
-                    if (asset.Stages.Length > 0)
-                    {
-                        if (!HasStage(asset, m.HoldStageKey))
-                            errors.Add(string.Format("AbilityAsset '{0}': Hold stage key {1} " +
-                                "has no matching StageDef.", asset.name, m.HoldStageKey));
-                        if (!HasStage(asset, m.ReleaseStageKey))
-                            errors.Add(string.Format("AbilityAsset '{0}': Release stage key {1} " +
-                                "has no matching StageDef.", asset.name, m.ReleaseStageKey));
-                    }
+                    if (!HasStage(asset, m.HoldStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Hold stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.HoldStageKey));
+                    if (!HasStage(asset, m.ReleaseStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Release stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.ReleaseStageKey));
                     break;
                 }
 
@@ -128,7 +133,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                     }
                     if (m.DurationTicks < 0)
                         errors.Add(string.Format("AbilityAsset '{0}': DurationTicks must be non-negative.", asset.name));
-                    if (asset.Stages.Length > 0 && !HasStage(asset, m.ChannelStageKey))
+                    if (!HasStage(asset, m.ChannelStageKey))
                         errors.Add(string.Format("AbilityAsset '{0}': Channel stage key {1} " +
                             "has no matching StageDef.", asset.name, m.ChannelStageKey));
                     break;
@@ -144,7 +149,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                     }
                     if (m.DurationTicks < 0)
                         errors.Add(string.Format("AbilityAsset '{0}': DurationTicks must be non-negative.", asset.name));
-                    if (asset.Stages.Length > 0 && !HasStage(asset, m.ActiveStageKey))
+                    if (!HasStage(asset, m.ActiveStageKey))
                         errors.Add(string.Format("AbilityAsset '{0}': ActiveSignal stage key {1} " +
                             "has no matching StageDef.", asset.name, m.ActiveStageKey));
                     break;
@@ -169,7 +174,13 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
         private static void ValidateStages(AbilityAsset asset, List<string> errors)
         {
             var stages = asset.Stages;
-            if (stages == null || stages.Length == 0) return;
+            if (stages == null || stages.Length == 0)
+            {
+                errors.Add(string.Format(
+                    "AbilityAsset '{0}': at least one explicit StageDef is required.",
+                    asset.name));
+                return;
+            }
 
             var seenKeys = new HashSet<byte>();
             for (int i = 0; i < stages.Length; i++)
@@ -246,6 +257,28 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                 if (stages[i] != null && stages[i].StageKey == stageKey)
                     return true;
             return false;
+        }
+
+        private static void ValidateLevelValues(
+            AbilityAsset asset,
+            float[] values,
+            string label,
+            List<string> errors)
+        {
+            if (values == null) return;
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (float.IsNaN(values[i]) ||
+                    float.IsInfinity(values[i]) ||
+                    values[i] < 0f)
+                {
+                    errors.Add(string.Format(
+                        "AbilityAsset '{0}': {1}[{2}] must be finite and nonnegative.",
+                        asset.name,
+                        label,
+                        i));
+                }
+            }
         }
     }
 }

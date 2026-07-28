@@ -32,6 +32,31 @@ namespace FrameSyncMoba.Unit
             this.physicsWorld = physicsWorld ?? throw new ArgumentNullException(nameof(physicsWorld));
         }
 
+        public static bool IsInRange(
+            PhysicsEntity2D source,
+            PhysicsEntity2D target,
+            fp range)
+        {
+            if (source == null || target == null || range < fp.zero)
+                return false;
+
+            PhysicsBounds2D sourceBounds = source.Bounds;
+            PhysicsBounds2D targetBounds = target.Bounds;
+            fp gapX = fp.zero;
+            if (sourceBounds.Max.x < targetBounds.Min.x)
+                gapX = targetBounds.Min.x - sourceBounds.Max.x;
+            else if (targetBounds.Max.x < sourceBounds.Min.x)
+                gapX = sourceBounds.Min.x - targetBounds.Max.x;
+
+            fp gapY = fp.zero;
+            if (sourceBounds.Max.y < targetBounds.Min.y)
+                gapY = targetBounds.Min.y - sourceBounds.Max.y;
+            else if (targetBounds.Max.y < sourceBounds.Min.y)
+                gapY = sourceBounds.Min.y - targetBounds.Max.y;
+
+            return gapX * gapX + gapY * gapY <= range * range;
+        }
+
         /// <summary>
         /// Queries the UnitFinalGrid for units matching the descriptor
         /// (Physics v13.1 section 9.7 pseudocode).

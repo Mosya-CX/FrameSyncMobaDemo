@@ -16,6 +16,7 @@ namespace FrameSyncMoba.Unit
         private int _runtimeRevision;
         private Unit _owner => Owner;
         public EquipmentDatabase DefinitionDatabase { private get; set; }
+        public int RuntimeRevision => _runtimeRevision;
 
         protected override void OnOwnerBound()
         {
@@ -180,6 +181,94 @@ namespace FrameSyncMoba.Unit
             _runtimeRevision++;
         }
 
+        public EquipmentTransactionSlotState CaptureTransactionSlot(int slot)
+        {
+            if ((uint)slot >= SlotCount)
+                throw new ArgumentOutOfRangeException(nameof(slot));
+            EquipmentInstance instance = _slots[slot];
+            if (instance == null)
+                return EquipmentTransactionSlotState.Empty;
+            return new EquipmentTransactionSlotState
+            {
+                Occupied = true,
+                EquipmentId = instance.Definition?.Id
+                    ?? throw new DeterministicSimulationException(
+                        $"Equipment slot {slot} has no definition."),
+                StackCount = instance.StackCount,
+                ChargeCount = instance.ChargeCount,
+                ReadyTick = instance.ReadyTick,
+                EffectStates = CaptureEffectStates(instance.EffectRuntimes),
+            };
+        }
+
+        public static EquipmentTransactionSlotState CreateInitialTransactionSlot(
+            EquipmentDefinition definition)
+        {
+            if (definition == null)
+                throw new ArgumentNullException(nameof(definition));
+            int effectCount = definition.Effects?.Length ?? 0;
+            var effectStates =
+                new List<EquipmentEffectRuntimeSnapshot>(effectCount);
+            for (int i = 0; i < effectCount; i++)
+            {
+                int moduleCount =
+                    definition.Effects[i]?.Modules?.Length ?? 0;
+                effectStates.Add(
+                    new EquipmentEffectRuntimeSnapshot
+                    {
+                        ModuleStates =
+                            new List<EquipmentEffectModuleRuntimeState>(
+                                new EquipmentEffectModuleRuntimeState[
+                                    moduleCount]),
+                    });
+            }
+            return new EquipmentTransactionSlotState
+            {
+                Occupied = true,
+                EquipmentId = definition.Id,
+                StackCount = 1,
+                ChargeCount = ResolveMaxCharge(definition),
+                ReadyTick = 0,
+                EffectStates = effectStates,
+            };
+        }
+
+        public bool MatchesTransactionSlot(
+            int slot,
+            in EquipmentTransactionSlotState expected)
+        {
+            return CaptureTransactionSlot(slot).Equals(expected);
+        }
+
+        public void RestoreTransactionSlot(
+            int slot,
+            in EquipmentTransactionSlotState state)
+        {
+            if ((uint)slot >= SlotCount)
+                throw new ArgumentOutOfRangeException(nameof(slot));
+            if (_slots[slot] != null && !Remove(slot))
+                throw new DeterministicSimulationException(
+                    $"Failed to clear Equipment slot {slot} for transaction restore.");
+            if (!state.Occupied)
+                return;
+            if (DefinitionDatabase == null ||
+                !DefinitionDatabase.TryGetDefinition(
+                    state.EquipmentId,
+                    out EquipmentDefinition definition))
+                throw new DeterministicSimulationException(
+                    $"Transaction restore references missing Equipment {state.EquipmentId}.");
+            if (!Add(definition, slot))
+                throw new DeterministicSimulationException(
+                    $"Failed to restore Equipment {state.EquipmentId} to slot {slot}.");
+            EquipmentInstance instance = _slots[slot];
+            instance.StackCount = state.StackCount;
+            instance.ChargeCount = state.ChargeCount;
+            instance.ReadyTick = state.ReadyTick;
+            instance.EffectRuntimes =
+                RestoreEffectStates(definition, state.EffectStates);
+            _runtimeRevision++;
+        }
+
         private void ReleaseFixedStats(EquipmentInstance instance)
         {
             if (_owner.StatHandler == null || instance._fixedStatHandles == null) return;
@@ -298,6 +387,131 @@ namespace FrameSyncMoba.Unit
             _effectDispatch?.Advance();
         }
 
+        public EquipmentUseCheckResult CheckUse(
+            int slot,
+            AimSnapshot target)
+        {
+            if ((uint)slot >= SlotCount)
+                return EquipmentUseCheckResult.Rejected;
+            EquipmentInstance instance = _slots[slot];
+            if (instance == null ||
+                !TryGetActiveEffect(
+                    instance,
+                    out EquipmentEffectDef effect))
+                return EquipmentUseCheckResult.Rejected;
+            if (_owner.LifeState != LifeState.Alive ||
+                !_owner.CapabilityState.CanCast ||
+                !_owner.CanRunActiveGameplayThisTick)
+                return EquipmentUseCheckResult.Rejected;
+
+            int currentTick =
+                SimulationTickContext.Current.Tick;
+            EquipmentActiveSettings settings =
+                effect.ActiveSettings;
+            if (settings.CooldownTicks < 0 ||
+                settings.ChargeCost < 0)
+                throw new DeterministicSimulationException(
+                    $"Equipment {instance.Definition.Id} has invalid active-use settings.");
+            if (currentTick < instance.ReadyTick)
+                return EquipmentUseCheckResult.Rejected;
+            if (settings.SharedCooldownGroup.Value != 0 &&
+                _sharedCooldowns.TryGetValue(
+                    settings.SharedCooldownGroup,
+                    out int sharedReadyTick) &&
+                currentTick < sharedReadyTick)
+                return EquipmentUseCheckResult.Rejected;
+            if (settings.ChargeCost > 0 &&
+                instance.ChargeCount <
+                    settings.ChargeCost)
+                return EquipmentUseCheckResult.Rejected;
+            EquipmentEffectModule[] modules =
+                effect.Modules ?? Array.Empty<EquipmentEffectModule>();
+            if (modules.Length == 0)
+                return EquipmentUseCheckResult.Rejected;
+            for (int i = 0; i < modules.Length; i++)
+            {
+                EquipmentEffectModule module = modules[i];
+                if (module == null ||
+                    !HasTiming(
+                        module,
+                        EquipmentEffectInvokeTiming.ActiveUse) ||
+                    !module.CanExecute())
+                    return EquipmentUseCheckResult.Rejected;
+            }
+            return EquipmentUseCheckResult.Ready;
+        }
+
+        public bool Use(int slot, AimSnapshot target)
+        {
+            if (CheckUse(slot, target) !=
+                EquipmentUseCheckResult.Ready)
+                return false;
+            EquipmentInstance instance = _slots[slot];
+            if (!TryGetActiveEffect(
+                    instance,
+                    out EquipmentEffectDef effect))
+                throw new DeterministicSimulationException(
+                    "Active equipment disappeared between CheckUse and Use.");
+            EquipmentEffectModule[] modules =
+                effect.Modules;
+            for (int i = 0; i < modules.Length; i++)
+                modules[i].Execute(_owner, instance);
+
+            EquipmentActiveSettings settings =
+                effect.ActiveSettings;
+            int readyTick = checked(
+                SimulationTickContext.Current.Tick +
+                settings.CooldownTicks);
+            instance.ReadyTick = readyTick;
+            if (settings.SharedCooldownGroup.Value != 0)
+                _sharedCooldowns[
+                    settings.SharedCooldownGroup] =
+                    readyTick;
+            if (settings.ChargeCost > 0)
+                instance.ChargeCount -=
+                    settings.ChargeCost;
+            _runtimeRevision++;
+            if (settings.ChargeCost > 0 &&
+                instance.ChargeCount == 0 &&
+                instance.Definition.Tier ==
+                    EquipmentTier.Consumable)
+                Remove(slot);
+            return true;
+        }
+
+        private static bool TryGetActiveEffect(
+            EquipmentInstance instance,
+            out EquipmentEffectDef activeEffect)
+        {
+            activeEffect = null;
+            EquipmentEffectDef[] effects =
+                instance?.Definition?.Effects;
+            if (effects == null) return false;
+            for (int i = 0; i < effects.Length; i++)
+            {
+                EquipmentEffectDef effect = effects[i];
+                if (effect == null || !effect.IsActive)
+                    continue;
+                if (activeEffect != null)
+                    throw new DeterministicSimulationException(
+                        $"Equipment {instance.Definition.Id} has multiple active effects.");
+                activeEffect = effect;
+            }
+            return activeEffect != null;
+        }
+
+        private static bool HasTiming(
+            EquipmentEffectModule module,
+            EquipmentEffectInvokeTiming timing)
+        {
+            EquipmentEffectInvokeTiming[] timings =
+                module.InvokeTimings;
+            if (timings == null) return false;
+            for (int i = 0; i < timings.Length; i++)
+                if (timings[i] == timing) return true;
+            return false;
+        }
+
         /// <summary>
         /// Expose the effect dispatch for modules that need context data.
         /// Internal: used by EquipmentEffectModule subclasses.
@@ -346,7 +560,7 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < SlotCount; i++)
             {
                 var inst = _slots[i];
-                state.Slots[i] = inst != null
+                state.Slots.Add(inst != null
                     ? new EquipmentSlotSnapshot
                     {
                         Occupied = true,
@@ -359,7 +573,7 @@ namespace FrameSyncMoba.Unit
                         FixedStatHandles = CloneHandles(new System.Collections.Generic.List<StatModifierHandle>(inst._fixedStatHandles)),
                         EffectStates = CaptureEffectStates(inst.EffectRuntimes),
                     }
-                    : EquipmentSlotSnapshot.Empty;
+                    : EquipmentSlotSnapshot.Empty);
             }
 
             if (state.SharedCooldowns == null)
@@ -524,6 +738,13 @@ namespace FrameSyncMoba.Unit
         internal System.Collections.Generic.List<int> _appliedBuffConfigIds;
     }
 
+    public enum EquipmentUseCheckResult : byte
+    {
+        Ready = 0,
+        NeedApproach = 1,
+        Rejected = 2,
+    }
+
     public readonly struct EquipmentFixedStat
     {
         public readonly StatId Stat;
@@ -555,6 +776,80 @@ namespace FrameSyncMoba.Unit
         public System.Collections.Generic.List<StatModifierHandle> FixedStatHandles;
         public System.Collections.Generic.List<EquipmentEffectRuntimeSnapshot> EffectStates;
         public static readonly EquipmentSlotSnapshot Empty = default;
+    }
+
+    public struct EquipmentTransactionSlotState :
+        IEquatable<EquipmentTransactionSlotState>
+    {
+        public bool Occupied;
+        public int EquipmentId;
+        public int StackCount;
+        public int ChargeCount;
+        public int ReadyTick;
+        public List<EquipmentEffectRuntimeSnapshot> EffectStates;
+
+        public static readonly EquipmentTransactionSlotState Empty = default;
+
+        public bool Equals(EquipmentTransactionSlotState other)
+        {
+            if (Occupied != other.Occupied)
+                return false;
+            if (!Occupied)
+                return true;
+            if (EquipmentId != other.EquipmentId ||
+                StackCount != other.StackCount ||
+                ChargeCount != other.ChargeCount ||
+                ReadyTick != other.ReadyTick)
+                return false;
+            List<EquipmentEffectRuntimeSnapshot> left =
+                EffectStates ?? new List<EquipmentEffectRuntimeSnapshot>();
+            List<EquipmentEffectRuntimeSnapshot> right =
+                other.EffectStates ?? new List<EquipmentEffectRuntimeSnapshot>();
+            if (left.Count != right.Count)
+                return false;
+            for (int i = 0; i < left.Count; i++)
+            {
+                List<EquipmentEffectModuleRuntimeState> leftModules =
+                    left[i].ModuleStates ??
+                    new List<EquipmentEffectModuleRuntimeState>();
+                List<EquipmentEffectModuleRuntimeState> rightModules =
+                    right[i].ModuleStates ??
+                    new List<EquipmentEffectModuleRuntimeState>();
+                if (leftModules.Count != rightModules.Count)
+                    return false;
+                for (int j = 0; j < leftModules.Count; j++)
+                {
+                    EquipmentEffectModuleRuntimeState a = leftModules[j];
+                    EquipmentEffectModuleRuntimeState b = rightModules[j];
+                    if (a.NextExecuteTick != b.NextExecuteTick ||
+                        a.InternalCooldownReadyTick !=
+                        b.InternalCooldownReadyTick ||
+                        a.StackCount != b.StackCount ||
+                        a.TimerTicks != b.TimerTicks)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is EquipmentTransactionSlotState other &&
+                   Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = Occupied ? 1 : 0;
+                hash = (hash * 397) ^ EquipmentId;
+                hash = (hash * 397) ^ StackCount;
+                hash = (hash * 397) ^ ChargeCount;
+                hash = (hash * 397) ^ ReadyTick;
+                return hash;
+            }
+        }
     }
 
     public struct EquipmentEffectRuntimeSnapshot

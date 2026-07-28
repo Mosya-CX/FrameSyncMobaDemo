@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
 using Unity.Mathematics.FixedPoint;
 
@@ -5,146 +7,263 @@ namespace FrameSyncMoba.Unit
 {
     public static class ProjectileEffectDispatcher
     {
-        private static readonly System.Collections.Generic.List<Unit> SortedTargets
-            = new System.Collections.Generic.List<Unit>();
+        private static readonly List<Unit> sortedTargets =
+            new List<Unit>();
+        private static readonly List<PhysicsEntity2D> candidates =
+            new List<PhysicsEntity2D>();
 
         public static void DispatchOnHit(
-            ProjectileRuntime proj,
+            ProjectileRuntime projectile,
             UnitUid targetUid,
             UnitWorld unitWorld)
         {
-            if (!unitWorld.TryGetUnit(targetUid, out Unit target)) return;
-            var effects = proj.Def.OnHitEffects;
+            if (projectile == null)
+                throw new System.ArgumentNullException(
+                    nameof(projectile));
+            if (unitWorld == null)
+                throw new System.ArgumentNullException(
+                    nameof(unitWorld));
+            if (!unitWorld.TryGetUnit(
+                    targetUid,
+                    out Unit target))
+                throw new DeterministicSimulationException(
+                    $"Projectile hit target {targetUid} is missing.");
+
+            ProjectileOnHitEffects effects =
+                projectile.Def.OnHitEffects;
             if (!effects.HasAnyEffect) return;
 
-            // Damage effects
-            if (effects.DamageEffects != null)
-            {
-                for (int i = 0; i < effects.DamageEffects.Length; i++)
-                {
-                    var dmg = effects.DamageEffects[i];
-                    int amount = dmg.Amount;
-                    if (dmg.DamageRatio > fp.zero && unitWorld.TryGetUnit(proj.OwnerUnitUid, out Unit source))
-                    {
-                        var stat = dmg.DamageType == DamageType.Physical
-                            ? source.StatHandler?.GetStat(StatId.AttackDamage) ?? fp.zero
-                            : source.StatHandler?.GetStat(StatId.AbilityPower) ?? fp.zero;
-                        amount += (int)((stat * dmg.DamageRatio).RawValue >> 16);
-                    }
-                    if (amount <= 0) continue;
-                    ApplyDirectDamage(unitWorld, targetUid, new fp(amount));
-                }
-            }
-
-            // Buff effects
-            if (effects.BuffEffects != null)
-            {
-                var buffHandler = target.BuffHandler;
-                if (buffHandler != null)
-                {
-                    for (int i = 0; i < effects.BuffEffects.Length; i++)
-                    {
-                        var b = effects.BuffEffects[i];
-                        if (!b.IsValid) continue;
-                        var def = ResolveBuffDef(b.BuffId, target);
-                        if (def != null)
-                            buffHandler.Apply(b.BuffId, def, proj.OwnerUnitUid);
-                    }
-                }
-            }
-
-            // CC effects
-            if (effects.CCEffects != null)
-            {
-                var ccHandler = target.CrowdControl;
-                if (ccHandler != null)
-                {
-                    for (int i = 0; i < effects.CCEffects.Length; i++)
-                    {
-                        var c = effects.CCEffects[i];
-                        if (!c.IsValid) continue;
-                        var constraint = new CrowdControlConstraint
-                        {
-                            Type = c.CCType,
-                            RemainingTicks = c.DurationTicks,
-                            Priority = 1,
-                            SourceUnitUid = proj.OwnerUnitUid,
-                        };
-                        ccHandler.SubmitConstraint(constraint);
-                    }
-                }
-            }
+            SubmitDamageEffects(
+                projectile,
+                target,
+                unitWorld,
+                effects.DamageEffects);
+            ApplyBuffEffects(
+                projectile,
+                target,
+                unitWorld,
+                effects.BuffEffects);
+            ApplyCrowdControlEffects(
+                projectile,
+                target,
+                effects.CCEffects);
         }
 
         public static void DispatchAoE(
-            ProjectileRuntime proj,
+            ProjectileRuntime projectile,
             fp2 center,
             fp radius,
             UnitWorld unitWorld,
             PhysicsWorld physicsWorld)
         {
-            var config = proj.Def.AoE;
-            if (!config.HasAoE || radius <= fp.zero) return;
+            ProjectileAoEConfig config =
+                projectile.Def.AoE;
+            if (!config.HasAoE || radius <= fp.zero)
+                return;
 
-            var grid = physicsWorld?.UnitFinalGrid;
+            PhysicsSpatialGrid2D grid =
+                physicsWorld?.UnitFinalGrid;
             if (grid == null) return;
 
-            fp2 min = center - new fp2(radius, radius);
-            fp2 max = center + new fp2(radius, radius);
-            var queryBounds = new PhysicsBounds2D(min, max);
+            fp2 extent = new fp2(radius, radius);
+            candidates.Clear();
+            grid.CollectCandidates(
+                new PhysicsBounds2D(
+                    center - extent,
+                    center + extent),
+                candidates);
 
-            var candidates = new System.Collections.Generic.List<Physics.PhysicsEntity2D>();
-            grid.CollectCandidates(queryBounds, candidates);
-
-            SortedTargets.Clear();
+            sortedTargets.Clear();
             for (int i = 0; i < candidates.Count; i++)
             {
-                var entity = candidates[i];
-                if (!(entity.QueryInfo.Owner is Unit targetUnit)) continue;
-                if (!targetUnit.UnitUid.IsValid()) continue;
-                if (targetUnit.UnitUid == proj.OwnerUnitUid) continue;
-                if (targetUnit.LifeState != LifeState.Alive && targetUnit.LifeState != LifeState.Dying) continue;
-
-                fp2 targetPos = entity.Transform2D.Position;
-                if (PhysicsGeometry2D.PointOverlapsCircle(targetPos, center, radius))
-                    SortedTargets.Add(targetUnit);
+                PhysicsEntity2D entity =
+                    candidates[i];
+                if (!(entity.QueryInfo.Owner is Unit target))
+                    continue;
+                if (!projectile.Def.TargetFilter.Allows(
+                        target,
+                        projectile.OwnerUnitUid,
+                        projectile.TeamSnapshot))
+                    continue;
+                if (!CircleOverlapsBounds(
+                        center,
+                        radius,
+                        entity.Bounds))
+                    continue;
+                sortedTargets.Add(target);
             }
 
-            SortedTargets.Sort((a, b) =>
+            sortedTargets.Sort((a, b) =>
             {
-                fp2 pa = a.MovementHandler?.Snapshot.Position ?? fp2.zero;
-                fp2 pb = b.MovementHandler?.Snapshot.Position ?? fp2.zero;
-                fp dA = fpmath.dot(pa - center, pa - center);
-                fp dB = fpmath.dot(pb - center, pb - center);
-                int cmp = dA.CompareTo(dB);
-                if (cmp != 0) return cmp;
-                return a.UnitUid.CompareTo(b.UnitUid);
+                fp2 aPosition =
+                    a.PhysicsEntity.Transform2D.Position;
+                fp2 bPosition =
+                    b.PhysicsEntity.Transform2D.Position;
+                fp aDistance = fpmath.lengthsq(
+                    aPosition - center);
+                fp bDistance = fpmath.lengthsq(
+                    bPosition - center);
+                int comparison =
+                    aDistance.CompareTo(bDistance);
+                return comparison != 0
+                    ? comparison
+                    : a.UnitUid.CompareTo(b.UnitUid);
             });
 
-            int maxTargets = config.MaxAoETargets > 0 ? config.MaxAoETargets : SortedTargets.Count;
-            int hitCount = 0;
-            for (int i = 0; i < SortedTargets.Count && hitCount < maxTargets; i++)
+            int maxTargets = config.MaxAoETargets > 0
+                ? config.MaxAoETargets
+                : sortedTargets.Count;
+            for (int i = 0;
+                 i < sortedTargets.Count &&
+                 i < maxTargets;
+                 i++)
             {
-                DispatchOnHit(proj, SortedTargets[i].UnitUid, unitWorld);
-                hitCount++;
+                DispatchOnHit(
+                    projectile,
+                    sortedTargets[i].UnitUid,
+                    unitWorld);
             }
         }
 
-        private static BuffDef ResolveBuffDef(BuffConfigId configId, Unit target)
+        private static void SubmitDamageEffects(
+            ProjectileRuntime projectile,
+            Unit target,
+            UnitWorld world,
+            ProjectileOnHitDamage[] effects)
         {
-            return null; // BuffDef registry deferred to later plan
+            if (effects == null) return;
+            CombatSystem combat = world.CombatSystem;
+            if (combat == null)
+                throw new DeterministicSimulationException(
+                    "Projectile damage has no CombatSystem.");
+
+            if (!world.TryGetUnit(
+                    projectile.OwnerUnitUid,
+                    out Unit source))
+                throw new DeterministicSimulationException(
+                    $"Projectile owner {projectile.OwnerUnitUid} is missing.");
+
+            for (int i = 0; i < effects.Length; i++)
+            {
+                ProjectileOnHitDamage effect =
+                    effects[i];
+                if (!effect.IsValid)
+                    throw new DeterministicSimulationException(
+                        $"Projectile damage effect {i} is invalid.");
+
+                fp amount = effect.Amount;
+                if (effect.DamageRatio > fp.zero)
+                {
+                    StatId statId =
+                        effect.DamageType ==
+                        DamageType.Physical
+                            ? StatId.AttackDamage
+                            : StatId.AbilityPower;
+                    amount +=
+                        source.StatHandler.GetStat(statId) *
+                        effect.DamageRatio;
+                }
+
+                if (amount <= fp.zero) continue;
+                var request = new DamageRequest
+                {
+                    Header = new CombatRequestHeader
+                    {
+                        SourceUnitUid =
+                            projectile.OwnerUnitUid,
+                        TargetUnitUid =
+                            target.UnitUid,
+                        SourceDescriptor =
+                            projectile.Source,
+                        RecipeId = effect.RecipeId,
+                    },
+                    DamageType = effect.DamageType,
+                    BaseDamage = amount,
+                };
+                if (!combat.SubmitDamage(request))
+                    throw new DeterministicSimulationException(
+                        $"Combat rejected projectile damage from {projectile.Uid}.");
+            }
         }
 
-        private static void ApplyDirectDamage(UnitWorld world, UnitUid targetUid, fp amount)
+        private static void ApplyBuffEffects(
+            ProjectileRuntime projectile,
+            Unit target,
+            UnitWorld world,
+            ProjectileOnHitBuff[] effects)
         {
-            if (!world.TryGetUnit(targetUid, out Unit target)) return;
-            if (target.LifeState != LifeState.Alive && target.LifeState != LifeState.Dying) return;
-            var stats = target.StatHandler;
-            if (stats == null) return;
-            fp curHp = stats.CurrentHealth;
-            fp newHp = curHp - amount;
-            if (newHp < fp.zero) newHp = fp.zero;
-            stats.SetCurrentHealth(newHp);
+            if (effects == null) return;
+            if (target.BuffHandler == null)
+                throw new DeterministicSimulationException(
+                    $"Projectile target {target.UnitUid} has no BuffHandler.");
+            if (world.BuffDefinitions == null)
+                throw new DeterministicSimulationException(
+                    "Projectile Buff effect has no BuffDefinitionRegistry.");
+
+            for (int i = 0; i < effects.Length; i++)
+            {
+                ProjectileOnHitBuff effect = effects[i];
+                if (!effect.IsValid)
+                    throw new DeterministicSimulationException(
+                        $"Projectile Buff effect {i} is invalid.");
+                if (!world.BuffDefinitions.TryGet(
+                        effect.BuffId,
+                        out BuffDef definition))
+                    throw new DeterministicSimulationException(
+                        $"Projectile Buff effect references missing BuffConfigId {effect.BuffId.Value}.");
+
+                target.BuffHandler.Apply(
+                    effect.BuffId,
+                    definition,
+                    projectile.OwnerUnitUid);
+            }
+        }
+
+        private static void ApplyCrowdControlEffects(
+            ProjectileRuntime projectile,
+            Unit target,
+            ProjectileOnHitCC[] effects)
+        {
+            if (effects == null) return;
+            if (target.CrowdControl == null)
+                throw new DeterministicSimulationException(
+                    $"Projectile target {target.UnitUid} has no CrowdControlHandler.");
+
+            for (int i = 0; i < effects.Length; i++)
+            {
+                ProjectileOnHitCC effect = effects[i];
+                if (!effect.IsValid)
+                    throw new DeterministicSimulationException(
+                        $"Projectile CC effect {i} is invalid.");
+                target.CrowdControl.SubmitConstraint(
+                    new CrowdControlConstraint
+                    {
+                        Type = effect.CCType,
+                        RemainingTicks =
+                            effect.DurationTicks,
+                        Priority = 1,
+                        SourceUnitUid =
+                            projectile.OwnerUnitUid,
+                    });
+            }
+        }
+
+        private static bool CircleOverlapsBounds(
+            fp2 center,
+            fp radius,
+            in PhysicsBounds2D bounds)
+        {
+            fp x = fpmath.clamp(
+                center.x,
+                bounds.Min.x,
+                bounds.Max.x);
+            fp y = fpmath.clamp(
+                center.y,
+                bounds.Min.y,
+                bounds.Max.y);
+            fp2 delta = center - new fp2(x, y);
+            return fpmath.lengthsq(delta) <=
+                radius * radius;
         }
     }
 }

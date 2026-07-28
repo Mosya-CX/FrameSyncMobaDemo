@@ -29,6 +29,81 @@ namespace FrameSyncMoba.Unit
         PassThrough,
     }
 
+    public readonly struct DashRequest
+    {
+        public readonly int ConfigId;
+        public readonly fp2 Direction;
+        public readonly fp Distance;
+        public readonly int DurationTicks;
+        public readonly ForceMoveWallPolicy WallPolicy;
+
+        public DashRequest(
+            int configId,
+            fp2 direction,
+            fp distance,
+            int durationTicks,
+            ForceMoveWallPolicy wallPolicy =
+                ForceMoveWallPolicy.StopAtWall)
+        {
+            ConfigId = configId;
+            Direction = direction;
+            Distance = distance;
+            DurationTicks = durationTicks;
+            WallPolicy = wallPolicy;
+        }
+    }
+
+    public struct DashRuntime
+    {
+        public bool IsActive;
+        public int StartTick;
+        public int ConfigId;
+        public int DurationTicks;
+        public fp2 StartPosition;
+        public fp2 Direction;
+        public fp2 TargetPosition;
+        public ForceMoveWallPolicy WallPolicy;
+    }
+
+    public readonly struct ResolvedForcedMove
+    {
+        public readonly CrowdControlHandle SourceControlHandle;
+        public readonly int ConfigId;
+        public readonly int DurationTicks;
+        public readonly fp2 Direction;
+        public readonly fp2 TargetPosition;
+        public readonly ForceMoveWallPolicy WallPolicy;
+
+        public ResolvedForcedMove(
+            CrowdControlHandle sourceControlHandle,
+            int configId,
+            int durationTicks,
+            fp2 direction,
+            fp2 targetPosition,
+            ForceMoveWallPolicy wallPolicy)
+        {
+            SourceControlHandle = sourceControlHandle;
+            ConfigId = configId;
+            DurationTicks = durationTicks;
+            Direction = direction;
+            TargetPosition = targetPosition;
+            WallPolicy = wallPolicy;
+        }
+    }
+
+    public struct ForcedMoveRuntime
+    {
+        public bool IsActive;
+        public CrowdControlHandle SourceControlHandle;
+        public int StartTick;
+        public int DurationTicks;
+        public fp2 StartPosition;
+        public fp2 Direction;
+        public fp2 TargetPosition;
+        public int ConfigId;
+        public ForceMoveWallPolicy WallPolicy;
+    }
+
     /// <summary>
     /// Configuration for a forced movement trajectory.
     /// (Pathfinding Design v13.1 section 11.6)

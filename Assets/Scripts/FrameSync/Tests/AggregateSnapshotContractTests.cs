@@ -37,7 +37,7 @@ namespace FrameSyncMoba.FrameSync.Tests
 
             pipeline.RestoreFromSnapshot(snapshot, 12);
 
-            Assert.That(first.MovementHandler.Snapshot.Position, Is.EqualTo(new fp2(3, 4)));
+            Assert.That(first.MovementHandler.Position, Is.EqualTo(new fp2(3, 4)));
             Assert.That(first.PhysicsEntity.Transform2D.Position, Is.EqualTo(new fp2(3, 4)));
             Assert.That(second.PhysicsEntity.Transform2D.Forward, Is.EqualTo(new fp2(fp.zero, fp.one)));
             Assert.That(random.NextUInt(), Is.EqualTo(expectedRandom.NextUInt()));

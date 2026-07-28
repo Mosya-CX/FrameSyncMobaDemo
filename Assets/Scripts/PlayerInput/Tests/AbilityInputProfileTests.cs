@@ -1,6 +1,8 @@
 using FrameSyncMoba.PlayerInput;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
+using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.PlayerInput.Tests
 {
@@ -133,6 +135,53 @@ namespace FrameSyncMoba.PlayerInput.Tests
                 Assert.That(found, Is.True);
                 Assert.That(profile.Mode,
                     Is.EqualTo(BakedPlayerAbilityInputMode.PressCommit));
+            }
+        }
+
+        [Test]
+        public void Provider_FromHandler_UsesFormalAimAndRange()
+        {
+            var gameObject =
+                new GameObject("AbilityProfileFixture");
+            try
+            {
+                AbilityHandler handler =
+                    gameObject.AddComponent<AbilityHandler>();
+                var runtime = new AbilityRuntime
+                {
+                    Level = 1,
+                    Definition = new AbilityDef
+                    {
+                        AbilityId = 700,
+                        CastModel =
+                            new HoldReleaseCastModelDef(),
+                        AimKind = AimKind.Direction,
+                        CastRange = (fp)7,
+                    },
+                };
+                var slot = new AbilitySlotRuntime
+                {
+                    SlotIndex = 0,
+                    ActiveAbilityId = 700,
+                };
+                slot.AddAbility(runtime);
+                handler.AddSlot(slot);
+
+                AbilityInputProfileProvider provider =
+                    AbilityInputProfileProvider
+                        .CreateFromAbilityHandler(handler);
+
+                Assert.IsTrue(
+                    provider.TryGetAimConfiguration(
+                        0,
+                        out AimKind kind,
+                        out fp range));
+                Assert.AreEqual(AimKind.Direction, kind);
+                Assert.AreEqual((fp)7, range);
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
             }
         }
     }

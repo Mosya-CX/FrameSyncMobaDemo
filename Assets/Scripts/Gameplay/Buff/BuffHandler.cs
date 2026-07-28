@@ -165,6 +165,33 @@ namespace FrameSyncMoba.Unit
             }
         }
 
+        public override void ClearForDespawn(UnitDespawnReason reason)
+        {
+            var ordered = _store.GetAllOrdered();
+            var all = new System.Collections.Generic.List<BuffRuntime>(ordered.Count);
+            for (int i = 0; i < ordered.Count; i++)
+                all.Add(ordered[i]);
+
+            for (int i = 0; i < all.Count; i++)
+            {
+                var runtime = all[i];
+                // Map UnitDespawnReason to RemovalReason for backward compat
+                var removalReason = reason switch
+                {
+                    UnitDespawnReason.SummonExpired => RemovalReason.DurationExpired,
+                    UnitDespawnReason.OwnerRemoved => RemovalReason.ManualRemove,
+                    UnitDespawnReason.ScriptedCleanup => RemovalReason.ManualRemove,
+                    UnitDespawnReason.MatchCleanup => RemovalReason.ManualRemove,
+                    _ => RemovalReason.ManualRemove,
+                };
+                runtime.BeginRemoval(removalReason);
+                ReleaseAllEffectHandles(runtime);
+                runtime.Blackboard.InvalidateAll();
+                _store.Remove(runtime.ConfigId);
+            }
+        }
+
+        [System.Obsolete("Use ClearForDespawn(UnitDespawnReason) instead.")]
         public void ClearForDespawn(RemovalReason reason)
         {
             var ordered = _store.GetAllOrdered();

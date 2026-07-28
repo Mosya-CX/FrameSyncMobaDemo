@@ -16,6 +16,7 @@ namespace FrameSyncMoba.FrameSync
         public LifeState LifeState;
         public CapabilityState CapabilityState;
         public HitReactionState HitReactionState;
+        public UnitIntent IntentState;
         public PhysicsTransform2D PhysicsTransform;
         public PhysicsShape2D PhysicsShape;
         public StatHandlerSnapshot StatState;
@@ -52,6 +53,7 @@ namespace FrameSyncMoba.FrameSync
 
     public struct GameplaySnapshot
     {
+        public const int CurrentSchemaVersion = 13;
         public int SchemaVersion;
 
         public DeterministicRandomSnapshot RandomState;
@@ -71,7 +73,7 @@ namespace FrameSyncMoba.FrameSync
         {
             return new GameplaySnapshot
             {
-                SchemaVersion = 4,
+                SchemaVersion = CurrentSchemaVersion,
                 MatchRuleState = MatchRuleRuntimeSnapshot.Empty,
                 RandomState = default,
                 UnitWorldState = UnitWorldSnapshot.CreateEmpty(),

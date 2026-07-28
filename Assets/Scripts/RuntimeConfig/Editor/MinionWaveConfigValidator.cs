@@ -4,7 +4,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
 {
     /// <summary>
     /// Editor-time validator for MinionWaveConfig assets.
-    /// Validates that all referenced prototype IDs exist and lane IDs are valid.
+    /// Validates the frozen phase/composition structure.
     /// </summary>
     public static class MinionWaveConfigValidator
     {
@@ -32,47 +32,65 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                 return false;
             }
 
-            var waves = config.Waves;
-            if (waves == null || waves.Length == 0)
+            var phases = config.Phases;
+            if (phases == null || phases.Length == 0)
             {
-                Debug.LogWarning("[MinionWaveConfig] No waves configured.");
+                Debug.LogWarning("[MinionWaveConfig] No phases configured.");
                 return true;
             }
 
             bool allValid = true;
-
-            for (int i = 0; i < waves.Length; i++)
+            for (int phaseIndex = 0;
+                 phaseIndex < phases.Length;
+                 phaseIndex++)
             {
-                var entry = waves[i];
-
-                if (entry.LaneId > 2)
+                MinionWavePhase phase = phases[phaseIndex];
+                if (phase.StartWaveIndex < 0 ||
+                    (phaseIndex > 0 &&
+                     phases[phaseIndex - 1].StartWaveIndex >=
+                     phase.StartWaveIndex))
                 {
-                    Debug.LogError($"[MinionWaveConfig] Wave {i}: LaneId {entry.LaneId} is invalid (must be 0-2).");
+                    Debug.LogError(
+                        $"[MinionWaveConfig] Phase {phaseIndex} StartWaveIndex must be nonnegative and strictly increasing.");
                     allValid = false;
                 }
-
-                if (!entry.IsValid)
+                var cycle = phase.CompositionCycle;
+                if (cycle == null || cycle.Length == 0)
                 {
-                    Debug.LogError($"[MinionWaveConfig] Wave {i}: No minion types configured (total count = 0).");
+                    Debug.LogError(
+                        $"[MinionWaveConfig] Phase {phaseIndex} has no composition cycle.");
                     allValid = false;
+                    continue;
                 }
-
-                if (entry.MeleeCount < 0)
+                for (int compositionIndex = 0;
+                     compositionIndex < cycle.Length;
+                     compositionIndex++)
                 {
-                    Debug.LogError($"[MinionWaveConfig] Wave {i}: MeleeCount cannot be negative.");
-                    allValid = false;
-                }
-
-                if (entry.RangedCount < 0)
-                {
-                    Debug.LogError($"[MinionWaveConfig] Wave {i}: RangedCount cannot be negative.");
-                    allValid = false;
-                }
-
-                if (entry.SiegeCount < 0)
-                {
-                    Debug.LogError($"[MinionWaveConfig] Wave {i}: SiegeCount cannot be negative.");
-                    allValid = false;
+                    var members = cycle[compositionIndex].Members;
+                    if (members == null || members.Length == 0)
+                    {
+                        Debug.LogError(
+                            $"[MinionWaveConfig] Phase {phaseIndex} composition {compositionIndex} has no members.");
+                        allValid = false;
+                        continue;
+                    }
+                    for (int memberIndex = 0;
+                         memberIndex < members.Length;
+                         memberIndex++)
+                    {
+                        MinionWaveMember member =
+                            members[memberIndex];
+                        if (member.UnitPrototypeId <= 0 ||
+                            member.Count <= 0 ||
+                            member.FirstSpawnOffsetTicks < 0 ||
+                            member.SpawnStepTicks < 0 ||
+                            member.FormationGroup < 0)
+                        {
+                            Debug.LogError(
+                                $"[MinionWaveConfig] Phase {phaseIndex}, composition {compositionIndex}, member {memberIndex} is invalid.");
+                            allValid = false;
+                        }
+                    }
                 }
             }
 

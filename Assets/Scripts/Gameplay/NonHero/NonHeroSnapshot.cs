@@ -1,5 +1,6 @@
 using System;
 using FrameSyncMoba.Deterministic;
+using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
@@ -14,10 +15,13 @@ namespace FrameSyncMoba.Unit
 
     public struct MinionTicket
     {
-        public UnitUid UnitUid;
         public int SpawnLogicTick;
-        public int LaneId;
-        public bool IsSpawned;
+        public TeamId TeamId;
+        public ushort LaneId;
+        public int UnitPrototypeId;
+        public int StableEntryIndex;
+        public fp2 SpawnPosition;
+        public fp2 SpawnForward;
 
         public static readonly MinionTicket Empty = default;
     }
@@ -37,10 +41,11 @@ namespace FrameSyncMoba.Unit
 
     public enum JungleCampState : byte
     {
-        Idle = 0,
-        Combat = 1,
-        Reset = 2,
-        Dead = 3,
+        Dormant = 0,
+        Idle = 1,
+        InCombat = 2,
+        Returning = 3,
+        WaitingRespawn = 4,
     }
 
     public struct UnitAIControllerSnapshot : IRollbackSnapshot
@@ -49,12 +54,16 @@ namespace FrameSyncMoba.Unit
         public UnitUid OwnerUnitUid;
         public MinionAIState MinionState;
         public int LaneId;
-        public UnitUid MinionTargetUid;
+        public int MinionNextDecisionLogicTick;
+        public int MinionTargetLockUntilLogicTick;
+        public fp2 MinionEngageOrigin;
+        public UnitUid MinionPendingAssistTargetUid;
+        public int MinionPendingAssistExpireLogicTick;
         public MonsterAIState MonsterState;
         public int CampId;
-        public UnitUid MonsterTargetUid;
+        public int MonsterCampSlotIndex;
+        public int MonsterNextDecisionLogicTick;
         public TowerAIState TowerState;
-        public UnitUid TowerTargetUid;
     }
 
     public enum UnitAIControllerKind : byte
@@ -74,10 +83,9 @@ namespace FrameSyncMoba.Unit
 
     public enum MonsterAIState : byte
     {
-        Idle = 0,
-        Chasing = 1,
-        Returning = 2,
-        Dead = 3,
+        CampIdle = 0,
+        EngageTarget = 1,
+        ReturnToCamp = 2,
     }
 
     public enum TowerAIState : byte

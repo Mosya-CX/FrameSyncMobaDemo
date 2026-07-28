@@ -44,6 +44,11 @@ namespace FrameSyncMoba.Unit
                 trader = new ShopTraderRuntime { Player = playerSlot, ControlledUnitUid = controlledUnitUid };
                 _tradersByPlayerSlot[playerSlot] = trader;
             }
+            else if (trader.ControlledUnitUid != controlledUnitUid)
+            {
+                throw new DeterministicSimulationException(
+                    $"PlayerSlot {playerSlot} is already bound to {trader.ControlledUnitUid}, not {controlledUnitUid}.");
+            }
             return trader;
         }
 
@@ -73,6 +78,28 @@ namespace FrameSyncMoba.Unit
             return delta;
         }
 
+        public int CalculatePurchasePrice(
+            int playerSlot,
+            int targetEquipmentId)
+        {
+            ShopTraderRuntime trader =
+                GetTrader(playerSlot);
+            if (trader == null ||
+                !_unitWorld.TryGetUnit(
+                    trader.ControlledUnitUid,
+                    out Unit unit) ||
+                unit.EquipmentHandler == null)
+                return 0;
+            EquipmentDefinition targetDef =
+                _database?.GetDefinition(targetEquipmentId);
+            if (targetDef == null)
+                return 0;
+            return SelectRecipeComponents(
+                targetDef,
+                unit.EquipmentHandler,
+                out _);
+        }
+
         // ---- Purchase ----
 
         /// <summary>Builds a purchase plan without side effects (local RequestCheck).</summary>
@@ -87,78 +114,89 @@ namespace FrameSyncMoba.Unit
             var targetDef = _database.GetDefinition(targetEquipmentId);
             if (targetDef == null) { failure = EquipmentShopFailureReason.ItemNotFound; return false; }
 
-            // Check duplicate finished item
-            if (targetDef.Tier == EquipmentTier.Finished && handler.HasDefinition(targetDef))
-            { failure = EquipmentShopFailureReason.DuplicateFinishedItem; return false; }
-
-            // Check unique tag conflicts
-            if (targetDef.Tags != null)
+            if (handler == null)
             {
-                for (int i = 0; i < targetDef.Tags.Length; i++)
-                {
-                    if (handler.HasTag(targetDef.Tags[i]))
-                    { failure = EquipmentShopFailureReason.UniqueTagConflict; return false; }
-                }
+                failure = EquipmentShopFailureReason.ControlledUnitNotFound;
+                return false;
+            }
+            int purchaseCost;
+            int[] consumedSlots;
+            try
+            {
+                purchaseCost = SelectRecipeComponents(
+                    targetDef,
+                    handler,
+                    out consumedSlots);
+            }
+            catch (DeterministicSimulationException)
+            {
+                failure = EquipmentShopFailureReason.InvalidRecipe;
+                return false;
             }
 
-            // Calculate cost and component consumption
-            int purchaseCost = targetDef.Value;
-            var consumedSlots = new List<int>();
-
-            if (targetDef.Recipe?.Components != null)
+            var before =
+                new EquipmentTransactionSlotState[EquipmentHandler.SlotCount];
+            var after =
+                new EquipmentTransactionSlotState[EquipmentHandler.SlotCount];
+            for (int slot = 0; slot < EquipmentHandler.SlotCount; slot++)
             {
-                for (int i = 0; i < targetDef.Recipe.Components.Length; i++)
-                {
-                    var part = targetDef.Recipe.Components[i];
-                    int needed = part.Count;
-                    for (int s = 0; s < EquipmentHandler.SlotCount && needed > 0; s++)
-                    {
-                        if (handler.GetSlotDef(s) == part.Item)
-                        {
-                            consumedSlots.Add(s);
-                            purchaseCost -= part.Item.Value;
-                            needed--;
-                        }
-                    }
-                    if (needed > 0) { failure = EquipmentShopFailureReason.InvalidRecipe; return false; }
-                }
+                before[slot] = handler.CaptureTransactionSlot(slot);
+                after[slot] = CloneSlotState(before[slot]);
             }
+            for (int i = 0; i < consumedSlots.Length; i++)
+                after[consumedSlots[i]] =
+                    EquipmentTransactionSlotState.Empty;
 
-            // Determine destination
             int destSlot;
             bool mergeIntoExisting = false;
-            int stackableSlot = handler.FindStackableSlot(targetDef);
-            if (stackableSlot >= 0)
+            destSlot = FindStackableSlot(after, targetDef);
+            if (destSlot >= 0)
             {
-                destSlot = stackableSlot;
                 mergeIntoExisting = true;
+                after[destSlot].StackCount++;
             }
             else
             {
-                // Simulate removal of consumed components
-                var mockSlots = new bool[EquipmentHandler.SlotCount];
-                for (int i = 0; i < consumedSlots.Count; i++)
-                    mockSlots[consumedSlots[i]] = true;
-
                 destSlot = -1;
                 for (int s = 0; s < EquipmentHandler.SlotCount; s++)
                 {
-                    if (!mockSlots[s] && handler.GetSlotDef(s) == null)
+                    if (!after[s].Occupied)
                     { destSlot = s; break; }
                 }
                 if (destSlot < 0) { failure = EquipmentShopFailureReason.InventoryFull; return false; }
+                after[destSlot] =
+                    EquipmentHandler.CreateInitialTransactionSlot(
+                        targetDef);
             }
 
+            if (!ValidatePostPurchaseState(
+                    after,
+                    targetDef,
+                    out failure))
+                return false;
             if (currentAvailableGold < purchaseCost)
             { failure = EquipmentShopFailureReason.InsufficientGold; return false; }
 
+            var slotChanges = new List<EquipmentSlotChange>();
+            for (int slot = 0; slot < EquipmentHandler.SlotCount; slot++)
+            {
+                if (before[slot].Equals(after[slot]))
+                    continue;
+                slotChanges.Add(new EquipmentSlotChange
+                {
+                    Slot = slot,
+                    Before = CloneSlotState(before[slot]),
+                    After = CloneSlotState(after[slot]),
+                });
+            }
             plan = new EquipmentPurchasePlan
             {
                 TargetEquipmentId = targetEquipmentId,
                 PurchaseCost = purchaseCost,
-                ConsumedComponentSlots = consumedSlots.ToArray(),
+                ConsumedComponentSlots = consumedSlots,
                 MergeIntoExistingStack = mergeIntoExisting,
                 DestinationSlot = destSlot,
+                SlotChanges = slotChanges.ToArray(),
             };
             return true;
         }
@@ -175,21 +213,30 @@ namespace FrameSyncMoba.Unit
             var targetDef = _database.GetDefinition(plan.TargetEquipmentId);
             if (targetDef == null) return false;
 
-            int seq = trader.NextOperationSequence++;
+            if (!ValidatePlanBeforeState(handler, plan.SlotChanges))
+                return false;
+            int revisionBefore = handler.RuntimeRevision;
 
             // Remove consumed components
             if (plan.ConsumedComponentSlots != null)
             {
                 for (int i = 0; i < plan.ConsumedComponentSlots.Length; i++)
-                    handler.Remove(plan.ConsumedComponentSlots[i]);
+                    if (!handler.Remove(plan.ConsumedComponentSlots[i]))
+                        throw new DeterministicSimulationException(
+                            $"Purchase failed to consume Equipment slot {plan.ConsumedComponentSlots[i]}.");
             }
 
             // Add or merge target
             if (plan.MergeIntoExistingStack)
                 handler.MergeIntoStack(plan.DestinationSlot, 1);
-            else
-                handler.Add(targetDef, plan.DestinationSlot);
+            else if (!handler.Add(targetDef, plan.DestinationSlot))
+                throw new DeterministicSimulationException(
+                    $"Purchase failed to add Equipment {targetDef.Id} to slot {plan.DestinationSlot}.");
+            if (!ValidatePlanAfterState(handler, plan.SlotChanges))
+                throw new DeterministicSimulationException(
+                    "Purchase result does not match the deterministic purchase plan.");
 
+            int seq = trader.NextOperationSequence++;
             record = new ShopOperationRecord
             {
                 OperationSequence = seq,
@@ -198,9 +245,10 @@ namespace FrameSyncMoba.Unit
                 ControlledUnitUid = trader.ControlledUnitUid,
                 LogicTick = SimulationTickContext.Current.Tick,
                 GoldDelta = -plan.PurchaseCost,
+                SlotChanges = CloneSlotChanges(plan.SlotChanges),
                 Reverted = false,
-                EquipmentRevisionBefore = 0,
-                EquipmentRevisionAfter = 0,
+                EquipmentRevisionBefore = revisionBefore,
+                EquipmentRevisionAfter = handler.RuntimeRevision,
             };
 
             trader.OperationLog.Add(record);
@@ -221,7 +269,8 @@ namespace FrameSyncMoba.Unit
             var def = handler.GetSlotDef(slot);
             if (def == null) { failure = EquipmentShopFailureReason.EmptySlot; return false; }
 
-            sellValue = (int)((fp)def.Value * SellRate);
+            sellValue =
+                (int)fpmath.round((fp)def.Value * SellRate);
             if (sellValue <= 0) sellValue = 1;
             return true;
         }
@@ -235,9 +284,15 @@ namespace FrameSyncMoba.Unit
             var trader = GetTrader(playerSlot);
             if (trader == null) return false;
 
-            int seq = trader.NextOperationSequence++;
-            handler.Remove(slot);
+            EquipmentTransactionSlotState before =
+                handler.CaptureTransactionSlot(slot);
+            int revisionBefore = handler.RuntimeRevision;
+            if (!handler.Remove(slot))
+                return false;
+            EquipmentTransactionSlotState after =
+                handler.CaptureTransactionSlot(slot);
 
+            int seq = trader.NextOperationSequence++;
             record = new ShopOperationRecord
             {
                 OperationSequence = seq,
@@ -246,9 +301,18 @@ namespace FrameSyncMoba.Unit
                 ControlledUnitUid = trader.ControlledUnitUid,
                 LogicTick = SimulationTickContext.Current.Tick,
                 GoldDelta = sellValue,
+                SlotChanges = new[]
+                {
+                    new EquipmentSlotChange
+                    {
+                        Slot = slot,
+                        Before = before,
+                        After = after,
+                    },
+                },
                 Reverted = false,
-                EquipmentRevisionBefore = 0,
-                EquipmentRevisionAfter = 0,
+                EquipmentRevisionBefore = revisionBefore,
+                EquipmentRevisionAfter = handler.RuntimeRevision,
             };
 
             trader.OperationLog.Add(record);
@@ -259,58 +323,82 @@ namespace FrameSyncMoba.Unit
         // ---- Undo ----
 
         /// <summary>Checks if undo is possible (local RequestCheck).</summary>
-        public bool CanUndo(int playerSlot, out EquipmentShopFailureReason failure)
+        public bool CanUndo(
+            int playerSlot,
+            int currentAvailableGold,
+            out EquipmentShopFailureReason failure)
         {
             failure = EquipmentShopFailureReason.None;
             var trader = GetTrader(playerSlot);
             if (trader == null) { failure = EquipmentShopFailureReason.ControlledUnitNotFound; return false; }
             if (trader.UndoableOperationStack.Count == 0) { failure = EquipmentShopFailureReason.NoUndoableTransaction; return false; }
+            if (!_unitWorld.TryGetUnit(
+                    trader.ControlledUnitUid,
+                    out Unit unit) ||
+                unit.EquipmentHandler == null)
+            {
+                failure = EquipmentShopFailureReason.ControlledUnitNotFound;
+                return false;
+            }
+            if (!TryGetUndoRecord(
+                    trader,
+                    out _,
+                    out ShopOperationRecord original))
+            {
+                failure = EquipmentShopFailureReason.NoUndoableTransaction;
+                return false;
+            }
+            if (!ValidatePlanAfterState(
+                    unit.EquipmentHandler,
+                    original.SlotChanges))
+            {
+                failure = EquipmentShopFailureReason.TransactionStateChanged;
+                return false;
+            }
+            if (original.OperationType ==
+                    EquipmentShopOperationType.Sell &&
+                currentAvailableGold < original.GoldDelta)
+            {
+                failure = EquipmentShopFailureReason.InsufficientGold;
+                return false;
+            }
             return true;
         }
 
         /// <summary>Executes undo (ProcessCommand).</summary>
-        public bool ProcessUndo(int playerSlot, EquipmentHandler handler, out ShopOperationRecord record)
+        public bool ProcessUndo(
+            int playerSlot,
+            int currentAvailableGold,
+            EquipmentHandler handler,
+            out ShopOperationRecord record)
         {
             record = default;
             var trader = GetTrader(playerSlot);
             if (trader == null) return false;
             if (trader.UndoableOperationStack.Count == 0) return false;
+            if (!TryGetUndoRecord(
+                    trader,
+                    out int recordIdx,
+                    out ShopOperationRecord original))
+                return false;
+            if (!ValidatePlanAfterState(handler, original.SlotChanges))
+                return false;
+            if (original.OperationType ==
+                    EquipmentShopOperationType.Sell &&
+                currentAvailableGold < original.GoldDelta)
+                return false;
 
-            int topSeq = trader.UndoableOperationStack[trader.UndoableOperationStack.Count - 1];
-
-            // Find the original record
-            int recordIdx = -1;
-            for (int i = trader.OperationLog.Count - 1; i >= 0; i--)
-            {
-                if (trader.OperationLog[i].OperationSequence == topSeq && !trader.OperationLog[i].Reverted)
-                { recordIdx = i; break; }
-            }
-            if (recordIdx < 0) return false;
-
-            var original = trader.OperationLog[recordIdx];
-            int newSeq = trader.NextOperationSequence++;
-
-            // Mark original reverted
+            EquipmentSlotChange[] changes =
+                original.SlotChanges ?? Array.Empty<EquipmentSlotChange>();
+            for (int i = 0; i < changes.Length; i++)
+                handler.RestoreTransactionSlot(
+                    changes[i].Slot,
+                    changes[i].Before);
             original.Reverted = true;
             original.RevertedLogicTick = SimulationTickContext.Current.Tick;
             trader.OperationLog[recordIdx] = original;
-
-            // Create the undo record
-            record = new ShopOperationRecord
-            {
-                OperationSequence = newSeq,
-                OperationType = EquipmentShopOperationType.Undo,
-                Player = playerSlot,
-                ControlledUnitUid = trader.ControlledUnitUid,
-                LogicTick = SimulationTickContext.Current.Tick,
-                GoldDelta = -original.GoldDelta,
-                Reverted = false,
-                EquipmentRevisionBefore = 0,
-                EquipmentRevisionAfter = 0,
-            };
-
-            trader.OperationLog.Add(record);
             trader.UndoableOperationStack.RemoveAt(trader.UndoableOperationStack.Count - 1);
+            record = CloneRecord(original);
             return true;
         }
 
@@ -338,6 +426,274 @@ namespace FrameSyncMoba.Unit
             trader?.UndoableOperationStack.Clear();
         }
 
+        private int SelectRecipeComponents(
+            EquipmentDefinition targetDef,
+            EquipmentHandler handler,
+            out int[] consumedSlots)
+        {
+            int purchaseCost = targetDef.Value;
+            var selected =
+                new bool[EquipmentHandler.SlotCount];
+            var slots = new List<int>();
+            EquipmentRecipePart[] parts =
+                targetDef.Recipe?.Components ??
+                Array.Empty<EquipmentRecipePart>();
+            for (int partIndex = 0;
+                 partIndex < parts.Length;
+                 partIndex++)
+            {
+                EquipmentRecipePart part = parts[partIndex];
+                if (part.Item == null ||
+                    part.Count <= 0 ||
+                    part.Item.Value < 0)
+                    throw new DeterministicSimulationException(
+                        $"Equipment {targetDef.Id} has an invalid recipe part at index {partIndex}.");
+                int needed = part.Count;
+                for (int slot = 0;
+                     slot < EquipmentHandler.SlotCount &&
+                     needed > 0;
+                     slot++)
+                {
+                    if (selected[slot] ||
+                        handler.GetSlotDef(slot)?.Id !=
+                        part.Item.Id)
+                        continue;
+                    selected[slot] = true;
+                    slots.Add(slot);
+                    purchaseCost = checked(
+                        purchaseCost - part.Item.Value);
+                    needed--;
+                }
+            }
+            if (purchaseCost < 0)
+                throw new DeterministicSimulationException(
+                    $"Equipment {targetDef.Id} recipe discount exceeds its value.");
+            slots.Sort();
+            consumedSlots = slots.ToArray();
+            return purchaseCost;
+        }
+
+        private static int FindStackableSlot(
+            EquipmentTransactionSlotState[] slots,
+            EquipmentDefinition targetDef)
+        {
+            if (targetDef.Tier != EquipmentTier.Consumable ||
+                targetDef.MaxStack <= 1)
+                return -1;
+            for (int slot = 0; slot < slots.Length; slot++)
+            {
+                EquipmentTransactionSlotState state = slots[slot];
+                if (state.Occupied &&
+                    state.EquipmentId == targetDef.Id &&
+                    state.StackCount < targetDef.MaxStack)
+                    return slot;
+            }
+            return -1;
+        }
+
+        private bool ValidatePostPurchaseState(
+            EquipmentTransactionSlotState[] slots,
+            EquipmentDefinition targetDef,
+            out EquipmentShopFailureReason failure)
+        {
+            failure = EquipmentShopFailureReason.None;
+            int targetCount = 0;
+            for (int slot = 0; slot < slots.Length; slot++)
+            {
+                EquipmentTransactionSlotState state = slots[slot];
+                if (!state.Occupied)
+                    continue;
+                EquipmentDefinition definition =
+                    _database.GetDefinition(state.EquipmentId);
+                if (definition == null ||
+                    state.StackCount < 1 ||
+                    state.StackCount > definition.MaxStack)
+                {
+                    failure = EquipmentShopFailureReason.InvalidRecipe;
+                    return false;
+                }
+                if (state.EquipmentId == targetDef.Id)
+                    targetCount++;
+            }
+            if (targetDef.Tier == EquipmentTier.Finished &&
+                targetCount > 1)
+            {
+                failure =
+                    EquipmentShopFailureReason.DuplicateFinishedItem;
+                return false;
+            }
+            string[] targetTags =
+                targetDef.Tags ?? Array.Empty<string>();
+            for (int tagIndex = 0;
+                 tagIndex < targetTags.Length;
+                 tagIndex++)
+            {
+                string tag = targetTags[tagIndex];
+                if (string.IsNullOrEmpty(tag))
+                    continue;
+                int matches = 0;
+                for (int slot = 0; slot < slots.Length; slot++)
+                {
+                    if (!slots[slot].Occupied)
+                        continue;
+                    EquipmentDefinition definition =
+                        _database.GetDefinition(
+                            slots[slot].EquipmentId);
+                    string[] tags =
+                        definition?.Tags ?? Array.Empty<string>();
+                    for (int i = 0; i < tags.Length; i++)
+                    {
+                        if (!string.Equals(
+                                tags[i],
+                                tag,
+                                StringComparison.Ordinal))
+                            continue;
+                        matches++;
+                        break;
+                    }
+                }
+                if (matches > 1)
+                {
+                    failure =
+                        EquipmentShopFailureReason.UniqueTagConflict;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static bool ValidatePlanBeforeState(
+            EquipmentHandler handler,
+            EquipmentSlotChange[] changes)
+        {
+            return ValidatePlanState(
+                handler,
+                changes,
+                useAfter: false);
+        }
+
+        private static bool ValidatePlanAfterState(
+            EquipmentHandler handler,
+            EquipmentSlotChange[] changes)
+        {
+            return ValidatePlanState(
+                handler,
+                changes,
+                useAfter: true);
+        }
+
+        private static bool ValidatePlanState(
+            EquipmentHandler handler,
+            EquipmentSlotChange[] changes,
+            bool useAfter)
+        {
+            if (handler == null ||
+                changes == null ||
+                changes.Length == 0)
+                return false;
+            int previousSlot = -1;
+            for (int i = 0; i < changes.Length; i++)
+            {
+                EquipmentSlotChange change = changes[i];
+                if ((uint)change.Slot >= EquipmentHandler.SlotCount ||
+                    change.Slot <= previousSlot ||
+                    !handler.MatchesTransactionSlot(
+                        change.Slot,
+                        useAfter ? change.After : change.Before))
+                    return false;
+                previousSlot = change.Slot;
+            }
+            return true;
+        }
+
+        private static bool TryGetUndoRecord(
+            ShopTraderRuntime trader,
+            out int recordIndex,
+            out ShopOperationRecord record)
+        {
+            recordIndex = -1;
+            record = default;
+            if (trader == null ||
+                trader.UndoableOperationStack.Count == 0)
+                return false;
+            int sequence =
+                trader.UndoableOperationStack[
+                    trader.UndoableOperationStack.Count - 1];
+            for (int i = trader.OperationLog.Count - 1; i >= 0; i--)
+            {
+                ShopOperationRecord candidate =
+                    trader.OperationLog[i];
+                if (candidate.OperationSequence != sequence ||
+                    candidate.Reverted)
+                    continue;
+                recordIndex = i;
+                record = candidate;
+                return true;
+            }
+            return false;
+        }
+
+        private static EquipmentTransactionSlotState CloneSlotState(
+            in EquipmentTransactionSlotState source)
+        {
+            if (!source.Occupied)
+                return EquipmentTransactionSlotState.Empty;
+            var effectStates =
+                new List<EquipmentEffectRuntimeSnapshot>();
+            List<EquipmentEffectRuntimeSnapshot> sourceEffects =
+                source.EffectStates ??
+                new List<EquipmentEffectRuntimeSnapshot>();
+            for (int i = 0; i < sourceEffects.Count; i++)
+            {
+                List<EquipmentEffectModuleRuntimeState> modules =
+                    sourceEffects[i].ModuleStates ??
+                    new List<EquipmentEffectModuleRuntimeState>();
+                effectStates.Add(
+                    new EquipmentEffectRuntimeSnapshot
+                    {
+                        ModuleStates =
+                            new List<EquipmentEffectModuleRuntimeState>(
+                                modules),
+                    });
+            }
+            return new EquipmentTransactionSlotState
+            {
+                Occupied = true,
+                EquipmentId = source.EquipmentId,
+                StackCount = source.StackCount,
+                ChargeCount = source.ChargeCount,
+                ReadyTick = source.ReadyTick,
+                EffectStates = effectStates,
+            };
+        }
+
+        private static EquipmentSlotChange[] CloneSlotChanges(
+            EquipmentSlotChange[] changes)
+        {
+            if (changes == null || changes.Length == 0)
+                return Array.Empty<EquipmentSlotChange>();
+            var clone = new EquipmentSlotChange[changes.Length];
+            for (int i = 0; i < changes.Length; i++)
+            {
+                clone[i] = new EquipmentSlotChange
+                {
+                    Slot = changes[i].Slot,
+                    Before = CloneSlotState(changes[i].Before),
+                    After = CloneSlotState(changes[i].After),
+                };
+            }
+            return clone;
+        }
+
+        private static ShopOperationRecord CloneRecord(
+            in ShopOperationRecord source)
+        {
+            ShopOperationRecord clone = source;
+            clone.SlotChanges =
+                CloneSlotChanges(source.SlotChanges);
+            return clone;
+        }
+
         // ---- IRollback ----
 
         public void Capture(ref EquipmentShopRuntimeSnapshot state)
@@ -362,7 +718,8 @@ namespace FrameSyncMoba.Unit
                 {
                     ts.OperationLog = new System.Collections.Generic.List<ShopOperationRecord>(trader.OperationLog.Count);
                     for (int j = 0; j < trader.OperationLog.Count; j++)
-                        ts.OperationLog.Add(trader.OperationLog[j]);
+                        ts.OperationLog.Add(
+                            CloneRecord(trader.OperationLog[j]));
                 }
 
                 if (trader.UndoableOperationStack.Count > 0)
@@ -411,11 +768,13 @@ namespace FrameSyncMoba.Unit
                             record.LogicTick < 0 ||
                             !Enum.IsDefined(
                                 typeof(EquipmentShopOperationType),
-                                record.OperationType))
+                                record.OperationType) ||
+                            !ValidateSlotChangeShape(
+                                record.SlotChanges))
                             throw new DeterministicSimulationException(
                                 $"Equipment shop operation log for Player {ts.Player} is invalid or non-canonical.");
                         previousOperationSequence = record.OperationSequence;
-                        trader.OperationLog.Add(record);
+                        trader.OperationLog.Add(CloneRecord(record));
                     }
 
                 if (ts.UndoableOperationStack != null)
@@ -462,10 +821,28 @@ namespace FrameSyncMoba.Unit
             {
                 ShopOperationRecord record = operationLog[i];
                 if (record.OperationSequence == sequence)
-                    return !record.Reverted &&
-                           record.OperationType != EquipmentShopOperationType.Undo;
+                    return !record.Reverted;
             }
             return false;
+        }
+
+        private static bool ValidateSlotChangeShape(
+            EquipmentSlotChange[] changes)
+        {
+            if (changes == null || changes.Length == 0)
+                return false;
+            int previousSlot = -1;
+            for (int i = 0; i < changes.Length; i++)
+            {
+                if ((uint)changes[i].Slot >=
+                        EquipmentHandler.SlotCount ||
+                    changes[i].Slot <= previousSlot ||
+                    changes[i].Before.Equals(
+                        changes[i].After))
+                    return false;
+                previousSlot = changes[i].Slot;
+            }
+            return true;
         }
     }
 
@@ -486,13 +863,18 @@ namespace FrameSyncMoba.Unit
         public UnitUid ControlledUnitUid;
         public int LogicTick;
         public int GoldDelta;
+        public EquipmentSlotChange[] SlotChanges;
         public bool Reverted;
         public int RevertedLogicTick;
         public int EquipmentRevisionBefore;
         public int EquipmentRevisionAfter;
     }
 
-    public enum EquipmentShopOperationType : byte { Purchase = 0, Sell = 1, Undo = 2 }
+    public enum EquipmentShopOperationType : byte
+    {
+        Purchase = 0,
+        Sell = 1,
+    }
 
     public enum EquipmentShopFailureReason : byte
     {
@@ -501,6 +883,7 @@ namespace FrameSyncMoba.Unit
         DuplicateFinishedItem, UniqueTagConflict, InvalidSlot, EmptySlot,
         NoUndoableTransaction, UndoInvalidatedByLeavingShop, UndoInvalidatedByCombat,
         UndoInvalidatedByEquipmentUse,
+        TransactionStateChanged,
     }
 
     [Flags]
@@ -518,6 +901,14 @@ namespace FrameSyncMoba.Unit
         public int[] ConsumedComponentSlots;
         public bool MergeIntoExistingStack;
         public int DestinationSlot;
+        public EquipmentSlotChange[] SlotChanges;
+    }
+
+    public struct EquipmentSlotChange
+    {
+        public int Slot;
+        public EquipmentTransactionSlotState Before;
+        public EquipmentTransactionSlotState After;
     }
 
     public struct ShopTraderRuntimeSnapshot

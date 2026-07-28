@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1ffb938a26d10b46b88354c8e8aeb8a, type: 3}
+  m_Name: NeutralAimedAbility
+  m_EditorClassIdentifier: 
+  abilityId: 10002
+  abilityName: Neutral Aimed Ability
+  icon: {fileID: 0}
+  castModel:
+    rid: 8320038068519698449
+  castRange: 5
+  aimKind: 2
+  cooldownTicks: 3
+  costTiming: 0
+  castResourceCostByLevel: []
+  healthCostByLevel: []
+  castConditions: []
+  stageDefs:
+  - rid: 8320038068519698432
+  references:
+    version: 2
+    RefIds:
+    - rid: 8320038068519698432
+      type: {class: DelayStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 1
+        debugName: Commit
+    - rid: 8320038068519698449
+      type: {class: CommitCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        castStageKey: 1
+        durationTicks: 0
+        notifyAbilityCastOnEnter: 1
+        interruptible: 1

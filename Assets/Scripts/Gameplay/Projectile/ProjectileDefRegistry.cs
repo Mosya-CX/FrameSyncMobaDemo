@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace FrameSyncMoba.Unit
@@ -10,8 +11,12 @@ namespace FrameSyncMoba.Unit
 
         public void Register(ProjectileDef def)
         {
-            if (def == null || !def.IsValid) return;
-            _byId[def.DefId] = def;
+            if (def == null) throw new ArgumentNullException(nameof(def));
+            def.ValidateOrThrow();
+            if (_byId.ContainsKey(def.DefId))
+                throw new InvalidOperationException(
+                    $"Duplicate ProjectileDef id {def.DefId}.");
+            _byId.Add(def.DefId, def);
         }
 
         public void RegisterAll(IEnumerable<ProjectileDef> defs)
@@ -34,6 +39,7 @@ namespace FrameSyncMoba.Unit
         public IReadOnlyList<ProjectileDef> GetAllDefs()
         {
             var list = new List<ProjectileDef>(_byId.Values);
+            list.Sort((a, b) => a.DefId.CompareTo(b.DefId));
             return list;
         }
     }

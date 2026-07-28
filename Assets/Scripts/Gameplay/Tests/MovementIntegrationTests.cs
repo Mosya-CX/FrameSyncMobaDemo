@@ -47,8 +47,8 @@ namespace FrameSyncMoba.Unit.Tests
             Unit unit = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
 
             Assert.IsNotNull(unit.MovementHandler);
-            Assert.AreEqual(fp2.zero, unit.MovementHandler.Snapshot.Position);
-            Assert.AreEqual(fp.one, unit.MovementHandler.Snapshot.MoveSpeed);
+            Assert.AreEqual(fp2.zero, unit.MovementHandler.Position);
+            Assert.AreEqual(fp.one, unit.MovementHandler.MoveSpeed);
         }
 
         [Test]
@@ -60,8 +60,8 @@ namespace FrameSyncMoba.Unit.Tests
             moveHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
             moveHandler.TickUpdate();
 
-            Assert.AreNotEqual(fp2.zero, moveHandler.Snapshot.Position);
-            Assert.AreEqual(new fp2(fp.one, fp.zero), moveHandler.Snapshot.Facing);
+            Assert.AreNotEqual(fp2.zero, moveHandler.Position);
+            Assert.AreEqual(new fp2(fp.one, fp.zero), moveHandler.Facing);
         }
 
         [Test]
@@ -83,8 +83,8 @@ namespace FrameSyncMoba.Unit.Tests
             }
 
             Assert.AreEqual(
-                u1.MovementHandler.Snapshot.Position,
-                u2.MovementHandler.Snapshot.Position);
+                u1.MovementHandler.Position,
+                u2.MovementHandler.Position);
         }
 
         [Test]
@@ -106,8 +106,8 @@ namespace FrameSyncMoba.Unit.Tests
             }
 
             Assert.Greater(
-                fast.MovementHandler.Snapshot.Position.x,
-                slow.MovementHandler.Snapshot.Position.x);
+                fast.MovementHandler.Position.x,
+                slow.MovementHandler.Position.x);
         }
 
         [Test]
@@ -127,11 +127,11 @@ namespace FrameSyncMoba.Unit.Tests
                 up.MovementHandler.TickUpdate();
             }
 
-            Assert.AreEqual(new fp2(fp.one, fp.zero), right.MovementHandler.Snapshot.Facing);
-            Assert.AreEqual(new fp2(fp.zero, fp.one), up.MovementHandler.Snapshot.Facing);
+            Assert.AreEqual(new fp2(fp.one, fp.zero), right.MovementHandler.Facing);
+            Assert.AreEqual(new fp2(fp.zero, fp.one), up.MovementHandler.Facing);
             Assert.AreNotEqual(
-                right.MovementHandler.Snapshot.Position,
-                up.MovementHandler.Snapshot.Position);
+                right.MovementHandler.Position,
+                up.MovementHandler.Position);
         }
 
         [Test]
@@ -163,12 +163,12 @@ namespace FrameSyncMoba.Unit.Tests
             unit.MovementHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
             unit.MovementHandler.TickUpdate();
 
-            fp2 positionBeforeDeath = unit.MovementHandler.Snapshot.Position;
+            fp2 positionBeforeDeath = unit.MovementHandler.Position;
 
             unit.ClearForDeath();
 
-            Assert.AreEqual(positionBeforeDeath, unit.MovementHandler.Snapshot.Position);
-            Assert.AreEqual(fp2.zero, unit.MovementHandler.Snapshot.Velocity);
+            Assert.AreEqual(positionBeforeDeath, unit.MovementHandler.Position);
+            Assert.AreEqual(fp2.zero, unit.MovementHandler.Velocity);
         }
 
         [Test]
@@ -197,10 +197,8 @@ namespace FrameSyncMoba.Unit.Tests
         {
             var snap = MovementSnapshot.Default;
 
-            Assert.AreEqual(fp2.zero, snap.Position);
-            Assert.AreEqual(fp2.zero, snap.Velocity);
-            Assert.AreEqual(new fp2(fp.one, fp.zero), snap.Facing);
-            Assert.AreEqual(fp.one, snap.MoveSpeed);
+            Assert.IsFalse(snap.Dash.IsActive);
+            Assert.IsFalse(snap.ForcedMove.IsActive);
         }
 
         [Test]
@@ -221,8 +219,8 @@ namespace FrameSyncMoba.Unit.Tests
                 unit.MovementHandler.TickUpdate();
             }
 
-            Assert.AreEqual(fp2.zero, unit.MovementHandler.Snapshot.Position);
-            Assert.AreEqual(fp2.zero, unit.MovementHandler.Snapshot.Velocity);
+            Assert.AreEqual(fp2.zero, unit.MovementHandler.Position);
+            Assert.AreEqual(fp2.zero, unit.MovementHandler.Velocity);
         }
 
         [Test]
@@ -259,14 +257,14 @@ namespace FrameSyncMoba.Unit.Tests
             }
 
             Assert.AreEqual(
-                u1.MovementHandler.Snapshot.Position,
-                u2.MovementHandler.Snapshot.Position);
+                u1.MovementHandler.Position,
+                u2.MovementHandler.Position);
             Assert.AreEqual(
-                u1.MovementHandler.Snapshot.Velocity,
-                u2.MovementHandler.Snapshot.Velocity);
+                u1.MovementHandler.Velocity,
+                u2.MovementHandler.Velocity);
             Assert.AreEqual(
-                u1.MovementHandler.Snapshot.Facing,
-                u2.MovementHandler.Snapshot.Facing);
+                u1.MovementHandler.Facing,
+                u2.MovementHandler.Facing);
         }
     }
 }

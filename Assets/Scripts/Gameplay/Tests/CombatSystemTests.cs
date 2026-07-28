@@ -56,12 +56,8 @@ namespace FrameSyncMoba.Unit.Tests
             fp initialHealth = target.StatHandler.CurrentHealth;
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = 100m,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, (fp)100));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -81,12 +77,8 @@ namespace FrameSyncMoba.Unit.Tests
             fp initialHealth = target.StatHandler.CurrentHealth;
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = 100m,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, (fp)100));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -108,17 +100,86 @@ namespace FrameSyncMoba.Unit.Tests
             fp initialHealth = target.StatHandler.CurrentHealth;
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = 100m,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, (fp)100));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
             fp damageTaken = initialHealth - target.StatHandler.CurrentHealth;
             Assert.AreEqual((fp)100m, damageTaken);
+        }
+
+        [Test]
+        public void CombatModifiers_ApplyOutgoingAndIncomingFinalPatches()
+        {
+            BeginTick(1);
+            Unit attacker = _world.SpawnUnit(
+                _prototype,
+                TeamId.Neutral,
+                1,
+                0m,
+                0m);
+            Unit target = _world.SpawnUnit(
+                CreateZeroArmorProto(),
+                TeamId.Neutral,
+                1,
+                0m,
+                0m);
+            var match = new CombatModifierMatch(
+                SourceTypeMask.Attack,
+                CombatBuiltinSourceId.BasicAttack,
+                CombatBuiltinRecipeId.BasicAttackDamage,
+                DamageTypeMask.True);
+            attacker.CombatModifiers.Attach(
+                new CombatModifierRecord
+                {
+                    Id = CombatModifierId.Create(1, "Outgoing"),
+                    Domain = CombatDomain.Damage,
+                    Scope = CombatModifierScope.Outgoing,
+                    Match = match,
+                    ValuePatches = new[]
+                    {
+                        new CombatFormulaPatch(
+                            CombatFormulaSlot.FinalValue,
+                            CombatModifierOperation.Multiply,
+                            new CombatOperand((fp)2)),
+                    },
+                });
+            target.CombatModifiers.Attach(
+                new CombatModifierRecord
+                {
+                    Id = CombatModifierId.Create(1, "Incoming"),
+                    Domain = CombatDomain.Damage,
+                    Scope = CombatModifierScope.Incoming,
+                    Match = match,
+                    ValuePatches = new[]
+                    {
+                        new CombatFormulaPatch(
+                            CombatFormulaSlot.FinalValue,
+                            CombatModifierOperation.Add,
+                            new CombatOperand((fp)10)),
+                    },
+                });
+            fp initialHealth =
+                target.StatHandler.CurrentHealth;
+
+            _combat.BeginTick();
+            _combat.SubmitDamage(
+                UnitTestFactory.CreateDamageRequest(
+                    attacker.UnitUid,
+                    target.UnitUid,
+                    (fp)100,
+                    DamageType.True,
+                    CombatSourceType.Attack,
+                    CombatBuiltinSourceId.BasicAttack,
+                    CombatBuiltinRecipeId.BasicAttackDamage));
+            _combat.SettleActiveRequests();
+            _combat.EndTick();
+
+            Assert.AreEqual(
+                (fp)220,
+                initialHealth -
+                target.StatHandler.CurrentHealth);
         }
 
         [Test]
@@ -131,12 +192,8 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.AreEqual(LifeState.Alive, target.LifeState);
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = 5000m, // Massive overkill
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, (fp)5000));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -159,27 +216,21 @@ namespace FrameSyncMoba.Unit.Tests
                 _prototype, defenders, 1, 0m, 0m);
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = largerAssistant.UnitUid,
-                TargetUnitUid = victim.UnitUid,
-                BaseDamage = 50m,
-                DamageType = DamageType.True,
-            });
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = smallerAssistant.UnitUid,
-                TargetUnitUid = victim.UnitUid,
-                BaseDamage = 350m,
-                DamageType = DamageType.True,
-            });
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = killer.UnitUid,
-                TargetUnitUid = victim.UnitUid,
-                BaseDamage = 100m,
-                DamageType = DamageType.True,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                largerAssistant.UnitUid,
+                victim.UnitUid,
+                (fp)50,
+                DamageType.True));
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                smallerAssistant.UnitUid,
+                victim.UnitUid,
+                (fp)350,
+                DamageType.True));
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                killer.UnitUid,
+                victim.UnitUid,
+                (fp)100,
+                DamageType.True));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -206,12 +257,8 @@ namespace FrameSyncMoba.Unit.Tests
             fp healthBefore = target.StatHandler.CurrentHealth;
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = 100m,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, (fp)100));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -256,12 +303,8 @@ namespace FrameSyncMoba.Unit.Tests
             var target = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = 100m,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, (fp)100));
 
             // BeginTick again clears without settling
             _combat.BeginTick();

@@ -21,9 +21,17 @@ namespace FrameSyncMoba.FrameSync
         public readonly int Tick;
         public readonly uint FrameSequence;
         public readonly uint FinalCommandRevision;
-        public readonly byte[] CanonicalCommandBytes;
         public readonly AuthorityFrameFlags FrameFlags;
         public readonly uint SharedGameplayChecksum;
+        private readonly byte[] canonicalCommandBytes;
+
+        public byte[] CanonicalCommandBytes =>
+            canonicalCommandBytes == null
+                ? Array.Empty<byte>()
+                : (byte[])canonicalCommandBytes.Clone();
+
+        internal byte[] CanonicalCommandBytesUnsafe =>
+            canonicalCommandBytes ?? Array.Empty<byte>();
 
         public AuthorityFrame(
             int tick,
@@ -37,7 +45,7 @@ namespace FrameSyncMoba.FrameSync
             Tick = tick;
             FrameSequence = frameSequence;
             FinalCommandRevision = finalCommandRevision;
-            CanonicalCommandBytes = canonicalCommandBytes == null
+            this.canonicalCommandBytes = canonicalCommandBytes == null
                 ? throw new ArgumentNullException(nameof(canonicalCommandBytes))
                 : (byte[])canonicalCommandBytes.Clone();
             FrameFlags = frameFlags;
@@ -62,7 +70,7 @@ namespace FrameSyncMoba.FrameSync
         }
 
         public GameplayCommand[] DecodeCommands() =>
-            CanonicalCommandCodec.Decode(CanonicalCommandBytes, Tick);
+            CanonicalCommandCodec.Decode(canonicalCommandBytes, Tick);
     }
 
     internal static class CanonicalCommandCodec
@@ -87,6 +95,19 @@ namespace FrameSyncMoba.FrameSync
 
         public static GameplayCommand[] Decode(byte[] bytes, int expectedTick)
         {
+            return DecodeCore(bytes, expectedTick, true);
+        }
+
+        public static GameplayCommand[] DecodeBundle(byte[] bytes)
+        {
+            return DecodeCore(bytes, 0, false);
+        }
+
+        private static GameplayCommand[] DecodeCore(
+            byte[] bytes,
+            int expectedTick,
+            bool requireExpectedTick)
+        {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
             var reader = new CanonicalReader(bytes);
             int count = reader.ReadInt32();
@@ -105,7 +126,7 @@ namespace FrameSyncMoba.FrameSync
                 int buildLocalTick = reader.ReadInt32();
                 int payloadByteLength = reader.ReadInt32();
                 uint schemaVersion = reader.ReadUInt32();
-                if (targetTick != expectedTick)
+                if (requireExpectedTick && targetTick != expectedTick)
                     throw new DeterministicSimulationException(
                         $"AuthorityFrame {expectedTick} contains Command for Tick {targetTick}.");
 
@@ -131,6 +152,49 @@ namespace FrameSyncMoba.FrameSync
                     case GameplayCommandKind.CancelAbility:
                         command = GameplayCommand.CreateCancelAbility(
                             header, reader.ReadByte(), (AbilityCancelReason)reader.ReadByte());
+                        break;
+                    case GameplayCommandKind.AllocateAbilitySkillPoint:
+                        command =
+                            GameplayCommand.CreateAllocateAbilitySkillPoint(
+                                header,
+                                reader.ReadByte());
+                        break;
+                    case GameplayCommandKind.EquipmentShop:
+                        EquipmentShopCommandOperationType operation =
+                            (EquipmentShopCommandOperationType)reader.ReadByte();
+                        if (operation ==
+                            EquipmentShopCommandOperationType.Purchase)
+                            command =
+                                GameplayCommand.CreateEquipmentPurchase(
+                                    header,
+                                    reader.ReadInt32());
+                        else if (operation ==
+                                  EquipmentShopCommandOperationType.Sell)
+                            command =
+                                GameplayCommand.CreateEquipmentSell(
+                                    header,
+                                    reader.ReadByte());
+                        else if (operation ==
+                                  EquipmentShopCommandOperationType.Undo)
+                            command =
+                                GameplayCommand.CreateEquipmentUndo(
+                                    header);
+                        else
+                            throw new DeterministicSimulationException(
+                                $"Unsupported EquipmentShop operation {operation}.");
+                        break;
+                    case GameplayCommandKind.SwapEquipmentSlot:
+                        command =
+                            GameplayCommand.CreateSwapEquipmentSlot(
+                                header,
+                                reader.ReadByte(),
+                                reader.ReadByte());
+                        break;
+                    case GameplayCommandKind.UseItem:
+                        command = GameplayCommand.CreateUseItem(
+                            header,
+                            reader.ReadByte(),
+                            reader.ReadAim());
                         break;
                     default:
                         throw new DeterministicSimulationException(

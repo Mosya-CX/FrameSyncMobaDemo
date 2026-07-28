@@ -19,8 +19,12 @@ namespace FrameSyncMoba.Unit
 
             var request = new DamageRequest
             {
-                TargetUnitUid = owner.UnitUid,
-                SourceUnitUid = runtime.SourceUnitUid,
+                Header = CombatRequestHeader.Create(
+                    runtime.SourceUnitUid,
+                    owner.UnitUid,
+                    CombatSourceType.Buff,
+                    runtime.ConfigId.Value,
+                    runtime.ConfigId.Value),
                 BaseDamage = DamagePerTick,
                 DamageType = DamageType,
             };

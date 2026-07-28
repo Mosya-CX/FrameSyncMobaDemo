@@ -11,16 +11,21 @@ namespace FrameSyncMoba.PlayerInput
     /// This is created once during bootstrap from AbilityDefinitionRegistry data
     /// and does not change during a match.
     /// </summary>
-    public sealed class AbilityInputProfileProvider : IPlayerAbilityInputProfileProvider
+    public sealed class AbilityInputProfileProvider :
+        IPlayerAbilityInputProfileProvider,
+        IPlayerAbilityAimProfileProvider
     {
         private const int MaxSlots = 4;
 
         private readonly BakedPlayerAbilityInputProfile[] _profiles;
         private readonly AimKind[] _aimKinds;
+        private readonly Unity.Mathematics.FixedPoint.fp[]
+            _castRanges;
 
         public AbilityInputProfileProvider(
             BakedPlayerAbilityInputProfile[] profiles,
-            AimKind[] aimKinds = null)
+            AimKind[] aimKinds = null,
+            Unity.Mathematics.FixedPoint.fp[] castRanges = null)
         {
             _profiles = profiles ?? throw new ArgumentNullException(nameof(profiles));
             if (_profiles.Length > MaxSlots)
@@ -31,6 +36,14 @@ namespace FrameSyncMoba.PlayerInput
             }
 
             _aimKinds = aimKinds ?? new AimKind[MaxSlots];
+            _castRanges = castRanges ??
+                new Unity.Mathematics.FixedPoint.fp[MaxSlots];
+            if (_aimKinds.Length < _profiles.Length ||
+                _castRanges.Length < _profiles.Length)
+            {
+                throw new ArgumentException(
+                    "Aim and range arrays must cover every profile slot.");
+            }
         }
 
         /// <summary>
@@ -45,6 +58,8 @@ namespace FrameSyncMoba.PlayerInput
 
             var profiles = new BakedPlayerAbilityInputProfile[MaxSlots];
             var aimKinds = new AimKind[MaxSlots];
+            var castRanges =
+                new Unity.Mathematics.FixedPoint.fp[MaxSlots];
 
             for (byte slot = 0; slot < MaxSlots; slot++)
             {
@@ -53,6 +68,7 @@ namespace FrameSyncMoba.PlayerInput
                 {
                     AimKind aimKind = def.AimKind;
                     aimKinds[slot] = aimKind;
+                    castRanges[slot] = def.CastRange;
                     profiles[slot] = AbilityInputProfileBaker.Bake(def.CastModel, aimKind);
                 }
                 else
@@ -63,7 +79,10 @@ namespace FrameSyncMoba.PlayerInput
                 }
             }
 
-            return new AbilityInputProfileProvider(profiles, aimKinds);
+            return new AbilityInputProfileProvider(
+                profiles,
+                aimKinds,
+                castRanges);
         }
 
         /// <summary>
@@ -103,6 +122,23 @@ namespace FrameSyncMoba.PlayerInput
             }
 
             aimKind = _aimKinds[slot];
+            return aimKind != AimKind.None;
+        }
+
+        public bool TryGetAimConfiguration(
+            byte slot,
+            out AimKind aimKind,
+            out Unity.Mathematics.FixedPoint.fp castRange)
+        {
+            if (slot >= _profiles.Length)
+            {
+                aimKind = AimKind.None;
+                castRange =
+                    Unity.Mathematics.FixedPoint.fp.zero;
+                return false;
+            }
+            aimKind = _aimKinds[slot];
+            castRange = _castRanges[slot];
             return aimKind != AimKind.None;
         }
     }

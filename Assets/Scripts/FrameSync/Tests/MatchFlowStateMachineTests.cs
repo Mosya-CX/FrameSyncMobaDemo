@@ -13,7 +13,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         public void MatchFlow_InitialState_Preparing()
         {
             var rule = new MatchRuleRuntime(60);
-            var flow = new MatchFlowStateMachine(rule, 90);
+            var flow = new MatchFlowStateMachine(rule);
             Assert.That(flow.HasFinished, Is.False);
             Assert.That(flow.AcceptsGameplayCommands, Is.False);
             Assert.That(flow.Result.WinningTeamId, Is.EqualTo(TeamId.Neutral));
@@ -24,14 +24,15 @@ namespace FrameSyncMoba.FrameSync.Tests
         {
             var rule = new MatchRuleRuntime(60);
             rule.BeginCountdown(0, 90);
-            var flow = new MatchFlowStateMachine(rule, 90);
+            var flow = new MatchFlowStateMachine(rule);
 
             // Advance during countdown
             for (int tick = 0; tick < 90; tick++)
-                flow.AdvanceTick(tick, null);
+                rule.AdvanceTick(tick);
 
             // At tick 90, should be Running
-            flow.AdvanceTick(90, null);
+            rule.AdvanceTick(90);
+            flow.ObserveTick();
 
             Assert.That(flow.HasFinished, Is.False);
             Assert.That(flow.AcceptsGameplayCommands, Is.True);
@@ -42,14 +43,16 @@ namespace FrameSyncMoba.FrameSync.Tests
         {
             var rule = new MatchRuleRuntime(60);
             rule.BeginCountdown(0, 90);
-            var flow = new MatchFlowStateMachine(rule, 90);
+            var flow = new MatchFlowStateMachine(rule);
 
             // Advance to tick 50 (still in countdown)
-            flow.AdvanceTick(50, null);
+            rule.AdvanceTick(50);
+            flow.ObserveTick();
             Assert.That(flow.AcceptsGameplayCommands, Is.False);
 
             // Advance to tick 90 (now running)
-            flow.AdvanceTick(90, null);
+            rule.AdvanceTick(90);
+            flow.ObserveTick();
             Assert.That(flow.AcceptsGameplayCommands, Is.True);
         }
 
@@ -84,18 +87,20 @@ namespace FrameSyncMoba.FrameSync.Tests
         public void MatchFlow_AcceptsCommands_OnlyRunningOrEnding()
         {
             var rule = new MatchRuleRuntime(60);
-            var flow = new MatchFlowStateMachine(rule, 90);
+            var flow = new MatchFlowStateMachine(rule);
 
             // Preparing -> No commands
             Assert.That(flow.AcceptsGameplayCommands, Is.False);
 
             // Transition to countdown
             rule.BeginCountdown(0, 90);
-            flow.AdvanceTick(0, null);
+            rule.AdvanceTick(0);
+            flow.ObserveTick();
             Assert.That(flow.AcceptsGameplayCommands, Is.False);
 
             // Running -> Commands accepted
-            flow.AdvanceTick(90, null);
+            rule.AdvanceTick(90);
+            flow.ObserveTick();
             Assert.That(flow.AcceptsGameplayCommands, Is.True);
         }
     }

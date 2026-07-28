@@ -1,61 +1,50 @@
 # FrameSyncMobaDemo -- Module Status
 
-> Last updated: 2026-07-24, post-0095-0100 audit remediation.
+> Last updated: 2026-07-28, ExecPlan 0109 final remediation.
+> A clean compile alone is not treated as behavior verification.
 
-## Status meanings
+## Validation baseline
 
-| Status | Meaning |
+| Validation | Current result |
 |---|---|
-| `Missing` | No meaningful current implementation |
-| `Scaffold` | Interfaces or data shapes exist, but the observable behavior is not complete |
-| `Partial` | A useful generic slice works, with explicitly recorded later capability remaining |
-| `Implemented` | The current formal slice is implemented and compiles |
-| `Verified` | The current formal slice is implemented, compiled, and behavior-verified |
+| Unity | 2022.3.62f1c1, connected through Unity MCP |
+| Compilation | Passing, 0 Console errors after the latest PlayerInput/UI command change |
+| EditMode | Focused suites passed: Equipment shop 4, authority/codec 8, Combat 21, non-hero topology 6, PlayerCommandRequester 5; Bootstrap assembly 36/36 |
+| PlayMode | `FrameworkSmokeScenePlayModeTests` 1/1 passed |
+| Duplicate protocols | No duplicate UID, Command, Snapshot, Aim, AbilitySignal, Checksum or FixedPoint type found |
 
-## Current validation baseline
+## Module matrix
 
-| Validation | Result |
-|---|---|
-| Unity | Unity 2022.3.62f1c1 |
-| Compilation | **Passing** -- zero errors (Editor.log confirmed clean) |
-| Current EditMode total | **529 tests passed** (post-0094 baseline) |
-| Previous PlayMode total | ~32 tests passed (pre-0087 baseline) |
-| Audit status | **Remediated** -- 4 P0 violations fixed (0095-0096), 2 Gameplay modules completed (0097/0100), Capture assertions added (0099) |
-
-## Current module matrix
-
-| Module | Status | Current evidence and remaining non-blocking work |
+| Module | Status | Current evidence / remaining limit |
 |---|---|---|
-| Deterministic foundation | **Verified** | Tick context, deterministic random state, fixed-point geometry, canonical byte writing, stable UID. |
-| Runtime configuration | **Implemented** | `GlobalPrefabTable`, `GlobalGameplayData`, `AbilityAsset` SO bake, `MinionWaveConfig`, `JungleCampConfig` (0088). |
-| Physics / spatial grid | **Verified** | Deterministic shapes, range queries, grid, stable pair ordering. LateUpdate for Unity Transform sync added (0095). |
-| Unit / prefab composition | **Verified** | `Unit` and Handlers are prefab-authored `MonoBehaviour`s. |
-| Stats / XP | **Verified** | Stat and experience state consolidated in `StatHandler`. |
-| Combat | **Verified** | Global request sequence, shield/life settlement, death ownership. |
-| Attack | **Verified** | Fixed-point timing, explicit TickRate injection. |
-| Ability | **Partial** | Generic sessions, CastModels, stages, SO authoring. Production stages remain future. |
-| Buff | **Implemented** | Runtime store, reactions, ownership, restore, lifecycle rebuild hooks. |
-| Crowd control | **Implemented** | Stable handles, immunity, unstoppable, forced movement, snapshot. |
-| Projectile | **Implemented** | Stable UID, pending spawn lifecycle, deterministic hit order. |
-| Equipment / shop / gold | **Verified** | Fixed-point Bake/runtime, sole-owner `GoldIncomeRuntime`. |
-| Snapshot / rollback | **Verified** | Aggregate snapshot tree, explicit Restore/Resolve/Rebuild. |
-| FrameSync / match flow | **Verified** | Canonical command header, stable collection, AuthorityFrame. `MatchFlowStateMachine` (0090), `MatchResultSnapshot` (0090). |
-| Player input | **Implemented** | Callbacks enqueue local events; processing resolves aim. |
-| Non-hero AI | **Implemented** | Stable UID ordering, typed runtime state, minion wave, lane AI. Jungle camp config bake (0088). |
-| Movement / pathfinding | **Verified** | A*, FlowField, RVO, WallPenetration, Radius Clearance. Integration tests (0091). MovementHandler reads SimulationTickContext internally; UnitLocomotionAgent reads PhysicsEntity2D.Transform2D (0095). |
-| Bootstrap / composition root | **Verified** | Client/server bootstrap, `GameBootstrap`, configuration assets. Scoreboard+Minimap (0087), Cooldown (0089), **Result Screen (0092)**. |
-| Presentation bridge | **Partial** | PresentationEventDispatcher, AttackSfxHandler, HitReactionPresenter, DeathPresenter. Full animation, particle VFX, Unity Transform sync now implemented via PhysicsEntity2D.LateUpdate (0095). |
-| Ability indicator | **Implemented** | SkillIndicatorDriver with direction/range/ground-target indicators. |
-| UI / Lua | **Partial** | Shop UI, Scoreboard (0087), Minimap (0087), Cooldown (0089), **Result Screen (0092)**, **Hero Select (0093)**. Lua: result.lua, hero_select.lua. |
-| Ability authoring | **Implemented** | `AbilityAsset` SO, CastModelAuthoring, StageDefAuthoring, Editor bake. |
-| Integration tests | **Implemented** | RVO+FlowField integration (0091), Full gameplay loop + Shop pipeline (0094). |
-| Network / authority layer | **Missing** | `GameApplicationFlowManager`, `LobbySessionFlowNetwork`, `CommandDispatcher`, `AuthorityFrameReplicator`, `AuthorityRecovery` -- deferred to Phase 11/14 per ROADMAP. |
-| TeamBase system | **Missing** | No `TeamBase` type exists. MatchRuleRuntime uses simplified unit-world base tracking. Deferred to Phase 13+. |
+| Deterministic foundation | **Verified** | Fixed Tick context, project `fp`, stable UID/random/order and canonical serialization are integrated. |
+| Runtime configuration | **Verified** | Inspector float authoring bakes to fixed-point runtime tables; Ability catalog/loadout ScriptableObjects have matching source files and persist across reload. |
+| Physics / movement / pathfinding | **Verified** | `PhysicsEntity2D` owns authoritative pose; ForcedMove > Dash > Route, stable RVO and movement snapshots passed focused tests. |
+| Unit / lifecycle / composition | **Implemented** | Unit and Handlers remain prefab-authored MonoBehaviours; neutral fixture spawns through `UnitWorld` and the bounded Tick driver. |
+| Stats / XP | **Implemented** | Fixed-point runtime and authoring Bake are composed. |
+| Combat / modifiers | **Verified** | Formal source headers, stable modifier formula/policy slots, shields, Attack and Projectile settlement passed 21 focused tests. |
+| Attack | **Implemented** | Begin/Commit/cancel/reset and successful-output sequence ownership use formal Combat source semantics. |
+| Ability / PlayerInput | **Implemented** | Ability authoring, cost/stage validation, Focus/Commit, aim and canonical future-Tick Commands are integrated. |
+| Buff / crowd control | **Partial** | Core lifecycle and stable control arbitration work; the complete catalog of generic effect modules remains later framework work. |
+| Projectile | **Implemented** | Deterministic motion/filter/order, Combat/Buff/CC dispatch, pooling and rollback state are integrated. |
+| Equipment shop / gold | **Verified** | Component-aware purchases, full-inventory slot reuse, sell/undo, deep snapshot state, checksum and canonical UI Commands passed focused tests. |
+| Equipment active use | **Partial** | Command/codec/basic cooldown/charge execution exist. The current design names `EquipmentTargetPolicy` but defines no values or exact match contract, so target/range/NeedApproach arbitration is deliberately not invented. |
+| Snapshot / rollback / checksum | **Implemented** | Schema 13 covers integrated future-affecting state with strict restore and stable ordering. |
+| FrameSync authority / recovery | **Verified** | Canonical bundle/relay, authority archive, gap recovery, prediction limits and codec behavior passed 8 focused tests. |
+| UOS / NGO application flow | **Implemented** | Bootstrap-only adapters, lobby barriers, frozen start/result contracts and NGO FrameSync bridge compile; live provider/dashboard validation remains external. |
+| Non-hero / TeamBase | **Verified** | Stable wave/camp/AI topology and authority-only base victory behavior are integrated; Tower target ownership is only `Unit.Intent`. |
+| Presentation / UI / Lua | **Implemented** | Presentation histories are rollback-aware and read-only; shop UI now submits canonical Commands instead of mutating Gameplay. |
+
+## Remediation disposition
+
+- No known P0 remains in the implemented generic framework slice.
+- All code-side P1 items tracked by ExecPlan 0109 were repaired and focused-tested where the Unity Test Runner returned a result.
+- P2 cleanup was limited to touched correctness paths; duplicate/dead shop planning code was removed.
+- The incomplete `EquipmentTargetPolicy` design contract is an accepted non-blocking design underspecification, not a guessed production API.
 
 ## Permanent constraints
 
-- Unit and current Handlers remain prefab-authored `MonoBehaviour`s.
-- Inspector-facing numeric authoring may use `float`, but Gameplay calculations use `fp`.
-- Production heroes, specific abilities, Buffs, equipment, map objects and balance values remain out of scope.
-- Presentation is read-only consumption; Gameplay never reads presentation state.
-- `UiSnapshotDto` and `LuaRuntime` are presentation-only and never enter `GameplaySnapshot` or `SharedGameplayChecksum`.
+- Unit and Handlers remain prefab-authored MonoBehaviours.
+- Inspector values may be `float`; authoritative Gameplay converts once and uses `fp`.
+- Bootstrap owns Unity frame scheduling, NGO/UOS, scenes and UI; deterministic assemblies do not depend on those implementations.
+- No production hero, concrete ability, Buff, equipment or map content is introduced by the remediation.

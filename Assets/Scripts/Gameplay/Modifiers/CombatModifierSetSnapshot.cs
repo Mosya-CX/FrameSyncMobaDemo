@@ -10,7 +10,7 @@ namespace FrameSyncMoba.Unit
     public struct CombatModifierSetSnapshot
     {
         /// <summary>
-        /// All modifier Ids in insertion order. Used for validation during restore.
+        /// All modifier Ids in strictly increasing canonical order.
         /// </summary>
         public ulong[] Ids;
 

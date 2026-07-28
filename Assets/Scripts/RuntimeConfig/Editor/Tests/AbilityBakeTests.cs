@@ -11,7 +11,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         [Test]
         public void Bake_CommitModel_ProducesValidAbilityDef()
         {
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset = CreateValidCommitAsset();
             var def = asset.Bake();
 
             Assert.That(def, Is.Not.Null);
@@ -24,8 +24,18 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         [Test]
         public void Bake_HoldReleaseModel_ProducesCorrectKind()
         {
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset = AbilityAssetBakeTests.CreateValidCommitAsset();
             var holdRelease = new HoldReleaseCastModelAuthoring();
+            SetField(holdRelease, "holdStageKey", (byte)1);
+            SetField(holdRelease, "releaseStageKey", (byte)2);
+            SetField(
+                asset,
+                "stageDefs",
+                new StageDefAuthoring[]
+                {
+                    CreateDelayStage(1),
+                    CreateDelayStage(2),
+                });
 
             var field = typeof(AbilityAsset).GetField("castModel",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -38,7 +48,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         [Test]
         public void Bake_WithStages_AssignsStageDefs()
         {
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset = AbilityAssetBakeTests.CreateValidCommitAsset();
             var commitModel = new CommitCastModelAuthoring();
             var field = typeof(AbilityAsset).GetField("castModel",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -50,7 +60,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
 
             var stagesField = typeof(AbilityAsset).GetField("stageDefs",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var stageAuthoring = new StageDefAuthoring();
+            var stageAuthoring = new DelayStageDefAuthoring();
             typeof(StageDefAuthoring).GetField("stageKey",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .SetValue(stageAuthoring, (byte)1);
@@ -74,6 +84,53 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
 
             Assert.That(() => asset.Bake(), Throws.InvalidOperationException);
         }
+
+        [Test]
+        public void Bake_MissingStage_Throws()
+        {
+            var asset =
+                ScriptableObject.CreateInstance<AbilityAsset>();
+
+            Assert.That(
+                () => asset.Bake(),
+                Throws.InvalidOperationException);
+        }
+
+        internal static AbilityAsset CreateValidCommitAsset()
+        {
+            var asset =
+                ScriptableObject.CreateInstance<AbilityAsset>();
+            SetField(
+                asset,
+                "stageDefs",
+                new StageDefAuthoring[]
+                {
+                    CreateDelayStage(0),
+                });
+            return asset;
+        }
+
+        internal static DelayStageDefAuthoring CreateDelayStage(
+            byte key)
+        {
+            var stage = new DelayStageDefAuthoring();
+            SetField(stage, "stageKey", key);
+            SetField(stage, "debugName", "Delay");
+            return stage;
+        }
+
+        internal static void SetField(
+            object target,
+            string name,
+            object value)
+        {
+            target.GetType()
+                .GetField(
+                    name,
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance)
+                .SetValue(target, value);
+        }
     }
 
     [TestFixture]
@@ -82,7 +139,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         [Test]
         public void Validate_ValidAsset_ReturnsSuccess()
         {
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset = AbilityAssetBakeTests.CreateValidCommitAsset();
             var result = AbilityAssetBakeValidator.Validate(asset);
             Assert.That(result.IsValid, Is.True);
             Assert.That(result.Errors.Length, Is.EqualTo(0));
@@ -91,7 +148,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         [Test]
         public void Validate_EmptyName_ReturnsError()
         {
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset = AbilityAssetBakeTests.CreateValidCommitAsset();
             var nameField = typeof(AbilityAsset).GetField("abilityName",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             nameField.SetValue(asset, "");
@@ -104,7 +161,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         [Test]
         public void Validate_HoldReleaseDuplicateKeys_ReturnsError()
         {
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset = AbilityAssetBakeTests.CreateValidCommitAsset();
             var holdRelease = new HoldReleaseCastModelAuthoring();
 
             typeof(HoldReleaseCastModelAuthoring).GetField("holdStageKey",
@@ -130,7 +187,8 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         public void RegisterFromAsset_ValidAsset_Succeeds()
         {
             var registry = new AbilityDefinitionRegistry();
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset =
+                AbilityAssetBakeTests.CreateValidCommitAsset();
             var idField = typeof(AbilityAsset).GetField("abilityId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             idField.SetValue(asset, 1001);
@@ -152,13 +210,16 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
         public void Register_DuplicateId_Throws()
         {
             var registry = new AbilityDefinitionRegistry();
-            var asset = ScriptableObject.CreateInstance<AbilityAsset>();
+            var asset =
+                AbilityAssetBakeTests.CreateValidCommitAsset();
             var idField = typeof(AbilityAsset).GetField("abilityId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             idField.SetValue(asset, 2001);
 
             Assert.That(registry.TryRegisterFromAsset(asset), Is.True);
-            Assert.That(registry.TryRegisterFromAsset(asset), Is.False);
+            Assert.That(
+                () => registry.TryRegisterFromAsset(asset),
+                Throws.InvalidOperationException);
         }
     }
 }

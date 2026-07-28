@@ -157,10 +157,35 @@ namespace FrameSyncMoba.Unit
 
         public fp AbsorbShields(ref fp remainingDamage, DamageType damageType)
         {
+            return AbsorbShields(
+                ref remainingDamage,
+                damageType,
+                false,
+                false);
+        }
+
+        public fp AbsorbShields(
+            ref fp remainingDamage,
+            DamageType damageType,
+            bool ignorePhysicalShield,
+            bool ignoreMagicShield)
+        {
             fp absorbed = fp.zero;
             for (int i = 0; i < shieldInstances.Count && remainingDamage > fp.zero;)
             {
                 ShieldInstance instance = shieldInstances[i];
+                if ((ignorePhysicalShield &&
+                     instance.ShieldType ==
+                     ShieldType.Physical) ||
+                    (ignoreMagicShield &&
+                     (instance.ShieldType ==
+                          ShieldType.Magic ||
+                      instance.ShieldType ==
+                          ShieldType.Black)))
+                {
+                    i++;
+                    continue;
+                }
                 if (!MatchesDamage(instance.ShieldType, damageType))
                 {
                     i++;

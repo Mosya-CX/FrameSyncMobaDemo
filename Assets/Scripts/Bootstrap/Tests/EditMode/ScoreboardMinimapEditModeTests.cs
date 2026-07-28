@@ -34,7 +34,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
             Assert.That(row, Is.Not.Null);
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             row.Initialize(font);
-            row.Set("Player1", 5, 2, 10);
+            row.Set("Player1", 5, 2, 10, Color.white);
             Assert.That(row, Is.Not.Null);
             Object.DestroyImmediate(go);
         }

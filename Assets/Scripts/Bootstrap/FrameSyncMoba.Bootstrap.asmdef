@@ -9,6 +9,13 @@
         "FrameSyncMoba.FrameSync",
         "FrameSyncMoba.PlayerInput",
         "FrameSyncMoba.LuaBridge",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.Collections",
+        "Unity.UOS.Common",
+        "Unity.UOS.Matchmaking.Runtime",
+        "Unity.UOS.Matchmaking.Server.Runtime",
+        "Unity.UOS.Multiverse.Runtime",
         "Unity.Mathematics",
         "Unity.Mathematics.FixedPoint"
     ],

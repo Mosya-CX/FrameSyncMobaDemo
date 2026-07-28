@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.Physics;
+using FrameSyncMoba.RuntimeConfig;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
+using UnityEngine.Pool;
 
 namespace FrameSyncMoba.Unit
 {
@@ -11,265 +15,532 @@ namespace FrameSyncMoba.Unit
         public ProjectileDef Def;
         public UnitUid OwnerUnitUid;
         public TeamId TeamSnapshot;
+        public SourceDescriptor Source;
         public fp2 Position;
         public fp2 Direction;
     }
 
-    public sealed class ProjectileWorld
+    public sealed class ProjectileWorld :
+        IRollback<ProjectileWorldSnapshot>
     {
-        private readonly Dictionary<ProjectileUid, ProjectileRuntime> _lookup =
+        private readonly Dictionary<ProjectileUid, ProjectileRuntime> lookup =
             new Dictionary<ProjectileUid, ProjectileRuntime>();
-        private readonly List<ProjectileRuntime> _ordered = new List<ProjectileRuntime>();
-        private readonly List<PendingSpawnEntry> _pendingSpawns = new List<PendingSpawnEntry>();
-        private readonly Dictionary<ProjectileUid, PendingSpawnEntry> _pendingByUid =
+        private readonly List<ProjectileRuntime> ordered =
+            new List<ProjectileRuntime>();
+        private readonly List<PendingSpawnEntry> pendingSpawns =
+            new List<PendingSpawnEntry>();
+        private readonly Dictionary<ProjectileUid, PendingSpawnEntry> pendingByUid =
             new Dictionary<ProjectileUid, PendingSpawnEntry>();
-        private byte _nextSequenceInTick;
-        private int _currentSequenceTick = -1;
-        private bool _spawnSequenceExhausted;
+        private readonly Dictionary<int, ObjectPool<PhysicsEntity2D>> entityPools =
+            new Dictionary<int, ObjectPool<PhysicsEntity2D>>();
+        private byte nextSequenceInTick;
+        private int currentSequenceTick = -1;
+        private bool spawnSequenceExhausted;
 
         public ProjectileDefRegistry DefRegistry { get; set; }
+        public UnitWorld UnitWorld { get; set; }
+        public PhysicsWorld PhysicsWorld { get; set; }
+        public GlobalPrefabTable PrefabTable { get; set; }
+        public int Count => ordered.Count;
+        public int PendingCount => pendingSpawns.Count;
 
-
-        public int Count => _ordered.Count;
-
-        public ProjectileUid RequestSpawn(in ProjectileSpawnRequest request)
+        public ProjectileUid RequestSpawn(
+            in ProjectileSpawnRequest request)
         {
-            ProjectileDef def = DefRegistry?.FindById(request.ProjectileDefId);
-            if (def == null || !def.IsValid || !request.OwnerUnitUid.IsValid() ||
+            ProjectileDef def =
+                DefRegistry?.FindById(request.ProjectileDefId);
+            if (def == null ||
+                !request.OwnerUnitUid.IsValid() ||
+                !request.Source.IsValid ||
+                request.Source.OwnerUnitUid !=
+                    request.OwnerUnitUid ||
                 !Physics.PhysicsGeometry2D.TryCreateFacing(
-                    request.Direction, out fp2 direction, out _))
+                    request.Direction,
+                    out fp2 direction,
+                    out _))
             {
                 return ProjectileUid.Invalid;
             }
 
-            int currentTick = SimulationTickContext.Current.Tick;
-            if (_currentSequenceTick != currentTick)
+            int currentTick =
+                SimulationTickContext.Current.Tick;
+            if (currentSequenceTick != currentTick)
             {
-                _currentSequenceTick = currentTick;
-                _nextSequenceInTick = 0;
-                _spawnSequenceExhausted = false;
+                currentSequenceTick = currentTick;
+                nextSequenceInTick = 0;
+                spawnSequenceExhausted = false;
             }
 
-            if (_spawnSequenceExhausted)
-                throw new DeterministicSimulationException("Projectile spawn sequence exhausted.");
+            if (spawnSequenceExhausted)
+                throw new DeterministicSimulationException(
+                    "Projectile spawn sequence exhausted.");
 
-            byte sequence = _nextSequenceInTick;
-            if (_nextSequenceInTick == byte.MaxValue) _spawnSequenceExhausted = true;
-            else _nextSequenceInTick++;
-            var uid = new ProjectileUid(currentTick, def.RuntimeEntityPrefabId, sequence);
+            byte sequence = nextSequenceInTick;
+            if (nextSequenceInTick == byte.MaxValue)
+                spawnSequenceExhausted = true;
+            else
+                nextSequenceInTick++;
+
+            var uid = new ProjectileUid(
+                currentTick,
+                def.RuntimeEntityPrefabId,
+                sequence);
             var pending = new PendingSpawnEntry
             {
                 Uid = uid,
                 Def = def,
                 OwnerUnitUid = request.OwnerUnitUid,
                 TeamSnapshot = request.TeamSnapshot,
+                Source = request.Source,
                 Position = request.StartPosition,
                 Direction = direction,
             };
-            _pendingSpawns.Add(pending);
-            _pendingByUid.Add(uid, pending);
+            pendingSpawns.Add(pending);
+            pendingByUid.Add(uid, pending);
             return uid;
         }
 
         public void CommitSpawns()
         {
-            _pendingSpawns.Sort((a, b) => a.Uid.CompareTo(b.Uid));
-            for (int i = 0; i < _pendingSpawns.Count; i++)
+            pendingSpawns.Sort((a, b) =>
+                a.Uid.CompareTo(b.Uid));
+            for (int i = 0; i < pendingSpawns.Count; i++)
             {
-                PendingSpawnEntry pending = _pendingSpawns[i];
+                PendingSpawnEntry pending =
+                    pendingSpawns[i];
                 if (pending.Def == null)
                     throw new DeterministicSimulationException(
                         $"Pending projectile {pending.Uid} has no definition.");
-                if (_lookup.ContainsKey(pending.Uid))
+                if (lookup.ContainsKey(pending.Uid))
                     throw new DeterministicSimulationException(
                         $"Duplicate active ProjectileUid {pending.Uid}.");
+
+                PhysicsEntity2D entity =
+                    AcquireEntity(pending.Def);
                 var runtime = new ProjectileRuntime(
                     pending.Uid,
                     pending.Def,
                     pending.OwnerUnitUid,
                     pending.TeamSnapshot,
+                    pending.Source,
+                    entity,
                     pending.Position,
                     pending.Direction);
-                _lookup.Add(pending.Uid, runtime);
-                _ordered.Add(runtime);
+                BindEntity(runtime);
+                lookup.Add(pending.Uid, runtime);
+                ordered.Add(runtime);
             }
-            _ordered.Sort((a, b) => a.Uid.CompareTo(b.Uid));
-            _pendingSpawns.Clear();
-            _pendingByUid.Clear();
+
+            ordered.Sort((a, b) =>
+                a.Uid.CompareTo(b.Uid));
+            pendingSpawns.Clear();
+            pendingByUid.Clear();
         }
 
+        public void AdvanceMotion()
+        {
+            for (int i = 0; i < ordered.Count; i++)
+                ordered[i].AdvanceMotion();
+        }
+
+        public void UpdateLifecycle()
+        {
+            for (int i = 0; i < ordered.Count; i++)
+                ordered[i].UpdateLifecycle();
+        }
+
+        public void FlushDestroy()
+        {
+            for (int i = ordered.Count - 1; i >= 0; i--)
+            {
+                ProjectileRuntime runtime = ordered[i];
+                if (!runtime.EndRequested &&
+                    runtime.IsActive)
+                    continue;
+
+                runtime.Deactivate();
+                ReleaseEntity(runtime);
+                lookup.Remove(runtime.Uid);
+                ordered.RemoveAt(i);
+            }
+        }
+
+        [Obsolete(
+            "Use CommitSpawns/AdvanceMotion/UpdateLifecycle/ResolveHits/" +
+            "EmitEffects/FlushDestroy phases.")]
         public void TickAll()
         {
-            var toRemove = new List<ProjectileRuntime>();
-
-            for (int i = 0; i < _ordered.Count; i++)
-            {
-                var runtime = _ordered[i];
-                runtime.TickUpdate();
-
-                if (!runtime.IsActive)
-                {
-                    toRemove.Add(runtime);
-                }
-            }
-
-            for (int i = 0; i < toRemove.Count; i++)
-            {
-                var runtime = toRemove[i];
-                _lookup.Remove(runtime.Uid);
-                _ordered.Remove(runtime);
-            }
+            AdvanceMotion();
+            UpdateLifecycle();
+            FlushDestroy();
         }
 
-        public bool TryGet(ProjectileUid uid, out ProjectileRuntime runtime)
-        {
-            return _lookup.TryGetValue(uid, out runtime);
-        }
+        public bool TryGet(
+            ProjectileUid uid,
+            out ProjectileRuntime runtime) =>
+            lookup.TryGetValue(uid, out runtime);
 
-        public IReadOnlyList<ProjectileRuntime> GetAllOrdered()
-        {
-            return _ordered;
-        }
+        public IReadOnlyList<ProjectileRuntime>
+            GetAllOrdered() => ordered;
 
         public void Clear()
         {
-            _lookup.Clear();
-            _ordered.Clear();
-            _pendingSpawns.Clear();
-            _pendingByUid.Clear();
-        }
-
-        /// <summary>
-        /// Looks up a ProjectileDef by its stable DefId.
-        /// Returns null until the ProjectileDef registry is implemented.
-        /// </summary>
-        private ProjectileDef GetProjectileDef(int defId)
-        {
-            return DefRegistry?.FindById(defId);
-        }
-
-        public void Capture(ref ProjectileWorldSnapshot state)
-        {
-            // Active projectiles
-            var apList = new List<ProjectileRuntimeSnapshot>(_ordered.Count);
-            for (int i = 0; i < _ordered.Count; i++)
+            for (int i = ordered.Count - 1; i >= 0; i--)
             {
-                var rt = _ordered[i];
-                apList.Add(new ProjectileRuntimeSnapshot
-                {
-                    Uid = rt.Uid,
-                    DefId = rt.Def.DefId,
-                    OwnerUnitUid = rt.OwnerUnitUid,
-                    TeamSnapshot = rt.TeamSnapshot,
-                    PreviousPosition = rt.PrevPosition,
-                    Position = rt.Position,
-                    Velocity = rt.Velocity,
-                    RemainingLifetimeTicks = rt.RemainingLifetimeTicks,
-                    IsActive = rt.IsActive,
-                    HitCount = rt.HitCount,
-                    HitTargets = rt.HitTargets != null ? rt.HitTargets.ToArray() : Array.Empty<UnitUid>(),
-                });
+                ordered[i].Deactivate();
+                ReleaseEntity(ordered[i]);
             }
-            state.ActiveProjectiles = apList.ToArray();
-
-            // Pending spawns (not yet activated this Tick)
-            var psList = new List<PendingSpawnRecordSnapshot>(_pendingSpawns.Count);
-            for (int i = 0; i < _pendingSpawns.Count; i++)
-            {
-                var ps = _pendingSpawns[i];
-                psList.Add(new PendingSpawnRecordSnapshot
-                {
-                    Uid = ps.Uid,
-                    DefId = ps.Def.DefId,
-                    OwnerUnitUid = ps.OwnerUnitUid,
-                    TeamSnapshot = ps.TeamSnapshot,
-                    StartPosition = ps.Position,
-                    Direction = ps.Direction,
-                });
-            }
-            state.PendingSpawns = psList.ToArray();
+            lookup.Clear();
+            ordered.Clear();
+            pendingSpawns.Clear();
+            pendingByUid.Clear();
+            currentSequenceTick = -1;
+            nextSequenceInTick = 0;
+            spawnSequenceExhausted = false;
         }
 
-        public void Restore(in ProjectileWorldSnapshot state)
+        public void Dispose()
         {
             Clear();
+            foreach (ObjectPool<PhysicsEntity2D> pool
+                     in entityPools.Values)
+            {
+                pool.Clear();
+            }
+            entityPools.Clear();
+        }
 
-            // Restore pending spawns
+        public void Capture(
+            ref ProjectileWorldSnapshot state)
+        {
+            var active =
+                new ProjectileRuntimeSnapshot[ordered.Count];
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                ProjectileRuntime runtime = ordered[i];
+                var records =
+                    new ProjectileHitRecord[
+                        runtime.HitRecords.Count];
+                for (int j = 0; j < records.Length; j++)
+                    records[j] = runtime.HitRecords[j];
+
+                active[i] = new ProjectileRuntimeSnapshot
+                {
+                    Uid = runtime.Uid,
+                    DefId = runtime.Def.DefId,
+                    OwnerUnitUid = runtime.OwnerUnitUid,
+                    TeamSnapshot = runtime.TeamSnapshot,
+                    Source = runtime.Source,
+                    PreviousPosition = runtime.PrevPosition,
+                    Position = runtime.Position,
+                    Velocity = runtime.Velocity,
+                    RemainingLifetimeTicks =
+                        runtime.RemainingLifetimeTicks,
+                    IsActive = runtime.IsActive,
+                    EndRequested = runtime.EndRequested,
+                    EndReason = runtime.EndReason,
+                    TotalHitCount = runtime.TotalHitCount,
+                    RemainingPierceCount =
+                        runtime.RemainingPierceCount,
+                    RemainingBounceCount =
+                        runtime.RemainingBounceCount,
+                    NextQueryLogicTick =
+                        runtime.NextQueryLogicTick,
+                    HitRecords = records,
+                };
+            }
+            state.ActiveProjectiles = active;
+
+            var pending =
+                new PendingSpawnRecordSnapshot[
+                    pendingSpawns.Count];
+            for (int i = 0; i < pendingSpawns.Count; i++)
+            {
+                PendingSpawnEntry entry =
+                    pendingSpawns[i];
+                pending[i] =
+                    new PendingSpawnRecordSnapshot
+                    {
+                        Uid = entry.Uid,
+                        DefId = entry.Def.DefId,
+                        OwnerUnitUid =
+                            entry.OwnerUnitUid,
+                        TeamSnapshot =
+                            entry.TeamSnapshot,
+                        Source = entry.Source,
+                        StartPosition = entry.Position,
+                        Direction = entry.Direction,
+                    };
+            }
+            state.PendingSpawns = pending;
+        }
+
+        public void Restore(
+            in ProjectileWorldSnapshot state)
+        {
+            Clear();
             if (state.PendingSpawns != null)
             {
-                for (int i = 0; i < state.PendingSpawns.Length; i++)
+                for (int i = 0;
+                     i < state.PendingSpawns.Length;
+                     i++)
                 {
-                    var ps = state.PendingSpawns[i];
-                    ProjectileDef def = GetProjectileDef(ps.DefId);
-                    if (def == null)
-                        throw new DeterministicSimulationException(
-                            $"Pending projectile snapshot references missing definition {ps.DefId}.");
+                    PendingSpawnRecordSnapshot snapshot =
+                        state.PendingSpawns[i];
+                    ProjectileDef def =
+                        GetRequiredDef(snapshot.DefId);
+                    ValidateSnapshotSource(
+                        snapshot.OwnerUnitUid,
+                        snapshot.Source);
                     var pending = new PendingSpawnEntry
                     {
-                        Uid = ps.Uid,
-                        OwnerUnitUid = ps.OwnerUnitUid,
-                        TeamSnapshot = ps.TeamSnapshot,
-                        Position = ps.StartPosition,
-                        Direction = ps.Direction,
+                        Uid = snapshot.Uid,
                         Def = def,
+                        OwnerUnitUid =
+                            snapshot.OwnerUnitUid,
+                        TeamSnapshot =
+                            snapshot.TeamSnapshot,
+                        Source = snapshot.Source,
+                        Position = snapshot.StartPosition,
+                        Direction = snapshot.Direction,
                     };
-                    if (_pendingByUid.ContainsKey(ps.Uid))
+                    if (pendingByUid.ContainsKey(
+                            snapshot.Uid))
                         throw new DeterministicSimulationException(
-                            $"Duplicate pending ProjectileUid {ps.Uid} in snapshot.");
-                    _pendingSpawns.Add(pending);
-                    _pendingByUid.Add(ps.Uid, pending);
+                            $"Duplicate pending ProjectileUid {snapshot.Uid} in snapshot.");
+                    pendingSpawns.Add(pending);
+                    pendingByUid.Add(
+                        snapshot.Uid,
+                        pending);
                 }
             }
 
-            // Restore active projectiles
             if (state.ActiveProjectiles != null)
             {
-                for (int i = 0; i < state.ActiveProjectiles.Length; i++)
+                for (int i = 0;
+                     i < state.ActiveProjectiles.Length;
+                     i++)
                 {
-                    var ps = state.ActiveProjectiles[i];
-                    var def = GetProjectileDef(ps.DefId);
-                    if (def == null)
-                        throw new DeterministicSimulationException(
-                            $"Active projectile snapshot references missing definition {ps.DefId}.");
-
+                    ProjectileRuntimeSnapshot snapshot =
+                        state.ActiveProjectiles[i];
+                    ProjectileDef def =
+                        GetRequiredDef(snapshot.DefId);
+                    ValidateSnapshotSource(
+                        snapshot.OwnerUnitUid,
+                        snapshot.Source);
+                    PhysicsEntity2D entity =
+                        AcquireEntity(def);
+                    fp2 restoreFacing =
+                        snapshot.Velocity.x != fp.zero ||
+                        snapshot.Velocity.y != fp.zero
+                            ? snapshot.Velocity
+                            : new fp2(fp.one, fp.zero);
                     var runtime = new ProjectileRuntime(
-                        ps.Uid, def, ps.OwnerUnitUid, ps.TeamSnapshot, ps.Position, fp2.zero);
-                    // Directly overwrite snapshot fields onto the runtime
-                    runtime.RestoreFromSnapshot(ps);
-                    if (_lookup.ContainsKey(ps.Uid))
+                        snapshot.Uid,
+                        def,
+                        snapshot.OwnerUnitUid,
+                        snapshot.TeamSnapshot,
+                        snapshot.Source,
+                        entity,
+                        snapshot.Position,
+                        restoreFacing);
+                    runtime.RestoreFromSnapshot(snapshot);
+                    BindEntity(runtime);
+                    if (lookup.ContainsKey(snapshot.Uid))
                         throw new DeterministicSimulationException(
-                            $"Duplicate active ProjectileUid {ps.Uid} in snapshot.");
-                    _lookup.Add(ps.Uid, runtime);
-                    _ordered.Add(runtime);
+                            $"Duplicate active ProjectileUid {snapshot.Uid} in snapshot.");
+                    lookup.Add(snapshot.Uid, runtime);
+                    ordered.Add(runtime);
                 }
-                _ordered.Sort((a, b) => a.Uid.CompareTo(b.Uid));
             }
+
+            ValidateStableOrder(
+                pendingSpawns,
+                entry => entry.Uid,
+                "pending");
+            ValidateStableOrder(
+                ordered,
+                runtime => runtime.Uid,
+                "active");
+        }
+
+        public void Resolve(
+            in RollbackContext context)
+        {
+            if (UnitWorld == null)
+                throw new DeterministicSimulationException(
+                    "ProjectileWorld has no UnitWorld during Resolve.");
+
+            for (int i = 0; i < pendingSpawns.Count; i++)
+                ValidateUnitReferences(
+                    pendingSpawns[i].OwnerUnitUid,
+                    null);
+            for (int i = 0; i < ordered.Count; i++)
+                ValidateUnitReferences(
+                    ordered[i].OwnerUnitUid,
+                    ordered[i].HitRecords);
         }
 
         public void Resolve(UnitWorld unitWorld)
         {
-            if (unitWorld == null) throw new ArgumentNullException(nameof(unitWorld));
-            for (int i = 0; i < _pendingSpawns.Count; i++)
-                ValidateUnitReferences(unitWorld, _pendingSpawns[i].OwnerUnitUid, null);
-            for (int i = 0; i < _ordered.Count; i++)
-                ValidateUnitReferences(unitWorld, _ordered[i].OwnerUnitUid, _ordered[i].HitTargets);
+            UnitWorld = unitWorld ??
+                throw new ArgumentNullException(
+                    nameof(unitWorld));
+            RollbackContext context = default;
+            Resolve(in context);
         }
 
-        public void Rebuild(in RollbackContext context) { }
-
-        private static void ValidateUnitReferences(
-            UnitWorld unitWorld,
-            UnitUid ownerUid,
-            List<UnitUid> hitTargets)
+        public void Rebuild(
+            in RollbackContext context)
         {
-            if (!unitWorld.TryGetUnit(ownerUid, out _))
+            pendingByUid.Clear();
+            for (int i = 0; i < pendingSpawns.Count; i++)
+                pendingByUid.Add(
+                    pendingSpawns[i].Uid,
+                    pendingSpawns[i]);
+
+            lookup.Clear();
+            for (int i = 0; i < ordered.Count; i++)
+                lookup.Add(ordered[i].Uid, ordered[i]);
+
+            currentSequenceTick = -1;
+            nextSequenceInTick = 0;
+            spawnSequenceExhausted = false;
+        }
+
+        private ProjectileDef GetRequiredDef(int defId)
+        {
+            ProjectileDef def =
+                DefRegistry?.FindById(defId);
+            if (def == null)
+                throw new DeterministicSimulationException(
+                    $"Projectile snapshot references missing definition {defId}.");
+            return def;
+        }
+
+        private PhysicsEntity2D AcquireEntity(
+            ProjectileDef def)
+        {
+            if (PhysicsWorld == null)
+                throw new DeterministicSimulationException(
+                    "ProjectileWorld has no PhysicsWorld.");
+            if (PrefabTable == null)
+                throw new DeterministicSimulationException(
+                    "ProjectileWorld has no GlobalPrefabTable.");
+
+            if (!entityPools.TryGetValue(
+                    def.RuntimeEntityPrefabId,
+                    out ObjectPool<PhysicsEntity2D> pool))
+            {
+                GameObject prefab =
+                    PrefabTable.GetRequiredPrefab(
+                        PrefabKind.Projectile,
+                        def.RuntimeEntityPrefabId);
+                PhysicsEntity2D template =
+                    prefab.GetComponent<PhysicsEntity2D>();
+                if (template == null)
+                    throw new InvalidOperationException(
+                        $"Projectile prefab {def.RuntimeEntityPrefabId} has no PhysicsEntity2D.");
+
+                pool = new ObjectPool<PhysicsEntity2D>(
+                    () =>
+                    {
+                        GameObject instance =
+                            UnityEngine.Object.Instantiate(prefab);
+                        PhysicsEntity2D entity =
+                            instance.GetComponent<PhysicsEntity2D>();
+                        if (entity == null)
+                        {
+                            UnityEngine.Object.Destroy(instance);
+                            throw new InvalidOperationException(
+                                $"Projectile prefab {def.RuntimeEntityPrefabId} instantiated without PhysicsEntity2D.");
+                        }
+                        return entity;
+                    },
+                    entity => entity.gameObject.SetActive(true),
+                    entity =>
+                    {
+                        entity.SetQueryInfo(default);
+                        entity.gameObject.SetActive(false);
+                    },
+                    entity =>
+                        UnityEngine.Object.Destroy(entity.gameObject),
+                    true,
+                    4,
+                    256);
+                entityPools.Add(
+                    def.RuntimeEntityPrefabId,
+                    pool);
+            }
+
+            return pool.Get();
+        }
+
+        private void BindEntity(
+            ProjectileRuntime runtime)
+        {
+            runtime.PhysicsEntity.SetQueryInfo(
+                new PhysicsEntityQueryInfo(
+                    new RuntimeUidQueryValue(
+                        runtime.Uid.SpawnLogicTick,
+                        runtime.Uid.RuntimeEntityPrefabId,
+                        runtime.Uid.SpawnSequenceInTick),
+                    PhysicsEntityKind.Projectile,
+                    runtime.TeamSnapshot.Value,
+                    runtime));
+            PhysicsWorld.RegisterProjectile(
+                runtime.PhysicsEntity);
+        }
+
+        private void ReleaseEntity(
+            ProjectileRuntime runtime)
+        {
+            PhysicsWorld.UnregisterProjectile(
+                runtime.PhysicsEntity);
+            if (!entityPools.TryGetValue(
+                    runtime.Def.RuntimeEntityPrefabId,
+                    out ObjectPool<PhysicsEntity2D> pool))
+                throw new DeterministicSimulationException(
+                    $"Projectile entity pool {runtime.Def.RuntimeEntityPrefabId} is missing.");
+            pool.Release(runtime.PhysicsEntity);
+        }
+
+        private void ValidateUnitReferences(
+            UnitUid ownerUid,
+            IReadOnlyList<ProjectileHitRecord> records)
+        {
+            if (!UnitWorld.TryGetUnit(ownerUid, out _))
                 throw new DeterministicSimulationException(
                     $"Projectile snapshot references missing owner {ownerUid}.");
-            if (hitTargets == null) return;
-            for (int i = 0; i < hitTargets.Count; i++)
-                if (!unitWorld.TryGetUnit(hitTargets[i], out _))
+            if (records == null) return;
+            for (int i = 0; i < records.Count; i++)
+                if (!UnitWorld.TryGetUnit(
+                        records[i].TargetUid,
+                        out _))
                     throw new DeterministicSimulationException(
-                        $"Projectile hit memory references missing UnitUid {hitTargets[i]}.");
+                        $"Projectile hit memory references missing UnitUid {records[i].TargetUid}.");
+        }
+
+        private static void ValidateSnapshotSource(
+            UnitUid ownerUid,
+            in SourceDescriptor source)
+        {
+            if (!source.IsValid ||
+                source.OwnerUnitUid != ownerUid)
+                throw new DeterministicSimulationException(
+                    "Projectile snapshot source descriptor is invalid.");
+        }
+
+        private static void ValidateStableOrder<T>(
+            IReadOnlyList<T> values,
+            Func<T, ProjectileUid> uid,
+            string label)
+        {
+            for (int i = 1; i < values.Count; i++)
+                if (uid(values[i - 1]).CompareTo(
+                        uid(values[i])) >= 0)
+                    throw new DeterministicSimulationException(
+                        $"Projectile {label} snapshot is not strictly UID-sorted.");
         }
     }
 }

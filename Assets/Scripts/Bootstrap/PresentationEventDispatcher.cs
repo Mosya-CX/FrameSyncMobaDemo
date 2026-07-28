@@ -8,14 +8,21 @@ namespace FrameSyncMoba.Bootstrap
     /// <summary>
     /// Consumes deterministic VisualEventOutput streams at tick-end
     /// and dispatches to registered presentation handlers.
-    /// Deduplicates events by (tick, sourceUid, eventKey) for rollback safety.
+    /// Keeps independent, bounded VFX and SFX one-shot histories keyed by the
+    /// complete PresentationEventId.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class PresentationEventDispatcher : MonoBehaviour
     {
         private readonly List<IVfxHandler> _vfxHandlers = new List<IVfxHandler>();
         private readonly List<ISfxHandler> _sfxHandlers = new List<ISfxHandler>();
-        private readonly HashSet<ulong> _dedupSet = new HashSet<ulong>();
+        private const int DefaultHistoryWindowTicks = 512;
+        private readonly PresentationEventHistory _vfxHistory =
+            new PresentationEventHistory(
+                DefaultHistoryWindowTicks);
+        private readonly PresentationEventHistory _sfxHistory =
+            new PresentationEventHistory(
+                DefaultHistoryWindowTicks);
 
         /// <summary>
         /// Register a handler that consumes VfxEvents.
@@ -41,13 +48,13 @@ namespace FrameSyncMoba.Bootstrap
         /// </summary>
         public void DispatchCurrentFrame()
         {
-            _dedupSet.Clear();
-
             var vfxEvents = VisualEventOutput.ConsumeVfxEvents();
             for (int i = 0; i < vfxEvents.Count; i++)
             {
                 VfxEvent evt = vfxEvents[i];
-                if (!TryDedup(evt.Id)) continue;
+                if (!_vfxHistory.TryConsume(
+                        evt.Id))
+                    continue;
                 for (int j = 0; j < _vfxHandlers.Count; j++)
                     _vfxHandlers[j].OnVfxEvent(evt);
             }
@@ -56,24 +63,88 @@ namespace FrameSyncMoba.Bootstrap
             for (int i = 0; i < sfxEvents.Count; i++)
             {
                 SfxEvent evt = sfxEvents[i];
-                if (!TryDedup(evt.Id)) continue;
+                if (!_sfxHistory.TryConsume(
+                        evt.Id))
+                    continue;
                 for (int j = 0; j < _sfxHandlers.Count; j++)
                     _sfxHandlers[j].OnSfxEvent(evt);
             }
         }
 
-        private bool TryDedup(PresentationEventId id)
+        public void ResetForNewMatch()
         {
-            // Compact dedup key: combine tick (32bit) + sourceUid hash (32bit) into ulong
-            ulong key = ((ulong)(uint)id.SourceLogicTick << 32)
-                      | ((uint)id.SourceRuntimeUid.GetHashCode() & 0xFFFFFFFF);
-            return _dedupSet.Add(key);
+            _vfxHistory.Clear();
+            _sfxHistory.Clear();
         }
 
         private void OnDestroy()
         {
             _vfxHandlers.Clear();
             _sfxHandlers.Clear();
+            ResetForNewMatch();
+        }
+    }
+
+    internal sealed class PresentationEventHistory
+    {
+        private readonly int historyWindowTicks;
+        private readonly HashSet<PresentationEventId> consumed =
+            new HashSet<PresentationEventId>();
+        private readonly List<PresentationEventId> entries =
+            new List<PresentationEventId>();
+        private int newestObservedTick = int.MinValue;
+
+        public PresentationEventHistory(
+            int historyWindowTicks)
+        {
+            if (historyWindowTicks <= 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(historyWindowTicks));
+            this.historyWindowTicks =
+                historyWindowTicks;
+        }
+
+        public bool TryConsume(
+            in PresentationEventId id)
+        {
+            if (id.SourceLogicTick >
+                newestObservedTick)
+            {
+                newestObservedTick =
+                    id.SourceLogicTick;
+                Prune();
+            }
+            if (!consumed.Add(id))
+                return false;
+            entries.Add(id);
+            return true;
+        }
+
+        public void Clear()
+        {
+            consumed.Clear();
+            entries.Clear();
+            newestObservedTick =
+                int.MinValue;
+        }
+
+        private void Prune()
+        {
+            int oldestRetainedTick =
+                newestObservedTick -
+                historyWindowTicks;
+            for (int i = entries.Count - 1;
+                 i >= 0;
+                 i--)
+            {
+                PresentationEventId id =
+                    entries[i];
+                if (id.SourceLogicTick >=
+                    oldestRetainedTick)
+                    continue;
+                entries.RemoveAt(i);
+                consumed.Remove(id);
+            }
         }
     }
 

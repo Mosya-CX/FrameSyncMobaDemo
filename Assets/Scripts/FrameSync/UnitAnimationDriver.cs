@@ -58,12 +58,11 @@ namespace FrameSyncMoba.FrameSync
             float moveSpeed = 0f;
             if (movement != null)
             {
-                var snap = movement.Snapshot;
-                isMoving = snap.IsMoving;
+                isMoving = movement.IsMoving;
                 if (isMoving)
                 {
-                    float sx = (float)snap.Velocity.x;
-                    float sy = (float)snap.Velocity.y;
+                    float sx = (float)movement.Velocity.x;
+                    float sy = (float)movement.Velocity.y;
                     moveSpeed = Mathf.Sqrt(sx * sx + sy * sy);
                 }
             }

@@ -83,7 +83,8 @@ namespace FrameSyncMoba.FrameSync
         public static readonly GoldIncomeSnapshot Default = default;
     }
 
-    public sealed class GoldIncomeRuntime
+    public sealed class GoldIncomeRuntime :
+        Unit.IConfirmedGoldIncomeView
     {
         private enum BuildState : byte
         {
@@ -272,6 +273,10 @@ namespace FrameSyncMoba.FrameSync
                 throw new ArgumentOutOfRangeException(nameof(playerSlot));
             return confirmedEarnedGoldTotals[playerSlot];
         }
+
+        public int GetConfirmedEarnedGoldTotal(
+            int playerSlot) =>
+            GetConfirmedAvailableGold(playerSlot);
 
         public int GetCurrentAvailableGold(int playerSlot, int effectiveShopGoldDelta) =>
             checked(GetConfirmedAvailableGold(playerSlot) + effectiveShopGoldDelta);

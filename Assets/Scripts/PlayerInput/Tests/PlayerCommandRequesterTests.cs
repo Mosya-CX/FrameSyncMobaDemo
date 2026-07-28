@@ -45,8 +45,11 @@ namespace FrameSyncMoba.PlayerInput.Tests
                 collector,
                 2,
                 77,
-                () => 12,
-                () => 15,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
                 new HoldReleaseProfileProvider());
 
             Assert.IsTrue(requester.RequestCastAbility(
@@ -83,8 +86,11 @@ namespace FrameSyncMoba.PlayerInput.Tests
                 new CommandCollector(),
                 0,
                 1,
-                () => 10,
-                () => 11,
+                new CommandTargetTickResolver(
+                    () => 10,
+                    () => 10,
+                    1,
+                    12),
                 new HoldReleaseProfileProvider());
             var buffer = new LocalInputEventBuffer();
             buffer.Push(
@@ -101,6 +107,68 @@ namespace FrameSyncMoba.PlayerInput.Tests
             Assert.AreEqual(
                 LocalAbilityInputStateKind.Idle,
                 requester.GetAbilityState(0).Kind);
+        }
+
+        [Test]
+        public void TargetTickResolver_UsesFormalLeadFormulaAndBuildTick()
+        {
+            var resolver = new CommandTargetTickResolver(
+                () => 20,
+                () => 23,
+                3,
+                12);
+
+            int targetTick = resolver.ResolveTargetTick(out int buildTick);
+
+            Assert.That(buildTick, Is.EqualTo(20));
+            Assert.That(targetTick, Is.EqualTo(26));
+        }
+
+        [Test]
+        public void ShopRequests_UseCanonicalCommandsAndSharedSequence()
+        {
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12));
+
+            Assert.IsTrue(requester.RequestEquipmentPurchase(101));
+            Assert.IsTrue(requester.RequestEquipmentSell(3));
+            Assert.IsTrue(requester.RequestEquipmentUndo());
+
+            var commands = collector.GetCanonicalCommands();
+            Assert.That(commands, Has.Count.EqualTo(3));
+            Assert.That(commands[0].Kind, Is.EqualTo(GameplayCommandKind.EquipmentShop));
+            Assert.That(
+                commands[0].ShopOperationType,
+                Is.EqualTo(EquipmentShopCommandOperationType.Purchase));
+            Assert.That(commands[0].EquipmentId, Is.EqualTo(101));
+            Assert.That(
+                commands[1].ShopOperationType,
+                Is.EqualTo(EquipmentShopCommandOperationType.Sell));
+            Assert.That(commands[1].SourceSlot, Is.EqualTo(3));
+            Assert.That(
+                commands[2].ShopOperationType,
+                Is.EqualTo(EquipmentShopCommandOperationType.Undo));
+            Assert.That(commands[0].CommandSeq, Is.EqualTo(1));
+            Assert.That(commands[1].CommandSeq, Is.EqualTo(2));
+            Assert.That(commands[2].CommandSeq, Is.EqualTo(3));
+            Assert.That(commands[0].TargetTick, Is.EqualTo(15));
+            Assert.That(commands[1].TargetTick, Is.EqualTo(15));
+            Assert.That(commands[2].TargetTick, Is.EqualTo(15));
         }
 
         private sealed class HoldReleaseProfileProvider : IPlayerAbilityInputProfileProvider

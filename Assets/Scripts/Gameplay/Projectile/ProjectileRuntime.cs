@@ -1,79 +1,265 @@
 using System.Collections.Generic;
+using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.Physics;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
+    public struct ProjectileHitRecord
+    {
+        public UnitUid TargetUid;
+        public int HitCount;
+        public int LastHitLogicTick;
+    }
+
     public sealed class ProjectileRuntime
     {
+        private readonly List<ProjectileHitRecord> hitRecords =
+            new List<ProjectileHitRecord>();
+
         public ProjectileUid Uid { get; }
         public ProjectileDef Def { get; }
         public UnitUid OwnerUnitUid { get; }
         public TeamId TeamSnapshot { get; }
-        public fp2 Position { get; private set; }
-        public fp2 PrevPosition { get; private set; }
+        public SourceDescriptor Source { get; }
+        public PhysicsEntity2D PhysicsEntity { get; }
+        public fp2 Position => PhysicsEntity.Transform2D.Position;
+        public fp2 PrevPosition => PhysicsEntity.Transform2D.PrevPosition;
         public fp2 Velocity { get; private set; }
         public int RemainingLifetimeTicks { get; private set; }
         public bool IsActive { get; private set; }
-        public int HitCount { get; private set; }
-        public List<UnitUid> HitTargets { get; } = new List<UnitUid>();
+        public bool EndRequested { get; private set; }
+        public ProjectileEndReason EndReason { get; private set; }
+        public int TotalHitCount { get; private set; }
+        public int RemainingPierceCount { get; private set; }
+        public int RemainingBounceCount { get; private set; }
+        public int NextQueryLogicTick { get; private set; }
+        public IReadOnlyList<ProjectileHitRecord> HitRecords => hitRecords;
 
         public ProjectileRuntime(
-            ProjectileUid uid, ProjectileDef def, UnitUid ownerUnitUid, TeamId teamSnapshot,
-            fp2 startPosition, fp2 direction)
+            ProjectileUid uid,
+            ProjectileDef def,
+            UnitUid ownerUnitUid,
+            TeamId teamSnapshot,
+            SourceDescriptor source,
+            PhysicsEntity2D physicsEntity,
+            fp2 startPosition,
+            fp2 direction)
         {
-            Uid = uid; Def = def; OwnerUnitUid = ownerUnitUid;
+            if (def == null)
+                throw new System.ArgumentNullException(nameof(def));
+            if (physicsEntity == null)
+                throw new System.ArgumentNullException(nameof(physicsEntity));
+            if (!source.IsValid)
+                throw new DeterministicSimulationException(
+                    "Projectile source descriptor is invalid.");
+
+            Uid = uid;
+            Def = def;
+            OwnerUnitUid = ownerUnitUid;
             TeamSnapshot = teamSnapshot;
-            Position = startPosition; Velocity = direction * def.Speed;
-            RemainingLifetimeTicks = def.MaxLifetimeTicks; IsActive = true;
+            Source = source;
+            PhysicsEntity = physicsEntity;
+            PhysicsEntity.SetLogicPose(startPosition, direction);
+            Velocity = direction * def.Speed;
+            RemainingLifetimeTicks = def.MaxLifetimeTicks;
+            RemainingPierceCount = def.HitPolicy.InitialPierceCount;
+            RemainingBounceCount = def.HitPolicy.InitialBounceCount;
+            NextQueryLogicTick = uid.SpawnLogicTick;
+            IsActive = true;
         }
 
-        public void TickUpdate()
+        public void AdvanceMotion()
         {
-            if (!IsActive) return;
-            int delta = 1;
-            RemainingLifetimeTicks -= delta;
-            if (RemainingLifetimeTicks <= 0)
+            if (!IsActive || EndRequested) return;
+            PhysicsEntity.SetLogicPosition(Position + Velocity);
+            if (Def.Acceleration == fp.zero) return;
+
+            fp speed = fpmath.length(Velocity) + Def.Acceleration;
+            if (speed <= fp.zero)
             {
-                IsActive = false;
+                Velocity = fp2.zero;
                 return;
             }
-            PrevPosition = Position;
-            Position += Velocity;
-            if (Def.Acceleration != fp.zero)
-            {
-                var speed = fpmath.length(Velocity) + Def.Acceleration;
-                if (speed > fp.zero)
-                    Velocity = fpmath.normalize(Velocity) * speed;
-            }
+
+            Velocity = fpmath.normalize(Velocity) * speed;
+            PhysicsEntity.SetLogicForward(Velocity);
         }
 
-        public bool CanHitTarget(UnitUid targetUid)
+        public void UpdateLifecycle()
         {
-            for (int i = 0; i < HitTargets.Count; i++)
-                if (HitTargets[i] == targetUid) return false;
+            if (!IsActive || EndRequested) return;
+            RemainingLifetimeTicks--;
+            if (RemainingLifetimeTicks <= 0)
+                RequestEnd(ProjectileEndReason.LifetimeExpired);
+        }
+
+        public bool ShouldQuery(int logicTick)
+        {
+            ProjectileHitPolicy policy = Def.HitPolicy;
+            return IsActive &&
+                policy.Enabled &&
+                logicTick >= NextQueryLogicTick &&
+                (!EndRequested ||
+                 !policy.StopResolvingAfterEndRequested) &&
+                (policy.MaxTotalHitCount == 0 ||
+                 TotalHitCount < policy.MaxTotalHitCount);
+        }
+
+        public void MarkQueried(int logicTick)
+        {
+            NextQueryLogicTick = checked(
+                logicTick + Def.HitPolicy.QueryIntervalTicks);
+        }
+
+        public bool CanHitTarget(UnitUid targetUid, int logicTick)
+        {
+            if (!targetUid.IsValid()) return false;
+            HitSameTargetPolicy policy =
+                Def.HitPolicy.SameTargetPolicy;
+            if (policy == HitSameTargetPolicy.Unrestricted)
+                return true;
+
+            int index = FindHitRecord(targetUid);
+            if (index < 0) return true;
+            if (policy == HitSameTargetPolicy.Once)
+                return false;
+            return logicTick - hitRecords[index].LastHitLogicTick >=
+                Def.HitPolicy.SameTargetCooldownTicks;
+        }
+
+        public bool RegisterHit(UnitUid targetUid, int logicTick)
+        {
+            if (!ShouldAcceptResolvedHit(targetUid, logicTick))
+                return false;
+
+            int index = FindHitRecord(targetUid);
+            if (index < 0)
+            {
+                hitRecords.Add(new ProjectileHitRecord
+                {
+                    TargetUid = targetUid,
+                    HitCount = 1,
+                    LastHitLogicTick = logicTick,
+                });
+                hitRecords.Sort((a, b) =>
+                    a.TargetUid.CompareTo(b.TargetUid));
+            }
+            else
+            {
+                ProjectileHitRecord record = hitRecords[index];
+                record.HitCount++;
+                record.LastHitLogicTick = logicTick;
+                hitRecords[index] = record;
+            }
+
+            TotalHitCount++;
+            if (RemainingPierceCount > 0)
+                RemainingPierceCount--;
+
+            ProjectileHitPolicy policy = Def.HitPolicy;
+            if (policy.EndOnFirstValidHit ||
+                (policy.InitialPierceCount > 0 &&
+                 RemainingPierceCount == 0) ||
+                (policy.MaxTotalHitCount > 0 &&
+                 TotalHitCount >= policy.MaxTotalHitCount))
+            {
+                RequestEnd(ProjectileEndReason.HitPolicyExhausted);
+            }
+
             return true;
         }
 
-        public void RegisterHit(UnitUid targetUid)
+        public void RequestEnd(ProjectileEndReason reason)
         {
-            HitTargets.Add(targetUid); HitCount++;
-            if (Def.DestroyOnFirstHit || HitCount >= Def.MaxHitCount)
-                IsActive = false;
+            if (!IsActive || EndRequested) return;
+            EndRequested = true;
+            EndReason = reason == ProjectileEndReason.None
+                ? ProjectileEndReason.ExplicitRequest
+                : reason;
         }
 
-        public void Destroy()
+        public void Deactivate()
         {
             IsActive = false;
         }
 
-        internal void RestoreFromSnapshot(in ProjectileRuntimeSnapshot snapshot)
+        public void Destroy()
         {
-            Position = snapshot.Position; PrevPosition = snapshot.PreviousPosition; Velocity = snapshot.Velocity;
-            RemainingLifetimeTicks = snapshot.RemainingLifetimeTicks;
+            RequestEnd(ProjectileEndReason.ExplicitRequest);
+        }
+
+        internal void RestoreFromSnapshot(
+            in ProjectileRuntimeSnapshot snapshot)
+        {
+            PhysicsEntity.TeleportLogicPosition(
+                snapshot.PreviousPosition);
+            PhysicsEntity.SetLogicPosition(
+                snapshot.Position);
+            if (snapshot.Velocity.x != fp.zero ||
+                snapshot.Velocity.y != fp.zero)
+                PhysicsEntity.SetLogicForward(snapshot.Velocity);
+            Velocity = snapshot.Velocity;
+            RemainingLifetimeTicks =
+                snapshot.RemainingLifetimeTicks;
             IsActive = snapshot.IsActive;
-            HitCount = snapshot.HitCount;
-            HitTargets.Clear();
-            if (snapshot.HitTargets != null) HitTargets.AddRange(snapshot.HitTargets);
+            EndRequested = snapshot.EndRequested;
+            EndReason = snapshot.EndReason;
+            TotalHitCount = snapshot.TotalHitCount;
+            RemainingPierceCount =
+                snapshot.RemainingPierceCount;
+            RemainingBounceCount =
+                snapshot.RemainingBounceCount;
+            NextQueryLogicTick = snapshot.NextQueryLogicTick;
+            hitRecords.Clear();
+            if (snapshot.HitRecords != null)
+                hitRecords.AddRange(snapshot.HitRecords);
+            ValidateRestoredState();
+        }
+
+        private bool ShouldAcceptResolvedHit(
+            UnitUid targetUid,
+            int logicTick)
+        {
+            return IsActive &&
+                (!EndRequested ||
+                 !Def.HitPolicy.StopResolvingAfterEndRequested) &&
+                CanHitTarget(targetUid, logicTick) &&
+                (Def.HitPolicy.MaxTotalHitCount == 0 ||
+                 TotalHitCount < Def.HitPolicy.MaxTotalHitCount);
+        }
+
+        private int FindHitRecord(UnitUid targetUid)
+        {
+            for (int i = 0; i < hitRecords.Count; i++)
+                if (hitRecords[i].TargetUid == targetUid)
+                    return i;
+            return -1;
+        }
+
+        private void ValidateRestoredState()
+        {
+            if (RemainingLifetimeTicks < 0 ||
+                TotalHitCount < 0 ||
+                RemainingPierceCount < 0 ||
+                RemainingBounceCount < 0)
+                throw new DeterministicSimulationException(
+                    "Projectile snapshot contains negative runtime state.");
+            if (EndRequested &&
+                EndReason == ProjectileEndReason.None)
+                throw new DeterministicSimulationException(
+                    "Ended projectile snapshot has no end reason.");
+            for (int i = 0; i < hitRecords.Count; i++)
+            {
+                ProjectileHitRecord record = hitRecords[i];
+                if (!record.TargetUid.IsValid() ||
+                    record.HitCount < 1 ||
+                    (i > 0 &&
+                     hitRecords[i - 1].TargetUid.CompareTo(
+                         record.TargetUid) >= 0))
+                    throw new DeterministicSimulationException(
+                        "Projectile hit memory is invalid or not UID-sorted.");
+            }
         }
     }
 }

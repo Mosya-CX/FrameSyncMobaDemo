@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
@@ -18,31 +18,43 @@ namespace FrameSyncMoba.FrameSync
         private readonly List<UnitAIControllerSnapshot> _aiStateBuffer = new List<UnitAIControllerSnapshot>();
         private readonly List<JungleCampSnapshot> _campStateBuffer = new List<JungleCampSnapshot>();
         private readonly List<LocomotionResult> _locomotionBuffer = new List<LocomotionResult>();
+        private readonly List<InitialSpawnEntry> _initialSpawnRequests =
+            new List<InitialSpawnEntry>();
 
         // RVO system instance (created once, reused per Tick)
         private DeterministicRVOSystem _rvoSystem;
-        private readonly List<UnitLocomotionAgent> _rvoAgentBuffer = new List<UnitLocomotionAgent>();
-        private readonly List<MovementHandler> _rvoHandlerBuffer = new List<MovementHandler>();
+        private readonly RvoOrchestrator
+            _rvoOrchestrator =
+                new RvoOrchestrator();
 
         public CombatSystem CombatSystem { get; set; }
         public GoldIncomeRuntime GoldIncome { get; set; }
         public ProjectileWorld ProjectileWorld { get; set; }
         public EquipmentShopRuntime EquipmentShop { get; set; }
-        public MinionSystem MinionSystem { get; set; }
         public NaturalGoldIncomeSystem NaturalGoldIncome { get; set; }
-        public JungleCampSystem JungleCampSystem { get; set; }
         public NonHeroRestoreHelper NonHeroHelper { get; set; }
         public ProjectileHitResolver ProjectileHitResolver { get; set; }
-        public PresentationSyncManager PresentationSync { get; set; }
         public DeterministicRandomService RandomService { get; set; }
         public MatchRuleRuntime MatchRule { get; set; }
         public FrameSyncMoba.Unit.MatchEventTracker MatchEventTracker { get; set; }
         public CommandCollector CommandCollector => _collector;
         internal int AuthorityReplayTick { get; set; } = -1;
+        public int MaxFutureCommandTicks { get; set; } = 12;
 
         public int LocalSimulationTick { get; private set; }
         public uint LastChecksum { get; private set; }
         public event Action<int, IReadOnlyList<GameplayCommand>, uint> TickCompleted;
+
+        public bool HasPredictedMatchEndCandidate()
+        {
+            if (MatchRule == null ||
+                MatchRule.CurrentPhase != MatchPhase.Running ||
+                !MatchRule.BlueBaseUnitUid.IsValid() ||
+                !MatchRule.RedBaseUnitUid.IsValid())
+                return false;
+            return IsFormallyDead(MatchRule.BlueBaseUnitUid) ||
+                IsFormallyDead(MatchRule.RedBaseUnitUid);
+        }
 
         public SimulationTickPipeline(UnitWorld unitWorld, PhysicsWorld physicsWorld = null)
         {
@@ -56,9 +68,12 @@ namespace FrameSyncMoba.FrameSync
 
         public void SubmitCommand(GameplayCommand command)
         {
-            if (command.TargetTick != LocalSimulationTick)
+            int latestAllowedTick = checked(
+                LocalSimulationTick + MaxFutureCommandTicks);
+            if (command.TargetTick < LocalSimulationTick ||
+                command.TargetTick > latestAllowedTick)
                 throw new DeterministicSimulationException(
-                    $"Command Tick {command.TargetTick} does not match next simulation Tick {LocalSimulationTick}.");
+                    $"Command Tick {command.TargetTick} is outside legal range [{LocalSimulationTick}, {latestAllowedTick}].");
             _collector.Collect(command);
         }
 
@@ -69,6 +84,32 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < commands.Count; i++) SubmitCommand(commands[i]);
         }
 
+        public void QueueInitialSpawn(in UnitSpawnRequest request)
+        {
+            QueueInitialSpawn(
+                request,
+                MatchTopologyRole.None);
+        }
+
+        public void QueueInitialSpawn(
+            in UnitSpawnRequest request,
+            MatchTopologyRole topologyRole)
+        {
+            if (LocalSimulationTick != 0)
+                throw new InvalidOperationException(
+                    "Initial Unit spawns must be queued before Tick 0.");
+            if (topologyRole <
+                    MatchTopologyRole.None ||
+                topologyRole >
+                    MatchTopologyRole.RedBase)
+                throw new ArgumentOutOfRangeException(
+                    nameof(topologyRole));
+            _initialSpawnRequests.Add(
+                new InitialSpawnEntry(
+                    request,
+                    topologyRole));
+        }
+
         public void ExecuteTick(
             SimulationTickContextController controller,
             ExecutionMode executionMode = ExecutionMode.ServerAuthority)
@@ -76,15 +117,87 @@ namespace FrameSyncMoba.FrameSync
             int tick = LocalSimulationTick;
                 controller.BeginTick(tick, executionMode);
                 GoldIncome?.BeginTick(tick);
+                NaturalGoldIncome?.Tick(tick);
             try
             {
                 VisualEventOutput.Clear();
                 CombatSystem?.BeginTick();
-                var commands = _collector.GetCanonicalCommands();
+                UnitUid blueBase = default;
+                UnitUid redBase = default;
+                TeamId blueBaseTeam = default;
+                TeamId redBaseTeam = default;
+                for (int spawnIndex = 0;
+                     spawnIndex < _initialSpawnRequests.Count;
+                     spawnIndex++)
+                {
+                    InitialSpawnEntry entry =
+                        _initialSpawnRequests[spawnIndex];
+                    UnitUid spawnedUid =
+                        _unitWorld.SpawnUnit(
+                            entry.Request);
+                    if (entry.TopologyRole ==
+                        MatchTopologyRole.None)
+                        continue;
+                    if (!_unitWorld.TryGetUnit(
+                            spawnedUid,
+                            out UnitType spawned) ||
+                        spawned.UnitKind !=
+                            UnitKind.Structure ||
+                        spawned.TeamId ==
+                            TeamId.Neutral)
+                        throw new DeterministicSimulationException(
+                            "TeamBase topology requires a non-neutral Structure Unit.");
+                    if (entry.TopologyRole ==
+                        MatchTopologyRole.BlueBase)
+                    {
+                        if (blueBase.IsValid())
+                            throw new DeterministicSimulationException(
+                                "Multiple BlueBase initial spawns are configured.");
+                        blueBase = spawnedUid;
+                        blueBaseTeam =
+                            spawned.TeamId;
+                    }
+                    else
+                    {
+                        if (redBase.IsValid())
+                            throw new DeterministicSimulationException(
+                                "Multiple RedBase initial spawns are configured.");
+                        redBase = spawnedUid;
+                        redBaseTeam =
+                            spawned.TeamId;
+                    }
+                }
+                _initialSpawnRequests.Clear();
+                if (blueBase.IsValid() ||
+                    redBase.IsValid())
+                {
+                    if (!blueBase.IsValid() ||
+                        !redBase.IsValid() ||
+                        MatchRule == null ||
+                        blueBaseTeam ==
+                        redBaseTeam)
+                        throw new DeterministicSimulationException(
+                            "TeamBase topology requires exactly one BlueBase and one RedBase on distinct teams plus MatchRuleRuntime.");
+                    MatchRule.RegisterBases(
+                        blueBase,
+                        redBase);
+                }
+                var commands = _collector.ConsumeCanonicalCommands(tick);
                 foreach (var cmd in commands)
                     DispatchCommand(cmd);
 
                 var units = _unitWorld.GetAllUnits();
+
+                // Phase 0: BehaviorPlanner + ActionArbiter (Unit Framework v27.3 §3)
+                foreach (var unit in units)
+                {
+                    if (unit?.Planner == null || unit.Arbiter == null) continue;
+                    unit.Planner.Tick(out ActionRequest request);
+                    if (request == null) continue;
+                    var result = unit.Arbiter.Evaluate(request);
+                    if (result == ArbitrationResult.Rejected) continue;
+                    ExecuteActionRequest(unit, request, result == ArbitrationResult.Interrupt);
+                }
 
                 // Phase 1: Locomotion evaluation
                 _locomotionBuffer.Clear();
@@ -97,22 +210,12 @@ namespace FrameSyncMoba.FrameSync
                 }
 
                 // Phase 1.5: RVO avoidance step (Pathfinding Design v13.1 section 10.6)
-                _rvoAgentBuffer.Clear();
-                _rvoHandlerBuffer.Clear();
-                for (int i = 0; i < units.Count; i++)
-                {
-                    var unit = units[i];
-                    if (unit?.Locomotion != null && unit.MovementHandler != null)
-                    {
-                        _rvoAgentBuffer.Add(unit.Locomotion);
-                        _rvoHandlerBuffer.Add(unit.MovementHandler);
-                    }
-                }
                 _physicsWorld?.BuildRvoGrid();
-                if (_rvoAgentBuffer.Count > 0)
-                {
-                    RvoOrchestrator.Step(_rvoSystem, _rvoAgentBuffer, _rvoHandlerBuffer);
-                }
+                _rvoOrchestrator.Step(
+                    _rvoSystem,
+                    _physicsWorld,
+                    units,
+                    _locomotionBuffer);
 
                 // Phase 2: Apply route movement
                 for (int i = 0; i < units.Count; i++)
@@ -135,9 +238,7 @@ namespace FrameSyncMoba.FrameSync
                     unit.HitReaction.TickUpdate();
                     unit.AbilityHandler?.TickUpdate();
                     unit.MovementHandler?.TickUpdate();
-                    var damageRequest = unit.AttackHandler?.TickUpdate();
-                    if (damageRequest.HasValue && CombatSystem != null)
-                        CombatSystem.SubmitDamage(damageRequest.Value);
+                    unit.AttackHandler?.TickUpdate();
                 }
 
                 // Phase 3.5: Wall penetration detection and correction
@@ -150,26 +251,27 @@ namespace FrameSyncMoba.FrameSync
                         if (unit?.MovementHandler == null) continue;
                         var correction = WallPenetrationResolver.Detect(
                             unit.UnitUid,
-                            unit.MovementHandler.Snapshot.Position,
-                            RadiusClassHelper.GetRadius(RadiusClass.Medium),
+                            unit.PhysicsEntity.Transform2D.Position,
+                            unit.PhysicsEntity.Shape.Radius,
                             _unitWorld.PathGrid);
 
                         if (correction.HasValue)
                         {
-                            unit.MovementHandler.ApplyForcedMovement(
-                                correction.Value.Delta,
-                                allowRVO: false);
+                            unit.MovementHandler.ApplyCorrection(
+                                correction.Value);
                         }
                     }
                 }
 
                 ProjectileWorld?.CommitSpawns();
-                ProjectileWorld?.TickAll();
-                ProjectileHitResolver?.ProcessAllHits(ProjectileWorld);
-                CombatSystem?.SettleActiveRequests();
-                SyncMovementToPhysics();
+                ProjectileWorld?.AdvanceMotion();
+                ProjectileWorld?.UpdateLifecycle();
                 _physicsWorld?.BuildUnitFinalGrid();
                 _physicsWorld?.DetectUnitCollisionEvents();
+                ProjectileHitResolver?.ResolveAllHits(ProjectileWorld);
+                ProjectileHitResolver?.EmitEffects(ProjectileWorld);
+                ProjectileWorld?.FlushDestroy();
+                CombatSystem?.SettleActiveRequests();
                 CombatSystem?.EndTick();
 
                 if (MatchRule != null)
@@ -218,8 +320,6 @@ namespace FrameSyncMoba.FrameSync
                 }
                 GoldIncome?.SealTick(tick);
 
-                // Natural gold income (periodic, per design section 5 / step 07)
-                NaturalGoldIncome?.Tick();
                 TickNonHeroSystems(tick);
                 GameplaySnapshot checksumState = CaptureAggregateSnapshot();
                 GoldIncomeBatchDigest goldDigest = GoldIncome?.GetBatchDigest(tick)
@@ -227,12 +327,10 @@ namespace FrameSyncMoba.FrameSync
                 LastChecksum = SharedGameplayChecksum.Compute(
                     checksumState, goldDigest, _checksumWriter);
                 TickCompleted?.Invoke(tick, commands, LastChecksum);
-                PresentationSync?.ConsumeAllEvents();
             }
             finally
             {
                 controller.EndTick();
-                _collector.BeginTick(tick + 1);
                 LocalSimulationTick = tick + 1;
             }
         }
@@ -244,6 +342,7 @@ namespace FrameSyncMoba.FrameSync
             _unitStateBuffer.Clear();
             foreach (var unit in units)
             {
+                unit.ValidateActionRuntimeSnapshotBoundary();
                 var us = new UnitSnapshot
                 {
                     UnitUid = unit.UnitUid,
@@ -255,6 +354,7 @@ namespace FrameSyncMoba.FrameSync
                     LifeState = unit.LifeState,
                     CapabilityState = unit.CapabilityState,
                     HitReactionState = unit.HitReaction,
+                    IntentState = unit.Intent,
                     PhysicsTransform = unit.PhysicsEntity.Transform2D,
                     PhysicsShape = unit.PhysicsEntity.Shape,
                 };
@@ -277,10 +377,21 @@ namespace FrameSyncMoba.FrameSync
             if (EquipmentShop != null) { var es = EquipmentShopRuntimeSnapshot.Empty; EquipmentShop.Capture(ref es); snapshot.EquipmentShopState = es; }
             if (ProjectileWorld != null) { var ps = ProjectileWorldSnapshot.Empty; ProjectileWorld.Capture(ref ps); snapshot.ProjectileState = ps; }
             _physicsWorld?.Capture(ref snapshot.PhysicsState);
-            MinionSystem?.Capture(ref snapshot.UnitWorldState.MinionSystemState);
+            _unitWorld.MinionSystem?.Capture(
+                ref snapshot.UnitWorldState.MinionSystemState);
             _unitWorld.RespawnTimer?.Capture(
                 ref snapshot.UnitWorldState.PendingUnitLifecycleState);
-            JungleCampSystem?.Capture(_campStateBuffer);
+            _campStateBuffer.Clear();
+            var camps = _unitWorld.JungleCamps;
+            for (int campIndex = 0;
+                 campIndex < camps.Count;
+                 campIndex++)
+            {
+                JungleCampSnapshot campState = default;
+                camps[campIndex].Capture(
+                    ref campState);
+                _campStateBuffer.Add(campState);
+            }
             snapshot.UnitWorldState.JungleCampStates = _campStateBuffer.ToArray();
             _aiStateBuffer.Clear();
             foreach (var ai in _unitWorld.AIControllers) { var s = new UnitAIControllerSnapshot(); ai.Capture(ref s); _aiStateBuffer.Add(s); }
@@ -293,10 +404,10 @@ namespace FrameSyncMoba.FrameSync
             int snapshotTick = -1,
             ExecutionMode executionMode = ExecutionMode.ServerAuthority)
         {
-            if (snapshot.SchemaVersion != 4)
+            if (snapshot.SchemaVersion != 13)
             {
                 throw new DeterministicSimulationException(
-                    $"Unsupported GameplaySnapshot schema {snapshot.SchemaVersion}; expected 4.");
+                    $"Unsupported GameplaySnapshot schema {snapshot.SchemaVersion}; expected 12.");
             }
 
             RestorePhase(snapshot);
@@ -348,6 +459,7 @@ namespace FrameSyncMoba.FrameSync
                     us.LifeState,
                     us.CapabilityState,
                     us.HitReactionState);
+                unit.RestoreBehaviorState(us.IntentState);
                 unit.StatHandler?.Restore(us.StatState);
                 unit.CombatModifiers?.Restore(us.CombatModifierState);
                 unit.AttackHandler?.Restore(us.AttackState);
@@ -434,6 +546,7 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < units.Count; i++)
             {
                 UnitType unit = units[i];
+                unit.ResolveBehaviorState();
                 unit.StatHandler?.Resolve(context);
                 unit.CombatModifiers?.Resolve(context);
                 unit.AttackHandler?.Resolve(context);
@@ -478,21 +591,97 @@ namespace FrameSyncMoba.FrameSync
 
         private void TickNonHeroSystems(int tick)
         {
-            foreach (var c in _unitWorld.AIControllers) c.AIThink();
-            MinionSystem?.ProcessWave(tick);
-            JungleCampSystem?.Tick(tick);
+            _unitWorld.MinionSystem?.TickLogic();
+            _unitWorld.TickJungleCamps();
+            _unitWorld.TickAIControllers();
             _unitWorld.RespawnTimer?.Tick(tick);
         }
 
         private void DispatchCommand(GameplayCommand command)
         {
             if (!_unitWorld.TryGetUnit(command.UnitUid, out UnitType unit)) return;
+
+            if (command.Kind ==
+                GameplayCommandKind.AllocateAbilitySkillPoint)
+            {
+                unit.AbilityHandler?.TryAllocateSkillPoint(
+                    command.AbilitySlot);
+                return;
+            }
+            if (command.Kind ==
+                GameplayCommandKind.EquipmentShop)
+            {
+                DispatchEquipmentShopCommand(command, unit);
+                return;
+            }
+            if (command.Kind ==
+                GameplayCommandKind.SwapEquipmentSlot)
+            {
+                unit.EquipmentHandler?.SwapSlots(
+                    command.SourceSlot,
+                    command.TargetSlot);
+                return;
+            }
+            if (command.Kind == GameplayCommandKind.UseItem)
+            {
+                if (unit.EquipmentHandler != null &&
+                    unit.EquipmentHandler.Use(
+                        command.SourceSlot,
+                        command.Aim))
+                    EquipmentShop?.InvalidateUndoByEquipmentUse(
+                        command.PlayerSlot,
+                        command.SourceSlot);
+                return;
+            }
+
+            // Units with a Planner: set Intent and let the behavior chain handle routing.
+            // Units without: use the legacy direct-handler path.
+            if (unit.Planner != null)
+            {
+                if (command.Kind == GameplayCommandKind.Move)
+                {
+                    unit.Planner.SetIntent(new UnitIntent
+                    {
+                        Kind = IntentKind.MoveToPosition,
+                        TargetPosition = command.MoveTargetPoint,
+                        AllowChase = false,
+                        AllowReplan = true,
+                    });
+                }
+                else if (command.Kind == GameplayCommandKind.Attack)
+                {
+                    unit.Planner.SetIntent(new UnitIntent
+                    {
+                        Kind = IntentKind.AttackTarget,
+                        TargetUnit = command.AttackTargetUid,
+                        AllowChase = true,
+                        AllowReplan = false,
+                    });
+                }
+                else if (command.Kind == GameplayCommandKind.CastAbility)
+                {
+                    unit.Planner.SetIntent(new UnitIntent
+                    {
+                        Kind = IntentKind.CastAbility,
+                        AbilityId = command.AbilitySlot,
+                        AbilityVerb = command.AbilityVerb,
+                        AbilityAim = command.Aim,
+                        TargetPosition = command.Aim.TargetPoint,
+                        TargetUnit = command.Aim.TargetUnitUid,
+                        AllowChase = true,
+                        AllowReplan = false,
+                    });
+                }
+                else if (command.Kind == GameplayCommandKind.CancelAbility)
+                {
+                    unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = AbilitySignalVerb.Cancel, Aim = AimSnapshot.None });
+                }
+                return;
+            }
+
+            // Legacy path for units without Planner
             if (command.Kind == GameplayCommandKind.Move)
             {
-                // Route player move commands through UnitLocomotionAgent for
-                // A* pathfinding, RVO avoidance, and FlowField integration.
-                // Falls back to direct MoveIntent when Locomotion is not configured.
-                // (Pathfinding Design v13.1 section 5, section 10.6)
                 if (unit.Locomotion != null)
                 {
                     var request = RouteMoveRequest.ToPosition(command.MoveTargetPoint);
@@ -501,7 +690,7 @@ namespace FrameSyncMoba.FrameSync
                 }
                 else
                 {
-                    fp2 currentPosition = unit.MovementHandler?.Snapshot.Position ?? fp2.zero;
+                    fp2 currentPosition = unit.MovementHandler?.Position ?? fp2.zero;
                     unit.MovementHandler?.ApplyMoveInput(
                         new MoveIntent(command.MoveTargetPoint - currentPosition));
                 }
@@ -511,12 +700,135 @@ namespace FrameSyncMoba.FrameSync
             else if (command.Kind == GameplayCommandKind.CancelAbility) unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = AbilitySignalVerb.Cancel, Aim = AimSnapshot.None });
         }
 
-        private void SyncMovementToPhysics()
+        private void DispatchEquipmentShopCommand(
+            GameplayCommand command,
+            UnitType unit)
         {
-            if (_physicsWorld == null) return;
-            foreach (var entity in _physicsWorld.UnitEntities)
-                if (entity.QueryInfo.Owner is UnitType unit && unit.MovementHandler != null)
-                { ref readonly var snap = ref unit.MovementHandler.Snapshot; entity.SetLogicPose(snap.Position, snap.Facing); }
+            if (EquipmentShop == null ||
+                unit.EquipmentHandler == null ||
+                GoldIncome == null)
+                return;
+            EquipmentShop.GetOrCreateTrader(
+                command.PlayerSlot,
+                command.ControlledUnitUid);
+            int currentGold = checked(
+                GoldIncome.GetConfirmedEarnedGoldTotal(
+                    command.PlayerSlot) +
+                EquipmentShop.ComputeEffectiveShopGoldDelta(
+                    command.PlayerSlot));
+            switch (command.ShopOperationType)
+            {
+                case EquipmentShopCommandOperationType.Purchase:
+                    if (EquipmentShop.TryBuildPurchasePlan(
+                            command.PlayerSlot,
+                            command.EquipmentId,
+                            currentGold,
+                            unit.EquipmentHandler,
+                            out EquipmentPurchasePlan plan,
+                            out _))
+                        EquipmentShop.ProcessPurchase(
+                            command.PlayerSlot,
+                            plan,
+                            unit.EquipmentHandler,
+                            out _);
+                    break;
+                case EquipmentShopCommandOperationType.Sell:
+                    if (EquipmentShop.TrySell(
+                            command.PlayerSlot,
+                            command.SourceSlot,
+                            unit.EquipmentHandler,
+                            out int sellValue,
+                            out _))
+                        EquipmentShop.ProcessSell(
+                            command.PlayerSlot,
+                            command.SourceSlot,
+                            unit.EquipmentHandler,
+                            sellValue,
+                            out _);
+                    break;
+                case EquipmentShopCommandOperationType.Undo:
+                    if (EquipmentShop.CanUndo(
+                            command.PlayerSlot,
+                            currentGold,
+                            out _))
+                        EquipmentShop.ProcessUndo(
+                            command.PlayerSlot,
+                            currentGold,
+                            unit.EquipmentHandler,
+                            out _);
+                    break;
+                default:
+                    throw new DeterministicSimulationException(
+                        $"Unsupported EquipmentShop operation {command.ShopOperationType}.");
+            }
         }
+
+        private bool IsFormallyDead(UnitUid uid)
+        {
+            if (!_unitWorld.TryGetUnit(uid, out UnitType unit))
+                throw new DeterministicSimulationException(
+                    $"Registered base {uid} is missing.");
+            return unit.LifeState == LifeState.Dead;
+        }
+
+        private void ExecuteActionRequest(UnitType unit, ActionRequest request, bool interrupt)
+        {
+            if (interrupt && unit.ActionRuntimes != null)
+            {
+                // Cancel lower-priority actions before starting this one
+                unit.ActionRuntimes.CancelByKind(
+                    request.Kind == ActionKind.Cast ? ActionKind.Attack :
+                    request.Kind == ActionKind.Attack ? ActionKind.Move :
+                    ActionKind.None);
+            }
+
+            switch (request)
+            {
+                case MoveActionRequest moveReq:
+                    if (unit.Locomotion != null)
+                    {
+                        var routeReq = moveReq.ChaseTarget.IsValid()
+                            ? RouteMoveRequest.FollowUnit(moveReq.ChaseTarget, moveReq.StopRange)
+                            : RouteMoveRequest.ToPosition(moveReq.TargetPosition, moveReq.StopRange);
+                        routeReq.AllowRVO = true;
+                        unit.Locomotion.AcceptRouteRequest(routeReq);
+                    }
+                    else if (unit.MovementHandler != null)
+                    {
+                        fp2 currentPos = unit.MovementHandler.Position;
+                        unit.MovementHandler.ApplyMoveInput(
+                            new MoveIntent(moveReq.TargetPosition - currentPos));
+                    }
+                    break;
+
+                case AttackActionRequest attackReq:
+                    unit.AttackHandler?.ApplyAttackInput(attackReq.TargetUnit);
+                    break;
+
+                case CastActionRequest castReq:
+                    unit.AbilityHandler?.HandleSignal(new AbilitySignal
+                    {
+                        Slot = (byte)castReq.AbilityId,
+                        Verb = castReq.Verb,
+                        Aim = castReq.Aim,
+                    });
+                    break;
+            }
+        }
+
+        private readonly struct InitialSpawnEntry
+        {
+            public readonly UnitSpawnRequest Request;
+            public readonly MatchTopologyRole TopologyRole;
+
+            public InitialSpawnEntry(
+                in UnitSpawnRequest request,
+                MatchTopologyRole topologyRole)
+            {
+                Request = request;
+                TopologyRole = topologyRole;
+            }
+        }
+
     }
 }

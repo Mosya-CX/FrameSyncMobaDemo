@@ -37,7 +37,8 @@ namespace FrameSyncMoba.Unit
         public CommitCastModelDef() { Kind = CastModelKind.Commit; }
         public override int? HandleSignal(AbilitySignal signal, byte currentStageKey)
         {
-            if (signal.Verb == AbilitySignalVerb.Commit) return 0;
+            if (signal.Verb == AbilitySignalVerb.Commit)
+                return Cast.StageKey;
             return null;
         }
         public override byte? ResolveIndicatorStage(byte currentStageKey) => Cast.StageKey;

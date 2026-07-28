@@ -15,6 +15,12 @@ namespace FrameSyncMoba.Unit
         World,
     }
 
+    public static class PresentationEventKeys
+    {
+        public const int CombatHit = 1;
+        public const int CombatDeath = 2;
+    }
+
     public struct PresentationEventId : IEquatable<PresentationEventId>
     {
         public int SourceLogicTick;

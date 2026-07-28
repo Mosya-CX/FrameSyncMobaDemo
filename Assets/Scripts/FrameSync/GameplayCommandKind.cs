@@ -11,6 +11,5 @@ namespace FrameSyncMoba.FrameSync
         EquipmentShop = 6,
         SwapEquipmentSlot = 7,
         UseItem = 8,
-        EquipmentUndo = 9,
     }
 }

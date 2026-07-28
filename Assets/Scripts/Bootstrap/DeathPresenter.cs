@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using FrameSyncMoba.Presentation;
 using FrameSyncMoba.Unit;
+using FrameSyncMoba.FrameSync;
 using UnityEngine;
 
 namespace FrameSyncMoba.Bootstrap
@@ -8,7 +10,10 @@ namespace FrameSyncMoba.Bootstrap
     /// Triggers death animation and SFX when a unit dies.
     /// Listens for VfxEvent at the unit's position (death VFX submitted by CombatSystem).
     /// </summary>
-    public sealed class DeathPresenter : MonoBehaviour, IVfxHandler
+    public sealed class DeathPresenter :
+        MonoBehaviour,
+        IVfxHandler,
+        ISfxHandler
     {
         [SerializeField] private AudioClip deathSfx;
         private readonly Dictionary<UnitUid, Animator> _animatorCache = new Dictionary<UnitUid, Animator>();
@@ -17,7 +22,12 @@ namespace FrameSyncMoba.Bootstrap
         {
             // Death events are VfxEvents submitted at the dying unit's position.
             // They have no attach target and carry the dying unit as SourceRuntimeUid.
-            if (!evt.AttachToUnit.HasValue && evt.Id.SourceKind == PresentationSourceKind.Unit)
+            if (!evt.AttachToUnit.HasValue &&
+                evt.Id.SourceKind ==
+                    PresentationSourceKind.Unit &&
+                evt.Id.EventKey ==
+                    PresentationEventKeys
+                        .CombatDeath)
             {
                 TryTriggerDeath(in evt);
             }
@@ -31,13 +41,14 @@ namespace FrameSyncMoba.Bootstrap
             {
                 if (unit.UnitUid == sourceUid)
                 {
-                    TriggerDeathForUnit(unit, in evt);
+                    TriggerDeathForUnit(unit);
                     return;
                 }
             }
         }
 
-        private void TriggerDeathForUnit(FrameSyncMoba.Unit.Unit unit, in VfxEvent evt)
+        private void TriggerDeathForUnit(
+            FrameSyncMoba.Unit.Unit unit)
         {
             // Trigger death animation
             if (!_animatorCache.TryGetValue(unit.UnitUid, out var animator))
@@ -49,18 +60,32 @@ namespace FrameSyncMoba.Bootstrap
 
             if (animator != null)
             {
-                animator.SetTrigger("Death");
+                var profile = unit
+                    .GetComponent<
+                        UnitPresentationHost>()
+                    ?.Profile;
+                if (profile != null && profile.DeathTriggerHash != 0)
+                    animator.SetTrigger(profile.DeathTriggerHash);
+                else
+                    animator.SetTrigger("Death");
             }
+        }
 
-            // Play death SFX at position
-            if (deathSfx != null)
-            {
-                Vector3 pos = new Vector3(
-                    (float)evt.WorldPosition.x,
-                    0f,
-                    (float)evt.WorldPosition.y);
-                AudioSource.PlayClipAtPoint(deathSfx, pos);
-            }
+        public void OnSfxEvent(
+            in SfxEvent evt)
+        {
+            if (evt.Id.EventKey !=
+                    PresentationEventKeys
+                        .CombatDeath ||
+                deathSfx == null)
+                return;
+            Vector3 position = new Vector3(
+                (float)evt.WorldPosition.x,
+                0f,
+                (float)evt.WorldPosition.y);
+            AudioSource.PlayClipAtPoint(
+                deathSfx,
+                position);
         }
 
         private void OnDestroy()

@@ -23,6 +23,13 @@ namespace FrameSyncMoba.FrameSync
         SimultaneousBaseDestruction = 2,
     }
 
+    public enum MatchTopologyRole : byte
+    {
+        None = 0,
+        BlueBase = 1,
+        RedBase = 2,
+    }
+
     public struct MatchStatisticsEntry
     {
         public UnitUid HeroUnitUid;

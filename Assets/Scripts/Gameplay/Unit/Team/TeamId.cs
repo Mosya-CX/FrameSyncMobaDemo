@@ -1,11 +1,11 @@
-namespace FrameSyncMoba.Unit
+﻿namespace FrameSyncMoba.Unit
 {
     /// <summary>
     /// Authoritative team identity (Unit v27.3 section 1.2).
     /// A plain byte: 0 is valid (Neutral/Unspecified), 1-255 are team slots.
     /// Immutable after Unit construction; registered in <see cref="TeamRegistry"/>.
     /// </summary>
-    public readonly struct TeamId : System.IEquatable<TeamId>
+    public readonly struct TeamId : System.IEquatable<TeamId>, System.IComparable<TeamId>
     {
         public readonly byte Value;
 
@@ -21,6 +21,9 @@ namespace FrameSyncMoba.Unit
         public override bool Equals(object obj) => obj is TeamId other && Equals(other);
 
         public override int GetHashCode() => Value.GetHashCode();
+
+        public int CompareTo(TeamId other) => Value.CompareTo(other.Value);
+
 
         public static bool operator ==(TeamId left, TeamId right) => left.Equals(right);
 

@@ -4,13 +4,6 @@ using UnityEngine.UI;
 
 namespace FrameSyncMoba.Bootstrap
 {
-    /// <summary>
-    /// Reads KDA statistics from LuaDataCache each Unity frame
-    /// and renders a simple scoreboard with hero names, kills,
-    /// deaths, and assists. Presentation-only.
-    ///
-    /// Design: MOBA_UI_Lua_System_Design_v9_1 sections 4-5, 10
-    /// </summary>
     [DisallowMultipleComponent]
     public sealed class ScoreboardController : MonoBehaviour
     {
@@ -27,8 +20,14 @@ namespace FrameSyncMoba.Bootstrap
         [Header("Templates")]
         [SerializeField] private Font rowFont;
 
+        [Header("Team Colors")]
+        [SerializeField] private Color teamBlueColor = new Color(0.3f, 0.5f, 1f);
+        [SerializeField] private Color teamRedColor = new Color(1f, 0.3f, 0.3f);
+
         private ScoreboardRow[] _rows = System.Array.Empty<ScoreboardRow>();
         private bool _isVisible;
+        private int _sortMode;
+        private int[] _sortMap;
 
         private void Awake()
         {
@@ -48,11 +47,12 @@ namespace FrameSyncMoba.Bootstrap
                 var go = new GameObject("RowsContainer", typeof(RectTransform));
                 go.transform.SetParent(scoreboardCanvas.transform, false);
                 rowsContainer = go.GetComponent<RectTransform>();
-                rowsContainer.anchorMin = new Vector2(0.25f, 0.35f);
-                rowsContainer.anchorMax = new Vector2(0.75f, 0.85f);
+                rowsContainer.anchorMin = new Vector2(0.2f, 0.3f);
+                rowsContainer.anchorMax = new Vector2(0.8f, 0.85f);
                 rowsContainer.offsetMin = Vector2.zero;
                 rowsContainer.offsetMax = Vector2.zero;
-                go.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
+                var bg = go.AddComponent<Image>();
+                bg.color = new Color(0f, 0f, 0f, 0.85f);
                 var vlg = go.AddComponent<VerticalLayoutGroup>();
                 vlg.childControlWidth = true;
                 vlg.childControlHeight = false;
@@ -61,7 +61,6 @@ namespace FrameSyncMoba.Bootstrap
                 vlg.padding = new RectOffset(12, 12, 12, 12);
             }
             scoreboardCanvas.gameObject.SetActive(false);
-
             if (rowFont == null)
                 rowFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         }
@@ -73,44 +72,97 @@ namespace FrameSyncMoba.Bootstrap
                 _isVisible = !_isVisible;
                 scoreboardCanvas.gameObject.SetActive(_isVisible);
             }
-
+            if (_isVisible && Input.GetMouseButtonDown(0))
+                _sortMode = (_sortMode + 1) % 3;
             if (!_isVisible) return;
-
             if (!LuaDataCache.HasValidData) return;
 
             var dto = LuaDataCache.Latest;
             int count = dto.AllPlayerKills?.Count ?? 0;
-
             EnsureRows(count);
+            BuildSortMap(dto, count);
 
-            for (int i = 0; i < count; i++)
+            for (int displayIdx = 0; displayIdx < count; displayIdx++)
             {
-                if (_rows[i] == null) continue;
-                string name = (dto.AllPlayerNames != null && i < dto.AllPlayerNames.Count)
-                    ? dto.AllPlayerNames[i] : $"Player {i + 1}";
-                int kills = (dto.AllPlayerKills != null && i < dto.AllPlayerKills.Count)
-                    ? dto.AllPlayerKills[i] : 0;
-                int deaths = (dto.AllPlayerDeaths != null && i < dto.AllPlayerDeaths.Count)
-                    ? dto.AllPlayerDeaths[i] : 0;
-                int assists = (dto.AllPlayerAssists != null && i < dto.AllPlayerAssists.Count)
-                    ? dto.AllPlayerAssists[i] : 0;
-                _rows[i].Set(name, kills, deaths, assists);
+                int srcIdx = (_sortMap != null && displayIdx < _sortMap.Length)
+                    ? _sortMap[displayIdx] : displayIdx;
+                if (_rows[displayIdx] == null) continue;
+
+                string name = (dto.AllPlayerNames != null && srcIdx < dto.AllPlayerNames.Count)
+                    ? dto.AllPlayerNames[srcIdx] : $"Player {srcIdx + 1}";
+                int kills = (dto.AllPlayerKills != null && srcIdx < dto.AllPlayerKills.Count)
+                    ? dto.AllPlayerKills[srcIdx] : 0;
+                int deaths = (dto.AllPlayerDeaths != null && srcIdx < dto.AllPlayerDeaths.Count)
+                    ? dto.AllPlayerDeaths[srcIdx] : 0;
+                int assists = (dto.AllPlayerAssists != null && srcIdx < dto.AllPlayerAssists.Count)
+                    ? dto.AllPlayerAssists[srcIdx] : 0;
+                Color rowColor = srcIdx < count / 2 ? teamBlueColor : teamRedColor;
+                _rows[displayIdx].Set(name, kills, deaths, assists, rowColor);
             }
+        }
+
+        private void BuildSortMap(UiSnapshotDto dto, int count)
+        {
+            if (_sortMap == null || _sortMap.Length != count)
+                _sortMap = new int[count];
+            for (int i = 0; i < count; i++)
+                _sortMap[i] = i;
+
+            switch (_sortMode)
+            {
+                case 0:
+                    System.Array.Sort(_sortMap, (a, b) =>
+                    {
+                        int sA = GetKdaScore(dto, a);
+                        int sB = GetKdaScore(dto, b);
+                        int cmp = sB.CompareTo(sA);
+                        if (cmp != 0) return cmp;
+                        return a.CompareTo(b);
+                    });
+                    break;
+                case 1:
+                    System.Array.Sort(_sortMap, (a, b) =>
+                    {
+                        int ka = ValAt(dto.AllPlayerKills, a);
+                        int kb = ValAt(dto.AllPlayerKills, b);
+                        int cmp = kb.CompareTo(ka);
+                        if (cmp != 0) return cmp;
+                        return a.CompareTo(b);
+                    });
+                    break;
+                case 2:
+                    System.Array.Sort(_sortMap, (a, b) =>
+                    {
+                        int da = ValAt(dto.AllPlayerDeaths, a);
+                        int db = ValAt(dto.AllPlayerDeaths, b);
+                        int cmp = da.CompareTo(db);
+                        if (cmp != 0) return cmp;
+                        return a.CompareTo(b);
+                    });
+                    break;
+            }
+        }
+
+        private static int ValAt(System.Collections.Generic.List<int> list, int idx)
+            => (list != null && idx < list.Count) ? list[idx] : 0;
+
+        private static int GetKdaScore(UiSnapshotDto dto, int idx)
+        {
+            int k = ValAt(dto.AllPlayerKills, idx);
+            int d = ValAt(dto.AllPlayerDeaths, idx);
+            int a = ValAt(dto.AllPlayerAssists, idx);
+            return (k + a) * 10 - d * 5;
         }
 
         private void EnsureRows(int count)
         {
             if (_rows.Length == count) return;
-
             for (int i = 0; i < _rows.Length; i++)
                 if (_rows[i] != null)
                     Destroy(_rows[i].gameObject);
-
             _rows = new ScoreboardRow[count];
             for (int i = 0; i < count; i++)
-            {
                 _rows[i] = CreateRow(i);
-            }
         }
 
         private ScoreboardRow CreateRow(int index)
@@ -131,16 +183,12 @@ namespace FrameSyncMoba.Bootstrap
                 hlg.spacing = 8f;
                 hlg.padding = new RectOffset(4, 4, 2, 2);
             }
-
             var row = go.AddComponent<ScoreboardRow>();
             row.Initialize(rowFont);
             return row;
         }
     }
 
-    /// <summary>
-    /// Single scoreboard row: name, kills, deaths, assists.
-    /// </summary>
     public sealed class ScoreboardRow : MonoBehaviour
     {
         private Text _nameText;
@@ -154,7 +202,6 @@ namespace FrameSyncMoba.Bootstrap
             _nameText.font = font;
             _nameText.fontSize = 14;
             _nameText.alignment = TextAnchor.MiddleLeft;
-            _nameText.color = Color.white;
             nameGo.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 24);
 
             var kdaGo = new GameObject("KDA", typeof(RectTransform));
@@ -163,14 +210,21 @@ namespace FrameSyncMoba.Bootstrap
             _kdaText.font = font;
             _kdaText.fontSize = 14;
             _kdaText.alignment = TextAnchor.MiddleRight;
-            _kdaText.color = new Color(0.8f, 0.8f, 0.8f);
-            kdaGo.GetComponent<RectTransform>().sizeDelta = new Vector2(120, 24);
+            kdaGo.GetComponent<RectTransform>().sizeDelta = new Vector2(140, 24);
         }
 
-        public void Set(string name, int kills, int deaths, int assists)
+        public void Set(string name, int kills, int deaths, int assists, Color teamColor)
         {
-            if (_nameText != null) _nameText.text = name;
-            if (_kdaText != null) _kdaText.text = $"{kills} / {deaths} / {assists}";
+            if (_nameText != null)
+            {
+                _nameText.text = name;
+                _nameText.color = teamColor;
+            }
+            if (_kdaText != null)
+            {
+                _kdaText.text = $"{kills} / {deaths} / {assists}";
+                _kdaText.color = new Color(0.9f, 0.9f, 0.9f);
+            }
         }
     }
 }

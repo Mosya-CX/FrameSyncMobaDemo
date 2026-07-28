@@ -12,4 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 492af7122f0961340b9648f93f8af7f8, type: 3}
   m_Name: GlobalPrefabTable
   m_EditorClassIdentifier: 
-  prefabGroups: []
+  prefabGroups:
+  - kind: 0
+    entries:
+    - prefabId: 1001
+      unityPrefab: {fileID: 8106247938303772231, guid: d3e67b4a1c5b9a34390a9f2f83ae53e6,
+        type: 3}
+      gameplayConfigId: 1001
+      editorAssetGuid: d3e67b4a1c5b9a34390a9f2f83ae53e6
+  - kind: 1
+    entries:
+    - prefabId: 2001
+      unityPrefab: {fileID: 5487429242673161861, guid: 26e07411635ed9e458eceb7565e42872,
+        type: 3}
+      gameplayConfigId: 1
+      editorAssetGuid: 26e07411635ed9e458eceb7565e42872

@@ -20,7 +20,11 @@ namespace FrameSyncMoba.FrameSync
             _pathGrid = pathGrid;
         }
 
-        public fp2 ClampPosition(fp2 desiredPosition, fp2 currentPosition, fp unitRadius)
+        public fp2 ClampPosition(
+            fp2 desiredPosition,
+            fp2 currentPosition,
+            fp unitRadius,
+            RadiusClass radiusClass)
         {
             fp2 result = desiredPosition;
 
@@ -36,7 +40,11 @@ namespace FrameSyncMoba.FrameSync
                 fp2 delta = result - currentPosition;
                 if (delta.x != fp.zero || delta.y != fp.zero)
                 {
-                    delta = ForcedMoveExecutor.ResolveWall(currentPosition, delta, _pathGrid);
+                    delta = ForcedMoveExecutor.ResolveWall(
+                        currentPosition,
+                        delta,
+                        _pathGrid,
+                        radiusClass);
                     result = currentPosition + delta;
                 }
             }
@@ -53,8 +61,6 @@ namespace FrameSyncMoba.FrameSync
         {
             var grid = _physicsWorld.UnitFinalGrid;
             fp2 result = target;
-            fp minSeparation = unitRadius * (fp)2;
-            fp minSepSq = minSeparation * minSeparation;
             fp queryHalf = unitRadius * (fp)3;
 
             var queryBounds = new PhysicsBounds2D(
@@ -70,6 +76,12 @@ namespace FrameSyncMoba.FrameSync
                 fp2 otherPos = other.Transform2D.Position;
                 fp2 delta = result - otherPos;
                 fp distSq = fpmath.dot(delta, delta);
+                fp minSeparation =
+                    unitRadius +
+                    other.Shape.Radius;
+                fp minSepSq =
+                    minSeparation *
+                    minSeparation;
 
                 if (distSq < minSepSq && distSq > fp.zero)
                 {

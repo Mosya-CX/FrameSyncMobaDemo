@@ -17,6 +17,13 @@ namespace FrameSyncMoba.PlayerInput
             out GameplayCommandRequestReceipt receipt);
     }
 
+    public interface IPlayerShopCommandRequester
+    {
+        bool RequestEquipmentPurchase(int equipmentId);
+        bool RequestEquipmentSell(byte sourceSlot);
+        bool RequestEquipmentUndo();
+    }
+
     public enum BakedPlayerAbilityInputMode : byte
     {
         PressCommit = 0,
@@ -38,6 +45,14 @@ namespace FrameSyncMoba.PlayerInput
     {
         bool TryGetProfile(byte slot, out BakedPlayerAbilityInputProfile profile);
         bool TryGetAimKind(byte slot, out AimKind aimKind);
+    }
+
+    public interface IPlayerAbilityAimProfileProvider
+    {
+        bool TryGetAimConfiguration(
+            byte slot,
+            out AimKind aimKind,
+            out fp castRange);
     }
 
     public interface ILocalAbilityRuntimeView
@@ -75,14 +90,15 @@ namespace FrameSyncMoba.PlayerInput
         public GameplayCommandRequestReceipt LastRequestReceipt;
     }
 
-    public sealed class PlayerCommandRequester : IPlayerGameplayCommandRequester
+    public sealed class PlayerCommandRequester :
+        IPlayerGameplayCommandRequester,
+        IPlayerShopCommandRequester
     {
         private const int AbilitySlotCount = 4;
 
         private readonly IGameplayInputGate gate;
         private readonly CommandCollector collector;
-        private readonly Func<int> buildLocalTickProvider;
-        private readonly Func<int> targetTickProvider;
+        private readonly CommandTargetTickResolver targetTickResolver;
         private readonly IPlayerAbilityInputProfileProvider profileProvider;
         private readonly ILocalAbilityRuntimeView abilityRuntimeView;
         private readonly LocalAbilityInputState[] abilityStates =
@@ -99,8 +115,7 @@ namespace FrameSyncMoba.PlayerInput
             CommandCollector collector,
             int playerSlot,
             ulong clientId,
-            Func<int> buildLocalTickProvider,
-            Func<int> targetTickProvider,
+            CommandTargetTickResolver targetTickResolver,
             IPlayerAbilityInputProfileProvider profileProvider = null,
             ILocalAbilityRuntimeView abilityRuntimeView = null)
         {
@@ -109,10 +124,8 @@ namespace FrameSyncMoba.PlayerInput
             this.collector = collector ?? throw new ArgumentNullException(nameof(collector));
             this.playerSlot = playerSlot;
             this.clientId = clientId;
-            this.buildLocalTickProvider = buildLocalTickProvider
-                ?? throw new ArgumentNullException(nameof(buildLocalTickProvider));
-            this.targetTickProvider = targetTickProvider
-                ?? throw new ArgumentNullException(nameof(targetTickProvider));
+            this.targetTickResolver = targetTickResolver
+                ?? throw new ArgumentNullException(nameof(targetTickResolver));
             this.profileProvider = profileProvider;
             this.abilityRuntimeView = abilityRuntimeView;
         }
@@ -138,19 +151,26 @@ namespace FrameSyncMoba.PlayerInput
             out fp2 casterForward)
         {
             aimKind = AimKind.None;
-            castRange = (fp)5m; // default range
+            castRange = fp.zero;
             casterPos = fp2.zero;
             casterForward = new fp2(fp.zero, fp.one);
 
-            if (profileProvider == null) return false;
-            if (!profileProvider.TryGetAimKind(slot, out aimKind)) return false;
+            if (!(profileProvider is
+                    IPlayerAbilityAimProfileProvider aimProvider) ||
+                !aimProvider.TryGetAimConfiguration(
+                    slot,
+                    out aimKind,
+                    out castRange))
+            {
+                return false;
+            }
             if (aimKind == AimKind.None) return false;
 
             // Get caster position from controlled unit
             if (controlledUnit?.MovementHandler != null)
             {
-                casterPos = controlledUnit.MovementHandler.Snapshot.Position;
-                casterForward = controlledUnit.MovementHandler.Snapshot.Facing;
+                casterPos = controlledUnit.MovementHandler.Position;
+                casterForward = controlledUnit.MovementHandler.Facing;
             }
 
             return true;
@@ -236,6 +256,54 @@ namespace FrameSyncMoba.PlayerInput
             receipt = new GameplayCommandRequestReceipt(header.TargetTick, header.CommandSeq);
             AdvanceSequence();
             return true;
+        }
+
+        public bool RequestEquipmentPurchase(int equipmentId)
+        {
+            if (!CanRequestForControlledUnit() ||
+                equipmentId <= 0)
+                return false;
+            CommandHeader header =
+                CreateHeader(GameplayCommandKind.EquipmentShop);
+            collector.Collect(
+                GameplayCommand.CreateEquipmentPurchase(
+                    header,
+                    equipmentId));
+            AdvanceSequence();
+            return true;
+        }
+
+        public bool RequestEquipmentSell(byte sourceSlot)
+        {
+            if (!CanRequestForControlledUnit() ||
+                sourceSlot >= EquipmentHandler.SlotCount)
+                return false;
+            CommandHeader header =
+                CreateHeader(GameplayCommandKind.EquipmentShop);
+            collector.Collect(
+                GameplayCommand.CreateEquipmentSell(
+                    header,
+                    sourceSlot));
+            AdvanceSequence();
+            return true;
+        }
+
+        public bool RequestEquipmentUndo()
+        {
+            if (!CanRequestForControlledUnit())
+                return false;
+            CommandHeader header =
+                CreateHeader(GameplayCommandKind.EquipmentShop);
+            collector.Collect(
+                GameplayCommand.CreateEquipmentUndo(header));
+            AdvanceSequence();
+            return true;
+        }
+
+        private bool CanRequestForControlledUnit()
+        {
+            return controlledUnit != null &&
+                   controlledUnit.UnitUid.IsValid();
         }
 
         private void ProcessSecondaryClick(
@@ -399,7 +467,7 @@ namespace FrameSyncMoba.PlayerInput
                         aim = default;
                         return false;
                     }
-                    fp2 direction = groundPoint.Value - controlledUnit.MovementHandler.Snapshot.Position;
+            fp2 direction = groundPoint.Value - controlledUnit.MovementHandler.Position;
                     try
                     {
                         aim = AimSnapshot.ForDirection(direction);
@@ -435,14 +503,16 @@ namespace FrameSyncMoba.PlayerInput
                 throw new InvalidOperationException("Player CommandSeq exhausted.");
             }
 
+            int targetTick =
+                targetTickResolver.ResolveTargetTick(out int buildLocalTick);
             return new CommandHeader(
                 nextCommandSeq,
                 clientId,
                 playerSlot,
                 controlledUnit.UnitUid,
-                targetTickProvider(),
+                targetTick,
                 kind,
-                buildLocalTickProvider(),
+                buildLocalTick,
                 0);
         }
 

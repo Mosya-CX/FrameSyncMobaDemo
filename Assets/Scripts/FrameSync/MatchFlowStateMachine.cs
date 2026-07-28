@@ -5,17 +5,15 @@ using FrameSyncMoba.Unit;
 namespace FrameSyncMoba.FrameSync
 {
     /// <summary>
-    /// Wraps MatchRuleRuntime to provide a composable bootstrap-level
-    /// match flow state machine. Drives AdvanceTick per tick, gates
-    /// Gameplay commands during PreGame/Countdown, and captures the
-    /// final MatchResultSnapshot.
+    /// Observes MatchRuleRuntime from the bootstrap layer, gates Gameplay
+    /// commands during PreGame/Countdown, and captures the final
+    /// MatchResultSnapshot after the authority owner finishes the match.
     ///
     /// Design: FrameSync_Flow_Integrated_System_Design_v10_2 sections 2, 14
     /// </summary>
     public sealed class MatchFlowStateMachine
     {
         private readonly MatchRuleRuntime _rule;
-        private readonly int _countdownTicks;
         private bool _resultCaptured;
 
         /// <summary>
@@ -29,30 +27,17 @@ namespace FrameSyncMoba.FrameSync
         /// </summary>
         public MatchResultSnapshot Result { get; private set; }
 
-        public MatchFlowStateMachine(MatchRuleRuntime rule, int countdownTicks)
+        public MatchFlowStateMachine(MatchRuleRuntime rule)
         {
             _rule = rule ?? throw new System.ArgumentNullException(nameof(rule));
-            _countdownTicks = countdownTicks;
         }
 
         /// <summary>
-        /// Advance the match state machine by one logic tick.
-        /// Call after deterministic tick execution completes.
+        /// Observes a Tick already advanced by SimulationTickPipeline.
+        /// This application-layer object never performs authority evaluation.
         /// </summary>
-        public void AdvanceTick(int currentTick, UnitWorld unitWorld)
+        public void ObserveTick()
         {
-            if (_rule == null) return;
-
-            // Phase transitions driven by tick count
-            _rule.AdvanceTick(currentTick);
-
-            // Authority-confirmed end evaluation
-            if (_rule.CurrentPhase == MatchPhase.Running)
-            {
-                _rule.EvaluateAuthorityConfirmedTick(currentTick, unitWorld);
-            }
-
-            // Record result when match finishes
             if (_rule.CurrentPhase == MatchPhase.Finished && !_resultCaptured)
             {
                 Result = new MatchResultSnapshot

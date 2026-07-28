@@ -23,6 +23,7 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private Texture2D icon;
 
         [Header("Casting")]
+        [SerializeReference]
         [SerializeField] private CastModelAuthoring castModel = new CommitCastModelAuthoring();
         [SerializeField] private float castRange = 0f;
         [SerializeField] private AimKind aimKind;
@@ -32,9 +33,17 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private int cooldownTicks;
 
         [Header("Cost")]
-        [SerializeField] private bool hasResourceCost;
-        [SerializeField] private StatId resourceStat;
-        [SerializeField] private float flatCost;
+        [SerializeField] private AbilityCostTiming costTiming =
+            AbilityCostTiming.OnSessionStart;
+        [SerializeField] private float[] castResourceCostByLevel =
+            Array.Empty<float>();
+        [SerializeField] private float[] healthCostByLevel =
+            Array.Empty<float>();
+
+        [Header("Cast Conditions")]
+        [SerializeReference]
+        [SerializeField] private AbilityCastConditionAuthoring[]
+            castConditions = Array.Empty<AbilityCastConditionAuthoring>();
 
         [Header("Stages")]
         [SerializeReference]
@@ -47,9 +56,10 @@ namespace FrameSyncMoba.Unit
         public float AuthoringCastRange => castRange;
         public AimKind AimKind => aimKind;
         public int CooldownTicks => cooldownTicks;
-        public bool HasResourceCost => hasResourceCost;
-        public StatId ResourceStat => resourceStat;
-        public float FlatCost => flatCost;
+        public AbilityCostTiming CostTiming => costTiming;
+        public float[] CastResourceCostByLevel =>
+            castResourceCostByLevel;
+        public float[] HealthCostByLevel => healthCostByLevel;
         public StageDefAuthoring[] Stages => stageDefs;
 
         public AbilityDef Bake()
@@ -57,6 +67,28 @@ namespace FrameSyncMoba.Unit
             if (abilityId <= 0)
                 throw new InvalidOperationException(
                     $"AbilityAsset '{name}' has invalid AbilityId {abilityId}.");
+            if (string.IsNullOrWhiteSpace(abilityName))
+                throw new InvalidOperationException(
+                    $"AbilityAsset '{name}' requires a name.");
+            if (cooldownTicks < 0)
+                throw new InvalidOperationException(
+                    $"AbilityAsset '{name}' cooldown must be nonnegative.");
+            if (float.IsNaN(castRange) ||
+                float.IsInfinity(castRange) ||
+                castRange < 0f)
+            {
+                throw new InvalidOperationException(
+                    $"AbilityAsset '{name}' cast range must be finite and nonnegative.");
+            }
+            if (!Enum.IsDefined(typeof(AimKind), aimKind) ||
+                !Enum.IsDefined(
+                    typeof(AbilityCostTiming),
+                    costTiming))
+            {
+                throw new InvalidOperationException(
+                    $"AbilityAsset '{name}' contains an undefined enum value.");
+            }
+            ValidateStageAuthoring(stageDefs);
 
             var def = new AbilityDef
             {
@@ -66,16 +98,92 @@ namespace FrameSyncMoba.Unit
                 AimKind = aimKind,
                 CastRange = (Unity.Mathematics.FixedPoint.fp)castRange,
                 CastModel = castModel?.Bake(stageDefs),
-                CostPlan = hasResourceCost
-                    ? new AbilityCostPlan
-                    {
-                        FlatCost = (Unity.Mathematics.FixedPoint.fp)flatCost,
-                        ResourceStat = resourceStat,
-                    }
-                    : default,
+                CostPlan = new AbilityCostPlan(
+                    BakeLevelValues(
+                        castResourceCostByLevel,
+                        nameof(castResourceCostByLevel)),
+                    BakeLevelValues(
+                        healthCostByLevel,
+                        nameof(healthCostByLevel)),
+                    costTiming),
+                CastConditions = BakeConditions(castConditions),
             };
 
+            if (!def.IsValid)
+                throw new InvalidOperationException(
+                    $"AbilityAsset '{name}' baked an invalid definition.");
             return def;
+        }
+
+        private void ValidateStageAuthoring(
+            StageDefAuthoring[] stages)
+        {
+            if (stages == null || stages.Length == 0)
+                throw new InvalidOperationException(
+                    $"AbilityAsset '{name}' requires at least one explicit StageDef.");
+            var keys =
+                new System.Collections.Generic.HashSet<byte>();
+            for (int i = 0; i < stages.Length; i++)
+            {
+                StageDefAuthoring stage = stages[i] ??
+                    throw new InvalidOperationException(
+                        $"AbilityAsset '{name}' stage {i} is null.");
+                if (!keys.Add(stage.StageKey))
+                    throw new InvalidOperationException(
+                        $"AbilityAsset '{name}' has duplicate StageKey {stage.StageKey}.");
+                if (string.IsNullOrWhiteSpace(stage.DebugName))
+                    throw new InvalidOperationException(
+                        $"AbilityAsset '{name}' stage {i} requires a debug name.");
+                StageDef baked = stage.Bake() ??
+                    throw new InvalidOperationException(
+                        $"AbilityAsset '{name}' stage {i} baked null.");
+                if (baked.StageDefId != stage.StageKey)
+                    throw new InvalidOperationException(
+                        $"AbilityAsset '{name}' stage {i} changed its stable key during Bake.");
+            }
+        }
+
+        private static AbilityLevelValue BakeLevelValues(
+            float[] values,
+            string fieldName)
+        {
+            if (values == null || values.Length == 0)
+                return default;
+            var baked =
+                new Unity.Mathematics.FixedPoint.fp[values.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                float value = values[i];
+                if (float.IsNaN(value) ||
+                    float.IsInfinity(value) ||
+                    value < 0f)
+                {
+                    throw new InvalidOperationException(
+                        $"{fieldName}[{i}] must be finite and nonnegative.");
+                }
+                baked[i] =
+                    (Unity.Mathematics.FixedPoint.fp)value;
+            }
+            return new AbilityLevelValue(baked);
+        }
+
+        private static AbilityCastConditionDef[] BakeConditions(
+            AbilityCastConditionAuthoring[] authoring)
+        {
+            if (authoring == null || authoring.Length == 0)
+                return Array.Empty<AbilityCastConditionDef>();
+            var baked =
+                new AbilityCastConditionDef[authoring.Length];
+            for (int i = 0; i < authoring.Length; i++)
+            {
+                if (authoring[i] == null)
+                    throw new InvalidOperationException(
+                        $"Cast condition {i} is null.");
+                baked[i] = authoring[i].Bake() ??
+                    throw new InvalidOperationException(
+                        $"Cast condition {i} baked null.");
+            }
+            return baked;
         }
 
         private void OnValidate()
@@ -197,7 +305,7 @@ namespace FrameSyncMoba.Unit
     // ---- Stage Authoring ----
 
     [Serializable]
-    public class StageDefAuthoring
+    public abstract class StageDefAuthoring
     {
         [SerializeField] internal byte stageKey;
         [SerializeField] internal string debugName = "Stage";
@@ -205,18 +313,13 @@ namespace FrameSyncMoba.Unit
         public byte StageKey => stageKey;
         public string DebugName => debugName;
 
-        public virtual StageDef Bake()
-        {
-            return new RuntimePlaceholderStageDef
-            {
-                StageDefId = stageKey,
-                DebugName = debugName,
-            };
-        }
+        public abstract StageDef Bake();
     }
 
-    internal sealed class RuntimePlaceholderStageDef : StageDef
+    [Serializable]
+    public abstract class AbilityCastConditionAuthoring
     {
+        public abstract AbilityCastConditionDef Bake();
     }
 
     internal static class BakeHelpers
@@ -241,14 +344,14 @@ namespace FrameSyncMoba.Unit
                 }
             }
 
+            if (def == null)
+                throw new InvalidOperationException(
+                    $"Cast stage key {stageKey} has no StageDef authoring.");
+
             return new CastStage
             {
                 StageKey = stageKey,
-                Def = def ?? new RuntimePlaceholderStageDef
-                {
-                    StageDefId = stageKey,
-                    DebugName = "Stage_" + stageKey,
-                },
+                Def = def,
                 DurationTicks = durationTicks,
                 NotifyAbilityCastOnEnter = notifyAbilityCastOnEnter,
                 Interruptible = interruptible,

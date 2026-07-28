@@ -58,7 +58,20 @@ namespace FrameSyncMoba.Bootstrap.Tests
 
         [Test] public void CombatRequest_CreatesValidDamage()
         {
-            var r = new DamageRequest { SourceUnitUid = new UnitUid(1,1,10), TargetUnitUid = new UnitUid(2,2,20), DamageType = DamageType.Physical, BaseDamage = (fp)100m };
+            UnitUid source = new UnitUid(1, 1, 10);
+            UnitUid target = new UnitUid(2, 2, 20);
+            var r = new DamageRequest
+            {
+                Header = CombatRequestHeader.Create(
+                    source,
+                    target,
+                    CombatSourceType.System,
+                    1,
+                    1,
+                    source),
+                DamageType = DamageType.Physical,
+                BaseDamage = (fp)100,
+            };
             Assert.That(r.IsValid, Is.True); Assert.That(r.BaseDamage, Is.EqualTo((fp)100m));
         }
 

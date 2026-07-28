@@ -17,6 +17,13 @@ namespace FrameSyncMoba.Unit
 
         public override StageDef Bake()
         {
+            if (StageKey <= 0 ||
+                speedPerTick <= 0f ||
+                totalDistance <= 0f)
+            {
+                throw new InvalidOperationException(
+                    "Dash Stage requires a positive StageKey, speed and total distance.");
+            }
             return new DashStageDef
             {
                 StageDefId = StageKey,

@@ -53,6 +53,7 @@ namespace FrameSyncMoba.Unit
                 fp.zero,
                 fp.zero,
                 30,
+                90,
                 fp2.zero);
             unit.PhysicsEntity.SetLogicPose(fp2.zero, new fp2(fp.one, fp.zero));
             unit.PhysicsEntity.SetQueryInfo(new PhysicsEntityQueryInfo(
@@ -68,14 +69,17 @@ namespace FrameSyncMoba.Unit
 
         public static MovementHandler CreateMovementHandler(fp2 position, fp moveSpeed)
         {
-            var root = new GameObject("TestMovementHandler")
-            {
-                hideFlags = HideFlags.HideAndDontSave,
-            };
-            createdObjects.Add(root);
-            MovementHandler handler = root.AddComponent<MovementHandler>();
-            handler.InitializeRuntime(position, moveSpeed);
-            return handler;
+            Unit unit = CreateUnit(
+                new UnitUid(-1, 1, 1),
+                UnitKind.Hero,
+                0,
+                TeamId.Neutral,
+                1);
+            unit.PhysicsEntity.SetLogicPose(
+                position,
+                new fp2(fp.one, fp.zero));
+            unit.MovementHandler.SetMoveSpeed(moveSpeed);
+            return unit.MovementHandler;
         }
 
         public static StatHandler CreateStatHandler(
@@ -107,8 +111,70 @@ namespace FrameSyncMoba.Unit
             createdObjects.Add(child);
             AttackHandler handler = child.AddComponent<AttackHandler>();
             handler.BindOwner(owner);
-            handler.InitializeForNewRuntime(30);
+            handler.InitializeForNewRuntime(30, 90);
             return handler;
+        }
+
+        public static DamageRequest CreateDamageRequest(
+            UnitUid sourceUid,
+            UnitUid targetUid,
+            fp baseDamage,
+            DamageType damageType = DamageType.Physical,
+            CombatSourceType sourceType = CombatSourceType.System,
+            int sourceId = 1,
+            int recipeId = 1)
+        {
+            return new DamageRequest
+            {
+                Header = CombatRequestHeader.Create(
+                    sourceUid,
+                    targetUid,
+                    sourceType,
+                    sourceId,
+                    recipeId,
+                    sourceUid),
+                DamageType = damageType,
+                BaseDamage = baseDamage,
+            };
+        }
+
+        public static GameObject AddProjectilePrefab(
+            UnitWorld world,
+            int prefabId)
+        {
+            if (world == null)
+                throw new ArgumentNullException(nameof(world));
+            if (world.GlobalPrefabTable == null)
+                throw new InvalidOperationException(
+                    "Spawn at least one test Unit before adding a Projectile prefab.");
+
+            var prefab = new GameObject(
+                $"TestProjectilePrefab_{prefabId}")
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            createdObjects.Add(prefab);
+            prefab.SetActive(false);
+            prefab.AddComponent<PhysicsEntity2D>();
+
+            var groups = new List<PrefabGroup>(
+                world.GlobalPrefabTable.PrefabGroups.Count + 1);
+            for (int i = 0;
+                 i < world.GlobalPrefabTable.PrefabGroups.Count;
+                 i++)
+            {
+                groups.Add(
+                    world.GlobalPrefabTable.PrefabGroups[i]);
+            }
+            groups.Add(new PrefabGroup(
+                PrefabKind.Projectile,
+                new[]
+                {
+                    new PrefabEntry(prefabId, prefab),
+                }));
+            world.GlobalPrefabTable.ReplaceGroupsForTests(
+                groups);
+            return prefab;
         }
 
         public static Unit SpawnUnit(
@@ -177,7 +243,7 @@ namespace FrameSyncMoba.Unit
             worldFixtures.Clear();
         }
 
-        private static void ConfigureWorldForPrototype(
+        public static void ConfigureWorldForPrototype(
             UnitWorld world,
             UnitPrototype prototype,
             fp statGrowthC,

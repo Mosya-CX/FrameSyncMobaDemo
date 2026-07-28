@@ -36,6 +36,9 @@ MonoBehaviour:
     JungleResetDurationSeconds: 3
     JungleRespawnDelaySeconds: 60
     EquipmentSellRate: 0.7
+    RandomSeed: 12345
+    PeriodicGoldIntervalTicks: 15
+    PeriodicGoldAmount: 2
   physics:
     UnitGridCellSize: 10
   unit:

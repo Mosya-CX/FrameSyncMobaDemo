@@ -18,7 +18,7 @@ namespace FrameSyncMoba.Unit
             if (!runtime.World.TryGetUnit(runtime.CasterUnitUid, out Unit caster))
                 return StageResult.Failed;
 
-            fp2 casterPos = caster.MovementHandler?.Snapshot.Position ?? fp2.zero;
+            fp2 casterPos = caster.MovementHandler?.Position ?? fp2.zero;
             fp2 direction = session.Aim.Direction;
             if (!Physics.PhysicsGeometry2D.TryCreateFacing(direction, out fp2 facing, out _))
                 return StageResult.Failed;
@@ -29,6 +29,13 @@ namespace FrameSyncMoba.Unit
                 ProjectileDefId,
                 runtime.CasterUnitUid,
                 caster.TeamId,
+                new SourceDescriptor
+                {
+                    SourceType = CombatSourceType.Ability,
+                    SourceId = runtime.Definition.AbilityId,
+                    OwnerUnitUid = runtime.CasterUnitUid,
+                    EmitterUnitUid = runtime.CasterUnitUid,
+                },
                 spawnPos,
                 facing);
 

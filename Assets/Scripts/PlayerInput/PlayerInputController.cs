@@ -27,6 +27,8 @@ namespace FrameSyncMoba.PlayerInput
         private SkillIndicatorDriver indicatorDriver;
 
         public LocalInputEventBuffer Buffer => buffer;
+        public PlayerCommandRequester CommandRequester =>
+            commandRequester;
 
         public void Initialize(
             LocalInputEventBuffer eventBuffer,

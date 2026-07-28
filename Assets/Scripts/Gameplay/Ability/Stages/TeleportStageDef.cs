@@ -21,7 +21,7 @@ namespace FrameSyncMoba.Unit
             }
             else if (session.Aim.Kind == AimKind.Direction)
             {
-                fp2 casterPos = caster.MovementHandler?.Snapshot.Position ?? fp2.zero;
+                fp2 casterPos = caster.MovementHandler?.Position ?? fp2.zero;
                 targetPos = casterPos + session.Aim.Direction * Distance;
             }
             else

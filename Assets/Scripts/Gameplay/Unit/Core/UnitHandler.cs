@@ -49,6 +49,10 @@ namespace FrameSyncMoba.Unit
         {
         }
 
+        public virtual void ClearForDespawn(UnitDespawnReason reason)
+        {
+        }
+
         public virtual void ResetForPool()
         {
         }

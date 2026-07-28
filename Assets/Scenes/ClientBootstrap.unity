@@ -235,7 +235,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalGameplayData: {fileID: 11400000, guid: 8b0cdcd39dbb2964baebdd8475f1e60e, type: 2}
+  unitRuntimeCatalog: {fileID: 11400000, guid: 086229f1780717542a833de334b3f4dc, type: 2}
+  abilityRuntimeCatalog: {fileID: 11400000, guid: d93f607006a804d4abc0bedca7b70650,
+    type: 2}
+  projectileRuntimeCatalog: {fileID: 11400000, guid: 06f58cb71ac5c004a8bb5f30492f2235,
+    type: 2}
   dedicatedServer: 0
+  driveSimulationFromUnityUpdate: 1
+  initialUnitSpawns: []
   playerInputController: {fileID: 665779037}
   gameplayCamera: {fileID: 665779036}
   indicatorDriver: {fileID: 0}

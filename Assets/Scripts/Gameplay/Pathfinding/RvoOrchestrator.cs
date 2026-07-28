@@ -1,81 +1,184 @@
+using System;
 using System.Collections.Generic;
+using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.Physics;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
-    /// <summary>
-    /// Per-tick orchestrator: gathers RVOInput from all active locomotion agents,
-    /// runs DeterministicRVOSystem, and dispatches results back to MovementHandlers.
-    /// (Pathfinding Design v13.1 section 10.6)
-    /// </summary>
-    public static class RvoOrchestrator
+    public sealed class RvoOrchestrator
     {
-        /// <summary>
-        /// Execute one RVO step for all active agents with AllowRVO == true.
-        /// Must be called after all LocomotionAgent.Evaluate() and
-        /// before MovementHandler.TickUpdate() in the per-Tick loop.
-        /// </summary>
-        public static void Step(
+        private readonly List<RVOInput> _inputs =
+            new List<RVOInput>(64);
+        private readonly List<PhysicsEntity2D>
+            _neighborEntities =
+                new List<PhysicsEntity2D>(32);
+        private readonly List<RVOInput> _neighbors =
+            new List<RVOInput>(16);
+        private readonly Dictionary<UnitUid, int>
+            _inputIndexByUid =
+                new Dictionary<UnitUid, int>(64);
+
+        public void Step(
             DeterministicRVOSystem rvoSystem,
-            IReadOnlyList<UnitLocomotionAgent> agents,
-            IReadOnlyList<MovementHandler> handlers)
+            PhysicsWorld physicsWorld,
+            IReadOnlyList<Unit> units,
+            IReadOnlyList<LocomotionResult>
+                locomotionResults)
         {
-            if (rvoSystem == null || agents == null || handlers == null)
-                return;
-
-            if (agents.Count != handlers.Count)
-                return;
-
-            int count = agents.Count;
-
-            // Phase 1: gather RVO inputs from agents with AllowRVO
-            var inputs = new List<RVOInput>(count);
-            var indexMap = new int[count]; // handlerIndex -> inputIndex (-1 if skipped)
-            for (int i = 0; i < count; i++)
-                indexMap[i] = -1;
-
-            for (int i = 0; i < count; i++)
+            if (rvoSystem == null ||
+                physicsWorld?.RvoGrid == null ||
+                units == null ||
+                locomotionResults == null)
             {
-                var agent = agents[i];
-                var handler = handlers[i];
-
-                // Only include units with active AllowRVO locomotion
-                var task = agent.CurrentTask;
-                if (task.State != MovementTaskState.Active || !task.AllowRVO)
-                    continue;
-
-                var snap = handler.Snapshot;
-                if (snap.MoveSpeed <= fp.zero)
-                    continue;
-
-                // Compute desired velocity from current handler state + agent position
-                var pos = agent.Position;
-
-                inputs.Add(new RVOInput
-                {
-                    SelfUid = agent.Owner.UnitUid,
-                    Position = pos,
-                    DesiredVelocity = snap.TargetDirection * snap.MoveSpeed,
-                    Radius = (fp)0.5m,
-                    MaxSpeed = snap.MoveSpeed,
-                });
-                indexMap[i] = inputs.Count - 1;
+                return;
+            }
+            if (units.Count !=
+                locomotionResults.Count)
+            {
+                throw new DeterministicSimulationException(
+                    "RVO requires one locomotion result per stable Unit.");
             }
 
-            if (inputs.Count == 0)
-                return;
-
-            // Phase 2: run RVO solver
-            RvoResult[] results = rvoSystem.Step(inputs.ToArray());
-
-            // Phase 3: dispatch results back to handlers
-            for (int i = 0; i < count; i++)
+            GatherInputs(
+                units,
+                locomotionResults);
+            for (int i = 0;
+                 i < _inputs.Count;
+                 i++)
             {
-                int inputIdx = indexMap[i];
-                if (inputIdx < 0 || inputIdx >= results.Length)
+                LocomotionResult locomotion =
+                    locomotionResults[i];
+                if (!locomotion.HasMovement ||
+                    !locomotion.AllowRVO)
+                {
                     continue;
+                }
 
-                handlers[i].ApplyRvoResult(results[inputIdx]);
+                Unit unit = units[i];
+                PhysicsEntity2D entity =
+                    unit.PhysicsEntity;
+                CollectNeighbors(
+                    physicsWorld.RvoGrid,
+                    entity,
+                    rvoSystem);
+                RvoResult result =
+                    rvoSystem.Solve(
+                        _inputs[i],
+                        _neighbors);
+                unit.MovementHandler
+                    ?.ApplyRvoResult(result);
+            }
+        }
+
+        private void GatherInputs(
+            IReadOnlyList<Unit> units,
+            IReadOnlyList<LocomotionResult>
+                locomotionResults)
+        {
+            _inputs.Clear();
+            _inputIndexByUid.Clear();
+            for (int i = 0;
+                 i < units.Count;
+                 i++)
+            {
+                Unit unit = units[i] ??
+                    throw new DeterministicSimulationException(
+                        "Stable Unit list contains a null entry.");
+                LocomotionResult locomotion =
+                    locomotionResults[i];
+                if (locomotion.UnitUid !=
+                    unit.UnitUid)
+                {
+                    throw new DeterministicSimulationException(
+                        "Locomotion result order does not match stable Unit order.");
+                }
+                PhysicsEntity2D entity =
+                    unit.PhysicsEntity ??
+                    throw new DeterministicSimulationException(
+                        $"Unit {unit.UnitUid} has no PhysicsEntity2D.");
+
+                fp2 desiredVelocity =
+                    locomotion.HasMovement
+                        ? locomotion.DesiredDirection *
+                          locomotion.DesiredSpeed
+                        : fp2.zero;
+                fp maxSpeed =
+                    locomotion.HasMovement
+                        ? locomotion.DesiredSpeed
+                        : unit.MovementHandler.MoveSpeed;
+                var input = new RVOInput
+                {
+                    SelfUid = unit.UnitUid,
+                    Position =
+                        entity.Transform2D.Position,
+                    DesiredVelocity =
+                        desiredVelocity,
+                    Radius = entity.Shape.Radius,
+                    MaxSpeed = maxSpeed,
+                };
+                _inputIndexByUid.Add(
+                    input.SelfUid,
+                    _inputs.Count);
+                _inputs.Add(input);
+            }
+        }
+
+        private void CollectNeighbors(
+            PhysicsSpatialGrid2D grid,
+            PhysicsEntity2D entity,
+            DeterministicRVOSystem rvoSystem)
+        {
+            fp expand =
+                rvoSystem.NeighborSearchRadius;
+            PhysicsBounds2D bounds =
+                entity.Bounds;
+            var queryBounds =
+                new PhysicsBounds2D(
+                    new fp2(
+                        bounds.Min.x - expand,
+                        bounds.Min.y - expand),
+                    new fp2(
+                        bounds.Max.x + expand,
+                        bounds.Max.y + expand));
+
+            grid.CollectCandidates(
+                queryBounds,
+                _neighborEntities);
+            _neighbors.Clear();
+            for (int i = 0;
+                 i < _neighborEntities.Count;
+                 i++)
+            {
+                PhysicsEntity2D candidate =
+                    _neighborEntities[i];
+                if (candidate == entity ||
+                    !(candidate.QueryInfo.Owner is
+                        Unit other) ||
+                    !_inputIndexByUid.TryGetValue(
+                        other.UnitUid,
+                        out int inputIndex))
+                {
+                    continue;
+                }
+
+                fp2 delta =
+                    _inputs[inputIndex].Position -
+                    entity.Transform2D.Position;
+                fp searchRadius =
+                    rvoSystem.NeighborSearchRadius;
+                if (fpmath.lengthsq(delta) >
+                    searchRadius * searchRadius)
+                {
+                    continue;
+                }
+                _neighbors.Add(
+                    _inputs[inputIndex]);
+                if (_neighbors.Count >=
+                    rvoSystem.MaxNeighbors)
+                {
+                    break;
+                }
             }
         }
     }

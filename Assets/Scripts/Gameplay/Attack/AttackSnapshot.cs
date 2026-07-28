@@ -23,20 +23,32 @@ namespace FrameSyncMoba.Unit
         /// <summary>True if Impact has already fired this cycle.</summary>
         public bool ImpactCommitted;
 
+        public bool IsEmpoweredAttack;
+
         /// <summary>
         /// Monotonically increasing attack animation sequence index
         /// (Attack v6.2 section 2.3, adjust #14).
         /// </summary>
         public byte AttackSequenceIndex;
 
+        public int LastSuccessfulAttackLogicTick;
+
+        public int ResolvedAttackDurationTicks;
+
+        public int ResolvedWindupTicks;
+
         public static readonly AttackSnapshot Default = new AttackSnapshot
         {
             CurrentTargetUid = default,
-            AttackStartLogicTick = 0,
-            ImpactLogicTick = 0,
+            AttackStartLogicTick = -1,
+            ImpactLogicTick = -1,
             NextAttackReadyLogicTick = 0,
             ImpactCommitted = false,
+            IsEmpoweredAttack = false,
             AttackSequenceIndex = 0,
+            LastSuccessfulAttackLogicTick = -1,
+            ResolvedAttackDurationTicks = 0,
+            ResolvedWindupTicks = 0,
         };
     }
 

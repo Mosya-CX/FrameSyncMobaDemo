@@ -4,13 +4,29 @@ using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
-    public sealed class AttackHandler : UnitHandler, IRollback<AttackSnapshot>
+    public enum AttackPlanStatus : byte
     {
+        Unavailable = 0,
+        TargetInvalid = 1,
+        OutOfRange = 2,
+        WaitingForReady = 3,
+        Ready = 4,
+    }
+
+    public enum AttackTimerResetReason : byte
+    {
+        AbilityEffect = 0,
+        ScriptedRule = 1,
+    }
+
+    public class AttackHandler : UnitHandler, IRollback<AttackSnapshot>
+    {
+        private const int InvalidLogicTick = -1;
+
         private AttackSnapshot _state;
         private fp runtimeWindupRatio;
         private int runtimeTickRate;
-        private int _lastAttackCompleteTick;
-        public int IdleResetWindowTicks = 90;
+        private int runtimeSequenceResetIntervalTicks;
 
         [Header("Authoring")]
         [Tooltip("Fraction of the attack period before impact. Converted to fixed point once at runtime initialization.")]
@@ -21,14 +37,17 @@ namespace FrameSyncMoba.Unit
         public fp WindupRatio
         {
             get => runtimeWindupRatio;
-            set => runtimeWindupRatio = value;
+            set => runtimeWindupRatio = fpmath.clamp(value, fp.zero, fp.one);
         }
+
         public int ProjectileDefId
         {
             get => projectileDefId;
             set => projectileDefId = value;
         }
+
         public ProjectileWorld ProjectileWorld { get; set; }
+
         public int CommitSfxEventId
         {
             get => commitSfxEventId;
@@ -39,129 +58,325 @@ namespace FrameSyncMoba.Unit
         public bool ImpactCommitted => _state.ImpactCommitted;
         public UnitUid CurrentTargetUid => _state.CurrentTargetUid;
         public byte AttackSequenceIndex => _state.AttackSequenceIndex;
+        public int LastSuccessfulAttackLogicTick =>
+            _state.LastSuccessfulAttackLogicTick;
 
-        public bool CanStartNewAttack
-        {
-            get
-            {
-                int tick = SimulationTickContext.Current.Tick;
-                return tick >= _state.NextAttackReadyLogicTick;
-            }
-        }
+        public fp CurrentAttackRange => Owner?.StatHandler != null
+            ? Owner.StatHandler.GetStat(StatId.AttackRange)
+            : fp.zero;
 
-        public void InitializeForNewRuntime(int tickRate)
+        public bool IsAttackReady() =>
+            SimulationTickContext.Current.Tick >=
+            _state.NextAttackReadyLogicTick;
+
+        public bool CanStartNewAttack => IsAttackReady();
+
+        public void InitializeForNewRuntime(
+            int tickRate,
+            int sequenceResetIntervalTicks)
         {
             if (tickRate <= 0)
                 throw new System.ArgumentOutOfRangeException(nameof(tickRate));
+            if (sequenceResetIntervalTicks < 1)
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(sequenceResetIntervalTicks));
+
             _state = AttackSnapshot.Default;
-            runtimeWindupRatio = (fp)windupRatio;
+            _state.NextAttackReadyLogicTick =
+                Owner?.UnitUid.SpawnLogicTick ?? 0;
+            runtimeWindupRatio = fpmath.clamp(
+                (fp)windupRatio, fp.zero, fp.one);
             runtimeTickRate = tickRate;
+            runtimeSequenceResetIntervalTicks =
+                sequenceResetIntervalTicks;
             ProjectileWorld = null;
         }
 
         public override void InitializeForNewRuntime() =>
             throw new System.InvalidOperationException(
-                "AttackHandler requires the baked global TickRate.");
+                "AttackHandler requires baked TickRate and sequence reset interval.");
+
+        public virtual AttackPlanStatus GetAttackPlanStatus(
+            UnitUid targetUid)
+        {
+            if (Owner == null ||
+                !Owner.AbilityMask.HasAttack ||
+                !Owner.CapabilityState.CanAttack ||
+                GetAttackSpeed() <= fp.zero)
+            {
+                return AttackPlanStatus.Unavailable;
+            }
+
+            if (!TryResolveTarget(targetUid, out Unit target))
+                return AttackPlanStatus.TargetInvalid;
+
+            if (!IsInAttackRange(target))
+                return AttackPlanStatus.OutOfRange;
+
+            return IsAttackReady()
+                ? AttackPlanStatus.Ready
+                : AttackPlanStatus.WaitingForReady;
+        }
 
         public void ApplyAttackInput(UnitUid targetUid)
         {
-            if (Owner == null || Owner.HitReaction.InterruptsAttack) return;
-            if (!CanStartNewAttack) return;
-            if (!targetUid.IsValid()) return;
+            if (GetAttackPlanStatus(targetUid) == AttackPlanStatus.Ready)
+                BeginAttack(targetUid);
+        }
 
-            int tick = SimulationTickContext.Current.Tick;
+        public virtual void BeginAttack(UnitUid targetUid)
+        {
+            if (GetAttackPlanStatus(targetUid) != AttackPlanStatus.Ready)
+                return;
+
+            int currentTick = SimulationTickContext.Current.Tick;
+            if (_state.LastSuccessfulAttackLogicTick != InvalidLogicTick &&
+                currentTick - _state.LastSuccessfulAttackLogicTick >=
+                runtimeSequenceResetIntervalTicks)
+            {
+                _state.AttackSequenceIndex = 0;
+            }
+
             fp attackSpeed = GetAttackSpeed();
-            if (attackSpeed <= fp.zero) return;
+            int durationTicks = CeilPositive(
+                (fp)runtimeTickRate / attackSpeed);
+            if (durationTicks < 1) durationTicks = 1;
 
-            fp attacksPerTick = attackSpeed / (fp)runtimeTickRate;
-            int totalAttackTicks = attacksPerTick > fp.zero
-                ? CeilDiv(fp.one, attacksPerTick)
-                : 1;
-
-            int windupTicks = ClampInt(1, totalAttackTicks,
-                (int)((fp)totalAttackTicks * WindupRatio));
-
-            int startTick = tick;
-            int impactTick = startTick + windupTicks;
-            int readyTick = startTick + totalAttackTicks;
+            fp ratio = fpmath.clamp(
+                ResolveWindupRatio(), fp.zero, fp.one);
+            int windupTicks = RoundPositive(
+                (fp)durationTicks * ratio);
+            windupTicks = ClampInt(1, durationTicks, windupTicks);
 
             _state.CurrentTargetUid = targetUid;
-            _state.AttackStartLogicTick = startTick;
-            _state.ImpactLogicTick = impactTick;
-            _state.NextAttackReadyLogicTick = readyTick;
+            _state.AttackStartLogicTick = currentTick;
+            _state.ImpactLogicTick = currentTick + windupTicks;
+            _state.NextAttackReadyLogicTick =
+                currentTick + durationTicks;
+            _state.ResolvedAttackDurationTicks = durationTicks;
+            _state.ResolvedWindupTicks = windupTicks;
             _state.ImpactCommitted = false;
-            _state.AttackSequenceIndex++;
+            _state.IsEmpoweredAttack = ResolveIsEmpoweredAttack();
+
+            TurnToTargetImmediately(targetUid);
         }
 
-        public DamageRequest? TickUpdate()
+        public void TickUpdate()
         {
-            int tick = SimulationTickContext.Current.Tick;
-
-            if (Owner.HitReaction.InterruptsAttack && !_state.ImpactCommitted)
+            if (!_state.CurrentTargetUid.IsValid() ||
+                _state.ImpactCommitted)
             {
-                _state.ImpactCommitted = true;
-                _state.NextAttackReadyLogicTick = tick;
-                _lastAttackCompleteTick = tick;
-                return null;
+                return;
             }
 
-            // Sequence idle reset: if no attack active and idle window expired, reset sequence to 0
-            if (!_state.CurrentTargetUid.IsValid() || tick >= _state.NextAttackReadyLogicTick)
+            if (Owner.HitReaction.InterruptsAttack)
             {
-                int idleTicks = tick - _lastAttackCompleteTick;
-                if (IdleResetWindowTicks > 0 && idleTicks >= IdleResetWindowTicks)
-                    _state.AttackSequenceIndex = 0;
+                CancelBeforeCommit();
+                return;
             }
 
-            if (_state.ImpactCommitted) return null;
-            if (!_state.CurrentTargetUid.IsValid()) return null;
-            if (_state.ImpactLogicTick <= 0) return null;
-            if (tick < _state.ImpactLogicTick) return null;
+            if (SimulationTickContext.Current.Tick >=
+                _state.ImpactLogicTick)
+            {
+                CommitAttack();
+            }
+        }
+
+        public virtual bool CommitAttack()
+        {
+            int currentTick = SimulationTickContext.Current.Tick;
+            if (_state.ImpactCommitted ||
+                !_state.CurrentTargetUid.IsValid() ||
+                currentTick < _state.ImpactLogicTick)
+            {
+                return false;
+            }
+
+            if (!TryResolveTarget(
+                    _state.CurrentTargetUid, out Unit target) ||
+                !IsInAttackRange(target))
+            {
+                CancelBeforeCommit();
+                return false;
+            }
+
+            TurnToTargetImmediately(target.UnitUid);
+
+            byte committedSequence = _state.AttackSequenceIndex;
+            bool emitted = ResolveProjectileDefId() == 0
+                ? EmitDirectAttack(target)
+                : EmitProjectileAttack(target);
+
+            if (!emitted)
+            {
+                CancelBeforeCommit();
+                return false;
+            }
 
             _state.ImpactCommitted = true;
-            _lastAttackCompleteTick = tick;
+            _state.LastSuccessfulAttackLogicTick = currentTick;
+            _state.AttackSequenceIndex =
+                committedSequence == byte.MaxValue
+                    ? (byte)0
+                    : (byte)(committedSequence + 1);
 
-            SubmitCommitSfx();
-
-            if (ProjectileDefId == 0)
-            {
-                fp damage = GetAttackDamage();
-                if (damage <= fp.zero) return null;
-
-                return new DamageRequest
-                {
-                    SourceUnitUid = Owner.UnitUid,
-                    TargetUnitUid = _state.CurrentTargetUid,
-                    BaseDamage = damage,
-                    AttackSequenceIndex = _state.AttackSequenceIndex,
-                };
-            }
-
-            if (ProjectileDefId != 0 && ProjectileWorld != null)
-            {
-                var def = ProjectileWorld.DefRegistry?.FindById(ProjectileDefId);
-                if (def != null)
-                {
-                    fp2 facing = Owner.MovementHandler != null
-                        ? Owner.MovementHandler.Snapshot.Facing
-                        : new fp2(fp.one, fp.zero);
-                    fp2 spawnPos = Owner.MovementHandler != null
-                        ? Owner.MovementHandler.Snapshot.Position
-                        : fp2.zero;
-                    ProjectileWorld.RequestSpawn(new ProjectileSpawnRequest(
-                        def.DefId,
-                        Owner.UnitUid,
-                        Owner.TeamId,
-                        spawnPos,
-                        facing));
-                }
-            }
-            return null;
+            SubmitCommitSfx(committedSequence);
+            return true;
         }
 
-        private void SubmitCommitSfx()
+        public virtual void CancelBeforeCommit()
         {
-            if (CommitSfxEventId == 0) return;
+            if (_state.ImpactCommitted) return;
+
+            _state.CurrentTargetUid = default;
+            _state.AttackStartLogicTick = InvalidLogicTick;
+            _state.ImpactLogicTick = InvalidLogicTick;
+            _state.NextAttackReadyLogicTick =
+                SimulationTickContext.Current.Tick;
+            _state.ResolvedAttackDurationTicks = 0;
+            _state.ResolvedWindupTicks = 0;
+            _state.IsEmpoweredAttack = false;
+        }
+
+        public virtual void ResetAttackTimer(
+            AttackTimerResetReason reason)
+        {
+            _state.NextAttackReadyLogicTick =
+                SimulationTickContext.Current.Tick;
+        }
+
+        protected virtual fp ResolveWindupRatio() =>
+            runtimeWindupRatio;
+
+        protected virtual bool ValidateAdditionalTarget(Unit target) =>
+            true;
+
+        protected virtual bool ResolveIsEmpoweredAttack() =>
+            false;
+
+        protected virtual int ResolveProjectileDefId() =>
+            projectileDefId;
+
+        protected virtual int ResolveCommitSfxEventId() =>
+            commitSfxEventId;
+
+        protected virtual bool EmitDirectAttack(Unit target)
+        {
+            fp damage = GetAttackDamage();
+            CombatSystem combat = Owner.World?.CombatSystem;
+            if (damage <= fp.zero || combat == null)
+                return false;
+
+            var source = new SourceDescriptor
+            {
+                SourceType = CombatSourceType.Attack,
+                SourceId = CombatBuiltinSourceId.BasicAttack,
+                OwnerUnitUid = Owner.UnitUid,
+                EmitterUnitUid = Owner.UnitUid,
+            };
+            var request = new DamageRequest
+            {
+                Header = new CombatRequestHeader
+                {
+                    SourceUnitUid = Owner.UnitUid,
+                    TargetUnitUid = target.UnitUid,
+                    SourceDescriptor = source,
+                    RecipeId =
+                        CombatBuiltinRecipeId.BasicAttackDamage,
+                },
+                DamageType = DamageType.Physical,
+                BaseDamage = damage,
+            };
+            return combat.SubmitDamage(request);
+        }
+
+        protected virtual ProjectileSpawnRequest
+            BuildProjectileSpawnRequest(Unit target)
+        {
+            fp2 sourcePosition =
+                Owner.PhysicsEntity.Transform2D.Position;
+            fp2 direction =
+                target.PhysicsEntity.Transform2D.Position -
+                sourcePosition;
+            return new ProjectileSpawnRequest(
+                ResolveProjectileDefId(),
+                Owner.UnitUid,
+                Owner.TeamId,
+                new SourceDescriptor
+                {
+                    SourceType = CombatSourceType.Attack,
+                    SourceId = CombatBuiltinSourceId.BasicAttack,
+                    OwnerUnitUid = Owner.UnitUid,
+                    EmitterUnitUid = Owner.UnitUid,
+                },
+                sourcePosition,
+                direction);
+        }
+
+        private bool EmitProjectileAttack(Unit target)
+        {
+            ProjectileWorld world =
+                Owner.World?.ProjectileWorld ?? ProjectileWorld;
+            if (world == null) return false;
+
+            ProjectileUid uid = world.RequestSpawn(
+                BuildProjectileSpawnRequest(target));
+            return uid.IsValid;
+        }
+
+        private bool TryResolveTarget(
+            UnitUid targetUid,
+            out Unit target)
+        {
+            target = null;
+            if (!targetUid.IsValid() ||
+                Owner?.World == null ||
+                !Owner.World.TryGetUnit(targetUid, out target) ||
+                target == null ||
+                target.UnitUid == Owner.UnitUid ||
+                target.LifeState != LifeState.Alive ||
+                !target.CapabilityState.IsTargetable ||
+                target.TeamId == TeamId.Neutral ||
+                Owner.TeamId == TeamId.Neutral ||
+                target.TeamId == Owner.TeamId ||
+                !ValidateAdditionalTarget(target))
+            {
+                target = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsInAttackRange(Unit target)
+        {
+            return Owner.PhysicsEntity != null &&
+                target?.PhysicsEntity != null &&
+                RangeQueryService.IsInRange(
+                    Owner.PhysicsEntity,
+                    target.PhysicsEntity,
+                    CurrentAttackRange);
+        }
+
+        private void TurnToTargetImmediately(UnitUid targetUid)
+        {
+            if (!Owner.CapabilityState.CanTurn ||
+                Owner.World == null ||
+                !Owner.World.TryGetUnit(targetUid, out Unit target))
+            {
+                return;
+            }
+
+            fp2 direction =
+                target.PhysicsEntity.Transform2D.Position -
+                Owner.PhysicsEntity.Transform2D.Position;
+            Owner.PhysicsEntity.SetLogicForward(direction);
+        }
+
+        private void SubmitCommitSfx(byte committedSequence)
+        {
+            int eventId = ResolveCommitSfxEventId();
+            if (eventId == 0) return;
 
             int tick = SimulationTickContext.Current.Tick;
             var evt = new SfxEvent
@@ -171,10 +386,10 @@ namespace FrameSyncMoba.Unit
                     SourceLogicTick = tick,
                     SourceKind = PresentationSourceKind.Unit,
                     SourceRuntimeUid = Owner.UnitUid,
-                    EventSequence = _state.AttackSequenceIndex,
-                    EventKey = CommitSfxEventId,
+                    EventSequence = committedSequence,
+                    EventKey = eventId,
                 },
-                SfxDefId = CommitSfxEventId,
+                SfxDefId = eventId,
                 Anchor = SfxAnchor.UnitRoot,
                 AttachToUnit = Owner.UnitUid,
                 PitchScale = fp.one,
@@ -186,100 +401,163 @@ namespace FrameSyncMoba.Unit
 
         private fp GetAttackSpeed()
         {
-            if (Owner.StatHandler == null) return fp.zero;
+            if (Owner?.StatHandler == null) return fp.zero;
             return Owner.StatHandler.GetStat(StatId.AttackSpeed);
         }
 
         private fp GetAttackDamage()
         {
-            if (Owner.StatHandler == null) return fp.zero;
+            if (Owner?.StatHandler == null) return fp.zero;
             return Owner.StatHandler.GetStat(StatId.AttackDamage);
         }
 
-        private static int CeilDiv(fp a, fp b)
+        private static int CeilPositive(fp value)
         {
-            if (b <= fp.zero) return 1;
-            long num = a.RawValue;
-            long den = b.RawValue;
-            return (int)((num + den - 1) / den);
+            int whole = (int)value;
+            return (fp)whole < value ? checked(whole + 1) : whole;
         }
 
-        private static int ClampInt(int min, int max, int value)
+        private static int RoundPositive(fp value)
+        {
+            if (value <= fp.zero) return 0;
+            return (int)(value + fp.one / (fp)2);
+        }
+
+        private static int ClampInt(
+            int min,
+            int max,
+            int value)
         {
             if (value < min) return min;
             if (value > max) return max;
             return value;
         }
 
-        public void Capture(ref AttackSnapshot state) { state = _state; }
-        public void Restore(in AttackSnapshot state) { _state = state; }
+        public void Capture(ref AttackSnapshot state)
+        {
+            ValidateState(_state);
+            state = _state;
+        }
+
+        public void Restore(in AttackSnapshot state)
+        {
+            ValidateState(state);
+            _state = state;
+        }
+
         public void Resolve(in RollbackContext context)
         {
             UnitUid targetUid = _state.CurrentTargetUid;
             if (targetUid.IsValid() &&
-                (Owner?.World == null || !Owner.World.TryGetUnit(targetUid, out _)))
+                (Owner?.World == null ||
+                 !Owner.World.TryGetUnit(targetUid, out _)))
+            {
                 throw new DeterministicSimulationException(
                     $"Attack snapshot references missing target {targetUid}.");
+            }
         }
 
         public void Rebuild(in RollbackContext context)
         {
-            // AttackSnapshot contains no derived index or Unity reference.
         }
 
-        /// <summary>
-        /// Builds an animation-facing snapshot of the current attack state.
-        /// Safe to call from Presentation (LateUpdate).
-        /// </summary>
         public AttackAnimationSnapshot GetAnimationSnapshot()
         {
             int now = SimulationTickContext.Current.Tick;
-            bool isAttacking = _state.CurrentTargetUid.IsValid()
-                           && now >= _state.AttackStartLogicTick
-                           && now < _state.NextAttackReadyLogicTick
-                           && !_state.ImpactCommitted;
+            bool hasCycle =
+                _state.CurrentTargetUid.IsValid() &&
+                _state.AttackStartLogicTick != InvalidLogicTick &&
+                now >= _state.AttackStartLogicTick &&
+                now < _state.NextAttackReadyLogicTick;
+            bool windup = hasCycle && !_state.ImpactCommitted;
+            bool recovery = hasCycle && _state.ImpactCommitted;
 
             float windupProgress = 0f;
-            float recoveryProgress = 0f;
-
-            if (isAttacking)
+            if (windup && _state.ResolvedWindupTicks > 0)
             {
-                int windupTicks = _state.ImpactLogicTick - _state.AttackStartLogicTick;
-                int totalTicks = _state.NextAttackReadyLogicTick - _state.AttackStartLogicTick;
-                int elapsed = now - _state.AttackStartLogicTick;
-
-                if (windupTicks > 0 && !_state.ImpactCommitted)
-                    windupProgress = (float)elapsed / (float)windupTicks;
-
-                if (_state.ImpactCommitted && totalTicks > windupTicks)
-                {
-                    int recoveryElapsed = now - _state.ImpactLogicTick;
-                    int recoveryTicks = totalTicks - windupTicks;
-                    if (recoveryTicks > 0)
-                        recoveryProgress = (float)recoveryElapsed / (float)recoveryTicks;
-                }
+                windupProgress =
+                    (float)(now - _state.AttackStartLogicTick) /
+                    _state.ResolvedWindupTicks;
             }
+
+            float recoveryProgress = 0f;
+            int recoveryTicks =
+                _state.ResolvedAttackDurationTicks -
+                _state.ResolvedWindupTicks;
+            if (recovery && recoveryTicks > 0)
+            {
+                recoveryProgress =
+                    (float)(now - _state.ImpactLogicTick) /
+                    recoveryTicks;
+            }
+
+            byte animationSequence = _state.ImpactCommitted
+                ? (_state.AttackSequenceIndex == 0
+                    ? byte.MaxValue
+                    : (byte)(_state.AttackSequenceIndex - 1))
+                : _state.AttackSequenceIndex;
 
             return new AttackAnimationSnapshot
             {
-                IsAttacking = isAttacking,
-                SequenceIndex = _state.AttackSequenceIndex,
+                IsAttacking = hasCycle,
+                SequenceIndex = animationSequence,
                 ImpactCommitted = _state.ImpactCommitted,
-                WindupProgress = windupProgress,
-                RecoveryProgress = recoveryProgress,
+                WindupProgress = Mathf.Clamp01(windupProgress),
+                RecoveryProgress = Mathf.Clamp01(recoveryProgress),
             };
         }
 
         public override void ClearForDeath()
         {
+            byte sequence = _state.AttackSequenceIndex;
+            int lastSuccessful =
+                _state.LastSuccessfulAttackLogicTick;
             _state = AttackSnapshot.Default;
+            _state.NextAttackReadyLogicTick =
+                SimulationTickContext.Current.Tick;
+            _state.AttackSequenceIndex = sequence;
+            _state.LastSuccessfulAttackLogicTick =
+                lastSuccessful;
         }
 
         public override void ResetForPool()
         {
             _state = AttackSnapshot.Default;
             runtimeWindupRatio = default;
+            runtimeTickRate = 0;
+            runtimeSequenceResetIntervalTicks = 0;
             ProjectileWorld = null;
+        }
+
+        private static void ValidateState(
+            in AttackSnapshot state)
+        {
+            if (state.ResolvedAttackDurationTicks < 0 ||
+                state.ResolvedWindupTicks < 0 ||
+                state.ResolvedWindupTicks >
+                state.ResolvedAttackDurationTicks)
+            {
+                throw new DeterministicSimulationException(
+                    "Attack snapshot contains invalid resolved timing.");
+            }
+
+            if (state.CurrentTargetUid.IsValid() &&
+                (state.AttackStartLogicTick < 0 ||
+                 state.ImpactLogicTick <
+                 state.AttackStartLogicTick ||
+                 state.NextAttackReadyLogicTick <
+                 state.ImpactLogicTick))
+            {
+                throw new DeterministicSimulationException(
+                    "Attack snapshot contains an invalid active timeline.");
+            }
+
+            if (!state.CurrentTargetUid.IsValid() &&
+                state.ImpactCommitted)
+            {
+                throw new DeterministicSimulationException(
+                    "Attack snapshot cannot be committed without a target.");
+            }
         }
     }
 }

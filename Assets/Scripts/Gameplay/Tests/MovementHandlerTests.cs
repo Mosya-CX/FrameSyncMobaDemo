@@ -10,26 +10,36 @@ namespace FrameSyncMoba.Unit.Tests
         private MovementHandler handler;
         private static readonly fp DefaultSpeed = (fp)5m;
 
+        private SimulationTickContextController _tickController;
+
         [SetUp]
         public void SetUp()
         {
+            _tickController = new SimulationTickContextController();
+            _tickController.BeginTick(0, ExecutionMode.ServerAuthority);
             handler = UnitTestFactory.CreateMovementHandler(fp2.zero, DefaultSpeed);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _tickController.EndTick();
+            _tickController = null;
+        }
         [Test]
         public void Constructor_SetsInitialPosition()
         {
             var h = UnitTestFactory.CreateMovementHandler(new fp2(10m, 20m), 3m);
 
-            Assert.AreEqual(new fp2(10m, 20m), h.Snapshot.Position);
-            Assert.AreEqual((fp)3m, h.Snapshot.MoveSpeed);
-            Assert.AreEqual(fp2.zero, h.Snapshot.Velocity);
+            Assert.AreEqual(new fp2(10m, 20m), h.Position);
+            Assert.AreEqual((fp)3m, h.MoveSpeed);
+            Assert.AreEqual(fp2.zero, h.Velocity);
         }
 
         [Test]
         public void Constructor_DefaultFacing_IsPositiveX()
         {
-            Assert.AreEqual(new fp2(fp.one, fp.zero), handler.Snapshot.Facing);
+            Assert.AreEqual(new fp2(fp.one, fp.zero), handler.Facing);
         }
 
         [Test]
@@ -74,7 +84,7 @@ namespace FrameSyncMoba.Unit.Tests
             handler.TickUpdate();
 
             fp2 expected = new fp2(DefaultSpeed, fp.zero);
-            Assert.AreEqual(expected, handler.Snapshot.Position);
+            Assert.AreEqual(expected, handler.Position);
         }
 
         [Test]
@@ -84,19 +94,19 @@ namespace FrameSyncMoba.Unit.Tests
             handler.TickUpdate();
             handler.TickUpdate();
 
-            Assert.AreEqual(new fp2(DefaultSpeed, fp.zero), handler.Snapshot.Position);
-            Assert.AreEqual(fp2.zero, handler.Snapshot.Velocity);
+            Assert.AreEqual(new fp2(DefaultSpeed, fp.zero), handler.Position);
+            Assert.AreEqual(fp2.zero, handler.Velocity);
         }
 
         [Test]
         public void TickUpdate_WithDeltaTime_ScalesMovement()
         {
-            fp halfDt = 0.5m;
+            // TickUpdate reads SimulationTickContext.Current.DeltaTick internally.
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
             handler.TickUpdate();
 
-            fp2 expected = new fp2(DefaultSpeed * halfDt, fp.zero);
-            Assert.AreEqual(expected, handler.Snapshot.Position);
+            fp2 expected = new fp2(DefaultSpeed, fp.zero);
+            Assert.AreEqual(expected, handler.Position);
         }
 
         [Test]
@@ -108,7 +118,7 @@ namespace FrameSyncMoba.Unit.Tests
             handler.TickUpdate();
 
             fp2 expected = new fp2(DefaultSpeed * 2m, fp.zero);
-            Assert.AreEqual(expected, handler.Snapshot.Position);
+            Assert.AreEqual(expected, handler.Position);
         }
 
         [Test]
@@ -117,18 +127,19 @@ namespace FrameSyncMoba.Unit.Tests
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.zero, fp.one)));
             handler.TickUpdate();
 
-            Assert.AreEqual(new fp2(fp.zero, fp.one), handler.Snapshot.Facing);
+            Assert.AreEqual(fp.zero, handler.Facing.x);
+            Assert.That(handler.Facing.y, Is.GreaterThan((fp)0.999m));
         }
 
         [Test]
         public void TickUpdate_ZeroDirection_PreservesFacing()
         {
-            fp2 initialFacing = handler.Snapshot.Facing;
+            fp2 initialFacing = handler.Facing;
 
             handler.ApplyMoveInput(MoveIntent.None);
             handler.TickUpdate();
 
-            Assert.AreEqual(initialFacing, handler.Snapshot.Facing);
+            Assert.AreEqual(initialFacing, handler.Facing);
         }
 
         [Test]
@@ -139,7 +150,7 @@ namespace FrameSyncMoba.Unit.Tests
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
             handler.TickUpdate();
 
-            Assert.AreEqual(new fp2(newSpeed, fp.zero), handler.Snapshot.Position);
+            Assert.AreEqual(new fp2(newSpeed, fp.zero), handler.Position);
         }
 
         [Test]
@@ -150,12 +161,12 @@ namespace FrameSyncMoba.Unit.Tests
 
             handler.ForceSetPosition(new fp2(100m, 200m));
 
-            Assert.AreEqual(new fp2(100m, 200m), handler.Snapshot.Position);
-            Assert.AreEqual(fp2.zero, handler.Snapshot.Velocity);
+            Assert.AreEqual(new fp2(100m, 200m), handler.Position);
+            Assert.AreEqual(fp2.zero, handler.Velocity);
         }
 
         [Test]
-        public void CaptureRestore_RoundTrip_PreservesState()
+        public void CaptureRestore_RoundTrip_PreservesMovementOwnedStateOnly()
         {
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.zero, fp.one)));
             handler.TickUpdate();
@@ -166,10 +177,11 @@ namespace FrameSyncMoba.Unit.Tests
             var restored = UnitTestFactory.CreateMovementHandler(fp2.zero, 0m);
             restored.Restore(captured);
 
-            Assert.AreEqual(handler.Snapshot.Position, restored.Snapshot.Position);
-            Assert.AreEqual(handler.Snapshot.Velocity, restored.Snapshot.Velocity);
-            Assert.AreEqual(handler.Snapshot.Facing, restored.Snapshot.Facing);
-            Assert.AreEqual(handler.Snapshot.MoveSpeed, restored.Snapshot.MoveSpeed);
+            Assert.AreEqual(captured, restored.Snapshot);
+            Assert.AreEqual(fp2.zero, restored.Position,
+                "Physics pose is restored by PhysicsEntity2D, not MovementSnapshot.");
+            Assert.AreEqual(fp.zero, restored.MoveSpeed,
+                "Static locomotion configuration is not rollback state.");
         }
 
         [Test]
@@ -180,12 +192,13 @@ namespace FrameSyncMoba.Unit.Tests
 
             MovementSnapshot captured = default;
             handler.Capture(ref captured);
+            fp2 positionBeforeRestore = handler.Position;
 
             handler.ApplyMoveInput(new MoveIntent(new fp2(fp.zero, fp.one)));
             handler.Restore(captured);
             handler.TickUpdate();
 
-            Assert.AreEqual(captured.Position, handler.Snapshot.Position);
+            Assert.AreEqual(positionBeforeRestore, handler.Position);
         }
 
         [Test]
@@ -203,9 +216,9 @@ namespace FrameSyncMoba.Unit.Tests
                 h2.TickUpdate();
             }
 
-            Assert.AreEqual(h1.Snapshot.Position, h2.Snapshot.Position);
-            Assert.AreEqual(h1.Snapshot.Velocity, h2.Snapshot.Velocity);
-            Assert.AreEqual(h1.Snapshot.Facing, h2.Snapshot.Facing);
+            Assert.AreEqual(h1.Position, h2.Position);
+            Assert.AreEqual(h1.Velocity, h2.Velocity);
+            Assert.AreEqual(h1.Facing, h2.Facing);
         }
 
         [Test]
@@ -228,7 +241,9 @@ namespace FrameSyncMoba.Unit.Tests
             MovementSnapshot snap = default;
             checkpoint.Capture(ref snap);
 
-            var replay = UnitTestFactory.CreateMovementHandler(fp2.zero, 0m);
+            var replay = UnitTestFactory.CreateMovementHandler(
+                checkpoint.Position,
+                checkpoint.MoveSpeed);
             replay.Restore(snap);
             for (int i = 0; i < 3; i++)
             {
@@ -236,7 +251,7 @@ namespace FrameSyncMoba.Unit.Tests
                 replay.TickUpdate();
             }
 
-            Assert.AreEqual(original.Snapshot.Position, replay.Snapshot.Position);
+            Assert.AreEqual(original.Position, replay.Position);
         }
     }
 }

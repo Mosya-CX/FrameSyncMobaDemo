@@ -12,7 +12,9 @@ namespace FrameSyncMoba.Unit
         public byte Priority;
         public UnitUid SourceUnitUid;
         public bool IsForcedMove;
+        public int ForcedMoveConfigId;
         public fp2 ForcedMoveDeltaPerTick;
+        public ForceMoveWallPolicy ForcedMoveWallPolicy;
         public bool IsActive => RemainingTicks > 0;
         public static readonly CrowdControlConstraint None = default;
     }

@@ -1,4 +1,5 @@
-using FrameSyncMoba.FrameSync;
+﻿using FrameSyncMoba.FrameSync;
+using FrameSyncMoba.PlayerInput;
 using FrameSyncMoba.Unit;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +9,7 @@ namespace FrameSyncMoba.Bootstrap
     /// <summary>
     /// Manages the Shop page lifecycle as a BattleOverlay over the HUD.
     /// Reads EquipmentDatabase for catalog, EquipmentShopRuntime for validation
-    /// and transaction execution. Presentation-only.
+    /// and submits canonical shop Commands. Presentation-only.
     ///
     /// Design: MOBA_UI_Lua_System_Design_v9_1 sections 11-13
     /// </summary>
@@ -43,8 +44,10 @@ namespace FrameSyncMoba.Bootstrap
         // Runtime references (injected by GameBootstrap)
         private FrameSyncGameRuntime _runtime;
         private EquipmentShopRuntime _shopRuntime;
+        private IEquipmentShopView _shopView;
         private EquipmentDatabase _database;
         private Unit.Unit _controlledUnit;
+        private IPlayerShopCommandRequester _commandRequester;
 
         // Selection state
         private int _selectedCatalogId = -1;
@@ -70,12 +73,21 @@ namespace FrameSyncMoba.Bootstrap
             FrameSyncGameRuntime runtime,
             EquipmentShopRuntime shopRuntime,
             EquipmentDatabase database,
-            Unit.Unit controlledUnit)
+            Unit.Unit controlledUnit,
+            IPlayerShopCommandRequester commandRequester = null)
         {
             _runtime = runtime;
             _shopRuntime = shopRuntime;
+            _shopView = controlledUnit != null &&
+                controlledUnit
+                    .ControlledByPlayerSlot >= 0
+                ? runtime.CreateEquipmentShopView(
+                    controlledUnit
+                        .ControlledByPlayerSlot)
+                : null;
             _database = database;
             _controlledUnit = controlledUnit;
+            _commandRequester = commandRequester;
         }
 
         private void Awake()
@@ -117,39 +129,31 @@ namespace FrameSyncMoba.Bootstrap
         public void ProcessQueuedTransaction()
         {
             if (_queuedAction == QueuedAction.None) return;
-            if (_shopRuntime == null || _controlledUnit == null) { ClearQueue(); return; }
+            if (_shopRuntime == null ||
+                _controlledUnit == null ||
+                _commandRequester == null)
+            {
+                ClearQueue();
+                return;
+            }
 
             int playerSlot = _controlledUnit.ControlledByPlayerSlot;
             if (playerSlot < 0) { ClearQueue(); return; }
 
-            var handler = _controlledUnit.EquipmentHandler;
-            if (handler == null) { ClearQueue(); return; }
-
             switch (_queuedAction)
             {
                 case QueuedAction.Purchase:
-                    if (_shopRuntime.TryBuildPurchasePlan(playerSlot, _queuedEquipmentId,
-                        GetCurrentAvailableGold(), handler,
-                        out EquipmentPurchasePlan plan, out _))
-                    {
-                        _shopRuntime.ProcessPurchase(playerSlot, plan, handler, out _);
-                    }
+                    _commandRequester.RequestEquipmentPurchase(
+                        _queuedEquipmentId);
                     break;
 
                 case QueuedAction.Sell:
-                    if (_shopRuntime.TrySell(playerSlot, _queuedEquipmentSlot, handler,
-                        out int sellValue, out _))
-                    {
-                        _shopRuntime.ProcessSell(playerSlot, _queuedEquipmentSlot, handler,
-                            sellValue, out _);
-                    }
+                    _commandRequester.RequestEquipmentSell(
+                        (byte)_queuedEquipmentSlot);
                     break;
 
                 case QueuedAction.Undo:
-                    if (_shopRuntime.CanUndo(playerSlot, out _))
-                    {
-                        _shopRuntime.ProcessUndo(playerSlot, handler, out _);
-                    }
+                    _commandRequester.RequestEquipmentUndo();
                     break;
             }
 
@@ -188,7 +192,7 @@ namespace FrameSyncMoba.Bootstrap
                 var def = allDefs[i];
                 if (def == null) continue;
                 EquipmentSlotView view = CreateSlotView(catalogContent, _catalogViews.Count);
-                view.Initialize(def.Id, def.Name ?? "", def.Value, 1, i, OnCatalogSlotClicked);
+                view.Initialize(def.Id, def.Name ?? "", def.Value, 1, i, null, OnCatalogSlotClicked);
                 _catalogViews.Add(view);
             }
         }
@@ -243,12 +247,11 @@ namespace FrameSyncMoba.Bootstrap
                     var inst = handler.GetSlot(slot);
                     int stack = inst?.StackCount ?? 1;
                     int sellPrice = CalculateSellPrice(def);
-                    view.Initialize(def.Id, def.Name ?? "", sellPrice, stack, slot,
-                        OnOwnedSlotClicked);
+                    view.Initialize(def.Id, def.Name ?? "", sellPrice, stack, slot, null, OnOwnedSlotClicked);
                 }
                 else
                 {
-                    view.Initialize(0, "(empty)", 0, 0, slot, OnOwnedSlotClicked);
+                    view.Initialize(0, "(empty)", 0, 0, slot, null, OnOwnedSlotClicked);
                 }
                 _ownedSlotViews[slot] = view;
             }
@@ -304,7 +307,9 @@ namespace FrameSyncMoba.Bootstrap
             if (detailPriceText == null || def == null) return;
             int price;
             if (_selectedCatalogId > 0)
-                price = def.Value;
+                price = _shopView
+                    ?.CalculatePurchasePrice(def.Id) ??
+                    def.Value;
             else if (_selectedOwnedSlot >= 0)
                 price = CalculateSellPrice(def);
             else
@@ -371,7 +376,10 @@ namespace FrameSyncMoba.Bootstrap
             int playerSlot = _controlledUnit.ControlledByPlayerSlot;
             if (playerSlot < 0) return;
 
-            if (_shopRuntime.CanUndo(playerSlot, out _))
+            if (_shopRuntime.CanUndo(
+                    playerSlot,
+                    GetCurrentAvailableGold(),
+                    out _))
             {
                 _queuedAction = QueuedAction.Undo;
                 _queuedEquipmentId = 0;
@@ -388,7 +396,9 @@ namespace FrameSyncMoba.Bootstrap
                     && _controlledUnit?.EquipmentHandler?.GetSlotDef(_selectedOwnedSlot) != null;
             if (undoButton != null && _shopRuntime != null && _controlledUnit != null)
                 undoButton.interactable = _shopRuntime.CanUndo(
-                    _controlledUnit.ControlledByPlayerSlot, out _);
+                    _controlledUnit.ControlledByPlayerSlot,
+                    GetCurrentAvailableGold(),
+                    out _);
         }
 
         // ---- Gold ----
@@ -405,9 +415,8 @@ namespace FrameSyncMoba.Bootstrap
             if (_controlledUnit == null || _runtime == null) return 0;
             int slot = _controlledUnit.ControlledByPlayerSlot;
             if (slot < 0) return 0;
-            int confirmedGold = _runtime.GoldIncome?.GetConfirmedAvailableGold(slot) ?? 0;
-            int shopDelta = _shopRuntime?.ComputeEffectiveShopGoldDelta(slot) ?? 0;
-            return confirmedGold + shopDelta;
+            return _shopView
+                ?.GetCurrentAvailableGold() ?? 0;
         }
 
         private int CalculateSellPrice(EquipmentDefinition def)

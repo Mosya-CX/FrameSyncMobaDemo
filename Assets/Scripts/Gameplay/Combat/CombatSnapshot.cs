@@ -1,23 +1,21 @@
-using System.Collections.Generic;
-
 namespace FrameSyncMoba.Unit
 {
     public struct CombatSnapshot
     {
-        public System.Collections.Generic.List<DamageContributionTrackerSnapshot> ContributionTrackers;
-        public System.Collections.Generic.List<DeferredCombatRequest> DeferredRequests;
+        public DamageContributionTrackerSnapshot[] ContributionTrackers;
+        public DeferredCombatRequest[] DeferredRequests;
 
         public static readonly CombatSnapshot Default = new CombatSnapshot
         {
-            ContributionTrackers = new System.Collections.Generic.List<DamageContributionTrackerSnapshot>(),
-            DeferredRequests = new System.Collections.Generic.List<DeferredCombatRequest>(),
+            ContributionTrackers = System.Array.Empty<DamageContributionTrackerSnapshot>(),
+            DeferredRequests = System.Array.Empty<DeferredCombatRequest>(),
         };
     }
 
     public struct DamageContributionTrackerSnapshot
     {
         public UnitUid VictimUnitUid;
-        public System.Collections.Generic.List<DamageContributionRecordSnapshot> Records;
+        public DamageContributionRecordSnapshot[] Records;
     }
 
     public struct DamageContributionRecordSnapshot

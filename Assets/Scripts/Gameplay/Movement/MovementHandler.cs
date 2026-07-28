@@ -3,314 +3,673 @@ using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
-    public sealed class MovementHandler : UnitHandler, IMovementAgent, IRollback<MovementSnapshot>
+    public sealed class MovementHandler :
+        UnitHandler,
+        IMovementAgent,
+        IRollback<MovementSnapshot>
     {
+        private enum MovementMode : byte
+        {
+            Idle,
+            RouteMove,
+            Dash,
+            ForcedMove,
+        }
+
         private MovementSnapshot _snapshot;
         private MoveIntent _currentIntent;
         private IMovementCollisionResolver _collisionResolver;
-        private static readonly fp UnitRadius = (fp)0.5f;
         private LocomotionResult _pendingLocomotion;
         private fp2 _pendingRvoVelocity;
         private bool _hasPendingRvo;
+        private DashRuntime _dash;
+        private ForcedMoveRuntime _forcedMove;
+        private fp _moveSpeed;
+        private fp2 _velocity;
+        private bool _isMoving;
+        private fp2 _targetDirection;
 
-        internal void InitializeRuntime(fp2 startPosition, fp moveSpeed)
+        internal void InitializeRuntime(
+            fp2 startPosition,
+            fp moveSpeed)
         {
+            if (moveSpeed < fp.zero)
+            {
+                throw new DeterministicSimulationException(
+                    "Movement speed must not be negative.");
+            }
+
             _snapshot = MovementSnapshot.Default;
-            _snapshot.Position = startPosition;
-            _snapshot.MoveSpeed = moveSpeed;
+            _moveSpeed = moveSpeed;
+            _velocity = fp2.zero;
+            _isMoving = false;
+            _targetDirection = fp2.zero;
             _currentIntent = MoveIntent.None;
-            _pendingLocomotion = default;
-            _pendingRvoVelocity = fp2.zero;
-            _hasPendingRvo = false;
+            ClearTickInputs();
+            _dash = default;
+            _forcedMove = default;
         }
 
-        public ref readonly MovementSnapshot Snapshot => ref _snapshot;
+        public ref readonly MovementSnapshot Snapshot
+        {
+            get
+            {
+                _snapshot.Dash = _dash;
+                _snapshot.ForcedMove = _forcedMove;
+                return ref _snapshot;
+            }
+        }
+        public fp2 Position => CurrentPosition;
+        public fp2 Facing => CurrentForward;
+        public fp2 Velocity => _velocity;
+        public fp MoveSpeed => _moveSpeed;
+        public bool IsMoving => _isMoving;
+        public fp2 TargetDirection => _targetDirection;
+        public bool IsDashing => _dash.IsActive;
+        public bool HasForcedMove => _forcedMove.IsActive;
 
-        public void SetCollisionResolver(IMovementCollisionResolver resolver)
+        public void SetCollisionResolver(
+            IMovementCollisionResolver resolver)
         {
             _collisionResolver = resolver;
         }
 
         public void SetMoveSpeed(fp moveSpeed)
         {
-            _snapshot.MoveSpeed = moveSpeed;
+            if (moveSpeed < fp.zero)
+            {
+                throw new DeterministicSimulationException(
+                    "Movement speed must not be negative.");
+            }
+            _moveSpeed = moveSpeed;
         }
 
         public void ApplyMoveInput(in MoveIntent intent)
         {
-            if (Owner != null && Owner.HitReaction.InterruptsMovement) return;
+            if (Owner != null &&
+                Owner.HitReaction.InterruptsMovement)
+            {
+                return;
+            }
             _currentIntent = intent;
         }
 
-        /// <summary>
-        /// Applies the per-tick locomotion result from UnitLocomotionAgent.
-        /// Called before TickUpdate to provide route-based movement.
-        /// </summary>
-        public void ApplyRouteMovement(in LocomotionResult locomotion)
+        public void ApplyRouteMovement(
+            in LocomotionResult locomotion)
         {
-            if (Owner != null && Owner.HitReaction.InterruptsMovement) return;
             _pendingLocomotion = locomotion;
         }
 
-        /// <summary>
-        /// Applies the per-tick RVO avoidance result.
-        /// (Pathfinding Design v13.1 section 10.6, section 11.2)
-        /// </summary>
-        public void ApplyRvoResult(in RvoResult rvoResult)
+        public void ApplyRvoResult(in RvoResult result)
         {
-            if (!rvoResult.HasResult) return;
-            _pendingRvoVelocity = rvoResult.FinalVelocity;
+            if (!result.HasResult)
+            {
+                return;
+            }
+            if (Owner != null &&
+                result.UnitUid != Owner.UnitUid)
+            {
+                throw new DeterministicSimulationException(
+                    "RVO result UnitUid does not match its MovementHandler owner.");
+            }
+            _pendingRvoVelocity = result.FinalVelocity;
             _hasPendingRvo = true;
         }
 
-        /// <summary>
-        /// Per-tick movement update. Reads SimulationTickContext.Current.DeltaTick
-        /// internally per Pathfinding Design v13.1 section 1.4.
-        /// </summary>
         public void TickUpdate()
         {
-            fp deltaTime = SimulationTickContext.Current.DeltaTick;
-
-            // Dash gets highest priority -- overrides normal movement
-            if (_isDashing)
+            MovementMode mode = ResolveMovementMode();
+            switch (mode)
             {
-                AdvanceDash(deltaTime);
-                _currentIntent = MoveIntent.None;
-                _pendingLocomotion = default;
-                _pendingRvoVelocity = fp2.zero;
-                _hasPendingRvo = false;
-                return;
-            }
-
-            if (Owner != null && Owner.HitReaction.IsActive && Owner.HitReaction.InterruptsMovement)
-            {
-                _snapshot.Velocity = fp2.zero;
-                _snapshot.IsMoving = false;
-                _currentIntent = MoveIntent.None;
-                _pendingLocomotion = default;
-                _pendingRvoVelocity = fp2.zero;
-                _hasPendingRvo = false;
-                return;
-            }
-            if (_pendingLocomotion.HasMovement)
-            {
-                // Route-movement mode: use LocomotionResult direction and speed
-                fp2 desiredVelocity = _pendingLocomotion.DesiredDirection * _pendingLocomotion.DesiredSpeed;
-
-                // RVO override: use RVO-computed velocity when AllowRVO is set
-                if (_pendingLocomotion.AllowRVO && _hasPendingRvo)
-                {
-                    desiredVelocity = _pendingRvoVelocity;
-                }
-
-                _snapshot.Velocity = desiredVelocity;
-                fp2 desiredPosition = _snapshot.Position + desiredVelocity * deltaTime;
-
-                if (_collisionResolver != null)
-                {
-                    desiredPosition = _collisionResolver.ClampPosition(
-                        desiredPosition, _snapshot.Position, UnitRadius);
-                }
-
-                _snapshot.Position = desiredPosition;
-                _snapshot.IsMoving = true;
-                _snapshot.TargetDirection = _pendingLocomotion.DesiredDirection;
-
-                if (Physics.PhysicsGeometry2D.TryCreateFacing(
-                    _pendingLocomotion.DesiredDirection, out fp2 facing, out _))
-                {
-                    _snapshot.Facing = facing;
-                }
-            }
-            else if (_currentIntent.HasInput)
-            {
-                fp2 desiredVelocity = _currentIntent.Direction * _snapshot.MoveSpeed;
-                _snapshot.Velocity = desiredVelocity;
-                fp2 desiredPosition = _snapshot.Position + desiredVelocity * deltaTime;
-
-                if (_collisionResolver != null)
-                {
-                    desiredPosition = _collisionResolver.ClampPosition(
-                        desiredPosition, _snapshot.Position, UnitRadius);
-                }
-
-                _snapshot.Position = desiredPosition;
-                _snapshot.IsMoving = true;
-                _snapshot.TargetDirection = _currentIntent.Direction;
-
-                if (Physics.PhysicsGeometry2D.TryCreateFacing(
-                    _currentIntent.Direction, out fp2 facing, out _))
-                {
-                    _snapshot.Facing = facing;
-                }
-            }
-            else
-            {
-                _snapshot.Velocity = fp2.zero;
-                _snapshot.IsMoving = false;
-                _snapshot.TargetDirection = fp2.zero;
+                case MovementMode.ForcedMove:
+                    AdvanceForcedMove();
+                    break;
+                case MovementMode.Dash:
+                    AdvanceDash();
+                    break;
+                case MovementMode.RouteMove:
+                    AdvanceRouteMove();
+                    break;
+                default:
+                    ApplyStationaryPose();
+                    break;
             }
 
             _currentIntent = MoveIntent.None;
-            _pendingLocomotion = default;
-            _pendingRvoVelocity = fp2.zero;
-            _hasPendingRvo = false;
+            ClearTickInputs();
         }
 
-        public void ForceSetPosition(fp2 position)
+        public bool StartDash(in DashRequest request)
         {
-            _snapshot.Position = position;
-            _snapshot.Velocity = fp2.zero;
-            _snapshot.IsMoving = false;
-        }
-
-        /// <summary>
-        /// Apply a forced movement delta (knockback, dash, pull).
-        /// Optionally consumes RVO velocity for avoidance during forced moves.
-        /// Resolves static wall collision.
-        /// (Pathfinding Design v13.1 sections 11.4, 11.6)
-        /// </summary>
-        public void ApplyForcedMovement(fp2 delta, bool allowRVO = false, fp2 rvoVelocity = default)
-        {
-            fp2 effectiveDelta = delta;
-
-            // RVO override: use avoidance velocity when enabled
-            if (allowRVO && (_hasPendingRvo || (rvoVelocity.x != fp.zero || rvoVelocity.y != fp.zero)))
+            ValidateDashRequest(request);
+            if (_dash.IsActive)
             {
-                fp2 rvo = _hasPendingRvo ? _pendingRvoVelocity : rvoVelocity;
-                if (rvo.x != fp.zero || rvo.y != fp.zero)
-                    effectiveDelta = rvo;
+                return false;
             }
 
-            // Resolve static wall collision
-            if (_collisionResolver != null)
+            fp2 start = CurrentPosition;
+            Physics.PhysicsGeometry2D.TryCreateFacing(
+                request.Direction,
+                out fp2 direction,
+                out _);
+            _dash = new DashRuntime
             {
-                fp2 clamped = _collisionResolver.ClampPosition(
-                    _snapshot.Position + effectiveDelta,
-                    _snapshot.Position,
-                    UnitRadius);
-                effectiveDelta = clamped - _snapshot.Position;
-            }
-
-            _snapshot.Position += effectiveDelta;
-            _snapshot.Velocity = effectiveDelta;
-            _snapshot.IsMoving = effectiveDelta.x != fp.zero || effectiveDelta.y != fp.zero;
+                IsActive = true,
+                StartTick =
+                    SimulationTickContext.Current.Tick,
+                ConfigId = request.ConfigId,
+                DurationTicks =
+                    request.DurationTicks,
+                StartPosition = start,
+                Direction = direction,
+                TargetPosition =
+                    start + direction * request.Distance,
+                WallPolicy = request.WallPolicy,
+            };
+            return true;
         }
 
-
-        // Dash runtime state (Pathfinding Design v13.1 sections 11.5-11.6)
-        private bool _isDashing;
-        private fp _dashRemainingDistance;
-        private fp2 _dashDirection;
-        private fp _dashSpeed;
-        private int _dashEndTick;
-
-        /// <summary>
-        /// Initiate a dash movement. Dash overrides normal route/input movement 
-        /// and RVO during execution, ending when distance or duration is exhausted.
-        /// (Pathfinding Design v13.1 section 11.5)
-        /// </summary>
-        public void ApplyDash(fp2 direction, fp distance, fp durationTicks)
+        public void ApplyDash(
+            fp2 direction,
+            fp distance,
+            fp durationTicks)
         {
-            if (distance <= fp.zero) return;
-            _isDashing = true;
-            _dashRemainingDistance = distance;
-            _dashSpeed = distance / durationTicks;
-            if (Physics.PhysicsGeometry2D.TryCreateFacing(direction, out fp2 facing, out _))
-                _dashDirection = facing;
-            else
-                _dashDirection = direction;
-            _dashEndTick = SimulationTickContext.Current.Tick + (int)durationTicks;
+            int ticks = (int)durationTicks;
+            if (durationTicks != (fp)ticks)
+            {
+                throw new DeterministicSimulationException(
+                    "Dash duration must be a whole positive Tick count.");
+            }
+            StartDash(new DashRequest(
+                1,
+                direction,
+                distance,
+                ticks));
         }
 
-        /// <summary>
-        /// Per-tick dash advancement. Called from TickUpdate before normal movement.
-        /// </summary>
-        private void AdvanceDash(fp deltaTime)
+        public bool StopDash(int configId = 0)
         {
-            if (!_isDashing) return;
-            fp step = _dashSpeed * deltaTime;
-            if (step >= _dashRemainingDistance)
+            if (!_dash.IsActive ||
+                (configId > 0 &&
+                 _dash.ConfigId != configId))
             {
-                step = _dashRemainingDistance;
-                _isDashing = false;
+                return false;
             }
-            _dashRemainingDistance -= step;
-            fp2 delta = _dashDirection * step;
-
-            // Wall collision for dash
-            if (_collisionResolver != null)
-            {
-                fp2 clamped = _collisionResolver.ClampPosition(
-                    _snapshot.Position + delta, _snapshot.Position, UnitRadius);
-                delta = clamped - _snapshot.Position;
-            }
-
-            _snapshot.Position += delta;
-            _snapshot.Velocity = delta;
-            _snapshot.IsMoving = delta.x != fp.zero || delta.y != fp.zero;
-            if (_isDashing && Physics.PhysicsGeometry2D.TryCreateFacing(_dashDirection, out fp2 facing, out _))
-                _snapshot.Facing = facing;
+            _dash = default;
+            return true;
         }
 
-        /// <summary>
-        /// Instantly teleport to a target position.
-        /// Calls PhysicsEntity2D.TeleportLogicPosition for spatial state sync.
-        /// (Pathfinding Design v13.1 section 11.7)
-        /// </summary>
+        public bool IsDashActive(int configId) =>
+            _dash.IsActive &&
+            _dash.ConfigId == configId;
+
+        public void StartForcedMove(
+            in ResolvedForcedMove request)
+        {
+            if (_forcedMove.IsActive)
+            {
+                throw new DeterministicSimulationException(
+                    "StartForcedMove requires no active forced-move runtime.");
+            }
+            BeginForcedMove(request);
+        }
+
+        public void ReplaceForcedMove(
+            in ResolvedForcedMove request)
+        {
+            BeginForcedMove(request);
+        }
+
+        public void StopForcedMove(
+            CrowdControlHandle sourceHandle)
+        {
+            if (!_forcedMove.IsActive ||
+                _forcedMove.SourceControlHandle !=
+                    sourceHandle)
+            {
+                return;
+            }
+            _forcedMove = default;
+        }
+
+        public void ForceSetPosition(fp2 position) =>
+            ApplyTeleport(position);
+
         public void ApplyTeleport(fp2 position)
         {
-            ForceSetPosition(position);
-            Owner?.PhysicsEntity?.TeleportLogicPosition(position);
+            Owner?.PhysicsEntity?.TeleportLogicPosition(
+                position);
+            _velocity = fp2.zero;
+            _isMoving = false;
+            _targetDirection = fp2.zero;
         }
 
-        /// <summary>
-        /// Apply a wall-penetration push-out correction.
-        /// (Pathfinding Design v13.1 section 12.3, Candidate 0100)
-        /// </summary>
-        public void ApplyCorrection(in MovementCorrectionRequest correction)
+        public void ApplyCorrection(
+            in MovementCorrectionRequest correction)
         {
-            _snapshot.Position += correction.Delta;
+            if (Owner != null &&
+                correction.UnitUid.IsValid() &&
+                correction.UnitUid != Owner.UnitUid)
+            {
+                throw new DeterministicSimulationException(
+                    "Movement correction UnitUid does not match its owner.");
+            }
+
+            Owner?.PhysicsEntity?.ApplyLogicPositionDelta(
+                correction.Delta);
         }
+
         public void Capture(ref MovementSnapshot state)
         {
             state = _snapshot;
+            state.Dash = _dash;
+            state.ForcedMove = _forcedMove;
         }
 
         public void Restore(in MovementSnapshot state)
         {
+            ValidateSnapshot(state);
             _snapshot = state;
+            _dash = state.Dash;
+            _forcedMove = state.ForcedMove;
+            ClearDerivedMovementState();
             _currentIntent = MoveIntent.None;
-            _pendingLocomotion = default;
-            _pendingRvoVelocity = fp2.zero;
-            _hasPendingRvo = false;
+            ClearTickInputs();
         }
 
-        public void Resolve(in RollbackContext context) { }
-        public void Rebuild(in RollbackContext context) { }
-
-        public override void ClearForDeath()
+        public void Resolve(in RollbackContext context)
         {
-            _currentIntent = MoveIntent.None;
-            _pendingLocomotion = default;
-            _pendingRvoVelocity = fp2.zero;
-            _hasPendingRvo = false;
-            _isDashing = false;
-            _dashRemainingDistance = fp.zero;
-            _snapshot.Velocity = fp2.zero;
-            _snapshot.IsMoving = false;
+            if (Owner?.CrowdControl == null)
+            {
+                return;
+            }
+            CrowdControlHandle controlHandle =
+                Owner.CrowdControl.ActiveForcedMoveHandle;
+            if (_forcedMove.IsActive !=
+                controlHandle.IsValid ||
+                (_forcedMove.IsActive &&
+                 _forcedMove.SourceControlHandle !=
+                    controlHandle))
+            {
+                throw new DeterministicSimulationException(
+                    "Movement forced-move runtime and CrowdControl ownership disagree after restore.");
+            }
         }
+
+        public void Rebuild(in RollbackContext context)
+        {
+            ClearDerivedMovementState();
+        }
+
+        public override void ClearForDeath() =>
+            ClearRuntimeMovement();
+
+        public override void ClearForRespawn() =>
+            ClearRuntimeMovement();
 
         public override void ResetForPool()
         {
             _snapshot = MovementSnapshot.Default;
             _currentIntent = MoveIntent.None;
+            ClearTickInputs();
+            _dash = default;
+            _forcedMove = default;
+            _collisionResolver = null;
+            _moveSpeed = fp.zero;
+            ClearDerivedMovementState();
+        }
+
+        private MovementMode ResolveMovementMode()
+        {
+            if (_forcedMove.IsActive)
+            {
+                return MovementMode.ForcedMove;
+            }
+            if (Owner != null &&
+                !Owner.CanRunActiveGameplayThisTick)
+            {
+                return MovementMode.Idle;
+            }
+            if (_dash.IsActive)
+            {
+                return MovementMode.Dash;
+            }
+            if (Owner != null &&
+                (Owner.HitReaction.InterruptsMovement ||
+                 Owner.CrowdControl?.IsMovementRestricted ==
+                    true))
+            {
+                return MovementMode.Idle;
+            }
+            if (_pendingLocomotion.HasMovement ||
+                _currentIntent.HasInput)
+            {
+                return MovementMode.RouteMove;
+            }
+            return MovementMode.Idle;
+        }
+
+        private void AdvanceRouteMove()
+        {
+            fp2 direction;
+            fp desiredSpeed;
+            fp2 desiredVelocity;
+            if (_pendingLocomotion.HasMovement)
+            {
+                direction =
+                    _pendingLocomotion.DesiredDirection;
+                desiredSpeed =
+                    _pendingLocomotion.DesiredSpeed;
+                desiredVelocity =
+                    _pendingLocomotion.AllowRVO &&
+                    _hasPendingRvo
+                        ? _pendingRvoVelocity
+                        : direction * desiredSpeed;
+            }
+            else
+            {
+                direction = _currentIntent.Direction;
+                desiredSpeed = _moveSpeed;
+                desiredVelocity =
+                    direction * desiredSpeed;
+            }
+
+            fp deltaTicks =
+                SimulationTickContext.Current.DeltaTick;
+            CommitContinuousMovement(
+                desiredVelocity * deltaTicks,
+                direction,
+                desiredVelocity);
+        }
+
+        private void AdvanceDash()
+        {
+            AdvanceTrajectory(
+                _dash.StartTick,
+                GetDashDurationTicks(),
+                _dash.StartPosition,
+                _dash.TargetPosition,
+                _dash.Direction,
+                _dash.WallPolicy,
+                out bool finished);
+            if (finished)
+            {
+                _dash = default;
+            }
+        }
+
+        private void AdvanceForcedMove()
+        {
+            CrowdControlHandle source =
+                _forcedMove.SourceControlHandle;
+            AdvanceTrajectory(
+                _forcedMove.StartTick,
+                _forcedMove.DurationTicks,
+                _forcedMove.StartPosition,
+                _forcedMove.TargetPosition,
+                _forcedMove.Direction,
+                _forcedMove.WallPolicy,
+                out bool finished);
+            if (!finished)
+            {
+                return;
+            }
+
+            _forcedMove = default;
+            Owner?.CrowdControl?.OnForcedMoveFinished(
+                source);
+        }
+
+        private void AdvanceTrajectory(
+            int startTick,
+            int durationTicks,
+            fp2 startPosition,
+            fp2 targetPosition,
+            fp2 direction,
+            ForceMoveWallPolicy wallPolicy,
+            out bool finished)
+        {
+            int elapsed =
+                SimulationTickContext.Current.Tick -
+                startTick;
+            if (elapsed < 0)
+            {
+                throw new DeterministicSimulationException(
+                    "Special movement started in a future Tick.");
+            }
+
+            int completedTicks =
+                System.Math.Min(
+                    elapsed + 1,
+                    durationTicks);
+            fp progress =
+                (fp)completedTicks /
+                (fp)durationTicks;
+            fp2 desiredPosition =
+                startPosition +
+                (targetPosition - startPosition) *
+                progress;
+            fp2 delta =
+                desiredPosition - CurrentPosition;
+            if (wallPolicy ==
+                ForceMoveWallPolicy.StopAtWall)
+            {
+                delta = ResolveStaticWall(delta);
+            }
+            CommitContinuousMovement(
+                delta,
+                direction,
+                delta);
+            finished =
+                completedTicks >= durationTicks;
+        }
+
+        private void CommitContinuousMovement(
+            fp2 desiredDelta,
+            fp2 desiredFacing,
+            fp2 velocity)
+        {
+            fp2 start = CurrentPosition;
+            fp2 desiredPosition =
+                start + desiredDelta;
+            if (_collisionResolver != null)
+            {
+                desiredPosition =
+                    _collisionResolver.ClampPosition(
+                        desiredPosition,
+                        start,
+                        CurrentRadius,
+                        CurrentRadiusClass);
+            }
+
+            fp2 actualDelta =
+                desiredPosition - start;
+            fp2 facing = CurrentForward;
+            fp2 facingSource =
+                actualDelta.x != fp.zero ||
+                actualDelta.y != fp.zero
+                    ? actualDelta
+                    : desiredFacing;
+            if (Physics.PhysicsGeometry2D.TryCreateFacing(
+                    facingSource,
+                    out fp2 normalized,
+                    out _))
+            {
+                facing = normalized;
+            }
+
+            Owner?.PhysicsEntity?.SetLogicPose(
+                desiredPosition,
+                facing);
+            _velocity = velocity;
+            _isMoving =
+                actualDelta.x != fp.zero ||
+                actualDelta.y != fp.zero;
+            _targetDirection =
+                _isMoving
+                    ? facing
+                    : fp2.zero;
+        }
+
+        private fp2 ResolveStaticWall(fp2 delta)
+        {
+            if (Owner?.World?.PathGrid == null ||
+                (delta.x == fp.zero &&
+                 delta.y == fp.zero))
+            {
+                return delta;
+            }
+            return ForcedMoveExecutor.ResolveWall(
+                CurrentPosition,
+                delta,
+                Owner.World.PathGrid,
+                CurrentRadiusClass);
+        }
+
+        private void BeginForcedMove(
+            in ResolvedForcedMove request)
+        {
+            ValidateForcedMove(request);
+            fp2 start = CurrentPosition;
+            Physics.PhysicsGeometry2D.TryCreateFacing(
+                request.Direction,
+                out fp2 direction,
+                out _);
+            _forcedMove = new ForcedMoveRuntime
+            {
+                IsActive = true,
+                SourceControlHandle =
+                    request.SourceControlHandle,
+                StartTick =
+                    SimulationTickContext.Current.Tick,
+                DurationTicks =
+                    request.DurationTicks,
+                StartPosition = start,
+                Direction = direction,
+                TargetPosition =
+                    request.TargetPosition,
+                ConfigId = request.ConfigId,
+                WallPolicy = request.WallPolicy,
+            };
+        }
+
+        private int GetDashDurationTicks()
+        {
+            return _dash.DurationTicks;
+        }
+
+        private void ValidateDashRequest(
+            in DashRequest request)
+        {
+            if (request.ConfigId <= 0 ||
+                request.Distance <= fp.zero ||
+                request.DurationTicks <= 0 ||
+                fpmath.lengthsq(request.Direction) <=
+                    fp.zero ||
+                request.WallPolicy <
+                    ForceMoveWallPolicy.StopAtWall ||
+                request.WallPolicy >
+                    ForceMoveWallPolicy.PassThrough)
+            {
+                throw new DeterministicSimulationException(
+                    "Dash requires a positive config ID, distance and duration, a non-zero direction, and a valid wall policy.");
+            }
+        }
+
+        private static void ValidateForcedMove(
+            in ResolvedForcedMove request)
+        {
+            if (!request.SourceControlHandle.IsValid ||
+                request.ConfigId <= 0 ||
+                request.DurationTicks <= 0 ||
+                fpmath.lengthsq(request.Direction) <=
+                    fp.zero ||
+                request.WallPolicy <
+                    ForceMoveWallPolicy.StopAtWall ||
+                request.WallPolicy >
+                    ForceMoveWallPolicy.PassThrough)
+            {
+                throw new DeterministicSimulationException(
+                    "Resolved forced move contains invalid source, config, duration, direction or wall policy.");
+            }
+        }
+
+        private static void ValidateSnapshot(
+            in MovementSnapshot state)
+        {
+            if (state.Dash.IsActive &&
+                (state.Dash.ConfigId <= 0 ||
+                 state.Dash.DurationTicks <= 0 ||
+                 fpmath.lengthsq(
+                     state.Dash.Direction) <= fp.zero))
+            {
+                throw new DeterministicSimulationException(
+                    "Active Dash snapshot is invalid.");
+            }
+            if (state.ForcedMove.IsActive &&
+                (!state.ForcedMove
+                    .SourceControlHandle.IsValid ||
+                 state.ForcedMove.ConfigId <= 0 ||
+                 state.ForcedMove.DurationTicks <= 0 ||
+                 fpmath.lengthsq(
+                     state.ForcedMove.Direction) <=
+                     fp.zero))
+            {
+                throw new DeterministicSimulationException(
+                    "Active forced-move snapshot is invalid.");
+            }
+        }
+
+        private fp2 CurrentPosition =>
+            Owner?.PhysicsEntity != null
+                ? Owner.PhysicsEntity.Transform2D.Position
+                : fp2.zero;
+
+        private fp2 CurrentForward =>
+            Owner?.PhysicsEntity != null
+                ? Owner.PhysicsEntity.Transform2D.Forward
+                : new fp2(fp.one, fp.zero);
+
+        private fp CurrentRadius =>
+            Owner?.PhysicsEntity != null
+                ? Owner.PhysicsEntity.Shape.Radius
+                : RadiusClassHelper.MediumRadius;
+
+        private RadiusClass CurrentRadiusClass =>
+            RadiusClassHelper.FromRadius(CurrentRadius);
+
+        private void ApplyStationaryPose()
+        {
+            if (Owner?.PhysicsEntity != null)
+            {
+                Owner.PhysicsEntity.SetLogicPose(
+                    CurrentPosition,
+                    CurrentForward);
+            }
+            ClearDerivedMovementState();
+        }
+
+        private void ClearTickInputs()
+        {
             _pendingLocomotion = default;
             _pendingRvoVelocity = fp2.zero;
             _hasPendingRvo = false;
-            _isDashing = false;
-            _dashRemainingDistance = fp.zero;
-            _collisionResolver = null;
+        }
+
+        private void ClearRuntimeMovement()
+        {
+            _currentIntent = MoveIntent.None;
+            ClearTickInputs();
+            _dash = default;
+            _forcedMove = default;
+            ApplyStationaryPose();
+        }
+
+        private void ClearDerivedMovementState()
+        {
+            _velocity = fp2.zero;
+            _isMoving = false;
+            _targetDirection = fp2.zero;
         }
     }
 }

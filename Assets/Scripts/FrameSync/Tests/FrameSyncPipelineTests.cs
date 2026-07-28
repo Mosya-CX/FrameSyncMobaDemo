@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
@@ -120,7 +120,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             runtime.ExecuteOneTick();
 
             Assert.AreEqual(1, runtime.CurrentTick);
-            Assert.AreNotEqual(fp2.zero, unit2.MovementHandler.Snapshot.Position);
+            Assert.AreNotEqual(fp2.zero, unit2.MovementHandler.Position);
         }
 
         [Test]
@@ -174,8 +174,8 @@ namespace FrameSyncMoba.FrameSync.Tests
             }
 
             Assert.AreEqual(
-                u1.MovementHandler.Snapshot.Position,
-                u2.MovementHandler.Snapshot.Position);
+                u1.MovementHandler.Position,
+                u2.MovementHandler.Position);
             Assert.AreEqual(runtime1.LastChecksum, runtime2.LastChecksum);
         }
 

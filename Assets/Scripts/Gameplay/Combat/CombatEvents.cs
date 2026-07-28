@@ -172,6 +172,5 @@ namespace FrameSyncMoba.Unit
         public UnitUid TargetUid;
         public DamageType DamageType;
         public bool IsCritical;
-        public byte AttackSequenceIndex;
     }
 }

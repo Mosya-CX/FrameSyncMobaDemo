@@ -15,6 +15,7 @@ namespace FrameSyncMoba.Unit
         public AbilityBlackboard Blackboard = new AbilityBlackboard();
         public bool Interrupted;
         public bool Cancelled;
+        public bool CostPaid;
 
         public bool IsStageTimedOut(CastStage stage)
         {
@@ -86,6 +87,7 @@ namespace FrameSyncMoba.Unit
                     Blackboard = ActiveSession.Blackboard.Capture(),
                     Interrupted = ActiveSession.Interrupted,
                     Cancelled = ActiveSession.Cancelled,
+                    CostPaid = ActiveSession.CostPaid,
                 };
             }
         }
@@ -122,6 +124,7 @@ namespace FrameSyncMoba.Unit
                     Aim = state.ActiveSession.Aim,
                     Interrupted = state.ActiveSession.Interrupted,
                     Cancelled = state.ActiveSession.Cancelled,
+                    CostPaid = state.ActiveSession.CostPaid,
                 };
                 ActiveSession.Blackboard.Restore(state.ActiveSession.Blackboard);
             }
@@ -161,5 +164,6 @@ namespace FrameSyncMoba.Unit
         public AbilityBlackboardSnapshot Blackboard;
         public bool Interrupted;
         public bool Cancelled;
+        public bool CostPaid;
     }
 }

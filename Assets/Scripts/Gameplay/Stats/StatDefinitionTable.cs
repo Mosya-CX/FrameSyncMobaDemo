@@ -11,7 +11,12 @@ namespace FrameSyncMoba.Unit
 
         public void Add(StatDefinition definition)
         {
-            definitions[definition.Id] = definition;
+            if (definition == null)
+                throw new System.ArgumentNullException(nameof(definition));
+            if (definitions.ContainsKey(definition.Id))
+                throw new System.ArgumentException(
+                    $"Duplicate StatId {definition.Id}.", nameof(definition));
+            definitions.Add(definition.Id, definition);
         }
 
         public bool TryGet(StatId statId, out StatDefinition definition)
@@ -23,5 +28,7 @@ namespace FrameSyncMoba.Unit
         {
             return definitions.ContainsKey(statId);
         }
+
+        public int Count => definitions.Count;
     }
 }

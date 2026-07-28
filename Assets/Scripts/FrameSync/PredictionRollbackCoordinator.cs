@@ -26,23 +26,46 @@ namespace FrameSyncMoba.FrameSync
         public readonly int FromTick;
         public readonly int ToTick;
         public MissingAuthorityFrameRange(int fromTick, int toTick)
-        { FromTick = fromTick; ToTick = toTick; }
+        {
+            if (fromTick < 0 || toTick < fromTick)
+                throw new ArgumentOutOfRangeException(nameof(fromTick));
+            FromTick = fromTick;
+            ToTick = toTick;
+        }
     }
 
     public readonly struct AuthorityRecoveryRequest
     {
+        private readonly MissingAuthorityFrameRange[] missingRanges;
         public readonly uint RequestSequence;
-        public readonly MissingAuthorityFrameRange[] MissingRanges;
+        public MissingAuthorityFrameRange[] MissingRanges =>
+            missingRanges == null
+                ? Array.Empty<MissingAuthorityFrameRange>()
+                : (MissingAuthorityFrameRange[])missingRanges.Clone();
         public AuthorityRecoveryRequest(uint sequence, MissingAuthorityFrameRange[] ranges)
-        { RequestSequence = sequence; MissingRanges = ranges ?? Array.Empty<MissingAuthorityFrameRange>(); }
+        {
+            RequestSequence = sequence;
+            missingRanges = ranges == null
+                ? Array.Empty<MissingAuthorityFrameRange>()
+                : (MissingAuthorityFrameRange[])ranges.Clone();
+        }
     }
 
     public readonly struct AuthorityRecoveryResponse
     {
+        private readonly AuthorityFrame[] authorityFrames;
         public readonly uint RequestSequence;
-        public readonly AuthorityFrame[] AuthorityFrames;
+        public AuthorityFrame[] AuthorityFrames =>
+            authorityFrames == null
+                ? Array.Empty<AuthorityFrame>()
+                : (AuthorityFrame[])authorityFrames.Clone();
         public AuthorityRecoveryResponse(uint sequence, AuthorityFrame[] frames)
-        { RequestSequence = sequence; AuthorityFrames = frames ?? Array.Empty<AuthorityFrame>(); }
+        {
+            RequestSequence = sequence;
+            authorityFrames = frames == null
+                ? Array.Empty<AuthorityFrame>()
+                : (AuthorityFrame[])frames.Clone();
+        }
     }
 
     /// <summary>
@@ -67,11 +90,20 @@ namespace FrameSyncMoba.FrameSync
         private uint latestFrameSequence;
         private bool hasAcceptedFrameSequence;
         private uint nextRecoveryRequestSequence = 1;
+        private uint latestRecoveryRequestSequence;
+        private MissingAuthorityFrameRange[] latestRecoveryRanges =
+            Array.Empty<MissingAuthorityFrameRange>();
         private bool replaying;
+        private readonly int maxPredictionLeadTicks;
 
         public int LatestAuthorityFrameTick { get; private set; } = -1;
         public int LocalSimulationTick => pipeline.LocalSimulationTick;
         public int SnapshotTick { get; private set; } = -1;
+        public int PredictedMatchEndCandidateTick { get; private set; } = -1;
+        public int PredictedTickCount =>
+            pipeline.LocalSimulationTick - (LatestAuthorityFrameTick + 1);
+        public bool HasMissingAuthorityFrames =>
+            (PauseReasons & PredictionPauseReason.MissingAuthorityFrame) != 0;
         public PredictionPauseReason PauseReasons { get; private set; }
         public NonHeroRestoreHelper NonHeroHelper { get; set; }
         public IReadOnlyDictionary<int, LocalFrameVerificationRecord> LocalFrameVerificationRecordByTick =>
@@ -80,12 +112,18 @@ namespace FrameSyncMoba.FrameSync
         public PredictionRollbackCoordinator(
             SnapshotStore store,
             SimulationTickPipeline pipeline,
-            SimulationTickContextController tickController = null)
+            SimulationTickContextController tickController = null,
+            int maxPredictionLeadTicks = int.MaxValue)
         {
+            if (maxPredictionLeadTicks < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(maxPredictionLeadTicks));
             this.store = store ?? throw new ArgumentNullException(nameof(store));
             this.pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             this.tickController = tickController ?? new SimulationTickContextController();
+            this.maxPredictionLeadTicks = maxPredictionLeadTicks;
             pipeline.TickCompleted += OnLocalTickCompleted;
+            RefreshPredictionLeadPause();
         }
 
         public void RegisterResolve(Action<RollbackContext> resolve) => resolveRegistrations.Add(resolve);
@@ -120,13 +158,23 @@ namespace FrameSyncMoba.FrameSync
                 relayRevision, copy, CanonicalCommandCodec.Encode(copy));
         }
 
-        public void ExecutePredictionTick()
+        public bool ExecutePredictionTick()
         {
+            RefreshPredictionLeadPause();
+            if (PauseReasons != PredictionPauseReason.None)
+                return false;
             EnsureRollbackAnchor();
             int tick = pipeline.LocalSimulationTick;
             if (commandHistory.TryGetValue(tick, out CommandHistoryRecord record))
                 pipeline.ReplaceCommandsForNextTick(record.Commands);
             pipeline.ExecuteTick(tickController, ExecutionMode.ClientPrediction);
+            if (pipeline.HasPredictedMatchEndCandidate())
+            {
+                PredictedMatchEndCandidateTick = tick;
+                PauseReasons |= PredictionPauseReason.MatchEndCandidate;
+            }
+            RefreshPredictionLeadPause();
+            return true;
         }
 
         public void OnAuthorityFrameReceived(in AuthorityFrame frame)
@@ -150,11 +198,26 @@ namespace FrameSyncMoba.FrameSync
             ProcessAuthorityFramesSequentially();
         }
 
-        public void ApplyRecoveryResponse(in AuthorityRecoveryResponse response)
+        public bool ApplyRecoveryResponse(in AuthorityRecoveryResponse response)
         {
-            AuthorityFrame[] frames = response.AuthorityFrames ?? Array.Empty<AuthorityFrame>();
+            if (response.RequestSequence == 0 ||
+                response.RequestSequence != latestRecoveryRequestSequence)
+                return false;
+            AuthorityFrame[] frames = response.AuthorityFrames;
+            for (int i = 0; i < frames.Length; i++)
+            {
+                if (!IsTickInLatestRecoveryRanges(frames[i].Tick))
+                    throw new DeterministicSimulationException(
+                        $"AuthorityRecovery response {response.RequestSequence} contains unrequested Tick {frames[i].Tick}.");
+            }
             Array.Sort(frames, (left, right) => left.Tick.CompareTo(right.Tick));
             for (int i = 0; i < frames.Length; i++) OnAuthorityFrameReceived(frames[i]);
+            if (!HasMissingAuthorityFrames)
+            {
+                latestRecoveryRequestSequence = 0;
+                latestRecoveryRanges = Array.Empty<MissingAuthorityFrameRange>();
+            }
+            return true;
         }
 
         public AuthorityRecoveryRequest BuildRecoveryRequest()
@@ -164,7 +227,11 @@ namespace FrameSyncMoba.FrameSync
                 return new AuthorityRecoveryRequest(0, ranges);
             if (nextRecoveryRequestSequence == uint.MaxValue)
                 throw new DeterministicSimulationException("AuthorityRecovery request sequence exhausted.");
-            return new AuthorityRecoveryRequest(nextRecoveryRequestSequence++, ranges);
+            uint sequence = nextRecoveryRequestSequence++;
+            latestRecoveryRequestSequence = sequence;
+            latestRecoveryRanges =
+                (MissingAuthorityFrameRange[])ranges.Clone();
+            return new AuthorityRecoveryRequest(sequence, ranges);
         }
 
         public void DiscardConfirmedSnapshots(int newBaseTick) => store.AdvanceBase(newBaseTick);
@@ -200,14 +267,32 @@ namespace FrameSyncMoba.FrameSync
                 verificationByTick.Remove(frame.Tick);
                 authorityBuffer.Remove(frame.Tick);
                 store.AdvanceBase(frame.Tick);
+                if (PredictedMatchEndCandidateTick == frame.Tick)
+                {
+                    if ((frame.FrameFlags &
+                            AuthorityFrameFlags.MatchEndCandidate) == 0)
+                    {
+                        PredictedMatchEndCandidateTick = -1;
+                        PauseReasons &=
+                            ~PredictionPauseReason.MatchEndCandidate;
+                    }
+                }
+                else if ((frame.FrameFlags &
+                        AuthorityFrameFlags.MatchEndCandidate) != 0)
+                {
+                    PredictedMatchEndCandidateTick = frame.Tick;
+                    PauseReasons |=
+                        PredictionPauseReason.MatchEndCandidate;
+                }
             }
             RefreshMissingFramePause();
+            RefreshPredictionLeadPause();
         }
 
         private void CorrectAndReplay(in AuthorityFrame frame)
         {
-            int replayEndTick = pipeline.LocalSimulationTick;
-            if (frame.Tick >= replayEndTick)
+            int predictedEndTick = pipeline.LocalSimulationTick;
+            if (frame.Tick >= predictedEndTick)
                 throw new DeterministicSimulationException(
                     $"No local execution record exists for AuthorityFrame Tick {frame.Tick}.");
             if (frame.Tick < LatestAuthorityFrameTick + 1)
@@ -220,6 +305,14 @@ namespace FrameSyncMoba.FrameSync
             RemoveVerificationFrom(frame.Tick);
             pipeline.GoldIncome?.DiscardUnconfirmedFromTick(frame.Tick);
             store.DiscardFromTick(frame.Tick);
+            bool authorityEndsMatch =
+                (frame.FrameFlags &
+                    AuthorityFrameFlags.MatchEndCandidate) != 0;
+            int replayEndTick = authorityEndsMatch
+                ? checked(frame.Tick + 1)
+                : predictedEndTick;
+            if (authorityEndsMatch)
+                RemoveCommandHistoryAfter(frame.Tick);
             pipeline.RestoreFromSnapshot(
                 anchor.Gameplay, anchor.SnapshotTick, ExecutionMode.ClientReplay);
             for (int i = 0; i < restoreRegistrations.Count; i++) restoreRegistrations[i](anchor.Gameplay);
@@ -233,7 +326,7 @@ namespace FrameSyncMoba.FrameSync
             commandHistory[frame.Tick] = new CommandHistoryRecord(
                 frame.FinalCommandRevision,
                 authoritativeCommands,
-                (byte[])frame.CanonicalCommandBytes.Clone());
+                (byte[])frame.CanonicalCommandBytesUnsafe.Clone());
 
             replaying = true;
             pipeline.AuthorityReplayTick = frame.Tick;
@@ -261,7 +354,7 @@ namespace FrameSyncMoba.FrameSync
                 GameplayCommand[] commands = authority.DecodeCommands();
                 commandHistory[tick] = new CommandHistoryRecord(
                     authority.FinalCommandRevision, commands,
-                    (byte[])authority.CanonicalCommandBytes.Clone());
+                    (byte[])authority.CanonicalCommandBytesUnsafe.Clone());
                 return commands;
             }
             return commandHistory.TryGetValue(tick, out CommandHistoryRecord predicted)
@@ -293,6 +386,15 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < keys.Count; i++) verificationByTick.Remove(keys[i]);
         }
 
+        private void RemoveCommandHistoryAfter(int tick)
+        {
+            var keys = new List<int>();
+            foreach (int key in commandHistory.Keys)
+                if (key > tick) keys.Add(key);
+            for (int i = 0; i < keys.Count; i++)
+                commandHistory.Remove(keys[i]);
+        }
+
         private MissingAuthorityFrameRange[] BuildMissingRanges()
         {
             if (authorityBuffer.Count == 0) return Array.Empty<MissingAuthorityFrameRange>();
@@ -313,6 +415,25 @@ namespace FrameSyncMoba.FrameSync
                 PauseReasons |= PredictionPauseReason.MissingAuthorityFrame;
             else
                 PauseReasons &= ~PredictionPauseReason.MissingAuthorityFrame;
+        }
+
+        private void RefreshPredictionLeadPause()
+        {
+            if (PredictedTickCount >= maxPredictionLeadTicks)
+                PauseReasons |= PredictionPauseReason.PredictionLeadLimit;
+            else
+                PauseReasons &= ~PredictionPauseReason.PredictionLeadLimit;
+        }
+
+        private bool IsTickInLatestRecoveryRanges(int tick)
+        {
+            for (int i = 0; i < latestRecoveryRanges.Length; i++)
+            {
+                MissingAuthorityFrameRange range = latestRecoveryRanges[i];
+                if (tick >= range.FromTick && tick <= range.ToTick)
+                    return true;
+            }
+            return false;
         }
 
         private static GameplayCommand[] CopyAndValidateCommands(

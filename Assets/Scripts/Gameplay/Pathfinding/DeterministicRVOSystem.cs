@@ -12,9 +12,24 @@ namespace FrameSyncMoba.Unit
 
         public DeterministicRVOSystem(RVOConfig config)
         {
+            if (config.NeighborSearchRadius <= fp.zero ||
+                config.MaxNeighbors <= 0 ||
+                config.TimeHorizon <= fp.zero ||
+                config.SampleCount <= 0)
+            {
+                throw new ArgumentException(
+                    "RVO configuration values must be positive.",
+                    nameof(config));
+            }
             _config = config;
             _sampleDirections = PrecomputeSampleDirections(config.SampleCount);
         }
+
+        public fp NeighborSearchRadius =>
+            _config.NeighborSearchRadius;
+
+        public int MaxNeighbors =>
+            _config.MaxNeighbors;
 
         public RvoResult[] Step(RVOInput[] inputs)
         {
@@ -33,9 +48,17 @@ namespace FrameSyncMoba.Unit
                     if (fpmath.dot(delta, delta) < searchRadiusSq)
                     {
                         neighborLists[i].Add(inputs[j]);
-                        if (neighborLists[i].Count >= _config.MaxNeighbors)
-                            break;
                     }
+                }
+                neighborLists[i].Sort(
+                    CompareInputsByUid);
+                if (neighborLists[i].Count >
+                    _config.MaxNeighbors)
+                {
+                    neighborLists[i].RemoveRange(
+                        _config.MaxNeighbors,
+                        neighborLists[i].Count -
+                        _config.MaxNeighbors);
                 }
             }
 
@@ -45,7 +68,19 @@ namespace FrameSyncMoba.Unit
             return results;
         }
 
-        private RvoResult SolveAvoidance(in RVOInput input, List<RVOInput> neighbors)
+        public RvoResult Solve(
+            in RVOInput input,
+            IReadOnlyList<RVOInput> neighbors)
+        {
+            if (neighbors == null)
+                throw new ArgumentNullException(
+                    nameof(neighbors));
+            return SolveAvoidance(input, neighbors);
+        }
+
+        private RvoResult SolveAvoidance(
+            in RVOInput input,
+            IReadOnlyList<RVOInput> neighbors)
         {
             if (input.DesiredVelocity.x == fp.zero && input.DesiredVelocity.y == fp.zero)
                 return new RvoResult { UnitUid = input.SelfUid, FinalVelocity = fp2.zero };
@@ -77,7 +112,10 @@ namespace FrameSyncMoba.Unit
             return new RvoResult { UnitUid = input.SelfUid, FinalVelocity = best };
         }
 
-        private fp EvaluateVelocity(in RVOInput input, fp2 candidate, List<RVOInput> neighbors)
+        private fp EvaluateVelocity(
+            in RVOInput input,
+            fp2 candidate,
+            IReadOnlyList<RVOInput> neighbors)
         {
             fp2 diff = candidate - input.DesiredVelocity;
             fp penalty = fpmath.dot(diff, diff);
@@ -111,6 +149,11 @@ namespace FrameSyncMoba.Unit
 
             return penalty;
         }
+
+        private static int CompareInputsByUid(
+            RVOInput left,
+            RVOInput right) =>
+            left.SelfUid.CompareTo(right.SelfUid);
 
         private static fp VelocityTieBreaker(fp2 candidate, fp2 current, fp2 desired)
         {

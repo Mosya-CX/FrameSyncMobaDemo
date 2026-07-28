@@ -1,303 +1,254 @@
-using NUnit.Framework;
 using FrameSyncMoba.Deterministic;
+using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit.Tests
 {
     [TestFixture]
-    public class AttackHandlerTests
+    public sealed class AttackHandlerTests
     {
-        private UnitWorld _world;
-        private UnitPrototype _prototype;
-        private SimulationTickContextController _controller;
-        private Unit _attacker;
-        private Unit _target;
+        private SimulationTickContextController controller;
+        private UnitWorld world;
+        private UnitPrototype prototype;
+        private Unit attacker;
+        private Unit target;
+        private CombatSystem combat;
 
         [SetUp]
         public void SetUp()
         {
-            _controller = new SimulationTickContextController();
-            _world = new UnitWorld
+            controller = new SimulationTickContextController();
+            controller.BeginTick(10, ExecutionMode.ServerAuthority);
+            world = new UnitWorld
             {
-                StatDefinitionTable = CreateAttackStatTable()
+                StatDefinitionTable = CreateStatTable(),
+                AttackSequenceResetIntervalTicks = 3,
             };
-            _prototype = new UnitPrototype
+            prototype = new UnitPrototype
             {
                 UnitPrototypeId = 1,
-                Name = "Attacker",
+                Name = "TestAttacker",
                 RuntimeEntityPrefabId = 100,
                 UnitKind = UnitKind.Hero,
-                UnitSubKindId = 0,
-                BaseStats = CreateAttackPreset(),
+                BaseStats = CreateStatPreset(),
                 BaseGoldValue = 300,
                 BaseExperienceValue = 100,
+                Loadout = HandlerLoadout.DefaultHero,
             };
+
+            attacker = world.SpawnUnit(
+                prototype, new TeamId(1), 10, fp.zero, fp.zero);
+            target = world.SpawnUnit(
+                prototype, new TeamId(2), 10, fp.zero, fp.zero);
+            combat = new CombatSystem(world, 0, 0);
+            world.CombatSystem = combat;
+            combat.BeginTick();
         }
 
         [TearDown]
         public void TearDown()
         {
-            _controller.EndTick();
-        }
-
-        private void BeginTick(int tick)
-        {
-            _controller.BeginTick(tick, ExecutionMode.ServerAuthority);
+            CombatEvents.Clear();
+            controller.EndTick();
+            UnitTestFactory.DestroyCreatedObjects();
         }
 
         [Test]
-        public void SpawnUnit_CreatesAttackHandler()
+        public void BeginAndCancel_DoNotConsumeSequence()
         {
-            BeginTick(1);
-            var unit = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
+            Assert.AreEqual(
+                AttackPlanStatus.Ready,
+                attacker.AttackHandler.GetAttackPlanStatus(target.UnitUid));
 
-            Assert.IsNotNull(unit.AttackHandler);
-            Assert.IsFalse(unit.AttackHandler.ImpactCommitted);
-            Assert.AreEqual(default(UnitUid), unit.AttackHandler.CurrentTargetUid);
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+
+            Assert.AreEqual(target.UnitUid, attacker.AttackHandler.CurrentTargetUid);
+            Assert.AreEqual(0, attacker.AttackHandler.AttackSequenceIndex);
+
+            attacker.AttackHandler.CancelBeforeCommit();
+
+            Assert.IsFalse(attacker.AttackHandler.CurrentTargetUid.IsValid());
+            Assert.AreEqual(0, attacker.AttackHandler.AttackSequenceIndex);
         }
 
         [Test]
-        public void ApplyAttackInput_SetsTargetAndCycle()
+        public void SuccessfulImpact_SubmitsCombatAndConsumesOneSequence()
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            _target = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
+            int onHitCount = 0;
+            OnHitEventData onHit = default;
+            CombatEvents.OnHitDealt += data =>
+            {
+                onHitCount++;
+                onHit = data;
+            };
 
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            AttackSnapshot begun = Capture(attacker.AttackHandler);
+            AdvanceTo(begun.ImpactLogicTick);
 
-            Assert.AreEqual(_target.UnitUid, _attacker.AttackHandler.CurrentTargetUid);
-            Assert.IsFalse(_attacker.AttackHandler.ImpactCommitted);
-            Assert.Greater(_attacker.AttackHandler.AttackSequenceIndex, 0);
+            attacker.AttackHandler.TickUpdate();
+            attacker.AttackHandler.TickUpdate();
+
+            Assert.IsTrue(attacker.AttackHandler.ImpactCommitted);
+            Assert.AreEqual(1, attacker.AttackHandler.AttackSequenceIndex);
+            combat.SettleActiveRequests();
+            Assert.AreEqual(1, combat.DamageProcessed);
+            Assert.AreEqual(1, onHitCount);
+            Assert.AreEqual(attacker.UnitUid, onHit.SourceUid);
+            Assert.AreEqual(target.UnitUid, onHit.TargetUid);
         }
 
         [Test]
-        public void ApplyAttackInput_CannotStartWhenCooldownActive()
+        public void MissingCombatOutput_CancelsWithoutConsumingSequence()
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            _target = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
+            world.CombatSystem = null;
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            AttackSnapshot begun = Capture(attacker.AttackHandler);
+            AdvanceTo(begun.ImpactLogicTick);
 
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-            byte firstSeq = _attacker.AttackHandler.AttackSequenceIndex;
+            attacker.AttackHandler.TickUpdate();
 
-            // Same tick: cannot start another attack (cooldown from first)
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-            Assert.AreEqual(firstSeq, _attacker.AttackHandler.AttackSequenceIndex);
+            Assert.IsFalse(attacker.AttackHandler.ImpactCommitted);
+            Assert.IsFalse(attacker.AttackHandler.CurrentTargetUid.IsValid());
+            Assert.AreEqual(0, attacker.AttackHandler.AttackSequenceIndex);
         }
 
         [Test]
-        public void TickUpdate_ProducesDamageRequestOnImpact()
+        public void SuccessfulSequence_WrapsFromMaxValueToZero()
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            _target = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
+            AdvanceTo(11);
+            var state = new AttackSnapshot
+            {
+                CurrentTargetUid = target.UnitUid,
+                AttackStartLogicTick = 10,
+                ImpactLogicTick = 11,
+                NextAttackReadyLogicTick = 11,
+                AttackSequenceIndex = byte.MaxValue,
+                LastSuccessfulAttackLogicTick = -1,
+                ResolvedAttackDurationTicks = 1,
+                ResolvedWindupTicks = 1,
+            };
+            attacker.AttackHandler.Restore(state);
 
-            // Formal attack timing clamps windup to at least one Logic Tick.
-            _attacker.AttackHandler.WindupRatio = fp.zero;
-
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-            _controller.EndTick();
-            BeginTick(11);
-            var damage = _attacker.AttackHandler.TickUpdate();
-
-            Assert.IsTrue(damage.HasValue);
-            Assert.AreEqual(_attacker.UnitUid, damage.Value.SourceUnitUid);
-            Assert.AreEqual(_target.UnitUid, damage.Value.TargetUnitUid);
-            Assert.Greater(damage.Value.BaseDamage, fp.zero);
+            Assert.IsTrue(attacker.AttackHandler.CommitAttack());
+            Assert.AreEqual(0, attacker.AttackHandler.AttackSequenceIndex);
+            combat.SettleActiveRequests();
         }
 
         [Test]
-        public void TickUpdate_OnlyCommitsOnce()
+        public void SequenceReset_IsLazyAndOccursBeforeNextBegin()
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            _target = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            AttackSnapshot begun = Capture(attacker.AttackHandler);
+            AdvanceTo(begun.ImpactLogicTick);
+            Assert.IsTrue(attacker.AttackHandler.CommitAttack());
+            combat.SettleActiveRequests();
+            AttackSnapshot committed = Capture(attacker.AttackHandler);
+            Assert.AreEqual(1, committed.AttackSequenceIndex);
 
-            _attacker.AttackHandler.WindupRatio = fp.zero;
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-            _controller.EndTick();
-            BeginTick(11);
+            AdvanceTo(System.Math.Max(
+                committed.NextAttackReadyLogicTick,
+                committed.LastSuccessfulAttackLogicTick + 3));
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
 
-            var first = _attacker.AttackHandler.TickUpdate();
-            Assert.IsTrue(first.HasValue);
-
-            // Second call in same cycle should return null
-            var second = _attacker.AttackHandler.TickUpdate();
-            Assert.IsFalse(second.HasValue);
+            Assert.AreEqual(0, attacker.AttackHandler.AttackSequenceIndex);
+            Assert.IsFalse(attacker.AttackHandler.ImpactCommitted);
         }
 
         [Test]
-        public void CaptureRestore_RoundTrip_PreservesState()
+        public void CaptureRestore_PreservesResolvedTimeline()
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            _target = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
+            attacker.AttackHandler.WindupRatio = (fp)1 / (fp)4;
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            AttackSnapshot captured = Capture(attacker.AttackHandler);
 
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-
-            AttackSnapshot captured = default;
-            _attacker.AttackHandler.Capture(ref captured);
-
-            var restored = UnitTestFactory.CreateAttackHandler(_attacker);
+            AttackHandler restored = UnitTestFactory.CreateAttackHandler(attacker);
             restored.Restore(captured);
+            AttackSnapshot roundTrip = Capture(restored);
 
+            Assert.AreEqual(captured.CurrentTargetUid, roundTrip.CurrentTargetUid);
             Assert.AreEqual(
-                _attacker.AttackHandler.CurrentTargetUid,
-                restored.CurrentTargetUid);
+                captured.ResolvedAttackDurationTicks,
+                roundTrip.ResolvedAttackDurationTicks);
             Assert.AreEqual(
-                _attacker.AttackHandler.AttackSequenceIndex,
-                restored.AttackSequenceIndex);
+                captured.ResolvedWindupTicks,
+                roundTrip.ResolvedWindupTicks);
+            Assert.AreEqual(captured.ImpactLogicTick, roundTrip.ImpactLogicTick);
+            Assert.AreEqual(
+                captured.NextAttackReadyLogicTick,
+                roundTrip.NextAttackReadyLogicTick);
         }
 
         [Test]
-        public void Resolve_RejectsMissingTargetReference()
+        public void Resolve_RejectsMissingActiveTarget()
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(
-                _prototype, new TeamId(1), 10, 0m, 0m);
-            _target = _world.SpawnUnit(
-                _prototype, new TeamId(2), 10, 0m, 0m);
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-            _world.UnregisterUnit(_target);
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            world.UnregisterUnit(target);
 
             Assert.Throws<DeterministicSimulationException>(
-                () => _attacker.AttackHandler.Resolve(default));
+                () => attacker.AttackHandler.Resolve(default));
         }
 
-        [Test]
-        public void Restore_ClearsImpactFlag()
+        private void AdvanceTo(int tick)
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            _target = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-
-            _attacker.AttackHandler.WindupRatio = fp.zero;
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-            _controller.EndTick();
-            BeginTick(11);
-            _attacker.AttackHandler.TickUpdate();
-
-            AttackSnapshot snapped = default;
-            _attacker.AttackHandler.Capture(ref snapped);
-            Assert.IsTrue(snapped.ImpactCommitted);
-
-            _attacker.AttackHandler.Restore(AttackSnapshot.Default);
-            Assert.IsFalse(_attacker.AttackHandler.ImpactCommitted);
+            controller.EndTick();
+            controller.BeginTick(tick, ExecutionMode.ServerAuthority);
+            combat.BeginTick();
         }
 
-        [Test]
-        public void Death_CancelsAttack()
+        private static AttackSnapshot Capture(AttackHandler handler)
         {
-            BeginTick(10);
-            _attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            _target = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-
-            _attacker.AttackHandler.ApplyAttackInput(_target.UnitUid);
-            Assert.IsTrue(_attacker.AttackHandler.CurrentTargetUid.IsValid());
-
-            _attacker.ClearForDeath();
-
-            Assert.IsFalse(_attacker.AttackHandler.CurrentTargetUid.IsValid());
-            Assert.IsFalse(_attacker.AttackHandler.ImpactCommitted);
+            AttackSnapshot state = default;
+            handler.Capture(ref state);
+            return state;
         }
 
-        [Test]
-        public void PoolReset_PreservesAttackComponentAndClearsRuntimeState()
-        {
-            BeginTick(1);
-            var unit = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
-            Assert.IsNotNull(unit.AttackHandler);
-
-            unit.ResetForPool();
-            Assert.IsNotNull(unit.AttackHandler);
-            Assert.AreEqual(AttackSnapshot.Default.CurrentTargetUid, unit.AttackHandler.CurrentTargetUid);
-        }
-
-        [Test]
-        public void Deterministic_SameInputSameResult()
-        {
-            BeginTick(10);
-            var a1 = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            var a2 = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            var t1 = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-            var t2 = _world.SpawnUnit(_prototype, TeamId.Neutral, 10, 0m, 0m);
-
-            a1.AttackHandler.WindupRatio = new fp(20) / new fp(100);
-            a2.AttackHandler.WindupRatio = new fp(20) / new fp(100);
-
-            a1.AttackHandler.ApplyAttackInput(t1.UnitUid);
-            a2.AttackHandler.ApplyAttackInput(t2.UnitUid);
-
-            // Both should produce identical attack timing
-            Assert.AreEqual(
-                a1.AttackHandler.AttackSequenceIndex,
-                a2.AttackHandler.AttackSequenceIndex);
-        }
-
-        private static StatDefinitionTable CreateAttackStatTable()
+        private static StatDefinitionTable CreateStatTable()
         {
             var table = new StatDefinitionTable();
-            table.Add(new StatDefinition
-            {
-                Id = StatId.AttackDamage,
-                DebugName = "AD",
-                DefaultBaseValue = 0m,
-                SupportsLevelGrowth = true,
-            });
-            table.Add(new StatDefinition
-            {
-                Id = StatId.MaxHealth,
-                DebugName = "HP",
-                DefaultBaseValue = 0m,
-                SupportsLevelGrowth = true,
-            });
-            table.Add(new StatDefinition
-            {
-                Id = StatId.AttackSpeed,
-                DebugName = "AS",
-                DefaultBaseValue = 0.625m,
-                SupportsLevelGrowth = false,
-            });
-            table.Add(new StatDefinition
-            {
-                Id = StatId.Armor,
-                DebugName = "Armor",
-                DefaultBaseValue = 0m,
-                SupportsLevelGrowth = false,
-                HasMinValue = true,
-                MinValue = 0m,
-            });
+            AddDefinition(table, StatId.AttackDamage);
+            AddDefinition(table, StatId.MaxHealth);
+            AddDefinition(table, StatId.AttackSpeed);
+            AddDefinition(table, StatId.AttackRange);
+            AddDefinition(table, StatId.Armor);
             return table;
         }
 
-        private static StatPreset CreateAttackPreset()
+        private static void AddDefinition(
+            StatDefinitionTable table,
+            StatId id)
+        {
+            table.Add(new StatDefinition
+            {
+                Id = id,
+                DebugName = id.ToString(),
+                DefaultBaseValue = fp.zero,
+                SupportsLevelGrowth = true,
+            });
+        }
+
+        private static StatPreset CreateStatPreset()
         {
             var preset = new StatPreset();
-            preset.Stats.Add(new StatPresetEntry
-            {
-                StatId = StatId.AttackDamage,
-                BaseValue = 100m,
-                GrowthValue = 5m,
-            });
-            preset.Stats.Add(new StatPresetEntry
-            {
-                StatId = StatId.MaxHealth,
-                BaseValue = 500m,
-                GrowthValue = 50m,
-            });
-            preset.Stats.Add(new StatPresetEntry
-            {
-                StatId = StatId.AttackSpeed,
-                BaseValue = 0.625m,
-                GrowthValue = 0m,
-            });
-            preset.Stats.Add(new StatPresetEntry
-            {
-                StatId = StatId.Armor,
-                BaseValue = 30m,
-                GrowthValue = 0m,
-            });
+            AddStat(preset, StatId.AttackDamage, (fp)100);
+            AddStat(preset, StatId.MaxHealth, (fp)500);
+            AddStat(preset, StatId.AttackSpeed, (fp)30);
+            AddStat(preset, StatId.AttackRange, (fp)2);
+            AddStat(preset, StatId.Armor, fp.zero);
             return preset;
+        }
+
+        private static void AddStat(
+            StatPreset preset,
+            StatId id,
+            fp value)
+        {
+            preset.Stats.Add(new StatPresetEntry
+            {
+                StatId = id,
+                BaseValue = value,
+                GrowthValue = fp.zero,
+            });
         }
     }
 }

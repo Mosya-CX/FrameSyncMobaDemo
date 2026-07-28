@@ -34,43 +34,87 @@ namespace FrameSyncMoba.Unit
                 return new CrowdControlAddResult(CrowdControlAddStatus.InvalidParams, default);
             if (input.RemainingTicks <= 0)
                 return new CrowdControlAddResult(CrowdControlAddStatus.InvalidDuration, default);
+            if (input.IsForcedMove &&
+                (input.ForcedMoveConfigId <= 0 ||
+                 fpmath.lengthsq(
+                     input.ForcedMoveDeltaPerTick) <=
+                     fp.zero))
+            {
+                return new CrowdControlAddResult(
+                    CrowdControlAddStatus.InvalidParams,
+                    default);
+            }
             if (IsImmune)
                 return new CrowdControlAddResult(CrowdControlAddStatus.BlockedByImmunity, default);
             if (input.IsForcedMove && IsUnstoppable)
                 return new CrowdControlAddResult(CrowdControlAddStatus.RejectedByUnstoppable, default);
             if (input.IsForcedMove && activeForcedMoveHandle.IsValid &&
                 TryGet(activeForcedMoveHandle, out CrowdControlConstraint current) &&
-                input.Priority <= current.Priority)
+                input.Priority < current.Priority)
                 return new CrowdControlAddResult(CrowdControlAddStatus.RejectedByHigherPriority, default);
             if (nextInstanceId == int.MaxValue)
                 throw new DeterministicSimulationException("Crowd-control instance ID exhausted.");
 
-            if (input.IsForcedMove && activeForcedMoveHandle.IsValid)
-                Remove(activeForcedMoveHandle, ControlRemoveReason.Manual);
+            bool replacesForcedMove =
+                input.IsForcedMove &&
+                activeForcedMoveHandle.IsValid;
+            if (replacesForcedMove)
+            {
+                RemoveInstance(
+                    activeForcedMoveHandle,
+                    stopMovement: false);
+            }
             CrowdControlConstraint instance = input;
             instance.InstanceId = nextInstanceId++;
             instance.StartLogicTick = SimulationTickContext.Current.Tick;
             instances.Add(instance);
             var handle = new CrowdControlHandle(Owner.UnitUid, instance.InstanceId);
-            if (instance.IsForcedMove) activeForcedMoveHandle = handle;
+            if (instance.IsForcedMove)
+            {
+                activeForcedMoveHandle = handle;
+                ResolvedForcedMove resolved =
+                    BuildResolvedForcedMove(
+                        instance,
+                        handle);
+                if (replacesForcedMove)
+                {
+                    Owner.MovementHandler
+                        .ReplaceForcedMove(resolved);
+                }
+                else
+                {
+                    Owner.MovementHandler
+                        .StartForcedMove(resolved);
+                }
+            }
             RefreshState();
             return new CrowdControlAddResult(CrowdControlAddStatus.Added, handle);
         }
 
         public bool SubmitConstraint(CrowdControlConstraint constraint) => Add(constraint).Added;
 
+        public bool TryGetActiveForcedMove(
+            UnitUid sourceUnitUid,
+            int configId,
+            out CrowdControlHandle handle)
+        {
+            handle = activeForcedMoveHandle;
+            return handle.IsValid &&
+                   TryGet(
+                       handle,
+                       out CrowdControlConstraint instance) &&
+                   instance.IsForcedMove &&
+                   instance.SourceUnitUid ==
+                       sourceUnitUid &&
+                   instance.ForcedMoveConfigId ==
+                       configId;
+        }
+
         public bool Remove(CrowdControlHandle handle, ControlRemoveReason reason)
         {
-            if (handle.TargetUnitUid != Owner.UnitUid) return false;
-            for (int i = 0; i < instances.Count; i++)
-            {
-                if (instances[i].InstanceId != handle.InstanceId) continue;
-                instances.RemoveAt(i);
-                if (activeForcedMoveHandle == handle) activeForcedMoveHandle = default;
-                RefreshState();
-                return true;
-            }
-            return false;
+            return RemoveInstance(
+                handle,
+                stopMovement: true);
         }
 
         public CrowdControlImmunityHandle AddImmunity(in CrowdControlImmunitySpec spec)
@@ -122,23 +166,23 @@ namespace FrameSyncMoba.Unit
         public void TickUpdate()
         {
             int delta = SimulationTickContext.Current.DeltaTick;
-            if (activeForcedMoveHandle.IsValid && TryGet(activeForcedMoveHandle, out CrowdControlConstraint forced))
-            {
-                fp2 rawDelta = forced.ForcedMoveDeltaPerTick * delta;
-
-                // Wall resolution for forced movement (Pathfinding Design v13.1 section 11.4)
-                if (Owner.World?.PathGrid != null)
-                {
-                    fp2 currentPos = Owner.MovementHandler?.Snapshot.Position ?? fp2.zero;
-                    rawDelta = ForcedMoveExecutor.ResolveWall(currentPos, rawDelta, Owner.World.PathGrid);
-                }
-
-                Owner.MovementHandler?.ApplyForcedMovement(rawDelta, allowRVO: true);
-            }
             AdvanceInstances(delta);
             AdvanceImmunities(delta);
             AdvanceUnstoppables(delta);
             RefreshState();
+        }
+
+        public void OnForcedMoveFinished(
+            CrowdControlHandle sourceHandle)
+        {
+            if (sourceHandle !=
+                activeForcedMoveHandle)
+            {
+                return;
+            }
+            RemoveInstance(
+                sourceHandle,
+                stopMovement: false);
         }
 
         public override void ClearForDeath() => ClearRuntimeState();
@@ -217,8 +261,16 @@ namespace FrameSyncMoba.Unit
                 entry.RemainingTicks -= delta;
                 if (entry.RemainingTicks <= 0)
                 {
-                    if (activeForcedMoveHandle.InstanceId == entry.InstanceId) activeForcedMoveHandle = default;
-                    instances.RemoveAt(i);
+                    if (activeForcedMoveHandle.InstanceId ==
+                        entry.InstanceId)
+                    {
+                        entry.RemainingTicks = 0;
+                        instances[i] = entry;
+                    }
+                    else
+                    {
+                        instances.RemoveAt(i);
+                    }
                 }
                 else instances[i] = entry;
             }
@@ -246,7 +298,74 @@ namespace FrameSyncMoba.Unit
 
         private void RemoveAllInstances()
         {
-            instances.Clear(); activeForcedMoveHandle = default; RefreshState();
+            CrowdControlHandle forced =
+                activeForcedMoveHandle;
+            instances.Clear();
+            activeForcedMoveHandle = default;
+            if (forced.IsValid)
+            {
+                Owner?.MovementHandler
+                    ?.StopForcedMove(forced);
+            }
+            RefreshState();
+        }
+
+        private bool RemoveInstance(
+            CrowdControlHandle handle,
+            bool stopMovement)
+        {
+            if (Owner == null ||
+                handle.TargetUnitUid != Owner.UnitUid)
+            {
+                return false;
+            }
+            for (int i = 0;
+                 i < instances.Count;
+                 i++)
+            {
+                if (instances[i].InstanceId !=
+                    handle.InstanceId)
+                {
+                    continue;
+                }
+
+                instances.RemoveAt(i);
+                if (activeForcedMoveHandle == handle)
+                {
+                    activeForcedMoveHandle = default;
+                    if (stopMovement)
+                    {
+                        Owner.MovementHandler
+                            ?.StopForcedMove(handle);
+                    }
+                }
+                RefreshState();
+                return true;
+            }
+            return false;
+        }
+
+        private ResolvedForcedMove
+            BuildResolvedForcedMove(
+                in CrowdControlConstraint instance,
+                CrowdControlHandle handle)
+        {
+            fp2 start =
+                Owner.PhysicsEntity.Transform2D.Position;
+            fp2 totalDelta =
+                instance.ForcedMoveDeltaPerTick *
+                instance.RemainingTicks;
+            Physics.PhysicsGeometry2D.TryCreateFacing(
+                instance.ForcedMoveDeltaPerTick,
+                out fp2 direction,
+                out _);
+            return new ResolvedForcedMove(
+                handle,
+                instance.ForcedMoveConfigId,
+                instance.RemainingTicks,
+                direction,
+                start + totalDelta,
+                instance.ForcedMoveWallPolicy);
         }
 
         private void ValidateCanonicalIds()
@@ -264,9 +383,16 @@ namespace FrameSyncMoba.Unit
 
         private void ClearRuntimeState()
         {
+            CrowdControlHandle forced =
+                activeForcedMoveHandle;
             instances.Clear(); immunities.Clear(); unstoppables.Clear();
             activeConstraint = default; activeForcedMoveHandle = default;
             nextInstanceId = 1; nextImmunityId = 1; nextUnstoppableId = 1;
+            if (forced.IsValid)
+            {
+                Owner?.MovementHandler
+                    ?.StopForcedMove(forced);
+            }
         }
     }
 }

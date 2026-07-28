@@ -28,6 +28,7 @@ namespace FrameSyncMoba.Bootstrap
             int price,
             int stackCount,
             int slotIndex,
+            Sprite icon,
             System.Action<EquipmentSlotView> onClick)
         {
             EquipmentId = equipmentId;
@@ -37,6 +38,7 @@ namespace FrameSyncMoba.Bootstrap
             if (nameText != null) nameText.text = displayName ?? "";
             if (priceText != null) priceText.text = price > 0 ? price.ToString() : "";
             if (stackText != null) stackText.text = stackCount > 1 ? stackCount.ToString() : "";
+            if (iconImage != null) iconImage.sprite = icon;
             if (highlightFrame != null) highlightFrame.SetActive(false);
 
             // Code-driven creation when no prefab is assigned
@@ -66,7 +68,7 @@ namespace FrameSyncMoba.Bootstrap
             layout.spacing = 4f;
             layout.padding = new RectOffset(4, 4, 2, 2);
 
-            // Icon placeholder
+            // Icon — populated via Initialize(..., Sprite icon, ...)
             var iconGo = CreateChild("Icon");
             iconImage = iconGo.AddComponent<Image>();
             iconGo.GetComponent<RectTransform>().sizeDelta = new Vector2(32, 32);

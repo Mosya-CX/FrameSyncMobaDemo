@@ -40,8 +40,12 @@ namespace FrameSyncMoba.Unit
             // Deal bonus damage
             var request = new DamageRequest
             {
-                TargetUnitUid = targetUid,
-                SourceUnitUid = owner.UnitUid,
+                Header = CombatRequestHeader.Create(
+                    owner.UnitUid,
+                    targetUid,
+                    CombatSourceType.AttackEffect,
+                    instance.Definition?.Id ?? 0,
+                    instance.Definition?.Id ?? 0),
                 BaseDamage = BonusDamage,
                 DamageType = DamageType,
             };

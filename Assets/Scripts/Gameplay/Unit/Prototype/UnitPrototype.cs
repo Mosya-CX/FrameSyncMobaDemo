@@ -36,6 +36,22 @@ namespace FrameSyncMoba.Unit
 
         public int BaseGoldValue;
 
+        /// <summary>
+        /// Post-death object lifecycle policy (Unit v27.3 §1.6).
+        /// Defaults to Destroy for non-hero units.
+        /// </summary>
+        public ushort UnitDisposePolicyId;
+
+        /// <summary>
+        /// Respawn configuration (Unit v27.3 §1.6).
+        /// Only meaningful when DisposePolicy is KeepAlive.
+        /// </summary>
+        public UnitRespawnConfig RespawnConfig;
+
         public int BaseExperienceValue;
+
+        public HandlerLoadout Loadout;
+        public LocomotionProfile LocomotionProfile;
+        public PhysicsProfile2D PhysicsProfile;
     }
 }

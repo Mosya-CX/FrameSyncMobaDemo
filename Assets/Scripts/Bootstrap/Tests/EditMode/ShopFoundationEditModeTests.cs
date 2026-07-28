@@ -133,6 +133,20 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 ControlledUnitUid = uid,
                 LogicTick = 0,
                 GoldDelta = -500,
+                SlotChanges = new[]
+                {
+                    new EquipmentSlotChange
+                    {
+                        Slot = 0,
+                        Before = EquipmentTransactionSlotState.Empty,
+                        After = new EquipmentTransactionSlotState
+                        {
+                            Occupied = true,
+                            EquipmentId = 1001,
+                            StackCount = 1,
+                        },
+                    },
+                },
                 Reverted = false,
             });
             trader.NextOperationSequence = 1;

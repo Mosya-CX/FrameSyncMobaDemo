@@ -53,6 +53,68 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void Capture_DeepCopiesFormulaAndPolicyContent()
+        {
+            Unit unit = CreateUnit();
+            var set = new CombatModifierSet(unit);
+            var sourceTerms = new[]
+            {
+                new CombatOperandTerm(
+                    new CombatValueRef(
+                        CombatValueRefKind.BaseValue),
+                    (fp)1 / (fp)2),
+            };
+            var record = new CombatModifierRecord
+            {
+                Id = CombatModifierId.Create(1000, "Formula"),
+                Domain = CombatDomain.Damage,
+                Scope = CombatModifierScope.Outgoing,
+                Match = new CombatModifierMatch(
+                    SourceTypeMask.Attack,
+                    1,
+                    1,
+                    DamageTypeMask.Physical),
+                ValuePatches = new[]
+                {
+                    new CombatFormulaPatch(
+                        CombatFormulaSlot.FinalValue,
+                        CombatModifierOperation.Add,
+                        new CombatOperand((fp)5, sourceTerms)),
+                },
+                PolicyPatches = new[]
+                {
+                    new CombatPolicyPatch(
+                        CombatPolicyKind.ForceCrit),
+                },
+            };
+            set.Attach(record);
+            CombatModifierSetSnapshot snapshot = default;
+            set.Capture(ref snapshot);
+
+            sourceTerms[0] = new CombatOperandTerm(
+                new CombatValueRef(
+                    CombatValueRefKind.BaseValue),
+                (fp)99);
+            record.ValuePatches =
+                Array.Empty<CombatFormulaPatch>();
+
+            Assert.AreEqual(
+                1,
+                snapshot.Records[0]
+                    .ValuePatches.Length);
+            Assert.AreEqual(
+                (fp)1 / (fp)2,
+                snapshot.Records[0]
+                    .ValuePatches[0]
+                    .Operand.Terms[0]
+                    .Coefficient);
+            Assert.AreEqual(
+                CombatPolicyKind.ForceCrit,
+                snapshot.Records[0]
+                    .PolicyPatches[0].Kind);
+        }
+
+        [Test]
         public void Restore_DoesNotCallAttachDetachClear()
         {
             var unit = CreateUnit();

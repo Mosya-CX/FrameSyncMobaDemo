@@ -21,6 +21,7 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private EquipmentHandler equipmentHandler;
 
         private CapabilityState capabilityState;
+        private UnitAbilityMask abilityMask;
 
         public UnitUid UnitUid { get; private set; }
         public UnitWorld World { get; internal set; }
@@ -33,6 +34,7 @@ namespace FrameSyncMoba.Unit
         public int BaseExperienceValue { get; private set; }
         public LifeState LifeState { get; private set; }
         public ref readonly CapabilityState CapabilityState => ref capabilityState;
+        public UnitAbilityMask AbilityMask => abilityMask;
 
         public PhysicsEntity2D PhysicsEntity => physicsEntity;
         public StatHandler StatHandler => statHandler;
@@ -45,8 +47,71 @@ namespace FrameSyncMoba.Unit
         public EquipmentHandler EquipmentHandler => equipmentHandler;
         public UnitEventBus EventBus { get; private set; }
 
+        public UnitIntent Intent { get => Planner?.CurrentIntent ?? UnitIntent.None; internal set => Planner?.SetIntent(value); }
+        public BehaviorPlanner Planner { get; private set; }
+        public ActionArbiter Arbiter { get; private set; }
+        public ActionRuntimeSet ActionRuntimes { get; private set; }
+
         public UnitLocomotionAgent Locomotion { get; internal set; }
         public int Level => statHandler?.Level ?? 1;
+
+        public UnitActionStateView GetActionStateView()
+        {
+            if (LifeState == LifeState.Dead || LifeState == LifeState.Respawning)
+                return UnitActionStateView.Dead;
+
+            ActionKind mainKind = ActionRuntimes?.MainKind ?? ActionKind.None;
+            bool isActing = mainKind != ActionKind.None;
+
+            ActionMainKind animMain = mainKind switch
+            {
+                ActionKind.Attack => ActionMainKind.Attack,
+                ActionKind.Cast => ActionMainKind.Cast,
+                ActionKind.Move => ActionMainKind.Move,
+                _ => ActionMainKind.Idle,
+            };
+
+            ActionBaseKind animBase = CrowdControl is not null && CrowdControl.ActiveConstraint.IsActive
+                ? ActionBaseKind.ForcedMove
+                : mainKind == ActionKind.Move ? ActionBaseKind.Move : ActionBaseKind.Idle;
+
+            return new UnitActionStateView(animMain, animBase, isActing);
+        }
+
+        public void ApplyOrder(in Order order)
+        {
+            if (Planner == null)
+                throw new InvalidOperationException(
+                    $"Unit {UnitUid} has no BehaviorPlanner.");
+            UnitIntent intent =
+                OrderTranslator.ToIntent(order);
+            if (order.Kind == OrderKind.LaneAdvance)
+            {
+                if (World?.MinionSystem == null ||
+                    !World.MinionSystem.TryGetLane(
+                        order.LaneAdvance_LaneIndex,
+                        out LaneRuntimeData lane) ||
+                    !lane.TryGetAdvanceTarget(
+                        TeamId,
+                        out intent.TargetPosition))
+                    throw new DeterministicSimulationException(
+                        $"Unit {UnitUid} cannot resolve Lane {order.LaneAdvance_LaneIndex}.");
+            }
+            else if (order.Kind ==
+                     OrderKind.ReturnToCamp)
+            {
+                if (World == null ||
+                    !World.TryGetJungleCamp(
+                        order.ReturnToCamp_CampId,
+                        out JungleCamp camp) ||
+                    !camp.TryGetMemberSpawnPosition(
+                        UnitUid,
+                        out intent.TargetPosition))
+                    throw new DeterministicSimulationException(
+                        $"Unit {UnitUid} cannot resolve JungleCamp {order.ReturnToCamp_CampId}.");
+            }
+            Planner.SetIntent(intent);
+        }
         public HitReactionState HitReaction;
 
         [Tooltip("Local routing only. -1 means AI or unassigned; never enters Gameplay authority.")]
@@ -93,6 +158,7 @@ namespace FrameSyncMoba.Unit
             fp statGrowthC,
             fp statGrowthD,
             int tickRate,
+            int attackSequenceResetIntervalTicks,
             fp2 startPosition)
         {
             if (prototype == null) throw new ArgumentNullException(nameof(prototype));
@@ -115,6 +181,12 @@ namespace FrameSyncMoba.Unit
             HitReaction = default;
             EventBus = new UnitEventBus(this);
 
+            Planner = new BehaviorPlanner(this);
+            Arbiter = new ActionArbiter(this);
+            ActionRuntimes = new ActionRuntimeSet();
+            abilityMask = prototype.Loadout.BuildAbilityMask();
+            Intent = UnitIntent.None;
+
             BindHandlersInStableOrder();
 
             StatPreset preset = prototype.BaseStats ?? new StatPreset();
@@ -122,8 +194,13 @@ namespace FrameSyncMoba.Unit
                 statDefinitions, preset, unitUid, 1, statGrowthC, statGrowthD,
                 preset.LevelExperience ?? LevelExperienceConfig.Disabled);
             CombatModifiers = new CombatModifierSet(this);
-            movementHandler.InitializeRuntime(startPosition, fp.one);
-            attackHandler.InitializeForNewRuntime(tickRate);
+            physicsEntity.SetLogicShape(CreatePhysicsShape(prototype.PhysicsProfile));
+            physicsEntity.SetLogicPose(startPosition, prototype.PhysicsProfile.InitialForward);
+            movementHandler.InitializeRuntime(
+                startPosition,
+                prototype.LocomotionProfile.BaseMoveSpeed);
+            attackHandler.InitializeForNewRuntime(
+                tickRate, attackSequenceResetIntervalTicks);
             abilityHandler.InitializeForNewRuntime();
             buffHandler.InitializeForNewRuntime();
             crowdControlHandler.InitializeForNewRuntime();
@@ -132,6 +209,22 @@ namespace FrameSyncMoba.Unit
         }
 
         internal ref CapabilityState RefCapabilityState() => ref capabilityState;
+
+        private static FrameSyncMoba.Physics.PhysicsShape2D CreatePhysicsShape(
+            in PhysicsProfile2D profile)
+        {
+            switch (profile.DefaultShape)
+            {
+                case PhysicsShapeKind.Point:
+                    return FrameSyncMoba.Physics.PhysicsShape2D.CreatePoint(fp2.zero);
+                case PhysicsShapeKind.Circle:
+                    return FrameSyncMoba.Physics.PhysicsShape2D.CreateCircle(
+                        fp2.zero, profile.ShapeParam);
+                default:
+                    throw new InvalidOperationException(
+                        $"Unit PhysicsProfile shape {profile.DefaultShape} is not supported by the current scalar ShapeParam contract.");
+            }
+        }
 
         internal void ApplyLifeStateFromUnitWorld(LifeState newState)
         {
@@ -165,6 +258,67 @@ namespace FrameSyncMoba.Unit
             HitReaction = restoredHitReactionState;
         }
 
+        internal void ValidateActionRuntimeSnapshotBoundary()
+        {
+            if (ActionRuntimes != null && ActionRuntimes.Count != 0)
+            {
+                throw new DeterministicSimulationException(
+                    $"Unit {UnitUid} has live IActionRuntime state, but no restorable IActionRuntime snapshot contract exists.");
+            }
+        }
+
+        internal void RestoreBehaviorState(in UnitIntent restoredIntent)
+        {
+            if (restoredIntent.Kind < IntentKind.None ||
+                restoredIntent.Kind > IntentKind.ReturnToCamp)
+            {
+                throw new DeterministicSimulationException(
+                    $"Unit {UnitUid} snapshot contains invalid IntentKind {(byte)restoredIntent.Kind}.");
+            }
+            if (restoredIntent.Kind == IntentKind.CastAbility &&
+                (restoredIntent.AbilityVerb < AbilitySignalVerb.Focus ||
+                 restoredIntent.AbilityVerb > AbilitySignalVerb.Cancel ||
+                 restoredIntent.AbilityAim.Kind < AimKind.None ||
+                 restoredIntent.AbilityAim.Kind > AimKind.Direction))
+            {
+                throw new DeterministicSimulationException(
+                    $"Unit {UnitUid} snapshot contains invalid Ability intent data.");
+            }
+            if (restoredIntent.Kind == IntentKind.CastAbility &&
+                restoredIntent.AbilityAim.Kind == AimKind.Direction &&
+                fpmath.lengthsq(restoredIntent.AbilityAim.Direction) == fp.zero)
+            {
+                throw new DeterministicSimulationException(
+                    $"Unit {UnitUid} snapshot contains a zero Ability aim direction.");
+            }
+
+            Planner.SetIntent(restoredIntent);
+        }
+
+        internal void ResolveBehaviorState()
+        {
+            UnitIntent intent = Intent;
+            if (intent.Kind == IntentKind.AttackTarget)
+            {
+                if (!intent.TargetUnit.IsValid() ||
+                    !World.TryGetUnit(intent.TargetUnit, out _))
+                {
+                    throw new DeterministicSimulationException(
+                        $"Unit {UnitUid} restored AttackTarget intent references missing Unit {intent.TargetUnit}.");
+                }
+            }
+            else if (intent.Kind == IntentKind.CastAbility &&
+                     intent.AbilityAim.Kind == AimKind.Unit &&
+                     (!intent.AbilityAim.TargetUnitUid.IsValid() ||
+                      !World.TryGetUnit(
+                          intent.AbilityAim.TargetUnitUid,
+                          out _)))
+            {
+                throw new DeterministicSimulationException(
+                    $"Unit {UnitUid} restored CastAbility intent references missing Unit {intent.AbilityAim.TargetUnitUid}.");
+            }
+        }
+
         internal void ClearForDeath()
         {
             // D-009: StatHandler and CombatModifiers survive ordinary death.
@@ -177,6 +331,9 @@ namespace FrameSyncMoba.Unit
             crowdControlHandler.ClearForDeath();
             equipmentHandler.ClearForDeath();
             Locomotion?.CancelRoute(MoveCancelReason.Death);
+            Planner?.ClearForDeath();
+            ActionRuntimes?.ClearWithoutCancel();
+            Intent = UnitIntent.None;
         }
 
         internal void ClearForRespawn()
@@ -188,6 +345,9 @@ namespace FrameSyncMoba.Unit
             buffHandler.ClearForRespawn();
             crowdControlHandler.ClearForRespawn();
             equipmentHandler.ClearForRespawn();
+            Planner?.ClearForRespawn();
+            ActionRuntimes?.ClearWithoutCancel();
+            Intent = UnitIntent.None;
         }
 
         internal void ResetForPool()
@@ -208,6 +368,11 @@ namespace FrameSyncMoba.Unit
             UnitUid = default;
             World = null;
             OwnerUid = default;
+            Planner = null;
+            Arbiter = null;
+            ActionRuntimes = null;
+            Intent = UnitIntent.None;
+            abilityMask = default;
         }
 
         internal void ResolveComponentReferences()

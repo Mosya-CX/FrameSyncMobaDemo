@@ -34,7 +34,7 @@ namespace FrameSyncMoba.Unit
                 return;
             runtime.Blackboard.SetNumber(TriggeredKey, fp.one);
 
-            fp2 center = owner.MovementHandler?.Snapshot.Position ?? fp2.zero;
+            fp2 center = owner.MovementHandler?.Position ?? fp2.zero;
             var desc = new RangeQueryDesc
             {
                 Shape = Physics.PhysicsShape2D.CreateCircle(fp2.zero, ExplosionRadius),
@@ -59,8 +59,12 @@ namespace FrameSyncMoba.Unit
 
                 var request = new DamageRequest
                 {
-                    TargetUnitUid = target.UnitUid,
-                    SourceUnitUid = runtime.SourceUnitUid,
+                    Header = CombatRequestHeader.Create(
+                        runtime.SourceUnitUid,
+                        target.UnitUid,
+                        CombatSourceType.Buff,
+                        runtime.ConfigId.Value,
+                        runtime.ConfigId.Value),
                     BaseDamage = ExplosionDamage,
                     DamageType = DamageType,
                 };

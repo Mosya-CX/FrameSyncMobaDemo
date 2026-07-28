@@ -9,25 +9,28 @@ namespace FrameSyncMoba.Unit
         public int DefId;
         public UnitUid OwnerUnitUid;
         public TeamId TeamSnapshot;
+        public SourceDescriptor Source;
         public fp2 PreviousPosition;
         public fp2 Position;
         public fp2 Velocity;
         public int RemainingLifetimeTicks;
         public bool IsActive;
-        public int HitCount;
-        public UnitUid[] HitTargets;
+        public bool EndRequested;
+        public ProjectileEndReason EndReason;
+        public int TotalHitCount;
+        public int RemainingPierceCount;
+        public int RemainingBounceCount;
+        public int NextQueryLogicTick;
+        public ProjectileHitRecord[] HitRecords;
     }
 
-    /// <summary>
-    /// A projectile spawn requested but not yet activated this Tick.
-    /// (Snapshot Appendix v7.2 section 6)
-    /// </summary>
     public struct PendingSpawnRecordSnapshot
     {
         public ProjectileUid Uid;
         public int DefId;
         public UnitUid OwnerUnitUid;
         public TeamId TeamSnapshot;
+        public SourceDescriptor Source;
         public fp2 StartPosition;
         public fp2 Direction;
     }
@@ -37,10 +40,13 @@ namespace FrameSyncMoba.Unit
         public PendingSpawnRecordSnapshot[] PendingSpawns;
         public ProjectileRuntimeSnapshot[] ActiveProjectiles;
 
-        public static readonly ProjectileWorldSnapshot Empty = new ProjectileWorldSnapshot
-        {
-            PendingSpawns = Array.Empty<PendingSpawnRecordSnapshot>(),
-            ActiveProjectiles = Array.Empty<ProjectileRuntimeSnapshot>(),
-        };
+        public static readonly ProjectileWorldSnapshot Empty =
+            new ProjectileWorldSnapshot
+            {
+                PendingSpawns =
+                    Array.Empty<PendingSpawnRecordSnapshot>(),
+                ActiveProjectiles =
+                    Array.Empty<ProjectileRuntimeSnapshot>(),
+            };
     }
 }

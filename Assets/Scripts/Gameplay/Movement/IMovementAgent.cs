@@ -13,5 +13,11 @@ namespace FrameSyncMoba.Unit
         void TickUpdate();
         void ForceSetPosition(fp2 position);
         ref readonly MovementSnapshot Snapshot { get; }
+        fp2 Position { get; }
+        fp2 Facing { get; }
+        fp2 Velocity { get; }
+        fp MoveSpeed { get; }
+        bool IsMoving { get; }
+        fp2 TargetDirection { get; }
     }
 }

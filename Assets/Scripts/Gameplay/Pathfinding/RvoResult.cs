@@ -12,6 +12,6 @@ namespace FrameSyncMoba.Unit
         public UnitUid UnitUid;
         public fp2 FinalVelocity;
 
-        public bool HasResult => FinalVelocity.x != fp.zero || FinalVelocity.y != fp.zero;
+        public bool HasResult => UnitUid.IsValid();
     }
 }

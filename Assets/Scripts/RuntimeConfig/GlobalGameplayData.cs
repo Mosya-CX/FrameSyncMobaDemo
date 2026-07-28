@@ -49,6 +49,7 @@ namespace FrameSyncMoba.RuntimeConfig
     {
         public float StatGrowthC = 0.7025f;
         public float StatGrowthD = 0.0175f;
+        [Min(1)] public int AttackSequenceResetIntervalTicks = 90;
     }
 
     public readonly struct BakedGlobalGameplayData
@@ -56,6 +57,14 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly GlobalPrefabTable PrefabTable;
         public readonly int TickRate;
         public readonly fp LogicDelta;
+        public readonly int MinCommandLeadTicks;
+        public readonly int MaxFutureCommandTicks;
+        public readonly int SnapshotWindowTicks;
+        public readonly int MaxPredictionLeadTicks;
+        public readonly int MaxLogicTicksPerUnityFrame;
+        public readonly int AuthorityRecoveryRetryTicks;
+        public readonly int MaxAuthorityRecoveryAttemptsBeforeDisconnect;
+        public readonly int StartLeadTicks;
         public readonly int MaxPlayers;
         public readonly int CountdownTicks;
         public readonly int EndingDurationTicks;
@@ -63,9 +72,10 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly fp UnitGridCellSize;
         public readonly fp StatGrowthC;
         public readonly fp StatGrowthD;
+        public readonly int AttackSequenceResetIntervalTicks;
         public readonly int HeroRespawnBaseTicks;
         public readonly int HeroRespawnPerLevelTicks;
-        public readonly int MinionWaveIntervalTicks;
+        public readonly BakedMinionWaveConfig MinionWaveConfig;
         public readonly int JungleResetTimeoutTicks;
         public readonly int JungleResetDurationTicks;
         public readonly int JungleRespawnDelayTicks;
@@ -77,6 +87,14 @@ namespace FrameSyncMoba.RuntimeConfig
         public BakedGlobalGameplayData(
             GlobalPrefabTable prefabTable,
             int tickRate,
+            int minCommandLeadTicks,
+            int maxFutureCommandTicks,
+            int snapshotWindowTicks,
+            int maxPredictionLeadTicks,
+            int maxLogicTicksPerUnityFrame,
+            int authorityRecoveryRetryTicks,
+            int maxAuthorityRecoveryAttemptsBeforeDisconnect,
+            int startLeadTicks,
             int maxPlayers,
             int countdownTicks,
             int endingDurationTicks,
@@ -84,9 +102,10 @@ namespace FrameSyncMoba.RuntimeConfig
             fp unitGridCellSize,
             fp statGrowthC,
             fp statGrowthD,
+            int attackSequenceResetIntervalTicks,
             int heroRespawnBaseTicks,
             int heroRespawnPerLevelTicks,
-            int minionWaveIntervalTicks,
+            BakedMinionWaveConfig minionWaveConfig,
             int jungleResetTimeoutTicks,
             int jungleResetDurationTicks,
             int jungleRespawnDelayTicks,
@@ -98,6 +117,15 @@ namespace FrameSyncMoba.RuntimeConfig
             PrefabTable = prefabTable;
             TickRate = tickRate;
             LogicDelta = fp.one / (fp)tickRate;
+            MinCommandLeadTicks = minCommandLeadTicks;
+            MaxFutureCommandTicks = maxFutureCommandTicks;
+            SnapshotWindowTicks = snapshotWindowTicks;
+            MaxPredictionLeadTicks = maxPredictionLeadTicks;
+            MaxLogicTicksPerUnityFrame = maxLogicTicksPerUnityFrame;
+            AuthorityRecoveryRetryTicks = authorityRecoveryRetryTicks;
+            MaxAuthorityRecoveryAttemptsBeforeDisconnect =
+                maxAuthorityRecoveryAttemptsBeforeDisconnect;
+            StartLeadTicks = startLeadTicks;
             MaxPlayers = maxPlayers;
             CountdownTicks = countdownTicks;
             EndingDurationTicks = endingDurationTicks;
@@ -105,9 +133,10 @@ namespace FrameSyncMoba.RuntimeConfig
             UnitGridCellSize = unitGridCellSize;
             StatGrowthC = statGrowthC;
             StatGrowthD = statGrowthD;
+            AttackSequenceResetIntervalTicks = attackSequenceResetIntervalTicks;
             HeroRespawnBaseTicks = heroRespawnBaseTicks;
             HeroRespawnPerLevelTicks = heroRespawnPerLevelTicks;
-            MinionWaveIntervalTicks = minionWaveIntervalTicks;
+            MinionWaveConfig = minionWaveConfig;
             JungleResetTimeoutTicks = jungleResetTimeoutTicks;
             JungleResetDurationTicks = jungleResetDurationTicks;
             JungleRespawnDelayTicks = jungleRespawnDelayTicks;
@@ -145,9 +174,19 @@ namespace FrameSyncMoba.RuntimeConfig
                 throw new InvalidOperationException(
                     "GlobalGameplayData contains a missing authoring section.");
             if (frameSync.TickRate <= 0 || gameMode.MaxPlayers <= 0 ||
-                gameMode.InitialEarnedGold < 0)
+                gameMode.InitialEarnedGold < 0 ||
+                frameSync.MinCommandLeadTicks < 0 ||
+                frameSync.MaxFutureCommandTicks <= 0 ||
+                frameSync.MinCommandLeadTicks > frameSync.MaxFutureCommandTicks ||
+                frameSync.SnapshotWindowTicks < 2 ||
+                frameSync.MaxPredictionLeadTicks < 0 ||
+                frameSync.MaxPredictionLeadTicks >= frameSync.SnapshotWindowTicks ||
+                frameSync.MaxLogicTicksPerUnityFrame <= 0 ||
+                frameSync.AuthorityRecoveryRetryTicks <= 0 ||
+                frameSync.MaxAuthorityRecoveryAttemptsBeforeDisconnect <= 0 ||
+                frameSync.StartLeadTicks < 0)
                 throw new InvalidOperationException(
-                    "TickRate, MaxPlayers, or InitialEarnedGold is invalid.");
+                    "FrameSync timing, command window, player count, or InitialEarnedGold is invalid.");
             ValidateFiniteNonnegative(gameMode.CountdownSeconds, nameof(gameMode.CountdownSeconds));
             ValidateFiniteNonnegative(gameMode.EndingSeconds, nameof(gameMode.EndingSeconds));
             ValidateFiniteNonnegative(gameMode.HeroRespawnBaseSeconds, nameof(gameMode.HeroRespawnBaseSeconds));
@@ -162,14 +201,29 @@ namespace FrameSyncMoba.RuntimeConfig
             ValidateFinitePositive(physics.UnitGridCellSize, nameof(physics.UnitGridCellSize));
             ValidateFinite(unit.StatGrowthC, nameof(unit.StatGrowthC));
             ValidateFinite(unit.StatGrowthD, nameof(unit.StatGrowthD));
+            if (unit.AttackSequenceResetIntervalTicks < 1)
+                throw new InvalidOperationException(
+                    "AttackSequenceResetIntervalTicks must be at least 1.");
 
             int countdownTicks = SecondsToTicks(
                 gameMode.CountdownSeconds, frameSync.TickRate);
             int endingTicks = SecondsToTicks(
                 gameMode.EndingSeconds, frameSync.TickRate);
+            var bakedMinionWaveConfig = new BakedMinionWaveConfig(
+                SecondsToTicks(gameMode.MinionWaveIntervalSeconds, frameSync.TickRate),
+                SecondsToTicks(0f, frameSync.TickRate), // FirstWaveTick: 0 = start immediately
+                System.Array.Empty<MinionWavePhase>());
             return new BakedGlobalGameplayData(
                 globalPrefabTable,
                 frameSync.TickRate,
+                frameSync.MinCommandLeadTicks,
+                frameSync.MaxFutureCommandTicks,
+                frameSync.SnapshotWindowTicks,
+                frameSync.MaxPredictionLeadTicks,
+                frameSync.MaxLogicTicksPerUnityFrame,
+                frameSync.AuthorityRecoveryRetryTicks,
+                frameSync.MaxAuthorityRecoveryAttemptsBeforeDisconnect,
+                frameSync.StartLeadTicks,
                 gameMode.MaxPlayers,
                 countdownTicks,
                 endingTicks,
@@ -177,9 +231,10 @@ namespace FrameSyncMoba.RuntimeConfig
                 (fp)physics.UnitGridCellSize,
                 (fp)unit.StatGrowthC,
                 (fp)unit.StatGrowthD,
+                unit.AttackSequenceResetIntervalTicks,
                 SecondsToTicks(gameMode.HeroRespawnBaseSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.HeroRespawnPerLevelSeconds, frameSync.TickRate),
-                SecondsToTicks(gameMode.MinionWaveIntervalSeconds, frameSync.TickRate),
+                bakedMinionWaveConfig,
                 SecondsToTicks(gameMode.JungleResetTimeoutSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.JungleResetDurationSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.JungleRespawnDelaySeconds, frameSync.TickRate),

@@ -34,7 +34,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
             {
                 Debug.Log(
                     $"[MinionWaveBake] {(isNew ? "Created" : "Updated")} MinionWaveConfig " +
-                    $"with {config.WaveCount} wave entries. Validation passed.");
+                    $"with {config.Phases?.Length ?? 0} phases. Validation passed.");
             }
             else
             {

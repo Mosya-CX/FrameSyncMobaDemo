@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d777bfd7214aa684283d480f804d60ed, type: 3}
+  m_Name: NeutralAbilityLoadout
+  m_EditorClassIdentifier: FrameSyncMoba.Unit:FrameSyncMoba.Unit:AbilityLoadoutAsset
+  slots:
+  - SlotId: 0
+    InitialAllocatedPoints: 1
+    InitialLevels:
+    - AbilityId: 10001
+      Level: 1
+  - SlotId: 1
+    InitialAllocatedPoints: 1
+    InitialLevels:
+    - AbilityId: 10002
+      Level: 1
+  - SlotId: 2
+    InitialAllocatedPoints: 1
+    InitialLevels:
+    - AbilityId: 10003
+      Level: 1

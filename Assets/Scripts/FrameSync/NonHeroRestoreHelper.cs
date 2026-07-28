@@ -8,18 +8,15 @@ namespace FrameSyncMoba.FrameSync
     {
         private readonly UnitWorld _unitWorld;
         private readonly MinionSystem _minionSystem;
-        private readonly JungleCampSystem _jungleCampSystem;
         private readonly List<UnitAIControllerSnapshot> _aiSnapshotBuffer = new List<UnitAIControllerSnapshot>();
         private readonly List<JungleCampSnapshot> _campSnapshotBuffer = new List<JungleCampSnapshot>();
 
         public NonHeroRestoreHelper(
             UnitWorld unitWorld,
-            MinionSystem minionSystem,
-            JungleCampSystem jungleCampSystem)
+            MinionSystem minionSystem)
         {
             _unitWorld = unitWorld;
             _minionSystem = minionSystem;
-            _jungleCampSystem = jungleCampSystem;
         }
 
         public void CaptureNonHero(ref NonHeroWorldSnapshot state)
@@ -28,7 +25,13 @@ namespace FrameSyncMoba.FrameSync
             _minionSystem?.Capture(ref state.MinionSystemState);
 
             _campSnapshotBuffer.Clear();
-            _jungleCampSystem?.Capture(_campSnapshotBuffer);
+            var camps = _unitWorld.JungleCamps;
+            for (int i = 0; i < camps.Count; i++)
+            {
+                JungleCampSnapshot snapshot = default;
+                camps[i].Capture(ref snapshot);
+                _campSnapshotBuffer.Add(snapshot);
+            }
             state.JungleCampStates = _campSnapshotBuffer.ToArray();
 
             _aiSnapshotBuffer.Clear();
@@ -45,7 +48,7 @@ namespace FrameSyncMoba.FrameSync
         public void RestoreNonHero(in NonHeroWorldSnapshot state)
         {
             _minionSystem?.Restore(state.MinionSystemState);
-            _jungleCampSystem?.Restore(new List<JungleCampSnapshot>(state.JungleCampStates));
+            RestoreCamps(state.JungleCampStates);
 
             RestoreAIControllers(new List<UnitAIControllerSnapshot>(state.AIControllerStates));
         }
@@ -53,7 +56,9 @@ namespace FrameSyncMoba.FrameSync
         public void ResolveNonHero(in RollbackContext context)
         {
             _minionSystem?.Resolve(context);
-            _jungleCampSystem?.Resolve(context);
+            var camps = _unitWorld.JungleCamps;
+            for (int i = 0; i < camps.Count; i++)
+                camps[i].Resolve(context);
 
             var aiControllers = _unitWorld.AIControllers;
             foreach (var ai in aiControllers)
@@ -65,7 +70,9 @@ namespace FrameSyncMoba.FrameSync
         public void RebuildNonHero(in RollbackContext context)
         {
             _minionSystem?.Rebuild(context);
-            _jungleCampSystem?.Rebuild(context);
+            var camps = _unitWorld.JungleCamps;
+            for (int i = 0; i < camps.Count; i++)
+                camps[i].Rebuild(context);
 
             var aiControllers = _unitWorld.AIControllers;
             foreach (var ai in aiControllers)
@@ -97,6 +104,25 @@ namespace FrameSyncMoba.FrameSync
                 UnitAIController controller = _unitWorld.ReconstructAIController(state);
                 controller.Restore(state);
                 _unitWorld.RegisterAIController(controller);
+            }
+        }
+
+        private void RestoreCamps(
+            JungleCampSnapshot[] states)
+        {
+            states ??=
+                System.Array.Empty<JungleCampSnapshot>();
+            var camps = _unitWorld.JungleCamps;
+            if (states.Length != camps.Count)
+                throw new DeterministicSimulationException(
+                    $"JungleCamp topology mismatch: runtime={camps.Count}, snapshot={states.Length}.");
+            for (int i = 0; i < camps.Count; i++)
+            {
+                if (states[i].CampId !=
+                    camps[i].CampId)
+                    throw new DeterministicSimulationException(
+                        $"JungleCamp identity mismatch at index {i}.");
+                camps[i].Restore(states[i]);
             }
         }
     }

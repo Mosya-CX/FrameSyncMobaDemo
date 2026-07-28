@@ -69,12 +69,8 @@ namespace FrameSyncMoba.Unit.Tests
             fp baseDamage = 50m;
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = baseDamage,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, baseDamage));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -96,12 +92,8 @@ namespace FrameSyncMoba.Unit.Tests
             fp baseDamage = 100m;
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = baseDamage,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, baseDamage));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -128,12 +120,8 @@ namespace FrameSyncMoba.Unit.Tests
             CombatEvents.OnDamageDealt += (data) => { isCritFlag = data.IsCritical; };
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = 50m,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, (fp)50));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 
@@ -157,12 +145,8 @@ namespace FrameSyncMoba.Unit.Tests
             fp baseDamage = 100m;
 
             _combat.BeginTick();
-            _combat.SubmitDamage(new DamageRequest
-            {
-                SourceUnitUid = attacker.UnitUid,
-                TargetUnitUid = target.UnitUid,
-                BaseDamage = baseDamage,
-            });
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid, target.UnitUid, baseDamage));
             _combat.SettleActiveRequests();
             _combat.EndTick();
 

@@ -1,5 +1,4 @@
 using System;
-using FrameSyncMoba.Deterministic;
 
 namespace FrameSyncMoba.FrameSync
 {
@@ -11,11 +10,10 @@ namespace FrameSyncMoba.FrameSync
     /// </summary>
     public sealed class NaturalGoldIncomeSystem
     {
-        private int _tickCounter;
         private int _intervalTicks;
         private int _amountPerInterval;
-        private GoldIncomeRuntime _goldIncome;
-        private Func<bool> _isRunningPhase;
+        private readonly GoldIncomeRuntime _goldIncome;
+        private readonly MatchRuleRuntime _matchRule;
 
         /// <summary>Interval in logic ticks between gold distributions.</summary>
         public int IntervalTicks
@@ -36,17 +34,16 @@ namespace FrameSyncMoba.FrameSync
 
         public NaturalGoldIncomeSystem(
             GoldIncomeRuntime goldIncome,
-            Func<bool> isRunningPhase,
+            MatchRuleRuntime matchRule,
             int intervalTicks = 15,
             int amountPerInterval = 2,
             int maxPlayers = 10)
         {
             _goldIncome = goldIncome ?? throw new ArgumentNullException(nameof(goldIncome));
-            _isRunningPhase = isRunningPhase ?? throw new ArgumentNullException(nameof(isRunningPhase));
+            _matchRule = matchRule ?? throw new ArgumentNullException(nameof(matchRule));
             _intervalTicks = Math.Max(1, intervalTicks);
             _amountPerInterval = Math.Max(0, amountPerInterval);
             MaxPlayers = Math.Max(0, maxPlayers);
-            _tickCounter = 0;
         }
 
         /// <summary>
@@ -54,19 +51,15 @@ namespace FrameSyncMoba.FrameSync
         /// for each player slot in ascending order.
         /// Only produces gold during the Running phase.
         /// </summary>
-        public void Tick()
+        public void Tick(int logicTick)
         {
-            if (!_isRunningPhase())
-            {
-                _tickCounter = 0;
+            if (_matchRule.CurrentPhase != MatchPhase.Running)
                 return;
-            }
-
-            _tickCounter++;
-            if (_tickCounter < _intervalTicks)
+            int completedRunningTicks =
+                logicTick - _matchRule.RunningStartTick;
+            if (completedRunningTicks <= 0 ||
+                completedRunningTicks % _intervalTicks != 0)
                 return;
-
-            _tickCounter = 0;
 
             if (_amountPerInterval <= 0 || MaxPlayers <= 0)
                 return;
@@ -81,10 +74,5 @@ namespace FrameSyncMoba.FrameSync
             }
         }
 
-        /// <summary>Reset internal counter (e.g. on match restart).</summary>
-        public void Reset()
-        {
-            _tickCounter = 0;
-        }
     }
 }
