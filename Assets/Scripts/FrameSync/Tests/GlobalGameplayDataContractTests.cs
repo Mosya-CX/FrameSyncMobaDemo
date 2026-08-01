@@ -16,6 +16,9 @@ namespace FrameSyncMoba.FrameSync.Tests
             Assert.AreEqual(30, baked.TickRate);
             Assert.Greater(baked.MinionWaveConfig.WaveIntervalTicks, 0);
             Assert.Greater(baked.UnitGridCellSize, Unity.Mathematics.FixedPoint.fp.zero);
+            Assert.AreEqual(
+                (Unity.Mathematics.FixedPoint.fp)0.01m,
+                baked.MoveSpeedToLogicVelocityScale);
             Assert.GreaterOrEqual(baked.EquipmentSellRate, Unity.Mathematics.FixedPoint.fp.zero);
             Assert.LessOrEqual(baked.EquipmentSellRate, Unity.Mathematics.FixedPoint.fp.one);
             Assert.Greater(baked.SnapshotWindowTicks, 1);

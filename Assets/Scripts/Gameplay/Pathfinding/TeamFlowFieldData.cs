@@ -1,3 +1,5 @@
+using System;
+
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
@@ -5,6 +7,7 @@ namespace FrameSyncMoba.Unit
     /// NOT in Gameplay snapshot — static configuration (Design v13.1 section 8.9).
     /// (Pathfinding Design v13.1 section 8.3)
     /// </summary>
+    [Serializable]
     public struct TeamFlowFieldData
     {
         public FlowFieldKey Key;

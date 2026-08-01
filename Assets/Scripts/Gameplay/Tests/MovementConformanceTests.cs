@@ -14,15 +14,18 @@ namespace FrameSyncMoba.Unit.Tests
         {
             public fp Radius;
             public RadiusClass RadiusClass;
+            public UnitUid SelfUid;
 
             public fp2 ClampPosition(
                 fp2 desiredPosition,
                 fp2 currentPosition,
                 fp unitRadius,
-                RadiusClass radiusClass)
+                RadiusClass radiusClass,
+                UnitUid selfUid)
             {
                 Radius = unitRadius;
                 RadiusClass = radiusClass;
+                SelfUid = selfUid;
                 return desiredPosition;
             }
         }
@@ -205,6 +208,9 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.That(
                 probe.RadiusClass,
                 Is.EqualTo(RadiusClass.Large));
+            Assert.That(
+                probe.SelfUid,
+                Is.EqualTo(unit.UnitUid));
         }
 
         [Test]

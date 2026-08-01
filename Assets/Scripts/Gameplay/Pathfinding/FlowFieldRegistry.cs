@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace FrameSyncMoba.Unit
@@ -17,8 +18,14 @@ namespace FrameSyncMoba.Unit
         /// </summary>
         public void Register(TeamFlowFieldData field)
         {
-            if (!field.IsValid) return;
-            _fields[field.Key.Packed] = field;
+            if (!field.IsValid)
+                throw new ArgumentException(
+                    "Cannot register an invalid flow field.",
+                    nameof(field));
+            if (_fields.ContainsKey(field.Key.Packed))
+                throw new InvalidOperationException(
+                    $"Duplicate flow-field key {field.Key.Packed}.");
+            _fields.Add(field.Key.Packed, field);
         }
 
         /// <summary>

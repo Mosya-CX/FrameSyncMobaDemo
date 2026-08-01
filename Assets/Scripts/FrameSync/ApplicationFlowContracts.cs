@@ -172,8 +172,36 @@ namespace FrameSyncMoba.FrameSync
         }
     }
 
+    /// <summary>
+    /// Frozen match-start ownership mapping required by FrameSync v10.2
+    /// section 3.5. It is application configuration, not mutable Gameplay
+    /// snapshot state.
+    /// </summary>
+    public readonly struct PlayerSlotUnitMapping
+    {
+        public readonly int PlayerSlot;
+        public readonly UnitUid ControlledUnitUid;
+
+        public PlayerSlotUnitMapping(
+            int playerSlot,
+            UnitUid controlledUnitUid)
+        {
+            if (playerSlot < 0 || playerSlot >= 10)
+                throw new ArgumentOutOfRangeException(
+                    nameof(playerSlot));
+            if (!controlledUnitUid.IsValid())
+                throw new ArgumentException(
+                    "Controlled UnitUid must be valid.",
+                    nameof(controlledUnitUid));
+            PlayerSlot = playerSlot;
+            ControlledUnitUid = controlledUnitUid;
+        }
+    }
+
     public readonly struct GameBootstrapPayload
     {
+        private readonly PlayerSlotUnitMapping[] playerSlotMappings;
+
         public readonly GameStartConfig GameStartConfig;
         public readonly FrameSyncVersionHandshake Versions;
         public readonly GameplaySnapshot InitialGameplaySnapshot;
@@ -181,13 +209,19 @@ namespace FrameSyncMoba.FrameSync
         public readonly int StartTick;
         public readonly uint InitialRandomSeed;
 
+        public PlayerSlotUnitMapping[] PlayerSlotMappings =>
+            playerSlotMappings == null
+                ? Array.Empty<PlayerSlotUnitMapping>()
+                : (PlayerSlotUnitMapping[])playerSlotMappings.Clone();
+
         public GameBootstrapPayload(
             in GameStartConfig gameStartConfig,
             in FrameSyncVersionHandshake versions,
             in GameplaySnapshot initialGameplaySnapshot,
             int initialSnapshotTick,
             int startTick,
-            uint initialRandomSeed)
+            uint initialRandomSeed,
+            PlayerSlotUnitMapping[] playerSlotMappings)
         {
             gameStartConfig.ValidateOrThrow();
             if (!initialGameplaySnapshot.IsValid ||
@@ -200,12 +234,64 @@ namespace FrameSyncMoba.FrameSync
                 initialRandomSeed != gameStartConfig.InitialRandomSeed)
                 throw new DeterministicSimulationException(
                     "Bootstrap Tick or random seed disagrees with GameStartConfig.");
+
+            PlayerSlotConfig[] slots = gameStartConfig.PlayerSlots;
+            if (playerSlotMappings == null ||
+                playerSlotMappings.Length != slots.Length)
+                throw new DeterministicSimulationException(
+                    "PlayerSlotMappings must match GameStartPlayerCount.");
+            UnitSnapshot[] units =
+                initialGameplaySnapshot.UnitWorldState.Units ??
+                Array.Empty<UnitSnapshot>();
+            for (int i = 0; i < playerSlotMappings.Length; i++)
+            {
+                PlayerSlotUnitMapping mapping =
+                    playerSlotMappings[i];
+                if (mapping.PlayerSlot != i)
+                    throw new DeterministicSimulationException(
+                        "PlayerSlotMappings must be stored in ascending PlayerSlot order.");
+                int unitIndex = FindUnit(
+                    units,
+                    mapping.ControlledUnitUid);
+                if (unitIndex < 0)
+                    throw new DeterministicSimulationException(
+                        "PlayerSlotMappings references a Unit missing from the initial snapshot.");
+                if (units[unitIndex].TeamId !=
+                    slots[i].TeamId)
+                    throw new DeterministicSimulationException(
+                        "PlayerSlotMappings Unit team disagrees with GameStartConfig.");
+            }
+
             GameStartConfig = gameStartConfig;
             Versions = versions;
             InitialGameplaySnapshot = initialGameplaySnapshot;
             InitialSnapshotTick = initialSnapshotTick;
             StartTick = startTick;
             InitialRandomSeed = initialRandomSeed;
+            this.playerSlotMappings =
+                (PlayerSlotUnitMapping[])playerSlotMappings.Clone();
+        }
+
+        private static int FindUnit(
+            UnitSnapshot[] units,
+            UnitUid uid)
+        {
+            int low = 0;
+            int high = units.Length;
+            while (low < high)
+            {
+                int middle = low + ((high - low) / 2);
+                int comparison =
+                    units[middle].UnitUid.CompareTo(uid);
+                if (comparison < 0)
+                    low = middle + 1;
+                else
+                    high = middle;
+            }
+            return low < units.Length &&
+                   units[low].UnitUid == uid
+                ? low
+                : -1;
         }
     }
 

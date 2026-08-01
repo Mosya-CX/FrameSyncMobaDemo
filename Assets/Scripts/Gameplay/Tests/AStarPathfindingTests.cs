@@ -250,6 +250,25 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void PathFollower_FinalCursor_UsesIncomingSegmentAsCorridor()
+        {
+            var grid = CreateOpenGrid();
+            var follower = new PathFollower2D(grid);
+
+            int startCell = CellIndex(1, 1, GridWidth);
+            int finalCell = CellIndex(15, 15, GridWidth);
+            follower.SetPath(new[] { startCell, finalCell });
+            follower.AdvanceCursor(grid.CellToWorld(1, 1));
+
+            Assert.That(follower.PathCursor, Is.EqualTo(1));
+            Assert.That(
+                follower.IsOutsideCorridor(
+                    grid.CellToWorld(3, 3)),
+                Is.False,
+                "A unit travelling along the final segment must not be forced to rebuild the path merely because the final waypoint is still far away.");
+        }
+
+        [Test]
         public void PathFollower_Arrival_AtFinalWaypoint()
         {
             var grid = CreateOpenGrid();

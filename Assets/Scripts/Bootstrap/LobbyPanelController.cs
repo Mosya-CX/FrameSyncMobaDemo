@@ -1,4 +1,5 @@
 using FrameSyncMoba.LuaBridge;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,10 +16,23 @@ namespace FrameSyncMoba.Bootstrap
     {
         [SerializeField] private HeroSelectPageController heroSelectPage;
         [SerializeField] private Text readyStatusText;
+        [SerializeField] private TMP_Text readyStatusTextMeshPro;
         [SerializeField] private Button readyButton;
+        [SerializeField] private ClientUiActionRouter actionRouter;
 
         private bool _isReady;
         private Font _font;
+
+        public bool IsReady => _isReady;
+
+        public void Inject(
+            ClientUiActionRouter router)
+        {
+            actionRouter = router ??
+                throw new System.ArgumentNullException(
+                    nameof(router));
+            heroSelectPage?.Inject(this, router);
+        }
 
         private void Awake()
         {
@@ -31,8 +45,7 @@ namespace FrameSyncMoba.Bootstrap
         public void Show()
         {
             heroSelectPage?.Show();
-            if (readyStatusText != null)
-                readyStatusText.text = "Select a hero and lock in";
+            SetStatus("Select a hero and lock in");
         }
 
         public void Hide()
@@ -42,15 +55,18 @@ namespace FrameSyncMoba.Bootstrap
 
         public void OnHeroLocked(int heroId)
         {
-            if (readyStatusText != null)
-                readyStatusText.text = $"Hero {heroId} locked. Ready up!";
+            SetStatus($"Hero {heroId} locked. Ready up!");
         }
 
         private void ToggleReady()
         {
-            _isReady = !_isReady;
-            if (readyStatusText != null)
-                readyStatusText.text = _isReady ? "Ready! Waiting for others..." : "Not ready";
+            bool nextReady = !_isReady;
+            actionRouter?.SetReady(nextReady);
+            _isReady = nextReady;
+            SetStatus(
+                _isReady
+                    ? "Ready! Waiting for others..."
+                    : "Not ready");
             if (readyButton != null)
             {
                 var label = readyButton.GetComponentInChildren<Text>();
@@ -60,15 +76,8 @@ namespace FrameSyncMoba.Bootstrap
 
         private void EnsureUI()
         {
-            if (heroSelectPage == null)
-            {
-                var go = new GameObject("HeroSelectPage",
-                    typeof(HeroSelectPageController));
-                go.transform.SetParent(transform, false);
-                heroSelectPage = go.GetComponent<HeroSelectPageController>();
-            }
-
-            if (readyStatusText == null)
+            if (readyStatusText == null &&
+                readyStatusTextMeshPro == null)
             {
                 var go = new GameObject("ReadyStatus", typeof(Text));
                 go.transform.SetParent(transform, false);
@@ -96,7 +105,6 @@ namespace FrameSyncMoba.Bootstrap
                 rt.offsetMax = Vector2.zero;
                 go.GetComponent<Image>().color = new Color(0.2f, 0.5f, 0.7f);
                 readyButton = go.GetComponent<Button>();
-                readyButton.onClick.AddListener(ToggleReady);
 
                 var label = new GameObject("Label", typeof(Text));
                 label.transform.SetParent(go.transform, false);
@@ -107,6 +115,14 @@ namespace FrameSyncMoba.Bootstrap
                 text.color = Color.white;
                 text.text = "Ready";
             }
+        }
+
+        private void SetStatus(string value)
+        {
+            if (readyStatusText != null)
+                readyStatusText.text = value;
+            if (readyStatusTextMeshPro != null)
+                readyStatusTextMeshPro.text = value;
         }
     }
 }

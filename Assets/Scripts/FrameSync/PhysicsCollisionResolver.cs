@@ -11,7 +11,6 @@ namespace FrameSyncMoba.FrameSync
         private readonly PathGridMap2D _pathGrid;
         private static readonly fp BoundaryMargin = (fp)0.1m;
         private static readonly fp PushOutStep = (fp)0.05m;
-        private static readonly fp MapHalfSize = (fp)50;
         private readonly List<PhysicsEntity2D> _nearbyBuffer = new List<PhysicsEntity2D>();
 
         public PhysicsCollisionResolver(PhysicsWorld physicsWorld, PathGridMap2D pathGrid = null)
@@ -24,15 +23,33 @@ namespace FrameSyncMoba.FrameSync
             fp2 desiredPosition,
             fp2 currentPosition,
             fp unitRadius,
-            RadiusClass radiusClass)
+            RadiusClass radiusClass,
+            UnitUid selfUid)
         {
             fp2 result = desiredPosition;
 
-            fp minBound = -MapHalfSize + unitRadius + BoundaryMargin;
-            fp maxBound = MapHalfSize - unitRadius - BoundaryMargin;
-            result = new fp2(
-                fpmath.clamp(result.x, minBound, maxBound),
-                fpmath.clamp(result.y, minBound, maxBound));
+            if (_pathGrid != null)
+            {
+                fp2 minimum =
+                    _pathGrid.WorldMin +
+                    new fp2(
+                        unitRadius + BoundaryMargin,
+                        unitRadius + BoundaryMargin);
+                fp2 maximum =
+                    _pathGrid.WorldMax -
+                    new fp2(
+                        unitRadius + BoundaryMargin,
+                        unitRadius + BoundaryMargin);
+                result = new fp2(
+                    fpmath.clamp(
+                        result.x,
+                        minimum.x,
+                        maximum.x),
+                    fpmath.clamp(
+                        result.y,
+                        minimum.y,
+                        maximum.y));
+            }
 
             // Wall-aware clamping via PathGrid
             if (_pathGrid != null)
@@ -51,13 +68,19 @@ namespace FrameSyncMoba.FrameSync
 
             if (_physicsWorld != null && _physicsWorld.UnitFinalGrid != null)
             {
-                result = ResolveUnitOverlap(result, unitRadius);
+                result = ResolveUnitOverlap(
+                    result,
+                    unitRadius,
+                    selfUid);
             }
 
             return result;
         }
 
-        private fp2 ResolveUnitOverlap(fp2 target, fp unitRadius)
+        private fp2 ResolveUnitOverlap(
+            fp2 target,
+            fp unitRadius,
+            UnitUid selfUid)
         {
             var grid = _physicsWorld.UnitFinalGrid;
             fp2 result = target;
@@ -73,6 +96,17 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < _nearbyBuffer.Count; i++)
             {
                 var other = _nearbyBuffer[i];
+                RuntimeUidQueryValue otherUid =
+                    other.QueryInfo.UidSnapshot;
+                if (otherUid.SpawnLogicTick ==
+                        selfUid.SpawnLogicTick &&
+                    otherUid.RuntimeEntityPrefabId ==
+                        selfUid.RuntimeEntityPrefabId &&
+                    otherUid.SpawnSequenceInTick ==
+                        selfUid.SpawnSequenceInTick)
+                {
+                    continue;
+                }
                 fp2 otherPos = other.Transform2D.Position;
                 fp2 delta = result - otherPos;
                 fp distSq = fpmath.dot(delta, delta);

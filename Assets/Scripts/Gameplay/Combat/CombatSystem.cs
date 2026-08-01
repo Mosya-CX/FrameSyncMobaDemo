@@ -476,10 +476,13 @@ namespace FrameSyncMoba.Unit
                     deathSequence);
                 unit.ClearForDeath();
                 DeathEffectDispatcher?.DispatchDeathEffects(death);
-                RespawnTimer?.RegisterDeath(
-                    duid,
-                    SimulationTickContext.Current.Tick,
-                    GetRespawnDelay(unit));
+                if (unit.UnitKind == UnitKind.Hero)
+                {
+                    RespawnTimer?.RegisterDeath(
+                        duid,
+                        SimulationTickContext.Current.Tick,
+                        GetRespawnDelay(unit));
+                }
                 _contributionTrackers.Remove(duid);
                 _pendingKillerHeroUids.Remove(duid);
             }

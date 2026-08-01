@@ -57,7 +57,7 @@ namespace FrameSyncMoba.Unit
                 {
                     Kind = IntentKind.AttackTarget,
                     TargetUnit = order.Attack_TargetUnit,
-                    AllowChase = true,
+                    AllowChase = order.Attack_AllowChase,
                     AllowReplan = false,
                 },
                 OrderKind.Cast => new UnitIntent

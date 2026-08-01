@@ -1,5 +1,7 @@
 using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.Physics;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -8,6 +10,9 @@ namespace FrameSyncMoba.Unit
         IMovementAgent,
         IRollback<MovementSnapshot>
     {
+        [Tooltip("Authoritative deterministic spatial state written only by this Unit's MovementHandler.")]
+        [SerializeField] private PhysicsEntity2D entity;
+
         private enum MovementMode : byte
         {
             Idle,
@@ -25,6 +30,8 @@ namespace FrameSyncMoba.Unit
         private DashRuntime _dash;
         private ForcedMoveRuntime _forcedMove;
         private fp _moveSpeed;
+        private fp _moveSpeedToLogicVelocityScale = fp.one;
+        private fp _logicSecondsPerTick = fp.one;
         private fp2 _velocity;
         private bool _isMoving;
         private fp2 _targetDirection;
@@ -61,8 +68,11 @@ namespace FrameSyncMoba.Unit
         }
         public fp2 Position => CurrentPosition;
         public fp2 Facing => CurrentForward;
+        public PhysicsEntity2D Entity => entity;
         public fp2 Velocity => _velocity;
         public fp MoveSpeed => _moveSpeed;
+        public fp LogicMoveSpeed =>
+            _moveSpeed * _moveSpeedToLogicVelocityScale;
         public bool IsMoving => _isMoving;
         public fp2 TargetDirection => _targetDirection;
         public bool IsDashing => _dash.IsActive;
@@ -82,6 +92,26 @@ namespace FrameSyncMoba.Unit
                     "Movement speed must not be negative.");
             }
             _moveSpeed = moveSpeed;
+        }
+
+        public void SetMoveSpeedToLogicVelocityScale(fp scale)
+        {
+            if (scale <= fp.zero)
+            {
+                throw new DeterministicSimulationException(
+                    "MoveSpeedToLogicVelocityScale must be positive.");
+            }
+            _moveSpeedToLogicVelocityScale = scale;
+        }
+
+        public void SetLogicSecondsPerTick(fp secondsPerTick)
+        {
+            if (secondsPerTick <= fp.zero)
+            {
+                throw new DeterministicSimulationException(
+                    "LogicSecondsPerTick must be positive.");
+            }
+            _logicSecondsPerTick = secondsPerTick;
         }
 
         public void ApplyMoveInput(in MoveIntent intent)
@@ -237,8 +267,7 @@ namespace FrameSyncMoba.Unit
 
         public void ApplyTeleport(fp2 position)
         {
-            Owner?.PhysicsEntity?.TeleportLogicPosition(
-                position);
+            RequireEntity().TeleportLogicPosition(position);
             _velocity = fp2.zero;
             _isMoving = false;
             _targetDirection = fp2.zero;
@@ -255,7 +284,7 @@ namespace FrameSyncMoba.Unit
                     "Movement correction UnitUid does not match its owner.");
             }
 
-            Owner?.PhysicsEntity?.ApplyLogicPositionDelta(
+            RequireEntity().ApplyLogicPositionDelta(
                 correction.Delta);
         }
 
@@ -369,15 +398,17 @@ namespace FrameSyncMoba.Unit
             else
             {
                 direction = _currentIntent.Direction;
-                desiredSpeed = _moveSpeed;
+                desiredSpeed = LogicMoveSpeed;
                 desiredVelocity =
                     direction * desiredSpeed;
             }
 
-            fp deltaTicks =
+            fp advancedTickCount =
                 SimulationTickContext.Current.DeltaTick;
             CommitContinuousMovement(
-                desiredVelocity * deltaTicks,
+                desiredVelocity *
+                _logicSecondsPerTick *
+                advancedTickCount,
                 direction,
                 desiredVelocity);
         }
@@ -479,7 +510,8 @@ namespace FrameSyncMoba.Unit
                         desiredPosition,
                         start,
                         CurrentRadius,
-                        CurrentRadiusClass);
+                        CurrentRadiusClass,
+                        Owner.UnitUid);
             }
 
             fp2 actualDelta =
@@ -498,7 +530,7 @@ namespace FrameSyncMoba.Unit
                 facing = normalized;
             }
 
-            Owner?.PhysicsEntity?.SetLogicPose(
+            RequireEntity().SetLogicPose(
                 desiredPosition,
                 facing);
             _velocity = velocity;
@@ -621,32 +653,71 @@ namespace FrameSyncMoba.Unit
         }
 
         private fp2 CurrentPosition =>
-            Owner?.PhysicsEntity != null
-                ? Owner.PhysicsEntity.Transform2D.Position
-                : fp2.zero;
+            RequireEntity().Transform2D.Position;
 
         private fp2 CurrentForward =>
-            Owner?.PhysicsEntity != null
-                ? Owner.PhysicsEntity.Transform2D.Forward
-                : new fp2(fp.one, fp.zero);
+            RequireEntity().Transform2D.Forward;
 
         private fp CurrentRadius =>
-            Owner?.PhysicsEntity != null
-                ? Owner.PhysicsEntity.Shape.Radius
-                : RadiusClassHelper.MediumRadius;
+            RequireEntity().Shape.Radius;
 
         private RadiusClass CurrentRadiusClass =>
             RadiusClassHelper.FromRadius(CurrentRadius);
 
         private void ApplyStationaryPose()
         {
-            if (Owner?.PhysicsEntity != null)
-            {
-                Owner.PhysicsEntity.SetLogicPose(
-                    CurrentPosition,
-                    CurrentForward);
-            }
+            RequireEntity().SetLogicPose(
+                CurrentPosition,
+                CurrentForward);
             ClearDerivedMovementState();
+        }
+
+        protected override void OnOwnerBound()
+        {
+            PhysicsEntity2D ownerEntity = Owner?.PhysicsEntity;
+            if (ownerEntity == null)
+            {
+                throw new DeterministicSimulationException(
+                    "MovementHandler owner must provide PhysicsEntity2D.");
+            }
+            if (entity == null)
+            {
+                entity = ownerEntity;
+            }
+            else if (entity != ownerEntity)
+            {
+                throw new DeterministicSimulationException(
+                    "MovementHandler PhysicsEntity2D must match its Unit owner.");
+            }
+        }
+
+        private PhysicsEntity2D RequireEntity()
+        {
+            if (entity == null)
+            {
+                throw new DeterministicSimulationException(
+                    "MovementHandler requires a bound PhysicsEntity2D.");
+            }
+            return entity;
+        }
+
+        private void Reset()
+        {
+            ResolveEntityReference();
+        }
+
+        private void OnValidate()
+        {
+            ResolveEntityReference();
+        }
+
+        private void ResolveEntityReference()
+        {
+            Unit unit = GetComponentInParent<Unit>(true);
+            if (unit != null)
+            {
+                entity = unit.GetComponentInChildren<PhysicsEntity2D>(true);
+            }
         }
 
         private void ClearTickInputs()

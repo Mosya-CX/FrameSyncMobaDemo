@@ -33,16 +33,25 @@ namespace FrameSyncMoba.Bootstrap
 
         private Font _font;
         private bool _shown;
+        private ClientUiActionRouter _actionRouter;
 
         public bool IsShown => _shown;
+
+        public void Inject(
+            ClientUiActionRouter actionRouter)
+        {
+            _actionRouter = actionRouter ??
+                throw new System.ArgumentNullException(
+                    nameof(actionRouter));
+        }
 
         private void Awake()
         {
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             EnsureCanvas();
-            resultCanvas.gameObject.SetActive(false);
             if (returnButton != null)
-                returnButton.onClick.AddListener(Hide);
+                returnButton.onClick.AddListener(
+                    OnReturnClicked);
         }
 
         public void Show(MatchResultSnapshot resultInfo)
@@ -51,7 +60,14 @@ namespace FrameSyncMoba.Bootstrap
             _shown = true;
 
             EnsureCanvas();
-            resultCanvas.gameObject.SetActive(true);
+            UIPanel panel = GetComponent<UIPanel>();
+            if (panel != null &&
+                !panel.IsOpen)
+                panel.Open();
+            else if (resultCanvas.gameObject !=
+                     gameObject)
+                resultCanvas.gameObject.SetActive(
+                    true);
 
             // Winner
             string winnerLabel = resultInfo.WinningTeamId.Value == 0
@@ -76,7 +92,14 @@ namespace FrameSyncMoba.Bootstrap
         {
             if (!_shown) return;
             _shown = false;
-            resultCanvas.gameObject.SetActive(false);
+            UIPanel panel = GetComponent<UIPanel>();
+            if (panel != null &&
+                panel.IsOpen)
+                panel.Close();
+            else if (resultCanvas.gameObject !=
+                     gameObject)
+                resultCanvas.gameObject.SetActive(
+                    false);
         }
 
         private void EnsureCanvas()
@@ -166,7 +189,6 @@ namespace FrameSyncMoba.Bootstrap
                 var img = go.GetComponent<Image>();
                 img.color = new Color(0.3f, 0.3f, 0.3f, 1f);
                 returnButton = go.GetComponent<Button>();
-                returnButton.onClick.AddListener(Hide);
 
                 var label = new GameObject("Label", typeof(Text));
                 label.transform.SetParent(go.transform, false);
@@ -177,6 +199,12 @@ namespace FrameSyncMoba.Bootstrap
                 returnButtonText.color = Color.white;
                 returnButtonText.text = "Return to Main Menu";
             }
+        }
+
+        private void OnReturnClicked()
+        {
+            _actionRouter?.ReturnToMainMenu();
+            Hide();
         }
 
         private void PopulateKda(in FrameSync.MatchStatisticsResult stats)

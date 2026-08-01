@@ -12,18 +12,25 @@ namespace FrameSyncMoba.Unit
         /// <summary>Weight for wall-tangent alignment. Default 20.</summary>
         public int WallAlignWeight;
 
-        /// <summary>Weight for direction consistency with nearby cells. Default 10.</summary>
+        /// <summary>Weight for forward consistency with the owned lane skeleton. Default 40.</summary>
         public int SmoothWeight;
 
-        /// <summary>Weight for lane-skeleton bonus. Default 5.</summary>
+        /// <summary>Weight for distance-scaled pull toward the lane skeleton. Default 40.</summary>
         public int LaneWeight;
+
+        /// <summary>
+        /// Offline OwnerLane penalty per cell of distance from a lane skeleton.
+        /// It is intentionally independent from the softer direction potential.
+        /// </summary>
+        public int OwnershipWeight;
 
         public static readonly FlowFieldBuildConfig Default = new FlowFieldBuildConfig
         {
             CostDropWeight = 100,
             WallAlignWeight = 20,
-            SmoothWeight = 10,
-            LaneWeight = 5,
+            SmoothWeight = 40,
+            LaneWeight = 40,
+            OwnershipWeight = 1000,
         };
     }
 }

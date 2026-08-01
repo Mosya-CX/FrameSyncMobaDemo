@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6455637343889854156}
-  - component: {fileID: 6088298271988319562}
   m_Layer: 5
   m_Name: HeroSelectCell
   m_TagString: Untagged
@@ -39,29 +38,6 @@ RectTransform:
   m_AnchoredPosition: {x: 80, y: -95}
   m_SizeDelta: {x: 100, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &6088298271988319562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 733688551146101147}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 183534d7fee844f479051236e27e6051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uiName: HeroSelectCell
-  luaName: HeroSelectCell
-  uiComponents:
-  - luaName: HeadIcon
-    component: {fileID: 6674570706409838524}
-  - luaName: NameText
-    component: {fileID: 1264162062626518875}
-  - luaName: SelectButton
-    component: {fileID: 2331655442352052705}
-  - luaName: SelectTip
-    component: {fileID: 6932234698405716817}
 --- !u!1 &1628227931082493828
 GameObject:
   m_ObjectHideFlags: 0

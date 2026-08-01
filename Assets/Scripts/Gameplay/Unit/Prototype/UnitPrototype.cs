@@ -48,6 +48,8 @@ namespace FrameSyncMoba.Unit
         /// </summary>
         public UnitRespawnConfig RespawnConfig;
 
+        public UnitPoolConfig PoolConfig;
+
         public int BaseExperienceValue;
 
         public HandlerLoadout Loadout;

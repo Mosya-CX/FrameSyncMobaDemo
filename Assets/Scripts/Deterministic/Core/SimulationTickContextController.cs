@@ -11,7 +11,7 @@ namespace FrameSyncMoba.Deterministic
 
         public void BeginTick(int tick, ExecutionMode executionMode)
         {
-            if (IsTickActive || SimulationTickContext.HasCurrent)
+            if (IsTickActive || SimulationTickContext.IsTickActive)
             {
                 throw new InvalidOperationException(
                     "A Gameplay Tick is already active. End it before beginning another Tick.");
@@ -28,7 +28,7 @@ namespace FrameSyncMoba.Deterministic
                 throw new InvalidOperationException("This controller does not own an active Gameplay Tick.");
             }
 
-            SimulationTickContext.ClearCurrent();
+            SimulationTickContext.CompleteCurrent();
             IsTickActive = false;
         }
     }

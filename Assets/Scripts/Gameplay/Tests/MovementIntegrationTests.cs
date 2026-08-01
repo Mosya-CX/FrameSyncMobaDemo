@@ -32,6 +32,10 @@ namespace FrameSyncMoba.Unit.Tests
                 BaseStats = StatTestHelpers.CreateSimplePreset(),
                 BaseGoldValue = 300,
                 BaseExperienceValue = 100,
+                LocomotionProfile = new LocomotionProfile
+                {
+                    BaseMoveSpeed = fp.one,
+                },
             };
         }
 
@@ -49,6 +53,35 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.IsNotNull(unit.MovementHandler);
             Assert.AreEqual(fp2.zero, unit.MovementHandler.Position);
             Assert.AreEqual(fp.one, unit.MovementHandler.MoveSpeed);
+            Assert.AreEqual(
+                (fp)0.01m,
+                unit.MovementHandler.LogicMoveSpeed);
+        }
+
+        [Test]
+        public void MoveSpeed_UsesWorldLogicVelocityScaleExactlyOnce()
+        {
+            MovementHandler movement =
+                UnitTestFactory.CreateMovementHandler(
+                    fp2.zero,
+                    (fp)350m);
+            movement.SetMoveSpeedToLogicVelocityScale(
+                (fp)0.01m);
+            movement.SetLogicSecondsPerTick(
+                fp.one / (fp)30);
+
+            movement.ApplyMoveInput(
+                new MoveIntent(new fp2(fp.one, fp.zero)));
+            movement.TickUpdate();
+
+            Assert.AreEqual(
+                (fp)350m * (fp)0.01m,
+                movement.Velocity.x);
+            Assert.AreEqual(fp.zero, movement.Velocity.y);
+            Assert.AreEqual(
+                movement.Velocity.x *
+                (fp.one / (fp)30),
+                movement.Position.x);
         }
 
         [Test]

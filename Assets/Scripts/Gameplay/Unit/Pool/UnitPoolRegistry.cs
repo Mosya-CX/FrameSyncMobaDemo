@@ -5,16 +5,31 @@ namespace FrameSyncMoba.Unit
 {
     public sealed class UnitPoolRegistry
     {
-        private readonly Dictionary<ushort, Queue<Unit>> _pools = new Dictionary<ushort, Queue<Unit>>();
-        private readonly Dictionary<ushort, UnitPoolConfig> _configs = new Dictionary<ushort, UnitPoolConfig>();
-        public void RegisterConfig(ushort subKindId, in UnitPoolConfig config)
+        private readonly Dictionary<int, Queue<Unit>> _pools =
+            new Dictionary<int, Queue<Unit>>();
+        private readonly Dictionary<int, UnitPoolConfig> _configs =
+            new Dictionary<int, UnitPoolConfig>();
+
+        public void RegisterConfig(
+            int runtimeEntityPrefabId,
+            in UnitPoolConfig config)
         {
-            _configs[subKindId] = config;
-            if (!_pools.ContainsKey(subKindId)) _pools[subKindId] = new Queue<Unit>();
+            if (runtimeEntityPrefabId <= 0)
+                throw new DeterministicSimulationException(
+                    "Unit pool requires a positive RuntimeEntityPrefabId.");
+            if (config.PrewarmCount < 0 || config.MaxCapacity <= 0)
+                throw new DeterministicSimulationException(
+                    $"Unit pool config for prefab {runtimeEntityPrefabId} is invalid.");
+
+            _configs[runtimeEntityPrefabId] = config;
+            if (!_pools.ContainsKey(runtimeEntityPrefabId))
+                _pools[runtimeEntityPrefabId] = new Queue<Unit>();
         }
-        public bool TryRent(ushort subKindId, out Unit unit)
+
+        public bool TryRent(int runtimeEntityPrefabId, out Unit unit)
         {
-            if (_pools.TryGetValue(subKindId, out var pool) && pool.Count > 0)
+            if (_pools.TryGetValue(runtimeEntityPrefabId, out var pool) &&
+                pool.Count > 0)
             {
                 unit = pool.Dequeue();
                 unit.gameObject.SetActive(true);
@@ -23,15 +38,19 @@ namespace FrameSyncMoba.Unit
             unit = null;
             return false;
         }
-        public void Return(ushort subKindId, Unit unit)
+
+        public void Return(int runtimeEntityPrefabId, Unit unit)
         {
             if (unit == null) return;
-            if (!_pools.TryGetValue(subKindId, out var pool))
-            {
-                _pools[subKindId] = pool = new Queue<Unit>();
-            }
-            if (!_configs.TryGetValue(subKindId, out var cfg)) cfg = UnitPoolConfig.Default;
-            if (pool.Count >= cfg.MaxCapacity && cfg.ResizePolicy == UnitPoolResizePolicy.Fixed)
+            if (!_configs.TryGetValue(runtimeEntityPrefabId, out var config))
+                throw new DeterministicSimulationException(
+                    $"Unit pool prefab {runtimeEntityPrefabId} was not configured.");
+            if (!_pools.TryGetValue(runtimeEntityPrefabId, out var pool))
+                throw new DeterministicSimulationException(
+                    $"Unit pool prefab {runtimeEntityPrefabId} has no pool.");
+
+            if (pool.Count >= config.MaxCapacity &&
+                config.ResizePolicy == UnitPoolResizePolicy.Fixed)
             {
                 UnityEngine.Object.Destroy(unit.gameObject);
                 return;
@@ -40,6 +59,14 @@ namespace FrameSyncMoba.Unit
             unit.gameObject.SetActive(false);
             pool.Enqueue(unit);
         }
+
+        public int GetAvailableCount(int runtimeEntityPrefabId)
+        {
+            return _pools.TryGetValue(runtimeEntityPrefabId, out var pool)
+                ? pool.Count
+                : 0;
+        }
+
         public void Clear()
         {
             foreach (var pool in _pools.Values)

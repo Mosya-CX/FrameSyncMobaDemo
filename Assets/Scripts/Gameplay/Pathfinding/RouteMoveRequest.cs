@@ -23,6 +23,7 @@ namespace FrameSyncMoba.Unit
         Death,
         Teleport,
         NewRoute,
+        AttackStarted,
     }
 
     /// <summary>
@@ -42,16 +43,20 @@ namespace FrameSyncMoba.Unit
             new RouteMoveRequest
             {
                 Target = MoveTarget.FromPosition(position),
-                Purpose = MovePurpose.MoveToPosition,
+                Purpose = MovePurpose.PointMove,
                 StopDistance = stopDistance,
                 AllowRepath = true,
             };
 
-        public static RouteMoveRequest FollowUnit(UnitUid uid, fp stopDistance = default) =>
+        public static RouteMoveRequest FollowUnit(
+            UnitUid uid,
+            fp stopDistance = default,
+            MovePurpose purpose =
+                MovePurpose.ChaseForAttack) =>
             new RouteMoveRequest
             {
                 Target = MoveTarget.FromUnit(uid),
-                Purpose = MovePurpose.FollowTarget,
+                Purpose = purpose,
                 StopDistance = stopDistance,
                 AllowRepath = true,
             };

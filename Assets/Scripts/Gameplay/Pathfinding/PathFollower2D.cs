@@ -134,42 +134,60 @@ namespace FrameSyncMoba.Unit
             if (RouteFinished || _pathCellIndices == null || PathCursor < 0 || PathCursor >= _pathCellIndices.Length)
                 return false;
 
-            // Get current waypoint world position
-            int currentCellIndex = _pathCellIndices[PathCursor];
-            int cx = currentCellIndex % _grid.Width;
-            int cy = currentCellIndex / _grid.Width;
-            fp2 waypointWorld = _grid.CellToWorld(cx, cy);
-
-            // If there is a next waypoint, compute lateral distance to the segment
-            if (PathCursor < _pathCellIndices.Length - 1)
+            int lastIndex = _pathCellIndices.Length - 1;
+            int segmentStartCursor;
+            int segmentEndCursor;
+            if (PathCursor < lastIndex)
             {
-                int nextCellIndex = _pathCellIndices[PathCursor + 1];
-                int ncx = nextCellIndex % _grid.Width;
-                int ncy = nextCellIndex / _grid.Width;
-                fp2 nextWorld = _grid.CellToWorld(ncx, ncy);
-
-                fp2 segment = nextWorld - waypointWorld;
-                fp segLenSq = fpmath.dot(segment, segment);
-
-                if (segLenSq > fp.zero)
-                {
-                    // Project position onto segment line
-                    fp2 toPos = currentPosition - waypointWorld;
-                    fp t = fpmath.dot(toPos, segment) / segLenSq;
-
-                    if (t >= fp.zero && t <= fp.one)
-                    {
-                        // Perpendicular distance from segment
-                        fp2 projection = waypointWorld + segment * t;
-                        fp lateralDistSq = fpmath.dot(currentPosition - projection, currentPosition - projection);
-                        return lateralDistSq > CorridorTolerance * CorridorTolerance;
-                    }
-                }
+                segmentStartCursor = PathCursor;
+                segmentEndCursor = PathCursor + 1;
+            }
+            else if (PathCursor > 0)
+            {
+                // At the final waypoint the active corridor is the segment
+                // leading into it. Measuring only from the final waypoint
+                // makes every long two-point route look off-corridor and
+                // repeatedly resets the path cursor to its start.
+                segmentStartCursor = PathCursor - 1;
+                segmentEndCursor = PathCursor;
+            }
+            else
+            {
+                int onlyCell = _pathCellIndices[PathCursor];
+                fp2 onlyWaypoint = _grid.CellToWorld(
+                    onlyCell % _grid.Width,
+                    onlyCell / _grid.Width);
+                fp2 onlyDelta = currentPosition - onlyWaypoint;
+                fp onlyDistanceSq = fpmath.dot(onlyDelta, onlyDelta);
+                fp tolerance = CorridorTolerance + ReachThreshold;
+                return onlyDistanceSq > tolerance * tolerance;
             }
 
-            // Fall back to simple distance from current waypoint
-            fp distSq = fpmath.dot(currentPosition - waypointWorld, currentPosition - waypointWorld);
-            return distSq > (CorridorTolerance + ReachThreshold) * (CorridorTolerance + ReachThreshold);
+            int startCell = _pathCellIndices[segmentStartCursor];
+            int endCell = _pathCellIndices[segmentEndCursor];
+            fp2 start = _grid.CellToWorld(
+                startCell % _grid.Width,
+                startCell / _grid.Width);
+            fp2 end = _grid.CellToWorld(
+                endCell % _grid.Width,
+                endCell / _grid.Width);
+            fp2 segment = end - start;
+            fp segmentLengthSq = fpmath.dot(segment, segment);
+            if (segmentLengthSq <= fp.zero)
+            {
+                fp2 delta = currentPosition - end;
+                return fpmath.dot(delta, delta) >
+                    CorridorTolerance * CorridorTolerance;
+            }
+
+            fp t = fpmath.dot(
+                currentPosition - start,
+                segment) / segmentLengthSq;
+            t = fpmath.clamp(t, fp.zero, fp.one);
+            fp2 projection = start + segment * t;
+            fp2 lateral = currentPosition - projection;
+            return fpmath.dot(lateral, lateral) >
+                CorridorTolerance * CorridorTolerance;
         }
 
         /// <summary>

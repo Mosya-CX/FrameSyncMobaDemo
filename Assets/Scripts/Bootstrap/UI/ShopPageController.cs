@@ -1,6 +1,7 @@
 ﻿using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.PlayerInput;
 using FrameSyncMoba.Unit;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +29,10 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField] private Text detailDescText;
         [SerializeField] private Text detailPriceText;
         [SerializeField] private Text detailStatsText;
+        [SerializeField] private TMP_Text detailNameTextMeshPro;
+        [SerializeField] private TMP_Text detailDescTextMeshPro;
+        [SerializeField] private TMP_Text detailPriceTextMeshPro;
+        [SerializeField] private TMP_Text detailStatsTextMeshPro;
 
         [Header("Owned equipment grid")]
         [SerializeField] private RectTransform ownedGridContent;
@@ -40,6 +45,7 @@ namespace FrameSyncMoba.Bootstrap
 
         [Header("Gold display")]
         [SerializeField] private Text goldText;
+        [SerializeField] private TMP_Text goldTextMeshPro;
 
         // Runtime references (injected by GameBootstrap)
         private FrameSyncGameRuntime _runtime;
@@ -98,13 +104,29 @@ namespace FrameSyncMoba.Bootstrap
 
             BuildUiIfNeeded();
             BindButtons();
-            shopCanvas.gameObject.SetActive(false);
+        }
+
+        private void OnEnable()
+        {
+            _isVisible = true;
+            _needsRefresh = true;
+        }
+
+        private void OnDisable()
+        {
+            _isVisible = false;
         }
 
         public void Show()
         {
             if (_isVisible) return;
-            shopCanvas.gameObject.SetActive(true);
+            UIPanel panel =
+                GetComponent<UIPanel>();
+            if (panel != null &&
+                !panel.IsOpen)
+                panel.Open();
+            if (shopCanvas.gameObject != gameObject)
+                shopCanvas.gameObject.SetActive(true);
             _isVisible = true;
             _needsRefresh = true;
         }
@@ -112,8 +134,16 @@ namespace FrameSyncMoba.Bootstrap
         public void Hide()
         {
             if (!_isVisible) return;
-            shopCanvas.gameObject.SetActive(false);
             _isVisible = false;
+            UIPanel panel =
+                GetComponent<UIPanel>();
+            if (panel != null &&
+                panel.IsOpen)
+                panel.Close();
+            else if (shopCanvas.gameObject !=
+                     gameObject)
+                shopCanvas.gameObject.SetActive(
+                    false);
         }
 
         public void Toggle()
@@ -286,9 +316,17 @@ namespace FrameSyncMoba.Bootstrap
             var def = _database?.GetDefinition(equipmentId);
             if (def == null) { ClearDetail(); return; }
 
-            if (detailNameText != null) detailNameText.text = def.Name ?? "";
-            if (detailDescText != null) detailDescText.text = def.Description ?? "";
-            if (detailStatsText != null && def.BakedFixedStats != null)
+            SetText(
+                detailNameText,
+                detailNameTextMeshPro,
+                def.Name ?? "");
+            SetText(
+                detailDescText,
+                detailDescTextMeshPro,
+                def.Description ?? "");
+            if ((detailStatsText != null ||
+                 detailStatsTextMeshPro != null) &&
+                def.BakedFixedStats != null)
             {
                 var sb = new System.Text.StringBuilder();
                 for (int i = 0; i < def.BakedFixedStats.Length; i++)
@@ -296,7 +334,10 @@ namespace FrameSyncMoba.Bootstrap
                     var fs = def.BakedFixedStats[i];
                     sb.Append(fs.Stat).Append(": +").Append((float)fs.Value).AppendLine();
                 }
-                detailStatsText.text = sb.ToString();
+                SetText(
+                    detailStatsText,
+                    detailStatsTextMeshPro,
+                    sb.ToString());
             }
 
             UpdateDetailPrice(def);
@@ -304,7 +345,10 @@ namespace FrameSyncMoba.Bootstrap
 
         private void UpdateDetailPrice(EquipmentDefinition def)
         {
-            if (detailPriceText == null || def == null) return;
+            if ((detailPriceText == null &&
+                 detailPriceTextMeshPro == null) ||
+                def == null)
+                return;
             int price;
             if (_selectedCatalogId > 0)
                 price = _shopView
@@ -314,15 +358,18 @@ namespace FrameSyncMoba.Bootstrap
                 price = CalculateSellPrice(def);
             else
                 price = 0;
-            detailPriceText.text = price > 0 ? $"Price: {price}" : "";
+            SetText(
+                detailPriceText,
+                detailPriceTextMeshPro,
+                price > 0 ? $"Price: {price}" : "");
         }
 
         private void ClearDetail()
         {
-            if (detailNameText != null) detailNameText.text = "";
-            if (detailDescText != null) detailDescText.text = "";
-            if (detailPriceText != null) detailPriceText.text = "";
-            if (detailStatsText != null) detailStatsText.text = "";
+            SetText(detailNameText, detailNameTextMeshPro, "");
+            SetText(detailDescText, detailDescTextMeshPro, "");
+            SetText(detailPriceText, detailPriceTextMeshPro, "");
+            SetText(detailStatsText, detailStatsTextMeshPro, "");
         }
 
         // ---- Buttons ----
@@ -405,9 +452,25 @@ namespace FrameSyncMoba.Bootstrap
 
         private void RefreshGold()
         {
-            if (goldText == null) return;
+            if (goldText == null &&
+                goldTextMeshPro == null)
+                return;
             int gold = GetCurrentAvailableGold();
-            goldText.text = $"Gold: {gold}";
+            SetText(
+                goldText,
+                goldTextMeshPro,
+                $"Gold: {gold}");
+        }
+
+        private static void SetText(
+            Text legacyText,
+            TMP_Text meshProText,
+            string value)
+        {
+            if (legacyText != null)
+                legacyText.text = value;
+            if (meshProText != null)
+                meshProText.text = value;
         }
 
         private int GetCurrentAvailableGold()

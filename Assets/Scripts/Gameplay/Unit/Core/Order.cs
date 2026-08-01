@@ -29,6 +29,7 @@ namespace FrameSyncMoba.Unit
 
         // Attack
         public readonly UnitUid Attack_TargetUnit;
+        public readonly bool Attack_AllowChase;
 
         // Cast
         public readonly int Cast_AbilityId;
@@ -46,6 +47,7 @@ namespace FrameSyncMoba.Unit
         private Order(OrderKind kind,
             fp2 moveTargetPosition,
             UnitUid attackTargetUnit,
+            bool attackAllowChase,
             int castAbilityId,
             UnitUid castTargetUnit,
             fp2 castTargetPosition,
@@ -57,6 +59,7 @@ namespace FrameSyncMoba.Unit
             Kind = kind;
             Move_TargetPosition = moveTargetPosition;
             Attack_TargetUnit = attackTargetUnit;
+            Attack_AllowChase = attackAllowChase;
             Cast_AbilityId = castAbilityId;
             Cast_TargetUnit = castTargetUnit;
             Cast_TargetPosition = castTargetPosition;
@@ -70,13 +73,22 @@ namespace FrameSyncMoba.Unit
         {
             return new Order(
                 OrderKind.Move, targetPosition, default,
+                false,
                 0, default, default, default, default, 0, 0);
         }
 
         public static Order CreateAttack(UnitUid targetUnit)
         {
+            return CreateAttack(targetUnit, true);
+        }
+
+        public static Order CreateAttack(
+            UnitUid targetUnit,
+            bool allowChase)
+        {
             return new Order(
                 OrderKind.Attack, default, targetUnit,
+                allowChase,
                 0, default, default, default, default, 0, 0);
         }
 
@@ -100,6 +112,7 @@ namespace FrameSyncMoba.Unit
                 OrderKind.Cast,
                 default,
                 default,
+                false,
                 abilityId,
                 aim.TargetUnitUid,
                 aim.TargetPoint,
@@ -113,6 +126,7 @@ namespace FrameSyncMoba.Unit
         {
             return new Order(
                 OrderKind.LaneAdvance, default, default,
+                false,
                 0, default, default, default, default, laneIndex, 0);
         }
 
@@ -120,6 +134,7 @@ namespace FrameSyncMoba.Unit
         {
             return new Order(
                 OrderKind.ReturnToCamp, default, default,
+                false,
                 0, default, default, default, default, 0, campId);
         }
 

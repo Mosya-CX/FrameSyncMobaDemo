@@ -44,6 +44,7 @@ namespace FrameSyncMoba.FrameSync
         public int LocalSimulationTick { get; private set; }
         public uint LastChecksum { get; private set; }
         public event Action<int, IReadOnlyList<GameplayCommand>, uint> TickCompleted;
+        public Action RestoreStaticBindings { get; set; }
 
         public bool HasPredictedMatchEndCandidate()
         {
@@ -110,78 +111,46 @@ namespace FrameSyncMoba.FrameSync
                     topologyRole));
         }
 
+        public UnitUid[] MaterializeInitialSpawnsForBootstrap(
+            SimulationTickContextController controller,
+            int startTick)
+        {
+            if (controller == null)
+                throw new ArgumentNullException(nameof(controller));
+            if (startTick < 0)
+                throw new ArgumentOutOfRangeException(nameof(startTick));
+            if (LocalSimulationTick != 0)
+                throw new InvalidOperationException(
+                    "Bootstrap initial state can only be materialized before simulation starts.");
+
+            controller.BeginTick(
+                startTick,
+                ExecutionMode.ServerAuthority);
+            try
+            {
+                UnitUid[] spawned = MaterializeInitialSpawns();
+                LocalSimulationTick = startTick;
+                return spawned;
+            }
+            finally
+            {
+                controller.EndTick();
+            }
+        }
+
         public void ExecuteTick(
             SimulationTickContextController controller,
             ExecutionMode executionMode = ExecutionMode.ServerAuthority)
         {
             int tick = LocalSimulationTick;
-                controller.BeginTick(tick, executionMode);
-                GoldIncome?.BeginTick(tick);
-                NaturalGoldIncome?.Tick(tick);
+            controller.BeginTick(tick, executionMode);
+            GoldIncome?.BeginTick(tick);
+            NaturalGoldIncome?.Tick(tick);
             try
             {
                 VisualEventOutput.Clear();
                 CombatSystem?.BeginTick();
-                UnitUid blueBase = default;
-                UnitUid redBase = default;
-                TeamId blueBaseTeam = default;
-                TeamId redBaseTeam = default;
-                for (int spawnIndex = 0;
-                     spawnIndex < _initialSpawnRequests.Count;
-                     spawnIndex++)
-                {
-                    InitialSpawnEntry entry =
-                        _initialSpawnRequests[spawnIndex];
-                    UnitUid spawnedUid =
-                        _unitWorld.SpawnUnit(
-                            entry.Request);
-                    if (entry.TopologyRole ==
-                        MatchTopologyRole.None)
-                        continue;
-                    if (!_unitWorld.TryGetUnit(
-                            spawnedUid,
-                            out UnitType spawned) ||
-                        spawned.UnitKind !=
-                            UnitKind.Structure ||
-                        spawned.TeamId ==
-                            TeamId.Neutral)
-                        throw new DeterministicSimulationException(
-                            "TeamBase topology requires a non-neutral Structure Unit.");
-                    if (entry.TopologyRole ==
-                        MatchTopologyRole.BlueBase)
-                    {
-                        if (blueBase.IsValid())
-                            throw new DeterministicSimulationException(
-                                "Multiple BlueBase initial spawns are configured.");
-                        blueBase = spawnedUid;
-                        blueBaseTeam =
-                            spawned.TeamId;
-                    }
-                    else
-                    {
-                        if (redBase.IsValid())
-                            throw new DeterministicSimulationException(
-                                "Multiple RedBase initial spawns are configured.");
-                        redBase = spawnedUid;
-                        redBaseTeam =
-                            spawned.TeamId;
-                    }
-                }
-                _initialSpawnRequests.Clear();
-                if (blueBase.IsValid() ||
-                    redBase.IsValid())
-                {
-                    if (!blueBase.IsValid() ||
-                        !redBase.IsValid() ||
-                        MatchRule == null ||
-                        blueBaseTeam ==
-                        redBaseTeam)
-                        throw new DeterministicSimulationException(
-                            "TeamBase topology requires exactly one BlueBase and one RedBase on distinct teams plus MatchRuleRuntime.");
-                    MatchRule.RegisterBases(
-                        blueBase,
-                        redBase);
-                }
+                MaterializeInitialSpawns();
                 var commands = _collector.ConsumeCanonicalCommands(tick);
                 foreach (var cmd in commands)
                     DispatchCommand(cmd);
@@ -320,6 +289,9 @@ namespace FrameSyncMoba.FrameSync
                 }
                 GoldIncome?.SealTick(tick);
 
+                _unitWorld.ProcessPostCombatDeathDisposals(
+                    CombatSystem?.DeathResults);
+
                 TickNonHeroSystems(tick);
                 GameplaySnapshot checksumState = CaptureAggregateSnapshot();
                 GoldIncomeBatchDigest goldDigest = GoldIncome?.GetBatchDigest(tick)
@@ -407,7 +379,7 @@ namespace FrameSyncMoba.FrameSync
             if (snapshot.SchemaVersion != 13)
             {
                 throw new DeterministicSimulationException(
-                    $"Unsupported GameplaySnapshot schema {snapshot.SchemaVersion}; expected 12.");
+                    $"Unsupported GameplaySnapshot schema {snapshot.SchemaVersion}; expected {GameplaySnapshot.CurrentSchemaVersion}.");
             }
 
             RestorePhase(snapshot);
@@ -416,6 +388,11 @@ namespace FrameSyncMoba.FrameSync
             ResolvePhase(context);
             RebuildPhase(context);
             if (snapshotTick >= 0) LocalSimulationTick = snapshotTick;
+        }
+
+        internal void DiscardPendingInitialSpawnsForAuthoritativeRestore()
+        {
+            _initialSpawnRequests.Clear();
         }
 
         private void RestorePhase(in GameplaySnapshot snapshot)
@@ -495,6 +472,78 @@ namespace FrameSyncMoba.FrameSync
                 AIControllerStates = snapshot.UnitWorldState.AIControllerStates,
             };
             NonHeroHelper?.RestoreNonHero(nonHeroState);
+            RestoreStaticBindings?.Invoke();
+        }
+
+        private UnitUid[] MaterializeInitialSpawns()
+        {
+            if (_initialSpawnRequests.Count == 0)
+                return Array.Empty<UnitUid>();
+
+            var spawnedUids =
+                new UnitUid[_initialSpawnRequests.Count];
+            UnitUid blueBase = default;
+            UnitUid redBase = default;
+            TeamId blueBaseTeam = default;
+            TeamId redBaseTeam = default;
+            for (int spawnIndex = 0;
+                 spawnIndex < _initialSpawnRequests.Count;
+                 spawnIndex++)
+            {
+                InitialSpawnEntry entry =
+                    _initialSpawnRequests[spawnIndex];
+                UnitUid spawnedUid =
+                    _unitWorld.SpawnUnit(
+                        entry.Request);
+                spawnedUids[spawnIndex] = spawnedUid;
+                if (entry.TopologyRole ==
+                    MatchTopologyRole.None)
+                    continue;
+                if (!_unitWorld.TryGetUnit(
+                        spawnedUid,
+                        out UnitType spawned) ||
+                    spawned.UnitKind !=
+                        UnitKind.Structure ||
+                    spawned.TeamId ==
+                        TeamId.Neutral)
+                    throw new DeterministicSimulationException(
+                        "TeamBase topology requires a non-neutral Structure Unit.");
+                if (entry.TopologyRole ==
+                    MatchTopologyRole.BlueBase)
+                {
+                    if (blueBase.IsValid())
+                        throw new DeterministicSimulationException(
+                            "Multiple BlueBase initial spawns are configured.");
+                    blueBase = spawnedUid;
+                    blueBaseTeam =
+                        spawned.TeamId;
+                }
+                else
+                {
+                    if (redBase.IsValid())
+                        throw new DeterministicSimulationException(
+                            "Multiple RedBase initial spawns are configured.");
+                    redBase = spawnedUid;
+                    redBaseTeam =
+                        spawned.TeamId;
+                }
+            }
+            _initialSpawnRequests.Clear();
+            if (blueBase.IsValid() ||
+                redBase.IsValid())
+            {
+                if (!blueBase.IsValid() ||
+                    !redBase.IsValid() ||
+                    MatchRule == null ||
+                    blueBaseTeam ==
+                        redBaseTeam)
+                    throw new DeterministicSimulationException(
+                        "TeamBase topology requires exactly one BlueBase and one RedBase on distinct teams plus MatchRuleRuntime.");
+                MatchRule.RegisterBases(
+                    blueBase,
+                    redBase);
+            }
+            return spawnedUids;
         }
 
         private void ReconcileUnitTopology(UnitSnapshot[] states)
@@ -788,8 +837,13 @@ namespace FrameSyncMoba.FrameSync
                     if (unit.Locomotion != null)
                     {
                         var routeReq = moveReq.ChaseTarget.IsValid()
-                            ? RouteMoveRequest.FollowUnit(moveReq.ChaseTarget, moveReq.StopRange)
+                            ? RouteMoveRequest.FollowUnit(
+                                moveReq.ChaseTarget,
+                                moveReq.StopRange,
+                                moveReq.Purpose)
                             : RouteMoveRequest.ToPosition(moveReq.TargetPosition, moveReq.StopRange);
+                        routeReq.Purpose =
+                            moveReq.Purpose;
                         routeReq.AllowRVO = true;
                         unit.Locomotion.AcceptRouteRequest(routeReq);
                     }

@@ -35,17 +35,17 @@ namespace FrameSyncMoba.Bootstrap
 
             if (animator != null)
             {
-                // Use UnitAnimationProfile hash or fall back to string name
                 var profile = unit.GetComponent<UnitPresentationHost>()?.Profile;
-                if (profile != null && profile.RespawnTriggerHash != 0)
-                {
-                    animator.SetTrigger(Animator.StringToHash(
-                        profile.RespawnTriggerHash.ToString()));
-                }
-                else
-                {
-                    animator.SetTrigger("Respawn");
-                }
+                int stateHash =
+                    profile?.RespawnStateHash ?? 0;
+                if (stateHash == 0)
+                    stateHash =
+                        profile?.IdleStateHash ?? 0;
+                if (stateHash != 0)
+                    animator.CrossFade(
+                        stateHash,
+                        0.04f,
+                        0);
             }
         }
 

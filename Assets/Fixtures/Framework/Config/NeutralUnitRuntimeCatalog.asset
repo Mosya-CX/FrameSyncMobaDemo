@@ -87,7 +87,7 @@ MonoBehaviour:
     MaxValue: 0
   - Id: 10
     DebugName: AttackRange
-    DefaultBaseValue: 2
+    DefaultBaseValue: 200
     SupportsLevelGrowth: 0
     HasMinValue: 1
     MinValue: 0
@@ -221,6 +221,10 @@ MonoBehaviour:
       ResourceRule: 0
       HealthRespawnValue: 0
       ResourceRespawnValue: 0
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
     Loadout:
       HasMovement: 1
       HasAttack: 1
@@ -267,8 +271,79 @@ MonoBehaviour:
       BaseValue: 1
       GrowthValue: 0
     - StatId: 10
-      BaseValue: 2
+      BaseValue: 200
       GrowthValue: 0
     - StatId: 11
       BaseValue: 3.5
       GrowthValue: 0
+  - UnitPrototypeId: 1002
+    Name: Neutral Team Base Fixture
+    RuntimeEntityPrefabId: 1001
+    UnitKind: 3
+    UnitSubKindId: 2
+    BaseGoldValue: 0
+    BaseExperienceValue: 0
+    UnitDisposePolicyId: 0
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 0
+      ResourceRespawnValue: 0
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 1
+      HasAttack: 1
+      HasAbility: 1
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 1
+    Locomotion:
+      BaseMoveSpeed: 3.5
+      CollisionRadius: 0.5
+      RadiusClass: 1
+      MaxTurnRate: 0
+      ArriveDistance: 0.05
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.5
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 0
+      InitialLevel: 1
+      MaxLevel: 1
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 
+      HealthOnLevelUp: 0
+      CastResourceOnLevelUp: 0
+    BaseStats:
+    - StatId: 0
+      BaseValue: 250
+      GrowthValue: 0
+    - StatId: 3
+      BaseValue: 100
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 10
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 1
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 200
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 3.5
+      GrowthValue: 0
+  disposePolicyTable: {fileID: 0}

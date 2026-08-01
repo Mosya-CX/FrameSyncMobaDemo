@@ -23,6 +23,8 @@ namespace FrameSyncMoba.LuaBridge
 
             Runtime.SetTableField("HUD", "CurrentHealth", dto.CurrentHealth);
             Runtime.SetTableField("HUD", "MaxHealth", dto.MaxHealth);
+            Runtime.SetTableField("HUD", "CurrentResource", dto.CurrentResource);
+            Runtime.SetTableField("HUD", "MaxResource", dto.MaxResource);
             Runtime.SetTableField("HUD", "UnitLevel", dto.UnitLevel);
             Runtime.SetTableField("HUD", "CurrentExperience", dto.CurrentExperience);
             Runtime.SetTableField("HUD", "ExperienceForNextLevel", dto.ExperienceForNextLevel);
@@ -78,6 +80,8 @@ namespace FrameSyncMoba.LuaBridge
             {
                 case "CurrentHealth": return (float)dto.CurrentHealth;
                 case "MaxHealth": return (float)dto.MaxHealth;
+                case "CurrentResource": return (float)dto.CurrentResource;
+                case "MaxResource": return (float)dto.MaxResource;
                 case "CurrentGold": return dto.CurrentGold;
                 case "ConfirmedGold": return dto.ConfirmedGold;
                 case "UnitLevel": return dto.UnitLevel;

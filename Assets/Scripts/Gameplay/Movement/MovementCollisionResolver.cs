@@ -8,6 +8,7 @@ namespace FrameSyncMoba.Unit
             fp2 desiredPosition,
             fp2 currentPosition,
             fp unitRadius,
-            RadiusClass radiusClass);
+            RadiusClass radiusClass,
+            UnitUid selfUid);
     }
 }

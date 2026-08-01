@@ -11,6 +11,8 @@ namespace FrameSyncMoba.Unit
     public sealed class UnitWorld
     {
         private readonly UnitRegistry registry = new UnitRegistry();
+        private readonly UnitPoolRegistry poolRegistry =
+            new UnitPoolRegistry();
         private readonly List<UnitAIController> aiControllers = new List<UnitAIController>();
         private readonly List<JungleCamp> jungleCamps =
             new List<JungleCamp>();
@@ -21,6 +23,7 @@ namespace FrameSyncMoba.Unit
         private int runtimeRevision;
 
         public GlobalUnitPrototypeTable UnitPrototypeTable { get; set; }
+        public UnitDisposePolicyTable DisposePolicyTable { get; set; }
         public GlobalPrefabTable GlobalPrefabTable { get; set; }
         public StatDefinitionTable StatDefinitionTable { get; set; }
         public EquipmentDatabase EquipmentDatabase { get; set; }
@@ -29,12 +32,16 @@ namespace FrameSyncMoba.Unit
         public PhysicsWorld PhysicsWorld { get; set; }
         public fp StatGrowthC { get; set; }
         public fp StatGrowthD { get; set; }
+        public fp MoveSpeedToLogicVelocityScale { get; set; } = (fp)0.01m;
+        public fp StatDistanceToLogicDistanceScale { get; set; } = (fp)0.01m;
         public int TickRate { get; set; }
         public int AttackSequenceResetIntervalTicks { get; set; } = 90;
         public RespawnTimer RespawnTimer { get; set; }
         public DeathEffectDispatcher DeathEffectDispatcher { get; set; }
         public PathGridMap2D PathGrid { get; set; }
         public FlowFieldRegistry FlowFieldRegistry { get; set; }
+        public IMovementCollisionResolver
+            MovementCollisionResolver { get; set; }
         public CombatSystem CombatSystem { get; set; }
         public ProjectileWorld ProjectileWorld { get; set; }
         public RangeQueryService RangeQuery { get; set; }
@@ -43,6 +50,7 @@ namespace FrameSyncMoba.Unit
         public IReadOnlyList<JungleCamp> JungleCamps => jungleCamps;
         public MinionSystem MinionSystem { get; set; }
         public int RuntimeRevision => runtimeRevision;
+        public UnitPoolRegistry PoolRegistry => poolRegistry;
 
         public void RegisterAIController(UnitAIController controller)
         {
@@ -199,8 +207,6 @@ namespace FrameSyncMoba.Unit
                     $"No UnitPrototype with id {request.UnitPrototypeId} is registered.");
             }
 
-            GameObject prefab = GlobalPrefabTable.GetRequiredPrefab(
-                PrefabKind.Unit, prototype.RuntimeEntityPrefabId);
             byte spawnSequence = AllocateSpawnSequence();
             int spawnTick = SimulationTickContext.Current.Tick;
             var unitUid = new UnitUid(
@@ -213,13 +219,7 @@ namespace FrameSyncMoba.Unit
 
             try
             {
-                instance = UnityEngine.Object.Instantiate(prefab);
-                Unit unit = instance.GetComponent<Unit>();
-                if (unit == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Unit prefab id {prototype.RuntimeEntityPrefabId} must have Unit on its root GameObject.");
-                }
+                Unit unit = RentOrInstantiate(prototype, out instance);
 
                 unit.InitializeForNewRuntime(
                     unitUid,
@@ -232,6 +232,10 @@ namespace FrameSyncMoba.Unit
                     TickRate,
                     AttackSequenceResetIntervalTicks,
                     request.Position);
+                unit.MovementHandler.SetMoveSpeedToLogicVelocityScale(
+                    MoveSpeedToLogicVelocityScale);
+                unit.MovementHandler.SetLogicSecondsPerTick(
+                    fp.one / (fp)TickRate);
                 unit.EquipmentHandler.DefinitionDatabase = EquipmentDatabase;
                 unit.World = this;
                 unit.AbilityHandler.DefinitionRegistry = AbilityDefinitions;
@@ -258,7 +262,11 @@ namespace FrameSyncMoba.Unit
                 if (PathGrid != null)
                 {
                     unit.Locomotion = new UnitLocomotionAgent(unit, PathGrid);
+                    unit.Locomotion.SetFlowFieldRegistry(
+                        FlowFieldRegistry);
                 }
+                unit.MovementHandler.SetCollisionResolver(
+                    MovementCollisionResolver);
 
                 return unitUid;
             }
@@ -371,8 +379,20 @@ namespace FrameSyncMoba.Unit
             switch (request.Mode)
             {
                 case UnitDespawnMode.Pool:
-                    unit.ResetForPool();
-                    unit.gameObject.SetActive(false);
+                    int unitPrototypeId = unit.UnitPrototypeId;
+                    if (!UnitPrototypeTable.TryGet(
+                            unitPrototypeId,
+                            out UnitPrototype prototype))
+                        throw new DeterministicSimulationException(
+                            $"Despawn pool references missing prototype {unitPrototypeId}.");
+                    poolRegistry.RegisterConfig(
+                        prototype.RuntimeEntityPrefabId,
+                        prototype.PoolConfig.MaxCapacity > 0
+                            ? prototype.PoolConfig
+                            : UnitPoolConfig.Default);
+                    poolRegistry.Return(
+                        prototype.RuntimeEntityPrefabId,
+                        unit);
                     break;
                 case UnitDespawnMode.Destroy:
                     unit.gameObject.SetActive(false);
@@ -431,23 +451,21 @@ namespace FrameSyncMoba.Unit
                 throw new DeterministicSimulationException(
                     $"Unit {unitUid} prototype/prefab identity mismatch.");
 
-            GameObject prefab = GlobalPrefabTable.GetRequiredPrefab(
-                PrefabKind.Unit, prototype.RuntimeEntityPrefabId);
             GameObject instance = null;
             PhysicsEntity2D physicsEntity = null;
             bool physicsRegistered = false;
             bool unitRegistered = false;
             try
             {
-                instance = UnityEngine.Object.Instantiate(prefab);
-                Unit unit = instance.GetComponent<Unit>();
-                if (unit == null)
-                    throw new DeterministicSimulationException(
-                        $"Restored Unit prefab {prototype.RuntimeEntityPrefabId} has no Unit root.");
+                Unit unit = RentOrInstantiate(prototype, out instance);
                 unit.InitializeForNewRuntime(
                     unitUid, ownerUid, prototype, teamId, StatDefinitionTable,
                     StatGrowthC, StatGrowthD, TickRate,
                     AttackSequenceResetIntervalTicks, position);
+                unit.MovementHandler.SetMoveSpeedToLogicVelocityScale(
+                    MoveSpeedToLogicVelocityScale);
+                unit.MovementHandler.SetLogicSecondsPerTick(
+                    fp.one / (fp)TickRate);
                 unit.EquipmentHandler.DefinitionDatabase = EquipmentDatabase;
                 unit.World = this;
                 unit.AbilityHandler.DefinitionRegistry = AbilityDefinitions;
@@ -467,8 +485,17 @@ namespace FrameSyncMoba.Unit
                 physicsRegistered = true;
                 RegisterUnit(unit);
                 unitRegistered = true;
-                if (PathGrid != null) unit.Locomotion = new UnitLocomotionAgent(unit, PathGrid);
-                if (FlowFieldRegistry != null) unit.Locomotion?.SetFlowFieldRegistry(FlowFieldRegistry);
+                if (PathGrid != null)
+                {
+                    unit.Locomotion =
+                        new UnitLocomotionAgent(
+                            unit,
+                            PathGrid);
+                    unit.Locomotion.SetFlowFieldRegistry(
+                        FlowFieldRegistry);
+                }
+                unit.MovementHandler.SetCollisionResolver(
+                    MovementCollisionResolver);
                 runtimeRevision++;
                 return unit;
             }
@@ -614,8 +641,8 @@ namespace FrameSyncMoba.Unit
 
         /// <summary>
         /// Resolve post-death disposal based on the UnitPrototype's DisposePolicy.
-        /// Called after death animation completes. For heroes this is deferred;
-        /// for non-hero units this happens immediately on ConfirmUnitDeath.
+        /// Called only from the post-Combat lifecycle phase, after deterministic
+        /// consumers have read the formal DeathResult and dead Unit metadata.
         /// Design: Unit Framework v27.3 section 9.6, UnitDisposePolicy.
         /// </summary>
         public void ResolveDeathDispose(Unit unit)
@@ -623,24 +650,8 @@ namespace FrameSyncMoba.Unit
             if (unit == null) throw new ArgumentNullException(nameof(unit));
             if (unit.LifeState != LifeState.Dead) return;
 
-            UnitDisposePolicyConfig policy = UnitDisposePolicyConfig.Default;
-            if (UnitPrototypeTable != null
-                && UnitPrototypeTable.TryGet(unit.UnitPrototypeId, out UnitPrototype prototype)
-                && prototype.UnitDisposePolicyId != 0)
-            {
-                policy = ResolveDisposePolicy(unit, prototype);
-            }
-            else
-            {
-                if (unit.UnitKind == UnitKind.Hero)
-                {
-                    policy.Kind = UnitDisposePolicyKind.KeepAlive;
-                }
-                else
-                {
-                    policy.Kind = UnitDisposePolicyKind.Destroy;
-                }
-            }
+            UnitDisposePolicyConfig policy =
+                ResolveDisposePolicyFor(unit);
 
             switch (policy.Kind)
             {
@@ -648,11 +659,19 @@ namespace FrameSyncMoba.Unit
                     break;
 
                 case UnitDisposePolicyKind.Pool:
+                    int unitPrototypeId = unit.UnitPrototypeId;
+                    if (!UnitPrototypeTable.TryGet(
+                            unitPrototypeId,
+                            out UnitPrototype poolPrototype))
+                        throw new DeterministicSimulationException(
+                            $"Death disposal references missing prototype {unitPrototypeId}.");
                     UnregisterUnit(unit);
                     if (unit.PhysicsEntity != null)
                         PhysicsWorld?.UnregisterUnit(unit.PhysicsEntity);
-                    unit.ResetForPool();
-                    unit.gameObject.SetActive(false);
+                    poolRegistry.Return(
+                        poolPrototype.RuntimeEntityPrefabId,
+                        unit);
+                    runtimeRevision++;
                     break;
 
                 case UnitDisposePolicyKind.Destroy:
@@ -661,6 +680,7 @@ namespace FrameSyncMoba.Unit
                         PhysicsWorld?.UnregisterUnit(unit.PhysicsEntity);
                     unit.gameObject.SetActive(false);
                     DestroyFailedInstance(unit.gameObject);
+                    runtimeRevision++;
                     break;
 
                 case UnitDisposePolicyKind.SpawnRuin:
@@ -675,31 +695,137 @@ namespace FrameSyncMoba.Unit
                     }
                     unit.gameObject.SetActive(false);
                     DestroyFailedInstance(unit.gameObject);
+                    runtimeRevision++;
                     break;
             }
         }
 
-        private UnitDisposePolicyConfig ResolveDisposePolicy(Unit unit, UnitPrototype prototype)
+        public void ProcessPostCombatDeathDisposals(
+            IReadOnlyList<DeathResult> deathResults)
         {
+            if (deathResults == null)
+            {
+                return;
+            }
+
+            int previousSequence = -1;
+            for (int i = 0; i < deathResults.Count; i++)
+            {
+                DeathResult result = deathResults[i];
+                if (result.DeathSequenceInTick <= previousSequence)
+                {
+                    throw new DeterministicSimulationException(
+                        "Post-Combat death disposal requires stable DeathSequence order.");
+                }
+                previousSequence = result.DeathSequenceInTick;
+
+                if (!TryGetUnit(result.VictimUid, out Unit unit))
+                {
+                    throw new DeterministicSimulationException(
+                        $"Post-Combat death victim {result.VictimUid} was disposed early.");
+                }
+                if (unit.LifeState != LifeState.Dead)
+                {
+                    throw new DeterministicSimulationException(
+                        $"Post-Combat death victim {result.VictimUid} is not Dead.");
+                }
+                if (unit.UnitKind != UnitKind.Hero)
+                {
+                    if (RespawnTimer == null)
+                    {
+                        throw new DeterministicSimulationException(
+                            "Post-Combat death disposal requires the pending lifecycle runtime.");
+                    }
+                    UnitDisposePolicyConfig policy =
+                        ResolveDisposePolicyFor(unit);
+                    if (policy.Kind !=
+                        UnitDisposePolicyKind.KeepAlive)
+                    {
+                        RespawnTimer.RegisterDisposal(
+                            unit.UnitUid,
+                            result.DeathLogicTick,
+                            policy.DeathPresentationTicks);
+                    }
+                }
+            }
+        }
+
+        private UnitDisposePolicyConfig ResolveDisposePolicyFor(
+            Unit unit)
+        {
+            if (UnitPrototypeTable != null &&
+                UnitPrototypeTable.TryGet(
+                    unit.UnitPrototypeId,
+                    out UnitPrototype prototype) &&
+                DisposePolicyTable != null)
+            {
+                if (!DisposePolicyTable.TryGet(
+                        prototype.UnitDisposePolicyId,
+                        out UnitDisposePolicyEntry entry))
+                {
+                    throw new DeterministicSimulationException(
+                        $"UnitPrototype {prototype.UnitPrototypeId} references missing dispose policy {prototype.UnitDisposePolicyId}.");
+                }
+                return new UnitDisposePolicyConfig
+                {
+                    Kind = entry.Kind,
+                    DeathPresentationTicks =
+                        entry.DeathPresentationTicks,
+                    RuinPrototypeId =
+                        entry.RuinUnitPrototypeId,
+                };
+            }
+
             return unit.UnitKind switch
             {
                 UnitKind.Hero => new UnitDisposePolicyConfig
                 {
                     Kind = UnitDisposePolicyKind.KeepAlive,
+                    DeathPresentationTicks = 0,
                     RuinPrototypeId = 0,
                 },
                 UnitKind.Structure => new UnitDisposePolicyConfig
                 {
-                    Kind = UnitDisposePolicyKind.SpawnRuin,
-                    RuinPrototypeId = prototype.UnitDisposePolicyId,
+                    Kind = UnitDisposePolicyKind.Destroy,
+                    DeathPresentationTicks = 0,
+                    RuinPrototypeId = 0,
                 },
                 UnitKind.Minion or UnitKind.Monster => new UnitDisposePolicyConfig
                 {
                     Kind = UnitDisposePolicyKind.Destroy,
+                    DeathPresentationTicks = 0,
                     RuinPrototypeId = 0,
                 },
                 _ => UnitDisposePolicyConfig.Default,
             };
+        }
+
+        private Unit RentOrInstantiate(
+            UnitPrototype prototype,
+            out GameObject instance)
+        {
+            poolRegistry.RegisterConfig(
+                prototype.RuntimeEntityPrefabId,
+                prototype.PoolConfig.MaxCapacity > 0
+                    ? prototype.PoolConfig
+                    : UnitPoolConfig.Default);
+            if (poolRegistry.TryRent(
+                    prototype.RuntimeEntityPrefabId,
+                    out Unit pooledUnit))
+            {
+                instance = pooledUnit.gameObject;
+                return pooledUnit;
+            }
+
+            GameObject prefab = GlobalPrefabTable.GetRequiredPrefab(
+                PrefabKind.Unit,
+                prototype.RuntimeEntityPrefabId);
+            instance = UnityEngine.Object.Instantiate(prefab);
+            Unit unit = instance.GetComponent<Unit>();
+            if (unit == null)
+                throw new InvalidOperationException(
+                    $"Unit prefab id {prototype.RuntimeEntityPrefabId} must have Unit on its root GameObject.");
+            return unit;
         }
 
         private void SpawnRuinUnit(int ruinPrototypeId, Unit originalTower)

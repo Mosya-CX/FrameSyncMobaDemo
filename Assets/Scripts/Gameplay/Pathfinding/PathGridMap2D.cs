@@ -27,6 +27,11 @@ namespace FrameSyncMoba.Unit
         public fp CellSize => _cellSize;
         public int Width => _width;
         public int Height => _height;
+        public fp2 WorldMax => new fp2(
+            _worldMin.x +
+                (fp)(_width - 1) * _cellSize,
+            _worldMin.y +
+                (fp)(_height - 1) * _cellSize);
 
         private static readonly (int dx, int dy)[] NeighborOffsets = new (int, int)[]
         {
@@ -96,6 +101,51 @@ namespace FrameSyncMoba.Unit
             return new fp2(
                 _worldMin.x + ((fp)cx + Half) * _cellSize,
                 _worldMin.y + ((fp)cy + Half) * _cellSize);
+        }
+
+        public bool HasLineOfSight(
+            fp2 from,
+            fp2 to,
+            RadiusClass radiusClass)
+        {
+            (int fromX, int fromY) =
+                WorldToCell(from);
+            (int toX, int toY) =
+                WorldToCell(to);
+            int dx = Math.Abs(toX - fromX);
+            int dy = -Math.Abs(toY - fromY);
+            int stepX =
+                fromX < toX ? 1 : -1;
+            int stepY =
+                fromY < toY ? 1 : -1;
+            int error = dx + dy;
+            int x = fromX;
+            int y = fromY;
+            while (true)
+            {
+                if (!IsPassable(
+                        x,
+                        y,
+                        radiusClass))
+                {
+                    return false;
+                }
+                if (x == toX && y == toY)
+                {
+                    return true;
+                }
+                int doubled = error * 2;
+                if (doubled >= dy)
+                {
+                    error += dy;
+                    x += stepX;
+                }
+                if (doubled <= dx)
+                {
+                    error += dx;
+                    y += stepY;
+                }
+            }
         }
 
         /// <summary>
@@ -273,6 +323,166 @@ namespace FrameSyncMoba.Unit
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Rasterizes an oriented rectangle into every affected radius layer.
+        /// The cell square and agent radius are conservatively included, so a
+        /// rotated thin wall keeps its real orientation instead of becoming its
+        /// world-axis-aligned bounding square.
+        /// </summary>
+        public void SetOrientedRectObstruction(
+            fp2 center,
+            fp2 axisX,
+            fp2 axisY,
+            fp2 halfExtents,
+            bool blocked,
+            RadiusClass minAffectedClass)
+        {
+            if (halfExtents.x <= fp.zero ||
+                halfExtents.y <= fp.zero)
+                throw new ArgumentOutOfRangeException(
+                    nameof(halfExtents));
+
+            fp2 normalizedX =
+                fpmath.normalize(axisX);
+            fp2 normalizedY =
+                fpmath.normalize(axisY);
+            fp2 aabbHalf =
+                new fp2(
+                    fpmath.abs(normalizedX.x) *
+                        halfExtents.x +
+                    fpmath.abs(normalizedY.x) *
+                        halfExtents.y,
+                    fpmath.abs(normalizedX.y) *
+                        halfExtents.x +
+                    fpmath.abs(normalizedY.y) *
+                        halfExtents.y);
+            (int minX, int minY) =
+                WorldToCell(
+                    center -
+                    aabbHalf -
+                    new fp2(
+                        RadiusClassHelper.LargeRadius +
+                            _cellSize,
+                        RadiusClassHelper.LargeRadius +
+                            _cellSize));
+            (int maxX, int maxY) =
+                WorldToCell(
+                    center +
+                    aabbHalf +
+                    new fp2(
+                        RadiusClassHelper.LargeRadius +
+                            _cellSize,
+                        RadiusClassHelper.LargeRadius +
+                            _cellSize));
+
+            int firstLayer =
+                (int)minAffectedClass;
+            int lastLayer = blocked
+                ? RadiusClassHelper.Count - 1
+                : firstLayer;
+            int layerStep = blocked ? 1 : -1;
+            if (!blocked)
+            {
+                lastLayer = 0;
+            }
+
+            for (int layer = firstLayer;
+                 blocked
+                     ? layer <= lastLayer
+                     : layer >= lastLayer;
+                 layer += layerStep)
+            {
+                fp cellHalf =
+                    _cellSize *
+                    Half +
+                    RadiusClassHelper.GetRadius(
+                        (RadiusClass)layer);
+                for (int cy = minY;
+                     cy <= maxY;
+                     cy++)
+                {
+                    for (int cx = minX;
+                         cx <= maxX;
+                         cx++)
+                    {
+                        fp2 cellCenter =
+                            CellToWorld(
+                                cx,
+                                cy);
+                        if (!OrientedRectOverlapsAxisAlignedSquare(
+                                center,
+                                normalizedX,
+                                normalizedY,
+                                halfExtents,
+                                cellCenter,
+                                cellHalf))
+                            continue;
+                        SetLayerWalkable(
+                            layer,
+                            cx,
+                            cy,
+                            !blocked);
+                    }
+                }
+            }
+        }
+
+        private static bool
+            OrientedRectOverlapsAxisAlignedSquare(
+                fp2 rectangleCenter,
+                fp2 axisX,
+                fp2 axisY,
+                fp2 rectangleHalfExtents,
+                fp2 squareCenter,
+                fp squareHalfExtent)
+        {
+            fp2 delta =
+                squareCenter -
+                rectangleCenter;
+            fp worldXProjection =
+                rectangleHalfExtents.x *
+                    fpmath.abs(axisX.x) +
+                rectangleHalfExtents.y *
+                    fpmath.abs(axisY.x);
+            if (fpmath.abs(delta.x) >
+                squareHalfExtent +
+                worldXProjection)
+                return false;
+
+            fp worldYProjection =
+                rectangleHalfExtents.x *
+                    fpmath.abs(axisX.y) +
+                rectangleHalfExtents.y *
+                    fpmath.abs(axisY.y);
+            if (fpmath.abs(delta.y) >
+                squareHalfExtent +
+                worldYProjection)
+                return false;
+
+            fp squareOnAxisX =
+                squareHalfExtent *
+                (fpmath.abs(axisX.x) +
+                 fpmath.abs(axisX.y));
+            if (fpmath.abs(
+                    fpmath.dot(
+                        delta,
+                        axisX)) >
+                rectangleHalfExtents.x +
+                squareOnAxisX)
+                return false;
+
+            fp squareOnAxisY =
+                squareHalfExtent *
+                (fpmath.abs(axisY.x) +
+                 fpmath.abs(axisY.y));
+            return fpmath.abs(
+                       fpmath.dot(
+                           delta,
+                           axisY)) <=
+                   rectangleHalfExtents.y +
+                   squareOnAxisY;
         }
 
         public void Clear()

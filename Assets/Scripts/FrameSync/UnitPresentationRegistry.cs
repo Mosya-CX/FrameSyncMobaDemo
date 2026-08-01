@@ -9,6 +9,8 @@ namespace FrameSyncMoba.FrameSync
 
         public static void Register(Unit.UnitUid uid, UnitPresentationHost host)
         {
+            if (!uid.IsValid() || host == null)
+                return;
             Hosts[uid] = host;
         }
 

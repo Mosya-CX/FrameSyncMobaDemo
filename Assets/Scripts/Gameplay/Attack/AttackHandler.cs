@@ -62,8 +62,14 @@ namespace FrameSyncMoba.Unit
             _state.LastSuccessfulAttackLogicTick;
 
         public fp CurrentAttackRange => Owner?.StatHandler != null
-            ? Owner.StatHandler.GetStat(StatId.AttackRange)
+            ? Owner.StatHandler.GetStat(StatId.AttackRange) *
+                (Owner.World?.StatDistanceToLogicDistanceScale ??
+                 (fp)0.01m)
             : fp.zero;
+
+        public bool IsAttackCycleActive =>
+            HasActiveAttackCycle(
+                SimulationTickContext.Current.Tick);
 
         public bool IsAttackReady() =>
             SimulationTickContext.Current.Tick >=
@@ -158,6 +164,11 @@ namespace FrameSyncMoba.Unit
             _state.ImpactCommitted = false;
             _state.IsEmpoweredAttack = ResolveIsEmpoweredAttack();
 
+            // Ordinary attack and active route movement are mutually
+            // exclusive. Forced movement and dashes remain owned by the
+            // MovementHandler and are intentionally unaffected.
+            Owner.Locomotion?.CancelRoute(
+                MoveCancelReason.AttackStarted);
             TurnToTargetImmediately(targetUid);
         }
 
@@ -464,11 +475,7 @@ namespace FrameSyncMoba.Unit
         public AttackAnimationSnapshot GetAnimationSnapshot()
         {
             int now = SimulationTickContext.Current.Tick;
-            bool hasCycle =
-                _state.CurrentTargetUid.IsValid() &&
-                _state.AttackStartLogicTick != InvalidLogicTick &&
-                now >= _state.AttackStartLogicTick &&
-                now < _state.NextAttackReadyLogicTick;
+            bool hasCycle = HasActiveAttackCycle(now);
             bool windup = hasCycle && !_state.ImpactCommitted;
             bool recovery = hasCycle && _state.ImpactCommitted;
 
@@ -505,6 +512,14 @@ namespace FrameSyncMoba.Unit
                 WindupProgress = Mathf.Clamp01(windupProgress),
                 RecoveryProgress = Mathf.Clamp01(recoveryProgress),
             };
+        }
+
+        private bool HasActiveAttackCycle(int logicTick)
+        {
+            return _state.CurrentTargetUid.IsValid() &&
+                _state.AttackStartLogicTick != InvalidLogicTick &&
+                logicTick >= _state.AttackStartLogicTick &&
+                logicTick < _state.NextAttackReadyLogicTick;
         }
 
         public override void ClearForDeath()

@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7112a06ac3587ca46ba2dbfa5b35902b, type: 3}
+  m_Name: VarusAnimationProfile
+  m_EditorClassIdentifier: 
+  MainKindHash: 1227887681
+  BaseKindHash: 1166874113
+  IsMovingHash: 120489994
+  AttackTriggerHash: 1914324138
+  CastTriggerHash: -1283053431
+  DeathTriggerHash: -1309810756
+  RespawnTriggerHash: -1899461591
+  MoveSpeedHash: 526065662
+  IsAttackingHash: -1130678506
+  IsAttackRecoveringHash: -1196666925
+  AttackSequenceIndexHash: 252578310
+  AttackMotionTimeHash: 66767629
+  AttackStartHash: 1914324138
+  IsCastingHash: 892169011
+  AbilityStageProgressHash: 212352822
+  LifeStateHash: 86291193
+  IsControlledHash: -1523660911
+  IdleStateHash: 1432961145
+  MoveStateHash: 1718862356
+  DeathStateHash: -1546996312
+  RespawnStateHash: 1432961145
+  NormalAttackPlan:
+    StartDurationTicks: 2
+    WindupDurationTicks: 5
+    ImpactDurationTicks: 2
+    RecoveryDurationTicks: 8
+  AttackStateHashes: a6dcfb121c8df28b
+  StageBindings:
+  - AbilityId: 10003
+    StageIndex: 1
+    StateNameHash: 1916000744
+    StartNormalizedTime: 0
+    EndNormalizedTime: 1
+  - AbilityId: 10003
+    StageIndex: 2
+    StateNameHash: 969141672
+    StartNormalizedTime: 0
+    EndNormalizedTime: 1
+  - AbilityId: 10002
+    StageIndex: 1
+    StateNameHash: -990521980
+    StartNormalizedTime: 0
+    EndNormalizedTime: 1
+  - AbilityId: 10001
+    StageIndex: 1
+    StateNameHash: 1193693251
+    StartNormalizedTime: 0
+    EndNormalizedTime: 1

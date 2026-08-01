@@ -80,6 +80,48 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void InitialAuthoritySnapshot_DiscardsClientAuthoringSpawnQueue()
+        {
+            const int prototypeId = 151;
+            UnitSpawnRequest request = new UnitSpawnRequest(
+                prototypeId,
+                new TeamId(1),
+                fp2.zero,
+                new fp2(fp.one, fp.zero));
+            var serverWorld = new UnitWorld
+            {
+                PhysicsWorld = new PhysicsWorld(),
+                TickRate = 30,
+            };
+            ConfigureBase(serverWorld, prototypeId);
+            var serverRuntime = CreateRuntime(serverWorld);
+            serverRuntime.QueueInitialSpawn(request);
+            serverRuntime.MaterializeInitialSpawnsForBootstrap(3);
+            GameplaySnapshot authoritySnapshot =
+                serverRuntime.TickPipeline.CaptureAggregateSnapshot();
+
+            var clientWorld = new UnitWorld
+            {
+                PhysicsWorld = new PhysicsWorld(),
+                TickRate = 30,
+            };
+            ConfigureBase(clientWorld, prototypeId);
+            var clientRuntime = CreateRuntime(clientWorld);
+            clientRuntime.QueueInitialSpawn(request);
+
+            clientRuntime.RestoreInitialSnapshot(
+                authoritySnapshot,
+                3,
+                ExecutionMode.ClientPrediction);
+
+            Assert.That(
+                clientRuntime.Prediction.ExecutePredictionTick(),
+                Is.True);
+            Assert.That(clientWorld.GetAllUnits().Count, Is.EqualTo(1));
+            Assert.That(clientRuntime.CurrentTick, Is.EqualTo(4));
+        }
+
+        [Test]
         public void InitialTopology_RejectsBasesOnSameTeam()
         {
             var world = new UnitWorld
@@ -136,6 +178,23 @@ namespace FrameSyncMoba.FrameSync.Tests
                 },
                 fp.zero,
                 fp.zero);
+        }
+
+        private static FrameSyncGameRuntime CreateRuntime(
+            UnitWorld world)
+        {
+            return new FrameSyncGameRuntime(
+                world,
+                world.PhysicsWorld,
+                2,
+                0,
+                3,
+                1,
+                1,
+                fp.one,
+                1,
+                snapshotWindowTicks: 8,
+                maxPredictionLeadTicks: 2);
         }
     }
 }

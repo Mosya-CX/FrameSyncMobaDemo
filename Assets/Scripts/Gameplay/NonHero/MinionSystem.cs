@@ -91,7 +91,7 @@ namespace FrameSyncMoba.Unit
             {
                 if (managedMinionUids[i] != unitUid)
                     continue;
-                managedMinionUids[i] = default;
+                managedMinionUids.RemoveAt(i);
                 return true;
             }
             return false;
@@ -227,7 +227,8 @@ namespace FrameSyncMoba.Unit
                                 TeamId = spawn.TeamId,
                                 LaneId = lane.LaneId,
                                 UnitPrototypeId =
-                                    member.UnitPrototypeId,
+                                    member.ResolveUnitPrototypeId(
+                                        spawn.TeamId.Value),
                                 StableEntryIndex =
                                     stableEntryIndex++,
                                 SpawnPosition =

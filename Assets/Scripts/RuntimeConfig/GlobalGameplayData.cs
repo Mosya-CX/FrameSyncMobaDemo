@@ -19,6 +19,15 @@ namespace FrameSyncMoba.RuntimeConfig
     }
 
     [Serializable]
+    public sealed class CriticalDataVersionsAuthoring
+    {
+        [Min(1)] public uint GameplayDataVersion = 1;
+        [Min(1)] public uint MapDataVersion = 1;
+        [Min(1)] public uint GlobalPrefabTableVersion = 1;
+        [Min(1)] public uint CommandSchemaVersion = 1;
+    }
+
+    [Serializable]
     public sealed class GameModeConfigAuthoring
     {
         [Min(1)] public int GameModeId = 1;
@@ -49,6 +58,7 @@ namespace FrameSyncMoba.RuntimeConfig
     {
         public float StatGrowthC = 0.7025f;
         public float StatGrowthD = 0.0175f;
+        [Min(0.0001f)] public float MoveSpeedToLogicVelocityScale = 0.01f;
         [Min(1)] public int AttackSequenceResetIntervalTicks = 90;
     }
 
@@ -72,6 +82,7 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly fp UnitGridCellSize;
         public readonly fp StatGrowthC;
         public readonly fp StatGrowthD;
+        public readonly fp MoveSpeedToLogicVelocityScale;
         public readonly int AttackSequenceResetIntervalTicks;
         public readonly int HeroRespawnBaseTicks;
         public readonly int HeroRespawnPerLevelTicks;
@@ -83,6 +94,10 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly uint RandomSeed;
         public readonly int PeriodicGoldIntervalTicks;
         public readonly int PeriodicGoldAmount;
+        public readonly uint GameplayDataVersion;
+        public readonly uint MapDataVersion;
+        public readonly uint GlobalPrefabTableVersion;
+        public readonly uint CommandSchemaVersion;
 
         public BakedGlobalGameplayData(
             GlobalPrefabTable prefabTable,
@@ -102,6 +117,7 @@ namespace FrameSyncMoba.RuntimeConfig
             fp unitGridCellSize,
             fp statGrowthC,
             fp statGrowthD,
+            fp moveSpeedToLogicVelocityScale,
             int attackSequenceResetIntervalTicks,
             int heroRespawnBaseTicks,
             int heroRespawnPerLevelTicks,
@@ -112,7 +128,11 @@ namespace FrameSyncMoba.RuntimeConfig
             fp equipmentSellRate,
             uint randomSeed,
             int periodicGoldIntervalTicks,
-            int periodicGoldAmount)
+            int periodicGoldAmount,
+            uint gameplayDataVersion,
+            uint mapDataVersion,
+            uint globalPrefabTableVersion,
+            uint commandSchemaVersion)
         {
             PrefabTable = prefabTable;
             TickRate = tickRate;
@@ -133,6 +153,7 @@ namespace FrameSyncMoba.RuntimeConfig
             UnitGridCellSize = unitGridCellSize;
             StatGrowthC = statGrowthC;
             StatGrowthD = statGrowthD;
+            MoveSpeedToLogicVelocityScale = moveSpeedToLogicVelocityScale;
             AttackSequenceResetIntervalTicks = attackSequenceResetIntervalTicks;
             HeroRespawnBaseTicks = heroRespawnBaseTicks;
             HeroRespawnPerLevelTicks = heroRespawnPerLevelTicks;
@@ -144,6 +165,10 @@ namespace FrameSyncMoba.RuntimeConfig
             RandomSeed = randomSeed;
             PeriodicGoldIntervalTicks = periodicGoldIntervalTicks;
             PeriodicGoldAmount = periodicGoldAmount;
+            GameplayDataVersion = gameplayDataVersion;
+            MapDataVersion = mapDataVersion;
+            GlobalPrefabTableVersion = globalPrefabTableVersion;
+            CommandSchemaVersion = commandSchemaVersion;
         }
     }
 
@@ -155,6 +180,8 @@ namespace FrameSyncMoba.RuntimeConfig
         [SerializeField] private GlobalPrefabTable globalPrefabTable;
         [SerializeField] private FrameSyncSettingsAuthoring frameSync =
             new FrameSyncSettingsAuthoring();
+        [SerializeField] private CriticalDataVersionsAuthoring versions =
+            new CriticalDataVersionsAuthoring();
         [SerializeField] private GameModeConfigAuthoring gameMode =
             new GameModeConfigAuthoring();
         [SerializeField] private PhysicsSettingsAuthoring physics =
@@ -170,7 +197,8 @@ namespace FrameSyncMoba.RuntimeConfig
                 throw new InvalidOperationException(
                     "GlobalGameplayData requires a GlobalPrefabTable.");
             globalPrefabTable.ValidateOrThrow();
-            if (frameSync == null || gameMode == null || physics == null || unit == null)
+            if (frameSync == null || versions == null ||
+                gameMode == null || physics == null || unit == null)
                 throw new InvalidOperationException(
                     "GlobalGameplayData contains a missing authoring section.");
             if (frameSync.TickRate <= 0 || gameMode.MaxPlayers <= 0 ||
@@ -184,7 +212,11 @@ namespace FrameSyncMoba.RuntimeConfig
                 frameSync.MaxLogicTicksPerUnityFrame <= 0 ||
                 frameSync.AuthorityRecoveryRetryTicks <= 0 ||
                 frameSync.MaxAuthorityRecoveryAttemptsBeforeDisconnect <= 0 ||
-                frameSync.StartLeadTicks < 0)
+                frameSync.StartLeadTicks < 0 ||
+                versions.GameplayDataVersion == 0 ||
+                versions.MapDataVersion == 0 ||
+                versions.GlobalPrefabTableVersion == 0 ||
+                versions.CommandSchemaVersion == 0)
                 throw new InvalidOperationException(
                     "FrameSync timing, command window, player count, or InitialEarnedGold is invalid.");
             ValidateFiniteNonnegative(gameMode.CountdownSeconds, nameof(gameMode.CountdownSeconds));
@@ -201,6 +233,9 @@ namespace FrameSyncMoba.RuntimeConfig
             ValidateFinitePositive(physics.UnitGridCellSize, nameof(physics.UnitGridCellSize));
             ValidateFinite(unit.StatGrowthC, nameof(unit.StatGrowthC));
             ValidateFinite(unit.StatGrowthD, nameof(unit.StatGrowthD));
+            ValidateFinitePositive(
+                unit.MoveSpeedToLogicVelocityScale,
+                nameof(unit.MoveSpeedToLogicVelocityScale));
             if (unit.AttackSequenceResetIntervalTicks < 1)
                 throw new InvalidOperationException(
                     "AttackSequenceResetIntervalTicks must be at least 1.");
@@ -231,6 +266,7 @@ namespace FrameSyncMoba.RuntimeConfig
                 (fp)physics.UnitGridCellSize,
                 (fp)unit.StatGrowthC,
                 (fp)unit.StatGrowthD,
+                (fp)unit.MoveSpeedToLogicVelocityScale,
                 unit.AttackSequenceResetIntervalTicks,
                 SecondsToTicks(gameMode.HeroRespawnBaseSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.HeroRespawnPerLevelSeconds, frameSync.TickRate),
@@ -241,7 +277,11 @@ namespace FrameSyncMoba.RuntimeConfig
                 (fp)gameMode.EquipmentSellRate,
                 gameMode.RandomSeed,
                 gameMode.PeriodicGoldIntervalTicks,
-                gameMode.PeriodicGoldAmount);
+                gameMode.PeriodicGoldAmount,
+                versions.GameplayDataVersion,
+                versions.MapDataVersion,
+                versions.GlobalPrefabTableVersion,
+                versions.CommandSchemaVersion);
         }
 
         private static int SecondsToTicks(float seconds, int tickRate)

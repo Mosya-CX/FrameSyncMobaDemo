@@ -8,6 +8,8 @@
         "FrameSyncMoba.FrameSync",
         "FrameSyncMoba.Unit",
         "FrameSyncMoba.Physics",
+        "FrameSyncMoba.Deterministic",
+        "Unity.Mathematics.FixedPoint",
         "Unity.InputSystem"
     ],
     "includePlatforms": [],

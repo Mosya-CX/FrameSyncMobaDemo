@@ -5,6 +5,7 @@ namespace FrameSyncMoba.FrameSync
     public sealed class UnitPresentationHost : MonoBehaviour
     {
         [SerializeField] private Unit.Unit _ownerUnit;
+        private Unit.UnitUid _registeredUid;
 
         public Unit.Unit OwnerUnit => _ownerUnit;
 
@@ -17,20 +18,44 @@ namespace FrameSyncMoba.FrameSync
 
         public void Bind(Unit.Unit unit)
         {
+            if (_registeredUid.IsValid())
+                UnitPresentationRegistry.Unregister(_registeredUid);
             _ownerUnit = unit;
-            UnitPresentationRegistry.Register(unit.UnitUid, this);
+            RefreshRegistration();
         }
 
         private void OnEnable()
         {
-            if (_ownerUnit != null)
-                UnitPresentationRegistry.Register(_ownerUnit.UnitUid, this);
+            if (_ownerUnit == null)
+                _ownerUnit = GetComponent<Unit.Unit>();
+            RefreshRegistration();
+        }
+
+        private void LateUpdate()
+        {
+            RefreshRegistration();
         }
 
         private void OnDisable()
         {
-            if (_ownerUnit != null)
-                UnitPresentationRegistry.Unregister(_ownerUnit.UnitUid);
+            if (_registeredUid.IsValid())
+                UnitPresentationRegistry.Unregister(_registeredUid);
+            _registeredUid = default;
+        }
+
+        private void RefreshRegistration()
+        {
+            if (_ownerUnit == null)
+                return;
+
+            Unit.UnitUid currentUid = _ownerUnit.UnitUid;
+            if (!currentUid.IsValid() || currentUid == _registeredUid)
+                return;
+
+            if (_registeredUid.IsValid())
+                UnitPresentationRegistry.Unregister(_registeredUid);
+            UnitPresentationRegistry.Register(currentUid, this);
+            _registeredUid = currentUid;
         }
     }
 }

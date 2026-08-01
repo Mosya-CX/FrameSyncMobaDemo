@@ -39,10 +39,25 @@ namespace FrameSyncMoba.Unit
             RadiusClass rc,
             int targetSearchRadius = TargetSearchRadiusDefault)
         {
+            if (!laneConfig.IsValid)
+                throw new ArgumentException(
+                    "Lane flow configuration requires at least one target.",
+                    nameof(laneConfig));
+            if (laneConfig.GuideHalfWidth < fp.zero ||
+                laneConfig.GuideCostPerCell < 0 ||
+                laneConfig.OffGuideCostPerCell < 0)
+                throw new ArgumentException(
+                    "Lane guide width and cost must be nonnegative.",
+                    nameof(laneConfig));
+
             int totalCells = _grid.Width * _grid.Height;
             int[] cost = new int[totalCells];
             for (int i = 0; i < totalCells; i++)
                 cost[i] = CostInf;
+            int[] guidePotential =
+                BuildGuidePotentialField(
+                    laneConfig,
+                    totalCells);
 
             EnsureHeapCapacity(totalCells);
             _heapCostRef = cost;
@@ -100,11 +115,38 @@ namespace FrameSyncMoba.Unit
                             continue;
                     }
 
-                    int moveCost = Dir8Helper.IsDiagonal(dir) ? DiagonalMoveCost : StraightMoveCost;
-                    if (currentCost > CostInf - moveCost) continue;
-                    int newCost = currentCost + moveCost;
+                    int moveCost = Dir8Helper.IsDiagonal(dir)
+                        ? DiagonalMoveCost
+                        : StraightMoveCost;
+                    int currentGuidePotential =
+                        guidePotential != null
+                            ? guidePotential[current]
+                            : 0;
                     int neighborIdx = CellIndex(nx, ny);
-
+                    int neighborGuidePotential =
+                        guidePotential != null
+                            ? guidePotential[neighborIdx]
+                            : 0;
+                    if (currentGuidePotential == CostInf ||
+                        neighborGuidePotential == CostInf)
+                        continue;
+                    int guideCost =
+                        neighborGuidePotential >
+                            currentGuidePotential
+                            ? neighborGuidePotential -
+                              currentGuidePotential
+                            : 0;
+                    if (guideCost >
+                            CostInf - moveCost ||
+                        currentCost >
+                            CostInf -
+                            moveCost -
+                            guideCost)
+                        continue;
+                    int newCost =
+                        currentCost +
+                        moveCost +
+                        guideCost;
                     if (newCost < cost[neighborIdx])
                     {
                         cost[neighborIdx] = newCost;
@@ -119,6 +161,143 @@ namespace FrameSyncMoba.Unit
             return cost;
         }
 
+        private int[] BuildGuidePotentialField(
+            in LaneTargetConfig laneConfig,
+            int totalCells)
+        {
+            fp2[] guide = laneConfig.GuidePoints;
+            if (guide == null ||
+                guide.Length < 2 ||
+                (laneConfig.GuideCostPerCell == 0 &&
+                 laneConfig.OffGuideCostPerCell == 0))
+                return null;
+            var result = new int[totalCells];
+            for (int cell = 0;
+                 cell < totalCells;
+                 cell++)
+            {
+                result[cell] =
+                    CalculateGuidePotential(
+                        cell % _grid.Width,
+                        cell / _grid.Width,
+                        laneConfig);
+            }
+            return result;
+        }
+
+        private int CalculateGuidePotential(
+            int cellX,
+            int cellY,
+            in LaneTargetConfig laneConfig)
+        {
+            fp2[] guide = laneConfig.GuidePoints;
+            if (guide == null ||
+                guide.Length < 2 ||
+                (laneConfig.GuideCostPerCell == 0 &&
+                 laneConfig.OffGuideCostPerCell == 0))
+                return 0;
+
+            fp2 position =
+                _grid.CellToWorld(
+                    cellX,
+                    cellY);
+            fp minimumDistanceSq =
+                DistanceToSegmentSq(
+                    position,
+                    guide[0],
+                    guide[1]);
+            for (int i = 1;
+                 i < guide.Length - 1;
+                 i++)
+            {
+                fp distanceSq =
+                    DistanceToSegmentSq(
+                        position,
+                        guide[i],
+                        guide[i + 1]);
+                if (distanceSq <
+                    minimumDistanceSq)
+                    minimumDistanceSq =
+                        distanceSq;
+            }
+
+            fp distance =
+                fpmath.sqrt(
+                    minimumDistanceSq);
+            int guideCost =
+                CalculateQuadraticPotential(
+                    distance /
+                    _grid.CellSize,
+                    laneConfig
+                        .GuideCostPerCell);
+            fp corridorWidth =
+                laneConfig.GuideHalfWidth;
+            if (distance <= corridorWidth)
+                return guideCost;
+
+            fp outsideDistance =
+                distance -
+                corridorWidth;
+            int outsideCost =
+                CalculateQuadraticPotential(
+                    outsideDistance /
+                    _grid.CellSize,
+                    laneConfig
+                        .OffGuideCostPerCell);
+            if (guideCost == int.MaxValue ||
+                outsideCost == int.MaxValue ||
+                guideCost >
+                    int.MaxValue -
+                    outsideCost)
+                return int.MaxValue;
+            return guideCost +
+                outsideCost;
+        }
+
+        private static int CalculateQuadraticPotential(
+            fp distanceInCells,
+            int weight)
+        {
+            if (distanceInCells <= fp.zero ||
+                weight <= 0)
+                return 0;
+            fp potential =
+                distanceInCells *
+                distanceInCells *
+                (fp)weight;
+            if (potential >=
+                (fp)int.MaxValue)
+                return int.MaxValue;
+            return (int)potential;
+        }
+
+        private static fp DistanceToSegmentSq(
+            fp2 point,
+            fp2 start,
+            fp2 end)
+        {
+            fp2 segment = end - start;
+            fp lengthSq =
+                fpmath.lengthsq(segment);
+            if (lengthSq <= fp.zero)
+                return fpmath.lengthsq(
+                    point - start);
+            fp t =
+                fpmath.dot(
+                    point - start,
+                    segment) /
+                lengthSq;
+            t = fpmath.clamp(
+                t,
+                fp.zero,
+                fp.one);
+            fp2 closest =
+                start +
+                segment * t;
+            return fpmath.lengthsq(
+                point - closest);
+        }
+
         /// <summary>
         /// Build a team-level merged flow field from multiple lane cost fields.
         /// Phase 1: OwnerLane assignment (section 8.6)
@@ -130,6 +309,32 @@ namespace FrameSyncMoba.Unit
             int[][] laneCostFields,
             FlowFieldBuildConfig config)
         {
+            return BuildTeamFlowField(
+                teamId,
+                rc,
+                laneCostFields,
+                null,
+                config);
+        }
+
+        public TeamFlowFieldData BuildTeamFlowField(
+            byte teamId,
+            RadiusClass rc,
+            int[][] laneCostFields,
+            LaneTargetConfig[] laneConfigs,
+            FlowFieldBuildConfig config)
+        {
+            if (laneCostFields == null ||
+                laneCostFields.Length == 0)
+                throw new ArgumentException(
+                    "At least one lane cost field is required.",
+                    nameof(laneCostFields));
+            if (laneConfigs != null &&
+                laneConfigs.Length !=
+                    laneCostFields.Length)
+                throw new ArgumentException(
+                    "Lane guide configuration count must match lane costs.",
+                    nameof(laneConfigs));
             int totalCells = _grid.Width * _grid.Height;
             var result = new TeamFlowFieldData
             {
@@ -163,6 +368,16 @@ namespace FrameSyncMoba.Unit
                 for (int lane = 0; lane < laneCount; lane++)
                 {
                     int laneCost = laneCostFields[lane][i];
+                    if (laneConfigs != null &&
+                        laneCost != CostInf)
+                    {
+                        laneCost =
+                            AddOwnershipPenalty(
+                                laneCost,
+                                i,
+                                laneConfigs[lane],
+                                config.OwnershipWeight);
+                    }
                     if (laneCost < bestCost)
                     {
                         bestCost = laneCost;
@@ -187,7 +402,16 @@ namespace FrameSyncMoba.Unit
                 if (ownerLaneIdx >= laneCount) continue;
 
                 int[] laneCost = laneCostFields[ownerLaneIdx];
-                int bestNeighbor = ChooseBestDescendingNeighbor(i, laneCost, rc, config);
+                int bestNeighbor =
+                    ChooseBestDescendingNeighbor(
+                        i,
+                        laneCost,
+                        rc,
+                        config,
+                        laneConfigs != null,
+                        laneConfigs != null
+                            ? laneConfigs[ownerLaneIdx]
+                            : default);
                 if (bestNeighbor >= 0)
                 {
                     result.NextCell[i] = bestNeighbor;
@@ -203,13 +427,67 @@ namespace FrameSyncMoba.Unit
             return result;
         }
 
+        private int AddOwnershipPenalty(
+            int baseCost,
+            int cell,
+            in LaneTargetConfig laneConfig,
+            int ownershipWeight)
+        {
+            fp2[] guide = laneConfig.GuidePoints;
+            if (ownershipWeight <= 0 ||
+                guide == null ||
+                guide.Length < 2)
+                return baseCost;
+            fp2 position =
+                _grid.CellToWorld(
+                    cell % _grid.Width,
+                    cell / _grid.Width);
+            fp minimumDistanceSq =
+                DistanceToSegmentSq(
+                    position,
+                    guide[0],
+                    guide[1]);
+            for (int i = 1;
+                 i < guide.Length - 1;
+                 i++)
+            {
+                fp candidate =
+                    DistanceToSegmentSq(
+                        position,
+                        guide[i],
+                        guide[i + 1]);
+                if (candidate < minimumDistanceSq)
+                    minimumDistanceSq = candidate;
+            }
+            fp distanceInCells =
+                fpmath.sqrt(
+                    minimumDistanceSq) /
+                _grid.CellSize;
+            fp rawPenalty =
+                distanceInCells *
+                (fp)ownershipWeight;
+            if (rawPenalty >=
+                    (fp)int.MaxValue ||
+                baseCost >
+                    int.MaxValue -
+                    (int)rawPenalty)
+                return int.MaxValue;
+            return baseCost +
+                (int)rawPenalty;
+        }
+
         /// <summary>
         /// Select the best descending neighbor for a cell.
         /// (section 8.7 ChooseBestDescendingNeighbor)
         /// Must satisfy: laneCost[neighbor] &lt; laneCost[current].
         /// </summary>
         private int ChooseBestDescendingNeighbor(
-            int cell, int[] laneCost, RadiusClass rc, FlowFieldBuildConfig config)
+            int cell,
+            int[] laneCost,
+            RadiusClass rc,
+            FlowFieldBuildConfig config,
+            bool hasLaneGuide,
+            in LaneTargetConfig laneConfig)
         {
             int cx = cell % _grid.Width;
             int cy = cell / _grid.Width;
@@ -217,7 +495,18 @@ namespace FrameSyncMoba.Unit
             if (currentCost == CostInf) return -1;
 
             int bestCell = -1;
-            int bestScore = int.MinValue;
+            long bestScore = long.MinValue;
+            fp2 laneTangent = fp2.zero;
+            fp2 inwardDirection = fp2.zero;
+            fp normalizedLaneDistance = fp.zero;
+            bool hasGuideFrame =
+                hasLaneGuide &&
+                TryGetGuideFrame(
+                    cell,
+                    laneConfig,
+                    out laneTangent,
+                    out inwardDirection,
+                    out normalizedLaneDistance);
 
             for (int d = 1; d <= 8; d++)
             {
@@ -246,8 +535,31 @@ namespace FrameSyncMoba.Unit
 
                 // Score
                 int costDelta = currentCost - neighborCost;
-                int score = costDelta * config.CostDropWeight;
-                score += WallTangentScore(cell, neighborIdx, rc) * config.WallAlignWeight;
+                long score =
+                    (long)costDelta *
+                    config.CostDropWeight;
+                score +=
+                    (long)WallTangentScore(
+                        cell,
+                        neighborIdx,
+                        rc) *
+                    config.WallAlignWeight;
+                if (hasGuideFrame)
+                {
+                    fp2 candidateDirection =
+                        Dir8Helper.ToFP2(dir);
+                    score +=
+                        (long)ScaleDot(
+                            candidateDirection,
+                            laneTangent) *
+                        config.SmoothWeight;
+                    score +=
+                        (long)ScaleDot(
+                            candidateDirection,
+                            inwardDirection,
+                            normalizedLaneDistance) *
+                        config.LaneWeight;
+                }
                 score -= Dir8Helper.Priority(dir); // Tie-breaker
 
                 if (score > bestScore)
@@ -263,6 +575,136 @@ namespace FrameSyncMoba.Unit
             }
 
             return bestCell;
+        }
+
+        private bool TryGetGuideFrame(
+            int cell,
+            in LaneTargetConfig laneConfig,
+            out fp2 tangent,
+            out fp2 inward,
+            out fp normalizedDistance)
+        {
+            tangent = fp2.zero;
+            inward = fp2.zero;
+            normalizedDistance = fp.zero;
+            fp2[] guide = laneConfig.GuidePoints;
+            if (guide == null ||
+                guide.Length < 2 ||
+                laneConfig.Targets == null ||
+                laneConfig.Targets.Length == 0)
+                return false;
+
+            fp2 position =
+                _grid.CellToWorld(
+                    cell % _grid.Width,
+                    cell / _grid.Width);
+            fp2 target = laneConfig.Targets[0];
+            bool targetAtEnd =
+                fpmath.lengthsq(
+                    target -
+                    guide[guide.Length - 1]) <=
+                fpmath.lengthsq(
+                    target -
+                    guide[0]);
+            int bestSegment = 0;
+            fp bestDistanceSq =
+                new fp(int.MaxValue);
+            fp2 closest = guide[0];
+            for (int i = 0;
+                 i < guide.Length - 1;
+                 i++)
+            {
+                fp2 segment =
+                    guide[i + 1] -
+                    guide[i];
+                fp lengthSq =
+                    fpmath.lengthsq(segment);
+                fp t = lengthSq > fp.zero
+                    ? fpmath.clamp(
+                        fpmath.dot(
+                            position - guide[i],
+                            segment) /
+                        lengthSq,
+                        fp.zero,
+                        fp.one)
+                    : fp.zero;
+                fp2 candidateClosest =
+                    guide[i] +
+                    segment * t;
+                fp distanceSq =
+                    fpmath.lengthsq(
+                        position -
+                        candidateClosest);
+                if (distanceSq < bestDistanceSq ||
+                    (distanceSq == bestDistanceSq &&
+                     (targetAtEnd
+                         ? i > bestSegment
+                         : i < bestSegment)))
+                {
+                    bestDistanceSq = distanceSq;
+                    bestSegment = i;
+                    closest = candidateClosest;
+                }
+            }
+
+            fp2 segmentDirection =
+                guide[bestSegment + 1] -
+                guide[bestSegment];
+            if (fpmath.lengthsq(segmentDirection) <=
+                fp.zero)
+                return false;
+            tangent =
+                fpmath.normalize(
+                    targetAtEnd
+                        ? segmentDirection
+                        : -segmentDirection);
+
+            fp2 toSkeleton =
+                closest -
+                position;
+            fp distance =
+                fpmath.sqrt(
+                    bestDistanceSq);
+            if (distance > fp.zero)
+                inward = toSkeleton /
+                    distance;
+            fp normalizationWidth =
+                laneConfig.GuideHalfWidth >
+                    _grid.CellSize
+                    ? laneConfig.GuideHalfWidth
+                    : _grid.CellSize;
+            normalizedDistance =
+                distance /
+                normalizationWidth;
+            return true;
+        }
+
+        private static int ScaleDot(
+            fp2 direction,
+            fp2 reference)
+        {
+            return ScaleDot(
+                direction,
+                reference,
+                fp.one);
+        }
+
+        private static int ScaleDot(
+            fp2 direction,
+            fp2 reference,
+            fp multiplier)
+        {
+            fp scaled =
+                fpmath.dot(
+                    direction,
+                    reference) *
+                multiplier *
+                (fp)100;
+            if (scaled >= (fp)int.MaxValue)
+                return int.MaxValue;
+            if (scaled <= (fp)int.MinValue)
+                return int.MinValue;
+            return (int)scaled;
         }
 
         /// <summary>
@@ -392,11 +834,13 @@ namespace FrameSyncMoba.Unit
         private void HeapSiftUp(int pos)
         {
             int cell = _heapData[pos];
-            int key = _heapCostRef[cell];
             while (pos > 0)
             {
                 int parent = (pos - 1) / 2;
-                if (key >= _heapCostRef[_heapData[parent]]) break;
+                if (!HeapEntryLess(
+                        cell,
+                        _heapData[parent]))
+                    break;
                 _heapData[pos] = _heapData[parent];
                 _heapPositions[_heapData[pos]] = pos;
                 pos = parent;
@@ -408,7 +852,6 @@ namespace FrameSyncMoba.Unit
         private void HeapSiftDown(int pos)
         {
             int cell = _heapData[pos];
-            int key = _heapCostRef[cell];
             int size = _heapSize;
             while (true)
             {
@@ -416,9 +859,17 @@ namespace FrameSyncMoba.Unit
                 int right = left + 1;
                 int smallest = pos;
 
-                if (left < size && _heapCostRef[_heapData[left]] < key)
+                if (left < size &&
+                    HeapEntryLess(
+                        _heapData[left],
+                        cell))
                     smallest = left;
-                if (right < size && _heapCostRef[_heapData[right]] < _heapCostRef[_heapData[smallest]])
+                if (right < size &&
+                    HeapEntryLess(
+                        _heapData[right],
+                        smallest == pos
+                            ? cell
+                            : _heapData[smallest]))
                     smallest = right;
                 if (smallest == pos) break;
 
@@ -428,6 +879,19 @@ namespace FrameSyncMoba.Unit
             }
             _heapData[pos] = cell;
             _heapPositions[cell] = pos;
+        }
+
+        private bool HeapEntryLess(
+            int leftCell,
+            int rightCell)
+        {
+            int comparison =
+                _heapCostRef[leftCell]
+                    .CompareTo(
+                        _heapCostRef[rightCell]);
+            return comparison < 0 ||
+                (comparison == 0 &&
+                 leftCell < rightCell);
         }
 
         #endregion

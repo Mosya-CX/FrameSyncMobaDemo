@@ -47,18 +47,30 @@ namespace FrameSyncMoba.Unit
         /// <summary>Desired stop distance from the target.</summary>
         public fp StopRange;
 
-        public MoveActionRequest(fp2 targetPosition, fp stopRange = default)
+        public MovePurpose Purpose;
+
+        public MoveActionRequest(
+            fp2 targetPosition,
+            fp stopRange = default,
+            MovePurpose purpose =
+                MovePurpose.PointMove)
             : base(ActionKind.Move, priority: 0)
         {
             TargetPosition = targetPosition;
             StopRange = stopRange;
+            Purpose = purpose;
         }
 
-        public MoveActionRequest(UnitUid chaseTarget, fp stopRange)
+        public MoveActionRequest(
+            UnitUid chaseTarget,
+            fp stopRange,
+            MovePurpose purpose =
+                MovePurpose.ChaseForAttack)
             : base(ActionKind.Move, priority: 0)
         {
             ChaseTarget = chaseTarget;
             StopRange = stopRange;
+            Purpose = purpose;
         }
     }
 

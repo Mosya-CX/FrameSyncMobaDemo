@@ -38,9 +38,45 @@ namespace FrameSyncMoba.Presentation
         [Tooltip("Hash for the 'MoveSpeed' float parameter.")]
         public int MoveSpeedHash;
 
+        [Tooltip("Hash for the 'IsAttacking' boolean parameter.")]
+        public int IsAttackingHash;
+
+        [Tooltip("Hash for the 'IsAttackRecovering' boolean parameter.")]
+        public int IsAttackRecoveringHash;
+
+        [Tooltip("Hash for the 'AttackSequenceIndex' integer parameter.")]
+        public int AttackSequenceIndexHash;
+
+        [Tooltip("Hash for the 'AttackMotionTime' float parameter.")]
+        public int AttackMotionTimeHash;
+
+        [Tooltip("Hash for the 'AttackStart' trigger parameter.")]
+        public int AttackStartHash;
+
+        [Tooltip("Hash for the 'IsCasting' boolean parameter.")]
+        public int IsCastingHash;
+
+        [Tooltip("Hash for the 'AbilityStageProgress' float parameter.")]
+        public int AbilityStageProgressHash;
+
+        [Tooltip("Hash for the 'LifeState' integer parameter.")]
+        public int LifeStateHash;
+
+        [Tooltip("Hash for the 'IsControlled' boolean parameter.")]
+        public int IsControlledHash;
+
+        [Header("State Names")]
+        public int IdleStateHash;
+        public int MoveStateHash;
+        public int DeathStateHash;
+        public int RespawnStateHash;
+
         [Header("Attack Animation")]
         [Tooltip("Animation plan for normal attacks.")]
         public AttackAnimationPlan NormalAttackPlan;
+
+        [Tooltip("Full-path Animator state hashes in stable attack sequence order.")]
+        public int[] AttackStateHashes = Array.Empty<int>();
 
         [Header("Stage Bindings")]
         [Tooltip("Maps ability stages to animation states.")]
@@ -60,9 +96,44 @@ namespace FrameSyncMoba.Presentation
             profile.DeathTriggerHash = Animator.StringToHash("DeathTrigger");
             profile.RespawnTriggerHash = Animator.StringToHash("RespawnTrigger");
             profile.MoveSpeedHash = Animator.StringToHash("MoveSpeed");
+            profile.IsAttackingHash = Animator.StringToHash("IsAttacking");
+            profile.IsAttackRecoveringHash = Animator.StringToHash("IsAttackRecovering");
+            profile.AttackSequenceIndexHash = Animator.StringToHash("AttackSequenceIndex");
+            profile.AttackMotionTimeHash = Animator.StringToHash("AttackMotionTime");
+            profile.AttackStartHash = Animator.StringToHash("AttackStart");
+            profile.IsCastingHash = Animator.StringToHash("IsCasting");
+            profile.AbilityStageProgressHash = Animator.StringToHash("AbilityStageProgress");
+            profile.LifeStateHash = Animator.StringToHash("LifeState");
+            profile.IsControlledHash = Animator.StringToHash("IsControlled");
+            profile.IdleStateHash = Animator.StringToHash("Base Layer.Idle");
+            profile.MoveStateHash = Animator.StringToHash("Base Layer.Move");
+            profile.DeathStateHash = Animator.StringToHash("Base Layer.Death");
+            profile.RespawnStateHash = profile.IdleStateHash;
             profile.NormalAttackPlan = AttackAnimationPlan.Default;
+            profile.AttackStateHashes = Array.Empty<int>();
             profile.StageBindings = Array.Empty<StageAnimationBinding>();
             return profile;
+        }
+
+        public bool TryGetStageBinding(
+            int abilityId,
+            int stageIndex,
+            out StageAnimationBinding binding)
+        {
+            StageAnimationBinding[] bindings =
+                StageBindings ?? Array.Empty<StageAnimationBinding>();
+            for (int i = 0; i < bindings.Length; i++)
+            {
+                if (bindings[i].AbilityId == abilityId &&
+                    bindings[i].StageIndex == stageIndex)
+                {
+                    binding = bindings[i];
+                    return true;
+                }
+            }
+
+            binding = default;
+            return false;
         }
     }
 }

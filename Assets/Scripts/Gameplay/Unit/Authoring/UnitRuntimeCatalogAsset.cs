@@ -155,6 +155,7 @@ namespace FrameSyncMoba.Unit
         [Min(0)] public int BaseExperienceValue;
         public ushort UnitDisposePolicyId;
         public UnitRespawnConfig RespawnConfig = UnitRespawnConfig.CannotRespawn;
+        public UnitPoolConfig PoolConfig = UnitPoolConfig.Default;
         public HandlerLoadout Loadout = HandlerLoadout.DefaultHero;
         public LocomotionProfileAuthoring Locomotion;
         public PhysicsProfile2DAuthoring Physics;
@@ -219,6 +220,7 @@ namespace FrameSyncMoba.Unit
                 BaseExperienceValue = BaseExperienceValue,
                 UnitDisposePolicyId = UnitDisposePolicyId,
                 RespawnConfig = RespawnConfig,
+                PoolConfig = PoolConfig,
                 Loadout = Loadout,
                 LocomotionProfile = locomotion,
                 PhysicsProfile = physics,
@@ -251,16 +253,19 @@ namespace FrameSyncMoba.Unit
     {
         public BakedUnitRuntimeCatalog(
             StatDefinitionTable statDefinitions,
-            GlobalUnitPrototypeTable unitPrototypes)
+            GlobalUnitPrototypeTable unitPrototypes,
+            UnitDisposePolicyTable disposePolicies)
         {
             StatDefinitions = statDefinitions ??
                 throw new ArgumentNullException(nameof(statDefinitions));
             UnitPrototypes = unitPrototypes ??
                 throw new ArgumentNullException(nameof(unitPrototypes));
+            DisposePolicies = disposePolicies;
         }
 
         public StatDefinitionTable StatDefinitions { get; }
         public GlobalUnitPrototypeTable UnitPrototypes { get; }
+        public UnitDisposePolicyTable DisposePolicies { get; }
     }
 
     [CreateAssetMenu(
@@ -272,6 +277,7 @@ namespace FrameSyncMoba.Unit
             new List<StatDefinitionAuthoring>();
         [SerializeField] private List<UnitPrototypeAuthoring> unitPrototypes =
             new List<UnitPrototypeAuthoring>();
+        [SerializeField] private UnitDisposePolicyTable disposePolicyTable;
 
         public IReadOnlyList<StatDefinitionAuthoring> StatDefinitions => statDefinitions;
         public IReadOnlyList<UnitPrototypeAuthoring> UnitPrototypes => unitPrototypes;
@@ -309,6 +315,17 @@ namespace FrameSyncMoba.Unit
                 if (authoring == null)
                     throw new InvalidOperationException($"Unit prototype {i} is null.");
                 UnitPrototype prototype = authoring.BakeOrThrow();
+                if (disposePolicyTable != null)
+                {
+                    if (!disposePolicyTable.TryGet(
+                            prototype.UnitDisposePolicyId,
+                            out UnitDisposePolicyEntry disposePolicy))
+                        throw new InvalidOperationException(
+                            $"Unit prototype {prototype.UnitPrototypeId} references missing dispose policy {prototype.UnitDisposePolicyId}.");
+                    ValidateLifecycleConfiguration(
+                        prototype,
+                        disposePolicy);
+                }
                 GameObject prefab = prefabTable.GetRequiredPrefab(
                     PrefabKind.Unit, prototype.RuntimeEntityPrefabId);
                 ValidatePrefabComposition(prefab, prototype);
@@ -316,7 +333,10 @@ namespace FrameSyncMoba.Unit
             }
 
             prototypeTable.ValidateAll(definitionTable);
-            return new BakedUnitRuntimeCatalog(definitionTable, prototypeTable);
+            return new BakedUnitRuntimeCatalog(
+                definitionTable,
+                prototypeTable,
+                disposePolicyTable);
         }
 
         internal void ReplaceForTests(
@@ -364,6 +384,28 @@ namespace FrameSyncMoba.Unit
             RequireExactlyOne<BuffHandler>(prefab, prototype);
             RequireExactlyOne<CrowdControlHandler>(prefab, prototype);
             RequireExactlyOne<EquipmentHandler>(prefab, prototype);
+        }
+
+        private static void ValidateLifecycleConfiguration(
+            UnitPrototype prototype,
+            in UnitDisposePolicyEntry disposePolicy)
+        {
+            if (disposePolicy.DeathPresentationTicks < 0)
+                throw new InvalidOperationException(
+                    $"Dispose policy {disposePolicy.Id} has a negative death presentation duration.");
+            if (disposePolicy.Kind == UnitDisposePolicyKind.Pool &&
+                (prototype.PoolConfig.PrewarmCount < 0 ||
+                 prototype.PoolConfig.MaxCapacity <= 0))
+                throw new InvalidOperationException(
+                    $"Pooled Unit prototype {prototype.UnitPrototypeId} requires a valid PoolConfig.");
+            if (disposePolicy.Kind == UnitDisposePolicyKind.SpawnRuin &&
+                disposePolicy.RuinUnitPrototypeId <= 0)
+                throw new InvalidOperationException(
+                    $"Dispose policy {disposePolicy.Id} requires a ruin prototype.");
+            if (disposePolicy.Kind != UnitDisposePolicyKind.KeepAlive &&
+                prototype.RespawnConfig.CanRespawn)
+                throw new InvalidOperationException(
+                    $"Disposable Unit prototype {prototype.UnitPrototypeId} cannot use UnitWorld respawn.");
         }
 
         private static void RequireExactlyOne<T>(

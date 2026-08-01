@@ -17,7 +17,11 @@ namespace FrameSyncMoba.Unit
         // Flow-field registry for runtime lookup
         private FlowFieldRegistry _flowFieldRegistry;
 
-        private static readonly fp RepathCooldownTicks = (fp)10m;
+        private const int RepathCooldownTicks = 10;
+        private static readonly fp RepathThresholdSq =
+            (fp)0.25m;
+        private static readonly fp DirectMaxDistanceSq =
+            (fp)9m;
 
         public UnitLocomotionAgent(Unit owner, PathGridMap2D grid)
         {
@@ -57,6 +61,9 @@ namespace FrameSyncMoba.Unit
             if (!_owner.CanRunActiveGameplayThisTick)
                 return MoveAcceptResult.Rejected_NoAgent;
 
+            if (MatchesActiveTask(request))
+                return MoveAcceptResult.Rejected_AlreadyActive;
+
             _currentTask = new MovementTask
             {
                 Purpose = request.Purpose,
@@ -67,17 +74,55 @@ namespace FrameSyncMoba.Unit
                 State = MovementTaskState.Active,
             };
 
+            RouteKind routeKind =
+                ResolveRouteKind(request);
             _route = new RouteRuntime
             {
-                Kind = request.Kind != RouteKind.None ? request.Kind : RouteKind.Direct,
-                NeedRepath = true,
+                Kind = routeKind,
+                NeedRepath =
+                    routeKind == RouteKind.AStar,
                 LastPathTargetPosition = request.Target.Position ?? fp2.zero,
+                FlowFieldKey =
+                    routeKind == RouteKind.FlowField
+                        ? new FlowFieldKey(
+                            _owner.TeamId.Value,
+                            OwnerRadiusClass)
+                            .Packed
+                        : 0,
                 FollowerState = PathFollowerState.Empty,
             };
 
             _follower.Reset();
 
             return MoveAcceptResult.Accepted;
+        }
+
+        private bool MatchesActiveTask(
+            in RouteMoveRequest request)
+        {
+            if (_currentTask.State != MovementTaskState.Active ||
+                _currentTask.Purpose != request.Purpose ||
+                _currentTask.StopDistance != request.StopDistance ||
+                _currentTask.AllowRVO != request.AllowRVO ||
+                _currentTask.AllowRepath != request.AllowRepath)
+                return false;
+
+            if (_currentTask.Target.Position.HasValue !=
+                    request.Target.Position.HasValue ||
+                _currentTask.Target.TargetUid.HasValue !=
+                    request.Target.TargetUid.HasValue)
+                return false;
+
+            if (_currentTask.Target.Position.HasValue &&
+                (_currentTask.Target.Position.Value.x !=
+                     request.Target.Position.Value.x ||
+                 _currentTask.Target.Position.Value.y !=
+                     request.Target.Position.Value.y))
+                return false;
+
+            return !_currentTask.Target.TargetUid.HasValue ||
+                _currentTask.Target.TargetUid.Value ==
+                    request.Target.TargetUid.Value;
         }
 
         public void CancelRoute(MoveCancelReason reason)
@@ -111,7 +156,10 @@ namespace FrameSyncMoba.Unit
                 return LocomotionResult.Idle(_owner.UnitUid);
 
             fp2 currentPos = Position;
-            fp moveSpeed = _owner.StatHandler?.GetStat(StatId.MoveSpeed) ?? fp.one;
+            fp statMoveSpeed =
+                _owner.StatHandler?.GetStat(StatId.MoveSpeed) ?? fp.one;
+            fp moveSpeed = statMoveSpeed *
+                (_owner.World?.MoveSpeedToLogicVelocityScale ?? fp.one);
 
             // Flow-field route: sample direction from baked field
             if (_route.Kind == RouteKind.FlowField)
@@ -121,6 +169,16 @@ namespace FrameSyncMoba.Unit
 
             // Determine target position
             fp2 targetPos = ResolveTargetPosition();
+            if (_currentTask.State ==
+                MovementTaskState.Cancelled)
+            {
+                return new LocomotionResult
+                {
+                    UnitUid = _owner.UnitUid,
+                    Status =
+                        RouteEvaluationStatus.TargetLost,
+                };
+            }
 
             // Check arrival at destination
             if (CheckArrival(currentPos, targetPos))
@@ -137,6 +195,16 @@ namespace FrameSyncMoba.Unit
                 };
             }
 
+            if (_route.Kind == RouteKind.Direct)
+            {
+                return BuildDirectResult(
+                    currentPos,
+                    targetPos,
+                    moveSpeed);
+            }
+
+            UpdateChaseRepath(targetPos);
+
             // Repath if needed
             int currentTick = SimulationTickContext.Current.Tick;
             if (_route.NeedRepath && currentTick >= _route.NextRepathTick)
@@ -152,7 +220,9 @@ namespace FrameSyncMoba.Unit
                     };
                 }
                 _route.NeedRepath = false;
-                _route.NextRepathTick = currentTick + (int)RepathCooldownTicks;
+                _route.NextRepathTick =
+                    currentTick +
+                    RepathCooldownTicks;
             }
 
             // Advance path follower cursor
@@ -191,9 +261,8 @@ namespace FrameSyncMoba.Unit
                     Status = RouteEvaluationStatus.NoRoute,
                 };
 
-            var key = new FlowFieldKey(
-                _owner.TeamId.Value,
-                OwnerRadiusClass);
+            var key = UnpackFlowFieldKey(
+                _route.FlowFieldKey);
             if (!_flowFieldRegistry.TryGet(key, out var field))
                 return new LocomotionResult
                 {
@@ -238,9 +307,6 @@ namespace FrameSyncMoba.Unit
 
         private bool RebuildPath(fp2 currentPos, fp2 targetPos)
         {
-            if (_route.Kind == RouteKind.Direct || _route.Kind == RouteKind.None)
-                _route.Kind = RouteKind.AStar;
-
             if (_route.Kind == RouteKind.AStar)
             {
                 PathResult result = _aStar.FindPath(
@@ -249,10 +315,9 @@ namespace FrameSyncMoba.Unit
                     OwnerRadiusClass);
                 if (!result.Success)
                 {
-                    _route.Kind = RouteKind.Direct;
                     _route.AStarPathCellIndices = null;
                     _follower.Reset();
-                    return true;
+                    return false;
                 }
 
                 _route.AStarPathCellIndices = result.PathCellIndices;
@@ -268,9 +333,113 @@ namespace FrameSyncMoba.Unit
                 return true;
             }
 
-            _route.Kind = RouteKind.Direct;
-            _follower.Reset();
-            return true;
+            return false;
+        }
+
+        private RouteKind ResolveRouteKind(
+            in RouteMoveRequest request)
+        {
+            switch (request.Purpose)
+            {
+                case MovePurpose.LaneAdvance:
+                    return RouteKind.FlowField;
+                case MovePurpose.ChaseForAttack:
+                case MovePurpose.ChaseForCast:
+                    return RouteKind.AStar;
+                case MovePurpose.PointMove:
+                case MovePurpose.ReturnToCamp:
+                case MovePurpose.ControlMove:
+                    fp2 target = request.Target.Position ??
+                        Position;
+                    return CanUseDirect(
+                            Position,
+                            target)
+                        ? RouteKind.Direct
+                        : RouteKind.AStar;
+                default:
+                    throw new DeterministicSimulationException(
+                        $"Unsupported movement purpose {request.Purpose}.");
+            }
+        }
+
+        private bool CanUseDirect(
+            fp2 start,
+            fp2 target)
+        {
+            fp2 delta = target - start;
+            return fpmath.lengthsq(delta) <=
+                    DirectMaxDistanceSq &&
+                _grid.HasLineOfSight(
+                    start,
+                    target,
+                    OwnerRadiusClass);
+        }
+
+        private LocomotionResult BuildDirectResult(
+            fp2 currentPos,
+            fp2 targetPos,
+            fp moveSpeed)
+        {
+            fp2 delta = targetPos - currentPos;
+            fp lengthSq = fpmath.lengthsq(delta);
+            if (lengthSq <= fp.zero)
+            {
+                return LocomotionResult.Idle(
+                    _owner.UnitUid);
+            }
+            fp length = fpmath.sqrt(lengthSq);
+            return new LocomotionResult
+            {
+                UnitUid = _owner.UnitUid,
+                HasMovement = true,
+                AllowRVO = _currentTask.AllowRVO,
+                DesiredDirection = delta / length,
+                DesiredSpeed = moveSpeed,
+                Status =
+                    RouteEvaluationStatus.Moving,
+            };
+        }
+
+        private void UpdateChaseRepath(
+            fp2 targetPosition)
+        {
+            if (!_currentTask.Target.TargetUid.HasValue ||
+                ! _currentTask.AllowRepath)
+            {
+                return;
+            }
+            // A newly accepted A* chase already owns a pending rebuild.
+            // Do not move its cooldown forward before that initial path exists.
+            if (_route.NeedRepath)
+            {
+                return;
+            }
+            int currentTick =
+                SimulationTickContext.Current.Tick;
+            if (currentTick <
+                _route.NextRepathTick)
+            {
+                return;
+            }
+            fp2 delta =
+                targetPosition -
+                _route.LastPathTargetPosition;
+            if (fpmath.lengthsq(delta) >=
+                RepathThresholdSq)
+            {
+                _route.NeedRepath = true;
+            }
+            _route.NextRepathTick =
+                currentTick +
+                RepathCooldownTicks;
+        }
+
+        private static FlowFieldKey
+            UnpackFlowFieldKey(int packed)
+        {
+            return new FlowFieldKey(
+                checked((byte)(packed >> 2)),
+                (RadiusClass)(packed & 0x3));
         }
 
         private RadiusClass OwnerRadiusClass =>
@@ -323,8 +492,8 @@ namespace FrameSyncMoba.Unit
 
         private static void ValidateSnapshot(in LocomotionAgentSnapshot state)
         {
-            if (state.Task.Purpose < MovePurpose.MoveToPosition ||
-                state.Task.Purpose > MovePurpose.MoveToLane ||
+            if (state.Task.Purpose < MovePurpose.PointMove ||
+                state.Task.Purpose > MovePurpose.ControlMove ||
                 state.Task.State < MovementTaskState.Idle ||
                 state.Task.State > MovementTaskState.Cancelled ||
                 state.Route.Kind < RouteKind.None ||

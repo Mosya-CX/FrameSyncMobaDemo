@@ -145,10 +145,10 @@ RectTransform:
   - {fileID: 3548038089793005412}
   m_Father: {fileID: 6823894206524652830}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -400}
-  m_SizeDelta: {x: 300, y: 150}
+  m_AnchorMin: {x: 0.42068753, y: 0.10614815}
+  m_AnchorMax: {x: 0.5783959, y: 0.24622223}
+  m_AnchoredPosition: {x: 1, y: -0.5}
+  m_SizeDelta: {x: -2, y: -1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4614948418462997989
 CanvasRenderer:
@@ -341,7 +341,7 @@ GameObject:
   - component: {fileID: 6853172614789980764}
   - component: {fileID: 7001324465686399567}
   m_Layer: 5
-  m_Name: HeroSelectScroll
+  m_Name: HeroList
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -608,7 +608,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6823894206524652830}
-  - component: {fileID: 40445978060538045}
+  - component: {fileID: 4993068912176668961}
+  - component: {fileID: 5270221345728873792}
+  - component: {fileID: 940179414011037595}
   m_Layer: 5
   m_Name: SelectPanel
   m_TagString: Untagged
@@ -633,12 +635,12 @@ RectTransform:
   - {fileID: 5855691051732070317}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &40445978060538045
+--- !u!114 &4993068912176668961
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -647,18 +649,45 @@ MonoBehaviour:
   m_GameObject: {fileID: 5112221971575720155}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17ef4aa6a2a07ec42bfc793cbf3fb5d8, type: 3}
+  m_Script: {fileID: 11500000, guid: 0d6e0199e1a9f6a46a8a916152cc9991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiName: SelectPanel
-  luaName: SelectPanel
-  uiComponents:
-  - luaName: HeroSelectScroll
-    component: {fileID: 7001324465686399567}
-  - luaName: ConfirmButton
-    component: {fileID: 2147650686933518658}
-  cellPrefabs:
-  - {fileID: 6088298271988319562, guid: 3d6683edf94b12341b13f96fd06042e9, type: 3}
+  pageId: 2
+  layer: 0
+--- !u!114 &5270221345728873792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5112221971575720155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c05ecf9860c11904d965ae18fb2ced36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasGroup: {fileID: 0}
+--- !u!114 &940179414011037595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5112221971575720155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66f65b4bd774c8c45a3d69dbf36fb110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectCanvas: {fileID: 0}
+  gridContainer: {fileID: 995687159181342292}
+  heroSlotPrefab: {fileID: 733688551146101147, guid: 3d6683edf94b12341b13f96fd06042e9,
+    type: 3}
+  lockInButton: {fileID: 2147650686933518658}
+  lockInText: {fileID: 0}
+  statusText: {fileID: 0}
+  lockInTextMeshPro: {fileID: 6864581141914102118}
+  statusTextMeshPro: {fileID: 6864581141914102118}
 --- !u!1 &6652473377034711019
 GameObject:
   m_ObjectHideFlags: 0
@@ -671,7 +700,7 @@ GameObject:
   - component: {fileID: 7609991411452636913}
   - component: {fileID: 6864581141914102118}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: ConfirmStateText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -751,7 +780,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 84.55
+  m_fontSize: 84.8
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1

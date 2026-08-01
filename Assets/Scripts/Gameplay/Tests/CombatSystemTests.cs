@@ -11,6 +11,7 @@ namespace FrameSyncMoba.Unit.Tests
         private UnitPrototype _prototype;
         private CombatSystem _combat;
         private SimulationTickContextController _controller;
+        private UnitDisposePolicyTable _disposePolicies;
 
         [SetUp]
         public void SetUp()
@@ -20,6 +21,24 @@ namespace FrameSyncMoba.Unit.Tests
             {
                 StatDefinitionTable = CreateCombatStatTable()
             };
+            _disposePolicies =
+                UnityEngine.ScriptableObject
+                    .CreateInstance<UnitDisposePolicyTable>();
+            _disposePolicies.Entries.Add(
+                new UnitDisposePolicyEntry
+                {
+                    Id = 0,
+                    Kind = UnitDisposePolicyKind.KeepAlive,
+                });
+            _disposePolicies.Entries.Add(
+                new UnitDisposePolicyEntry
+                {
+                    Id = 2,
+                    Kind = UnitDisposePolicyKind.Pool,
+                    DeathPresentationTicks = 2,
+                });
+            _world.DisposePolicyTable = _disposePolicies;
+            _world.RespawnTimer = new RespawnTimer(_world);
             _prototype = new UnitPrototype
             {
                 UnitPrototypeId = 1,
@@ -39,6 +58,8 @@ namespace FrameSyncMoba.Unit.Tests
         {
             if (_controller.IsTickActive)
                 _controller.EndTick();
+            UnityEngine.Object.DestroyImmediate(
+                _disposePolicies);
         }
 
         private void BeginTick(int tick)
@@ -198,6 +219,105 @@ namespace FrameSyncMoba.Unit.Tests
             _combat.EndTick();
 
             Assert.AreEqual(LifeState.Dead, target.LifeState);
+        }
+
+        [Test]
+        public void FatalDamage_NonHeroIsDisposedAfterCombatConsumersFinish()
+        {
+            BeginTick(1);
+            Unit attacker = _world.SpawnUnit(
+                _prototype,
+                TeamId.Neutral,
+                1,
+                0m,
+                0m);
+            var minionPrototype = new UnitPrototype
+            {
+                UnitPrototypeId = 2,
+                Name = "TestMinion",
+                RuntimeEntityPrefabId = 101,
+                UnitKind = UnitKind.Minion,
+                UnitDisposePolicyId = 2,
+                PoolConfig = UnitPoolConfig.Default,
+                BaseStats = CreateCombatPreset(),
+            };
+            Unit target = _world.SpawnUnit(
+                minionPrototype,
+                TeamId.Neutral,
+                1,
+                0m,
+                0m);
+            UnitUid targetUid = target.UnitUid;
+
+            _combat.BeginTick();
+            _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
+                attacker.UnitUid,
+                targetUid,
+                (fp)5000));
+            _combat.SettleActiveRequests();
+            _combat.EndTick();
+
+            Assert.IsTrue(_world.TryGetUnit(targetUid, out Unit dead));
+            Assert.AreEqual(LifeState.Dead, dead.LifeState);
+
+            _world.ProcessPostCombatDeathDisposals(
+                _combat.DeathResults);
+
+            RespawnTimerSnapshot captured = default;
+            _world.RespawnTimer.Capture(ref captured);
+            Assert.AreEqual(1, captured.DisposalEntries.Count);
+            Assert.AreEqual(targetUid, captured.DisposalEntries[0].UnitUid);
+            Assert.AreEqual(1, captured.DisposalEntries[0].DeathLogicTick);
+            Assert.AreEqual(3, captured.DisposalEntries[0].DisposeLogicTick);
+
+            var restoredTimer = new RespawnTimer(_world);
+            restoredTimer.Restore(in captured);
+            RollbackContext rollbackContext = default;
+            restoredTimer.Resolve(in rollbackContext);
+            restoredTimer.Rebuild(in rollbackContext);
+            RespawnTimerSnapshot roundTrip = default;
+            restoredTimer.Capture(ref roundTrip);
+            Assert.AreEqual(
+                captured.DisposalEntries[0].UnitUid,
+                roundTrip.DisposalEntries[0].UnitUid);
+            Assert.AreEqual(
+                captured.DisposalEntries[0].DisposeLogicTick,
+                roundTrip.DisposalEntries[0].DisposeLogicTick);
+            _world.RespawnTimer = restoredTimer;
+
+            _world.RespawnTimer.Tick(2);
+            Assert.IsTrue(_world.TryGetUnit(targetUid, out _));
+
+            _world.RespawnTimer.Tick(3);
+            Assert.IsFalse(_world.TryGetUnit(targetUid, out _));
+            Assert.AreEqual(
+                1,
+                _world.PoolRegistry.GetAvailableCount(
+                    minionPrototype.RuntimeEntityPrefabId));
+
+            var secondPrototype = new UnitPrototype
+            {
+                UnitPrototypeId = 3,
+                Name = "SamePrefabMinion",
+                RuntimeEntityPrefabId =
+                    minionPrototype.RuntimeEntityPrefabId,
+                UnitKind = UnitKind.Minion,
+                UnitDisposePolicyId = 2,
+                PoolConfig = UnitPoolConfig.Default,
+                BaseStats = CreateCombatPreset(),
+            };
+            Unit reused = _world.SpawnUnit(
+                secondPrototype,
+                TeamId.Neutral,
+                3,
+                0m,
+                0m);
+            Assert.AreSame(dead, reused);
+            Assert.AreEqual(3, reused.UnitPrototypeId);
+            Assert.AreEqual(
+                0,
+                _world.PoolRegistry.GetAvailableCount(
+                    minionPrototype.RuntimeEntityPrefabId));
         }
 
         [Test]

@@ -103,6 +103,145 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void MinionUnregister_RemovesUidWithoutLeavingTombstone()
+        {
+            var system = new MinionSystem(
+                new UnitWorld(),
+                new BakedMinionWaveConfig(
+                    30,
+                    100,
+                    Array.Empty<MinionWavePhase>()),
+                Array.Empty<LaneRuntimeData>());
+            UnitUid first = new UnitUid(10, 20, 0);
+            UnitUid second = new UnitUid(10, 20, 1);
+            var snapshot = new MinionSystemSnapshot
+            {
+                WaveIndex = 0,
+                NextWaveLogicTick = 100,
+                PendingTickets = Array.Empty<MinionTicket>(),
+                NextTicketCursor = 0,
+                ManagedMinionUids = new[] { first, second },
+            };
+            system.Restore(snapshot);
+
+            Assert.IsTrue(system.UnregisterManagedUnit(first));
+
+            Assert.That(system.ManagedMinionUids.Count, Is.EqualTo(1));
+            Assert.That(system.ManagedMinionUids[0], Is.EqualTo(second));
+        }
+
+        [Test]
+        public void LaneNearestPoint_ProjectsOntoCenterlineSegment()
+        {
+            var lane = new LaneRuntimeData(
+                1,
+                Array.Empty<LaneTeamSpawnData>(),
+                new[]
+                {
+                    fp2.zero,
+                    new fp2(0, 40),
+                    new fp2(40, 40),
+                },
+                (fp)2);
+
+            fp2 nearest = lane.GetNearestCenterlinePoint(
+                new fp2(1, 20),
+                out fp distanceSq);
+
+            Assert.That(nearest.x, Is.EqualTo(fp.zero));
+            Assert.That(nearest.y, Is.EqualTo((fp)20));
+            Assert.That(distanceSq, Is.EqualTo(fp.one));
+        }
+
+        [Test]
+        public void MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance()
+        {
+            UnitWorld world = CreateSpawnWorld();
+            var lane = new LaneRuntimeData(
+                1,
+                new[]
+                {
+                    new LaneTeamSpawnData(
+                        new TeamId(1),
+                        fp2.zero,
+                        new fp2(fp.zero, fp.one)),
+                },
+                new[]
+                {
+                    fp2.zero,
+                    new fp2(0, 40),
+                },
+                (fp)2);
+            world.MinionSystem = new MinionSystem(
+                world,
+                new BakedMinionWaveConfig(
+                    30,
+                    100,
+                    Array.Empty<MinionWavePhase>()),
+                new[] { lane });
+            Unit owner = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 31, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(1),
+                new fp2(1, 20));
+            var controller = new MinionAIController(owner, 1);
+            BeginTick(11);
+
+            controller.AIThink();
+
+            Assert.That(controller.AIState,
+                Is.EqualTo(MinionAIState.AdvanceLane));
+            Assert.That(owner.Intent.Kind,
+                Is.EqualTo(IntentKind.LaneAdvance));
+        }
+
+        [Test]
+        public void MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField()
+        {
+            UnitWorld world = CreateSpawnWorld();
+            var lane = new LaneRuntimeData(
+                1,
+                new[]
+                {
+                    new LaneTeamSpawnData(
+                        new TeamId(1),
+                        fp2.zero,
+                        new fp2(fp.zero, fp.one)),
+                },
+                new[]
+                {
+                    fp2.zero,
+                    new fp2(0, 40),
+                },
+                (fp)2);
+            world.MinionSystem = new MinionSystem(
+                world,
+                new BakedMinionWaveConfig(
+                    30,
+                    100,
+                    Array.Empty<MinionWavePhase>()),
+                new[] { lane });
+            Unit owner = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 32, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(1),
+                new fp2(20, 20));
+            var controller = new MinionAIController(owner, 1);
+            BeginTick(11);
+
+            controller.AIThink();
+
+            Assert.That(controller.AIState,
+                Is.EqualTo(MinionAIState.ReturnToLane));
+            Assert.That(owner.Intent.Kind,
+                Is.EqualTo(IntentKind.LaneAdvance));
+        }
+
+        [Test]
         public void AIController_DoesNotTickOnSpawnTick()
         {
             Unit unit = UnitTestFactory.CreateUnit(
@@ -224,6 +363,271 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void TowerAI_UsesStableMinionPriorityAndNeverChases()
+        {
+            var world = CreateSpawnWorld();
+            Unit tower = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 21, 0),
+                UnitKind.Structure,
+                NonHeroUnitSubKindId.Unspecified,
+                new TeamId(1),
+                fp2.zero);
+            Unit ranged = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 22, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.RangedMinion,
+                new TeamId(2),
+                new fp2(1, 0));
+            Unit melee = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 23, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(2),
+                new fp2(2, 0));
+            CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 24, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(2),
+                new fp2(fp.one / (fp)2, 0));
+            tower.StatHandler.SetStat(StatId.AttackRange, (fp)800);
+            var controller = new TowerAIController(tower);
+            BeginTick(11);
+
+            controller.AIThink();
+
+            Assert.That(tower.Intent.TargetUnit, Is.EqualTo(melee.UnitUid));
+            Assert.That(tower.Intent.AllowChase, Is.False);
+            Assert.That(tower.Intent.TargetUnit, Is.Not.EqualTo(ranged.UnitUid));
+        }
+
+        [Test]
+        public void MinionAI_SelectsEnemyMinionBeforeOrdinaryHero()
+        {
+            var world = CreateSpawnWorld();
+            Unit owner = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 31, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(1),
+                fp2.zero);
+            owner.StatHandler.SetStat(
+                StatId.AttackRange,
+                (fp)200);
+            CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 32, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(2),
+                new fp2(fp.one / (fp)2, 0));
+            Unit enemyMinion = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 33, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.RangedMinion,
+                new TeamId(2),
+                new fp2(2, 0));
+            var controller = new MinionAIController(owner, 1);
+            BeginTick(11);
+
+            controller.AIThink();
+
+            Assert.That(
+                owner.Intent.TargetUnit,
+                Is.EqualTo(enemyMinion.UnitUid));
+            Assert.That(owner.Intent.AllowChase, Is.True);
+        }
+
+        [Test]
+        public void MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates()
+        {
+            var world = CreateSpawnWorld();
+            Unit owner = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 41, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(1),
+                fp2.zero);
+            owner.StatHandler.SetStat(
+                StatId.AttackRange,
+                (fp)200);
+            CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 42, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(1),
+                new fp2(fp.one / (fp)4, fp.zero));
+            CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 43, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                TeamId.Neutral,
+                new fp2(fp.one / (fp)2, fp.zero));
+            Unit firstEnemy = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 44, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(2),
+                new fp2(fp.one, fp.zero));
+            Unit secondEnemy = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 45, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.RangedMinion,
+                new TeamId(2),
+                new fp2((fp)2, fp.zero));
+            var controller = new MinionAIController(owner, 1);
+            BeginTick(11);
+
+            controller.AIThink();
+
+            Assert.That(owner.Intent.TargetUnit, Is.EqualTo(firstEnemy.UnitUid));
+
+            world.RequestEnterDying(firstEnemy);
+            ticks.EndTick();
+            ticks.BeginTick(16, ExecutionMode.ServerAuthority);
+            controller.AIThink();
+
+            Assert.That(owner.Intent.TargetUnit, Is.EqualTo(secondEnemy.UnitUid));
+            Assert.That(controller.AIState, Is.EqualTo(MinionAIState.EngageTarget));
+        }
+
+        [Test]
+        public void MinionAI_LegalCurrentTargetIsNeverReplaced()
+        {
+            var world = CreateSpawnWorld();
+            world.MinionSystem = new MinionSystem(
+                world,
+                new BakedMinionWaveConfig(
+                    30,
+                    100,
+                    Array.Empty<MinionWavePhase>()),
+                new[]
+                {
+                    new LaneRuntimeData(
+                        1,
+                        new[]
+                        {
+                            new LaneTeamSpawnData(
+                                new TeamId(1),
+                                fp2.zero,
+                                new fp2(fp.one, fp.zero)),
+                        },
+                        new[]
+                        {
+                            new fp2(-10, 0),
+                            new fp2(10, 0),
+                        },
+                        (fp)2),
+                });
+            Unit owner = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 46, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(1),
+                fp2.zero);
+            Unit currentHero = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 47, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(2),
+                new fp2(fp.one, fp.zero));
+            CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 48, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(2),
+                new fp2(fp.one / (fp)2, fp.zero));
+            var controller = new MinionAIController(owner, 1);
+            BeginTick(11);
+            controller.AcquireTarget(currentHero.UnitUid);
+
+            ticks.EndTick();
+            ticks.BeginTick(46, ExecutionMode.ServerAuthority);
+            controller.AIThink();
+
+            Assert.That(
+                owner.Intent.TargetUnit,
+                Is.EqualTo(currentHero.UnitUid),
+                "A legal current target must remain locked even after the legacy lock window expires.");
+        }
+
+        [Test]
+        public void RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding()
+        {
+            var world = CreateSpawnWorld();
+            Unit owner = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 49, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.RangedMinion,
+                new TeamId(1),
+                fp2.zero);
+            owner.StatHandler.SetStat(StatId.AttackRange, (fp)500);
+            Unit enemy = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 50, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(2),
+                new fp2((fp)5.5m, fp.zero));
+            var controller = new MinionAIController(owner, 1);
+            BeginTick(11);
+
+            controller.AIThink();
+
+            Assert.That(owner.AttackHandler.CurrentAttackRange,
+                Is.LessThan((fp)5.5m));
+            Assert.That(owner.Intent.TargetUnit, Is.EqualTo(enemy.UnitUid));
+        }
+
+        [Test]
+        public void MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid()
+        {
+            var world = CreateSpawnWorld();
+            Unit owner = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 51, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(1),
+                fp2.zero);
+            CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 53, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(2),
+                new fp2(fp.one, fp.zero));
+            Unit lowerUid = CreateRegisteredUnit(
+                world,
+                new UnitUid(10, 52, 0),
+                UnitKind.Minion,
+                NonHeroUnitSubKindId.MeleeMinion,
+                new TeamId(2),
+                new fp2(-fp.one, fp.zero));
+            var controller = new MinionAIController(owner, 1);
+            BeginTick(11);
+
+            controller.AIThink();
+
+            Assert.That(owner.Intent.TargetUnit, Is.EqualTo(lowerUid.UnitUid));
+        }
+
+        [Test]
         public void JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration()
         {
             UnitWorld world = CreateSpawnWorld();
@@ -287,6 +691,29 @@ namespace FrameSyncMoba.Unit.Tests
                 PhysicsWorld = new PhysicsWorld(),
                 TickRate = 30,
             };
+        }
+
+        private static Unit CreateRegisteredUnit(
+            UnitWorld world,
+            UnitUid uid,
+            UnitKind kind,
+            ushort subKindId,
+            TeamId teamId,
+            fp2 position)
+        {
+            Unit unit = UnitTestFactory.CreateUnit(
+                uid,
+                kind,
+                subKindId,
+                teamId,
+                uid.RuntimeEntityPrefabId);
+            unit.PhysicsEntity.SetLogicPose(
+                position,
+                new fp2(fp.one, fp.zero));
+            unit.World = world;
+            world.RegisterUnit(unit);
+            world.PhysicsWorld.RegisterUnit(unit.PhysicsEntity);
+            return unit;
         }
 
         private static void ConfigureMonsterPrototype(

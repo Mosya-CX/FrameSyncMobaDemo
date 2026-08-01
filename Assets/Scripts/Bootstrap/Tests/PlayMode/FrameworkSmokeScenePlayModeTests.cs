@@ -28,7 +28,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
 
             Assert.That(bootstrap.IsInitialized, Is.True);
             Assert.That(bootstrap.Runtime.CurrentTick, Is.GreaterThan(0));
-            Assert.That(bootstrap.UnitWorld.GetAllUnits().Count, Is.EqualTo(1));
+            Assert.That(bootstrap.IsMatchReady, Is.True);
+            Assert.That(bootstrap.UnitWorld.GetAllUnits().Count, Is.EqualTo(4));
             Assert.That(
                 bootstrap.UnitWorld.GetAllUnits()[0].UnitPrototypeId,
                 Is.EqualTo(1001));

@@ -4,13 +4,35 @@ using UnityEngine;
 namespace FrameSyncMoba.RuntimeConfig
 {
     [Serializable]
+    public struct MinionTeamPrototypeOverride
+    {
+        [Range(1, byte.MaxValue)] public int TeamId;
+        [Min(1)] public int UnitPrototypeId;
+    }
+
+    [Serializable]
     public struct MinionWaveMember
     {
         [Min(1)] public int UnitPrototypeId;
+        [Tooltip("Optional team-specific runtime prototypes. Entries must be sorted by TeamId.")]
+        public MinionTeamPrototypeOverride[] TeamPrototypeOverrides;
         [Min(1)] public int Count;
         [Min(0)] public int FirstSpawnOffsetTicks;
         [Min(0)] public int SpawnStepTicks;
         [Min(0)] public int FormationGroup;
+
+        public int ResolveUnitPrototypeId(int teamId)
+        {
+            MinionTeamPrototypeOverride[] overrides =
+                TeamPrototypeOverrides ??
+                Array.Empty<MinionTeamPrototypeOverride>();
+            for (int i = 0; i < overrides.Length; i++)
+            {
+                if (overrides[i].TeamId == teamId)
+                    return overrides[i].UnitPrototypeId;
+            }
+            return UnitPrototypeId;
+        }
     }
 
     [Serializable]
@@ -84,8 +106,27 @@ namespace FrameSyncMoba.RuntimeConfig
                     MinionWaveMember[] members =
                         cycle[compositionIndex].Members ??
                         Array.Empty<MinionWaveMember>();
+                    var memberCopy =
+                        new MinionWaveMember[members.Length];
+                    for (int memberIndex = 0;
+                         memberIndex < members.Length;
+                         memberIndex++)
+                    {
+                        memberCopy[memberIndex] =
+                            members[memberIndex];
+                        MinionTeamPrototypeOverride[] overrides =
+                            members[memberIndex]
+                                .TeamPrototypeOverrides;
+                        memberCopy[memberIndex]
+                            .TeamPrototypeOverrides =
+                            overrides == null
+                                ? Array.Empty<
+                                    MinionTeamPrototypeOverride>()
+                                : (MinionTeamPrototypeOverride[])
+                                    overrides.Clone();
+                    }
                     cycleCopy[compositionIndex].Members =
-                        (MinionWaveMember[])members.Clone();
+                        memberCopy;
                 }
                 result[phaseIndex] = new MinionWavePhase
                 {

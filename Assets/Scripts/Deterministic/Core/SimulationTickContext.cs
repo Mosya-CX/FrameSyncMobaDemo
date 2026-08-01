@@ -3,12 +3,15 @@ using System;
 namespace FrameSyncMoba.Deterministic
 {
     /// <summary>
-    /// Immutable data shared by every deterministic system during one Gameplay Tick.
+    /// Single immutable simulation-time view published by the FrameSync pipeline.
     /// </summary>
     public readonly struct SimulationTickContext : IEquatable<SimulationTickContext>
     {
-        private static SimulationTickContext current;
-        private static bool hasCurrent;
+        private static SimulationTickContext current =
+            new SimulationTickContext(
+                0,
+                ExecutionMode.ServerAuthority);
+        private static bool isTickActive;
 
         internal SimulationTickContext(int tick, ExecutionMode executionMode)
         {
@@ -17,19 +20,7 @@ namespace FrameSyncMoba.Deterministic
             ExecutionMode = executionMode;
         }
 
-        public static SimulationTickContext Current
-        {
-            get
-            {
-                if (!hasCurrent)
-                {
-                    throw new InvalidOperationException(
-                        "SimulationTickContext.Current is only available while a Gameplay Tick is active.");
-                }
-
-                return current;
-            }
-        }
+        public static SimulationTickContext Current => current;
 
         public int Tick { get; }
 
@@ -37,29 +28,28 @@ namespace FrameSyncMoba.Deterministic
 
         public ExecutionMode ExecutionMode { get; }
 
-        internal static bool HasCurrent => hasCurrent;
+        internal static bool IsTickActive => isTickActive;
 
         internal static void SetCurrent(SimulationTickContext value)
         {
-            if (hasCurrent)
+            if (isTickActive)
             {
                 throw new InvalidOperationException(
                     "A Gameplay Tick is already active. Nested Tick execution is not allowed.");
             }
 
             current = value;
-            hasCurrent = true;
+            isTickActive = true;
         }
 
-        internal static void ClearCurrent()
+        internal static void CompleteCurrent()
         {
-            if (!hasCurrent)
+            if (!isTickActive)
             {
                 throw new InvalidOperationException("No Gameplay Tick is active.");
             }
 
-            current = default;
-            hasCurrent = false;
+            isTickActive = false;
         }
 
         public bool Equals(SimulationTickContext other)

@@ -72,6 +72,135 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds()
+        {
+            var grid = new PathGridMap2D();
+            grid.Initialise(
+                new fp2((fp)(-5), (fp)(-5)),
+                new fp2((fp)10, (fp)10),
+                fp.one);
+            attacker.Locomotion =
+                new UnitLocomotionAgent(
+                    attacker,
+                    grid);
+            attacker.StatHandler.SetStat(
+                StatId.AttackSpeed,
+                fp.one);
+            target.PhysicsEntity.TeleportLogicPosition(
+                new fp2(fp.one / (fp)2, fp.zero));
+            attacker.ApplyOrder(
+                Order.CreateAttack(
+                    target.UnitUid,
+                    true));
+            controller.EndTick();
+            controller.BeginTick(
+                11,
+                ExecutionMode.ServerAuthority);
+            Assert.That(
+                attacker.Locomotion.AcceptRouteRequest(
+                    RouteMoveRequest.FollowUnit(
+                        target.UnitUid,
+                        attacker.AttackHandler.CurrentAttackRange,
+                        MovePurpose.ChaseForAttack)),
+                Is.EqualTo(MoveAcceptResult.Accepted));
+
+            attacker.AttackHandler.BeginAttack(
+                target.UnitUid);
+
+            Assert.That(
+                attacker.AttackHandler.IsAttackCycleActive,
+                Is.True);
+            Assert.That(
+                attacker.AttackHandler
+                    .GetAnimationSnapshot()
+                    .IsAttacking,
+                Is.True);
+            Assert.That(
+                attacker.Locomotion.CurrentTask.State,
+                Is.EqualTo(MovementTaskState.Idle));
+            Assert.That(
+                attacker.Locomotion.Evaluate().HasMovement,
+                Is.False);
+
+            target.PhysicsEntity.TeleportLogicPosition(
+                new fp2((fp)8, fp.zero));
+            attacker.Planner.Tick(
+                out ActionRequest duringAttack);
+            Assert.That(duringAttack, Is.Null);
+
+            controller.EndTick();
+            controller.BeginTick(
+                42,
+                ExecutionMode.ServerAuthority);
+            attacker.Planner.Tick(
+                out ActionRequest afterAttack);
+
+            Assert.That(
+                attacker.AttackHandler.IsAttackCycleActive,
+                Is.False);
+            Assert.That(
+                attacker.AttackHandler
+                    .GetAnimationSnapshot()
+                    .IsAttacking,
+                Is.False);
+            Assert.That(afterAttack,
+                Is.TypeOf<MoveActionRequest>());
+        }
+
+        [Test]
+        public void AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary()
+        {
+            Assert.That(
+                attacker.StatHandler.GetStat(StatId.AttackRange),
+                Is.EqualTo((fp)200));
+            Assert.That(
+                attacker.AttackHandler.CurrentAttackRange,
+                Is.EqualTo((fp)200 * (fp)0.01m));
+            Assert.That(
+                fpmath.abs(
+                    attacker.AttackHandler.CurrentAttackRange -
+                    (fp)2),
+                Is.LessThan((fp)0.000001m));
+        }
+
+        [Test]
+        public void AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline()
+        {
+            attacker.StatHandler.AddModifier(
+                StatId.AttackSpeed,
+                StatModifierOperation.FlatAdd,
+                (fp)(-28.8m));
+            attacker.AttackHandler.WindupRatio = (fp)0.2m;
+
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            AttackSnapshot timeline = Capture(
+                attacker.AttackHandler);
+
+            fp resolvedAttackSpeed =
+                attacker.StatHandler.GetStat(StatId.AttackSpeed);
+            Assert.That(
+                System.Math.Abs(
+                    resolvedAttackSpeed.RawValue -
+                    ((fp)1.2m).RawValue),
+                Is.LessThanOrEqualTo(1L));
+            Assert.That(
+                timeline.ResolvedAttackDurationTicks,
+                Is.EqualTo(25));
+            Assert.That(
+                timeline.ResolvedWindupTicks,
+                Is.EqualTo(5));
+            Assert.That(
+                timeline.AttackStartLogicTick,
+                Is.EqualTo(10));
+            Assert.That(
+                timeline.ImpactLogicTick,
+                Is.EqualTo(15));
+            Assert.That(
+                timeline.NextAttackReadyLogicTick,
+                Is.EqualTo(35));
+        }
+
+        [Test]
         public void SuccessfulImpact_SubmitsCombatAndConsumesOneSequence()
         {
             int onHitCount = 0;
@@ -180,6 +309,27 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void AnimationSnapshot_AfterTickCompletion_UsesPublishedContext()
+        {
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            controller.EndTick();
+            try
+            {
+                AttackAnimationSnapshot animation =
+                    attacker.AttackHandler.GetAnimationSnapshot();
+
+                Assert.IsTrue(animation.IsAttacking);
+                Assert.IsFalse(animation.ImpactCommitted);
+            }
+            finally
+            {
+                controller.BeginTick(
+                    10,
+                    ExecutionMode.ServerAuthority);
+            }
+        }
+
+        [Test]
         public void Resolve_RejectsMissingActiveTarget()
         {
             attacker.AttackHandler.BeginAttack(target.UnitUid);
@@ -233,7 +383,7 @@ namespace FrameSyncMoba.Unit.Tests
             AddStat(preset, StatId.AttackDamage, (fp)100);
             AddStat(preset, StatId.MaxHealth, (fp)500);
             AddStat(preset, StatId.AttackSpeed, (fp)30);
-            AddStat(preset, StatId.AttackRange, (fp)2);
+            AddStat(preset, StatId.AttackRange, (fp)200);
             AddStat(preset, StatId.Armor, fp.zero);
             return preset;
         }

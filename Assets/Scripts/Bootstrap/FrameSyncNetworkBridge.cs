@@ -38,6 +38,11 @@ namespace FrameSyncMoba.Bootstrap
         private MatchResultState? pendingMatchResult;
 
         public bool IsBound => runtime != null;
+        internal bool IsConnectedClient =>
+            networkManager != null &&
+            networkManager.IsClient &&
+            !networkManager.IsServer &&
+            networkManager.IsConnectedClient;
         public event Action<MatchResultState> MatchResultReady;
 
         public void SetMatchId(string matchId)
@@ -63,9 +68,19 @@ namespace FrameSyncMoba.Bootstrap
                 throw new InvalidOperationException(
                     "FrameSyncNetworkBridge requires NetworkManager.");
             this.authorizeCommand = authorizeCommand;
-            RegisterHandlers();
+            TryRegisterHandlers();
             runtime.AuthorityFrames.AuthorityFrameBuilt +=
                 OnAuthorityFrameBuilt;
+        }
+
+        public void ActivateTransportHandlers()
+        {
+            if (runtime == null)
+                throw new InvalidOperationException(
+                    "FrameSyncNetworkBridge must be bound before transport activation.");
+            if (!TryRegisterHandlers())
+                throw new InvalidOperationException(
+                    "NGO CustomMessagingManager is not available after network start.");
         }
 
         public void SendLocalCommands()
@@ -108,10 +123,14 @@ namespace FrameSyncMoba.Bootstrap
                     request));
         }
 
-        private void RegisterHandlers()
+        private bool TryRegisterHandlers()
         {
+            if (registered)
+                return true;
             CustomMessagingManager messages =
                 networkManager.CustomMessagingManager;
+            if (messages == null)
+                return false;
             messages.RegisterNamedMessageHandler(
                 BundleMessage,
                 ReceiveBundle);
@@ -131,6 +150,7 @@ namespace FrameSyncMoba.Bootstrap
                 MatchResultMessage,
                 ReceiveMatchResult);
             registered = true;
+            return true;
         }
 
         private void UnregisterHandlers()
@@ -138,6 +158,11 @@ namespace FrameSyncMoba.Bootstrap
             if (!registered || networkManager == null) return;
             CustomMessagingManager messages =
                 networkManager.CustomMessagingManager;
+            if (messages == null)
+            {
+                registered = false;
+                return;
+            }
             messages.UnregisterNamedMessageHandler(BundleMessage);
             messages.UnregisterNamedMessageHandler(RelayMessage);
             messages.UnregisterNamedMessageHandler(

@@ -179,6 +179,33 @@ namespace FrameSyncMoba.FrameSync.Tests
             Assert.AreEqual(runtime1.LastChecksum, runtime2.LastChecksum);
         }
 
+        [Test]
+        public void ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity()
+        {
+            var world = CreateWorldWithUnit();
+            var runtime = new FrameSyncGameRuntime(
+                world,
+                null,
+                0,
+                0,
+                180,
+                300,
+                60,
+                (fp)7 / (fp)10,
+                42u,
+                snapshotWindowTicks: 4);
+
+            runtime.ExecuteTicks(20);
+
+            Assert.That(runtime.CurrentTick, Is.EqualTo(20));
+            Assert.That(
+                runtime.LatestSynchronizedServerTick,
+                Is.EqualTo(19));
+            Assert.That(
+                runtime.Prediction.LocalFrameVerificationRecordByTick,
+                Is.Empty);
+        }
+
         private UnitWorld CreateWorldWithUnit()
         {
             var world = new UnitWorld

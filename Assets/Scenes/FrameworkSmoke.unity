@@ -239,6 +239,8 @@ MonoBehaviour:
   abilityRuntimeCatalog: {fileID: 11400000, guid: d93f607006a804d4abc0bedca7b70650,
     type: 2}
   projectileRuntimeCatalog: {fileID: 0}
+  deterministicMapConfig: {fileID: 11400000, guid: 6ec8f6573f040f547bea7179ca855fce,
+    type: 2}
   dedicatedServer: 1
   driveSimulationFromUnityUpdate: 1
   enableOnlineApplicationFlow: 0
@@ -252,7 +254,41 @@ MonoBehaviour:
     TeamId: 1
     Position: {x: 0, y: 0}
     Forward: {x: 0, y: 1}
+    UseMapSpawnPoint: 1
+    SpawnPointId: 0
     MatchTopologyRole: 0
+    PlayerControlled: 1
+    PlayerSlot: 0
+  - StableSpawnOrder: 1
+    UnitPrototypeId: 1001
+    TeamId: 2
+    Position: {x: 0, y: 0}
+    Forward: {x: 0, y: 1}
+    UseMapSpawnPoint: 1
+    SpawnPointId: 1
+    MatchTopologyRole: 0
+    PlayerControlled: 1
+    PlayerSlot: 1
+  - StableSpawnOrder: 2
+    UnitPrototypeId: 1002
+    TeamId: 1
+    Position: {x: 0, y: 0}
+    Forward: {x: 0, y: 1}
+    UseMapSpawnPoint: 1
+    SpawnPointId: 10
+    MatchTopologyRole: 1
+    PlayerControlled: 0
+    PlayerSlot: 0
+  - StableSpawnOrder: 3
+    UnitPrototypeId: 1002
+    TeamId: 2
+    Position: {x: 0, y: 0}
+    Forward: {x: 0, y: 1}
+    UseMapSpawnPoint: 1
+    SpawnPointId: 11
+    MatchTopologyRole: 2
+    PlayerControlled: 0
+    PlayerSlot: 0
   playerInputController: {fileID: 0}
   gameplayCamera: {fileID: 0}
   indicatorDriver: {fileID: 0}

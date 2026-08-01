@@ -23,12 +23,6 @@ namespace FrameSyncMoba.Deterministic.Tests
         }
 
         [Test]
-        public void Current_OutsideActiveTick_Throws()
-        {
-            Assert.Throws<InvalidOperationException>(() => _ = SimulationTickContext.Current);
-        }
-
-        [Test]
         public void ExecutionMode_ValuesAreStable()
         {
             Assert.That((int)ExecutionMode.ServerAuthority, Is.EqualTo(0));
@@ -77,14 +71,32 @@ namespace FrameSyncMoba.Deterministic.Tests
         }
 
         [Test]
-        public void EndTick_ClearsCurrent()
+        public void EndTick_RetainsLatestPublishedContext()
         {
             controller.BeginTick(3, ExecutionMode.ClientReplay);
 
             controller.EndTick();
 
             Assert.That(controller.IsTickActive, Is.False);
-            Assert.Throws<InvalidOperationException>(() => _ = SimulationTickContext.Current);
+            Assert.That(SimulationTickContext.Current.Tick, Is.EqualTo(3));
+            Assert.That(
+                SimulationTickContext.Current.ExecutionMode,
+                Is.EqualTo(ExecutionMode.ClientReplay));
+        }
+
+        [Test]
+        public void BeginTick_AfterCompletedTick_ReplacesPublishedContext()
+        {
+            controller.BeginTick(14, ExecutionMode.ClientPrediction);
+            controller.EndTick();
+
+            controller.BeginTick(15, ExecutionMode.ClientReplay);
+
+            Assert.That(SimulationTickContext.Current.Tick, Is.EqualTo(15));
+            Assert.That(
+                SimulationTickContext.Current.ExecutionMode,
+                Is.EqualTo(ExecutionMode.ClientReplay));
+            Assert.That(controller.IsTickActive, Is.True);
         }
 
         [Test]

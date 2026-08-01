@@ -7,6 +7,7 @@ namespace FrameSyncMoba.Unit
     /// Used by RouteRuntime to reference the correct TeamFlowFieldData at runtime.
     /// (Pathfinding Design v13.1 section 14.6, section 8.3)
     /// </summary>
+    [Serializable]
     public struct FlowFieldKey : IEquatable<FlowFieldKey>
     {
         public byte TeamId;

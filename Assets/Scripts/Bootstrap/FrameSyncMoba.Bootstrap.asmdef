@@ -16,6 +16,7 @@
         "Unity.UOS.Matchmaking.Runtime",
         "Unity.UOS.Matchmaking.Server.Runtime",
         "Unity.UOS.Multiverse.Runtime",
+        "Unity.TextMeshPro",
         "Unity.Mathematics",
         "Unity.Mathematics.FixedPoint"
     ],

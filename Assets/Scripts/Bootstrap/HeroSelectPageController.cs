@@ -1,5 +1,6 @@
 using FrameSyncMoba.LuaBridge;
 using FrameSyncMoba.RuntimeConfig;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,22 +26,60 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField] private Button lockInButton;
         [SerializeField] private Text lockInText;
         [SerializeField] private Text statusText;
+        [SerializeField] private TMP_Text lockInTextMeshPro;
+        [SerializeField] private TMP_Text statusTextMeshPro;
 
         private int _selectedHeroId = -1;
         private bool _locked;
         private Font _font;
         private LobbyPanelController _lobbyPanel;
+        private ClientUiActionRouter _actionRouter;
+        private int[] _heroConfigIds = System.Array.Empty<int>();
 
         public int SelectedHeroId => _selectedHeroId;
         public bool IsLocked => _locked;
 
-        public void Inject(LobbyPanelController lobbyPanel) => _lobbyPanel = lobbyPanel;
+        public void Inject(
+            LobbyPanelController lobbyPanel,
+            ClientUiActionRouter actionRouter)
+        {
+            _lobbyPanel = lobbyPanel ??
+                throw new System.ArgumentNullException(
+                    nameof(lobbyPanel));
+            _actionRouter = actionRouter ??
+                throw new System.ArgumentNullException(
+                    nameof(actionRouter));
+        }
+
+        public void ConfigureHeroOptions(
+            int[] heroConfigIds)
+        {
+            if (heroConfigIds == null ||
+                heroConfigIds.Length == 0)
+                throw new System.ArgumentException(
+                    "At least one hero config ID is required.",
+                    nameof(heroConfigIds));
+            _heroConfigIds =
+                (int[])heroConfigIds.Clone();
+            System.Array.Sort(_heroConfigIds);
+            for (int i = 0;
+                 i < _heroConfigIds.Length;
+                 i++)
+            {
+                if (_heroConfigIds[i] <= 0 ||
+                    (i > 0 &&
+                     _heroConfigIds[i - 1] ==
+                     _heroConfigIds[i]))
+                    throw new System.ArgumentException(
+                        "Hero config IDs must be positive and unique.",
+                        nameof(heroConfigIds));
+            }
+        }
 
         private void Awake()
         {
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             EnsureCanvas();
-            selectCanvas.gameObject.SetActive(false);
 
             if (lockInButton != null)
                 lockInButton.onClick.AddListener(OnLockInClicked);
@@ -48,11 +87,28 @@ namespace FrameSyncMoba.Bootstrap
 
         public void Show()
         {
-            selectCanvas.gameObject.SetActive(true);
+            UIPanel panel = GetComponent<UIPanel>();
+            if (panel != null &&
+                !panel.IsOpen)
+                panel.Open();
+            else if (selectCanvas.gameObject !=
+                     gameObject)
+                selectCanvas.gameObject.SetActive(
+                    true);
             PopulateGrid();
         }
 
-        public void Hide() => selectCanvas.gameObject.SetActive(false);
+        public void Hide()
+        {
+            UIPanel panel = GetComponent<UIPanel>();
+            if (panel != null &&
+                panel.IsOpen)
+                panel.Close();
+            else if (selectCanvas.gameObject !=
+                     gameObject)
+                selectCanvas.gameObject.SetActive(
+                    false);
+        }
 
         private void EnsureCanvas()
         {
@@ -96,7 +152,6 @@ namespace FrameSyncMoba.Bootstrap
                 rt.offsetMax = Vector2.zero;
                 go.GetComponent<Image>().color = new Color(0.2f, 0.6f, 0.2f);
                 lockInButton = go.GetComponent<Button>();
-                lockInButton.onClick.AddListener(OnLockInClicked);
 
                 var label = new GameObject("Label", typeof(Text));
                 label.transform.SetParent(go.transform, false);
@@ -132,10 +187,11 @@ namespace FrameSyncMoba.Bootstrap
             for (int i = gridContainer.childCount - 1; i >= 0; i--)
                 Destroy(gridContainer.GetChild(i).gameObject);
 
-            // Create 8 hero slots (generic framework, no specific heroes)
-            for (int i = 0; i < 8; i++)
+            for (int i = 0;
+                 i < _heroConfigIds.Length;
+                 i++)
             {
-                int heroId = i + 1;
+                int heroId = _heroConfigIds[i];
                 GameObject go;
                 if (heroSlotPrefab != null)
                     go = Instantiate(heroSlotPrefab, gridContainer);
@@ -153,35 +209,65 @@ namespace FrameSyncMoba.Bootstrap
                 btn.onClick.AddListener(() => OnHeroClicked(capturedId));
 
                 var label = go.GetComponentInChildren<Text>();
-                if (label == null)
+                TMP_Text meshProLabel =
+                    go.GetComponentInChildren<TMP_Text>();
+                if (label == null &&
+                    meshProLabel == null)
                 {
                     var labelGo = new GameObject("Label", typeof(Text));
                     labelGo.transform.SetParent(go.transform, false);
                     label = labelGo.GetComponent<Text>();
                 }
-                label.font = _font;
-                label.fontSize = 16;
-                label.alignment = TextAnchor.MiddleCenter;
-                label.color = Color.white;
-                label.text = $"Hero {heroId}";
+                if (label != null)
+                {
+                    label.font = _font;
+                    label.fontSize = 16;
+                    label.alignment = TextAnchor.MiddleCenter;
+                    label.color = Color.white;
+                    label.text = $"Hero {heroId}";
+                }
+                if (meshProLabel != null)
+                    meshProLabel.text = $"Hero {heroId}";
             }
         }
 
         private void OnHeroClicked(int heroId)
         {
             if (_locked) return;
+            _actionRouter?.SelectHero(heroId);
             _selectedHeroId = heroId;
-            if (statusText != null)
-                statusText.text = $"Selected: Hero {heroId}";
+            SetText(
+                statusText,
+                statusTextMeshPro,
+                $"Selected: Hero {heroId}");
         }
 
         private void OnLockInClicked()
         {
             if (_locked || _selectedHeroId <= 0) return;
+            _actionRouter?.LockHero(
+                _selectedHeroId);
             _locked = true;
-            if (lockInText != null) lockInText.text = "Locked!";
-            if (statusText != null) statusText.text = $"Locked: Hero {_selectedHeroId}";
+            SetText(
+                lockInText,
+                lockInTextMeshPro,
+                "Locked!");
+            SetText(
+                statusText,
+                statusTextMeshPro,
+                $"Locked: Hero {_selectedHeroId}");
             _lobbyPanel?.OnHeroLocked(_selectedHeroId);
+        }
+
+        private static void SetText(
+            Text legacyText,
+            TMP_Text meshProText,
+            string value)
+        {
+            if (legacyText != null)
+                legacyText.text = value;
+            if (meshProText != null)
+                meshProText.text = value;
         }
     }
 }

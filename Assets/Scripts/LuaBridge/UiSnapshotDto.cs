@@ -14,6 +14,8 @@ namespace FrameSyncMoba.LuaBridge
     {
         public fp CurrentHealth;
         public fp MaxHealth;
+        public fp CurrentResource;
+        public fp MaxResource;
         public int CurrentGold;
         public int ConfirmedGold;
         public int CooldownRemaining0;

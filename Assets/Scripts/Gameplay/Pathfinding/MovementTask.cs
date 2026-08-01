@@ -7,10 +7,19 @@ namespace FrameSyncMoba.Unit
     /// </summary>
     public enum MovePurpose
     {
-        MoveToPosition,
-        FollowTarget,
-        Flee,
-        MoveToLane,
+        PointMove = 0,
+        ChaseForAttack = 1,
+        ChaseForCast = 2,
+        LaneAdvance = 3,
+        ReturnToCamp = 4,
+        ControlMove = 5,
+
+        // Compatibility aliases for snapshots/tests authored before the
+        // formal v13.1 purpose names were applied.
+        MoveToPosition = PointMove,
+        FollowTarget = ChaseForAttack,
+        Flee = ControlMove,
+        MoveToLane = LaneAdvance,
     }
 
     /// <summary>

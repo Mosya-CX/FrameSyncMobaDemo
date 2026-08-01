@@ -90,6 +90,28 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                                 $"[MinionWaveConfig] Phase {phaseIndex}, composition {compositionIndex}, member {memberIndex} is invalid.");
                             allValid = false;
                         }
+                        MinionTeamPrototypeOverride[] overrides =
+                            member.TeamPrototypeOverrides;
+                        if (overrides == null)
+                            continue;
+                        for (int overrideIndex = 0;
+                             overrideIndex < overrides.Length;
+                             overrideIndex++)
+                        {
+                            MinionTeamPrototypeOverride entry =
+                                overrides[overrideIndex];
+                            if (entry.TeamId <= 0 ||
+                                entry.TeamId > byte.MaxValue ||
+                                entry.UnitPrototypeId <= 0 ||
+                                (overrideIndex > 0 &&
+                                 overrides[overrideIndex - 1]
+                                     .TeamId >= entry.TeamId))
+                            {
+                                Debug.LogError(
+                                    $"[MinionWaveConfig] Phase {phaseIndex}, composition {compositionIndex}, member {memberIndex} has invalid or unsorted team prototype override {overrideIndex}.");
+                                allValid = false;
+                            }
+                        }
                     }
                 }
             }

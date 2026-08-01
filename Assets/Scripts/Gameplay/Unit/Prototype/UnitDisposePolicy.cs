@@ -31,6 +31,9 @@ namespace FrameSyncMoba.Unit
         /// <summary>How to handle the object after death.</summary>
         public UnitDisposePolicyKind Kind;
 
+        /// <summary>Deterministic delay between formal death and disposal.</summary>
+        public int DeathPresentationTicks;
+
         /// <summary>
         /// When Kind is SpawnRuin: the UnitPrototypeId of the ruin prefab to spawn.
         /// Ignored for other kinds.
@@ -40,6 +43,7 @@ namespace FrameSyncMoba.Unit
         public static readonly UnitDisposePolicyConfig Default = new UnitDisposePolicyConfig
         {
             Kind = UnitDisposePolicyKind.Destroy,
+            DeathPresentationTicks = 0,
             RuinPrototypeId = 0,
         };
     }

@@ -1,3 +1,4 @@
+using System;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
 using FrameSyncMoba.RuntimeConfig;
@@ -14,6 +15,10 @@ namespace FrameSyncMoba.FrameSync
         private readonly AuthorityRecoveryArchive _authorityRecoveryArchive;
         private readonly AuthorityFrameReplicator _authorityFrameReplicator;
         private readonly AuthorityRecoveryCoordinator _authorityRecoveryCoordinator;
+        private PlayerSlotUnitMapping[] _playerSlotMappings =
+            Array.Empty<PlayerSlotUnitMapping>();
+        private int _naturalGoldIntervalTicks = 15;
+        private int _naturalGoldAmount = 2;
 
         public Unit.UnitWorld UnitWorld { get; }
         public PhysicsWorld PhysicsWorld { get; }
@@ -93,6 +98,10 @@ namespace FrameSyncMoba.FrameSync
                 config.PeriodicGoldIntervalTicks,
                 config.PeriodicGoldAmount,
                 config.MaxPlayers);
+            _naturalGoldIntervalTicks =
+                config.PeriodicGoldIntervalTicks;
+            _naturalGoldAmount =
+                config.PeriodicGoldAmount;
         }
 
         public FrameSyncGameRuntime(
@@ -173,6 +182,143 @@ namespace FrameSyncMoba.FrameSync
                     _rollbackCoordinator,
                     authorityRecoveryRetryTicks,
                     maxAuthorityRecoveryAttempts);
+            _pipeline.RestoreStaticBindings =
+                ReapplyPlayerSlotMappings;
+        }
+
+        public void ConfigureMatchStart(
+            int startTick,
+            uint initialRandomSeed,
+            int playerCount,
+            int initialEarnedGold)
+        {
+            if (startTick < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(startTick));
+            if (initialRandomSeed == 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(initialRandomSeed));
+            if (playerCount < 1 || playerCount > 10)
+                throw new ArgumentOutOfRangeException(
+                    nameof(playerCount));
+            if (initialEarnedGold < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(initialEarnedGold));
+
+            var initialGold = new int[playerCount];
+            for (int i = 0; i < initialGold.Length; i++)
+                initialGold[i] = initialEarnedGold;
+            GoldIncome.Initialize(
+                startTick,
+                initialGold);
+            var randomState =
+                new DeterministicRandomSnapshot(
+                    initialRandomSeed);
+            _pipeline.RandomService.Restore(
+                randomState);
+            UnitWorld.RandomService.Restore(
+                randomState);
+            _pipeline.NaturalGoldIncome =
+                new NaturalGoldIncomeSystem(
+                    GoldIncome,
+                    MatchRule,
+                    _naturalGoldIntervalTicks,
+                    _naturalGoldAmount,
+                    playerCount);
+        }
+
+        public Unit.UnitUid[]
+            MaterializeInitialSpawnsForBootstrap(
+                int startTick)
+        {
+            return _pipeline
+                .MaterializeInitialSpawnsForBootstrap(
+                    _tickController,
+                    startTick);
+        }
+
+        public void ConfigurePlayerSlotMappings(
+            PlayerSlotUnitMapping[] mappings)
+        {
+            if (mappings == null)
+                throw new ArgumentNullException(
+                    nameof(mappings));
+            var copy =
+                (PlayerSlotUnitMapping[])mappings.Clone();
+            for (int i = 0; i < copy.Length; i++)
+            {
+                if (copy[i].PlayerSlot != i)
+                    throw new DeterministicSimulationException(
+                        "Player slot mappings must be stored in ascending order.");
+            }
+            _playerSlotMappings = copy;
+            bool canResolveAll = true;
+            for (int i = 0; i < copy.Length; i++)
+                if (!UnitWorld.TryGetUnit(
+                        copy[i].ControlledUnitUid,
+                        out _))
+                {
+                    canResolveAll = false;
+                    break;
+                }
+            if (canResolveAll)
+                ReapplyPlayerSlotMappings();
+        }
+
+        public bool TryGetControlledUnit(
+            int playerSlot,
+            out Unit.Unit unit)
+        {
+            if ((uint)playerSlot >=
+                    (uint)_playerSlotMappings.Length)
+            {
+                unit = null;
+                return false;
+            }
+            return UnitWorld.TryGetUnit(
+                _playerSlotMappings[playerSlot]
+                    .ControlledUnitUid,
+                out unit);
+        }
+
+        public void RestoreInitialSnapshot(
+            in GameplaySnapshot snapshot,
+            int snapshotTick,
+            ExecutionMode executionMode)
+        {
+            // The initial authority snapshot owns the complete Unit topology.
+            // Client-side authoring queues must not materialize the same Units again.
+            _pipeline
+                .DiscardPendingInitialSpawnsForAuthoritativeRestore();
+            _pipeline.RestoreFromSnapshot(
+                snapshot,
+                snapshotTick,
+                executionMode);
+            _rollbackCoordinator
+                .InitializeAuthorityBaseline(
+                    snapshotTick);
+            ReapplyPlayerSlotMappings();
+        }
+
+        private void ReapplyPlayerSlotMappings()
+        {
+            var units = UnitWorld.GetAllUnits();
+            for (int i = 0; i < units.Count; i++)
+                units[i].ControlledByPlayerSlot = -1;
+            for (int i = 0;
+                 i < _playerSlotMappings.Length;
+                 i++)
+            {
+                PlayerSlotUnitMapping mapping =
+                    _playerSlotMappings[i];
+                if (!UnitWorld.TryGetUnit(
+                        mapping.ControlledUnitUid,
+                        out Unit.Unit unit))
+                    throw new DeterministicSimulationException(
+                        $"PlayerSlot {mapping.PlayerSlot} cannot resolve controlled Unit.");
+                unit.ControlledByPlayerSlot =
+                    mapping.PlayerSlot;
+            }
         }
 
         public void SubmitCommand(GameplayCommand command)
@@ -204,6 +350,9 @@ namespace FrameSyncMoba.FrameSync
         {
             AuthorityFrame frame =
                 _authorityFrameReplicator.ExecuteNextTick();
+            _rollbackCoordinator
+                .ReleaseServerAuthorityHistory(
+                    frame.Tick);
             LatestSynchronizedServerTick = frame.Tick;
             return frame;
         }
@@ -228,9 +377,17 @@ namespace FrameSyncMoba.FrameSync
 
         public void ExecuteOneTick()
         {
+            int authorityTick = _pipeline.LocalSimulationTick;
             _rollbackCoordinator.EnsureRollbackAnchor();
-            _pipeline.ExecuteTick(_tickController);
-            LatestSynchronizedServerTick = _pipeline.LocalSimulationTick - 1;
+            _pipeline.ExecuteTick(
+                _tickController,
+                ExecutionMode.ServerAuthority);
+            _pipeline.GoldIncome?.ConfirmThroughTick(
+                authorityTick);
+            _rollbackCoordinator
+                .ReleaseServerAuthorityHistory(
+                    authorityTick);
+            LatestSynchronizedServerTick = authorityTick;
         }
 
         public void QueueInitialSpawn(in Unit.UnitSpawnRequest request)

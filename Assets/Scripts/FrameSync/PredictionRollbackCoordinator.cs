@@ -168,6 +168,7 @@ namespace FrameSyncMoba.FrameSync
             if (commandHistory.TryGetValue(tick, out CommandHistoryRecord record))
                 pipeline.ReplaceCommandsForNextTick(record.Commands);
             pipeline.ExecuteTick(tickController, ExecutionMode.ClientPrediction);
+            ProcessAuthorityFramesSequentially();
             if (pipeline.HasPredictedMatchEndCandidate())
             {
                 PredictedMatchEndCandidateTick = tick;
@@ -236,10 +237,42 @@ namespace FrameSyncMoba.FrameSync
 
         public void DiscardConfirmedSnapshots(int newBaseTick) => store.AdvanceBase(newBaseTick);
 
+        internal void InitializeAuthorityBaseline(
+            int snapshotTick)
+        {
+            if (snapshotTick < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(snapshotTick));
+            if (pipeline.LocalSimulationTick != snapshotTick ||
+                store.Count != 0 ||
+                authorityBuffer.Count != 0 ||
+                commandHistory.Count != 0 ||
+                verificationByTick.Count != 0 ||
+                hasAcceptedFrameSequence)
+                throw new DeterministicSimulationException(
+                    "Initial authority baseline requires a pristine coordinator restored to SnapshotTick.");
+
+            LatestAuthorityFrameTick =
+                snapshotTick - 1;
+            SnapshotTick = snapshotTick;
+            RefreshMissingFramePause();
+            RefreshPredictionLeadPause();
+        }
+
+        internal void ReleaseServerAuthorityHistory(int confirmedTick)
+        {
+            commandHistory.Remove(confirmedTick);
+            verificationByTick.Remove(confirmedTick);
+            store.AdvanceBase(checked(confirmedTick + 1));
+        }
+
         private void ProcessAuthorityFramesSequentially()
         {
             while (authorityBuffer.TryGetValue(LatestAuthorityFrameTick + 1, out AuthorityFrame frame))
             {
+                if (frame.Tick >=
+                    pipeline.LocalSimulationTick)
+                    break;
                 if (hasAcceptedFrameSequence && frame.FrameSequence <= latestFrameSequence)
                     throw new DeterministicSimulationException(
                         $"AuthorityFrame sequence {frame.FrameSequence} is not newer than {latestFrameSequence}.");

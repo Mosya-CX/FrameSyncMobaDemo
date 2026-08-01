@@ -50,7 +50,6 @@ namespace FrameSyncMoba.Bootstrap
         private void TriggerDeathForUnit(
             FrameSyncMoba.Unit.Unit unit)
         {
-            // Trigger death animation
             if (!_animatorCache.TryGetValue(unit.UnitUid, out var animator))
             {
                 animator = unit.GetComponentInChildren<Animator>();
@@ -64,10 +63,12 @@ namespace FrameSyncMoba.Bootstrap
                     .GetComponent<
                         UnitPresentationHost>()
                     ?.Profile;
-                if (profile != null && profile.DeathTriggerHash != 0)
-                    animator.SetTrigger(profile.DeathTriggerHash);
-                else
-                    animator.SetTrigger("Death");
+                if (profile != null &&
+                    profile.DeathStateHash != 0)
+                    animator.CrossFade(
+                        profile.DeathStateHash,
+                        0.04f,
+                        0);
             }
         }
 

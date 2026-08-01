@@ -32,16 +32,40 @@ namespace FrameSyncMoba.FrameSync
             if (instance == null)
                 return;
 
-            Vector3 position = new Vector3(
+            Vector3 targetPosition = new Vector3(
                 (float)evt.WorldPosition.x, 0f, (float)evt.WorldPosition.y);
-            instance.transform.position = position;
+            Vector3 sourcePosition = targetPosition;
+            if (evt.Id.SourceRuntimeUid.IsValid() &&
+                UnitPresentationRegistry.TryGetHost(
+                    evt.Id.SourceRuntimeUid,
+                    out UnitPresentationHost sourceHost) &&
+                sourceHost != null)
+            {
+                sourcePosition = sourceHost.transform.position;
+            }
+
+            instance.transform.position = targetPosition;
             instance.SetActive(true);
 
-            ParticleSystem[] systems = instance.GetComponentsInChildren<ParticleSystem>();
-            for (int i = 0; i < systems.Length; i++)
-                systems[i].Play();
+            VfxPlaybackHost playbackHost =
+                instance.GetComponent<VfxPlaybackHost>();
+            float duration;
+            if (playbackHost != null)
+            {
+                duration = playbackHost.BeginPlayback(
+                    sourcePosition,
+                    targetPosition,
+                    Mathf.Max(0.01f, (float)evt.DurationScale));
+            }
+            else
+            {
+                duration = PlayParticleFallback(instance);
+            }
 
-            StartCoroutine(ReturnAfterPlay(instance, evt.VfxDefId));
+            StartCoroutine(ReturnAfterPlay(
+                instance,
+                evt.VfxDefId,
+                duration));
         }
 
         private GameObject GetPrefab(int vfxDefId)
@@ -73,6 +97,10 @@ namespace FrameSyncMoba.FrameSync
 
         private void ReturnToPool(int vfxDefId, GameObject instance)
         {
+            VfxPlaybackHost playbackHost =
+                instance.GetComponent<VfxPlaybackHost>();
+            if (playbackHost != null)
+                playbackHost.ResetForPool();
             instance.SetActive(false);
             if (!_poolByDefId.TryGetValue(vfxDefId, out Queue<GameObject> queue))
             {
@@ -82,16 +110,27 @@ namespace FrameSyncMoba.FrameSync
             queue.Enqueue(instance);
         }
 
-        private System.Collections.IEnumerator ReturnAfterPlay(GameObject instance, int vfxDefId)
+        private static float PlayParticleFallback(
+            GameObject instance)
         {
             ParticleSystem[] systems = instance.GetComponentsInChildren<ParticleSystem>();
             float maxDuration = 1f;
             for (int i = 0; i < systems.Length; i++)
             {
+                systems[i].Play();
                 float dur = systems[i].main.duration + systems[i].main.startLifetime.constantMax;
                 if (dur > maxDuration) maxDuration = dur;
             }
-            yield return new WaitForSeconds(maxDuration + 0.1f);
+            return maxDuration;
+        }
+
+        private System.Collections.IEnumerator ReturnAfterPlay(
+            GameObject instance,
+            int vfxDefId,
+            float duration)
+        {
+            yield return new WaitForSeconds(
+                Mathf.Max(0.01f, duration) + 0.1f);
             ReturnToPool(vfxDefId, instance);
         }
     }

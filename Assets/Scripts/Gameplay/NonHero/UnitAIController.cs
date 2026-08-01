@@ -37,8 +37,17 @@ namespace FrameSyncMoba.Unit
 
         protected void IssueAttackOrder(UnitUid targetUid)
         {
+            IssueAttackOrder(targetUid, true);
+        }
+
+        protected void IssueAttackOrder(
+            UnitUid targetUid,
+            bool allowChase)
+        {
             IssueOrderIfChanged(
-                Order.CreateAttack(targetUid));
+                Order.CreateAttack(
+                    targetUid,
+                    allowChase));
         }
 
         protected void IssueLaneAdvanceOrder(
@@ -81,7 +90,9 @@ namespace FrameSyncMoba.Unit
                     current.Kind ==
                         IntentKind.AttackTarget &&
                     current.TargetUnit ==
-                        order.Attack_TargetUnit,
+                        order.Attack_TargetUnit &&
+                    current.AllowChase ==
+                        order.Attack_AllowChase,
                 OrderKind.LaneAdvance =>
                     current.Kind ==
                         IntentKind.LaneAdvance,
@@ -123,7 +134,7 @@ namespace FrameSyncMoba.Unit
 
     public sealed class MinionAIController : UnitAIController
     {
-        private static readonly fp EngageRange = (fp)5m;
+        private static readonly fp AcquireRangePadding = fp.one;
         private static readonly fp ChaseMaxDistance = (fp)12m;
         private static readonly fp LaneReturnThreshold = (fp)15m;
         private const int TargetLockTicks = 30;
@@ -161,21 +172,23 @@ namespace FrameSyncMoba.Unit
             if (currentTick < NextDecisionLogicTick)
                 return;
 
-            UnitUid currentTarget =
-                CurrentTargetUid;
-            if (currentTarget.IsValid() &&
+            UnitUid currentTarget = CurrentTargetUid;
+            bool currentTargetIsLegal =
+                currentTarget.IsValid() &&
                 IsValidTarget(currentTarget) &&
-                IsWithinChaseBoundary())
+                IsWithinChaseBoundary();
+            if (currentTargetIsLegal)
             {
                 AIState = MinionAIState.EngageTarget;
                 ScheduleNextDecision(currentTick);
                 return;
             }
 
-            if (currentTarget.IsValid())
+            UnitUid bestTarget = FindBestTarget();
+            if (currentTarget.IsValid() &&
+                currentTarget != bestTarget)
                 ClearOrder();
 
-            UnitUid bestTarget = FindBestTarget();
             if (bestTarget.IsValid())
             {
                 AcquireTarget(bestTarget);
@@ -188,22 +201,23 @@ namespace FrameSyncMoba.Unit
             fp2 currentPosition =
                 OwnerUnit.PhysicsEntity
                     .Transform2D.Position;
-            fp2 nearestLanePoint =
-                lane.GetNearestCenterlinePoint(
-                    currentPosition,
-                    out fp distanceFromLaneSq);
+            lane.GetNearestCenterlinePoint(
+                currentPosition,
+                out fp distanceFromLaneSq);
             if (distanceFromLaneSq >
                 LaneReturnThreshold *
                 LaneReturnThreshold)
             {
                 AIState = MinionAIState.ReturnToLane;
-                IssueMoveOrder(nearestLanePoint);
             }
             else
             {
                 AIState = MinionAIState.AdvanceLane;
-                IssueLaneAdvanceOrder(LaneId);
             }
+            // The lane flow field owns both forward progress and lateral
+            // correction. ReturnToLane remains an AI state, but it must not
+            // replace the field with a competing point-target A* route.
+            IssueLaneAdvanceOrder(LaneId);
             ScheduleNextDecision(currentTick);
         }
 
@@ -212,12 +226,14 @@ namespace FrameSyncMoba.Unit
             if (OwnerUnit.World == null) return default;
 
             var allUnits = OwnerUnit.World.GetAllUnits();
-            fp2 myPos = OwnerUnit.MovementHandler?.Position ?? fp2.zero;
+            fp2 myPos = OwnerUnit.PhysicsEntity.Transform2D.Position;
             TeamId myTeam = OwnerUnit.TeamId;
 
             UnitUid bestTarget = default;
             int bestPriority = int.MaxValue;
-            fp bestDistance = new fp(int.MaxValue);
+            fp bestDistanceSq = new fp(int.MaxValue);
+            fp acquireRange = GetAcquireRange();
+            fp acquireRangeSq = acquireRange * acquireRange;
 
             for (int i = 0; i < allUnits.Count; i++)
             {
@@ -226,23 +242,23 @@ namespace FrameSyncMoba.Unit
                 if (candidate.TeamId == myTeam) continue;
                 if (candidate.LifeState != LifeState.Alive) continue;
 
-                fp2 candidatePos = candidate.MovementHandler?.Position ?? fp2.zero;
-                fp distSq = fpmath.dot(myPos - candidatePos, myPos - candidatePos);
-                fp dist = fpmath.sqrt(distSq);
+                if (!IsValidTarget(candidate.UnitUid)) continue;
+                fp2 candidatePos = candidate.PhysicsEntity.Transform2D.Position;
+                fp distSq = fpmath.lengthsq(myPos - candidatePos);
 
-                if (dist > EngageRange) continue;
+                if (distSq > acquireRangeSq) continue;
 
-                // Priority bands: heroes first, then minions, then structures
+                // Formal bands: ordinary minions, heroes/summons, structures.
                 int priority = GetTargetPriority(candidate);
 
                 if (priority < bestPriority
-                    || (priority == bestPriority && dist < bestDistance))
+                    || (priority == bestPriority && distSq < bestDistanceSq))
                 {
                     bestPriority = priority;
-                    bestDistance = dist;
+                    bestDistanceSq = distSq;
                     bestTarget = candidate.UnitUid;
                 }
-                else if (priority == bestPriority && dist == bestDistance
+                else if (priority == bestPriority && distSq == bestDistanceSq
                     && bestTarget.CompareTo(candidate.UnitUid) > 0)
                 {
                     // Stable tie-break by UnitUid
@@ -253,15 +269,24 @@ namespace FrameSyncMoba.Unit
             return bestTarget;
         }
 
+        private fp GetAcquireRange()
+        {
+            return OwnerUnit.AttackHandler != null
+                ? OwnerUnit.AttackHandler.CurrentAttackRange +
+                  AcquireRangePadding
+                : fp.zero;
+        }
+
         private static int GetTargetPriority(Unit candidate)
         {
+            if (candidate.OwnerUid.IsValid())
+                return 3;
             switch (candidate.UnitKind)
             {
-                case UnitKind.Hero: return 0;
-                case UnitKind.Minion: return 1;
-                case UnitKind.Monster: return 2;
-                case UnitKind.Structure: return 3;
-                default: return 4;
+                case UnitKind.Minion: return 2;
+                case UnitKind.Hero: return 3;
+                case UnitKind.Structure: return 4;
+                default: return int.MaxValue;
             }
         }
 
@@ -270,12 +295,17 @@ namespace FrameSyncMoba.Unit
             if (!targetUid.IsValid()) return false;
             if (OwnerUnit.World == null) return false;
             if (!OwnerUnit.World.TryGetUnit(targetUid, out Unit target)) return false;
-            if (target.LifeState != LifeState.Alive) return false;
+            if (target.LifeState != LifeState.Alive ||
+                !target.CapabilityState.IsTargetable ||
+                target.PhysicsEntity == null) return false;
             if (target.TeamId == OwnerUnit.TeamId) return false;
+            if (target.TeamId == TeamId.Neutral) return false;
+            if (GetTargetPriority(target) == int.MaxValue)
+                return false;
 
-            fp2 myPos = OwnerUnit.MovementHandler?.Position ?? fp2.zero;
-            fp2 targetPos = target.MovementHandler?.Position ?? fp2.zero;
-            fp distSq = fpmath.dot(myPos - targetPos, myPos - targetPos);
+            fp2 myPos = OwnerUnit.PhysicsEntity.Transform2D.Position;
+            fp2 targetPos = target.PhysicsEntity.Transform2D.Position;
+            fp distSq = fpmath.lengthsq(myPos - targetPos);
 
             return distSq <= ChaseMaxDistance * ChaseMaxDistance;
         }
@@ -572,13 +602,25 @@ namespace FrameSyncMoba.Unit
 
         public override void AIThink()
         {
-            if (!CanRunAIThisTick) return;
-
-            if (AIState == TowerAIState.AttackingTarget
-                && CurrentTargetUid.IsValid()
-                && OwnerUnit.AttackHandler != null)
+            if (!CanRunAIThisTick ||
+                OwnerUnit.AttackHandler == null ||
+                !OwnerUnit.CapabilityState.CanAttack)
             {
-                IssueAttackOrder(CurrentTargetUid);
+                LoseTarget();
+                return;
+            }
+
+            UnitUid target = FindBestTarget();
+
+            if (target.IsValid())
+            {
+                IssueAttackOrder(target, false);
+                AIState =
+                    TowerAIState.AttackingTarget;
+            }
+            else
+            {
+                LoseTarget();
             }
         }
 
@@ -588,7 +630,7 @@ namespace FrameSyncMoba.Unit
                 throw new ArgumentException(
                     "Tower target must be a valid UnitUid.",
                     nameof(targetUid));
-            IssueAttackOrder(targetUid);
+            IssueAttackOrder(targetUid, false);
             AIState = TowerAIState.AttackingTarget;
         }
 
@@ -596,6 +638,117 @@ namespace FrameSyncMoba.Unit
         {
             ClearOrder();
             AIState = TowerAIState.Idle;
+        }
+
+        private UnitUid FindBestTarget()
+        {
+            IReadOnlyList<Unit> units =
+                OwnerUnit.World.GetAllUnits();
+            UnitUid best = default;
+            int bestPriority = int.MaxValue;
+            fp bestDistanceSq = default;
+            fp range =
+                OwnerUnit.AttackHandler
+                    .CurrentAttackRange;
+            fp rangeSq = range * range;
+            fp2 origin = OwnerUnit.PhysicsEntity
+                .Transform2D.Position;
+
+            for (int i = 0; i < units.Count; i++)
+            {
+                Unit candidate = units[i];
+                if (!IsValidTarget(candidate))
+                    continue;
+
+                fp distanceSq = fpmath.lengthsq(
+                    candidate.PhysicsEntity
+                        .Transform2D.Position -
+                    origin);
+                if (distanceSq > rangeSq)
+                    continue;
+
+                int priority = GetTargetPriority(candidate);
+                if (priority == int.MaxValue)
+                    continue;
+                if (!best.IsValid() ||
+                    priority < bestPriority ||
+                    (priority == bestPriority &&
+                     (distanceSq < bestDistanceSq ||
+                      (distanceSq == bestDistanceSq &&
+                       candidate.UnitUid
+                           .CompareTo(best) < 0))))
+                {
+                    best = candidate.UnitUid;
+                    bestPriority = priority;
+                    bestDistanceSq = distanceSq;
+                }
+            }
+
+            return best;
+        }
+
+        private bool IsValidTarget(UnitUid targetUid)
+        {
+            return targetUid.IsValid() &&
+                OwnerUnit.World.TryGetUnit(
+                    targetUid,
+                    out Unit target) &&
+                IsValidTarget(target);
+        }
+
+        private bool IsValidTarget(Unit target)
+        {
+            if (target == null)
+                return false;
+            if (target == OwnerUnit ||
+                target.TeamId == OwnerUnit.TeamId ||
+                target.TeamId == TeamId.Neutral ||
+                target.LifeState != LifeState.Alive ||
+                !target.CapabilityState.IsTargetable ||
+                target.PhysicsEntity == null ||
+                GetTargetPriority(target) == int.MaxValue)
+                return false;
+            fp range = OwnerUnit.AttackHandler.CurrentAttackRange;
+            fp distanceSq = fpmath.lengthsq(
+                target.PhysicsEntity.Transform2D.Position -
+                OwnerUnit.PhysicsEntity.Transform2D.Position);
+            return distanceSq <= range * range;
+        }
+
+        private int GetTargetPriority(Unit candidate)
+        {
+            if (candidate.UnitKind == UnitKind.Hero)
+                return IsAttackingAlliedHero(candidate) ? 0 : 5;
+            if (candidate.OwnerUid.IsValid())
+                return 1;
+            if (candidate.UnitKind != UnitKind.Minion)
+                return int.MaxValue;
+            return candidate.UnitSubKindId switch
+            {
+                NonHeroUnitSubKindId.SiegeMinion => 2,
+                NonHeroUnitSubKindId.SuperMinion => 2,
+                NonHeroUnitSubKindId.MeleeMinion => 3,
+                NonHeroUnitSubKindId.RangedMinion => 4,
+                _ => 4,
+            };
+        }
+
+        private bool IsAttackingAlliedHero(Unit candidate)
+        {
+            if (candidate.AttackHandler == null ||
+                !candidate.AttackHandler
+                    .GetAnimationSnapshot()
+                    .IsAttacking)
+                return false;
+            UnitUid focusTarget =
+                candidate.AttackHandler.CurrentTargetUid;
+            return focusTarget.IsValid() &&
+                OwnerUnit.World.TryGetUnit(
+                    focusTarget,
+                    out Unit alliedTarget) &&
+                alliedTarget.TeamId == OwnerUnit.TeamId &&
+                alliedTarget.UnitKind == UnitKind.Hero &&
+                alliedTarget.LifeState == LifeState.Alive;
         }
 
         public override void Capture(ref UnitAIControllerSnapshot state)

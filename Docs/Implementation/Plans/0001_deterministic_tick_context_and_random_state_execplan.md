@@ -93,9 +93,9 @@ Reason: FrameSync owns Tick semantics and uses this name; Pathfinding explicitly
 
 ### D-0001-03 — Explicit controller owns writes
 
-`SimulationTickContext.Current` is globally readable and immutable during a Tick. A distinct `SimulationTickContextController` exposes `BeginTick` and `EndTick`; normal Gameplay code receives no setter through the context itself.
+`SimulationTickContext.Current` is the single globally readable, immutable simulation-time source for systems outside FrameSync. A distinct `SimulationTickContextController` exposes `BeginTick` and `EndTick`; normal Gameplay code receives no setter through the context itself.
 
-The first implementation fixes `DeltaTick` to `1`, rejects nested active Ticks and clears `Current` at Tick end. The controller is owned only by the future top-level FrameSync pipeline/composition root.
+`DeltaTick` is fixed to `1`. `BeginTick` publishes the current Tick and mode; `EndTick` ends active execution but retains the latest published context for Presentation and other cross-system readers. Active ownership is tracked separately so nested Tick execution remains invalid. FrameSync may maintain internal counters such as `LocalSimulationTick`, but no other system may receive or maintain a second current-Tick authority.
 
 ### D-0001-04 — Package-backed single random stream
 
@@ -218,8 +218,8 @@ Authoritative requirements:
 
 1. Create `FrameSyncMoba.Deterministic` with explicit references only to `Unity.Mathematics` and `Unity.Mathematics.FixedPoint`, `autoReferenced=false`, `noEngineReferences=true` and no unsafe code.
 2. Add `ExecutionMode` with explicit stable values `0..2`.
-3. Add immutable `SimulationTickContext` with public read-only `Current` and internal set/clear operations.
-4. Add `SimulationTickContextController` that prevents nested Ticks, fixes `DeltaTick=1`, exposes the Current value during a Tick and clears it at end.
+3. Add immutable `SimulationTickContext` with public read-only `Current` and internal publish/complete operations.
+4. Add `SimulationTickContextController` that prevents nested Ticks, fixes `DeltaTick=1`, publishes Current at Tick begin and retains the latest context after active execution completes.
 5. Add immutable `DeterministicRandomSnapshot(State)`.
 6. Add `DeterministicRandomService` backed by `Unity.Mathematics.Random`, with validation, primitive functions and capture/restore.
 7. Map a single `uint` draw to `fp` `[0,1)` through `fp.FromRaw(value)`, preserving exactly one base draw.
@@ -267,10 +267,10 @@ FrameSyncMoba.Deterministic.Tests
 
 Required focused checks:
 
-- `Current` throws outside an active Tick;
+- the latest published `Current` remains readable after active Tick execution;
 - begin sets exactly the requested Tick/mode and `DeltaTick=1`;
 - nested begin is rejected without replacing Current;
-- end clears Current;
+- a later begin replaces the retained context without permitting nested execution;
 - identical seed produces identical integer sequence;
 - capture/advance/restore/replay reproduces the sequence;
 - zero seed and zero restored state are rejected;
@@ -361,7 +361,8 @@ PlayMode:
     Unity lifecycle, scene, GameObject, Input System or Presentation behavior.
 
 Design invariants verified:
-    Current is readable only during an active Tick.
+    Current is the single cross-system simulation-time source and retains the
+    latest published Tick after active execution completes.
     Tick context is immutable to consumers and DeltaTick is exactly 1.
     Nested/competing Tick ownership is rejected without replacing Current.
     ExecutionMode numeric values are stable at 0, 1 and 2.

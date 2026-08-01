@@ -85,6 +85,16 @@ namespace FrameSyncMoba.FrameSync
                 writer.WriteInt32(lifecycleEntries[i].DeathLogicTick);
                 writer.WriteInt32(lifecycleEntries[i].RespawnLogicTick);
             }
+            var disposalEntries =
+                state.PendingUnitLifecycleState.DisposalEntries ??
+                new List<DeathDisposalEntry>();
+            writer.WriteInt32(disposalEntries.Count);
+            for (int i = 0; i < disposalEntries.Count; i++)
+            {
+                WriteUnitUid(writer, disposalEntries[i].UnitUid);
+                writer.WriteInt32(disposalEntries[i].DeathLogicTick);
+                writer.WriteInt32(disposalEntries[i].DisposeLogicTick);
+            }
             writer.WriteInt32(state.MinionSystemState.WaveIndex);
             writer.WriteInt32(state.MinionSystemState.NextWaveLogicTick);
             writer.WriteInt32(state.MinionSystemState.NextTicketCursor);

@@ -65,6 +65,11 @@ namespace FrameSyncMoba.Unit
             AttackHandler attack = _owner.AttackHandler;
             if (attack == null) return null;
 
+            // Do not resume active pursuit during windup or recovery. The
+            // next completed attack cycle gets a fresh attack/range decision.
+            if (attack.IsAttackCycleActive)
+                return null;
+
             AttackPlanStatus status =
                 attack.GetAttackPlanStatus(targetUid);
             switch (status)
@@ -75,7 +80,9 @@ namespace FrameSyncMoba.Unit
                 case AttackPlanStatus.OutOfRange:
                     if (_currentIntent.AllowChase)
                         return new MoveActionRequest(
-                            targetUid, attack.CurrentAttackRange);
+                            targetUid,
+                            attack.CurrentAttackRange,
+                            MovePurpose.ChaseForAttack);
                     _currentIntent.Clear();
                     return null;
                 case AttackPlanStatus.WaitingForReady:
@@ -93,7 +100,10 @@ namespace FrameSyncMoba.Unit
             fp stopThreshold = fp.one / (fp)2;
             fp distSq = fpmath.dot(currentPos - targetPos, currentPos - targetPos);
             if (distSq <= stopThreshold * stopThreshold) { _currentIntent.Clear(); return null; }
-            return new MoveActionRequest(targetPos, stopThreshold);
+            return new MoveActionRequest(
+                targetPos,
+                stopThreshold,
+                MovePurpose.PointMove);
         }
 
         private ActionRequest PlanCastIntent(int currentTick)
@@ -127,7 +137,10 @@ namespace FrameSyncMoba.Unit
                     aim);
 
             if (_currentIntent.AllowChase)
-                return new MoveActionRequest(destPos, castRange);
+                return new MoveActionRequest(
+                    destPos,
+                    castRange,
+                    MovePurpose.ChaseForCast);
 
             _currentIntent.Clear();
             return null;
@@ -135,12 +148,42 @@ namespace FrameSyncMoba.Unit
 
         private ActionRequest PlanLaneAdvance()
         {
-            return PlanMoveIntent();
+            fp2 targetPos = _currentIntent.TargetPosition;
+            fp2 currentPos =
+                _owner.PhysicsEntity.Transform2D.Position;
+            fp stopThreshold = fp.one / (fp)2;
+            fp distSq = fpmath.lengthsq(
+                currentPos - targetPos);
+            if (distSq <=
+                stopThreshold * stopThreshold)
+            {
+                _currentIntent.Clear();
+                return null;
+            }
+            return new MoveActionRequest(
+                targetPos,
+                stopThreshold,
+                MovePurpose.LaneAdvance);
         }
 
         private ActionRequest PlanReturnToCamp()
         {
-            return PlanMoveIntent();
+            fp2 targetPos = _currentIntent.TargetPosition;
+            fp2 currentPos =
+                _owner.PhysicsEntity.Transform2D.Position;
+            fp stopThreshold = fp.one / (fp)2;
+            fp distSq = fpmath.lengthsq(
+                currentPos - targetPos);
+            if (distSq <=
+                stopThreshold * stopThreshold)
+            {
+                _currentIntent.Clear();
+                return null;
+            }
+            return new MoveActionRequest(
+                targetPos,
+                stopThreshold,
+                MovePurpose.ReturnToCamp);
         }
 
         public void ClearForDeath() { _currentIntent = UnitIntent.None; }

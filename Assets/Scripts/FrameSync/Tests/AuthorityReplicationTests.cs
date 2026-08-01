@@ -168,6 +168,113 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void AuthorityBeforePrediction_BuffersUntilLocalTickCompletes()
+        {
+            var serverPipeline =
+                new SimulationTickPipeline(
+                    new UnitWorld());
+            var server =
+                new AuthorityFrameReplicator(
+                    serverPipeline,
+                    new SimulationTickContextController(),
+                    new CommandRelayBuffer(),
+                    new AuthorityRecoveryArchive(8));
+            var clientPipeline =
+                new SimulationTickPipeline(
+                    new UnitWorld());
+            var client =
+                new PredictionRollbackCoordinator(
+                    new SnapshotStore(8),
+                    clientPipeline,
+                    new SimulationTickContextController(),
+                    3);
+            AuthorityFrame authority =
+                server.ExecuteNextTick();
+
+            Assert.DoesNotThrow(
+                () =>
+                    client.OnAuthorityFrameReceived(
+                        authority));
+            Assert.AreEqual(
+                -1,
+                client.LatestAuthorityFrameTick);
+
+            Assert.IsTrue(
+                client.ExecutePredictionTick());
+            Assert.AreEqual(
+                0,
+                client.LatestAuthorityFrameTick);
+            Assert.AreEqual(
+                PredictionPauseReason.None,
+                client.PauseReasons);
+        }
+
+        [Test]
+        public void AuthorityRuntime_ReleasesClientRollbackHistory()
+        {
+            var runtime = new FrameSyncGameRuntime(
+                new UnitWorld(),
+                null,
+                2,
+                0,
+                3,
+                1,
+                1,
+                fp.one,
+                1,
+                snapshotWindowTicks: 2);
+
+            Assert.DoesNotThrow(
+                () =>
+                {
+                    for (int i = 0; i < 8; i++)
+                        runtime.ExecuteAuthorityTick();
+                });
+            Assert.AreEqual(8, runtime.CurrentTick);
+            Assert.AreEqual(
+                7,
+                runtime.LatestSynchronizedServerTick);
+        }
+
+        [Test]
+        public void RestoreInitialSnapshot_SetsAuthorityBaseline()
+        {
+            var runtime = new FrameSyncGameRuntime(
+                new UnitWorld(),
+                null,
+                2,
+                0,
+                3,
+                1,
+                1,
+                fp.one,
+                1,
+                snapshotWindowTicks: 4,
+                maxPredictionLeadTicks: 2);
+            GameplaySnapshot snapshot =
+                runtime.TickPipeline
+                    .CaptureAggregateSnapshot();
+
+            runtime.RestoreInitialSnapshot(
+                snapshot,
+                3,
+                ExecutionMode.ClientPrediction);
+
+            Assert.AreEqual(3, runtime.CurrentTick);
+            Assert.AreEqual(
+                2,
+                runtime.Prediction
+                    .LatestAuthorityFrameTick);
+            Assert.AreEqual(
+                0,
+                runtime.Prediction
+                    .PredictedTickCount);
+            Assert.IsFalse(
+                runtime.Prediction
+                    .HasMissingAuthorityFrames);
+        }
+
+        [Test]
         public void PredictionLeadLimit_PausesWithoutExecutingAnotherTick()
         {
             var pipeline = new SimulationTickPipeline(new UnitWorld());

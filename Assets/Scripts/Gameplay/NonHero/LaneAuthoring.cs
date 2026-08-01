@@ -64,24 +64,39 @@ namespace FrameSyncMoba.Unit
                 if (spawn.TeamId != teamId)
                     continue;
 
-                target = CenterlinePoints[0];
-                fp bestProgress = fpmath.dot(
-                    target - spawn.Position,
-                    spawn.Forward);
-                for (int pointIndex = 1;
-                     pointIndex < CenterlinePoints.Length;
-                     pointIndex++)
+                fp2 first =
+                    CenterlinePoints[0];
+                fp2 last =
+                    CenterlinePoints[
+                        CenterlinePoints.Length - 1];
+                fp firstDistanceSq =
+                    fpmath.lengthsq(
+                        first - spawn.Position);
+                fp lastDistanceSq =
+                    fpmath.lengthsq(
+                        last - spawn.Position);
+                if (firstDistanceSq ==
+                    lastDistanceSq)
                 {
-                    fp2 candidate =
-                        CenterlinePoints[pointIndex];
-                    fp progress = fpmath.dot(
-                        candidate - spawn.Position,
-                        spawn.Forward);
-                    if (progress > bestProgress)
-                    {
-                        bestProgress = progress;
-                        target = candidate;
-                    }
+                    fp firstProgress =
+                        fpmath.dot(
+                            first - spawn.Position,
+                            spawn.Forward);
+                    fp lastProgress =
+                        fpmath.dot(
+                            last - spawn.Position,
+                            spawn.Forward);
+                    target = lastProgress >=
+                        firstProgress
+                            ? last
+                            : first;
+                }
+                else
+                {
+                    target = firstDistanceSq >
+                        lastDistanceSq
+                            ? first
+                            : last;
                 }
                 return true;
             }
@@ -97,22 +112,40 @@ namespace FrameSyncMoba.Unit
                     $"Lane {LaneId} has no centerline.");
 
             fp2 best = CenterlinePoints[0];
-            distanceSq = fpmath.lengthsq(
-                position - best);
-            for (int i = 1;
-                 i < CenterlinePoints.Length;
+            distanceSq = fpmath.lengthsq(position - best);
+            for (int i = 0;
+                 i < CenterlinePoints.Length - 1;
                  i++)
             {
+                fp2 start = CenterlinePoints[i];
+                fp2 end = CenterlinePoints[i + 1];
+                fp2 segment = end - start;
+                fp segmentLengthSq =
+                    fpmath.lengthsq(segment);
+                fp2 candidate;
+                if (segmentLengthSq <= fp.zero)
+                {
+                    candidate = start;
+                }
+                else
+                {
+                    fp progress = fpmath.dot(
+                        position - start,
+                        segment) / segmentLengthSq;
+                    progress = fpmath.clamp(
+                        progress,
+                        fp.zero,
+                        fp.one);
+                    candidate = start + segment * progress;
+                }
                 fp candidateDistanceSq =
-                    fpmath.lengthsq(
-                        position -
-                        CenterlinePoints[i]);
+                    fpmath.lengthsq(position - candidate);
                 if (candidateDistanceSq <
                     distanceSq)
                 {
                     distanceSq =
                         candidateDistanceSq;
-                    best = CenterlinePoints[i];
+                    best = candidate;
                 }
             }
             return best;
