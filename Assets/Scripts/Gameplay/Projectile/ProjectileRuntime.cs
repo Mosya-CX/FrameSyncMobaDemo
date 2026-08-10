@@ -26,6 +26,17 @@ namespace FrameSyncMoba.Unit
         public fp2 Position => PhysicsEntity.Transform2D.Position;
         public fp2 PrevPosition => PhysicsEntity.Transform2D.PrevPosition;
         public fp2 Velocity { get; private set; }
+        /// <summary>
+        /// Logic seconds advanced per Tick (1 / TickRate). Def.Speed is
+        /// authored in logic units per second; the per-Tick displacement is
+        /// Speed * LogicSecondsPerTick.
+        /// </summary>
+        public fp LogicSecondsPerTick { get; set; } = fp.one;
+        /// <summary>Locked homing target (design v19 跟踪弹体).</summary>
+        public UnitUid TargetUnitUid { get; private set; }
+        /// <summary>World used to resolve the homing target's position.
+        /// Assigned by ProjectileWorld.</summary>
+        public UnitWorld UnitWorld { get; set; }
         public int RemainingLifetimeTicks { get; private set; }
         public bool IsActive { get; private set; }
         public bool EndRequested { get; private set; }
@@ -35,6 +46,15 @@ namespace FrameSyncMoba.Unit
         public int RemainingBounceCount { get; private set; }
         public int NextQueryLogicTick { get; private set; }
         public IReadOnlyList<ProjectileHitRecord> HitRecords => hitRecords;
+        /// <summary>
+        /// Per-instance on-hit damage override (null = use ProjectileDef).
+        /// Snapshot member; never references Unity objects.
+        /// </summary>
+        public ProjectileOnHitDamage[] OnHitDamageOverride
+        {
+            get;
+            private set;
+        }
 
         public ProjectileRuntime(
             ProjectileUid uid,
@@ -44,7 +64,10 @@ namespace FrameSyncMoba.Unit
             SourceDescriptor source,
             PhysicsEntity2D physicsEntity,
             fp2 startPosition,
-            fp2 direction)
+            fp2 direction,
+            ProjectileOnHitDamage[] onHitDamageOverride = null,
+            int maxLifetimeTicksOverride = 0,
+            UnitUid targetUnitUid = default)
         {
             if (def == null)
                 throw new System.ArgumentNullException(nameof(def));
@@ -62,7 +85,16 @@ namespace FrameSyncMoba.Unit
             PhysicsEntity = physicsEntity;
             PhysicsEntity.SetLogicPose(startPosition, direction);
             Velocity = direction * def.Speed;
-            RemainingLifetimeTicks = def.MaxLifetimeTicks;
+            RemainingLifetimeTicks =
+                maxLifetimeTicksOverride > 0
+                    ? maxLifetimeTicksOverride
+                    : def.MaxLifetimeTicks;
+            OnHitDamageOverride =
+                onHitDamageOverride != null
+                    ? (ProjectileOnHitDamage[])
+                        onHitDamageOverride.Clone()
+                    : null;
+            TargetUnitUid = targetUnitUid;
             RemainingPierceCount = def.HitPolicy.InitialPierceCount;
             RemainingBounceCount = def.HitPolicy.InitialBounceCount;
             NextQueryLogicTick = uid.SpawnLogicTick;
@@ -72,7 +104,51 @@ namespace FrameSyncMoba.Unit
         public void AdvanceMotion()
         {
             if (!IsActive || EndRequested) return;
-            PhysicsEntity.SetLogicPosition(Position + Velocity);
+            if (Def.Homing)
+            {
+                Unit target = null;
+                bool targetExists =
+                    TargetUnitUid.IsValid() &&
+                    UnitWorld != null &&
+                    UnitWorld.TryGetUnit(
+                        TargetUnitUid,
+                        out target) &&
+                    target != null;
+                if (!targetExists)
+                {
+                    // Homing projectile with no live target must terminate
+                    // instead of flying in a straight line forever (design
+                    // v19 homing projectile lifecycle).
+                    RequestEnd(
+                        ProjectileEndReason
+                            .ExplicitRequest);
+                    return;
+                }
+
+                // Structures (towers) have no MovementHandler; track their
+                // deterministic transform position instead.
+                fp2 targetPosition =
+                    target.MovementHandler != null
+                        ? target.MovementHandler.Position
+                        : target.PhysicsEntity
+                            ?.Transform2D.Position ??
+                          Position;
+                fp2 toTarget =
+                    targetPosition - Position;
+                fp distSq =
+                    fpmath.dot(toTarget, toTarget);
+                if (distSq > fp.zero)
+                {
+                    fp2 dir =
+                        fpmath.normalize(toTarget);
+                    PhysicsEntity.SetLogicForward(dir);
+                    Velocity =
+                        dir * fpmath.length(Velocity);
+                }
+            }
+            PhysicsEntity.SetLogicPosition(
+                Position +
+                Velocity * LogicSecondsPerTick);
             if (Def.Acceleration == fp.zero) return;
 
             fp speed = fpmath.length(Velocity) + Def.Acceleration;
@@ -211,6 +287,12 @@ namespace FrameSyncMoba.Unit
             RemainingBounceCount =
                 snapshot.RemainingBounceCount;
             NextQueryLogicTick = snapshot.NextQueryLogicTick;
+            OnHitDamageOverride =
+                snapshot.OnHitDamageOverride != null
+                    ? (ProjectileOnHitDamage[])
+                        snapshot.OnHitDamageOverride.Clone()
+                    : null;
+            TargetUnitUid = snapshot.TargetUnitUid;
             hitRecords.Clear();
             if (snapshot.HitRecords != null)
                 hitRecords.AddRange(snapshot.HitRecords);

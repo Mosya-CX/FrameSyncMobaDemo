@@ -168,5 +168,37 @@ namespace FrameSyncMoba.Unit.Tests
                 Assert.AreEqual(s1.Entries[i].Modifiers.Length, s2.Entries[i].Modifiers.Length);
             }
         }
+
+        [Test]
+        public void
+            Restore_OnFreshHandler_RecreatesMissingConfigForRuntimeAddedStat()
+        {
+            // Simulates a rollback-reconstructed StatHandler: the unit's
+            // preset does not contain HealingReceivedRatio, but a Buff added
+            // the stat at runtime. The snapshot is restored into a freshly
+            // initialized handler whose configs only contain preset stats;
+            // FinalizeTick must not throw KeyNotFoundException and must
+            // recompute from the definition default (1.0 * (1 - 0.5) = 0.5).
+            StatHandler original = CreateHandler();
+            original.AddModifier(
+                StatId.HealingReceivedRatio,
+                StatModifierOperation.FinalRatioAdd,
+                (fp)(-0.5m));
+            original.FinalizeTick();
+
+            StatHandlerSnapshot snapshot = default;
+            original.Capture(ref snapshot);
+
+            StatHandler reconstructed =
+                CreateHandler();
+            reconstructed.Restore(in snapshot);
+
+            Assert.DoesNotThrow(
+                () => reconstructed.FinalizeTick());
+            Assert.AreEqual(
+                (fp)0.5m,
+                reconstructed.GetStat(
+                    StatId.HealingReceivedRatio));
+        }
     }
 }

@@ -1,23 +1,39 @@
 # 完整对局测试准备
 
-> 更新日期：2026-07-29  
+> 更新日期：2026-08-10（交接状态同步）
 > 目标：用中立测试内容跑通一场“一条兵线、双方英雄与防御塔、一个普通野怪营地、基地胜负、UI 与本地双客户端”的完整对局。  
 > 本文只规定测试资源、绑定责任和开始门禁，不把测试内容视为正式英雄或正式平衡内容。
 
 ## 1. 当前结论
 
-当前仓库已经能完成 Dedicated Server + 两个 Client 的 NGO 启动、开局
-Payload、初始 Snapshot 和连续 Tick 冒烟验证，但还不能据此开始完整 MOBA
-对局验收。
+本文件最初的 2026-07-29 缺口判断已经过时。当前真实状态是：
 
-当前缺口分为三类：
+- 小兵、塔、测试英雄、三路兵线、生成点、基地胜负、确定性寻路/流场/RVO、
+  正式单位组件、动画/表现宿主以及 Lua 页面宿主已经实现并完成过聚焦验证。
+- `Assets/Config/Formal/` 是当前 C/S 唯一运行资源链；七个正式 Hero/Minion/
+  Tower runtime Prefab 位于 `Assets/Config/Formal/Prefabs/`，旧
+  `Assets/Resources/Prefab/Unit/` 链已删除。
+- Main/Match/Select/Load/HUD/Shop/Result 七个页面 Prefab 已由 `UIManager`
+  管理并绑定 Lua；HUD 具有 51 个序列化引用。仍有最终图标、提示、视觉验收等
+  表现缺口，但不再是“没有 UI 宿主/页面”的状态。
+- 本地 packaged Dedicated Server + 两 Client 流程已由仓库所有者暂时接受。
+- 真实 UOS 已完成 allocation -> Ready -> matchmaking -> 两客户端连接 ->
+  identity -> hero lock -> GameScene -> Loaded/Ready -> StartTick 3 -> 持续
+  Gameplay。它仍有启动 UTP 队列告警、Loading/HUD 时间观测和未完成的
+  result/return/remote settlement 验收；详见 `CURRENT_HANDOFF.md`。
 
-1. **代码侧阻断**：塔、小兵、正式 Lua/UI 宿主和动画驱动仍与当前设计不符。
-2. **测试配置缺失**：没有小兵、塔、野怪 UnitPrototype，没有波次、Lane、
-   JungleCamp、装备测试目录和完整场景绑定。
-3. **用户资源待交付**：测试单位和 UI 的视觉 Prefab、模型、动画、图标与布局。
+因此现在不能宣称“全功能完整对局测试已经全部通过”的主要原因，已经不是塔、
+小兵、UI 或基础网络未实现，而是：
 
-完整测试只有在第 8 节门禁全部通过后开始。
+1. **正式 Equipment Shop 商品目录仍为空**，真实场景无法完成购买/出售/撤销。
+2. **JungleCamp / TestMonster 内容和整套营地逻辑验收仍缺失**。
+3. **完整 Result -> Return to Lobby -> UOS settlement 尚未实机闭环**。
+4. **UOS 启动可靠性尚需修正和复验**：UOS/LocalDirect connection-owner race
+   的当前修复尝试只覆盖 `Update()`，没有覆盖 NGO connection callback；服务端
+   还出现一次 send-queue-full。
+
+第 8 节已改为按当前事实标记门禁。未勾选项目完成前，可以继续做现有兵线、塔、
+英雄和网络链路的专项验收，但不得把它表述为包含商店、野区和结算的整局全通过。
 
 ## 2. 双方责任
 
@@ -38,24 +54,25 @@ Payload、初始 Snapshot 和连续 Tick 冒烟验证，但还不能据此开始
 1. 用户完成一批 Prefab 后说明路径和“可绑定”。
 2. 用户暂时停止修改这批 Prefab。
 3. Codex 用 Unity MCP 检查并绑定。
-4. Codex返回缺失项或“已通过绑定门禁”。
+4. Codex 返回缺失项或“已通过绑定门禁”。
 5. 用户继续做纯视觉迭代时，不更改已冻结的稳定根节点和语义挂点名。
 
-## 3. 用户需要准备的测试单位资源
+## 3. 测试单位资源责任与当前状态
 
 ### 3.1 最小单位集合
 
-| Prefab | 完整对局是否必需 | 最低表现 |
-|---|---:|---|
-| `TestHeroVisual` | 是 | Idle、Move、NormalAttack、GenericCast、Death、Respawn |
-| `TestMonsterVisual` | 是 | Idle、Move、NormalAttack、Hit（可选）、Death |
-| `TestMeleeMinionVisual` | 是 | Idle、Move、NormalAttack、Death |
-| `TestRangedMinionVisual` | 是 | Idle、Move、NormalAttack、Death；需要发射挂点 |
-| `TestTowerVisual` | 是 | Idle、Attack；需要发射挂点 |
-| `TestTeamBaseVisual` | 可先复用中立几何体 | Idle、Destroyed 或禁用表现 |
+| Prefab | 完整对局是否必需 | 当前状态 | 最低表现/剩余工作 |
+|---|---:|---|---|
+| Test Hero | 是 | 已进入 Formal Prefab/Catalog，现有英雄动画与 Q/W/E/R 测试能力已接入 | 继续做人工动画、手感、图标和 UI 验收；不新增英雄专属核心协议 |
+| Test Monster | 是 | **缺失** | 用户准备模型/Animator/单位信息，Codex 绑定 Unit/Handler/Physics/AI/Camp 配置 |
+| 蓝/红近战 Minion | 是 | 已进入 Formal Prefab/Catalog | Idle/Move/Attack/Death 和 Gameplay 组件已绑定，保留人工视觉验收 |
+| 蓝/红远程 Minion | 是 | 已进入 Formal Prefab/Catalog | 同上，并已使用发射挂点/Projectile 路径 |
+| 蓝/红 Tower | 是 | 已进入 Formal Prefab/Catalog | 正式资源只有 Idle/Death；塔没有攻击动画，攻击期间保持 Idle，不得伪造 Attack 动画；发射/锁定由 Gameplay/Presentation 组件表达 |
+| Team Base | 是（胜负） | 当前地图/正式配置已能完成基地死亡和胜负闭环 | 最终 Destroyed 视觉仍可继续验收，不影响已有逻辑证据 |
 
-这些名称是中立测试夹具名。已有具体英雄模型可以被选作视觉素材，但运行时
-Prototype、测试、Lua 和计划中不得使用具体英雄名或写入英雄专属逻辑。
+表中的类别用于测试责任划分。已有具体英雄模型可以作为当前显式测试内容，
+但通用框架不得为该英雄复制 UID、Command、Snapshot、Aim、AbilitySignal、
+Checksum、FixedPoint 或新增只服务单一英雄的核心协议。
 
 ### 3.2 Prefab 根结构
 
@@ -146,13 +163,13 @@ IsControlled             Bool
 
 | 页面 | 当前资产状态 | 用户准备 |
 |---|---|---|
-| Main / Match | `LobbyPanel` 有视觉层级但契约不完整 | 开始匹配、取消、状态文本、Ready 区域 |
-| Select | `SelectPanel` 和 `HeroSelectCell` 已有基础视觉 | 英雄列表、确认按钮、确认状态；Cell 增加可点击 Button |
-| Load | `LoadingPanel` 已存在 | ProgressBar、ProgressText |
-| HUD | `GameplayHUD` 已有基础视觉 | 补生命/资源/经验/金币/KDA/技能/装备/小地图引用 |
-| Shop | 没有可绑定的正式 Prefab | 商品列表、详情、Buy/Sell/Undo/Close、金币、装备格 |
-| Result | 没有可绑定的正式 Prefab | 胜负标题、结束原因、KDA、Continue |
-| UI Root | `UIManager` 只有 Canvas/EventSystem | `PageRoot`、`OverlayRoot` |
+| Main / Match | 页面 Prefab、Lua 生命周期、账号显示、开始/取消匹配路由已绑定；取消路径有 EditMode 覆盖 | 仅做最终布局/视觉/交互手感验收 |
+| Select | 目录驱动英雄列表、头像、选择/锁定和队内重复选择约束已绑定 | 仅做最终视觉验收 |
+| Load | 页面和流程已绑定 | 下一 UOS 包需增加 payload/barrier/HUD 时间诊断并复验过渡时机 |
+| HUD | Lua 驱动，51 个引用覆盖生命/资源/QWER/被动/金币/属性/装备格/BuffBar/比分 | 补最终技能图标、提示、视觉布局；小地图仍保留 C# controller |
+| Shop | 页面 Prefab/Lua/按钮/装备格已有绑定 | 需要正式测试商品目录；目录为空时不能验收购买闭环 |
+| Result | 页面 Prefab/Lua 已绑定 | 需要完成真实 Result/Continue/Return/settlement 实机验收 |
+| UI Root | `UIManager` 管理七个页面 Prefab，页面不再挤在单一 ClientUI 上 | 仅做最终视觉与层级验收 |
 
 ### 4.2 UI 组件约定
 
@@ -169,7 +186,7 @@ IsControlled             Bool
 
 ## 5. Codex 的绑定工作
 
-用户交付单位 Prefab 后，Codex 将：
+用户交付新的或尚缺的单位 Prefab（当前主要是 TestMonster）后，Codex 将：
 
 1. 用 Unity MCP 检查层级、Animator、Clip、材质、根 Transform 和语义挂点。
 2. 在单位根添加并绑定正式 MonoBehaviour 组件。
@@ -237,19 +254,31 @@ IsControlled             Bool
 - 不在每个资源小改动后运行三进程流程。
 - 完整资源门禁通过后只发起一次 Server/Client 构建请求。
 - 构建请求发出后停止，等待用户确认构建结束；不得重复发起 Build。
-- UOS 上传只在本地完整对局通过且用户明确授权后进行。
+- 首次 UOS 上传和两客户端 Gameplay 已在用户授权下完成。后续上传仍只在
+  服务端代码/场景或镜像内容变化时进行；只改客户端时可复用已上传镜像。
 
 ## 8. 完整测试开始门禁
 
-以下条件缺一不可：
+当前门禁状态：
 
-1. 塔正式 AI/Attack、Minion AI/兵线移动修正完成。
-2. 正式 xLua 环境、UIManager/UIPanel/LuaHost 和 Prefab 页面绑定完成。
-3. UnitAnimationDriver/UnitPresentationHost/Socket 绑定符合 Presentation v13.2。
-4. 用户交付的 TestHero、TestMonster、Minion、Tower 和 UI Prefab 通过资源验收。
-5. Lane、Wave、Camp、Tower、Base、Equipment 和 Hero 初始配置 Bake 成功。
-6. Unity 编译无新增错误。
-7. 相关最小 EditMode/PlayMode 门禁通过。
-8. Server + 两 Client 构建各完成一次。
+- [x] 塔 AI/Attack、Minion AI/兵线移动、生成、死亡/回收和基地胜负链存在并
+  通过过真实地图聚焦验证。
+- [x] 正式 xLua、`UIManager`/`UIPanel`/Lua 页面与 Cell 绑定完成。
+- [x] Hero/Minion/Tower 的 Unit/Handler/Physics/Presentation/Socket 进入正式
+  `Assets/Config/Formal/Prefabs/` 资源链。
+- [x] Lane、Wave、Tower、Base、Hero 和六份 team/size 流场配置已绑定/Bake。
+- [x] 当前 UOS owner-race 修复尝试可以编译，helper-return EditMode 1/1；这只
+  是编译/局部测试证据，不代表行为修复完成。
+- [x] 本地 Server + 两 Client 包和 UOS Server/Client 包均曾完成构建；UOS
+  两客户端已进入持续 Gameplay。
+- [ ] `TestMonster` 和 `JungleCamp` 的正式测试资源、配置、Bake 与行为验收。
+- [ ] 至少一组可购买/出售/撤销的测试 Equipment 目录和场景接入。
+- [ ] 修正 UTP 启动 send queue 容量，并用新包证明日志不再 queue-full。
+- [ ] 先补齐 UOS owner-race 的 NGO callback guard 与行为测试，再用新包证明
+  异常消失，并用时间标记解释 Loading/HUD 延迟。
+- [ ] 完成基地死亡 -> Result -> Continue/Return to Lobby -> remote settlement
+  的本地/实机验收。
+- [ ] 由用户完成 UI、单位动画/视觉和实际操作手感的最终人工验收。
 
-在此之前可以做局部资源验收和单系统测试，但不得报告“整局已跑通”。
+现阶段可以准确报告“本地和 UOS 两客户端已跑通到持续 Gameplay”，但不能报告
+“包含商店、野区、结算和返回大厅的整局验收全部通过”。

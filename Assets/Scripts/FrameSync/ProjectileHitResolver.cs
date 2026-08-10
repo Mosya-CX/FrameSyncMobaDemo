@@ -145,12 +145,27 @@ namespace FrameSyncMoba.FrameSync
                 candidates);
             projectileHits.Clear();
 
+            // Single-target homing attacks (e.g. basic attacks) must only
+            // resolve against the locked tracked target. Units that happen
+            // to stand between the projectile and the tracked target are
+            // ignored; only the tracked target may be hit.
+            bool restrictToTracked =
+                projectile.Def.HitPolicy
+                    .RestrictToTrackedTarget &&
+                projectile.TargetUnitUid.IsValid();
+
             for (int i = 0; i < candidates.Count; i++)
             {
                 PhysicsEntity2D entity = candidates[i];
                 if (!(entity.QueryInfo.Owner is
                     UnitType target))
                     continue;
+                if (restrictToTracked &&
+                    target.UnitUid !=
+                        projectile.TargetUnitUid)
+                {
+                    continue;
+                }
                 if (!projectile.Def.TargetFilter.Allows(
                         target,
                         projectile.OwnerUnitUid,

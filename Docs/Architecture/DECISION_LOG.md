@@ -5,7 +5,6 @@
 
 ## D-001 — Tick semantics
 
-**Status:** Frozen
 
 ```text
 ServerTick
@@ -361,3 +360,518 @@ The repository owner confirms that all 616 tracked deletions observed on 2026-07
 The current working tree is the new implementation baseline. Deleted legacy Gameplay, RVO2, hero-specific and related resource files must not be restored or treated as current implementation evidence.
 
 Future implementation starts from the files currently present and follows the Current design files. Historical deleted files may be inspected read-only only when explicitly useful; they do not own current contracts or implementation direction.
+
+## D-025 - Buff cap and priority dispel
+
+**Status:** Frozen
+
+The repository owner confirmed `BuffHandler.MaxBuffs` with priority-based
+dispel as a core gameplay rule on 2026-08-02.
+
+```text
+MaxBuffs
+    byte cap on simultaneous BuffRuntime per unit (default 255 = no practical limit).
+
+Priority
+    0 = highest, 255 = lowest; only used for dispel arbitration.
+
+Displacement
+    checked only on first Apply of a new BuffConfigId;
+    permanent buffs are never displaced;
+    the candidate is the lowest-priority non-permanent buff
+    (stable ConfigId order breaks ties, last wins);
+    displacement happens only when the incoming Priority <= candidate Priority;
+    otherwise the new buff is added beyond the cap (soft cap);
+    the displaced buff follows the standard removal flow with
+    RemovalReason.ManualRemove.
+```
+
+Formalized as section 13A of `BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md`.
+
+## D-026 — Scene-split application flow (Bootstrap -> Lobby -> GameScene)
+
+**Status:** Frozen (implementation complete 2026-08-04)
+
+The repository owner confirmed on 2026-08-04 that the client and Dedicated
+Server processes must not cram the whole flow into one bootstrap scene. The
+scene responsibilities are:
+
+```text
+Client:
+  ClientBootstrap  - startup and initialization (test account + UOS session)
+  Lobby            - main menu, matchmaking and hero selection
+  GameScene        - real game content (deterministic runtime, payload, HUD)
+
+GameServer:
+  ServerBootstrap  - UOS allocation, NGO server start, UOS Ready
+  Lobby            - waiting for clients, hero selection barrier
+  GameScene        - game load, authority ticks and frame sync
+```
+
+The flow remains a logical state machine (v10.2 sections 2-4); Unity scenes
+are an implementation detail of that state machine, not a separate loop.
+Scenes are not cycled repeatedly: the process moves Bootstrap -> Lobby ->
+GameScene once per match and returns to Lobby after the result screen.
+
+Implementation consequences:
+
+- `GameSessionContext` is the cross-scene hand-off (role, flow mode, version
+  handshake, pending start config, received payload, registered GameBootstrap
+  and persistent bridge). It never enters Gameplay snapshots or checksums.
+- The NGO root (NetworkManager + `FrameSyncNetworkBridge` +
+  `LobbyNetworkBridge` + `ClientUiActionRouter`) is marked DontDestroyOnLoad by
+  the bootstrap scene and survives into Lobby/GameScene.
+- `LocalNgoEndpointDriver` moved to the Lobby scene and defers endpoint binding
+  to the first Update so the persistent NGO root is stable after the scene
+  transition; the network must start before the bridge registers NGO handlers
+  because `CustomMessagingManager` does not exist before StartServer/StartClient.
+- `LobbyNetworkBridge` no longer depends on a pre-loaded GameBootstrap: the
+  Lobby schedules the start (stored in `GameSessionContext.PendingServerStart`),
+  GameScene's GameBootstrap builds/applies/broadcasts the authoritative payload
+  on the server and applies the received payload on the client.
+- The shared `GameScene` supports both roles at runtime through
+  `GameSessionContext.IsDedicatedServer`; a server process ignores the
+  serialized PlayerInputController reference instead of failing.
+- UOS login (`UosClientSession.InitializeAsync`) was first verified in the
+  editor; the 2026-08-10 provider run subsequently verified allocation, Ready,
+  matchmaking, two public NGO client connections, Lobby barriers and Gameplay.
+- Connection-lifecycle ownership is exclusive per flow mode. In
+  `FrameFlowMode.UosOnline`, `LobbyFlowController` owns matchmaking, client
+  transport connection and identity. In `FrameFlowMode.LocalDirect`,
+  `LocalNgoEndpointDriver` owns the client notification/wait path. This rule was
+  made explicit after the first live clients exposed both owners running at
+  once and `LobbyNetworkBridge` validation remains strict. Implementation note:
+  the 2026-08-10 attempted fix only gates the driver's `Update()` polling;
+  `OnClientConnected()` still calls `NotifyClientConnectedOnce()` in UOS mode.
+  Conformance to this decision is therefore still open until that callback path
+  and a callback-level behavior test are corrected.
+
+## D-027 — Single source for UOS application configuration
+
+**Status:** Frozen (implementation complete 2026-08-04)
+
+The Matchmaking config ID and region ID are no longer duplicated on
+`ClientBootstrap`/`GameBootstrap` scene components. The runtime reads one
+source: the UOS Launcher environment settings exposed through
+`Unity.UOS.Common.Settings.MatchmakingConfigID` (backed by
+`Assets/Resources/UOSSettings.asset`, which is included in player builds).
+Per-launch command-line arguments are explicit overrides only
+(`-matchmakingConfigId=<id>`, `-uosRegionId=<id>`), and the online/local flow
+mode is overridable with `-onlineFlow` / `-localFlow` without editing scenes.
+Scene-serialized `uosMatchmakingConfigId`/`uosRegionId` fields were removed.
+
+Implementation consequences:
+
+- `UosApplicationConfig` resolves flow mode, config ID and region ID in one
+  place with injectable test hooks; EditMode tests cover argument forms,
+  precedence and reset behavior.
+- `LobbyNetworkBridge.UnregisterHandlers` now tolerates a null
+  `CustomMessagingManager` during scene teardown after the network has shut
+  down (same guard that `FrameSyncNetworkBridge` already had); the repeated
+  teardown NRE no longer pollutes the Console during PlayMode exits.
+- Filling the config ID in the UOS Launcher environment configuration is now
+  sufficient for the packaged client and server; no scene edit is required.
+- The external dashboard/configuration gate was satisfied for the 2026-08-10
+  live run. `UOSSettings.asset` and `UOSEnvironments.asset` now resolve the real
+  Matchmaking config ID `f01c4e66-0023-43f6-af57-dcd8b73e7b90`. The Multiverse
+  startup/profile ID `0fc730a2-ce02-4768-8a75-713ddb36c3b0` is a different
+  provider contract and must not be placed in `MatchmakingConfigID`.
+- These identifiers are configuration, not secrets. UOS application/server
+  secrets and allocation-injected secret values must never be copied into this
+  repository, documentation or shared logs.
+
+## D-028 — Catalog-driven hero select and unrestricted hero choice
+
+**Status:** Frozen (implementation complete 2026-08-04)
+
+The hero select list is now driven by a dedicated `HeroDisplayTable`
+(avatar/name mapping) instead of generated placeholder rows. The prefab table
+keeps prefabs only; after a hero prefab is referenced by a `UnitKind.Hero`
+prototype, the display table automatically gains a mapping row
+(`UnitPrototypeId` + `HeroPrefabId` + display name), and content authors only
+fill the avatar. `GlobalPrefabTable` also gains per-kind ID ranges
+(design v10.2 17.5) with validation.
+
+Implementation consequences:
+
+- `HeroDisplayTable` is a `RuntimeConfig` ScriptableObject; the editor sync
+  lives in the Unit assembly (`HeroDisplayTableSync`) and runs automatically
+  from `UnitRuntimeCatalogAsset.OnValidate` plus a manual menu invocation.
+- `GameFlowLuaBridge.BindHeroSelect` exposes the 1-based rows to Lua;
+  `Select.lua` renders real heroes and `HeroCell.lua` sets the avatar image.
+  The Select list is preloaded when the Lobby loads so cells exist before
+  matchmaking opens the page.
+- Hero choice is intentionally unrestricted (2026-08-04): any positive
+  `HeroConfigId` is accepted from clients, duplicates across slots are
+  allowed, and the locked value flows into `GameStartConfig` per slot. The
+  previous "must equal the frozen fixture HeroConfigId" network checks were
+  removed.
+- Player Settings default to 1600x900 windowed with a resizable window so the
+  packaged client is usable for acceptance testing.
+
+## D-029 — Varus test-kit cast models: point/direction aim, hold-release indicator, W toggle
+
+**Status:** Frozen (implementation complete 2026-08-05)
+
+The Varus test-kit ability assets follow Ability v15.2 section 7.1/7.2 for
+aim-carrying Commit and hold-release skills, and the test hero's W is a pure
+toggle:
+
+- VarusE: `CommitCastModelDef` + `AreaDamageStageDef`, `AimKind.Point`.
+  The stage resolves its center from `AbilitySession.Aim.TargetPoint`.
+- VarusR: `CommitCastModelDef` + `SpawnProjectileStageDef`,
+  `AimKind.Direction`. The stage spawns the projectile toward the normalized
+  `AbilitySession.Aim.Direction`.
+- VarusQ: `HoldReleaseCastModelDef` (Hold -> Release), `AimKind.Direction`.
+  The local indicator resolves to the Release stage and follows
+  caster-position -> cursor direction every frame while the Focus session is
+  active (`GameplayFocusing`).
+- VarusW: `ToggleCastModelDef`, `AimKind.None`, no cooldown, no per-Tick
+  resource drain, and `NotifyAbilityCastOnEnter = false` (design v15.2 7.8:
+  W is not an active cast). A second Commit ends the active session without
+  starting cooldown.
+
+Implementation consequences:
+
+- `AbilityHandler` now resolves stages for `ToggleCastModelDef`,
+  `GroundTargetCastModelDef` and `VectorTargetCastModelDef` in addition to the
+  original four models, and a second Commit on an active Toggle turns it off
+  (session ends, cooldown not started).
+- `PlayerInputController.UpdateIndicator` shows and follows the indicator for
+  both `LocalAiming` (E/R aiming) and `GameplayFocusing` (Q hold) states; the
+  previous code only handled `LocalAiming`, so hold-release indicators never
+  rendered.
+- The local indicator is now composed in `GameScene`: `SkillIndicatorDriver`
+  is attached to the GameBootstrap object and wired to
+  `GameBootstrap.indicatorDriver`, with placeholder
+  `DirectionIndicator`/`RangeCircleIndicator`/`GroundTargetIndicator` prefabs
+  under `Assets/Resources/Prefab/Indicators/` for acceptance testing. These
+  are presentation-only placeholders; final art is out of scope.
+- `AbilityAssetBakeValidator` gained explicit validation branches for
+  Toggle/GroundTarget/VectorTarget authoring.
+
+## D-030 — Varus Q charge mechanics and W blight toggle (2026-08-05)
+
+**Status:** Frozen (implementation complete 2026-08-05)
+
+The Varus test kit's Q and W are implemented as generic, data-driven
+framework slices:
+
+- **Q — Piercing Arrow**: `ChargeStageDef` (Hold) computes `ChargeRatio`
+  into the session Blackboard (full charge at 1.5s/45 ticks, max hold 4s);
+  `ChargeProjectileStageDef` (Release) linearly interpolates base damage,
+  extra-AD ratio (80% -> 120%), range (925 -> 1625) and the W-empowered
+  missing-health ratio, then spawns the projectile with a per-instance
+  on-hit damage override and a cast-range lifetime. Piercing falloff is
+  -15% per extra hit with a 33% floor, resolved per hit by
+  `ProjectileEffectDispatcher`.
+- **W — Blight Quiver**: stays a pure Toggle (D-029). Its active-ability
+  passive (`OnHitBonusDamagePassiveEffectDef`) adds on-hit magic damage and
+  applies one Blight stack; `AbilityHitStackDetonationBuffEffect` detonates
+  all stacks when the caster lands Ability damage, deals
+  MaxHealth-percent magic damage (per-stack, +AP ratio), caps each stack
+  at 120 vs non-heroes, refunds 13% basic-ability cooldown per stack on
+  hero targets, and never re-triggers from its own Buff-sourced damage.
+  When W is toggled on, charging Q consumes the toggle and starts W's 40s
+  cooldown (`ChargeStageDef.ConsumeToggleSlot`).
+
+Implementation consequences:
+
+- `ProjectileSpawnRequest`/`ProjectileRuntime`/snapshots now carry a
+  per-instance `ProjectileOnHitDamage` override and a max-lifetime override
+  (both deterministic snapshot members); `ProjectileOnHitDamage` gained
+  `MissingHpRatio`, `FalloffPerHitPercent` and `MinDamageRatio`.
+- `DamageEventData` now carries the source `SourceDescriptor` so effects can
+  distinguish Ability damage (detonates Blight) from Attack/AttackEffect
+  damage (does not), without guessing.
+- `AbilityPassiveListenerMask` gained `OnHitDealt`; `AbilityHandler` and
+  `UnitEventBus` forward on-hit events to ability passives, and
+  `AbilityPassiveRuntimeState.AbilityLevel` tracks the owning ability level.
+- Buff definitions are registered through a new `BuffCatalogAsset` wired
+  into `GameBootstrap` (the runtime registry was previously always empty);
+  `BuffEffectConfig.Effect` is now `[SerializeReference]` and `BuffConfigId`
+  is Unity-serializable so SO assets can configure buff effects.
+- `ProjectileWorld`'s ObjectPool destroys pooled entities with
+  `DestroyImmediate` outside play mode, fixing EditMode test teardown for
+  all projectile tests.
+
+## D-031 — Varus passive P, charge slow/refund, per-level cooldown (2026-08-06)
+
+**Status:** Frozen (implementation complete 2026-08-06)
+
+Following the hero design document and Ability v15.2 review:
+
+- **Cooldown is per ability level** (`AbilityDef.CooldownByLevel`,
+  design v15.2 5.5) instead of a single int. Q/E/R are authored with
+  level-scaled cooldowns (Q 16..12s, E 18..10s, R 100/80/60s). Special
+  cooldowns stay out of `AbilityDef` (W's 40s post-Q cooldown is driven by
+  `ChargeStageDef.ConsumeToggleCooldownTicks`).
+- **Q charge self-slow**: `ChargeStageDef` now stores a
+  `StatModifierHandle` in the ability Blackboard (new
+  `AbilityBlackboardValueKind.StatModifierHandle`) and applies -20%
+  MoveSpeed (FinalRatioAdd) for the hold duration, removed on exit.
+- **Q timeout refund**: `HoldReleaseCastModelDef` gained
+  `HoldTimeoutPolicy` (AutoRelease/Cancel) and
+  `RefundCostPercentOnTimeout`; the handler cancels the hold on timeout and
+  refunds half the already-paid cost (Varus Q = 50%).
+- **Passive P (复仇之欲)**: fixed passive registration is now wired
+  (`FixedPassiveDefinitionAsset` -> `AbilityRuntimeCatalogAsset` ->
+  `AbilityLoadoutAsset.fixedPassiveAbilityId` -> `SetFixedPassive`).
+  `ApplyBuffPassiveEffectDef` keeps the Revenge Buff applied (activate /
+  respawn / kill); `KillStatGrowthBuffEffect` grants attack speed
+  (10/15/20% at hero levels 1/7/13, 3x on hero kills) plus attack damage
+  and ability power equal to 1100% (3300% hero) of the attack-speed bonus,
+  refreshing 5/7/9/11s durations (levels 1/6/11/16), max one stack.
+- Blight's per-stack damage cap applies to monsters only (design: 野怪),
+  not to all non-heroes.
+
+Checksum coverage: `AbilityPassiveRuntimeState.AbilityLevel`, projectile
+`OnHitDamageOverride`, pending `MaxLifetimeTicksOverride`, and the new
+Blackboard StatModifierHandle entries all participate in
+`SharedGameplayChecksum`; `GameplaySnapshot.CurrentSchemaVersion` bumped to
+16 and the snapshot appendix updated.
+
+## D-032 — Revenge queue rule, buff icon, checksum diagnostics (2026-08-06)
+
+**Status:** Frozen (implementation complete 2026-08-06)
+
+- **Revenge normal-after-empowered rule**: when a non-hero is killed while
+  the empowered Revenge Buff is active, the empowered Buff keeps its values
+  and records a pending-normal flag; when the empowered Buff expires,
+  exactly one normal Buff is re-applied (1x values, current-level duration).
+  Implemented via `BuffEffect.OnRemovedComplete` (called after the runtime is
+  removed from the store) and `BuffHandler.TryGetRuntime` for the successor
+  lookup; the effect stores `IsEmpowered`/`PendingNormalAfterEmpowered`
+  Blackboard bool slots.
+- **Passive P buff icon**: the Revenge Buff and the fixed-passive skill use
+  `Assets/Art/Icon/Ability/Varus/韦鲁斯被动.png` (presentation only).
+- **Checksum divergence diagnostics**: `SharedGameplayChecksum` now exposes
+  per-segment (Schema/Random/MatchRule, UnitWorld, Combat, Projectiles,
+  EquipmentShop, Physics, GoldDigest) and per-unit per-handler hash segments.
+  With `-checksumDetail` on the command line, the server logs its segments
+  each tick and a client logs its predicted segments plus per-unit handler
+  hashes when a replay mismatch occurs, so the diverging subsystem can be
+  identified directly from the logs.
+- **Order hardening**: `StatHandler.Capture` now sorts each entry's modifiers
+  by `StatSeq` before checksum hashing (BuffStore and AbilityBook were
+  already order-stable). This removes the only remaining insertion-order
+  dependency in the checksum calculation.
+
+## D-033 — Wall-clock launch barrier and stat Dirty finalization (2026-08-06)
+
+**Status:** Frozen (implementation complete 2026-08-06)
+
+- **Wall-clock launch barrier**: the match no longer starts the moment a
+  client applies the bootstrap payload. The server computes an absolute
+  `LaunchUtcTicks` (= UtcNow + `GameModeConfig.LaunchDelaySeconds`, default
+  5s) and broadcasts it in `GameBootstrapPayload` (wire v2). Both server and
+  clients hold the first simulation tick until the wall clock reaches that
+  instant; clients keep the Loading page until then and only then open the
+  battle HUD. This keeps endpoints' real-time offset as small as possible
+  instead of aligning on a logic tick.
+- **Stat Dirty finalization**: the packaged-client Tick 3 checksum divergence
+  was reproduced in-editor (`BootstrapDeterminismProbeTests`) and localized
+  to `StatHandler` `Dirty` flags: the client restore path marks all entries
+  Dirty while the server spawn path does not, and nothing recomputed them at
+  tick end. `SimulationTickPipeline.ExecuteTick` now calls
+  `StatHandler.FinalizeTick()` on every unit at tick end (Unit v27.3 5.5.1),
+  so server-authority and client-prediction first ticks produce identical
+  checksums. The probe test passes with the fix.
+
+Implementation consequences:
+
+- `FrameSyncGameRuntime` exposes `LaunchUtcTicks` /
+  `IsLaunchTimeReached` / `SetLaunchUtcTicks`; `GameBootstrap` gates
+  `AdvanceSimulationByElapsedSeconds` on it and defers HUD opening until the
+  barrier is reached.
+- `GameBootstrapPayload` gains `LaunchUtcTicks`; `BootstrapPayloadWireCodec`
+  wire version bumped to 2.
+- `GlobalGameplayData` gains `GameModeConfig.LaunchDelaySeconds`
+  (baked into `BakedGlobalGameplayData.LaunchDelaySeconds`).
+
+2026-08-10 live validation note (does not revise this frozen decision):
+
+- The server applied the bootstrap at 17:35:05.623 and later emitted a Tick
+  1625 combat event at 17:36:04.626. At 30 Tick/s, subtracting the configured
+  five-second launch delay from that wall-clock interval predicts about 1620
+  executed Ticks. This is strong evidence that the server honored the barrier
+  and did not simulate during its five-second wait.
+- The operator saw a client leave Loading with displayed match time near 30
+  seconds. Existing packaged client logs do not timestamp payload receive,
+  barrier reach, HUD open or first accepted AuthorityFrame, so message delay,
+  endpoint clock offset, main-thread delay and a scheduling defect remain
+  indistinguishable.
+- Do not replace the absolute UTC contract from that observation alone. The
+  next live package must add narrow UTC + monotonic-time + current-Tick markers
+  at server broadcast, client payload receive/apply, launch-barrier reach, HUD
+  open and first accepted authority. Revise D-033 only if that evidence proves
+  the contract itself is defective.
+
+## D-034 — Assist event chain and assist-driven Revenge buff (2026-08-06)
+
+**Status:** Frozen (implementation complete 2026-08-06)
+
+Combat v13.2 7.14/14.6 assist support now reaches gameplay effects:
+
+- `CombatEvents.RaiseUnitAssist` forwards to the assistant unit's
+  `UnitEventBus.PublishUnitAssist`, which dispatches to
+  `AbilityHandler.OnUnitAssist` and `BuffHandler.OnUnitAssist`.
+- `AbilityPassiveListenerMask.UnitAssist` +
+  `AbilityPassiveEffectDefBase.OnUnitAssist` and
+  `BuffEffect.OnUnitAssist` were added, with handler dispatch.
+- `KillStatGrowthBuffEffect.OnUnitAssist` treats a hero assist the same as a
+  hero kill: it applies the empowered Revenge buff (3x values, refreshed
+  duration). The hero-kill/assist branch is shared via
+  `ApplyHeroEmpowered`.
+- The assist event was raised twice per assistant (CombatSystem settlement
+  and DeathEffectDispatcher.FireOnKillEvents); the duplicate in
+  `DeathEffectDispatcher` was removed.
+
+Covered by `AssistEventIntegrationTests` (damage contributions -> stable
+AssistantHeroUids -> single assist event -> empowered Revenge buff) and
+`PassivePAbilityTests.AssistHero_AppliesEmpoweredBonusToAssistant`.
+
+## D-035 — Combat contribution event log and last-hit killer (2026-08-06)
+
+**Status:** Frozen (implementation complete 2026-08-06)
+
+The aggregated `DamageContributionTracker` is replaced by a per-victim
+`CombatContributionEventLog` (Combat v13.2 搂7.14, snapshot appendix v7.2):
+
+- Every effective Damage / Shield / Heal interaction is stored as one event
+  ordered by (LogicTick, SequenceInTick); capacity 256 per victim and an
+  expiry window of 150 ticks (~5 s at 30) bound the log.
+- The killer is the contributor of the last Damage event
+  (`LastHitContributorUid`), not the highest accumulated contribution.
+- Assistants are the distinct Damage contributors inside the window,
+  excluding the killer, filtered to valid enemy heroes and sorted by
+  UnitUid ascending.
+- `CombatSnapshot` carries `ContributionEventLogs`;
+  `SharedGameplayChecksum` hashes LastHit, Kind, Amount, LogicTick and
+  SequenceInTick for every event. GameplaySnapshot schema is bumped to 17.
+
+Implementation consequences:
+
+- `DamageContributionTracker` and its snapshot type are deleted; no
+  reference remains in Combat, checksum or test code.
+- `CombatSystem.RecordEvent` is the single write point for Damage / Shield /
+  Heal events, and `ResolveDying` uses `log.ResolveKiller` /
+  `log.ResolveAssistants`.
+- Death settlement no longer needs a frozen killer map: the killer and
+  assistants are resolved from the snapshot member at settlement time.
+
+Covered by `CombatContributionEventLogTests` (5) and
+`AssistEventIntegrationTests.Killer_IsLastDamageContributor_NotHighestTotal`;
+FrameSync checksum/rollback regression and the combat-focused suites pass.
+
+## D-036 — Crowd Control v6.2 module-architecture conformance (2026-08-06)
+
+**Status:** Frozen (runtime + integration implemented 2026-08-06)
+
+The legacy Kind-branch crowd-control handler is replaced by the
+`moba_crowd_control_system_design_v6_2.md` architecture:
+
+- `CrowdControlDefinition` (SO) with authoring fields plus baked hidden
+  runtime fields (ParamLayout, OnAdd/Collect/Signal/OnRemove ops,
+  SignalMask); `CrowdControlCatalogAsset` + `CrowdControlDefinitionRegistry`
+  registered per world at bootstrap (mapped from the design's GameplayConfig
+  singleton to the project's catalog pattern).
+- Handler creates independent `CrowdControlInstance`s (no merge/source
+  metadata), resolves definitions per call, arbitrates the unique
+  ForcedMove, and implements immunity (tag query + BlockCount + Priority),
+  unstoppable, cleanse, lightweight signals (2-tick retention) and Tenacity.
+- Module executor table with BlockActions / MaxMoveSlow /
+  MaxAttackSpeedSlow / MinVisionScale / BasicAttackMiss / ForcedBehavior /
+  ForcedMoveOnAdd / RemoveOnSignal / AddControlOnNaturalExpire; no per-Kind
+  branches anywhere.
+- Key params: explicit `ControlParamKeys` constants (project has no
+  StableStringId32) + a project-owned `FixedBytes64` param block (no
+  Unity.Collections dependency).
+- Unit-framework integration follows `unit_behavior_framework_design_v27_3`:
+  `Unit.RefreshCapabilityState()` folds `CrowdControlStateView.BlockedActions`
+  into coarse capability; `BehaviorPlanner` reads
+  `TryGetBehaviorOverride` before intent and maps it to existing Move/Attack
+  requests; `ActionArbiter` reads `State` in Submit and runs
+  `EvaluateCurrentRuntimes` to interrupt no-longer-allowed runtimes;
+  forced move bypasses Planner/Arbiter via MovementHandler.
+- Snapshot/checksum carry instances (ControlId/StartTick/ExpireTick/params),
+  immunity, unstoppable, ids, active forced-move handle and signals;
+  GameplaySnapshot schema bumped to 18.
+
+Recorded mappings: `Suppression` Intensity is High (not cleansable/immunable,
+matching the pre-refactor semantics); `AbilityBlackboard` gained a
+`CrowdControlHandle` value kind so stages like Pull keep their handle across
+ticks.
+
+Covered by `CrowdControlHandlerTests` (10), migrated `MovementConformanceTests`
+and FrameSync/Bootstrap regression.
+
+## D-037 — Minion initial buffs, tower mechanics and two-config split (2026-08-07)
+
+**Status:** Frozen (implemented and regression-tested 2026-08-07)
+
+Non-hero content decisions for towers and lane minions:
+
+- **Built-in buffs are data-driven, not hard-coded.** `UnitPrototype` gains
+  `InitialBuffConfigIds`; `BuffHandler` exposes
+  `SetInitialBuffConfigs`/`ApplyInitialBuffs` and `UnitWorld` applies them at
+  spawn. Infinite buffs survive death via the permanent-buff respawn
+  lifecycle, so any unit can carry built-in buffs by configuration alone.
+- **Minion special mechanics ride CombatModifier Buffs.** `CombatModifierMatch`
+  gains target-`UnitKind` filtering and `CombatValueRefKind.TargetCurrentHealth`
+  is added, so buffs express "extra damage vs minions" and "reduced damage vs
+  towers" through the existing formula pipeline (no per-minion
+  EquipmentHandler). Test config: `Buff_MinionMuncher` (melee +2% target
+  current health vs minions), `Buff_MinionPincushion` (ranged +3.5%),
+  `Buff_TowerPillow` (towers take x0.6). Minion level growth is intentionally
+  dropped (user decision).
+- **Tower mechanics** (`TowerAttackHandler : AttackHandler`, NonHero v5 搂9):
+  hero damage ramps 180 -> x1.5 per hit on the same hero, capped at 600
+  (injected through `ProjectileSpawnRequest.OnHitDamageOverride`); minion hits
+  stay flat base damage. In-flight projectile locking:
+  `HasUnresolvedProjectile` keeps `TowerAIController` from re-targeting
+  (v5 8.5). Ramp/lock state lives in `AttackSnapshot` (rollback-safe) and is
+  checksummed. `TowerTargetLinePresenter` draws the red line presentation-only.
+  Both test and formal tower prefabs were migrated from AttackHandler to
+  TowerAttackHandler.
+- **Single runtime chain (superseded by D-038).** Resource layout was
+  consolidated on 2026-08-10 into `Assets/Config/Formal/` as the only formal
+  chain; see D-038.
+
+Covered by `MinionInitialBuffTests` (4), `TowerAttackHandlerTests` (3) plus
+FrameSync (71) and Bootstrap EditMode (58) regression.
+
+## D-038 — Single-source formal resource layout (2026-08-10)
+
+The packaged C/S build is the single source of truth for runtime resources;
+test scenes and tests reference the same chain.
+
+```text
+Assets/Config/Formal/   the one formal chain (packaged)
+    GlobalGameplayData.asset -> GlobalPrefabTable.asset
+    HeroDisplayTable / AudioLibrary / UnitOutlineRim
+    CrowdControl/ (12 CC definitions + catalog)
+    Abilities/ (Varus Q/W/E/R + loadout + catalog)
+    Buffs/ (blight, corruption vines, minion built-ins, revenge, ...)
+    FlowFields/ (Team 1/2 x Small/Medium/Large)
+    Animation/ (TestHero.controller, minion controllers, profile)
+    Prefabs/ (TestHeroRuntime = Varus, melee/caster minions, towers)
+    FullMatch* catalogs (units, projectiles, VFX, map, minion wave, dispose)
+Assets/Config/Tests/    test-only configs (HeroTestMapConfig)
+Assets/Resources/       C/S-used UI / missiles / indicators / VFX / materials
+```
+
+- Removed: `Assets/Fixtures/` (test fixtures incl. the only equipment
+  catalog — no formal equipment exists yet, `equipmentCatalog` is null),
+  the dead `Config/Formal/` pair (`FormalUnitRuntimeCatalog` /
+  `FormalGlobalPrefabTable`), `Config/Runtime/` + `Config/FullMatchTest/`
+  (merged into `Config/Formal/`), and `Assets/Resources/Prefab/Unit/`
+  (formal unit prefabs that only the dead pair referenced).
+- `GlobalPrefabTable` dropped the placeholder 1001/2001 entries that pointed
+  at `Fixtures/Framework/Prefabs` ellipsoid/sphere prefabs.
+- All test scenes (HeroTestScene, MinionTowerLongRunTest, FrameworkSmoke,
+  ClientFrameworkSmoke) and their drivers/tests reference the Formal chain.
+- Hero attack animation restored: `TestHero.controller` gained Attack1 /
+  Attack2 states (AnyState entry on `AttackStart`, alternating by
+  `AttackSequenceIndex`, exit on `IsAttacking == false`). Note Unity
+  2022.3.62 `AnimatorConditionMode`: Equals=6, NotEqual=7.

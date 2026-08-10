@@ -67,16 +67,30 @@ namespace FrameSyncMoba.Unit
             return _slots[slot]?.Definition;
         }
 
-        public bool HasTag(string tag)
+        public bool HasTag(
+            EquipmentTagUid tag)
         {
             for (int i = 0; i < SlotCount; i++)
             {
                 var def = _slots[i]?.Definition;
                 if (def?.Tags == null) continue;
                 for (int j = 0; j < def.Tags.Length; j++)
-                    if (def.Tags[j] == tag) return true;
+                {
+                    EquipmentTagDefinition candidate =
+                        def.Tags[j];
+                    if (candidate != null &&
+                        candidate.Uid == tag)
+                        return true;
+                }
             }
             return false;
+        }
+
+        public bool HasTag(
+            EquipmentTagDefinition tag)
+        {
+            return tag != null &&
+                HasTag(tag.Uid);
         }
 
         public bool HasDefinition(EquipmentDefinition definition)

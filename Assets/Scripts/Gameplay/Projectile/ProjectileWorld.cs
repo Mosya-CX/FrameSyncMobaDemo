@@ -18,6 +18,9 @@ namespace FrameSyncMoba.Unit
         public SourceDescriptor Source;
         public fp2 Position;
         public fp2 Direction;
+        public ProjectileOnHitDamage[] OnHitDamageOverride;
+        public int MaxLifetimeTicksOverride;
+        public UnitUid TargetUnitUid;
     }
 
     public sealed class ProjectileWorld :
@@ -41,6 +44,12 @@ namespace FrameSyncMoba.Unit
         public UnitWorld UnitWorld { get; set; }
         public PhysicsWorld PhysicsWorld { get; set; }
         public GlobalPrefabTable PrefabTable { get; set; }
+        /// <summary>
+        /// Logic seconds advanced per Tick (1 / TickRate). Applied to
+        /// projectile Speed so Speed is authored in logic units per second.
+        /// Defaults to 1 for legacy callers that treat Speed as per-Tick.
+        /// </summary>
+        public fp LogicSecondsPerTick { get; set; } = fp.one;
         public int Count => ordered.Count;
         public int PendingCount => pendingSpawns.Count;
 
@@ -85,16 +94,25 @@ namespace FrameSyncMoba.Unit
                 currentTick,
                 def.RuntimeEntityPrefabId,
                 sequence);
-            var pending = new PendingSpawnEntry
-            {
-                Uid = uid,
-                Def = def,
-                OwnerUnitUid = request.OwnerUnitUid,
-                TeamSnapshot = request.TeamSnapshot,
-                Source = request.Source,
-                Position = request.StartPosition,
-                Direction = direction,
-            };
+                var pending = new PendingSpawnEntry
+                {
+                    Uid = uid,
+                    Def = def,
+                    OwnerUnitUid = request.OwnerUnitUid,
+                    TeamSnapshot = request.TeamSnapshot,
+                    Source = request.Source,
+                    Position = request.StartPosition,
+                    Direction = direction,
+                    TargetUnitUid =
+                        request.TargetUnitUid,
+                    OnHitDamageOverride =
+                        request.OnHitDamageOverride != null
+                            ? (ProjectileOnHitDamage[])
+                                request.OnHitDamageOverride.Clone()
+                            : null,
+                    MaxLifetimeTicksOverride =
+                        request.MaxLifetimeTicksOverride,
+                };
             pendingSpawns.Add(pending);
             pendingByUid.Add(uid, pending);
             return uid;
@@ -125,7 +143,15 @@ namespace FrameSyncMoba.Unit
                     pending.Source,
                     entity,
                     pending.Position,
-                    pending.Direction);
+                    pending.Direction,
+                    pending.OnHitDamageOverride,
+                    pending.MaxLifetimeTicksOverride,
+                    pending.TargetUnitUid)
+                {
+                    LogicSecondsPerTick =
+                        LogicSecondsPerTick,
+                    UnitWorld = UnitWorld,
+                };
                 BindEntity(runtime);
                 lookup.Add(pending.Uid, runtime);
                 ordered.Add(runtime);
@@ -218,11 +244,42 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < ordered.Count; i++)
             {
                 ProjectileRuntime runtime = ordered[i];
+                // A hit-memory target may have been disposed (death despawn)
+                // while the projectile is still alive. Such records are
+                // pruned here so every restored snapshot reference resolves:
+                // the unit no longer exists and can never be hit again, so
+                // keeping the memory would make ValidateUnitReferences throw
+                // on every rollback through this tick.
+                int validRecordCount = 0;
+                for (int j = 0;
+                     j < runtime.HitRecords.Count;
+                     j++)
+                {
+                    if (UnitWorld.TryGetUnit(
+                            runtime.HitRecords[j].TargetUid,
+                            out _))
+                    {
+                        validRecordCount++;
+                    }
+                }
                 var records =
                     new ProjectileHitRecord[
-                        runtime.HitRecords.Count];
-                for (int j = 0; j < records.Length; j++)
-                    records[j] = runtime.HitRecords[j];
+                        validRecordCount];
+                int recordIndex = 0;
+                for (int j = 0;
+                     j < runtime.HitRecords.Count;
+                     j++)
+                {
+                    ProjectileHitRecord record =
+                        runtime.HitRecords[j];
+                    if (!UnitWorld.TryGetUnit(
+                            record.TargetUid,
+                            out _))
+                    {
+                        continue;
+                    }
+                    records[recordIndex++] = record;
+                }
 
                 active[i] = new ProjectileRuntimeSnapshot
                 {
@@ -247,6 +304,13 @@ namespace FrameSyncMoba.Unit
                     NextQueryLogicTick =
                         runtime.NextQueryLogicTick,
                     HitRecords = records,
+                    OnHitDamageOverride =
+                        runtime.OnHitDamageOverride != null
+                            ? (ProjectileOnHitDamage[])
+                                runtime.OnHitDamageOverride.Clone()
+                            : null,
+                    TargetUnitUid =
+                        runtime.TargetUnitUid,
                 };
             }
             state.ActiveProjectiles = active;
@@ -270,6 +334,15 @@ namespace FrameSyncMoba.Unit
                         Source = entry.Source,
                         StartPosition = entry.Position,
                         Direction = entry.Direction,
+                        OnHitDamageOverride =
+                            entry.OnHitDamageOverride != null
+                                ? (ProjectileOnHitDamage[])
+                                    entry.OnHitDamageOverride.Clone()
+                                : null,
+                        MaxLifetimeTicksOverride =
+                            entry.MaxLifetimeTicksOverride,
+                        TargetUnitUid =
+                            entry.TargetUnitUid,
                     };
             }
             state.PendingSpawns = pending;
@@ -303,6 +376,13 @@ namespace FrameSyncMoba.Unit
                         Source = snapshot.Source,
                         Position = snapshot.StartPosition,
                         Direction = snapshot.Direction,
+                        OnHitDamageOverride =
+                            snapshot.OnHitDamageOverride != null
+                                ? (ProjectileOnHitDamage[])
+                                    snapshot.OnHitDamageOverride.Clone()
+                                : null,
+                        MaxLifetimeTicksOverride =
+                            snapshot.MaxLifetimeTicksOverride,
                     };
                     if (pendingByUid.ContainsKey(
                             snapshot.Uid))
@@ -343,7 +423,20 @@ namespace FrameSyncMoba.Unit
                         snapshot.Source,
                         entity,
                         snapshot.Position,
-                        restoreFacing);
+                        restoreFacing,
+                        snapshot.OnHitDamageOverride,
+                        0,
+                        snapshot.TargetUnitUid)
+                    {
+                        UnitWorld = UnitWorld,
+                        // Restored projectiles must keep the world's logic
+                        // seconds per tick; the runtime ctor defaults to 1,
+                        // which would make a restored projectile fly at
+                        // Speed units per Tick (TickRate x too fast) and hit
+                        // at the wrong tick after every rollback.
+                        LogicSecondsPerTick =
+                            LogicSecondsPerTick,
+                    };
                     runtime.RestoreFromSnapshot(snapshot);
                     BindEntity(runtime);
                     if (lookup.ContainsKey(snapshot.Uid))
@@ -464,7 +557,14 @@ namespace FrameSyncMoba.Unit
                         entity.gameObject.SetActive(false);
                     },
                     entity =>
-                        UnityEngine.Object.Destroy(entity.gameObject),
+                    {
+                        if (UnityEngine.Application.isPlaying)
+                            UnityEngine.Object.Destroy(
+                                entity.gameObject);
+                        else
+                            UnityEngine.Object.DestroyImmediate(
+                                entity.gameObject);
+                    },
                     true,
                     4,
                     256);

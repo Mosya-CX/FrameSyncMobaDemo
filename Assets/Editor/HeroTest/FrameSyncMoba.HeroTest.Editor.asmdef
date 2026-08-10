@@ -1,0 +1,21 @@
+{
+    "name": "FrameSyncMoba.HeroTest.Editor",
+    "rootNamespace": "FrameSyncMoba.HeroTest.Editor",
+    "references": [
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "Unity.Mathematics.FixedPoint"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

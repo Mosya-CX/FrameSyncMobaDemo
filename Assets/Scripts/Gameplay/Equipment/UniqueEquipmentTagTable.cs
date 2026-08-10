@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -7,55 +8,68 @@ namespace FrameSyncMoba.Unit
     /// Global configuration for equipment tags that enforce uniqueness.
     /// When two different equipment items share a tag listed here,
     /// they cannot coexist in the same inventory.
-    /// (Equipment/Gold v12 §2.10)
+    /// (Equipment/Gold v12 2.10)
     /// </summary>
     [Serializable]
     public sealed class UniqueEquipmentTagTable
     {
-        public string[] UniqueTags;
+        public EquipmentTagDefinition[] UniqueTags;
 
-        private HashSet<string> _uniqueSet;
+        private HashSet<EquipmentTagUid> _uniqueSet;
 
         public void Initialize()
         {
-            _uniqueSet = new HashSet<string>();
-            if (UniqueTags != null)
+            _uniqueSet = new HashSet<EquipmentTagUid>();
+            if (UniqueTags == null)
+                return;
+            for (int i = 0;
+                 i < UniqueTags.Length;
+                 i++)
             {
-                for (int i = 0; i < UniqueTags.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(UniqueTags[i]))
-                        _uniqueSet.Add(UniqueTags[i]);
-                }
+                EquipmentTagDefinition tag =
+                    UniqueTags[i];
+                if (tag != null &&
+                    tag.Uid.IsValid)
+                    _uniqueSet.Add(tag.Uid);
             }
         }
 
-        /// <summary>
-        /// Returns true if this tag is globally unique — meaning two items
-        /// with this tag cannot coexist in the same inventory.
-        /// </summary>
-        public bool IsUnique(string tag)
+        public bool IsUnique(
+            EquipmentTagUid tag)
         {
-            if (_uniqueSet == null) return false;
+            if (_uniqueSet == null)
+                return false;
             return _uniqueSet.Contains(tag);
         }
 
-        /// <summary>
-        /// Checks whether a proposed set of tags (from a new item)
-        /// would conflict with existing equipment tags.
-        /// Returns the first conflicting tag, or null if OK.
-        /// </summary>
-        public string FindFirstConflict(string[] proposedTags, EquipmentHandler existingHandler)
+        public bool IsUnique(
+            EquipmentTagDefinition tag)
         {
-            if (proposedTags == null || existingHandler == null) return null;
+            return tag != null &&
+                IsUnique(tag.Uid);
+        }
 
-            for (int i = 0; i < proposedTags.Length; i++)
+        public EquipmentTagUid FindFirstConflict(
+            EquipmentTagDefinition[] proposedTags,
+            EquipmentHandler existingHandler)
+        {
+            if (proposedTags == null ||
+                existingHandler == null)
+                return default;
+
+            for (int i = 0;
+                 i < proposedTags.Length;
+                 i++)
             {
-                var tag = proposedTags[i];
-                if (!IsUnique(tag)) continue;
+                EquipmentTagDefinition tag =
+                    proposedTags[i];
+                if (tag == null ||
+                    !IsUnique(tag))
+                    continue;
                 if (existingHandler.HasTag(tag))
-                    return tag;
+                    return tag.Uid;
             }
-            return null;
+            return default;
         }
     }
 }

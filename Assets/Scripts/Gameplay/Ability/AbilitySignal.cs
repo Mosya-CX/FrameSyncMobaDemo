@@ -74,6 +74,19 @@ namespace FrameSyncMoba.Unit
             return new AimSnapshot(AimKind.Direction, default, default, normalized);
         }
 
+        /// <summary>
+        /// Builds a Direction aim from an already-normalized direction without
+        /// re-normalizing. Used by canonical decode so a Direction Command
+        /// round-trips bit-exactly (fp normalization is not idempotent).
+        /// </summary>
+        public static AimSnapshot ForDirectionNormalized(
+            fp2 direction) =>
+            new AimSnapshot(
+                AimKind.Direction,
+                default,
+                default,
+                direction);
+
         public bool Equals(AimSnapshot other)
         {
             return Kind == other.Kind

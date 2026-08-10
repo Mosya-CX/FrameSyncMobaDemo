@@ -6,42 +6,44 @@ namespace FrameSyncMoba.Unit
     public sealed class BuffRuntime
     {
         public BuffConfigId ConfigId { get; }
-        public BuffDef Definition { get; }
-        public UnitUid SourceUnitUid { get; private set; }
+        public BuffDefinition Definition { get; }
+        public BuffSource Source { get; private set; }
+        public UnitUid SourceUnitUid => Source.CasterUid;
         public int RemainingTicks { get; private set; }
         public int CurrentStacks { get; private set; }
         public int ElapsedTicks { get; private set; }
         public RemovalReason RemovalReason { get; private set; }
         public bool IsRemoving { get; private set; }
-        public bool IsPermanent => Definition != null && Definition.LifeRule == BuffLifeRule.Infinite;
+        public bool IsPermanent =>
+            Definition != null &&
+            Definition.IsInfinite;
         public BuffBlackboard Blackboard { get; }
         internal int PeriodicTimer => _periodicTimer;
 
         private readonly BuffEffect[] _effects;
         private int _periodicTimer;
-        private bool _isDependentStack;
 
-        internal BuffRuntime(BuffConfigId configId, BuffDef definition, UnitUid sourceUnitUid)
+        internal BuffRuntime(
+            BuffConfigId configId,
+            BuffDefinition definition,
+            in BuffSource source)
         {
             ConfigId = configId;
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
-            SourceUnitUid = sourceUnitUid;
-            RemainingTicks = definition.DurationTicks;
-            CurrentStacks = definition.InitialStacks > 0 ? definition.InitialStacks : 1;
+            Source = source;
+            RemainingTicks =
+                definition.IsInfinite
+                    ? 0
+                    : definition.DurationTicks;
+            CurrentStacks =
+                definition.InitialStacks > 0
+                    ? definition.InitialStacks
+                    : 1;
             Blackboard = new BuffBlackboard();
+            Blackboard.Initialize(
+                definition.ResolveBlackboardLayout());
 
-            if (definition.Effects != null && definition.Effects.Length > 0)
-            {
-                _effects = new BuffEffect[definition.Effects.Length];
-                for (int i = 0; i < definition.Effects.Length; i++)
-                {
-                    _effects[i] = definition.Effects[i];
-                }
-            }
-            else
-            {
-                _effects = Array.Empty<BuffEffect>();
-            }
+            _effects = definition.GetEffects();
         }
 
         public void Tick(int deltaTicks)
@@ -103,16 +105,10 @@ namespace FrameSyncMoba.Unit
             if (CurrentStacks < 0) CurrentStacks = 0;
         }
 
-        public void SetSource(UnitUid sourceUnitUid)
+        public void SetSource(in BuffSource source)
         {
-            SourceUnitUid = sourceUnitUid;
+            Source = source;
         }
-
-        /// <summary>Mark this runtime as using Dependent stacking (all stacks share one duration).</summary>
-        public void MarkDependentStack() { _isDependentStack = true; }
-
-        /// <summary>True when stacks are Dependent (shared duration).</summary>
-        public bool IsDependentStack => _isDependentStack;
 
         public BuffEffect[] GetEffects()
         {
@@ -123,7 +119,10 @@ namespace FrameSyncMoba.Unit
         {
             if (state.ConfigId != ConfigId)
                 throw new DeterministicSimulationException("Buff snapshot ConfigId mismatch.");
-            SourceUnitUid = state.SourceUnitUid;
+            Source = BuffSource.Create(
+                state.SourceUnitUid,
+                state.SourceType,
+                state.SourceConfigId);
             RemainingTicks = state.RemainingTicks;
             CurrentStacks = state.CurrentStacks;
             ElapsedTicks = state.ElapsedTicks;

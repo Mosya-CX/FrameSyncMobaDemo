@@ -37,6 +37,14 @@ namespace FrameSyncMoba.Unit
 
         public int ResolvedWindupTicks;
 
+        /// <summary>Tower ramp state (TowerAttackHandler): target whose hero
+        /// hits are being ramped, hits so far, in-flight projectile and the
+        /// projectile-locked target. Zero/default when not a tower.</summary>
+        public UnitUid RampTargetUnitUid;
+        public int RampHitCount;
+        public ProjectileUid PendingProjectileUid;
+        public UnitUid LockedTargetUnitUid;
+
         public static readonly AttackSnapshot Default = new AttackSnapshot
         {
             CurrentTargetUid = default,

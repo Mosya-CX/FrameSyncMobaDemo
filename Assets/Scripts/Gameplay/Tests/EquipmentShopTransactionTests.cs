@@ -1,6 +1,7 @@
 using FrameSyncMoba.Deterministic;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit.Tests
 {
@@ -188,16 +189,19 @@ namespace FrameSyncMoba.Unit.Tests
             int value,
             EquipmentTier tier)
         {
-            return new EquipmentDefinition
-            {
-                Id = id,
-                Name = $"TestEquipment{id}",
-                Description = "Transaction test fixture",
-                Tier = tier,
-                Value = value,
-                MaxStack =
-                    tier == EquipmentTier.Consumable ? 3 : 1,
-            };
+            var def =
+                ScriptableObject
+                    .CreateInstance<EquipmentDefinition>();
+            def.Id = id;
+            def.Name = $"TestEquipment{id}";
+            def.Description = "Transaction test fixture";
+            def.Tier = tier;
+            def.Value = value;
+            def.MaxStack =
+                tier == EquipmentTier.Consumable
+                    ? 3
+                    : 1;
+            return def;
         }
 
         private readonly struct TestContext

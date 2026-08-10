@@ -1,149 +1,259 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
+    /// <summary>
+    /// Deterministic per-runtime state shared between reactions and effects.
+    /// Slots come from BuffDefinition.BlackboardLayout; no Dictionary storage.
+    /// (design v14.2 section 5)
+    /// </summary>
     public sealed class BuffBlackboard
     {
-        private readonly Dictionary<string, StatModifierHandle> _statHandles =
-            new Dictionary<string, StatModifierHandle>();
-        private readonly Dictionary<string, CombatModifierHandle> _combatHandles =
-            new Dictionary<string, CombatModifierHandle>();
-        private readonly Dictionary<string, fp> _numbers =
-            new Dictionary<string, fp>();
+        private BuffStateSlotDefinition[] _layout =
+            Array.Empty<BuffStateSlotDefinition>();
+        private BuffValue[] _values =
+            Array.Empty<BuffValue>();
 
-        public void SetStatHandle(string key, StatModifierHandle handle)
+        public int SlotCount => _values.Length;
+
+        public void Initialize(
+            BuffBlackboardLayout layout)
         {
-            _statHandles[key] = handle;
+            if (layout == null ||
+                layout.Slots == null ||
+                layout.Slots.Length == 0)
+            {
+                _layout = Array.Empty<BuffStateSlotDefinition>();
+                _values = Array.Empty<BuffValue>();
+                return;
+            }
+            _layout = (BuffStateSlotDefinition[])
+                layout.Slots.Clone();
+            Array.Sort(
+                _layout,
+                (a, b) => a.SlotId.CompareTo(b.SlotId));
+            _values = new BuffValue[_layout.Length];
+            for (int i = 0; i < _layout.Length; i++)
+            {
+                if (!_layout[i].SlotId.IsValid)
+                    throw new Deterministic.DeterministicSimulationException(
+                        "BuffBlackboard layout contains an invalid slot id.");
+                if (i > 0 &&
+                    _layout[i - 1].SlotId == _layout[i].SlotId)
+                    throw new Deterministic.DeterministicSimulationException(
+                        "BuffBlackboard layout contains duplicate slot ids.");
+                _values[i] = _layout[i].DefaultValue;
+            }
         }
 
-        public bool TryGetStatHandle(string key, out StatModifierHandle handle)
+        public BuffValue Read(BuffStateSlotId slot)
         {
-            return _statHandles.TryGetValue(key, out handle);
+            int index = IndexOf(slot);
+            return index >= 0 ? _values[index] : default;
         }
 
-        public StatModifierHandle GetStatHandleOrDefault(string key)
+        public void Write(
+            BuffStateSlotId slot,
+            in BuffValue value)
         {
-            return _statHandles.TryGetValue(key, out var h) ? h : default;
+            int index = IndexOf(slot);
+            if (index < 0)
+                throw new Deterministic.DeterministicSimulationException(
+                    $"BuffBlackboard has no slot {slot.Value}.");
+            _values[index] = value;
         }
 
-        public void SetCombatHandle(string key, CombatModifierHandle handle)
+        public void Reset()
         {
-            _combatHandles[key] = handle;
-        }
-
-        public bool TryGetCombatHandle(string key, out CombatModifierHandle handle)
-        {
-            return _combatHandles.TryGetValue(key, out handle);
-        }
-
-        public CombatModifierHandle GetCombatHandleOrDefault(string key)
-        {
-            return _combatHandles.TryGetValue(key, out var h) ? h : default;
-        }
-
-        public void SetNumber(string key, fp value)
-        {
-            _numbers[key] = value;
-        }
-
-        public bool TryGetNumber(string key, out fp value)
-        {
-            return _numbers.TryGetValue(key, out value);
-        }
-
-        public fp GetNumberOrDefault(string key)
-        {
-            return _numbers.TryGetValue(key, out var v) ? v : fp.zero;
+            for (int i = 0; i < _values.Length; i++)
+                _values[i] = _layout[i].DefaultValue;
         }
 
         public void InvalidateAll()
         {
-            var statKeys = new List<string>(_statHandles.Keys);
-            foreach (var key in statKeys)
+            for (int i = 0; i < _values.Length; i++)
             {
-                _statHandles[key] = default;
+                BuffValueKind kind = _values[i].Kind;
+                _values[i] = default;
+                _values[i].Kind = kind;
             }
-
-            var combatKeys = new List<string>(_combatHandles.Keys);
-            foreach (var key in combatKeys)
-            {
-                _combatHandles[key] = default;
-            }
-
-            _numbers.Clear();
         }
 
-        public void Clear()
+        // ---- Typed helpers ----
+
+        public void WriteInt(
+            BuffStateSlotId slot,
+            int value) =>
+            Write(slot, BuffValue.FromInt(value));
+
+        public int ReadIntOrDefault(
+            BuffStateSlotId slot) =>
+            Read(slot).Kind == BuffValueKind.Int
+                ? Read(slot).IntValue
+                : 0;
+
+        public void WriteBool(
+            BuffStateSlotId slot,
+            bool value) =>
+            Write(slot, BuffValue.FromBool(value));
+
+        public bool ReadBoolOrDefault(
+            BuffStateSlotId slot) =>
+            Read(slot).Kind == BuffValueKind.Bool
+                ? Read(slot).BoolValue
+                : false;
+
+        public void WriteFp(
+            BuffStateSlotId slot,
+            fp value) =>
+            Write(slot, BuffValue.FromFp(value));
+
+        public fp ReadFpOrDefault(
+            BuffStateSlotId slot) =>
+            Read(slot).Kind == BuffValueKind.Fp
+                ? Read(slot).FpValue
+                : fp.zero;
+
+        public void WriteFp2(
+            BuffStateSlotId slot,
+            fp2 value) =>
+            Write(slot, BuffValue.FromFp2(value));
+
+        public fp2 ReadFp2OrDefault(
+            BuffStateSlotId slot) =>
+            Read(slot).Kind == BuffValueKind.Fp2
+                ? Read(slot).Fp2Value
+                : fp2.zero;
+
+        public void WriteUnitUid(
+            BuffStateSlotId slot,
+            UnitUid value) =>
+            Write(slot, BuffValue.FromUnitUid(value));
+
+        public UnitUid ReadUnitUidOrDefault(
+            BuffStateSlotId slot) =>
+            Read(slot).Kind == BuffValueKind.UnitUid
+                ? Read(slot).UnitUidValue
+                : default;
+
+        public void WriteConfigId(
+            BuffStateSlotId slot,
+            int value) =>
+            Write(slot, BuffValue.FromConfigId(value));
+
+        public int ReadConfigIdOrDefault(
+            BuffStateSlotId slot) =>
+            Read(slot).Kind == BuffValueKind.StableConfigId
+                ? Read(slot).ConfigIdValue
+                : 0;
+
+        public void WriteStatHandle(
+            BuffStateSlotId slot,
+            StatModifierHandle value) =>
+            Write(slot, BuffValue.FromStatHandle(value));
+
+        public bool TryGetStatHandle(
+            BuffStateSlotId slot,
+            out StatModifierHandle handle)
         {
-            _statHandles.Clear();
-            _combatHandles.Clear();
-            _numbers.Clear();
+            BuffValue value = Read(slot);
+            if (value.Kind == BuffValueKind.StatModifierHandle)
+            {
+                handle = value.StatHandle;
+                return handle.IsValid;
+            }
+            handle = default;
+            return false;
         }
+
+        public void WriteCombatHandle(
+            BuffStateSlotId slot,
+            CombatModifierHandle value) =>
+            Write(slot, BuffValue.FromCombatHandle(value));
+
+        public bool TryGetCombatHandle(
+            BuffStateSlotId slot,
+            out CombatModifierHandle handle)
+        {
+            BuffValue value = Read(slot);
+            if (value.Kind == BuffValueKind.CombatModifierHandle)
+            {
+                handle = value.CombatHandle;
+                return handle.IsValid;
+            }
+            handle = default;
+            return false;
+        }
+
+        // ---- Snapshot ----
 
         public BuffBlackboardSnapshot Capture()
         {
-            var stats = new List<BuffStatHandleSnapshot>(_statHandles.Count);
-            foreach (var pair in _statHandles)
-                stats.Add(new BuffStatHandleSnapshot { Key = pair.Key, Handle = pair.Value });
-            stats.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
-            var combats = new List<BuffCombatHandleSnapshot>(_combatHandles.Count);
-            foreach (var pair in _combatHandles)
-                combats.Add(new BuffCombatHandleSnapshot { Key = pair.Key, Handle = pair.Value });
-            combats.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
-            var numbers = new List<BuffNumberSnapshot>(_numbers.Count);
-            foreach (var pair in _numbers)
-                numbers.Add(new BuffNumberSnapshot { Key = pair.Key, Value = pair.Value });
-            numbers.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
+            var slots =
+                new List<BuffValueSnapshot>(_values.Length);
+            for (int i = 0; i < _values.Length; i++)
+            {
+                slots.Add(new BuffValueSnapshot
+                {
+                    SlotId = _layout[i].SlotId,
+                    Value = _values[i],
+                });
+            }
             return new BuffBlackboardSnapshot
             {
-                StatHandles = new System.Collections.Generic.List<BuffStatHandleSnapshot>(stats),
-                CombatHandles = new System.Collections.Generic.List<BuffCombatHandleSnapshot>(combats),
-                Numbers = new System.Collections.Generic.List<BuffNumberSnapshot>(numbers),
+                Slots = slots,
             };
         }
 
-        public void Restore(in BuffBlackboardSnapshot snapshot)
+        public void Restore(
+            in BuffBlackboardSnapshot snapshot)
         {
-            Clear();
-            var stats = snapshot.StatHandles ?? new System.Collections.Generic.List<BuffStatHandleSnapshot>();
-            for (int i = 0; i < stats.Count; i++)
+            Initialize(
+                new BuffBlackboardLayout
+                {
+                    Slots = _layout,
+                });
+            List<BuffValueSnapshot> slots =
+                snapshot.Slots ??
+                new List<BuffValueSnapshot>();
+            for (int i = 0; i < slots.Count; i++)
             {
-                if (string.IsNullOrEmpty(stats[i].Key) ||
-                    (i > 0 && string.CompareOrdinal(stats[i - 1].Key, stats[i].Key) >= 0))
+                BuffValueSnapshot entry = slots[i];
+                if (!entry.SlotId.IsValid ||
+                    (i > 0 &&
+                     slots[i - 1].SlotId.CompareTo(
+                         entry.SlotId) >= 0))
                     throw new Deterministic.DeterministicSimulationException(
-                        "Buff stat-handle snapshot is not in canonical key order.");
-                _statHandles.Add(stats[i].Key, stats[i].Handle);
+                        "Buff blackboard snapshot is not in canonical slot-id order.");
+                int index = IndexOf(entry.SlotId);
+                if (index < 0)
+                    throw new Deterministic.DeterministicSimulationException(
+                        $"Buff blackboard snapshot references undeclared slot {entry.SlotId.Value}.");
+                _values[index] = entry.Value;
             }
-            var combats = snapshot.CombatHandles ?? new System.Collections.Generic.List<BuffCombatHandleSnapshot>();
-            for (int i = 0; i < combats.Count; i++)
+        }
+
+        private int IndexOf(BuffStateSlotId slot)
+        {
+            for (int i = 0; i < _layout.Length; i++)
             {
-                if (string.IsNullOrEmpty(combats[i].Key) ||
-                    (i > 0 && string.CompareOrdinal(combats[i - 1].Key, combats[i].Key) >= 0))
-                    throw new Deterministic.DeterministicSimulationException(
-                        "Buff combat-handle snapshot is not in canonical key order.");
-                _combatHandles.Add(combats[i].Key, combats[i].Handle);
+                if (_layout[i].SlotId == slot)
+                    return i;
             }
-            var numbers = snapshot.Numbers ?? new System.Collections.Generic.List<BuffNumberSnapshot>();
-            for (int i = 0; i < numbers.Count; i++)
-            {
-                if (string.IsNullOrEmpty(numbers[i].Key) ||
-                    (i > 0 && string.CompareOrdinal(numbers[i - 1].Key, numbers[i].Key) >= 0))
-                    throw new Deterministic.DeterministicSimulationException(
-                        "Buff number snapshot is not in canonical key order.");
-                _numbers.Add(numbers[i].Key, numbers[i].Value);
-            }
+            return -1;
         }
     }
 
-    public struct BuffStatHandleSnapshot { public string Key; public StatModifierHandle Handle; }
-    public struct BuffCombatHandleSnapshot { public string Key; public CombatModifierHandle Handle; }
-    public struct BuffNumberSnapshot { public string Key; public fp Value; }
+    public struct BuffValueSnapshot
+    {
+        public BuffStateSlotId SlotId;
+        public BuffValue Value;
+    }
+
     public struct BuffBlackboardSnapshot
     {
-        public System.Collections.Generic.List<BuffStatHandleSnapshot> StatHandles;
-        public System.Collections.Generic.List<BuffCombatHandleSnapshot> CombatHandles;
-        public System.Collections.Generic.List<BuffNumberSnapshot> Numbers;
+        public List<BuffValueSnapshot> Slots;
     }
 }

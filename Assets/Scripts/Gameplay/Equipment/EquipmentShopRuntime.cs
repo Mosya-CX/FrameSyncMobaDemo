@@ -15,8 +15,157 @@ namespace FrameSyncMoba.Unit
         private EquipmentDatabase _database;
         private UnitWorld _unitWorld;
         private int _maxPlayers;
+        private IConfirmedGoldIncomeView _confirmedGoldView;
+        private IEquipmentShopCommandSubmitter _submitter;
 
         public fp SellRate { get; private set; }
+
+        public void ConfigureIncomeView(
+            IConfirmedGoldIncomeView confirmedGoldView)
+        {
+            _confirmedGoldView =
+                confirmedGoldView ??
+                throw new ArgumentNullException(
+                    nameof(confirmedGoldView));
+        }
+
+        public void SetCommandSubmitter(
+            IEquipmentShopCommandSubmitter submitter)
+        {
+            _submitter =
+                submitter ??
+                throw new ArgumentNullException(
+                    nameof(submitter));
+        }
+
+        /// <summary>
+        /// CurrentAvailableGold = ConfirmedEarnedGoldTotal +
+        /// EffectiveShopGoldDelta (UI design v9.1 13.2).
+        /// </summary>
+        public int GetCurrentAvailableGold(
+            int playerSlot)
+        {
+            int confirmed =
+                _confirmedGoldView != null
+                    ? _confirmedGoldView
+                        .GetConfirmedEarnedGoldTotal(
+                            playerSlot)
+                    : 0;
+            return confirmed +
+                ComputeEffectiveShopGoldDelta(
+                    playerSlot);
+        }
+
+        // ---- UI Request entry points (design v9.1 12.1) ----
+
+        public EquipmentShopRequestCheck RequestPurchase(
+            int playerSlot,
+            int targetEquipmentId)
+        {
+            if (!TryResolveHandler(
+                    playerSlot,
+                    out EquipmentHandler handler,
+                    out EquipmentShopFailureReason failure))
+                return EquipmentShopRequestCheck.Reject(
+                    failure);
+            if (_confirmedGoldView == null)
+                throw new InvalidOperationException(
+                    "EquipmentShopRuntime requires an income view before RequestPurchase.");
+            if (_submitter == null)
+                throw new InvalidOperationException(
+                    "EquipmentShopRuntime requires a command submitter before RequestPurchase.");
+
+            int gold =
+                GetCurrentAvailableGold(playerSlot);
+            if (!TryBuildPurchasePlan(
+                    playerSlot,
+                    targetEquipmentId,
+                    gold,
+                    handler,
+                    out _,
+                    out failure))
+                return EquipmentShopRequestCheck.Reject(
+                    failure);
+
+            _submitter.SubmitPurchase(
+                playerSlot,
+                targetEquipmentId);
+            return EquipmentShopRequestCheck.Allow();
+        }
+
+        public EquipmentShopRequestCheck RequestSell(
+            int playerSlot,
+            int sourceSlot)
+        {
+            if (!TryResolveHandler(
+                    playerSlot,
+                    out EquipmentHandler handler,
+                    out EquipmentShopFailureReason failure))
+                return EquipmentShopRequestCheck.Reject(
+                    failure);
+            if (_submitter == null)
+                throw new InvalidOperationException(
+                    "EquipmentShopRuntime requires a command submitter before RequestSell.");
+
+            if (!TrySell(
+                    playerSlot,
+                    sourceSlot,
+                    handler,
+                    out _,
+                    out failure))
+                return EquipmentShopRequestCheck.Reject(
+                    failure);
+
+            _submitter.SubmitSell(
+                playerSlot,
+                sourceSlot);
+            return EquipmentShopRequestCheck.Allow();
+        }
+
+        public EquipmentShopRequestCheck RequestUndo(
+            int playerSlot)
+        {
+            if (_submitter == null)
+                throw new InvalidOperationException(
+                    "EquipmentShopRuntime requires a command submitter before RequestUndo.");
+
+            int gold =
+                GetCurrentAvailableGold(playerSlot);
+            if (!CanUndo(
+                    playerSlot,
+                    gold,
+                    out EquipmentShopFailureReason failure))
+                return EquipmentShopRequestCheck.Reject(
+                    failure);
+
+            _submitter.SubmitUndo(playerSlot);
+            return EquipmentShopRequestCheck.Allow();
+        }
+
+        private bool TryResolveHandler(
+            int playerSlot,
+            out EquipmentHandler handler,
+            out EquipmentShopFailureReason failure)
+        {
+            handler = null;
+            failure =
+                EquipmentShopFailureReason.None;
+            ShopTraderRuntime trader =
+                GetTrader(playerSlot);
+            if (trader == null ||
+                !_unitWorld.TryGetUnit(
+                    trader.ControlledUnitUid,
+                    out Unit unit) ||
+                unit.EquipmentHandler == null)
+            {
+                failure =
+                    EquipmentShopFailureReason
+                        .ControlledUnitNotFound;
+                return false;
+            }
+            handler = unit.EquipmentHandler;
+            return true;
+        }
 
         public void Initialize(
             int maxPlayers,
@@ -522,14 +671,21 @@ namespace FrameSyncMoba.Unit
                     EquipmentShopFailureReason.DuplicateFinishedItem;
                 return false;
             }
-            string[] targetTags =
-                targetDef.Tags ?? Array.Empty<string>();
+            EquipmentTagDefinition[] targetTags =
+                targetDef.Tags ??
+                Array.Empty<EquipmentTagDefinition>();
+            UniqueEquipmentTagTable uniqueTable =
+                _database.UniqueTagTable;
             for (int tagIndex = 0;
                  tagIndex < targetTags.Length;
                  tagIndex++)
             {
-                string tag = targetTags[tagIndex];
-                if (string.IsNullOrEmpty(tag))
+                EquipmentTagDefinition tag =
+                    targetTags[tagIndex];
+                if (tag == null ||
+                    !tag.Uid.IsValid ||
+                    uniqueTable == null ||
+                    !uniqueTable.IsUnique(tag))
                     continue;
                 int matches = 0;
                 for (int slot = 0; slot < slots.Length; slot++)
@@ -539,14 +695,15 @@ namespace FrameSyncMoba.Unit
                     EquipmentDefinition definition =
                         _database.GetDefinition(
                             slots[slot].EquipmentId);
-                    string[] tags =
-                        definition?.Tags ?? Array.Empty<string>();
+                    EquipmentTagDefinition[] tags =
+                        definition?.Tags ??
+                        Array.Empty<EquipmentTagDefinition>();
                     for (int i = 0; i < tags.Length; i++)
                     {
-                        if (!string.Equals(
-                                tags[i],
-                                tag,
-                                StringComparison.Ordinal))
+                        EquipmentTagDefinition candidate =
+                            tags[i];
+                        if (candidate == null ||
+                            candidate.Uid != tag.Uid)
                             continue;
                         matches++;
                         break;

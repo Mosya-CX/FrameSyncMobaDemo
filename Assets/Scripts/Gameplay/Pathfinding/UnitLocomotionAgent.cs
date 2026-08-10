@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
 
@@ -227,11 +228,50 @@ namespace FrameSyncMoba.Unit
 
             // Advance path follower cursor
             _follower.AdvanceCursor(currentPos);
+            // Pressed-against waypoints (e.g. their cell center sits inside
+            // another unit's collision body) can never be reached exactly;
+            // skipping them prevents route dead-lock. Tolerance is the owner
+            // collision radius: a waypoint centre inside the owner's own
+            // collision body is physically unreachable. After skipping,
+            // re-path from the current position so the new route keeps its
+            // wall-avoiding waypoints.
+            bool skippedWaypoint = _follower.SkipWaypointsWithin(
+                currentPos,
+                _owner.PhysicsEntity?.Shape.Radius ??
+                    fp.zero);
+            if (skippedWaypoint)
+            {
+                _route.NeedRepath = true;
+            }
 
             // Check if route is finished
             if (_follower.RouteFinished)
             {
+                // Chase tasks define arrival by the real target distance,
+                // not by path consumption. The A* destination is the cell
+                // centre containing the stable chase spot; that centre can
+                // sit up to half a cell outside the attack radius, and
+                // re-pathing to the same cell would complete again on the
+                // next tick without the unit moving. Walk the remaining
+                // gap directly toward the fresh stable spot; CheckArrival
+                // at the top of the next evaluation completes the task
+                // once the unit is truly inside range.
+                if (_currentTask.Target.TargetUid.HasValue &&
+                    _owner.World != null &&
+                    _owner.World.TryGetUnit(
+                        _currentTask.Target.TargetUid.Value,
+                        out _))
+                {
+                    _route.NeedRepath = true;
+                    return BuildDirectResult(
+                        currentPos,
+                        ResolveTargetPosition(),
+                        moveSpeed);
+                }
+
                 _currentTask.State = MovementTaskState.Completed;
+                _follower.Reset();
+                _route.NeedRepath = false;
                 return new LocomotionResult
                 {
                     UnitUid = _owner.UnitUid,
@@ -286,6 +326,14 @@ namespace FrameSyncMoba.Unit
                 UnitUid targetUid = _currentTask.Target.TargetUid.Value;
                 if (_owner.World != null && _owner.World.TryGetUnit(targetUid, out Unit targetUnit))
                 {
+                    if (_currentTask.Purpose ==
+                            MovePurpose.ChaseForAttack ||
+                        _currentTask.Purpose ==
+                            MovePurpose.ChaseForCast)
+                    {
+                        return ResolveStableChasePosition(
+                            targetUnit);
+                    }
                     // Read target position from PhysicsEntity2D per design v13.1 section 1.1
                     return targetUnit.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
                 }
@@ -296,11 +344,358 @@ namespace FrameSyncMoba.Unit
             return _route.LastPathTargetPosition;
         }
 
+        /// <summary>
+        /// Pick a chase target point that stays inside attack range even in
+        /// a crowded lane. Formula:
+        ///   ideal = targetPos + (selfPos - targetPos).normalized *
+        ///           (range - own collision radius)
+        ///         + stabilityCorrection
+        ///         + attackDistanceCorrection
+        /// The stability correction is non-zero only when the base spot is
+        /// actually pressed by another living unit or is not walkable; in
+        /// an open area with nothing in the way it is exactly zero, so the
+        /// unit heads for the base spot. The attack-distance correction
+        /// clamps the final spot so its distance to the target never
+        /// exceeds the attack range.
+        /// </summary>
+        private fp2 ResolveStableChasePosition(
+            Unit target)
+        {
+            fp2 targetPos =
+                target.PhysicsEntity
+                    ?.Transform2D.Position ??
+                Position;
+            fp2 myPos = Position;
+            fp2 delta = targetPos - myPos;
+            fp length = fpmath.length(delta);
+            if (length <= fp.zero)
+            {
+                return targetPos;
+            }
+
+            fp range = _currentTask.StopDistance;
+            if (range <= fp.zero)
+            {
+                range = (fp)1m;
+            }
+            fp2 direction = delta / length;
+            fp ownRadius =
+                _owner.PhysicsEntity
+                    ?.Shape.Radius ??
+                fp.zero;
+            fp stopOffset =
+                range - ownRadius;
+            if (stopOffset < fp.zero)
+            {
+                stopOffset = fp.zero;
+            }
+            // Base spot: targetPos + (selfPos - targetPos).normalized *
+            // (range - own collision radius). Keeps the unit just inside
+            // attack range along the approach ray.
+            fp2 ideal =
+                targetPos -
+                direction *
+                stopOffset;
+
+            // Stability correction: only when the base spot is pressed by
+            // another living unit or sits on an impassable cell. Open areas
+            // with nothing in the way are already fully stable, so the
+            // correction is zero and the unit goes exactly to the base spot.
+            fp2 stabilityCorrection =
+                fp2.zero;
+            if (_grid != null &&
+                IsSpotPressed(
+                    ideal,
+                    target))
+            {
+                stabilityCorrection =
+                    SearchStabilityCorrection(
+                        ideal,
+                        targetPos,
+                        target,
+                        range);
+            }
+            fp2 result =
+                ideal +
+                stabilityCorrection;
+
+            // Attack-distance correction: keep the final spot inside the
+            // attack radius so the unit can always start attacking once it
+            // arrives.
+            fp2 resultDelta =
+                result - targetPos;
+            fp resultDistance =
+                fpmath.length(resultDelta);
+            if (resultDistance > range)
+            {
+                result =
+                    targetPos +
+                    resultDelta /
+                    resultDistance *
+                    range;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// True when the chase spot would be squeezed: either it is not
+        /// walkable, or another living unit's collision body (with a small
+        /// clearance) occupies it. In an open area with no overlapping
+        /// units the spot is perfectly stable.
+        /// </summary>
+        private bool IsSpotPressed(
+            fp2 spot,
+            Unit target)
+        {
+            if (_grid != null)
+            {
+                (int cx, int cy) =
+                    _grid.WorldToCell(spot);
+                if (!_grid.IsPassable(
+                        cx,
+                        cy,
+                        OwnerRadiusClass))
+                {
+                    return true;
+                }
+            }
+
+            IReadOnlyList<Unit> units =
+                _owner.World?.GetAllUnits();
+            if (units == null)
+            {
+                return false;
+            }
+            fp ownRadius =
+                _owner.PhysicsEntity
+                    ?.Shape.Radius ??
+                fp.zero;
+            fp clearance =
+                (fp)0.1m;
+            for (int i = 0;
+                 i < units.Count;
+                 i++)
+            {
+                Unit unit = units[i];
+                if (unit == null ||
+                    unit == _owner ||
+                    unit == target)
+                {
+                    continue;
+                }
+                if (unit.LifeState !=
+                    LifeState.Alive)
+                {
+                    continue;
+                }
+                fp2 unitPosition =
+                    unit.PhysicsEntity
+                        ?.Transform2D.Position ??
+                    fp2.zero;
+                fp otherRadius =
+                    unit.PhysicsEntity
+                        ?.Shape.Radius ??
+                    fp.zero;
+                fp required =
+                    ownRadius +
+                    otherRadius +
+                    clearance;
+                fp2 delta =
+                    spot - unitPosition;
+                if (fpmath.dot(
+                        delta,
+                        delta) <
+                    required *
+                    required)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Search the eight neighbouring cells of the base spot for the most
+        /// stable walkable point that still lies inside the attack range.
+        /// Returns the displacement from the base spot (zero when the base
+        /// spot is already the best choice).
+        /// </summary>
+        private fp2 SearchStabilityCorrection(
+            fp2 baseIdeal,
+            fp2 targetPos,
+            Unit target,
+            fp range)
+        {
+            fp step = _grid.CellSize;
+            (int idealCx, int idealCy) =
+                _grid.WorldToCell(baseIdeal);
+            bool basePassable =
+                _grid.IsPassable(
+                    idealCx,
+                    idealCy,
+                    OwnerRadiusClass);
+
+            fp2 best = baseIdeal;
+            fp bestStability = fp.zero;
+            bool found = basePassable;
+            if (basePassable)
+            {
+                bestStability =
+                    StabilityAt(
+                        baseIdeal,
+                        target);
+            }
+
+            for (int dy = -1;
+                 dy <= 1;
+                 dy++)
+            {
+                for (int dx = -1;
+                     dx <= 1;
+                     dx++)
+                {
+                    if (dx == 0 && dy == 0)
+                    {
+                        continue;
+                    }
+                    fp2 candidate =
+                        baseIdeal +
+                        new fp2(
+                            (fp)dx * step,
+                            (fp)dy * step);
+                    (int cx, int cy) =
+                        _grid.WorldToCell(
+                            candidate);
+                    if (!_grid.IsPassable(
+                            cx,
+                            cy,
+                            OwnerRadiusClass))
+                    {
+                        continue;
+                    }
+                    fp distanceToTarget =
+                        fpmath.length(
+                            candidate -
+                            targetPos);
+                    if (distanceToTarget >
+                        range)
+                    {
+                        continue;
+                    }
+                    fp stability =
+                        StabilityAt(
+                            candidate,
+                            target);
+                    if (!found ||
+                        stability >
+                            bestStability)
+                    {
+                        found = true;
+                        bestStability =
+                            stability;
+                        best = candidate;
+                    }
+                }
+            }
+            return found
+                ? best - baseIdeal
+                : fp2.zero;
+        }
+
+        /// <summary>
+        /// Stability of a candidate chase spot: distance to the nearest
+        /// other living unit (excluding owner and target). Larger is more
+        /// stable (less likely to be squeezed out of attack range).
+        /// </summary>
+        private fp StabilityAt(
+            fp2 point,
+            Unit target)
+        {
+            IReadOnlyList<Unit> units =
+                _owner.World?.GetAllUnits();
+            if (units == null)
+            {
+                return (fp)int.MaxValue;
+            }
+            fp nearest = (fp)int.MaxValue;
+            for (int i = 0;
+                 i < units.Count;
+                 i++)
+            {
+                Unit unit = units[i];
+                if (unit == null ||
+                    unit == _owner ||
+                    unit == target)
+                {
+                    continue;
+                }
+                if (unit.LifeState !=
+                    LifeState.Alive)
+                {
+                    continue;
+                }
+                fp2 unitPosition =
+                    unit.PhysicsEntity
+                        ?.Transform2D.Position ??
+                    fp2.zero;
+                fp distance =
+                    fpmath.length(
+                        unitPosition -
+                        point);
+                if (distance < nearest)
+                {
+                    nearest = distance;
+                }
+            }
+            return nearest;
+        }
+
         private bool CheckArrival(fp2 currentPos, fp2 targetPos)
         {
             fp stopDist = _currentTask.StopDistance;
             if (stopDist <= fp.zero)
                 stopDist = (fp)0.3m;
+
+            // Chase tasks target the unit, and their stop point is defined
+            // by the real target center (stopDistance = attack range), not
+            // by the stability-adjusted ideal waypoint. Otherwise the unit
+            // can be flagged Completed while its true gap to the target is
+            // still out of attack range.
+            if (_currentTask.Target.TargetUid.HasValue &&
+                _owner.World != null &&
+                _owner.World.TryGetUnit(
+                    _currentTask.Target.TargetUid.Value,
+                    out Unit chaseTarget))
+            {
+                fp2 realTargetPos =
+                    chaseTarget.PhysicsEntity
+                        ?.Transform2D.Position ??
+                    targetPos;
+                // Chase stops inside attack range (at the stability ideal
+                // point: center distance = range - own radius), so the unit
+                // does not oscillate at the range edge between chase and
+                // attack decisions.
+                fp chaseStop =
+                    _currentTask.StopDistance;
+                if (chaseStop > fp.zero)
+                {
+                    chaseStop -=
+                        _owner.PhysicsEntity
+                            ?.Shape.Radius ??
+                        fp.zero;
+                    if (chaseStop < fp.zero)
+                    {
+                        chaseStop = fp.zero;
+                    }
+                }
+                fp chaseDistSq =
+                    fpmath.dot(
+                        currentPos - realTargetPos,
+                        currentPos - realTargetPos);
+                return chaseDistSq <=
+                    chaseStop * chaseStop;
+            }
+
             fp distSq = fpmath.dot(currentPos - targetPos, currentPos - targetPos);
             return distSq <= stopDist * stopDist;
         }
@@ -315,6 +710,29 @@ namespace FrameSyncMoba.Unit
                     OwnerRadiusClass);
                 if (!result.Success)
                 {
+                    (int startCx, int startCy) =
+                        _grid.WorldToCell(currentPos);
+                    (int targetCx, int targetCy) =
+                        _grid.WorldToCell(targetPos);
+                    bool startPassable =
+                        _grid.IsPassable(
+                            startCx,
+                            startCy,
+                            OwnerRadiusClass);
+                    bool targetPassable =
+                        _grid.IsPassable(
+                            targetCx,
+                            targetCy,
+                            OwnerRadiusClass);
+                    UnityEngine.Debug.Log(
+                        $"[Loco][RepathFail] unit={_owner.UnitUid} " +
+                        $"tick={SimulationTickContext.Current.Tick} " +
+                        $"status={result.Status} " +
+                        $"from={currentPos}({startCx},{startCy}) " +
+                        $"to={targetPos}({targetCx},{targetCy}) " +
+                        $"startPass={startPassable} " +
+                        $"targetPass={targetPassable} " +
+                        $"route={_route.Kind}");
                     _route.AStarPathCellIndices = null;
                     _follower.Reset();
                     return false;

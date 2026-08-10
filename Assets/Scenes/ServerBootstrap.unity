@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 262099970}
   - component: {fileID: 262099969}
   - component: {fileID: 262099968}
-  - component: {fileID: 262099967}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -143,44 +142,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &262099967
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 262099966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 892e05ba202306a4cb16c47363aca194, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dedicatedServer: 1
-  bootstrap: {fileID: 315663585}
-  networkManager: {fileID: 262099971}
-  transport: {fileID: 262099970}
-  lobbyBridge: {fileID: 262099968}
-  uiActions: {fileID: 0}
-  address: 127.0.0.1
-  port: 7777
-  localPlayerSlot: 0
-  automaticReady: 1
-  matchId: local-ngo-match
-  startLeadTicks: 3
-  gameModeId: 1
-  mapConfigId: 1
-  initialRandomSeed: 12345
-  serverSlots:
-  - PlayerSlot: 0
-    AccountId: LocalPlayer0
-    TeamId: 1
-    SpawnPointId: 0
-    HeroConfigId: 1001
-  - PlayerSlot: 1
-    AccountId: LocalPlayer1
-    TeamId: 2
-    SpawnPointId: 1
-    HeroConfigId: 1001
 --- !u!114 &262099968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,7 +247,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &315663582
+--- !u!1 &763390311
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -294,216 +255,38 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 315663584}
-  - component: {fileID: 315663585}
+  - component: {fileID: 763390313}
+  - component: {fileID: 763390312}
   m_Layer: 0
-  m_Name: GameBootstrap
+  m_Name: ServerBootstrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &315663584
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 315663582}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.031505, y: 0.99969053, z: -3.6466365}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &315663585
+--- !u!114 &763390312
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 315663582}
+  m_GameObject: {fileID: 763390311}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36f3934a9416b444e9263afe45218556, type: 3}
+  m_Script: {fileID: 11500000, guid: 9d1a3393568863341b7ce2306f5ac645, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  globalGameplayData: {fileID: 11400000, guid: 8b0cdcd39dbb2964baebdd8475f1e60e, type: 2}
-  unitRuntimeCatalog: {fileID: 11400000, guid: cf6a213803fa81b4cb7ac2699f40045b, type: 2}
-  abilityRuntimeCatalog: {fileID: 11400000, guid: d93f607006a804d4abc0bedca7b70650,
-    type: 2}
-  projectileRuntimeCatalog: {fileID: 11400000, guid: e548718fd0a6b7d4b87db7539574720f,
-    type: 2}
-  deterministicMapConfig: {fileID: 11400000, guid: f1c4e69f4a5028647b5c47fb0408da9f,
-    type: 2}
-  dedicatedServer: 1
-  driveSimulationFromUnityUpdate: 1
   enableOnlineApplicationFlow: 0
-  localDevelopmentNetworkFlow: 1
-  autoApplyLocalFixturePayload: 0
+  globalGameplayData: {fileID: 11400000, guid: 8b0cdcd39dbb2964baebdd8475f1e60e, type: 2}
   networkManager: {fileID: 262099971}
-  frameSyncNetworkBridge: {fileID: 262099969}
-  uosMatchmakingConfigId: 
-  uosRegionId: 
-  initialUnitSpawns:
-  - StableSpawnOrder: 0
-    UnitPrototypeId: 1001
-    TeamId: 1
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 0
-    MatchTopologyRole: 0
-    EnableTowerAI: 0
-    PlayerControlled: 1
-    PlayerSlot: 0
-  - StableSpawnOrder: 1
-    UnitPrototypeId: 1001
-    TeamId: 2
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 1
-    MatchTopologyRole: 0
-    EnableTowerAI: 0
-    PlayerControlled: 1
-    PlayerSlot: 1
-  - StableSpawnOrder: 2
-    UnitPrototypeId: 3101
-    TeamId: 1
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 10
-    MatchTopologyRole: 1
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  - StableSpawnOrder: 3
-    UnitPrototypeId: 3102
-    TeamId: 2
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 11
-    MatchTopologyRole: 2
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  - StableSpawnOrder: 4
-    UnitPrototypeId: 3001
-    TeamId: 1
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 101
-    MatchTopologyRole: 0
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  - StableSpawnOrder: 5
-    UnitPrototypeId: 3002
-    TeamId: 2
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 102
-    MatchTopologyRole: 0
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  - StableSpawnOrder: 6
-    UnitPrototypeId: 3001
-    TeamId: 1
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 103
-    MatchTopologyRole: 0
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  - StableSpawnOrder: 7
-    UnitPrototypeId: 3002
-    TeamId: 2
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 104
-    MatchTopologyRole: 0
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  - StableSpawnOrder: 8
-    UnitPrototypeId: 3001
-    TeamId: 1
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 105
-    MatchTopologyRole: 0
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  - StableSpawnOrder: 9
-    UnitPrototypeId: 3002
-    TeamId: 2
-    Position: {x: 0, y: 0}
-    Forward: {x: 0, y: 1}
-    UseMapSpawnPoint: 1
-    SpawnPointId: 106
-    MatchTopologyRole: 0
-    EnableTowerAI: 1
-    PlayerControlled: 0
-    PlayerSlot: 0
-  playerInputController: {fileID: 0}
-  gameplayCamera: {fileID: 0}
-  indicatorDriver: {fileID: 0}
-  presentationDispatcher: {fileID: 0}
-  vfxEventHandler: {fileID: 0}
-  attackSfxHandler: {fileID: 0}
-  hitReactionPresenter: {fileID: 0}
-  deathPresenter: {fileID: 0}
-  luaBridge: {fileID: 0}
-  uiManager: {fileID: 0}
-  shopPage: {fileID: 0}
-  scoreboardController: {fileID: 0}
-  minimapController: {fileID: 0}
-  cooldownPresenter: {fileID: 0}
-  resultPageController: {fileID: 0}
-  clientUiActionRouter: {fileID: 0}
-  lobbyPanelController: {fileID: 0}
-  heroSelectPageController: {fileID: 0}
-  minionWaveConfig: {fileID: 11400000, guid: 56cfde14cc8802849bbae5bb8733b5d9, type: 2}
-  laneAuthoring: []
-  flowFieldAssets: []
-  flowFieldAuthoring: {fileID: 0}
-  jungleCamps: []
---- !u!1 &1006553362
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1006553363}
-  m_Layer: 0
-  m_Name: FullMatchLaneTopology
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1006553363
+  defaultHeroConfigId: 1001
+--- !u!4 &763390313
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1006553362}
+  m_GameObject: {fileID: 763390311}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -516,6 +299,5 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 315663584}
   - {fileID: 262099972}
-  - {fileID: 1006553363}
+  - {fileID: 763390313}

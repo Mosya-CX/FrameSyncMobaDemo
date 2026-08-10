@@ -40,21 +40,15 @@ namespace FrameSyncMoba.Unit
             if (source == null || target == null || range < fp.zero)
                 return false;
 
-            PhysicsBounds2D sourceBounds = source.Bounds;
-            PhysicsBounds2D targetBounds = target.Bounds;
-            fp gapX = fp.zero;
-            if (sourceBounds.Max.x < targetBounds.Min.x)
-                gapX = targetBounds.Min.x - sourceBounds.Max.x;
-            else if (targetBounds.Max.x < sourceBounds.Min.x)
-                gapX = sourceBounds.Min.x - targetBounds.Max.x;
-
-            fp gapY = fp.zero;
-            if (sourceBounds.Max.y < targetBounds.Min.y)
-                gapY = targetBounds.Min.y - sourceBounds.Max.y;
-            else if (targetBounds.Max.y < sourceBounds.Min.y)
-                gapY = sourceBounds.Min.y - targetBounds.Max.y;
-
-            return gapX * gapX + gapY * gapY <= range * range;
+            // Attack range is the straight-line center distance between the
+            // two units (no AABB, no radius subtraction).
+            fp2 sourcePos =
+                source.Transform2D.Position;
+            fp2 targetPos =
+                target.Transform2D.Position;
+            fp distance =
+                fpmath.length(targetPos - sourcePos);
+            return distance <= range;
         }
 
         /// <summary>

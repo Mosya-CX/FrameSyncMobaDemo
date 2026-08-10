@@ -13,11 +13,18 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private float baseDamage = 50f;
         [SerializeField] private DamageType damageType = DamageType.Physical;
         [SerializeField] private UnitTargetFilter targetFilter = UnitTargetFilter.Default;
+        [Min(0)]
+        [SerializeField] private int vfxDefId;
+        [Min(0)]
+        [SerializeField] private int groundProjectileDefId;
 
         public float Radius => radius;
         public float BaseDamage => baseDamage;
         public DamageType DamageType => damageType;
         public UnitTargetFilter TargetFilter => targetFilter;
+        public int VfxDefId => vfxDefId;
+        public int GroundProjectileDefId =>
+            groundProjectileDefId;
 
         public override StageDef Bake()
         {
@@ -29,6 +36,9 @@ namespace FrameSyncMoba.Unit
                 BaseDamage = (fp)baseDamage,
                 DamageType = damageType,
                 TargetFilter = targetFilter,
+                VfxDefId = vfxDefId,
+                GroundProjectileDefId =
+                    groundProjectileDefId,
             };
         }
     }

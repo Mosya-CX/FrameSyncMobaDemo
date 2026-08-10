@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60509f831563fe34eb5e0fa5db121c3c, type: 3}
+  m_Name: VarusFixedPassive
+  m_EditorClassIdentifier: 
+  abilityId: 10010
+  abilityName: "\u590D\u4EC7\u4E4B\u6B32"
+  icon: {fileID: 21300000, guid: f6b922f5d10cb3741a50fbfd1dc7bddf, type: 3}
+  passiveEffect:
+    rid: 2586995957889499147
+  cooldownByUnitLevel: 
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586995957889499147
+      type: {class: ApplyBuffPassiveEffectDef, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        ListenerMask: 576
+        BuffConfigId:
+          Value: 9002

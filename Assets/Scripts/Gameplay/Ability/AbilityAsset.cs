@@ -20,7 +20,9 @@ namespace FrameSyncMoba.Unit
         [Header("Identity")]
         [SerializeField] private int abilityId = 1;
         [SerializeField] private string abilityName = "New Ability";
-        [SerializeField] private Texture2D icon;
+        [SerializeField] private Sprite icon;
+        [Tooltip("Whether this ability is the unit's ultimate (usually R).")]
+        [SerializeField] private bool isUltimate;
 
         [Header("Casting")]
         [SerializeReference]
@@ -29,8 +31,8 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private AimKind aimKind;
 
         [Header("Timing")]
-        [Min(0)]
-        [SerializeField] private int cooldownTicks;
+        [SerializeField] private float[] cooldownTicksByLevel =
+            Array.Empty<float>();
 
         [Header("Cost")]
         [SerializeField] private AbilityCostTiming costTiming =
@@ -45,22 +47,31 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private AbilityCastConditionAuthoring[]
             castConditions = Array.Empty<AbilityCastConditionAuthoring>();
 
+        [Header("Active-Ability Passive")]
+        [SerializeReference]
+        [SerializeField] private AbilityPassiveEffectAuthoring
+            passiveEffect;
+
         [Header("Stages")]
         [SerializeReference]
         [SerializeField] private StageDefAuthoring[] stageDefs = Array.Empty<StageDefAuthoring>();
 
         public int AbilityId => abilityId;
         public string AbilityName => abilityName;
-        public Texture2D Icon => icon;
+        public Sprite Icon => icon;
+        public bool IsUltimate => isUltimate;
         public CastModelAuthoring CastModel => castModel;
         public float AuthoringCastRange => castRange;
         public AimKind AimKind => aimKind;
-        public int CooldownTicks => cooldownTicks;
+        public float[] CooldownTicksByLevel =>
+            cooldownTicksByLevel;
         public AbilityCostTiming CostTiming => costTiming;
         public float[] CastResourceCostByLevel =>
             castResourceCostByLevel;
         public float[] HealthCostByLevel => healthCostByLevel;
         public StageDefAuthoring[] Stages => stageDefs;
+        public AbilityPassiveEffectAuthoring PassiveEffect =>
+            passiveEffect;
 
         public AbilityDef Bake()
         {
@@ -70,9 +81,6 @@ namespace FrameSyncMoba.Unit
             if (string.IsNullOrWhiteSpace(abilityName))
                 throw new InvalidOperationException(
                     $"AbilityAsset '{name}' requires a name.");
-            if (cooldownTicks < 0)
-                throw new InvalidOperationException(
-                    $"AbilityAsset '{name}' cooldown must be nonnegative.");
             if (float.IsNaN(castRange) ||
                 float.IsInfinity(castRange) ||
                 castRange < 0f)
@@ -94,7 +102,11 @@ namespace FrameSyncMoba.Unit
             {
                 AbilityId = abilityId,
                 Name = abilityName,
-                CooldownTicks = cooldownTicks,
+                Icon = icon,
+                IsUltimate = isUltimate,
+                CooldownByLevel = BakeLevelValues(
+                    cooldownTicksByLevel,
+                    nameof(cooldownTicksByLevel)),
                 AimKind = aimKind,
                 CastRange = (Unity.Mathematics.FixedPoint.fp)castRange,
                 CastModel = castModel?.Bake(stageDefs),
@@ -107,6 +119,7 @@ namespace FrameSyncMoba.Unit
                         nameof(healthCostByLevel)),
                     costTiming),
                 CastConditions = BakeConditions(castConditions),
+                PassiveEffect = passiveEffect?.Bake(),
             };
 
             if (!def.IsValid)
@@ -212,6 +225,8 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal int durationTicks;
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible = true;
+        [SerializeField] internal bool lockMovement = true;
+        [SerializeField] internal Sprite iconOverride;
 
         public byte CastStageKey => castStageKey;
         public int DurationTicks => durationTicks;
@@ -221,7 +236,8 @@ namespace FrameSyncMoba.Unit
             return new CommitCastModelDef
             {
                 Cast = BakeHelpers.BakeStage(castStageKey, durationTicks,
-                    notifyAbilityCastOnEnter, interruptible, stages),
+                    notifyAbilityCastOnEnter, interruptible, lockMovement, stages,
+                    iconOverride),
             };
         }
     }
@@ -234,24 +250,41 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal byte holdStageKey;
         [SerializeField] internal int holdDurationTicks;
         [SerializeField] internal bool holdInterruptible = true;
+        [SerializeField] internal bool holdLockMovement;
         [SerializeField] internal byte releaseStageKey;
         [SerializeField] internal int releaseDurationTicks;
         [SerializeField] internal bool releaseNotifyAbilityCastOnEnter;
         [SerializeField] internal bool releaseInterruptible;
+        [SerializeField] internal bool releaseLockMovement = true;
+        [SerializeField] internal Sprite holdIconOverride;
+        [SerializeField] internal Sprite releaseIconOverride;
+        [SerializeField] internal HoldTimeoutPolicy holdTimeoutPolicy =
+            HoldTimeoutPolicy.AutoRelease;
+        [SerializeField] internal float refundCostPercentOnTimeout;
 
         public byte HoldStageKey => holdStageKey;
         public int HoldDurationTicks => holdDurationTicks;
         public byte ReleaseStageKey => releaseStageKey;
         public int ReleaseDurationTicks => releaseDurationTicks;
+        public HoldTimeoutPolicy HoldTimeoutPolicy =>
+            holdTimeoutPolicy;
+        public float RefundCostPercentOnTimeout =>
+            refundCostPercentOnTimeout;
 
         public override CastModelDef Bake(StageDefAuthoring[] stages)
         {
             return new HoldReleaseCastModelDef
             {
                 Hold = BakeHelpers.BakeStage(holdStageKey, holdDurationTicks,
-                    true, holdInterruptible, stages),
+                    true, holdInterruptible, holdLockMovement, stages,
+                    holdIconOverride),
                 Release = BakeHelpers.BakeStage(releaseStageKey, releaseDurationTicks,
-                    releaseNotifyAbilityCastOnEnter, releaseInterruptible, stages),
+                    releaseNotifyAbilityCastOnEnter, releaseInterruptible,
+                    releaseLockMovement, stages, releaseIconOverride),
+                HoldTimeoutPolicy = holdTimeoutPolicy,
+                RefundCostPercentOnTimeout =
+                    (Unity.Mathematics.FixedPoint.fp)
+                        refundCostPercentOnTimeout,
             };
         }
     }
@@ -265,6 +298,8 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal int durationTicks;
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible = true;
+        [SerializeField] internal bool lockMovement = true;
+        [SerializeField] internal Sprite iconOverride;
 
         public byte ChannelStageKey => channelStageKey;
         public int DurationTicks => durationTicks;
@@ -274,7 +309,8 @@ namespace FrameSyncMoba.Unit
             return new ChannelCastModelDef
             {
                 Channel = BakeHelpers.BakeStage(channelStageKey, durationTicks,
-                    notifyAbilityCastOnEnter, interruptible, stages),
+                    notifyAbilityCastOnEnter, interruptible, lockMovement,
+                    stages, iconOverride),
             };
         }
     }
@@ -288,6 +324,8 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal int durationTicks;
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible;
+        [SerializeField] internal bool lockMovement = true;
+        [SerializeField] internal Sprite iconOverride;
 
         public byte ActiveStageKey => activeStageKey;
         public int DurationTicks => durationTicks;
@@ -297,7 +335,124 @@ namespace FrameSyncMoba.Unit
             return new ActiveSignalCastModelDef
             {
                 Active = BakeHelpers.BakeStage(activeStageKey, durationTicks,
-                    notifyAbilityCastOnEnter, interruptible, stages),
+                    notifyAbilityCastOnEnter, interruptible, lockMovement,
+                    stages, iconOverride),
+            };
+        }
+    }
+
+    [Serializable]
+    public sealed class GroundTargetCastModelAuthoring : CastModelAuthoring
+    {
+        public override CastModelKind Kind => CastModelKind.GroundTarget;
+
+        [SerializeField] internal byte aimStageKey;
+        [SerializeField] internal int aimDurationTicks;
+        [SerializeField] internal bool aimInterruptible = true;
+        [SerializeField] internal bool aimLockMovement;
+        [SerializeField] internal byte executeStageKey;
+        [SerializeField] internal int executeDurationTicks;
+        [SerializeField] internal bool executeNotifyAbilityCastOnEnter = true;
+        [SerializeField] internal bool executeInterruptible;
+        [SerializeField] internal bool executeLockMovement = true;
+        [SerializeField] internal float maxRange = 10f;
+        [SerializeField] internal float radius = 3f;
+        [SerializeField] internal Sprite aimIconOverride;
+        [SerializeField] internal Sprite executeIconOverride;
+
+        public byte AimStageKey => aimStageKey;
+        public int AimDurationTicks => aimDurationTicks;
+        public byte ExecuteStageKey => executeStageKey;
+        public int ExecuteDurationTicks => executeDurationTicks;
+        public float MaxRange => maxRange;
+        public float Radius => radius;
+
+        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        {
+            return new GroundTargetCastModelDef
+            {
+                Aim = BakeHelpers.BakeStage(aimStageKey, aimDurationTicks,
+                    false, aimInterruptible, aimLockMovement, stages,
+                    aimIconOverride),
+                Execute = BakeHelpers.BakeStage(executeStageKey, executeDurationTicks,
+                    executeNotifyAbilityCastOnEnter, executeInterruptible,
+                    executeLockMovement, stages, executeIconOverride),
+                MaxRange = (Unity.Mathematics.FixedPoint.fp)maxRange,
+                Radius = (Unity.Mathematics.FixedPoint.fp)radius,
+            };
+        }
+    }
+
+    [Serializable]
+    public sealed class VectorTargetCastModelAuthoring : CastModelAuthoring
+    {
+        public override CastModelKind Kind => CastModelKind.VectorTarget;
+
+        [SerializeField] internal byte aimStageKey;
+        [SerializeField] internal int aimDurationTicks;
+        [SerializeField] internal bool aimInterruptible = true;
+        [SerializeField] internal bool aimLockMovement;
+        [SerializeField] internal byte executeStageKey;
+        [SerializeField] internal int executeDurationTicks;
+        [SerializeField] internal bool executeNotifyAbilityCastOnEnter = true;
+        [SerializeField] internal bool executeInterruptible;
+        [SerializeField] internal bool executeLockMovement = true;
+        [SerializeField] internal float maxRange = 10f;
+        [SerializeField] internal float minRange;
+        [SerializeField] internal Sprite aimIconOverride;
+        [SerializeField] internal Sprite executeIconOverride;
+
+        public byte AimStageKey => aimStageKey;
+        public int AimDurationTicks => aimDurationTicks;
+        public byte ExecuteStageKey => executeStageKey;
+        public int ExecuteDurationTicks => executeDurationTicks;
+        public float MaxRange => maxRange;
+        public float MinRange => minRange;
+
+        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        {
+            return new VectorTargetCastModelDef
+            {
+                Aim = BakeHelpers.BakeStage(aimStageKey, aimDurationTicks,
+                    false, aimInterruptible, aimLockMovement, stages,
+                    aimIconOverride),
+                Execute = BakeHelpers.BakeStage(executeStageKey, executeDurationTicks,
+                    executeNotifyAbilityCastOnEnter, executeInterruptible,
+                    executeLockMovement, stages, executeIconOverride),
+                MaxRange = (Unity.Mathematics.FixedPoint.fp)maxRange,
+                MinRange = (Unity.Mathematics.FixedPoint.fp)minRange,
+            };
+        }
+    }
+
+    [Serializable]
+    public sealed class ToggleCastModelAuthoring : CastModelAuthoring
+    {
+        public override CastModelKind Kind => CastModelKind.Toggle;
+
+        [SerializeField] internal byte activeStageKey;
+        [SerializeField] internal int durationTicks;
+        [SerializeField] internal bool notifyAbilityCastOnEnter = true;
+        [SerializeField] internal bool interruptible;
+        [SerializeField] internal bool lockMovement;
+        [SerializeField] internal float resourcePerTick;
+        [SerializeField] internal Sprite iconOverride;
+
+        public byte ActiveStageKey => activeStageKey;
+        public int DurationTicks => durationTicks;
+        public bool NotifyAbilityCastOnEnter =>
+            notifyAbilityCastOnEnter;
+        public bool Interruptible => interruptible;
+        public float ResourcePerTick => resourcePerTick;
+
+        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        {
+            return new ToggleCastModelDef
+            {
+                Active = BakeHelpers.BakeStage(activeStageKey, durationTicks,
+                    notifyAbilityCastOnEnter, interruptible, lockMovement,
+                    stages, iconOverride),
+                ResourcePerTick = (Unity.Mathematics.FixedPoint.fp)resourcePerTick,
             };
         }
     }
@@ -329,7 +484,9 @@ namespace FrameSyncMoba.Unit
             int durationTicks,
             bool notifyAbilityCastOnEnter,
             bool interruptible,
-            StageDefAuthoring[] stages)
+            bool lockMovement,
+            StageDefAuthoring[] stages,
+            Sprite iconOverride = null)
         {
             StageDef def = null;
             if (stages != null)
@@ -355,7 +512,77 @@ namespace FrameSyncMoba.Unit
                 DurationTicks = durationTicks,
                 NotifyAbilityCastOnEnter = notifyAbilityCastOnEnter,
                 Interruptible = interruptible,
+                LockMovement = lockMovement,
+                IconOverride = iconOverride,
             };
+        }
+    }
+
+    [Serializable]
+    public abstract class AbilityPassiveEffectAuthoring
+    {
+        public abstract ActiveAbilityPassiveEffectDef Bake();
+    }
+
+    [Serializable]
+    public sealed class OnHitBonusDamagePassiveEffectAuthoring :
+        AbilityPassiveEffectAuthoring
+    {
+        [SerializeField] private float[] flatBonusDamageByLevel =
+            Array.Empty<float>();
+        [Min(0f)]
+        [SerializeField] private float attackDamageRatio;
+        [Min(0f)]
+        [SerializeField] private float abilityPowerRatio;
+        [Min(1)]
+        [SerializeField] private int recipeId = 100;
+        [SerializeField] private BuffConfigId applyBuffConfigId;
+
+        public float[] FlatBonusDamageByLevel =>
+            flatBonusDamageByLevel;
+        public float AttackDamageRatio => attackDamageRatio;
+        public float AbilityPowerRatio => abilityPowerRatio;
+        public int RecipeId => recipeId;
+        public BuffConfigId ApplyBuffConfigId =>
+            applyBuffConfigId;
+
+        public override ActiveAbilityPassiveEffectDef Bake()
+        {
+            return new OnHitBonusDamagePassiveEffectDef
+            {
+                ListenerMask =
+                    AbilityPassiveListenerMask.OnHitDealt,
+                FlatBonusDamageByLevel = BakeLevels(
+                    flatBonusDamageByLevel),
+                AttackDamageRatio =
+                    (Unity.Mathematics.FixedPoint.fp)
+                        attackDamageRatio,
+                AbilityPowerRatio =
+                    (Unity.Mathematics.FixedPoint.fp)
+                        abilityPowerRatio,
+                RecipeId = recipeId,
+                ApplyBuffConfigId = applyBuffConfigId,
+            };
+        }
+
+        private static AbilityLevelValue BakeLevels(
+            float[] values)
+        {
+            if (values == null ||
+                values.Length == 0)
+                return default;
+            var converted =
+                new Unity.Mathematics.FixedPoint.fp[
+                    values.Length];
+            for (int i = 0;
+                 i < values.Length;
+                 i++)
+            {
+                converted[i] =
+                    (Unity.Mathematics.FixedPoint.fp)
+                        values[i];
+            }
+            return new AbilityLevelValue(converted);
         }
     }
 }

@@ -58,6 +58,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
 
             ValidateAimKindConsistency(asset, castModel, errors);
             ValidateStages(asset, errors);
+            ValidatePassiveEffect(asset, errors);
 
             ValidateLevelValues(
                 asset,
@@ -154,6 +155,70 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                             "has no matching StageDef.", asset.name, m.ActiveStageKey));
                     break;
                 }
+
+                case CastModelKind.Toggle:
+                {
+                    var m = castModel as ToggleCastModelAuthoring;
+                    if (m == null)
+                    {
+                        errors.Add(string.Format("AbilityAsset '{0}': Toggle cast model is null.", asset.name));
+                        break;
+                    }
+                    if (m.DurationTicks < 0)
+                        errors.Add(string.Format("AbilityAsset '{0}': DurationTicks must be non-negative.", asset.name));
+                    if (m.ResourcePerTick < 0f)
+                        errors.Add(string.Format("AbilityAsset '{0}': ResourcePerTick must be non-negative.", asset.name));
+                    if (!HasStage(asset, m.ActiveStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Toggle stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.ActiveStageKey));
+                    break;
+                }
+
+                case CastModelKind.GroundTarget:
+                {
+                    var m = castModel as GroundTargetCastModelAuthoring;
+                    if (m == null)
+                    {
+                        errors.Add(string.Format("AbilityAsset '{0}': GroundTarget cast model is null.", asset.name));
+                        break;
+                    }
+                    if (m.AimStageKey == m.ExecuteStageKey)
+                        errors.Add(string.Format("AbilityAsset '{0}': Aim and Execute stage keys must differ.", asset.name));
+                    if (m.AimDurationTicks < 0 || m.ExecuteDurationTicks < 0)
+                        errors.Add(string.Format("AbilityAsset '{0}': Aim/Execute DurationTicks must be non-negative.", asset.name));
+                    if (m.MaxRange < 0f)
+                        errors.Add(string.Format("AbilityAsset '{0}': MaxRange must be non-negative.", asset.name));
+                    if (!HasStage(asset, m.AimStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Aim stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.AimStageKey));
+                    if (!HasStage(asset, m.ExecuteStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Execute stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.ExecuteStageKey));
+                    break;
+                }
+
+                case CastModelKind.VectorTarget:
+                {
+                    var m = castModel as VectorTargetCastModelAuthoring;
+                    if (m == null)
+                    {
+                        errors.Add(string.Format("AbilityAsset '{0}': VectorTarget cast model is null.", asset.name));
+                        break;
+                    }
+                    if (m.AimStageKey == m.ExecuteStageKey)
+                        errors.Add(string.Format("AbilityAsset '{0}': Aim and Execute stage keys must differ.", asset.name));
+                    if (m.AimDurationTicks < 0 || m.ExecuteDurationTicks < 0)
+                        errors.Add(string.Format("AbilityAsset '{0}': Aim/Execute DurationTicks must be non-negative.", asset.name));
+                    if (m.MaxRange < 0f || m.MinRange < 0f)
+                        errors.Add(string.Format("AbilityAsset '{0}': MaxRange/MinRange must be non-negative.", asset.name));
+                    if (!HasStage(asset, m.AimStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Aim stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.AimStageKey));
+                    if (!HasStage(asset, m.ExecuteStageKey))
+                        errors.Add(string.Format("AbilityAsset '{0}': Execute stage key {1} " +
+                            "has no matching StageDef.", asset.name, m.ExecuteStageKey));
+                    break;
+                }
             }
         }
 
@@ -246,6 +311,56 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                         errors.Add(string.Format("AbilityAsset '{0}' Stage[{1}]: " +
                             "Dash totalDistance must be positive.", asset.name, index));
                     break;
+
+                case ChargeStageDefAuthoring c:
+                    if (c.MaxChargeTicks <= 0)
+                        errors.Add(string.Format("AbilityAsset '{0}' Stage[{1}]: " +
+                            "Charge maxChargeTicks must be positive.", asset.name, index));
+                    if (c.ChargeRatioBlackboardKeyId <= 0)
+                        errors.Add(string.Format("AbilityAsset '{0}' Stage[{1}]: " +
+                            "Charge chargeRatioBlackboardKeyId must be positive.", asset.name, index));
+                    break;
+
+                case ChargeProjectileStageDefAuthoring q:
+                    if (q.ProjectileDefId <= 0)
+                        errors.Add(string.Format("AbilityAsset '{0}' Stage[{1}]: " +
+                            "ChargeProjectile projectileDefId must be positive.", asset.name, index));
+                    if (q.MaxRange <= 0f)
+                        errors.Add(string.Format("AbilityAsset '{0}' Stage[{1}]: " +
+                            "ChargeProjectile maxRange must be positive.", asset.name, index));
+                    ValidateLevelValues(
+                        asset,
+                        q.MinBaseDamageByLevel,
+                        "MinBaseDamage",
+                        errors);
+                    ValidateLevelValues(
+                        asset,
+                        q.MaxBaseDamageByLevel,
+                        "MaxBaseDamage",
+                        errors);
+                    break;
+            }
+        }
+
+        private static void ValidatePassiveEffect(
+            AbilityAsset asset,
+            List<string> errors)
+        {
+            AbilityPassiveEffectAuthoring passive =
+                asset.PassiveEffect;
+            if (passive == null) return;
+            try
+            {
+                ActiveAbilityPassiveEffectDef baked =
+                    passive.Bake();
+                baked.ValidateOrThrow();
+            }
+            catch (System.Exception exception)
+            {
+                errors.Add(string.Format(
+                    "AbilityAsset '{0}': passive effect is invalid: {1}",
+                    asset.name,
+                    exception.Message));
             }
         }
 

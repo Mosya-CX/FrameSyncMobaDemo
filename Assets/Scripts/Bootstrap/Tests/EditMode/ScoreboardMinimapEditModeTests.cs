@@ -4,19 +4,11 @@ using UnityEngine;
 namespace FrameSyncMoba.Bootstrap.Tests
 {
     /// <summary>
-    /// Unit tests for ScoreboardController and MinimapController (ExecPlan 0087).
+    /// Unit tests for MinimapController (ExecPlan 0087). The scoreboard moved
+    /// to the Lua-driven HUD page (ExecPlan 0126 Slice E).
     /// </summary>
     public class ScoreboardMinimapEditModeTests
     {
-        [Test]
-        public void ScoreboardController_CreatedWithCanvas()
-        {
-            var go = new GameObject("TestScoreboard", typeof(ScoreboardController));
-            var controller = go.GetComponent<ScoreboardController>();
-            Assert.That(controller, Is.Not.Null);
-            Object.DestroyImmediate(go);
-        }
-
         [Test]
         public void MinimapController_CreatedWithTexture()
         {
@@ -27,16 +19,33 @@ namespace FrameSyncMoba.Bootstrap.Tests
         }
 
         [Test]
-        public void ScoreboardRow_Created()
+        public void
+            TeamScoreLogThrottle_LogsOnlyWhenContentChanges()
         {
-            var go = new GameObject("TestRow", typeof(ScoreboardRow));
-            var row = go.GetComponent<ScoreboardRow>();
-            Assert.That(row, Is.Not.Null);
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            row.Initialize(font);
-            row.Set("Player1", 5, 2, 10, Color.white);
-            Assert.That(row, Is.Not.Null);
-            Object.DestroyImmediate(go);
+            var throttle =
+                new TeamScoreLogThrottle();
+            const string lineA =
+                "[Scoreboard] rank=0 targetTeam=1 " +
+                "score=0 teamIds=1,2 " +
+                "breakdown=[3/1101/0:k0/d0/a0/c2]";
+            const string lineB =
+                "[Scoreboard] rank=0 targetTeam=1 " +
+                "score=0 teamIds=1,2 " +
+                "breakdown=[3/1101/0:k0/d0/a0/c3]";
+
+            Assert.IsTrue(
+                throttle.ShouldLog(0, lineA));
+            Assert.IsFalse(
+                throttle.ShouldLog(0, lineA),
+                "Identical per-frame repeat must be suppressed.");
+            Assert.IsTrue(
+                throttle.ShouldLog(1, lineA),
+                "Different rank keeps an independent state.");
+            Assert.IsTrue(
+                throttle.ShouldLog(0, lineB),
+                "Changed content (creep kill delta) must be logged.");
+            Assert.IsFalse(
+                throttle.ShouldLog(0, lineB));
         }
     }
 }

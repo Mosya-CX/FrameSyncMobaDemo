@@ -1465,44 +1465,49 @@ DamageResult 已正式成立。
 Reaction 需要追加伤害、治疗或护盾时，只能提交新的战斗请求。
 ```
 
-战斗系统不建立统一 GameplayEventQueue，不动态订阅委托，也不缓存事件历史。单位事件的结构、固定路由与 Handler 调用顺序以单位框架 v25 为准。
+战斗系统不建立统一 GameplayEventQueue，不动态订阅委托。跨 Tick 的战斗交互（伤害/护盾/治疗）以 §7.14 的 `CombatContributionEventLog` 逐事件持久化（确定性、可快照、受窗口与容量约束），用于击杀者/助攻判定与审计；单位事件的结构、固定路由与 Handler 调用顺序仍以单位框架 v25 为准。
 
 ---
-## 7.14 DamageContributionTracker：跨 Tick 助攻贡献
+## 7.14 CombatContributionEventLog：跨 Tick 战斗事件日志
 
-CombatSystem 为仍可能在未来死亡的受害单位维护跨 Tick 伤害贡献：
+CombatSystem 为每个仍可能在未来死亡的受害单位维护一份轻量战斗事件日志。日志以**逐事件**方式保存窗口内该 Victim 受到/获得的有效战斗交互（伤害、护盾、治疗），支撑击杀者/助攻判定、死亡回放、伤害统计与后续审计：
 
 ```text
-DamageContributionTracker
+CombatContributionEventLog
     VictimUnitUid
-    Records[]
+    LastHitContributorUid
+    Events[]          // 按 (LogicTick, SequenceInTick) 升序
 ```
 
 ```text
-DamageContributionRecord
+CombatContributionEvent
+    VictimUnitUid
     ContributorHeroUid
-    LastContributionLogicTick
-    ContributionValue : fp
-    ExpireLogicTick
+    Kind              // Damage / Shield / Heal
+    Amount : fp
+    LogicTick
+    SequenceInTick
 ```
 
-### 7.14.1 有效贡献值
+### 7.14.1 事件记录与写入时机
 
-本版采用实际有效伤害：
+三类事件都在对应战斗请求结算成立后写入：
 
 ```text
-EffectiveContributionDamage =
-    DamageResult.ActualShieldDamage
-    + DamageResult.ActualLifeDamage
+Damage
+    Amount = DamageResult.ActualShieldDamage + DamageResult.ActualLifeDamage
+    Amount > 0 才写入（免疫、未命中或最终无实际损失不写）
+
+Shield
+    Amount = 本次护盾请求实际生效值
+    Amount > 0 才写入
+
+Heal
+    Amount = 本次治疗请求有效治疗量
+    Amount > 0 才写入
 ```
 
-只有：
-
-```text
-EffectiveContributionDamage > 0
-```
-
-才建立或刷新贡献。完全被免疫、无敌阻止、未命中或最终没有造成任何护盾/生命损失的伤害不产生贡献。
+同一 Tick 内三类请求共用 `SequenceInTick` 全局顺序，事件按结算顺序追加，顺序天然确定。
 
 来源解析：
 
@@ -1511,10 +1516,10 @@ EffectiveContributionDamage > 0
     -> ContributorHeroUid = SourceUnitUid
 
 来源是召唤物、分身、宠物、陷阱或投掷物
-    -> 通过 SourceDescriptor 的稳定所有者链解析所属 Hero
+    -> 沿 SourceDescriptor 的稳定所有者链解析所属 Hero
 
 无法解析到 Hero
-    -> 不记录助攻贡献
+    -> 不写入事件
 ```
 
 还必须满足：
@@ -1525,32 +1530,31 @@ ContributorHeroUid != VictimUnitUid
 Contributor 与 Victim 为敌对关系
 ```
 
-### 7.14.2 更新、过期与稳定顺序
+不满足其中任意一条的交互不写入事件日志。
 
-同一英雄的全部技能、攻击、Buff、装备和所属召唤物贡献合并为一条记录：
+### 7.14.2 窗口、清理与容量
 
-```text
-ContributionValue += EffectiveContributionDamage
-LastContributionLogicTick = CurrentTick
-ExpireLogicTick = CurrentTick + AssistContributionDurationTicks
-```
-
-记录在：
+事件只在全局助攻时限内保留：
 
 ```text
-CurrentTick > ExpireLogicTick
+AssistContributionDurationTicks（默认 150，约 5 秒）
 ```
 
-时过期。
-
-CombatSystem 在每 Tick 开始按 `VictimUnitUid` 升序清理过期记录；读取某个 Victim 的助攻列表前再执行一次局部过期清理。内部可使用索引容器加速，但 Capture、死亡解析和规范输出必须：
+CombatSystem 每 Tick 开始按 `VictimUnitUid` 升序对所有日志执行过期清理；读取某 Victim 的日志用于判定前再执行一次局部清理。过期条件：
 
 ```text
-Tracker 按 VictimUnitUid 升序
-Record 按 ContributorHeroUid 升序
+CurrentTick > ExpireLogicTick（= 事件 LogicTick + AssistContributionDurationTicks）
 ```
 
-以下场景删除整个 Victim Tracker：
+防御性容量上限：
+
+```text
+MaxContributionEventsPerVictim（默认 256）
+```
+
+超出上限时丢弃该 Victim 日志中最旧的事件（与过期语义一致），防止极端高频下日志无限增长。
+
+以下场景删除整个 Victim 日志：
 
 ```text
 Victim 正式死亡且 FormalDeathResult 已冻结
@@ -1558,22 +1562,40 @@ Victim 通过 UnitWorld.DespawnUnit 结束当前 UnitUid 生命周期
 当前 UnitUid 被永久销毁或回滚拓扑静默移除
 ```
 
-普通治疗、回满生命、脱战或仅进入 `Dying` 不立即清除贡献，只由过期规则控制。
+普通治疗、回满生命、脱战或仅进入 `Dying` 不立即清除日志，只由过期规则控制。
 
-### 7.14.3 正式死亡助攻解析
+### 7.14.3 击杀者与助攻判定
 
 冻结 `DeathRewardContext` 前：
 
 ```text
-1. 读取 Victim 当前全部未过期贡献记录。
-2. 移除 KillerHeroUid。
-3. 移除无效、非 Hero、非敌对或已结束 UnitUid 生命周期的记录。
-4. 按 ContributorHeroUid 去重。
-5. 按 ContributorHeroUid 稳定升序。
-6. 写入 AssistantHeroUids。
+1. 对 Victim 日志执行过期清理。
+2. 击杀者 = 最后一条 Kind=Damage 事件（按 LogicTick、SequenceInTick 序）的
+   ContributorHeroUid；无有效 Damage 事件时击杀者为空。
+3. 助攻者 = 窗口内全部 Kind=Damage 事件的 ContributorHeroUid 集合：
+       移除击杀者；
+       移除无效、非 Hero、非敌对或已结束 UnitUid 生命周期的记录；
+       按 ContributorHeroUid 去重；
+       按 ContributorHeroUid 稳定升序。
+4. 写入 FormalDeathResult.KillerHeroUid / AssistantHeroUids。
 ```
 
+击杀者判定**不是**累计贡献最高者，而是**最后造成有效伤害的英雄**（last hit）。助攻只需要"窗口内其他造成过有效伤害的英雄集合"，因此逐事件日志可以直接支撑，无需常驻聚合记录；死亡时如需贡献比例（奖励分配），由窗口事件按 `ContributorHeroUid` 汇总（O(窗口事件数)）。
+
 `FormalDeathResult`、英雄/防御塔奖励分配与 `MatchStatisticsRuntime` 只使用冻结后的 `AssistantHeroUids`，不再次查询 Tracker。
+
+### 7.14.4 快照与稳定顺序
+
+`CombatSystemSnapshot` 保存：
+
+```text
+CombatContributionEventLogSnapshot[]
+    VictimUnitUid（升序）
+    LastHitContributorUid
+    Events[]（按 LogicTick、SequenceInTick 升序）
+```
+
+事件写入按结算顺序追加；Capture 前校验稳定顺序（Victim 升序、事件序升序）。`SharedGameplayChecksum` 按事件逐条参与校验，保证两端事件日志逐位一致。
 
 # 8. HealPipeline
 
@@ -2505,7 +2527,8 @@ DeathResolution
 ```text
 1. CombatSystem 确认死亡未被阻止。
 2. 清理 Victim 过期的 DamageContributionRecord。
-3. 根据有效贡献冻结 KillerHeroUid 与 AssistantHeroUids。
+3. 按 §7.14.3 从 CombatContributionEventLog 判定并冻结 KillerHeroUid
+       与 AssistantHeroUids（击杀者 = 最后有效伤害事件贡献者）。
 4. 分配 DeathSequenceInTick。
 5. 冻结 DeathResolution。
 6. 冻结 DeathRewardContext：
@@ -3557,7 +3580,7 @@ UnitWorld.ConfirmUnitDeath
 ActualShieldDamage + ActualLifeDamage
 ```
 
-大于 0 才建立或刷新 `DamageContributionRecord`。贡献跨 Tick 保存，按全局助攻时限过期；正式死亡前冻结 `AssistantHeroUids`。
+即 Kind=Damage 事件的 `Amount`。大于 0 才写入 `CombatContributionEventLog`（§7.14.1）；事件跨 Tick 保存，按全局助攻时限过期，受每 Victim 容量上限约束；正式死亡前按 §7.14.3 冻结 `KillerHeroUid / AssistantHeroUids`。
 
 经验在死亡所在 Gameplay LogicTick 立即结算并可回滚。
 

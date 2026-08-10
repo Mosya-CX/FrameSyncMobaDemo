@@ -114,6 +114,7 @@ namespace FrameSyncMoba.Unit
             CombatFormulaSlot slot,
             fp baseValue,
             fp slotInput,
+            UnitKind targetKind,
             StatHandler sourceStats,
             StatHandler targetStats,
             ref CombatFormulaAccumulator accumulator,
@@ -129,7 +130,8 @@ namespace FrameSyncMoba.Unit
                     record.Scope != scope ||
                     !record.Match.Matches(
                         header,
-                        damageType))
+                        damageType,
+                        targetKind))
                     continue;
                 CombatFormulaPatch[] valuePatches =
                     record.ValuePatches ??

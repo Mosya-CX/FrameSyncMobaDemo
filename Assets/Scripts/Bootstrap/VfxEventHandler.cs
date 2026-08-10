@@ -11,6 +11,11 @@ namespace FrameSyncMoba.Bootstrap
     {
         [SerializeField] private VfxManager vfxManager;
 
+        public void SetManager(VfxManager manager)
+        {
+            vfxManager = manager;
+        }
+
         public void OnVfxEvent(in VfxEvent evt)
         {
             if (vfxManager != null)

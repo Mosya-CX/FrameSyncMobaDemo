@@ -3,6 +3,7 @@ using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit.Tests
 {
@@ -53,13 +54,15 @@ namespace FrameSyncMoba.Unit.Tests
         public void ForcedMove_OverridesRouteMove()
         {
             Unit unit = CreateUnit(100, fp2.zero);
+            RegisterKnockBack(unit);
             CrowdControlAddResult added =
                 unit.CrowdControl.Add(
-                    CreateForcedMove(
-                        unit.UnitUid,
+                    CrowdControlIds.KnockBack,
+                    2,
+                    CreateForcedMoveParams(
                         new fp2(fp.one, fp.zero),
                         2,
-                        5));
+                        (short)5));
             Assert.That(added.Added, Is.True);
 
             unit.MovementHandler.ApplyRouteMovement(
@@ -83,20 +86,23 @@ namespace FrameSyncMoba.Unit.Tests
         public void EqualPriorityForcedMove_ReplacesAtomically()
         {
             Unit unit = CreateUnit(101, fp2.zero);
+            RegisterKnockBack(unit);
             CrowdControlAddResult first =
                 unit.CrowdControl.Add(
-                    CreateForcedMove(
-                        unit.UnitUid,
+                    CrowdControlIds.KnockBack,
+                    2,
+                    CreateForcedMoveParams(
                         new fp2(fp.one, fp.zero),
                         2,
-                        7));
+                        (short)7));
             CrowdControlAddResult second =
                 unit.CrowdControl.Add(
-                    CreateForcedMove(
-                        unit.UnitUid,
+                    CrowdControlIds.KnockBack,
+                    2,
+                    CreateForcedMoveParams(
                         new fp2(fp.zero, fp.one),
                         2,
-                        7));
+                        (short)7));
 
             Assert.That(first.Added, Is.True);
             Assert.That(second.Added, Is.True);
@@ -116,12 +122,14 @@ namespace FrameSyncMoba.Unit.Tests
         public void ForcedMoveSnapshot_RoundTripsWithControlOwner()
         {
             Unit unit = CreateUnit(102, fp2.zero);
+            RegisterKnockBack(unit);
             unit.CrowdControl.Add(
-                CreateForcedMove(
-                    unit.UnitUid,
+                CrowdControlIds.KnockBack,
+                3,
+                CreateForcedMoveParams(
                     new fp2(fp.one, fp.zero),
                     3,
-                    4));
+                    (short)4));
 
             MovementSnapshot movement = default;
             CrowdControlHandlerSnapshot control =
@@ -334,7 +342,7 @@ namespace FrameSyncMoba.Unit.Tests
                 0,
                 TeamId.Neutral);
             unit.PhysicsEntity.SetLogicShape(
-                PhysicsShape2D.CreateCircle(
+                FrameSyncMoba.Physics.PhysicsShape2D.CreateCircle(
                     fp2.zero,
                     radius));
             unit.PhysicsEntity.TeleportLogicPosition(
@@ -344,27 +352,92 @@ namespace FrameSyncMoba.Unit.Tests
             return unit;
         }
 
-        private static CrowdControlConstraint
-            CreateForcedMove(
-                UnitUid source,
+        private static CrowdControlParamWriter
+            CreateForcedMoveParams(
                 fp2 deltaPerTick,
                 int durationTicks,
-                byte priority)
+                short priority)
         {
-            return new CrowdControlConstraint
+            var parameters =
+                new CrowdControlParamWriter();
+            parameters.SetFp2(
+                ControlParamKeys.Direction,
+                deltaPerTick);
+            parameters.SetFp(
+                ControlParamKeys.Distance,
+                fpmath.length(deltaPerTick) *
+                durationTicks);
+            parameters.SetInt(
+                ControlParamKeys.MoveTicks,
+                durationTicks);
+            parameters.SetShort(
+                ControlParamKeys.ForcedMovePriority,
+                priority);
+            return parameters;
+        }
+
+        private static void RegisterKnockBack(
+            Unit unit)
+        {
+            var world = new UnitWorld
             {
-                Type =
-                    CrowdControlType.Knockback,
-                RemainingTicks = durationTicks,
-                Priority = priority,
-                SourceUnitUid = source,
-                IsForcedMove = true,
-                ForcedMoveConfigId = 1,
-                ForcedMoveDeltaPerTick =
-                    deltaPerTick,
-                ForcedMoveWallPolicy =
-                    ForceMoveWallPolicy.StopAtWall,
+                CrowdControlDefinitions =
+                    new CrowdControlDefinitionRegistry(),
             };
+            var definition =
+                ScriptableObject.CreateInstance<
+                    CrowdControlDefinition>();
+            definition.Configure(
+                CrowdControlIds.KnockBack,
+                CrowdControlIntensity.High,
+                CrowdControlDefinition.ControlTagBits.Control |
+                CrowdControlDefinition.ControlTagBits.ForcedMove |
+                CrowdControlDefinition.ControlTagBits.Displacement |
+                CrowdControlDefinition.ControlTagBits.Airborne,
+                CrowdControlDurationRule.IgnoreTenacity,
+                new[]
+                {
+                    new CrowdControlParamAuthoring
+                    {
+                        Key = "Direction",
+                        Type = CrowdControlParamType.Fp2,
+                        Required = true,
+                    },
+                    new CrowdControlParamAuthoring
+                    {
+                        Key = "Distance",
+                        Type = CrowdControlParamType.Fp,
+                        Required = true,
+                    },
+                    new CrowdControlParamAuthoring
+                    {
+                        Key = "MoveTicks",
+                        Type = CrowdControlParamType.Int,
+                        Required = true,
+                    },
+                    new CrowdControlParamAuthoring
+                    {
+                        Key = "ForcedMovePriority",
+                        Type = CrowdControlParamType.Short,
+                        Required = true,
+                    },
+                },
+                new[]
+                {
+                    new CrowdControlModuleAuthoring
+                    {
+                        ModuleId =
+                            CrowdControlModuleId.ForcedMoveOnAdd,
+                        ParamKey0 = "Direction",
+                        ParamKey1 = "Distance",
+                        ParamKey2 = "MoveTicks",
+                        StaticData = 1,
+                        StaticFp0 = 0f,
+                    },
+                });
+            world.CrowdControlDefinitions.Register(
+                definition);
+            unit.World = world;
         }
 
         private static RVOInput CreateRvoInput(

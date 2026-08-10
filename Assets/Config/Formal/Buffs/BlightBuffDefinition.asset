@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd190d0d50aa5847a974015e823714e, type: 3}
+  m_Name: BlightBuffDefinition
+  m_EditorClassIdentifier: 
+  ConfigId:
+    Value: 9001
+  Display:
+    Name: "\u67AF\u840E"
+    Description: "\u6280\u80FD\u4F24\u5BB3\u4F1A\u5F15\u7206\u67AF\u840E\u5C42\u6570\u3002"
+    Icon: {fileID: 21300000, guid: 50137e36b1e92454db3e2534e676b03b, type: 3}
+  Life:
+    DurationSeconds: 6
+    Infinite: 0
+    RefreshMode: 1
+    ExtendSeconds: 0
+  Stack:
+    MaxStacks: 3
+    AddMode: 0
+    ReduceMode: 1
+    ReduceAmount: 1
+  Tags:
+    TagIds: 
+  Effects:
+  - Effect:
+      rid: 2586995953099079741
+  BlackboardLayout:
+    Slots: []
+  LifecycleReactions:
+    Added: []
+    Reapplied: []
+    Removed: []
+    StackChanged: []
+    Periodic: []
+  EventReactions:
+    DamageTaken: []
+    DamageDealt: []
+    HealTaken: []
+    HealDealt: []
+    ShieldApplied: []
+    AbilityCast: []
+    LevelUp: []
+    UnitDying: []
+    UnitDeath: []
+    UnitKill: []
+    OnHitDealt: []
+    CollisionEnter: []
+    CollisionExit: []
+  Priority: 0
+  PeriodicIntervalTicks: 0
+  ApplyVfxDefId: 0
+  ApplyVfxDurationSeconds: 0.7
+  InitialStacks: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586995953099079741
+      type: {class: AbilityHitStackDetonationBuffEffect, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        PercentOfMaxHpPerStackByLevel:
+        - 0.03
+        - 0.035
+        - 0.04
+        - 0.045
+        - 0.05
+        AbilityPowerRatioPerStack:
+          m_rawValue: 558345
+        MaxDamagePerStackVsNonHero:
+          m_rawValue: 515396075520
+        HeroCooldownReductionPercentPerStack:
+          m_rawValue: 558345748
+        RecipeId: 10012
+        SourceAbilitySlot: 1
+        DetonateSourceAbilityIds: 1b2700001e2700001d270000
+        DetonateVfxDefId: 4103

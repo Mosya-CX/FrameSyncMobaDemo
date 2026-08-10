@@ -5,10 +5,10 @@ namespace FrameSyncMoba.Unit
 {
     public sealed class BuffDefinitionRegistry
     {
-        private readonly Dictionary<BuffConfigId, BuffDef> definitions =
-            new Dictionary<BuffConfigId, BuffDef>();
+        private readonly Dictionary<BuffConfigId, BuffDefinition> definitions =
+            new Dictionary<BuffConfigId, BuffDefinition>();
 
-        public void Register(BuffDef definition)
+        public void Register(BuffDefinition definition)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
             if (!definition.IsValid) throw new ArgumentException("Buff definition is invalid.", nameof(definition));
@@ -17,7 +17,7 @@ namespace FrameSyncMoba.Unit
             definitions.Add(definition.ConfigId, definition);
         }
 
-        public bool TryGet(BuffConfigId configId, out BuffDef definition) =>
+        public bool TryGet(BuffConfigId configId, out BuffDefinition definition) =>
             definitions.TryGetValue(configId, out definition);
     }
 }

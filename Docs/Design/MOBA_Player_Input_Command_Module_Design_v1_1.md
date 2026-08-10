@@ -1,7 +1,10 @@
 # MOBA 玩家输入与 Gameplay Command 生成模块设计案 v1.1
 
 > 目标：为 Unity 帧同步 MOBA 提供本地玩家的移动、普通攻击以及 Q/W/E/R 四个技能键输入，并把本地设备操作转换成现有帧同步系统的类型化 Gameplay Command Request。  
-> 当前版本支持 **鼠标 + 键盘、单个本地玩家、非智能施法、按下启用并在松键或左键时提交的蓄力技能**。  
+> 当前版本支持 **鼠标 + 键盘、单个本地玩家、全面非智能施法**：输入层是
+> "物理事件 → 技能信号 / 指令" 的可组合翻译层；**本版本默认配置为蓄力/
+> 引导技能按下启用、左键提交，技能键松开不产生任何 AbilitySignal**，
+> 但架构允许任何技能按组合配置（含松键触发、三段式触发）。
 > UI 输入继续由 Unity Input System 与 `InputSystemUIInputModule` 直接处理，不经过本模块。
 
 ---
@@ -18,7 +21,7 @@
 8. [移动与普通攻击](#八移动与普通攻击)
 9. [本地技能输入状态](#九本地技能输入状态)
 10. [通用技能输入规则](#十通用技能输入规则)
-11. [按下启用、松键或左键提交](#十一按下启用松键或左键提交)
+11. [按下启用、左键提交](#十一按下启用左键提交)
 12. [AimSnapshot](#十二aimsnapshot)
 13. [Gameplay Command Request 接口](#十三gameplay-command-request-接口)
 14. [技能系统与 AI 边界](#十四技能系统与-ai-边界)
@@ -46,12 +49,13 @@
 把鼠标解析为地面 fp2 和候选 UnitUid。
 解析右键移动或普通攻击。
 处理 Q/W/E/R 技能槽输入。
-读取由 CastModelDef 离线派生的玩家输入模式。
+读取由 CastModelDef / 技能数据离线校验的输入映射模板。
 维护本地技能输入状态。
 调用技能指示器。
-把物理输入翻译为现有 AbilitySignal 语言。
-调用 FrameSyncGameRuntime 的类型化 Command Request 入口。
-防止左键 Commit 与技能键松开产生重复 Command。
+把输入事件与映射模板分析为施法意图（Proposal）。
+把施法意图交给单位 Planner / Arbiter 裁断；
+通过后翻译为现有 AbilitySignal 语言并生成类型化 Command。
+防止重复 Commit（重复左键、快速连按）产生重复 Command。
 处理 UI、Application Flow 和受控单位变化造成的输入阻断。
 ```
 
@@ -155,7 +159,7 @@ flowchart TD
 
     E[IGameplayInputGate] --> D
     F[GameplayPointerResolver] --> D
-    G[BakedPlayerAbilityInputProfile] --> D
+    G[InputMappingTemplate] --> D
     H[ILocalAbilityRuntimeView] --> D
     I[AbilityIndicatorController] --> D
     J[ILocalControlledUnitView] --> D
@@ -183,8 +187,8 @@ LocalInputEventBuffer
 GameplayPointerResolver
     把屏幕坐标解析为地面坐标和候选 UnitUid。
 
-BakedPlayerAbilityInputProfile
-    从 CastModelDef 离线派生。
+InputMappingTemplate
+    每技能一份，由 CastModelDef / 技能数据离线校验。
     只描述物理输入如何翻译为现有技能信号。
 
 ILocalAbilityRuntimeView
@@ -227,7 +231,7 @@ AI：
 不经过 Unity Input System。
 不经过玩家输入模块。
 不生成帧同步网络 Command。
-不读取 BakedPlayerAbilityInputProfile。
+不读取 InputMappingTemplate。
 ```
 
 玩家和 AI 只在现有技能系统的：
@@ -268,7 +272,7 @@ PlayerInputActions.inputactions
 | `AbilityE` | Button | Button | `<Keyboard>/e` |
 | `AbilityR` | Button | Button | `<Keyboard>/r` |
 
-## 3.2 技能键必须同时监听按下与松开
+## 3.2 技能键按下与松开都采集为事件
 
 ```text
 AbilityQ / W / E / R performed
@@ -278,11 +282,21 @@ AbilityQ / W / E / R canceled
     -> AbilityKeyReleased
 ```
 
-不能继续把所有技能键限制为：
+`AbilityKeyReleased` 是**原始输入事件**，不直接等于任何信号。它翻译
+成什么由该技能的输入组合决定（见 §4.2）：
 
 ```text
-只处理 performed。
+本版本默认组合
+    AbilityKeyReleased -> None（不 Commit、不 Cancel）
+
+其它技能可以配置
+    AbilityKeyReleased -> Commit
+    AbilityKeyReleased -> Cancel（默认不启用）
 ```
+
+禁止在输入层把某一事件硬编码为"永远无信号"或"永远等于某信号"；
+每个事件到信号的映射都由该技能的映射模板确定（离线检查，不做
+Bake；运行时只读取已校验配置）。
 
 `PointerPosition` 不写事件队列，只用于：
 
@@ -344,87 +358,141 @@ Blackboard
 
 玩家输入层只关心：
 
-> 一个物理事件应该翻译成已有的哪个技能信号，或者只打开本地 Aim。
+> 一个物理事件按该技能的映射模板，应该产生什么施法意图：
+> 某个技能信号（Focus / Commit / Cancel）、仅本地 Aim，还是无动作。
 
-## 4.2 离线输入模式
+## 4.2 输入翻译组合（可组合的翻译层）
+
+输入层把物理事件翻译给技能层 / Command 层。翻译不是三种写死的模式，
+而是一组可任意组合的绑定：
 
 ```csharp
-public enum BakedPlayerAbilityInputMode : byte
+public enum InputTrigger : byte
 {
-    PressCommit,
-    LocalAimPrimaryCommit,
-    PressFocusReleaseOrPrimaryCommit
+    AbilityKeyPressed,   // 技能键按下
+    AbilityKeyReleased,  // 技能键松开
+    PrimaryClick,        // 鼠标左键
+    SecondaryClick,      // 鼠标右键
+    Cancel,              // Escape
+}
+
+public enum InputTranslation : byte
+{
+    None,           // 不产生 AbilitySignal
+    LocalAimOnly,   // 只打开本地瞄准（表现），不产生信号
+    CancelLocalAim, // 只关闭本地瞄准（表现），不产生信号
+    Focus,          // AbilitySignal.Focus
+    Commit,         // AbilitySignal.Commit
+    Cancel,         // AbilitySignal.Cancel（默认不配置）
+}
+
+public struct InputBinding
+{
+    public InputTrigger Trigger;
+    public InputTranslation Translation;
+    public bool CaptureAim; // 触发时是否捕获 AimSnapshot
+}
+
+public struct InputMappingTemplate
+{
+    public InputBinding[] Bindings; // 每种 Trigger 最多一条
 }
 ```
 
-```csharp
-public struct BakedPlayerAbilityInputProfile
-{
-    public BakedPlayerAbilityInputMode Mode;
-}
-```
+当前版本不需要在映射模板中重复保存任何技能时间或数值。
 
-当前版本不需要在 Profile 中重复保存任何技能时间或数值。
-
-## 4.3 由 CastModelDef 自动生成
-
-编辑期：
+组合自由：
 
 ```text
-CastModelDef
-    是玩家输入模式的唯一来源。
+同一 AbilitySignal.Commit 可以由左键、松键或两者同时提供。
+三段式（按下 -> 松开 -> 左键）可以分别绑定不同翻译。
+每个技能独立配置自己的 Bindings。
 ```
 
-Bake：
+输入层不把"松开"写死成无信号，也不把"左键"写死成唯一 Commit；
+是否映射、映射成什么由该技能的映射模板决定。**映射模板没有规定的
+事件，一律不动作**（不产生信号、不改变本地状态）。
+当前蓄力型施法模型（HoldRelease）的默认预设采用松键 None（见 §4.4）；
+这只是该模型的当前默认，不是硬约束，其它技能仍可在配置期自由组合。
+重复触发去重（§9.3）保证同一种信号不会因为多事件绑定而发出多次。
+
+输入层是**分析器**：它只回答"这个输入事件按模板应该产生什么意图"，
+不直接决定施法是否成立。施法成立与否由单位 Planner / Arbiter 裁断
+（见 §4.5）。
+
+## 4.3 映射模板：配置数据 + 离线合法性检查（不做 Bake）
+
+输入映射模板是**每技能的配置数据**（Inspector / ScriptableObject），
+CastModelDef 是生成默认模板的唯一来源：
 
 ```text
 AbilityDef
     -> CastModelDef
-    -> PlayerInputProfileBaker
-    -> BakedPlayerAbilityInputProfile
+    -> 默认映射模板（每技能一份 Bindings）
+    -> 允许技能数据自定义覆盖
 ```
 
-运行时：
+运行时直接读取已校验的模板：
 
 ```text
 AbilitySlot
     -> ActiveAbilityId
     -> AbilityDef
-    -> BakedPlayerAbilityInputProfile
+    -> 该技能的映射模板（Bindings）
 ```
 
-建议的默认映射：
+本设计**不做 Bake**（不生成派生的代码或烘焙产物）。合法性在编辑期
+离线检查：
+
+```text
+同一 Trigger 只能绑定一条翻译。
+蓄力/引导类技能必须至少存在一条 Commit 来源。
+需要 Aim 的模板必须有合法的 Indicator / Aim 定义。
+QWER 槽位必须引用存在的 AbilityDef。
+```
+
+离线检查失败即配置报错；运行时只读取已通过检查的配置，禁止临时猜测。
+
+建议的默认组合（默认预设）：
 
 ```text
 CommitCastModelDef
     且无需本地 Aim
-        -> PressCommit
+        AbilityKeyPressed -> Commit
 
 CommitCastModelDef
     且 ResolveIndicatorStage 需要玩家 Aim
-        -> LocalAimPrimaryCommit
+        AbilityKeyPressed  -> LocalAimOnly
+        PrimaryClick       -> Commit + CaptureAim
+        SecondaryClick     -> CancelLocalAim
+        Cancel             -> CancelLocalAim
 
 HoldReleaseCastModelDef
-        -> PressFocusReleaseOrPrimaryCommit
+        AbilityKeyPressed   -> Focus
+        PrimaryClick        -> Commit + CaptureAim
+        AbilityKeyReleased  -> None
+        SecondaryClick      -> None（继续 Move / Attack）
+        Cancel              -> None
 ```
 
-自定义 CastModelDef 必须在 Bake 阶段实现输入模式派生，否则：
+自定义 CastModelDef 必须提供可离线检查的映射模板派生，否则：
 
 ```text
-Bake 失败。
+离线检查失败。
 禁止在运行时按类型猜测。
 ```
 
-## 4.4 HoldRelease 默认约定
+## 4.4 本版本默认组合与允许的组合
 
-`PressFocusReleaseOrPrimaryCommit` 默认表示：
+本版本冻结的默认组合（HoldRelease / Channel）：
 
 ```text
 技能键按下
     -> Focus
 
-对应技能键松开
-    -> Commit
+技能键松开
+    -> 不产生任何 AbilitySignal
+    -> 不 Commit、不 Cancel
 
 鼠标左键
     -> Commit
@@ -437,7 +505,73 @@ Escape
     -> 不发送 Cancel
 ```
 
-如果未来某个特殊 CastModel 允许玩家主动取消，需要由该 CastModel 提供新的明确输入模式或 Bake Override，不能修改 HoldRelease 的默认语义。
+蓄力/引导的结束由 Gameplay 侧决定：左键 Commit 后进入 Release
+Stage，或引导时长/阶段规则在 Ability 系统内自然结束；输入层不
+因为松键而提交或取消。
+
+架构允许的组合（任何技能都可以在配置期通过 Bindings 定义）：
+
+```text
+经典蓄力（松键释放）
+    AbilityKeyPressed  -> Focus
+    AbilityKeyReleased -> Commit + CaptureAim
+    PrimaryClick       -> Commit + CaptureAim
+
+三段式（按下蓄力、松开预备、左键最终释放）
+    AbilityKeyPressed  -> Focus
+    AbilityKeyReleased -> None / CancelLocalAim / 预留阶段信号
+    PrimaryClick       -> Commit + CaptureAim
+```
+
+本版本只冻结"默认预设不含松键 Commit"（蓄力型 HoldRelease 当前即采用
+该默认预设）；任何技能都可以在配置期定义自己的组合（含松键触发、
+三段式触发），组合必须通过离线合法性检查，运行时不允许临时猜测。
+
+模板未规定的事件一律不动作：
+
+```text
+例如模板里没有 AbilityKeyReleased 条目
+    -> 松开技能键不产生任何信号、不改变状态
+例如模板里没有 SecondaryClick 条目
+    -> 右键不产生 Cancel，也不改变技能 Session
+```
+
+## 4.5 输入 → 施法意图 → Planner / Arbiter → 技能层语言
+
+输入层是分析器，施法是否成立由单位行为层裁断：
+
+```text
+物理输入事件
+    + 该技能的映射模板
+    -> 施法意图（Proposal）
+        信号意图（Focus / Commit / Cancel）
+        或仅本地 Aim
+        或无动作（模板未规定）
+
+施法意图
+    -> 单位 Planner / Arbiter 裁断（Unit Framework v27.3 §3）
+    -> Rejected：不产生 Command，保持本地状态
+    -> Accepted / Interrupt：翻译为技能层语言
+         AbilitySignalVerb + Aim
+         -> CastAbilityCommand
+```
+
+执行期：
+
+```text
+有 Planner 的单位
+    CastAbilityCommand
+    -> UnitIntent(CastAbility)
+    -> 行为链（Planner）产出 ActionRequest
+    -> Arbiter 裁断
+    -> AbilityHandler.HandleSignal(AbilitySignal)
+
+无 Planner 的单位（兼容路径）
+    CastAbilityCommand
+    -> AbilityHandler.HandleSignal(AbilitySignal)
+```
+
+输入模块在意图阶段不修改任何 Gameplay 状态。
 
 ---
 
@@ -586,24 +720,11 @@ Application Flow 不在 GameplayRunning。
 比赛已经权威结束。
 ```
 
-## 6.3 已经按下的 HoldRelease 键必须收到 Release
+## 6.3 松键语义由技能输入组合决定
 
-一旦玩家输入模块成功发送：
-
-```text
-Focus Request
-```
-
-对应技能键的 `canceled` 必须继续被监听。
-
-即使之后：
-
-```text
-聊天框获得焦点。
-普通键盘 Gameplay Gate 被关闭。
-```
-
-也不能静默吞掉该键的 Release。
+一旦玩家输入模块成功发送 `Focus Request`，技能键松开映射成什么由
+该技能的映射模板组合决定；本版本默认组合为 None。键盘 Gate 关闭、
+聊天框获得焦点等场景都不会让松键额外改变技能 Session。
 
 但以下情况可以直接清理本地输入上下文：
 
@@ -764,7 +885,7 @@ LocalAiming
 FocusRequested
 GameplayFocusing
 CommitRequested
-    且模式为 PressFocusReleaseOrPrimaryCommit
+    且该技能配置了蓄力（Focus）组合
     -> 不发送 Cancel。
     -> 不关闭指示器。
     -> 按普通规则生成 Move / Attack。
@@ -833,7 +954,7 @@ Focus Command 可能被安排到未来预测 Tick。
 在此期间玩家可能已经：
 
 ```text
-松开技能键。
+松开技能键（无操作）。
 点击左键。
 ```
 
@@ -851,12 +972,12 @@ FocusRequested
 例如：
 
 ```text
-玩家按住 Q。
+玩家按住 Q（Focus 已提交）。
 左键提交。
 随后松开 Q。
 ```
 
-若没有本地去重，会产生两个 Commit Command。
+松键不产生 Commit；去重只针对重复的左键或重复的提交触发。
 
 规则：
 
@@ -867,7 +988,7 @@ FocusRequested / GameplayFocusing
     -> 成功后立即进入 CommitRequested。
 
 CommitRequested
-    + 左键或对应技能键松开
+    + 重复左键
     -> 忽略。
 ```
 
@@ -942,15 +1063,17 @@ CommitRequested
 
 因为此时没有真实 AbilitySession。
 
-## 10.4 `PressFocusReleaseOrPrimaryCommit`
+## 10.4 默认蓄力组合（Focus + 左键 Commit）
 
 ```text
 技能键按下
     -> Request Focus。
     -> 成功后进入 FocusRequested。
 
-对应技能键松开
-    -> Request Commit。
+技能键松开（本版本默认组合）
+    -> 不产生任何 AbilitySignal。
+    -> 不 Request Commit、不 Request Cancel。
+-> 若该技能显式配置了松键翻译，则按映射模板执行。
 
 鼠标左键
     -> Request Commit。
@@ -968,7 +1091,7 @@ Focus 已经成功进入 Command Buffer 后，该技能不再是“仅本地指�
 
 ---
 
-# 十一、按下启用、松键或左键提交
+# 十一、按下启用、左键提交
 
 本节以韦鲁斯 Q 型技能作为正式参考流程。
 
@@ -977,8 +1100,8 @@ Focus 已经成功进入 Command Buffer 后，该技能不再是“仅本地指�
 ```text
 AbilityKeyPressed(Q)
     -> 读取槽位当前 ActiveAbilityId。
-    -> 读取 BakedPlayerAbilityInputProfile。
-    -> Mode == PressFocusReleaseOrPrimaryCommit。
+    -> 读取该技能的 InputMappingTemplate。
+    -> 该技能配置了蓄力默认组合（按下 -> Focus）。
     -> RequestCastAbility(
            Slot = Q,
            Signal = Focus,
@@ -1003,15 +1126,15 @@ Local State = GameplayFocusing。
 指示器改为读取真实 Session。
 ```
 
-## 11.2 Q 松开
+## 11.2 Q 松开（本版本默认组合下无操作）
 
 ```text
 AbilityKeyReleased(Q)
-    且当前 Slot == Q
-    且状态为 FocusRequested 或 GameplayFocusing
-    -> 捕获当前 Direction AimSnapshot
-    -> Request Commit
-    -> 成功后进入 CommitRequested
+    -> 本版本默认：不产生任何 AbilitySignal。
+    -> 不 Request Commit、不 Request Cancel。
+    -> 保持当前本地技能输入状态。
+    -> 若该技能显式配置了 AbilityKeyReleased 翻译（如松键
+Commit、三段式预备），则按映射模板执行。
 ```
 
 ## 11.3 左键
@@ -1025,11 +1148,14 @@ PrimaryClick
     -> 成功后进入 CommitRequested
 ```
 
-左键与松键生成的是同一种：
+本版本默认组合下，左键是蓄力技能的 Commit 触发：
 
 ```text
 AbilitySignal.Commit
 ```
+
+架构允许其它技能把松键也绑定到同一个 `AbilitySignal.Commit`；
+去重（§9.3）保证无论几个物理事件触发 Commit，都只产生一次。
 
 ## 11.4 右键
 
@@ -1307,13 +1433,30 @@ Request 返回 `false`：
 
 ```text
 物理输入
-    -> BakedPlayerAbilityInputProfile
-    -> AbilitySignalVerb
+    -> 该技能的 InputMappingTemplate
+    -> 施法意图（Proposal：信号意图 / 仅本地 Aim / 无动作）
+    -> 单位 Planner / Arbiter 裁断（Unit Framework v27.3 §3）
+    -> Rejected：不产生 Command
+    -> Accepted / Interrupt：翻译为技能层语言
+    -> AbilitySignalVerb + Aim
     -> CastAbilityCommand
-    -> OrderTranslator
-    -> AbilityAction
-    -> AbilityHandler
-    -> AbilitySignal
+```
+
+执行期（有 Planner 的单位）：
+
+```text
+CastAbilityCommand
+    -> UnitIntent(CastAbility)
+    -> 行为链（Planner）产出 ActionRequest
+    -> Arbiter 裁断
+    -> AbilityHandler.HandleSignal(AbilitySignal)
+```
+
+无 Planner 的单位走既有直通路径：
+
+```text
+CastAbilityCommand
+    -> AbilityHandler.HandleSignal(AbilitySignal)
 ```
 
 ## 14.2 AI 路径
@@ -1334,7 +1477,7 @@ AI 不需要：
 模拟技能键松开。
 经过玩家 Command Request。
 增加通用 AbilityControlOrder 中间层。
-读取玩家输入 Profile。
+读取玩家输入映射模板。
 ```
 
 例如 AI 使用蓄力技能：
@@ -1496,15 +1639,16 @@ SecondaryClick 位于阻断 UI 上
     -> 不改变已启用技能 Session。
 ```
 
-## 16.5 UI 打开后技能键松开
+## 16.5 UI 打开后的技能键
 
-已经成功发送 Focus 后：
+已经成功发送 Focus 后，技能键松开（本版本默认组合）：
 
 ```text
-对应技能键 Release 仍必须被处理为 Commit。
+不产生任何 AbilitySignal（不 Commit、不 Cancel）。
 ```
 
 普通新技能键 Press 仍受键盘 Gate 阻断。
+若该技能显式配置了松键翻译，则按映射模板组合执行。
 
 ---
 
@@ -1520,7 +1664,7 @@ InputAction phase
 Hover Collider
 LocalInputEventBuffer
 LocalEventSequence
-BakedPlayerAbilityInputProfile
+InputMappingTemplate
 LocalAbilityInputState
 Request Receipt
 技能指示器
@@ -1631,7 +1775,7 @@ AcceptedRequest
 BlockedByUi
 NoControlledUnit
 NoGroundPoint
-AbilityProfileMissing
+MappingTemplateMissing
 AimBuildFailed
 RequestGatewayRejected
 DuplicateCommitIgnored
@@ -1640,15 +1784,17 @@ LocalEventBufferOverflow
 
 不发送网络，不进入 Gameplay。
 
-## 18.2 Bake 错误
+## 18.2 离线检查错误
 
-以下情况必须在离线 Bake 阶段失败：
+以下情况必须在编辑期离线检查阶段失败：
 
 ```text
-CastModelDef 无法派生玩家输入模式。
+CastModelDef 无法派生输入映射模板。
 需要 Aim 但没有合法 Indicator / Aim 定义。
 HoldRelease 模型无法产生 Focus 或 Commit 信号。
 QWER 槽位引用不存在的 AbilityDef。
+同一 Trigger 绑定多条翻译。
+蓄力/引导类技能没有任何 Commit 来源。
 ```
 
 运行时不临时猜测。
@@ -1703,9 +1849,10 @@ AI 经过网络 Command
 ```text
 普通本地 Aim 后左键 Commit。
 按键立即 Commit。
-按下 Focus、松键 Commit。
 按下 Focus、左键 Commit。
-左键与松键 Commit 去重。
+本版本默认：技能键松开不产生任何信号；
+组合层允许按技能配置松键/三段式触发。
+重复左键/重复提交去重。
 已启用 HoldRelease 技能期间右键继续 Move / Attack。
 ```
 
@@ -1720,14 +1867,14 @@ AI 经过网络 Command
 4. 实现 IGameplayInputGate。
 5. 实现 GameplayPointerResolver。
 6. 接通 Move / Attack Request。
-7. 为 CastModelDef 增加离线 PlayerInputProfile Bake。
-8. 接通 AbilitySlot -> ActiveAbilityId -> Baked Profile 查询。
+7. 为 CastModelDef 增加输入映射模板与离线合法性检查。
+8. 接通 AbilitySlot -> ActiveAbilityId -> 映射模板查询。
 9. 实现 Idle / LocalAiming。
 10. 接通 PressCommit 和 LocalAimPrimaryCommit。
 11. 扩展 CastAbility Request 返回 RequestReceipt。
 12. 实现 FocusRequested / GameplayFocusing / CommitRequested。
 13. 接通技能键 performed / canceled。
-14. 实现 HoldRelease 的 Release / PrimaryClick Commit。
+14. 实现蓄力默认组合（Focus + PrimaryClick Commit）与可选松键绑定。
 15. 实现重复 Commit 去重。
 16. 接入 ILocalAbilityRuntimeView。
 17. 接入 AbilityIndicatorController。
@@ -1764,10 +1911,12 @@ AI 经过网络 Command
 
 ```text
 [ ] 技能键按下生成 Focus。
-[ ] 技能键松开生成 Commit。
+[ ] 本版本默认：技能键松开不产生任何 AbilitySignal
+    （不 Commit、不 Cancel）；若技能显式配置松键翻译则按配置执行。
 [ ] 鼠标左键同样生成 Commit。
-[ ] 左键 Commit 后松键不产生第二条 Commit。
-[ ] 松键 Commit 后左键不产生第二条 Commit。
+[ ] 左键 Commit 后重复左键不产生第二条 Commit。
+[ ] 本版本默认 Focus 后仅左键 Commit（松键无操作）；
+    配置了松键 Commit 的技能必须产生同一个 AbilitySignal.Commit。
 [ ] Focus 与 Commit 可落在同一 TargetTick。
 [ ] 同 Tick 时 Focus.CommandSeq 小于 Commit.CommandSeq。
 [ ] 右键不发送 Cancel、不关闭指示器。
@@ -1791,7 +1940,7 @@ AI 经过网络 Command
 
 ```text
 [ ] AI 不引用 Unity Input System。
-[ ] AI 不读取 BakedPlayerAbilityInputProfile。
+[ ] AI 不读取 InputMappingTemplate。
 [ ] AI 可直接产生 Focus / Commit / Cancel AbilityAction。
 [ ] AI 与玩家最终进入相同 AbilityHandler 信号语义。
 ```
@@ -1837,7 +1986,7 @@ Q/W/E/R
 无目标立即施法
 本地 Aim 后左键 Commit
 按下启用的蓄力技能
-技能键松开 Commit
+本版本默认技能键松开不提交（左键提交）
 鼠标左键 Commit
 重复 Commit 去重
 已启用技能期间右键不取消
@@ -1847,9 +1996,9 @@ Q/W/E/R
 ## 22.2 编码时必须保持的三个跨模块契约
 
 ```text
-1. CastModelDef 可以在离线 Bake 阶段生成
-   BakedPlayerAbilityInputProfile，
-   且不复制任何技能时间或数值配置。
+1. CastModelDef / 技能数据可以离线校验输入映射模板的合法性，
+   且不复制任何技能时间或数值配置；
+   运行时直接读取已校验模板，不做 Bake。
 
 2. FrameSync CastAbility Request 返回或暴露等价的
    TargetTick + CommandSeq 回执，
@@ -1865,7 +2014,9 @@ Q/W/E/R
 ## 22.3 不允许程序员自行改变
 
 ```text
-不得把左键和松键实现成两个不同 Gameplay 信号。
+左键、松键等不同物理事件若都触发 Commit，必须映射为同一个
+AbilitySignal.Commit，不得发明第二个 Commit 信号。
+松键是否映射、映射成什么由技能映射模板组合决定（本版本默认 None）。
 不得让右键自动发送 HoldRelease Cancel。
 不得在输入模块重复配置 MinFocusTicks 或 MaxFocusTicks。
 不得让 AI 模拟 Unity 输入。

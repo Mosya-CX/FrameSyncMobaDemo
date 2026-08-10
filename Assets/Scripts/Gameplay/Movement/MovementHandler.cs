@@ -365,8 +365,11 @@ namespace FrameSyncMoba.Unit
             }
             if (Owner != null &&
                 (Owner.HitReaction.InterruptsMovement ||
-                 Owner.CrowdControl?.IsMovementRestricted ==
-                    true))
+                 (Owner.CrowdControl != null &&
+                  Owner.CrowdControl.IsBlocked(
+                      UnitActionBlockMask.VoluntaryMove |
+                      UnitActionBlockMask.ControlMove |
+                      UnitActionBlockMask.Mobility))))
             {
                 return MovementMode.Idle;
             }
@@ -394,6 +397,30 @@ namespace FrameSyncMoba.Unit
                     _hasPendingRvo
                         ? _pendingRvoVelocity
                         : direction * desiredSpeed;
+                if (_pendingLocomotion.AllowRVO &&
+                    _hasPendingRvo &&
+                    Owner != null &&
+                    desiredSpeed > fp.zero)
+                {
+                    fp2 rawDesired =
+                        direction * desiredSpeed;
+                    fp rvoSq = fpmath.dot(
+                        _pendingRvoVelocity,
+                        _pendingRvoVelocity);
+                    fp rawSq = fpmath.dot(
+                        rawDesired,
+                        rawDesired);
+                    if (rvoSq <
+                        rawSq *
+                        (fp)0.01m)
+                    {
+                        UnityEngine.Debug.Log(
+                            $"[Loco][RvoBlocked] unit={Owner.UnitUid} " +
+                            $"raw={rawDesired} rvo={_pendingRvoVelocity} " +
+                            $"speed={desiredSpeed} task=" +
+                            $"{Owner.Locomotion?.CurrentTask.Purpose}");
+                    }
+                }
             }
             else
             {

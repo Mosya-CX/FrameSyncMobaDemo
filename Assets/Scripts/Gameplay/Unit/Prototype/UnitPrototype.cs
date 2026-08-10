@@ -52,6 +52,14 @@ namespace FrameSyncMoba.Unit
 
         public int BaseExperienceValue;
 
+        /// <summary>
+        /// Built-in buffs granted automatically at spawn and reapplied by the
+        /// permanent-buff respawn lifecycle. Configured per prototype
+        /// (authoring), consumed by BuffHandler.ApplyInitialBuffs.
+        /// </summary>
+        public BuffConfigId[] InitialBuffConfigIds =
+            Array.Empty<BuffConfigId>();
+
         public HandlerLoadout Loadout;
         public LocomotionProfile LocomotionProfile;
         public PhysicsProfile2D PhysicsProfile;

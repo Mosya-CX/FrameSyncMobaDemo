@@ -2,27 +2,13 @@ namespace FrameSyncMoba.Unit
 {
     public struct CombatSnapshot
     {
-        public DamageContributionTrackerSnapshot[] ContributionTrackers;
+        public CombatContributionEventLogSnapshot[] ContributionEventLogs;
         public DeferredCombatRequest[] DeferredRequests;
 
         public static readonly CombatSnapshot Default = new CombatSnapshot
         {
-            ContributionTrackers = System.Array.Empty<DamageContributionTrackerSnapshot>(),
+            ContributionEventLogs = System.Array.Empty<CombatContributionEventLogSnapshot>(),
             DeferredRequests = System.Array.Empty<DeferredCombatRequest>(),
         };
-    }
-
-    public struct DamageContributionTrackerSnapshot
-    {
-        public UnitUid VictimUnitUid;
-        public DamageContributionRecordSnapshot[] Records;
-    }
-
-    public struct DamageContributionRecordSnapshot
-    {
-        public UnitUid ContributorHeroUid;
-        public int LastContributionLogicTick;
-        public Unity.Mathematics.FixedPoint.fp ContributionValue;
-        public int ExpireLogicTick;
     }
 }

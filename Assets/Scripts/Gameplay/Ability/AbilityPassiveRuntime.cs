@@ -1,5 +1,6 @@
 using System;
 using FrameSyncMoba.Deterministic;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -15,6 +16,8 @@ namespace FrameSyncMoba.Unit
         UnitDeath = 1 << 5,
         UnitKill = 1 << 6,
         LevelUp = 1 << 7,
+        OnHitDealt = 1 << 8,
+        UnitAssist = 1 << 9,
     }
 
     public abstract class AbilityPassiveEffectDefBase
@@ -35,6 +38,8 @@ namespace FrameSyncMoba.Unit
         public virtual bool OnUnitDying(Unit owner, ref AbilityPassiveRuntimeState state) => false;
         public virtual bool OnUnitKill(Unit owner, Unit victim, ref AbilityPassiveRuntimeState state) => false;
         public virtual bool OnLevelUp(Unit owner, int previousLevel, int newLevel, ref AbilityPassiveRuntimeState state) => false;
+        public virtual bool OnHitDealt(Unit owner, in OnHitEventData data, ref AbilityPassiveRuntimeState state) => false;
+        public virtual bool OnUnitAssist(Unit owner, Unit victim, ref AbilityPassiveRuntimeState state) => false;
 
         internal bool ListensTo(AbilityPassiveListenerMask eventMask) =>
             (ListenerMask & eventMask) != 0;
@@ -57,6 +62,9 @@ namespace FrameSyncMoba.Unit
     {
         public int AbilityId;
         public string Name;
+        /// <summary>Passive UI icon. Serialized asset reference; never
+        /// created at runtime, never read by Gameplay.</summary>
+        public Sprite Icon;
         public PassiveAbilityEffectDef PassiveEffect;
         public int[] CooldownByUnitLevel;
         public bool IsValid => AbilityId > 0 && PassiveEffect != null;
@@ -76,6 +84,7 @@ namespace FrameSyncMoba.Unit
 
     public struct AbilityPassiveRuntimeState
     {
+        public int AbilityLevel;
         public int StackCount;
         public int TriggerCount;
         public int LastTriggerLogicTick;
@@ -96,6 +105,11 @@ namespace FrameSyncMoba.Unit
             Definition.ValidateOrThrow();
         }
 
+        public void SetAbilityLevel(int level)
+        {
+            State.AbilityLevel = level;
+        }
+
         public void Activate(Unit owner) => Definition.OnActivate(owner, ref State);
         public void Deactivate(Unit owner) => Definition.OnDeactivate(owner, ref State);
         public void RankChanged(Unit owner, int level) => Definition.OnAbilityRankChanged(owner, level, ref State);
@@ -109,6 +123,8 @@ namespace FrameSyncMoba.Unit
         public bool UnitDying(Unit owner) => Definition.ListensTo(AbilityPassiveListenerMask.UnitDying) && Definition.OnUnitDying(owner, ref State);
         public bool UnitKill(Unit owner, Unit victim) => Definition.ListensTo(AbilityPassiveListenerMask.UnitKill) && Definition.OnUnitKill(owner, victim, ref State);
         public bool LevelUp(Unit owner, int previousLevel, int newLevel) => Definition.ListensTo(AbilityPassiveListenerMask.LevelUp) && Definition.OnLevelUp(owner, previousLevel, newLevel, ref State);
+        public bool OnHitDealt(Unit owner, in OnHitEventData data) => Definition.ListensTo(AbilityPassiveListenerMask.OnHitDealt) && Definition.OnHitDealt(owner, data, ref State);
+        public bool UnitAssist(Unit owner, Unit victim) => Definition.ListensTo(AbilityPassiveListenerMask.UnitAssist) && Definition.OnUnitAssist(owner, victim, ref State);
 
         public void Resolve(UnitWorld world)
         {
@@ -122,6 +138,9 @@ namespace FrameSyncMoba.Unit
     {
         public readonly PassiveAbilityDef Definition;
         public readonly AbilityPassiveEffectRuntime EffectRuntime;
+
+        public Sprite GetCurrentIcon() =>
+            Definition?.Icon;
 
         public PassiveAbilityRuntime(PassiveAbilityDef definition)
         {

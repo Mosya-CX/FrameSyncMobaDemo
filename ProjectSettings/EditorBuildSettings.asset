@@ -9,10 +9,10 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/Scenes/FrameworkSmoke.unity
+    path: Assets/Scenes/Tests/FrameworkSmoke.unity
     guid: c14a72a30a0796249b7fb08142f1da0d
   - enabled: 1
-    path: Assets/Scenes/ClientFrameworkSmoke.unity
+    path: Assets/Scenes/Tests/ClientFrameworkSmoke.unity
     guid: b60c2fa98e50f974eb453f3112f1a0c4
   - enabled: 1
     path: Assets/Scenes/ClientBootstrap.unity
@@ -20,4 +20,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ServerBootstrap.unity
     guid: 3ae6171ad1252f84aaed3ff388fbd7fa
+  - enabled: 1
+    path: Assets/Scenes/Lobby.unity
+    guid: 8b113c6b5c216eb43bf773d33b61a049
+  - enabled: 1
+    path: Assets/Scenes/GameScene.unity
+    guid: 538c58be6a17c554ea049ffff88b0e1e
   m_configObjects: {}

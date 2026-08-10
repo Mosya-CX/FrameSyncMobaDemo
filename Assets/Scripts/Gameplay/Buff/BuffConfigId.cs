@@ -2,9 +2,10 @@ using System;
 
 namespace FrameSyncMoba.Unit
 {
-    public readonly struct BuffConfigId : IEquatable<BuffConfigId>, IComparable<BuffConfigId>
+    [Serializable]
+    public struct BuffConfigId : IEquatable<BuffConfigId>, IComparable<BuffConfigId>
     {
-        public readonly int Value;
+        public int Value;
 
         public BuffConfigId(int value)
         {

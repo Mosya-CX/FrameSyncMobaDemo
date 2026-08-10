@@ -86,6 +86,108 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void PlanCastIntent_UsesAbilityCastRange_NotHardcoded()
+        {
+            UnitWorld world = CreateWorld();
+            UnitType unit = Spawn(world, 230, UnitKind.Hero);
+
+            // Install a Point ability with CastRange 8. The BehaviorPlanner
+            // must read this value instead of a hardcoded range.
+            var runtime = new AbilityRuntime
+            {
+                Definition = new AbilityDef
+                {
+                    AbilityId = 900,
+                    Name = "RangeTestAbility",
+                    CastModel = new CommitCastModelDef
+                    {
+                        Cast = new CastStage
+                        {
+                            StageKey = 1,
+                            DurationTicks = 1,
+                        },
+                    },
+                    AimKind = AimKind.Point,
+                    CastRange = (fp)8,
+                    CostPlan = default,
+                },
+                Level = 1,
+            };
+            var slot = new AbilitySlotRuntime
+            {
+                SlotIndex = 0,
+                ActiveAbilityId = 900,
+                AllocatedPoints = 1,
+            };
+            slot.AddAbility(runtime);
+            unit.AbilityHandler.AddSlot(slot);
+
+            var controller =
+                new SimulationTickContextController();
+            controller.BeginTick(
+                1,
+                ExecutionMode.ServerAuthority);
+            try
+            {
+                unit.Planner.SetIntent(new UnitIntent
+                {
+                    Kind = IntentKind.CastAbility,
+                    AbilityId = 0,
+                    AbilityVerb =
+                        AbilitySignalVerb.Commit,
+                    AbilityAim =
+                        AimSnapshot.ForPoint(
+                            new fp2((fp)6, fp.zero)),
+                    AllowChase = true,
+                });
+                unit.Planner.Tick(
+                    out ActionRequest inRange);
+
+                Assert.That(
+                    inRange,
+                    Is.TypeOf<CastActionRequest>());
+                var cast =
+                    (CastActionRequest)inRange;
+                Assert.That(
+                    cast.Aim,
+                    Is.EqualTo(
+                        AimSnapshot.ForPoint(
+                            new fp2((fp)6, fp.zero))));
+
+                unit.Planner.SetIntent(new UnitIntent
+                {
+                    Kind = IntentKind.CastAbility,
+                    AbilityId = 0,
+                    AbilityVerb =
+                        AbilitySignalVerb.Commit,
+                    AbilityAim =
+                        AimSnapshot.ForPoint(
+                            new fp2((fp)12, fp.zero)),
+                    AllowChase = true,
+                });
+                unit.Planner.Tick(
+                    out ActionRequest chase);
+
+                Assert.That(
+                    chase,
+                    Is.TypeOf<MoveActionRequest>());
+                var move =
+                    (MoveActionRequest)chase;
+                Assert.That(
+                    move.StopRange,
+                    Is.EqualTo((fp)8));
+                Assert.That(
+                    move.Purpose,
+                    Is.EqualTo(
+                        MovePurpose.ChaseForCast));
+            }
+            finally
+            {
+                controller.EndTick();
+            }
+        }
+
+        [Test]
         public void NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch()
         {
             GoldIncomeRuntime firstIncome = CreateIncomeRuntime();

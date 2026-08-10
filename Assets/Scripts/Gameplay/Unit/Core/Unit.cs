@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
+using Sirenix.OdinInspector;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 
@@ -22,7 +24,15 @@ namespace FrameSyncMoba.Unit
 
         private CapabilityState capabilityState;
         private UnitAbilityMask abilityMask;
+        private readonly List<UnitTag> tags =
+            new List<UnitTag>();
 
+        /// <summary>Deterministic runtime identity (SpawnLogicTick /
+        /// prefab id / spawn sequence). Displayed in the Inspector for
+        /// debugging spawned unit instances.</summary>
+        [ShowInInspector]
+        [ReadOnly]
+        [PropertyOrder(-120)]
         public UnitUid UnitUid { get; private set; }
         public UnitWorld World { get; internal set; }
         public UnitUid OwnerUid { get; private set; }
@@ -54,6 +64,181 @@ namespace FrameSyncMoba.Unit
 
         public UnitLocomotionAgent Locomotion { get; internal set; }
         public int Level => statHandler?.Level ?? 1;
+        /// <summary>
+        /// The deterministic home spawn position captured when this runtime
+        /// instance was first materialized. Heroes respawn here after death.
+        /// </summary>
+        public fp2 RespawnPosition { get; private set; }
+        public IReadOnlyList<UnitTag> Tags => tags;
+
+        // ---- Lightweight invisible tags (UnitTag) ----
+
+        /// <summary>
+        /// True when a tag with the given key is currently alive on this
+        /// Unit (used for deduplication, e.g. one R infection per target).
+        /// </summary>
+        public bool HasTag(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return false;
+            }
+            for (int i = 0;
+                 i < tags.Count;
+                 i++)
+            {
+                if (string.Equals(
+                        tags[i].Key,
+                        key,
+                        StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TryGetTag(
+            string key,
+            out UnitTag tag)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                for (int i = 0;
+                     i < tags.Count;
+                     i++)
+                {
+                    if (string.Equals(
+                            tags[i].Key,
+                            key,
+                            StringComparison.Ordinal))
+                    {
+                        tag = tags[i];
+                        return true;
+                    }
+                }
+            }
+            tag = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Add or replace a tag. The same key with a different Uid (e.g. a
+        /// second R cast) replaces the old tag and starts a fresh lifetime;
+        /// the same Uid refreshes the remaining ticks.
+        /// </summary>
+        public void AddTag(
+            string key,
+            int durationTicks,
+            in UnitTagUid uid)
+        {
+            if (string.IsNullOrEmpty(key) ||
+                !uid.IsValid)
+            {
+                return;
+            }
+            for (int i = 0;
+                 i < tags.Count;
+                 i++)
+            {
+                if (string.Equals(
+                        tags[i].Key,
+                        key,
+                        StringComparison.Ordinal))
+                {
+                    if (tags[i].Uid == uid)
+                    {
+                        UnitTag refreshed = tags[i];
+                        refreshed.RemainingTicks =
+                            durationTicks;
+                        tags[i] = refreshed;
+                    }
+                    else
+                    {
+                        tags[i] = new UnitTag
+                        {
+                            Key = key,
+                            RemainingTicks =
+                                durationTicks,
+                            Uid = uid,
+                        };
+                    }
+                    return;
+                }
+            }
+            tags.Add(new UnitTag
+            {
+                Key = key,
+                RemainingTicks =
+                    durationTicks,
+                Uid = uid,
+            });
+        }
+
+        public void RemoveTag(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return;
+            }
+            for (int i = tags.Count - 1;
+                 i >= 0;
+                 i--)
+            {
+                if (string.Equals(
+                        tags[i].Key,
+                        key,
+                        StringComparison.Ordinal))
+                {
+                    tags.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Advances every tag lifetime by one Tick and removes expired tags.
+        /// Called by the simulation pipeline in the Handler Tick phase.
+        /// </summary>
+        public void TickTags()
+        {
+            for (int i = tags.Count - 1;
+                 i >= 0;
+                 i--)
+            {
+                UnitTag tag = tags[i];
+                if (tag.RemainingTicks > 0)
+                {
+                    tag.RemainingTicks--;
+                    tags[i] = tag;
+                    if (tag.RemainingTicks <= 0)
+                    {
+                        tags.RemoveAt(i);
+                    }
+                }
+            }
+        }
+
+        public UnitTag[] CaptureTags()
+        {
+            tags.Sort();
+            return tags.ToArray();
+        }
+
+        public void RestoreTags(UnitTag[] state)
+        {
+            tags.Clear();
+            if (state != null)
+            {
+                tags.AddRange(state);
+                tags.Sort();
+            }
+        }
+
+        public void ClearTags()
+        {
+            tags.Clear();
+        }
 
         public UnitActionStateView GetActionStateView()
         {
@@ -71,7 +256,7 @@ namespace FrameSyncMoba.Unit
                 _ => ActionMainKind.Idle,
             };
 
-            ActionBaseKind animBase = CrowdControl is not null && CrowdControl.ActiveConstraint.IsActive
+            ActionBaseKind animBase = CrowdControl is not null && CrowdControl.ActiveForcedMoveHandle.IsValid
                 ? ActionBaseKind.ForcedMove
                 : mainKind == ActionKind.Move ? ActionBaseKind.Move : ActionBaseKind.Idle;
 
@@ -110,7 +295,7 @@ namespace FrameSyncMoba.Unit
                     throw new DeterministicSimulationException(
                         $"Unit {UnitUid} cannot resolve JungleCamp {order.ReturnToCamp_CampId}.");
             }
-            Planner.SetIntent(intent);
+            Planner.ReplaceIntent(intent);
         }
         public HitReactionState HitReaction;
 
@@ -165,6 +350,7 @@ namespace FrameSyncMoba.Unit
             if (statDefinitions == null) throw new ArgumentNullException(nameof(statDefinitions));
 
             ResolveComponentReferences();
+            abilityMask = prototype.Loadout.BuildAbilityMask();
             ValidateCompositionOrThrow();
 
             UnitUid = unitUid;
@@ -175,6 +361,7 @@ namespace FrameSyncMoba.Unit
             UnitPrototypeId = prototype.UnitPrototypeId;
             BaseGoldValue = prototype.BaseGoldValue;
             BaseExperienceValue = prototype.BaseExperienceValue;
+            RespawnPosition = startPosition;
             LifeState = LifeState.Alive;
             capabilityState = CapabilityState.CreateAliveDefault();
             controlledByPlayerSlot = -1;
@@ -184,10 +371,12 @@ namespace FrameSyncMoba.Unit
             Planner = new BehaviorPlanner(this);
             Arbiter = new ActionArbiter(this);
             ActionRuntimes = new ActionRuntimeSet();
-            abilityMask = prototype.Loadout.BuildAbilityMask();
             Intent = UnitIntent.None;
+            tags.Clear();
 
             BindHandlersInStableOrder();
+            BuffHandler.SetInitialBuffConfigs(
+                prototype.InitialBuffConfigIds);
 
             StatPreset preset = prototype.BaseStats ?? new StatPreset();
             statHandler.InitializeRuntime(
@@ -196,19 +385,78 @@ namespace FrameSyncMoba.Unit
             CombatModifiers = new CombatModifierSet(this);
             physicsEntity.SetLogicShape(CreatePhysicsShape(prototype.PhysicsProfile));
             physicsEntity.SetLogicPose(startPosition, prototype.PhysicsProfile.InitialForward);
-            movementHandler.InitializeRuntime(
+            movementHandler?.InitializeRuntime(
                 startPosition,
                 prototype.LocomotionProfile.BaseMoveSpeed);
-            attackHandler.InitializeForNewRuntime(
+            attackHandler?.InitializeForNewRuntime(
                 tickRate, attackSequenceResetIntervalTicks);
-            abilityHandler.InitializeForNewRuntime();
+            abilityHandler?.InitializeForNewRuntime();
             buffHandler.InitializeForNewRuntime();
-            crowdControlHandler.InitializeForNewRuntime();
-            equipmentHandler.InitializeForNewRuntime();
+            crowdControlHandler?.InitializeForNewRuntime();
+            equipmentHandler?.InitializeForNewRuntime();
 
         }
 
         internal ref CapabilityState RefCapabilityState() => ref capabilityState;
+
+        /// <summary>
+        /// Rebuild the coarse CapabilityState from LifeState plus the control
+        /// system's aggregated BlockedActions (Unit Framework v27.3 1.9/8.4).
+        /// Called in the pipeline fixed phase after CrowdControlHandler
+        /// advances, and after rollback Rebuild.
+        /// </summary>
+        public void RefreshCapabilityState()
+        {
+            if (LifeState == LifeState.Dead ||
+                LifeState == LifeState.Respawning)
+            {
+                capabilityState.DisableAllActions();
+                return;
+            }
+
+            // Unit Framework v27.3 1.7/1.9: the default action capability is
+            // derived from the authored HandlerLoadout (abilityMask), not a
+            // hand-typed per-unit flag. Towers configure HasMovement=0, so
+            // CanMove/CanTurn are false for them; minions configure
+            // HasAbility=0, so CanCast is false. Rotation stays tied to
+            // movement (CanTurn mirrors CanMove).
+            capabilityState =
+                CapabilityState.CreateAliveDefault();
+            capabilityState.CanMove =
+                abilityMask.HasMovement;
+            capabilityState.CanAttack =
+                abilityMask.HasAttack;
+            capabilityState.CanCast =
+                abilityMask.HasAbility;
+            capabilityState.CanTurn =
+                abilityMask.HasMovement;
+            if (CrowdControl == null)
+            {
+                return;
+            }
+            UnitActionBlockMask blocked =
+                CrowdControl.State.BlockedActions;
+            if ((blocked &
+                 UnitActionBlockMask.VoluntaryMove) != 0)
+            {
+                capabilityState.CanMove = false;
+            }
+            if ((blocked &
+                 UnitActionBlockMask.VoluntaryAttack) != 0)
+            {
+                capabilityState.CanAttack = false;
+            }
+            if ((blocked &
+                 UnitActionBlockMask.AbilityCast) != 0)
+            {
+                capabilityState.CanCast = false;
+            }
+            if ((blocked &
+                 UnitActionBlockMask.Turn) != 0)
+            {
+                capabilityState.CanTurn = false;
+            }
+        }
 
         private static FrameSyncMoba.Physics.PhysicsShape2D CreatePhysicsShape(
             in PhysicsProfile2D profile)
@@ -240,7 +488,8 @@ namespace FrameSyncMoba.Unit
             int unitPrototypeId,
             LifeState lifeState,
             in CapabilityState restoredCapabilityState,
-            in HitReactionState restoredHitReactionState)
+            in HitReactionState restoredHitReactionState,
+            fp2 restoredRespawnPosition)
         {
             if (UnitUid != expectedUnitUid ||
                 OwnerUid != ownerUid ||
@@ -256,6 +505,7 @@ namespace FrameSyncMoba.Unit
             LifeState = lifeState;
             capabilityState = restoredCapabilityState;
             HitReaction = restoredHitReactionState;
+            RespawnPosition = restoredRespawnPosition;
         }
 
         internal void ValidateActionRuntimeSnapshotBoundary()
@@ -324,12 +574,13 @@ namespace FrameSyncMoba.Unit
             // D-009: StatHandler and CombatModifiers survive ordinary death.
             // Stat modifiers survive, while StatHandler-owned shields do not.
             statHandler.ClearForDeath();
-            movementHandler.ClearForDeath();
-            attackHandler.ClearForDeath();
-            abilityHandler.ClearForDeath();
+            movementHandler?.ClearForDeath();
+            attackHandler?.ClearForDeath();
+            abilityHandler?.ClearForDeath();
             buffHandler.ClearForDeath();
-            crowdControlHandler.ClearForDeath();
-            equipmentHandler.ClearForDeath();
+            crowdControlHandler?.ClearForDeath();
+            equipmentHandler?.ClearForDeath();
+            ClearTags();
             Locomotion?.CancelRoute(MoveCancelReason.Death);
             Planner?.ClearForDeath();
             ActionRuntimes?.ClearWithoutCancel();
@@ -339,12 +590,13 @@ namespace FrameSyncMoba.Unit
         internal void ClearForRespawn()
         {
             statHandler.ClearForRespawn();
-            movementHandler.ClearForRespawn();
-            attackHandler.ClearForRespawn();
-            abilityHandler.ClearForRespawn();
+            movementHandler?.ClearForRespawn();
+            attackHandler?.ClearForRespawn();
+            abilityHandler?.ClearForRespawn();
             buffHandler.ClearForRespawn();
-            crowdControlHandler.ClearForRespawn();
-            equipmentHandler.ClearForRespawn();
+            crowdControlHandler?.ClearForRespawn();
+            equipmentHandler?.ClearForRespawn();
+            ClearTags();
             Planner?.ClearForRespawn();
             ActionRuntimes?.ClearWithoutCancel();
             Intent = UnitIntent.None;
@@ -353,12 +605,13 @@ namespace FrameSyncMoba.Unit
         internal void ResetForPool()
         {
             statHandler.ResetForPool();
-            movementHandler.ResetForPool();
-            attackHandler.ResetForPool();
-            abilityHandler.ResetForPool();
+            movementHandler?.ResetForPool();
+            attackHandler?.ResetForPool();
+            abilityHandler?.ResetForPool();
             buffHandler.ResetForPool();
-            crowdControlHandler.ResetForPool();
-            equipmentHandler.ResetForPool();
+            crowdControlHandler?.ResetForPool();
+            equipmentHandler?.ResetForPool();
+            ClearTags();
             CombatModifiers?.Clear();
             LifeState = LifeState.Alive;
             capabilityState = CapabilityState.CreateAliveDefault();
@@ -391,23 +644,34 @@ namespace FrameSyncMoba.Unit
         {
             RequireExactlyOne(physicsEntity, nameof(PhysicsEntity2D));
             RequireExactlyOne(statHandler, nameof(StatHandler));
-            RequireExactlyOne(movementHandler, nameof(MovementHandler));
-            RequireExactlyOne(attackHandler, nameof(AttackHandler));
-            RequireExactlyOne(abilityHandler, nameof(AbilityHandler));
+            // Unit Framework v27.3 1.7: only BuffHandler and StatHandler are
+            // universal. Movement / Attack / Ability presence must match the
+            // authored HandlerLoadout (e.g. towers have no MovementHandler or
+            // AbilityHandler; minions have no AbilityHandler).
             RequireExactlyOne(buffHandler, nameof(BuffHandler));
-            RequireExactlyOne(crowdControlHandler, nameof(CrowdControlHandler));
-            RequireExactlyOne(equipmentHandler, nameof(EquipmentHandler));
+            if ((movementHandler != null) !=
+                abilityMask.HasMovement)
+                throw new InvalidOperationException(
+                    $"Unit prefab '{name}' MovementHandler presence disagrees with its HandlerLoadout.");
+            if ((attackHandler != null) !=
+                abilityMask.HasAttack)
+                throw new InvalidOperationException(
+                    $"Unit prefab '{name}' AttackHandler presence disagrees with its HandlerLoadout.");
+            if ((abilityHandler != null) !=
+                abilityMask.HasAbility)
+                throw new InvalidOperationException(
+                    $"Unit prefab '{name}' AbilityHandler presence disagrees with its HandlerLoadout.");
         }
 
         private void BindHandlersInStableOrder()
         {
             statHandler.BindOwner(this);
-            movementHandler.BindOwner(this);
-            attackHandler.BindOwner(this);
-            abilityHandler.BindOwner(this);
+            movementHandler?.BindOwner(this);
+            attackHandler?.BindOwner(this);
+            abilityHandler?.BindOwner(this);
             buffHandler.BindOwner(this);
-            crowdControlHandler.BindOwner(this);
-            equipmentHandler.BindOwner(this);
+            crowdControlHandler?.BindOwner(this);
+            equipmentHandler?.BindOwner(this);
         }
 
         private void RequireExactlyOne<T>(T component, string label) where T : Component

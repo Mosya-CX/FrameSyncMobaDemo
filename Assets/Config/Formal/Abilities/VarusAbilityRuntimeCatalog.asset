@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dd9fe71164fdd74d8c227b087003d1a, type: 3}
+  m_Name: VarusAbilityRuntimeCatalog
+  m_EditorClassIdentifier: 
+  abilities:
+  - {fileID: 11400000, guid: 1d39b6fcb4a6c3a4d93f531a7d71e0df, type: 2}
+  - {fileID: 11400000, guid: cebff4eed8f123e489b437871eeb891a, type: 2}
+  - {fileID: 11400000, guid: 83ba0131923d35144bae77d6654b9c35, type: 2}
+  - {fileID: 11400000, guid: b4215bedc8e28eb418a072e305076585, type: 2}
+  slots:
+  - SlotId: 0
+    MaxAllocatedPoints: 5
+    RequiredUnitLevelByRank: 0100000002000000030000000400000005000000
+    AbilityIds: 1b270000
+    InitialActiveAbilityId: 10011
+  - SlotId: 1
+    MaxAllocatedPoints: 5
+    RequiredUnitLevelByRank: 0100000002000000030000000400000005000000
+    AbilityIds: 1c270000
+    InitialActiveAbilityId: 10012
+  - SlotId: 2
+    MaxAllocatedPoints: 5
+    RequiredUnitLevelByRank: 0100000002000000030000000400000005000000
+    AbilityIds: 1d270000
+    InitialActiveAbilityId: 10013
+  - SlotId: 3
+    MaxAllocatedPoints: 3
+    RequiredUnitLevelByRank: 060000000b00000010000000
+    AbilityIds: 1e270000
+    InitialActiveAbilityId: 10014
+  fixedPassives:
+  - {fileID: 11400000, guid: 91eaffc7874ccd141add968c10da300a, type: 2}

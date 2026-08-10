@@ -18,15 +18,14 @@ namespace FrameSyncMoba.Unit
             if (!runtime.World.TryGetUnit(targetUid, out Unit target))
                 return StageResult.Failed;
 
-            var constraint = new CrowdControlConstraint
-            {
-                Type = CrowdControlType.Stun,
-                SourceUnitUid = runtime.CasterUnitUid,
-                RemainingTicks = DurationTicks,
-                Priority = 0,
-            };
-            target.CrowdControl?.Add(constraint);
-            return StageResult.Completed;
+            CrowdControlAddResult result =
+                target.CrowdControl.Add(
+                    CrowdControlIds.Stun,
+                    DurationTicks,
+                    default);
+            return result.Added
+                ? StageResult.Completed
+                : StageResult.Failed;
         }
     }
 }

@@ -28,6 +28,10 @@ namespace FrameSyncMoba.Unit
         }
         public void AddSlot(AbilitySlotRuntime slot) => _book.AddSlot(slot);
 
+        /// <summary>Current ability runtime on a slot (presentation read).</summary>
+        public AbilityRuntime GetActiveRuntime(byte slot) =>
+            _book.GetSlot(slot)?.GetActiveAbility();
+
         public void InitializeConfiguredLoadoutOrThrow()
         {
             if (abilityLoadout == null) return;
@@ -36,6 +40,12 @@ namespace FrameSyncMoba.Unit
                 DefinitionRegistry ??
                 throw new DeterministicSimulationException(
                     "AbilityHandler has no definition registry."));
+            // Design v15.2 1.12.1: a freshly initialized hero starts with
+            // one pending skill point (all abilities at level 0).
+            if (PendingSkillPoints == 0)
+            {
+                GrantSkillPoint();
+            }
         }
 
         public void SetFixedPassive(PassiveAbilityDef definition)
@@ -59,6 +69,11 @@ namespace FrameSyncMoba.Unit
                 runtime.CasterUnitUid = Owner.UnitUid;
             }
             if (runtime?.Definition?.CastModel == null) return false;
+            // Unlearned abilities (level 0) cannot be cast until a skill
+            // point is allocated to their slot.
+            if (runtime.Level <= 0 &&
+                signal.Verb != AbilitySignalVerb.Cancel)
+                return false;
             CastModelDef model = runtime.Definition.CastModel;
             int currentTick = SimulationTickContext.Current.Tick;
 
@@ -105,6 +120,10 @@ namespace FrameSyncMoba.Unit
                     runtime.EndSession(currentTick, 0);
                     return false;
                 }
+                if (stage.LockMovement)
+                {
+                    BeginLockedCast(signal.Aim);
+                }
                 AbilityCostTiming timing =
                     runtime.Definition.CostPlan.Timing;
                 if (timing == AbilityCostTiming.OnSessionStart ||
@@ -113,6 +132,12 @@ namespace FrameSyncMoba.Unit
                 {
                     PayCost(runtime, session);
                 }
+                Owner.BuffHandler?.OnAbilityCast(
+                    new AbilityCastEventData(
+                        Owner.UnitUid,
+                        runtime.Definition?.AbilityId ?? 0,
+                        signal.Slot,
+                        currentTick));
                 return true;
             }
 
@@ -121,6 +146,21 @@ namespace FrameSyncMoba.Unit
                 GetCastStage(
                     model,
                     activeSession.CurrentStageKey);
+
+            // ToggleCastModelDef: a second Commit on the active stage turns
+            // the toggle off and ends the session without starting cooldown.
+            if (model is ToggleCastModelDef toggleModel &&
+                signal.Verb == AbilitySignalVerb.Commit &&
+                activeSession.CurrentStageKey ==
+                    toggleModel.Active.StageKey)
+            {
+                currentStage.Def?.OnExit(
+                    activeSession,
+                    runtime);
+                runtime.EndSession(currentTick, 0);
+                return true;
+            }
+
             int? transitionKey =
                 model.HandleSignal(
                     signal,
@@ -153,6 +193,11 @@ namespace FrameSyncMoba.Unit
                     runtime.EndSession(currentTick, 0);
                     return false;
                 }
+                if (newStage.LockMovement)
+                {
+                    BeginLockedCast(
+                        activeSession.Aim);
+                }
                 if (mustPay) PayCost(runtime, activeSession);
                 return true;
             }
@@ -177,6 +222,63 @@ namespace FrameSyncMoba.Unit
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// A locked cast stage begins: cancel the current route and attack
+        /// cycle, and face the cast aim direction. Movement/attack inputs are
+        /// separately gated by IsCastMovementLocked while the stage is
+        /// active (Unit Framework v27.3 movable-cast rule).
+        /// </summary>
+        private void BeginLockedCast(
+            in AimSnapshot aim)
+        {
+            Owner.Locomotion?.CancelRoute(
+                MoveCancelReason.AbilityCastStarted);
+            Owner.AttackHandler?.CancelBeforeCommit();
+            Owner.AttackHandler?.ResetAttackTimer(
+                AttackTimerResetReason.AbilityEffect);
+
+            if (!Owner.CapabilityState.CanTurn ||
+                Owner.PhysicsEntity == null)
+            {
+                return;
+            }
+            fp2 direction = default;
+            switch (aim.Kind)
+            {
+                case AimKind.Direction:
+                    direction = aim.Direction;
+                    break;
+                case AimKind.Point:
+                    direction =
+                        aim.TargetPoint -
+                        Owner.PhysicsEntity
+                            .Transform2D.Position;
+                    break;
+                case AimKind.Unit:
+                    if (Owner.World != null &&
+                        Owner.World.TryGetUnit(
+                            aim.TargetUnitUid,
+                            out Unit target))
+                    {
+                        direction =
+                            target.PhysicsEntity
+                                .Transform2D.Position -
+                            Owner.PhysicsEntity
+                                .Transform2D.Position;
+                    }
+                    break;
+            }
+            if (Physics.PhysicsGeometry2D
+                    .TryCreateFacing(
+                        direction,
+                        out fp2 facing,
+                        out _))
+            {
+                Owner.PhysicsEntity.SetLogicForward(
+                    facing);
+            }
         }
 
         private bool ValidateCastRequest(
@@ -279,8 +381,45 @@ namespace FrameSyncMoba.Unit
             session.CostPaid = true;
         }
 
+        private void RefundCostPercent(
+            AbilityRuntime runtime,
+            AbilitySession session,
+            fp percent)
+        {
+            if (percent <= fp.zero ||
+                !session.CostPaid ||
+                Owner.StatHandler == null)
+                return;
+            AbilityCostPlan plan =
+                runtime.Definition.CostPlan;
+            if (!plan.HasCost) return;
+            plan.Resolve(
+                runtime.Level,
+                out fp resourceCost,
+                out fp healthCost);
+            if (resourceCost > fp.zero)
+            {
+                Owner.StatHandler.SetCurrentCastResource(
+                    Owner.StatHandler.CurrentCastResource +
+                    resourceCost * percent);
+            }
+            if (healthCost > fp.zero)
+            {
+                Owner.StatHandler.SetCurrentHealth(
+                    Owner.StatHandler.CurrentHealth +
+                    healthCost * percent);
+            }
+        }
+
         public void TickUpdate()
         {
+            // Capture the pre-advance cast state first so instant stages
+            // (DurationTicks == 0) are still observable by the presentation
+            // layer on the Tick they are cast; otherwise the session would
+            // end before ActiveCasts is populated and no cast animation
+            // would ever play for them.
+            CaptureActiveCasts();
+
             foreach (var slot in _book.Slots)
             {
                 var runtime = slot.GetActiveAbility();
@@ -326,14 +465,47 @@ namespace FrameSyncMoba.Unit
                 if (tickResult == StageResult.Failed)
                 { runtime.EndSession(SimulationTickContext.Current.Tick, 0); continue; }
 
-                if (tickResult == StageResult.Completed || session.IsStageTimedOut(stage))
+                bool timedOut = session.IsStageTimedOut(stage);
+                HoldReleaseCastModelDef holdTimeoutModel =
+                    model as HoldReleaseCastModelDef;
+                bool holdTimeoutCancel =
+                    timedOut &&
+                    holdTimeoutModel != null &&
+                    holdTimeoutModel.HoldTimeoutPolicy ==
+                        HoldTimeoutPolicy.Cancel &&
+                    session.CurrentStageKey ==
+                        holdTimeoutModel.Hold.StageKey;
+                if (tickResult == StageResult.Completed ||
+                    timedOut)
                 {
                     stage.Def?.OnExit(session, runtime);
+                    if (holdTimeoutCancel)
+                    {
+                        RefundCostPercent(
+                            runtime,
+                            session,
+                            holdTimeoutModel
+                                .RefundCostPercentOnTimeout);
+                        // Timeout cancel refunds half the cooldown: the
+                        // ability goes on a 50% cooldown instead of none.
+                        int fullCooldown =
+                            runtime.Definition?
+                                .GetCooldownTicks(
+                                    runtime.Level) ??
+                            0;
+                        runtime.EndSession(
+                            SimulationTickContext.Current.Tick,
+                            fullCooldown / 2);
+                        continue;
+                    }
                     int? nextKey = model.HandleSignal(
                         new AbilitySignal { Verb = AbilitySignalVerb.Commit }, session.CurrentStageKey);
                     if (nextKey == null || nextKey.Value == session.CurrentStageKey)
                     {
-                        runtime.EndSession(SimulationTickContext.Current.Tick, runtime.Definition?.CooldownTicks ?? 0);
+                        runtime.EndSession(
+                            SimulationTickContext.Current.Tick,
+                            runtime.Definition?.GetCooldownTicks(
+                                runtime.Level) ?? 0);
                     }
                     else
                     {
@@ -346,24 +518,129 @@ namespace FrameSyncMoba.Unit
                 }
             }
 
-            // Populate ActiveCasts for presentation/animation consumption
-            _activeCasts.Clear();
-            for (int si = 0; si < _book.Slots.Count; si++)
+            // Refresh entries whose sessions are still alive after the
+            // advance; sessions that ended this Tick keep their captured
+            // entry so the presentation layer sees the cast once.
+            RefreshActiveCastsAfterAdvance();
+        }
+
+        /// <summary>
+        /// True while any active cast stage locks voluntary Move / Attack
+        /// (cast windup). Movable-cast stages (e.g. charge Hold) return false.
+        /// </summary>
+        public bool IsCastMovementLocked()
+        {
+            IReadOnlyList<AbilitySlotRuntime> slots = _book.Slots;
+            for (int i = 0; i < slots.Count; i++)
             {
-                var rt = _book.Slots[si].GetActiveAbility();
-                if (rt?.ActiveSession == null) continue;
-                var sess = rt.ActiveSession;
-                _activeCasts.Add(new ActiveAbilityCastInfo
-                  {
-                      Slot = (byte)si,
-                      AbilityId = rt.Definition?.AbilityId ?? 0,
-                      Kind = rt.Definition?.CastModel?.Kind ?? CastModelKind.Commit,
-                      StageKey = sess.CurrentStageKey,
-                      StageElapsedTicks = sess.StageElapsedTicks,
-                      CastRange = rt.Definition?.CastRange ?? Unity.Mathematics.FixedPoint.fp.zero,
-                      AimKind = sess.Aim.Kind,
-                });
+                AbilityRuntime runtime =
+                    slots[i].GetActiveAbility();
+                AbilitySession session =
+                    runtime?.ActiveSession;
+                if (session == null ||
+                    runtime.Definition?.CastModel == null)
+                {
+                    continue;
+                }
+                CastStage stage =
+                    GetCastStage(
+                        runtime.Definition.CastModel,
+                        session.CurrentStageKey);
+                if (stage.Def != null &&
+                    stage.LockMovement)
+                {
+                    return true;
+                }
             }
+            return false;
+        }
+
+        /// <summary>
+        /// True while any ability slot has an active cast/charge session
+        /// (windup, hold, channel, ...). During such a session the unit must
+        /// not start a normal attack (Unit Framework v27.3 cast rule).
+        /// </summary>
+        public bool HasActiveCastSession()
+        {
+            IReadOnlyList<AbilitySlotRuntime> slots =
+                _book.Slots;
+            for (int i = 0;
+                 i < slots.Count;
+                 i++)
+            {
+                AbilityRuntime runtime =
+                    slots[i].GetActiveAbility();
+                if (runtime?.ActiveSession != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void CaptureActiveCasts()
+        {
+            _activeCasts.Clear();
+            for (int si = 0;
+                 si < _book.Slots.Count;
+                 si++)
+            {
+                AbilityRuntime rt =
+                    _book.Slots[si].GetActiveAbility();
+                if (rt?.ActiveSession == null)
+                {
+                    continue;
+                }
+                _activeCasts.Add(
+                    BuildActiveCastInfo(
+                        (byte)si,
+                        rt));
+            }
+        }
+
+        private void RefreshActiveCastsAfterAdvance()
+        {
+            for (int i = 0;
+                 i < _activeCasts.Count;
+                 i++)
+            {
+                byte slot = _activeCasts[i].Slot;
+                AbilityRuntime rt =
+                    _book.GetSlot(slot)?.GetActiveAbility();
+                if (rt?.ActiveSession == null)
+                {
+                    continue;
+                }
+                _activeCasts[i] =
+                    BuildActiveCastInfo(
+                        slot,
+                        rt);
+            }
+        }
+
+        private static ActiveAbilityCastInfo
+            BuildActiveCastInfo(
+                byte slot,
+                AbilityRuntime rt)
+        {
+            AbilitySession session = rt.ActiveSession;
+            return new ActiveAbilityCastInfo
+            {
+                Slot = slot,
+                AbilityId =
+                    rt.Definition?.AbilityId ?? 0,
+                Kind =
+                    rt.Definition?.CastModel?.Kind ??
+                    CastModelKind.Commit,
+                StageKey =
+                    session.CurrentStageKey,
+                StageElapsedTicks =
+                    session.StageElapsedTicks,
+                CastRange =
+                    rt.Definition?.CastRange ??
+                    Unity.Mathematics.FixedPoint.fp.zero,
+                AimKind = session.Aim.Kind,
+            };
         }
 
         public void ForceInterruptAll()
@@ -431,7 +708,8 @@ namespace FrameSyncMoba.Unit
         {
             var slotRuntime = _book.GetSlot(slot);
             var ability = slotRuntime?.GetActiveAbility();
-            return ability?.Definition?.CooldownTicks ?? 0;
+            return ability?.Definition?
+                .GetCooldownTicks(ability.Level) ?? 0;
         }
 
         public bool TryAllocateSkillPoint(byte slotIndex)
@@ -441,12 +719,69 @@ namespace FrameSyncMoba.Unit
             if (slot == null) return false;
             AbilityRuntime active = slot.GetActiveAbility();
             if (active == null) return false;
+            if (active.ActiveSession != null) return false;
+            if (slot.AllocatedPoints >=
+                slot.MaxAllocatedPoints)
+                return false;
+            int nextRankIndex =
+                slot.AllocatedPoints;
+            if (slot.RequiredUnitLevelByRank != null &&
+                slot.RequiredUnitLevelByRank.Length >
+                    nextRankIndex &&
+                Owner.Level <
+                    slot.RequiredUnitLevelByRank[
+                        nextRankIndex])
+                return false;
             slot.AllocatedPoints++;
             active.Level++;
             EnsureActivePassive(active);
+            active.PassiveEffectRuntime?.SetAbilityLevel(
+                active.Level);
             active.PassiveEffectRuntime?.RankChanged(Owner, active.Level);
             PendingSkillPoints--;
             return true;
+        }
+
+        /// <summary>
+        /// Non-mutating check used by the HUD LevelUp button.
+        /// </summary>
+        public bool CanAllocateSkillPoint(
+            byte slotIndex)
+        {
+            if (PendingSkillPoints == 0) return false;
+            var slot = _book.GetSlot(slotIndex);
+            if (slot == null) return false;
+            AbilityRuntime active =
+                slot.GetActiveAbility();
+            if (active == null ||
+                active.ActiveSession != null)
+                return false;
+            if (slot.AllocatedPoints >=
+                slot.MaxAllocatedPoints)
+                return false;
+            int nextRankIndex =
+                slot.AllocatedPoints;
+            return slot.RequiredUnitLevelByRank == null ||
+                slot.RequiredUnitLevelByRank.Length <=
+                    nextRankIndex ||
+                Owner.Level >=
+                    slot.RequiredUnitLevelByRank[
+                        nextRankIndex];
+        }
+
+        public int GetAbilityLevel(byte slotIndex)
+        {
+            return _book.GetSlot(slotIndex)
+                    ?.GetActiveAbility()
+                    ?.Level ?? 0;
+        }
+
+        public bool IsUltimateSlot(byte slotIndex)
+        {
+            return _book.GetSlot(slotIndex)
+                    ?.GetActiveAbility()
+                    ?.Definition
+                    ?.IsUltimate ?? false;
         }
 
         public void OnDamageTaken(in DamageEventData data) =>
@@ -461,8 +796,38 @@ namespace FrameSyncMoba.Unit
             DispatchPassive(PassiveEventKind.UnitDying, default, default, unit, 0, 0);
         public void OnUnitKill(Unit victim) =>
             DispatchPassive(PassiveEventKind.UnitKill, default, default, victim, 0, 0);
+        public void OnUnitAssist(Unit victim) =>
+            DispatchPassive(PassiveEventKind.UnitAssist, default, default, victim, 0, 0);
         public void OnLevelUp(int previousLevel, int newLevel) =>
             DispatchPassive(PassiveEventKind.LevelUp, default, default, null, previousLevel, newLevel);
+
+        public void OnHitDealt(in OnHitEventData data)
+        {
+            if (FixedPassive != null &&
+                FixedPassive.IsReady(
+                    SimulationTickContext.Current.Tick) &&
+                FixedPassive.EffectRuntime.OnHitDealt(
+                    Owner,
+                    data))
+            {
+                FixedPassive.CommitTrigger(Owner);
+            }
+
+            IReadOnlyList<AbilitySlotRuntime> slots =
+                _book.Slots;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                AbilityRuntime ability =
+                    slots[i].GetActiveAbility();
+                if (ability == null ||
+                    ability.Level <= 0)
+                    continue;
+                EnsureActivePassive(ability);
+                ability.PassiveEffectRuntime?.OnHitDealt(
+                    Owner,
+                    data);
+            }
+        }
 
         public void OnUnitDeath(Unit unit)
         {
@@ -482,6 +847,17 @@ namespace FrameSyncMoba.Unit
             }
             if (model is ChannelCastModelDef ch && stageKey == ch.Channel.StageKey) return ch.Channel;
             if (model is ActiveSignalCastModelDef a && stageKey == a.Active.StageKey) return a.Active;
+            if (model is ToggleCastModelDef t && stageKey == t.Active.StageKey) return t.Active;
+            if (model is GroundTargetCastModelDef g)
+            {
+                if (stageKey == g.Aim.StageKey) return g.Aim;
+                if (stageKey == g.Execute.StageKey) return g.Execute;
+            }
+            if (model is VectorTargetCastModelDef v)
+            {
+                if (stageKey == v.Aim.StageKey) return v.Aim;
+                if (stageKey == v.Execute.StageKey) return v.Execute;
+            }
             return default;
         }
 
@@ -545,7 +921,8 @@ namespace FrameSyncMoba.Unit
             {
                 var runtime = slots[i].GetActiveAbility();
                 if (runtime == null || runtime.CooldownEndsAtTick <= currentTick) continue;
-                int totalTicks = runtime.Definition?.CooldownTicks ?? 0;
+                int totalTicks = runtime.Definition?
+                    .GetCooldownTicks(runtime.Level) ?? 0;
                 if (totalTicks <= 0) continue;
                 int reduction = (int)((fp)totalTicks * percent);
                 if (reduction <= 0) continue;
@@ -583,6 +960,8 @@ namespace FrameSyncMoba.Unit
                 return;
             ability.PassiveEffectRuntime = new AbilityPassiveEffectRuntime(
                 ability.Definition.PassiveEffect);
+            ability.PassiveEffectRuntime.SetAbilityLevel(
+                ability.Level);
             ability.PassiveEffectRuntime.Activate(Owner);
         }
 
@@ -629,6 +1008,7 @@ namespace FrameSyncMoba.Unit
                 case PassiveEventKind.HealDealt: return runtime.HealDealt(Owner, heal);
                 case PassiveEventKind.UnitDying: return runtime.UnitDying(Owner);
                 case PassiveEventKind.UnitKill: return runtime.UnitKill(Owner, relatedUnit);
+                case PassiveEventKind.UnitAssist: return runtime.UnitAssist(Owner, relatedUnit);
                 case PassiveEventKind.LevelUp: return runtime.LevelUp(Owner, previousLevel, newLevel);
                 default: throw new DeterministicSimulationException($"Unsupported passive event {kind}.");
             }
@@ -642,6 +1022,7 @@ namespace FrameSyncMoba.Unit
             HealDealt,
             UnitDying,
             UnitKill,
+            UnitAssist,
             LevelUp,
         }
     }
@@ -705,6 +1086,9 @@ namespace FrameSyncMoba.Unit
     {
         public byte SlotIndex;
         public byte AllocatedPoints;
+        public byte MaxAllocatedPoints;
+        public int[] RequiredUnitLevelByRank =
+            System.Array.Empty<int>();
         public int ActiveAbilityId;
         private readonly List<AbilityRuntime> _abilities = new List<AbilityRuntime>();
 

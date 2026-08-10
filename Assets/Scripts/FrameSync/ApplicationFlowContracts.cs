@@ -208,6 +208,10 @@ namespace FrameSyncMoba.FrameSync
         public readonly int InitialSnapshotTick;
         public readonly int StartTick;
         public readonly uint InitialRandomSeed;
+        /// <summary>Absolute UTC ticks at which every endpoint starts its
+        /// first simulation tick (0 = start immediately). Wall-clock based,
+        /// not a logic-tick countdown.</summary>
+        public readonly long LaunchUtcTicks;
 
         public PlayerSlotUnitMapping[] PlayerSlotMappings =>
             playerSlotMappings == null
@@ -221,7 +225,8 @@ namespace FrameSyncMoba.FrameSync
             int initialSnapshotTick,
             int startTick,
             uint initialRandomSeed,
-            PlayerSlotUnitMapping[] playerSlotMappings)
+            PlayerSlotUnitMapping[] playerSlotMappings,
+            long launchUtcTicks = 0)
         {
             gameStartConfig.ValidateOrThrow();
             if (!initialGameplaySnapshot.IsValid ||
@@ -268,6 +273,7 @@ namespace FrameSyncMoba.FrameSync
             InitialSnapshotTick = initialSnapshotTick;
             StartTick = startTick;
             InitialRandomSeed = initialRandomSeed;
+            LaunchUtcTicks = launchUtcTicks;
             this.playerSlotMappings =
                 (PlayerSlotUnitMapping[])playerSlotMappings.Clone();
         }

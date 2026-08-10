@@ -11,6 +11,7 @@ namespace FrameSyncMoba.Unit
     {
         [SerializeField] private AbilityLoadoutSlot[] slots =
             Array.Empty<AbilityLoadoutSlot>();
+        [SerializeField] private int fixedPassiveAbilityId;
 
         public void ApplyOrThrow(
             AbilityHandler handler,
@@ -50,6 +51,15 @@ namespace FrameSyncMoba.Unit
                     SlotIndex = slotDef.SlotId,
                     AllocatedPoints =
                         loadout.InitialAllocatedPoints,
+                    MaxAllocatedPoints =
+                        slotDef.MaxAllocatedPoints,
+                    RequiredUnitLevelByRank =
+                        slotDef.RequiredUnitLevelByRank != null
+                            ? (int[])slotDef
+                                .RequiredUnitLevelByRank
+                                .Clone()
+                            : System.Array
+                                .Empty<int>(),
                     ActiveAbilityId =
                         slotDef.InitialActiveAbilityId,
                 };
@@ -81,6 +91,18 @@ namespace FrameSyncMoba.Unit
                         });
                 }
                 handler.AddSlot(runtimeSlot);
+            }
+
+            if (fixedPassiveAbilityId > 0)
+            {
+                if (!registry.TryGetPassive(
+                        fixedPassiveAbilityId,
+                        out PassiveAbilityDef passive))
+                {
+                    throw new InvalidOperationException(
+                        $"Ability loadout fixed passive {fixedPassiveAbilityId} is not registered.");
+                }
+                handler.SetFixedPassive(passive);
             }
         }
 

@@ -124,6 +124,80 @@ namespace FrameSyncMoba.Bootstrap.Tests
         }
 
         [Test]
+        public void ClientConnectionLifecycle_HasExactlyOneOwnerPerFlowMode()
+        {
+            Assert.IsTrue(
+                LocalNgoEndpointDriver
+                    .OwnsClientConnectionLifecycle(
+                        FrameFlowMode.LocalDirect),
+                "Local direct clients are owned by LocalNgoEndpointDriver.");
+            Assert.IsFalse(
+                LocalNgoEndpointDriver
+                    .OwnsClientConnectionLifecycle(
+                        FrameFlowMode.UosOnline),
+                "UOS clients are owned exclusively by LobbyFlowController.");
+        }
+
+        [Test]
+        public void
+            ClientFlow_CancelWaitingAssignment_DeletesTicketAndReturnsMain()
+        {
+            var matchmaking = new FakeMatchmaking();
+            var connection = new FakeConnection
+            {
+                Connected = true,
+            };
+            var flow = CreateClientFlow(
+                matchmaking,
+                connection);
+
+            flow.InitializeAccountAsync(Array.Empty<string>())
+                .GetAwaiter().GetResult();
+            flow.BeginMatchmakingAsync()
+                .GetAwaiter().GetResult();
+            flow.CancelMatchmakingAsync()
+                .GetAwaiter().GetResult();
+
+            Assert.AreEqual(
+                ClientApplicationState.MainMenu,
+                flow.State);
+            Assert.AreEqual(
+                "ticket",
+                matchmaking.CancelledTicketId);
+            Assert.IsFalse(connection.IsConnected);
+        }
+
+        [Test]
+        public void
+            ClientFlow_CancelWhileTicketCreationIsPending_DeletesLateTicket()
+        {
+            var matchmaking = new FakeMatchmaking
+            {
+                PendingTicket =
+                    new TaskCompletionSource<string>(),
+            };
+            var flow = CreateClientFlow(
+                matchmaking,
+                new FakeConnection());
+
+            flow.InitializeAccountAsync(Array.Empty<string>())
+                .GetAwaiter().GetResult();
+            Task beginTask = flow.BeginMatchmakingAsync();
+            flow.CancelMatchmakingAsync()
+                .GetAwaiter().GetResult();
+            matchmaking.PendingTicket.SetResult(
+                "late-ticket");
+            beginTask.GetAwaiter().GetResult();
+
+            Assert.AreEqual(
+                ClientApplicationState.MainMenu,
+                flow.State);
+            Assert.AreEqual(
+                "late-ticket",
+                matchmaking.CancelledTicketId);
+        }
+
+        [Test]
         public void WireCodec_RoundTripsAuthorityAndRecoveryEnvelopes()
         {
             UnitUid uid = new UnitUid(0, 10, 1);
@@ -219,6 +293,92 @@ namespace FrameSyncMoba.Bootstrap.Tests
             Assert.IsFalse(network.IsListening);
         }
 
+        [Test]
+        public void Lobby_SameTeamDuplicateHeroIsBlocked()
+        {
+            var lobby = new LobbySessionFlowNetwork(3);
+            lobby.Assign(0, "a", 10, new TeamId(1), 0);
+            lobby.Assign(1, "b", 11, new TeamId(1), 1);
+            lobby.Assign(2, "c", 12, new TeamId(2), 2);
+            lobby.SelectHero(0, 1001);
+
+            Assert.IsTrue(
+                lobby.IsHeroBlockedInTeam(1, 1001),
+                "A teammate's selected hero must be blocked.");
+            Assert.IsFalse(
+                lobby.IsHeroBlockedInTeam(1, 1002),
+                "A different hero stays selectable.");
+            Assert.IsFalse(
+                lobby.IsHeroBlockedInTeam(2, 1001),
+                "An opposing team may pick the same hero.");
+            Assert.IsFalse(
+                lobby.IsHeroBlockedInTeam(0, 1001),
+                "The selecting player itself is not blocked.");
+        }
+
+        [Test]
+        public void Lobby_SelectionSnapshot_ReflectsHeroAndFlags()
+        {
+            var lobby = new LobbySessionFlowNetwork(2);
+            lobby.Assign(0, "a", 10, new TeamId(1), 0);
+            lobby.Assign(1, "b", 11, new TeamId(2), 1);
+            lobby.SelectHero(0, 1001);
+
+            LobbySelectionSnapshot before =
+                lobby.GetSelectionSnapshot(0);
+            Assert.AreEqual(1001, before.HeroConfigId);
+            Assert.IsFalse(before.IsLocked);
+            Assert.IsFalse(before.IsReady);
+            Assert.AreEqual(1, before.TeamId);
+            Assert.AreEqual("a", before.AccountId);
+
+            lobby.LockHero(0);
+            LobbySelectionSnapshot after =
+                lobby.GetSelectionSnapshot(0);
+            Assert.IsTrue(after.IsLocked);
+        }
+
+        [Test]
+        public void LobbyState_WireCodec_RoundTripsFullSelection()
+        {
+            var snapshots = new[]
+            {
+                new LobbySelectionSnapshot(
+                    0,
+                    "alpha",
+                    1,
+                    1001,
+                    true,
+                    false),
+                new LobbySelectionSnapshot(
+                    1,
+                    "beta",
+                    2,
+                    0,
+                    false,
+                    false),
+            };
+
+            LobbySelectionSnapshot[] decoded =
+                LobbyWireCodec.ReadLobbyState(
+                    LobbyWireCodec.WriteLobbyState(
+                        snapshots));
+
+            Assert.AreEqual(2, decoded.Length);
+            Assert.AreEqual(0, decoded[0].PlayerSlot);
+            Assert.AreEqual(
+                "alpha",
+                decoded[0].AccountId);
+            Assert.AreEqual(1, decoded[0].TeamId);
+            Assert.AreEqual(1001, decoded[0].HeroConfigId);
+            Assert.IsTrue(decoded[0].IsLocked);
+            Assert.IsFalse(decoded[0].IsReady);
+            Assert.AreEqual(1, decoded[1].PlayerSlot);
+            Assert.AreEqual("beta", decoded[1].AccountId);
+            Assert.AreEqual(0, decoded[1].HeroConfigId);
+            Assert.IsFalse(decoded[1].IsLocked);
+        }
+
         private static void Ready(
             LobbySessionFlowNetwork lobby,
             int playerSlot,
@@ -232,6 +392,20 @@ namespace FrameSyncMoba.Bootstrap.Tests
             lobby.LockHero(playerSlot);
             lobby.MarkGameplaySceneLoaded(playerSlot);
             lobby.MarkReady(playerSlot);
+        }
+
+        private static ClientApplicationFlow
+            CreateClientFlow(
+                FakeMatchmaking matchmaking,
+                FakeConnection connection)
+        {
+            return new ClientApplicationFlow(
+                new TestAccountBootstrapService(
+                    new MemoryPersistence(null),
+                    () => "account"),
+                new FakeClientSession(),
+                matchmaking,
+                connection);
         }
 
         private sealed class MemoryPersistence :
@@ -258,8 +432,13 @@ namespace FrameSyncMoba.Bootstrap.Tests
         private sealed class FakeMatchmaking :
             IMatchmakingApplicationClient
         {
+            public TaskCompletionSource<string>
+                PendingTicket;
+            public string CancelledTicketId;
+
             public Task<string> CreateTicketAsync(
                 string accountId) =>
+                PendingTicket?.Task ??
                 Task.FromResult("ticket");
 
             public Task<GameServerAssignment?>
@@ -270,8 +449,11 @@ namespace FrameSyncMoba.Bootstrap.Tests
                         7777,
                         "room"));
 
-            public Task CancelTicketAsync(string ticketId) =>
-                Task.CompletedTask;
+            public Task CancelTicketAsync(string ticketId)
+            {
+                CancelledTicketId = ticketId;
+                return Task.CompletedTask;
+            }
         }
 
         private sealed class FakeConnection :

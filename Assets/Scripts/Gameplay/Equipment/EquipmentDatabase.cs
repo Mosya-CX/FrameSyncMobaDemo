@@ -10,11 +10,22 @@ namespace FrameSyncMoba.Unit
     public sealed class EquipmentDatabase
     {
         private readonly Dictionary<int, EquipmentDefinition> _byId = new Dictionary<int, EquipmentDefinition>();
-        private readonly Dictionary<string, List<EquipmentDefinition>> _byTag = new Dictionary<string, List<EquipmentDefinition>>();
+        private readonly Dictionary<EquipmentTagUid, List<EquipmentDefinition>> _byTag =
+            new Dictionary<EquipmentTagUid, List<EquipmentDefinition>>();
         private EquipmentDefinition[] _allDefinitions = Array.Empty<EquipmentDefinition>();
+        private UniqueEquipmentTagTable _uniqueTagTable;
 
         public int Count => _byId.Count;
         public IReadOnlyList<EquipmentDefinition> AllDefinitions => _allDefinitions;
+        public UniqueEquipmentTagTable UniqueTagTable =>
+            _uniqueTagTable;
+
+        public void SetUniqueTagTable(
+            UniqueEquipmentTagTable table)
+        {
+            _uniqueTagTable = table;
+            _uniqueTagTable?.Initialize();
+        }
 
         public void Register(EquipmentDefinition definition)
         {
@@ -30,11 +41,17 @@ namespace FrameSyncMoba.Unit
             {
                 for (int i = 0; i < definition.Tags.Length; i++)
                 {
-                    var tag = definition.Tags[i];
-                    if (!_byTag.TryGetValue(tag, out var list))
+                    EquipmentTagDefinition tag =
+                        definition.Tags[i];
+                    if (tag == null ||
+                        !tag.Uid.IsValid)
+                        continue;
+                    if (!_byTag.TryGetValue(
+                            tag.Uid,
+                            out var list))
                     {
                         list = new List<EquipmentDefinition>();
-                        _byTag[tag] = list;
+                        _byTag[tag.Uid] = list;
                     }
                     list.Add(definition);
                 }
@@ -64,7 +81,9 @@ namespace FrameSyncMoba.Unit
             return def;
         }
 
-        public bool TryGetDefinitionsByTag(string tag, out List<EquipmentDefinition> definitions)
+        public bool TryGetDefinitionsByTag(
+            EquipmentTagUid tag,
+            out List<EquipmentDefinition> definitions)
         {
             return _byTag.TryGetValue(tag, out definitions);
         }

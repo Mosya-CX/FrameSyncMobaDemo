@@ -2093,6 +2093,49 @@ BuffHandler 必须保证：
 
 ## 13.3 调用所有权
 
+---
+
+# 13A. Buff 上限与优先级驱逐（正式扩展）
+
+> 状态：正式（2026-08-02 由仓库所有者确认，DECISION_LOG D-025）。
+> 本扩展是对 v14.2 默认模型（无上限、每 ConfigId 单一 Runtime）的补充，
+> 不是替代。
+
+## 13A.1 定位
+
+`BuffHandler.MaxBuffs` 定义单个单位同时激活的 BuffRuntime 数量上限。
+
+当到达上限时，新 Buff 的首次施加按优先级驱逐一个已有非永久 Buff，
+为新 Buff 腾出槽位。
+
+## 13A.2 配置
+
+```text
+BuffHandler.MaxBuffs
+    byte，默认 255（当前项目实际不限制）
+
+BuffDefinition.Priority
+    byte，0 = 最高，255 = 最低
+    仅用于驱逐仲裁
+```
+
+## 13A.3 驱逐规则
+
+```text
+1. 仅在首次 Apply（新 BuffConfigId）时检查；重复施加不触发驱逐。
+2. 永久 Buff（LifeRule.Infinite）永不被驱逐。
+3. 候选 = 当前所有非永久 Buff 中 Priority 最大（优先级最低）者；
+   同优先级时取稳定 BuffConfigId 排序中的最后一个。
+4. 驱逐条件 = 新 Buff.Priority <= 候选.Priority（新 Buff 不低于候选优先级）。
+5. 不满足条件时不驱逐，新 Buff 照常添加（数量可超过 MaxBuffs，软上限）。
+6. 被驱逐 Buff 按标准移除流程执行，RemovalReason = ManualRemove。
+```
+
+## 13A.4 确定性要求
+
+候选选择必须使用稳定 BuffConfigId 排序，禁止依赖 Dictionary/HashSet
+枚举顺序或 ScriptableObject 实例地址。当前实现满足该要求。
+
 ```text
 UnitWorld
     决定何时调用生命周期接口

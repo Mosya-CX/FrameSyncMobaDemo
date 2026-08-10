@@ -29,7 +29,8 @@ namespace FrameSyncMoba.Unit
             TeamId teamId,
             int unitPrototypeId = 0,
             int baseGoldValue = 0,
-            int baseExperienceValue = 0)
+            int baseExperienceValue = 0,
+            bool learnTestAbilities = true)
         {
             GameObject root = CreateComposedUnitObject("TestUnit");
             Unit unit = root.GetComponent<Unit>();
@@ -39,6 +40,10 @@ namespace FrameSyncMoba.Unit
                 RuntimeEntityPrefabId = uid.RuntimeEntityPrefabId,
                 UnitKind = kind,
                 UnitSubKindId = subKindId,
+                // The composed test unit carries every handler, so its
+                // authored loadout must match (Unit Framework v27.3 1.7:
+                // capability derives from the loadout).
+                Loadout = HandlerLoadout.DefaultHero,
                 BaseStats = CreateDefaultPreset(),
                 BaseGoldValue = baseGoldValue,
                 BaseExperienceValue = baseExperienceValue,
@@ -64,7 +69,71 @@ namespace FrameSyncMoba.Unit
                 PhysicsEntityKind.Unit,
                 teamId.Value,
                 unit));
+            // Input/requester tests operate on learned abilities. Test units
+            // default to one learned ability per QWER slot so that
+            // ProcessAbilityPressed's level-0 guard is exercised only when a
+            // test explicitly configures an unlearned book.
+            if (learnTestAbilities)
+            {
+                EnsureLearnedTestAbilities(
+                    unit.AbilityHandler,
+                    initialLevel: 1);
+            }
             return unit;
+        }
+
+        /// <summary>
+        /// Installs a minimal deterministic test ability book on the handler
+        /// (four QWER slots, one ability each). Used by input and flow tests
+        /// that do not author a real AbilityLoadoutAsset.
+        /// </summary>
+        public static void EnsureLearnedTestAbilities(
+            AbilityHandler handler,
+            int initialLevel = 1)
+        {
+            if (handler == null)
+            {
+                return;
+            }
+            if (handler.GetAbilityLevel(0) > 0)
+            {
+                return;
+            }
+            for (byte slot = 0; slot < 4; slot++)
+            {
+                var slotRuntime = new AbilitySlotRuntime
+                {
+                    SlotIndex = slot,
+                    AllocatedPoints =
+                        (byte)Math.Max(0, initialLevel),
+                    MaxAllocatedPoints = 5,
+                    ActiveAbilityId = 100 + slot,
+                };
+                slotRuntime.AddAbility(
+                    new AbilityRuntime
+                    {
+                        Definition = CreateTestAbilityDef(
+                            slot),
+                        Level = Math.Max(0, initialLevel),
+                    });
+                handler.AddSlot(slotRuntime);
+            }
+        }
+
+        private static AbilityDef CreateTestAbilityDef(
+            byte slot)
+        {
+            return new AbilityDef
+            {
+                AbilityId = 100 + slot,
+                Name = "TestAbility" + slot,
+                CastModel =
+                    new CommitCastModelDef(),
+                AimKind = AimKind.None,
+                CastRange = fp.zero,
+                CostPlan = default,
+                CooldownByLevel = default,
+            };
         }
 
         public static MovementHandler CreateMovementHandler(fp2 position, fp moveSpeed)
@@ -191,11 +260,7 @@ namespace FrameSyncMoba.Unit
             ConfigureWorldForPrototype(world, prototype, statGrowthC, statGrowthD);
 
             SimulationTickContextController tickController = null;
-            try
-            {
-                _ = SimulationTickContext.Current;
-            }
-            catch (InvalidOperationException)
+            if (!SimulationTickContext.IsTickActive)
             {
                 tickController = new SimulationTickContextController();
                 tickController.BeginTick(currentLogicTick, ExecutionMode.ServerAuthority);
@@ -249,6 +314,23 @@ namespace FrameSyncMoba.Unit
             fp statGrowthC,
             fp statGrowthD)
         {
+            // Test fixtures often omit the authored HandlerLoadout (default
+            // all-false). The composed test prefab carries every handler, so
+            // patch an all-default loadout to DefaultHero to keep the
+            // loadout/capability consistency check meaningful for authored
+            // production configs without breaking ad-hoc test prototypes.
+            if (prototype != null &&
+                !prototype.Loadout.HasMovement &&
+                !prototype.Loadout.HasAttack &&
+                !prototype.Loadout.HasAbility &&
+                !prototype.Loadout.HasBuff &&
+                !prototype.Loadout.HasCrowdControl &&
+                !prototype.Loadout.HasEquipment)
+            {
+                prototype.Loadout =
+                    HandlerLoadout.DefaultHero;
+            }
+
             world.UnitPrototypeTable ??= new GlobalUnitPrototypeTable();
             if (!world.UnitPrototypeTable.TryGet(prototype.UnitPrototypeId, out _))
             {
@@ -288,6 +370,19 @@ namespace FrameSyncMoba.Unit
             world.GlobalPrefabTable.ReplaceGroupsForTests(new[]
             {
                 new PrefabGroup(PrefabKind.Unit, fixture.Prefabs),
+            });
+            // Test fixtures author arbitrary low ids (99..220) next to
+            // production-style ids (1001/2001). Let the Unit kind range
+            // cover the full test id space; the runtime table keeps its
+            // production ranges from configuration.
+            world.GlobalPrefabTable.ReplaceRangesForTests(new[]
+            {
+                new PrefabKindRangeConfig
+                {
+                    Kind = PrefabKind.Unit,
+                    IdRangeStart = 1,
+                    IdRangeEnd = 9999,
+                },
             });
         }
 
@@ -331,7 +426,7 @@ namespace FrameSyncMoba.Unit
             return table;
         }
 
-        private static StatDefinitionTable CreateDefaultStatTable()
+        public static StatDefinitionTable CreateDefaultStatTable()
         {
             var table = new StatDefinitionTable();
             Array values = Enum.GetValues(typeof(StatId));
@@ -367,7 +462,7 @@ namespace FrameSyncMoba.Unit
             }
         }
 
-        private static StatPreset CreateDefaultPreset()
+        public static StatPreset CreateDefaultPreset()
         {
             var preset = new StatPreset();
             preset.Stats.Add(new StatPresetEntry

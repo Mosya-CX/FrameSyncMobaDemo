@@ -10,6 +10,26 @@ namespace FrameSyncMoba.FrameSync
 {
     public static class SharedGameplayChecksum
     {
+        /// <summary>
+        /// When true, authority/server ticks and client replay mismatches log
+        /// per-segment (and per-unit handler) checksum hashes so a divergence
+        /// can be localized to the exact subsystem. Diagnostics only; never
+        /// affects simulation.
+        /// </summary>
+        public static bool DetailedLoggingEnabled;
+
+        public readonly struct ChecksumSegment
+        {
+            public readonly string Label;
+            public readonly uint Hash;
+
+            public ChecksumSegment(string label, uint hash)
+            {
+                Label = label;
+                Hash = hash;
+            }
+        }
+
         public static uint Compute(
             in GameplaySnapshot snapshot,
             GoldIncomeBatchDigest goldDigest,
@@ -45,6 +65,7 @@ namespace FrameSyncMoba.FrameSync
             {
                 WriteUnitUid(writer, entries[i].HeroUnitUid); writer.WriteInt32(entries[i].Kills);
                 writer.WriteInt32(entries[i].Deaths); writer.WriteInt32(entries[i].Assists);
+                writer.WriteInt32(entries[i].CreepKills);
             }
         }
 
@@ -137,11 +158,23 @@ namespace FrameSyncMoba.FrameSync
                 WriteUnitUid(writer, ai.OwnerUnitUid); writer.WriteByte((byte)ai.ControllerKind);
                 writer.WriteByte((byte)ai.MinionState);
                 writer.WriteInt32(ai.LaneId);
+                writer.WriteInt32(ai.MinionLastThreatRefreshLogicTick);
                 writer.WriteInt32(ai.MinionNextDecisionLogicTick);
                 writer.WriteInt32(ai.MinionTargetLockUntilLogicTick);
                 WriteFp2(writer, ai.MinionEngageOrigin);
                 WriteUnitUid(writer, ai.MinionPendingAssistTargetUid);
                 writer.WriteInt32(ai.MinionPendingAssistExpireLogicTick);
+                MinionThreatSnapshotEntry[] threats =
+                    ai.MinionThreatTable ??
+                    Array.Empty<MinionThreatSnapshotEntry>();
+                writer.WriteInt32(threats.Length);
+                for (int threatIndex = 0;
+                     threatIndex < threats.Length;
+                     threatIndex++)
+                {
+                    WriteUnitUid(writer, threats[threatIndex].Uid);
+                    writer.WriteInt32(threats[threatIndex].Threat);
+                }
                 writer.WriteByte((byte)ai.MonsterState);
                 writer.WriteInt32(ai.CampId);
                 writer.WriteInt32(ai.MonsterCampSlotIndex);
@@ -152,9 +185,24 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteUnit(CanonicalByteWriter writer, in UnitSnapshot state)
         {
+            WriteUnitBase(writer, state);
+            WriteStats(writer, state.StatState);
+            WriteCombatModifiers(writer, state.CombatModifierState);
+            WriteMovement(writer, state.MovementState);
+            WriteLocomotion(writer, state.LocomotionState);
+            WriteAttack(writer, state.AttackState);
+            WriteAbility(writer, state.AbilityState);
+            WriteBuffs(writer, state.BuffState);
+            WriteCrowdControl(writer, state.CCState);
+            WriteEquipment(writer, state.EquipmentState);
+        }
+
+        private static void WriteUnitBase(CanonicalByteWriter writer, in UnitSnapshot state)
+        {
             WriteUnitUid(writer, state.UnitUid); WriteUnitUid(writer, state.OwnerUid);
             writer.WriteByte((byte)state.UnitKind); writer.WriteUInt32(state.UnitSubKindId);
             writer.WriteByte(state.TeamId.Value); writer.WriteInt32(state.UnitPrototypeId);
+            WriteFp2(writer, state.RespawnPosition);
             writer.WriteByte((byte)state.LifeState);
             writer.WriteBoolean(state.CapabilityState.CanMove); writer.WriteBoolean(state.CapabilityState.CanAttack);
             writer.WriteBoolean(state.CapabilityState.CanCast); writer.WriteBoolean(state.CapabilityState.CanTurn);
@@ -168,22 +216,44 @@ namespace FrameSyncMoba.FrameSync
             writer.WriteFp(state.PhysicsShape.Radius); writer.WriteFp(state.PhysicsShape.Length);
             writer.WriteFp(state.PhysicsShape.Width); WriteFp2(writer, state.PhysicsShape.HalfExtents);
             writer.WriteBoolean(state.PhysicsShape.SweepFromPrev);
-            WriteStats(writer, state.StatState);
-            WriteCombatModifiers(writer, state.CombatModifierState);
-            WriteMovement(writer, state.MovementState);
-            WriteLocomotion(writer, state.LocomotionState);
-            WriteAttack(writer, state.AttackState);
-            WriteAbility(writer, state.AbilityState);
-            WriteBuffs(writer, state.BuffState);
-            WriteCrowdControl(writer, state.CCState);
-            WriteEquipment(writer, state.EquipmentState);
         }
 
         private static void WriteStats(CanonicalByteWriter writer, in StatHandlerSnapshot state)
         {
-            writer.WriteInt32(state.Level); writer.WriteFp(state.CurrentHealth);
-            writer.WriteFp(state.CurrentCastResource); writer.WriteInt32(state.CurrentExperience);
+            WriteStatLevel(writer, state);
+            WriteStatVitals(writer, state);
+            WriteStatSeq(writer, state);
+            WriteStatShields(writer, state);
+            WriteStatEntries(writer, state);
+        }
+
+        private static void WriteStatLevel(
+            CanonicalByteWriter writer,
+            in StatHandlerSnapshot state)
+        {
+            writer.WriteInt32(state.Level);
+        }
+
+        private static void WriteStatVitals(
+            CanonicalByteWriter writer,
+            in StatHandlerSnapshot state)
+        {
+            writer.WriteFp(state.CurrentHealth);
+            writer.WriteFp(state.CurrentCastResource);
+            writer.WriteInt32(state.CurrentExperience);
+        }
+
+        private static void WriteStatSeq(
+            CanonicalByteWriter writer,
+            in StatHandlerSnapshot state)
+        {
             writer.WriteUInt32(state.NextStatSeq);
+        }
+
+        private static void WriteStatShields(
+            CanonicalByteWriter writer,
+            in StatHandlerSnapshot state)
+        {
             writer.WriteInt32(state.NextShieldInstanceId);
             ShieldInstance[] shields = state.ShieldInstances ?? Array.Empty<ShieldInstance>();
             writer.WriteInt32(shields.Length);
@@ -197,19 +267,62 @@ namespace FrameSyncMoba.FrameSync
                 WriteUnitUid(writer, shield.CrowdControlImmunityHandle.TargetUnitUid);
                 writer.WriteInt32(shield.CrowdControlImmunityHandle.ImmunityId);
             }
+        }
+
+        private static void WriteStatEntries(
+            CanonicalByteWriter writer,
+            in StatHandlerSnapshot state)
+        {
             StatRuntimeEntrySnapshot[] entries = state.Entries ?? Array.Empty<StatRuntimeEntrySnapshot>();
             writer.WriteInt32(entries.Length);
             for (int i = 0; i < entries.Length; i++)
             {
                 StatRuntimeEntrySnapshot entry = entries[i];
-                writer.WriteInt32((int)entry.StatId); writer.WriteFp(entry.LevelBaseValue);
-                writer.WriteFp(entry.FinalValue); writer.WriteFp(entry.PreviousLogicTickFinalValue);
-                writer.WriteBoolean(entry.Dirty);
+                writer.WriteInt32((int)entry.StatId);
+                WriteStatEntryBase(writer, entry);
+                WriteStatEntryFinal(writer, entry);
+                WriteStatEntryPrev(writer, entry);
+                WriteStatEntryDirty(writer, entry);
+                WriteStatEntryModifiers(writer, entry);
+            }
+        }
+
+        private static void WriteStatEntryBase(
+            CanonicalByteWriter writer,
+            in StatRuntimeEntrySnapshot entry)
+        {
+            writer.WriteFp(entry.LevelBaseValue);
+        }
+
+        private static void WriteStatEntryFinal(
+            CanonicalByteWriter writer,
+            in StatRuntimeEntrySnapshot entry)
+        {
+            writer.WriteFp(entry.FinalValue);
+        }
+
+        private static void WriteStatEntryPrev(
+            CanonicalByteWriter writer,
+            in StatRuntimeEntrySnapshot entry)
+        {
+            writer.WriteFp(entry.PreviousLogicTickFinalValue);
+        }
+
+        private static void WriteStatEntryDirty(
+            CanonicalByteWriter writer,
+            in StatRuntimeEntrySnapshot entry)
+        {
+            writer.WriteBoolean(entry.Dirty);
+        }
+
+        private static void WriteStatEntryModifiers(
+            CanonicalByteWriter writer,
+            in StatRuntimeEntrySnapshot entry)
+        {
                 StatModifier[] modifiers = entry.Modifiers ?? Array.Empty<StatModifier>();
                 writer.WriteInt32(modifiers.Length);
                 for (int j = 0; j < modifiers.Length; j++)
                 { writer.WriteUInt32(modifiers[j].StatSeq); writer.WriteByte((byte)modifiers[j].Operation); writer.WriteFp(modifiers[j].Value); }
-            }
         }
 
         private static void WriteMovement(CanonicalByteWriter writer, in MovementSnapshot state)
@@ -374,6 +487,10 @@ namespace FrameSyncMoba.FrameSync
             writer.WriteInt32(state.LastSuccessfulAttackLogicTick);
             writer.WriteInt32(state.ResolvedAttackDurationTicks);
             writer.WriteInt32(state.ResolvedWindupTicks);
+            WriteUnitUid(writer, state.RampTargetUnitUid);
+            writer.WriteInt32(state.RampHitCount);
+            WriteProjectileUid(writer, state.PendingProjectileUid);
+            WriteUnitUid(writer, state.LockedTargetUnitUid);
         }
 
         private static void WriteAbility(CanonicalByteWriter writer, in AbilityHandlerSnapshot state)
@@ -405,7 +522,16 @@ namespace FrameSyncMoba.FrameSync
                     var entries = session.Blackboard.Entries ?? new List<AbilityBlackboardEntrySnapshot>();
                     writer.WriteInt32(entries.Count);
                     for (int k = 0; k < entries.Count; k++)
-                    { writer.WriteInt32(entries[k].KeyId); writer.WriteByte((byte)entries[k].Kind); writer.WriteFp(entries[k].Number); WriteUnitUid(writer, entries[k].UnitUid); WriteFp2(writer, entries[k].Vector); WriteProjectileUid(writer, entries[k].ProjectileUid); }
+                    {
+                        writer.WriteInt32(entries[k].KeyId); writer.WriteByte((byte)entries[k].Kind); writer.WriteFp(entries[k].Number);
+                        WriteUnitUid(writer, entries[k].UnitUid); WriteFp2(writer, entries[k].Vector);
+                        WriteProjectileUid(writer, entries[k].ProjectileUid);
+                        WriteUnitUid(writer, entries[k].StatModifierHandle.OwnerUnitUid);
+                        writer.WriteInt32((int)entries[k].StatModifierHandle.StatId);
+                        writer.WriteUInt32(entries[k].StatModifierHandle.StatSeq);
+                        WriteUnitUid(writer, entries[k].CrowdControlHandle.TargetUnitUid);
+                        writer.WriteInt32(entries[k].CrowdControlHandle.InstanceId);
+                    }
                 }
             }
         }
@@ -414,6 +540,7 @@ namespace FrameSyncMoba.FrameSync
             CanonicalByteWriter writer,
             in AbilityPassiveRuntimeState state)
         {
+            writer.WriteInt32(state.AbilityLevel);
             writer.WriteInt32(state.StackCount); writer.WriteInt32(state.TriggerCount);
             writer.WriteInt32(state.LastTriggerLogicTick); writer.WriteInt32(state.NextReadyLogicTick);
             WriteUnitUid(writer, state.TargetUnitUid);
@@ -432,46 +559,104 @@ namespace FrameSyncMoba.FrameSync
             {
                 BuffRuntimeSnapshot buff = buffs[i];
                 writer.WriteInt32(buff.ConfigId.Value); WriteUnitUid(writer, buff.SourceUnitUid);
+                writer.WriteByte((byte)buff.SourceType);
+                writer.WriteInt32(buff.SourceConfigId);
                 writer.WriteInt32(buff.RemainingTicks); writer.WriteInt32(buff.CurrentStacks); writer.WriteInt32(buff.ElapsedTicks);
                 writer.WriteInt32(buff.PeriodicTimer); writer.WriteByte((byte)buff.RemovalReason); writer.WriteBoolean(buff.IsRemoving);
-                var stats = buff.Blackboard.StatHandles ?? new List<BuffStatHandleSnapshot>();
-                writer.WriteInt32(stats.Count);
-                for (int j = 0; j < stats.Count; j++)
-                { writer.WriteString(stats[j].Key); WriteUnitUid(writer, stats[j].Handle.OwnerUnitUid); writer.WriteInt32((int)stats[j].Handle.StatId); writer.WriteUInt32(stats[j].Handle.StatSeq); }
-                var combats = buff.Blackboard.CombatHandles ?? new List<BuffCombatHandleSnapshot>();
-                writer.WriteInt32(combats.Count);
-                for (int j = 0; j < combats.Count; j++)
-                { writer.WriteString(combats[j].Key); WriteUnitUid(writer, combats[j].Handle.OwnerUnitUid); writer.WriteUInt64(combats[j].Handle.ModifierId); }
+                var slots = buff.Blackboard.Slots ?? new List<BuffValueSnapshot>();
+                writer.WriteInt32(slots.Count);
+                for (int j = 0; j < slots.Count; j++)
+                {
+                    BuffValueSnapshot slot = slots[j];
+                    writer.WriteInt32(slot.SlotId.Value);
+                    writer.WriteByte((byte)slot.Value.Kind);
+                    switch (slot.Value.Kind)
+                    {
+                        case BuffValueKind.Int:
+                            writer.WriteInt32(slot.Value.IntValue);
+                            break;
+                        case BuffValueKind.Bool:
+                            writer.WriteBoolean(slot.Value.BoolValue);
+                            break;
+                        case BuffValueKind.Fp:
+                            writer.WriteFp(slot.Value.FpValue);
+                            break;
+                        case BuffValueKind.Fp2:
+                            writer.WriteFp(slot.Value.Fp2Value.x);
+                            writer.WriteFp(slot.Value.Fp2Value.y);
+                            break;
+                        case BuffValueKind.UnitUid:
+                            WriteUnitUid(writer, slot.Value.UnitUidValue);
+                            break;
+                        case BuffValueKind.StableConfigId:
+                            writer.WriteInt32(slot.Value.ConfigIdValue);
+                            break;
+                        case BuffValueKind.StatModifierHandle:
+                            WriteUnitUid(writer, slot.Value.StatHandle.OwnerUnitUid);
+                            writer.WriteInt32((int)slot.Value.StatHandle.StatId);
+                            writer.WriteUInt32(slot.Value.StatHandle.StatSeq);
+                            break;
+                        case BuffValueKind.CombatModifierHandle:
+                            WriteUnitUid(writer, slot.Value.CombatHandle.OwnerUnitUid);
+                            writer.WriteUInt64(slot.Value.CombatHandle.ModifierId);
+                            break;
+                    }
+                }
             }
         }
 
         private static void WriteCrowdControl(CanonicalByteWriter writer, in CrowdControlHandlerSnapshot state)
         {
-            var instances = state.Instances ?? new List<CrowdControlConstraint>();
+            var instances = state.Instances ?? new List<CrowdControlInstance>();
             writer.WriteInt32(instances.Count);
             for (int i = 0; i < instances.Count; i++)
             {
                 writer.WriteInt32(instances[i].InstanceId);
-                writer.WriteByte((byte)instances[i].Type);
-                writer.WriteInt32(instances[i].StartLogicTick);
-                writer.WriteInt32(instances[i].RemainingTicks);
-                writer.WriteByte(instances[i].Priority);
-                WriteUnitUid(writer, instances[i].SourceUnitUid);
-                writer.WriteBoolean(instances[i].IsForcedMove);
-                writer.WriteInt32(instances[i].ForcedMoveConfigId);
-                WriteFp2(writer, instances[i].ForcedMoveDeltaPerTick);
-                writer.WriteByte((byte)instances[i].ForcedMoveWallPolicy);
+                writer.WriteInt32(instances[i].ControlId.Value);
+                writer.WriteInt32(instances[i].StartTick);
+                writer.WriteInt32(instances[i].ExpireTick);
+                WriteParamBlock(writer, instances[i].Params);
             }
-            var immunities = state.Immunities ?? new List<CrowdControlImmunitySnapshot>();
+            var immunities = state.Immunities ?? new List<CrowdControlImmunity>();
             writer.WriteInt32(immunities.Count);
             for (int i = 0; i < immunities.Count; i++)
-            { writer.WriteInt32(immunities[i].ImmunityId); writer.WriteInt32(immunities[i].RemainingTicks); }
-            var unstoppables = state.Unstoppables ?? new List<CrowdControlUnstoppableSnapshot>();
+            {
+                writer.WriteInt32(immunities[i].ImmunityId);
+                writer.WriteInt64(unchecked((long)immunities[i].Query.All.Bits));
+                writer.WriteInt64(unchecked((long)immunities[i].Query.Any.Bits));
+                writer.WriteInt64(unchecked((long)immunities[i].Query.None.Bits));
+                writer.WriteInt32(immunities[i].ExpireTick);
+                writer.WriteInt32(immunities[i].RemainingBlocks);
+                writer.WriteInt32(immunities[i].Priority);
+            }
+            var unstoppables = state.Unstoppables ?? new List<CrowdControlUnstoppable>();
             writer.WriteInt32(unstoppables.Count);
             for (int i = 0; i < unstoppables.Count; i++)
-            { writer.WriteInt32(unstoppables[i].UnstoppableId); writer.WriteInt32(unstoppables[i].RemainingTicks); }
+            {
+                writer.WriteInt32(unstoppables[i].UnstoppableId);
+                writer.WriteInt32(unstoppables[i].ExpireTick);
+            }
             writer.WriteInt32(state.NextInstanceId); writer.WriteInt32(state.NextImmunityId); writer.WriteInt32(state.NextUnstoppableId);
+            WriteUnitUid(writer, state.ActiveForcedMoveHandle.TargetUnitUid);
             writer.WriteInt32(state.ActiveForcedMoveHandle.InstanceId);
+            writer.WriteUInt32((uint)state.PendingSignals);
+            var signalTicks = state.SignalEffectiveTicks ?? new int[(int)CrowdControlSignalType.Count];
+            writer.WriteInt32(signalTicks.Length);
+            for (int i = 0; i < signalTicks.Length; i++)
+            {
+                writer.WriteInt32(signalTicks[i]);
+            }
+        }
+
+        private static void WriteParamBlock(
+            CanonicalByteWriter writer,
+            in CrowdControlParamBlock block)
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                writer.WriteByte(
+                    block.Data.ReadByte(i));
+            }
         }
 
         private static void WriteEquipment(CanonicalByteWriter writer, in EquipmentHandlerSnapshot state)
@@ -521,10 +706,24 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteCombat(CanonicalByteWriter writer, in CombatSnapshot state)
         {
-            var trackers = state.ContributionTrackers ?? System.Array.Empty<DamageContributionTrackerSnapshot>();
-            writer.WriteInt32(trackers.Length);
-            for (int i = 0; i < trackers.Length; i++)
-            { WriteUnitUid(writer, trackers[i].VictimUnitUid); var records = trackers[i].Records ?? System.Array.Empty<DamageContributionRecordSnapshot>(); writer.WriteInt32(records.Length); for (int j = 0; j < records.Length; j++) { WriteUnitUid(writer, records[j].ContributorHeroUid); writer.WriteInt32(records[j].LastContributionLogicTick); writer.WriteFp(records[j].ContributionValue); writer.WriteInt32(records[j].ExpireLogicTick); } }
+            var logs = state.ContributionEventLogs ?? System.Array.Empty<CombatContributionEventLogSnapshot>();
+            writer.WriteInt32(logs.Length);
+            for (int i = 0; i < logs.Length; i++)
+            {
+                WriteUnitUid(writer, logs[i].VictimUnitUid);
+                WriteUnitUid(writer, logs[i].LastHitContributorUid);
+                var events = logs[i].Events ?? System.Array.Empty<CombatContributionEventSnapshot>();
+                writer.WriteInt32(events.Length);
+                for (int j = 0; j < events.Length; j++)
+                {
+                    WriteUnitUid(writer, events[j].ContributorHeroUid);
+                    writer.WriteByte((byte)events[j].Kind);
+                    writer.WriteFp(events[j].Amount);
+                    writer.WriteInt32(events[j].LogicTick);
+                    writer.WriteInt32(
+                        events[j].SequenceInTick);
+                }
+            }
             var deferred = state.DeferredRequests ?? System.Array.Empty<DeferredCombatRequest>();
             writer.WriteInt32(deferred.Length);
             for (int i = 0; i < deferred.Length; i++)
@@ -569,6 +768,11 @@ namespace FrameSyncMoba.FrameSync
                 WriteSourceDescriptor(writer, pending[i].Source);
                 WriteFp2(writer, pending[i].StartPosition);
                 WriteFp2(writer, pending[i].Direction);
+                writer.WriteInt32(
+                    pending[i].MaxLifetimeTicksOverride);
+                WriteOnHitDamageOverride(
+                    writer,
+                    pending[i].OnHitDamageOverride);
             }
             var active = state.ActiveProjectiles ?? Array.Empty<ProjectileRuntimeSnapshot>();
             writer.WriteInt32(active.Length);
@@ -599,6 +803,29 @@ namespace FrameSyncMoba.FrameSync
                     writer.WriteInt32(records[recordIndex].HitCount);
                     writer.WriteInt32(records[recordIndex].LastHitLogicTick);
                 }
+                WriteOnHitDamageOverride(
+                    writer,
+                    active[i].OnHitDamageOverride);
+            }
+        }
+
+        private static void WriteOnHitDamageOverride(
+            CanonicalByteWriter writer,
+            ProjectileOnHitDamage[] effects)
+        {
+            ProjectileOnHitDamage[] list =
+                effects ??
+                Array.Empty<ProjectileOnHitDamage>();
+            writer.WriteInt32(list.Length);
+            for (int i = 0; i < list.Length; i++)
+            {
+                writer.WriteFp(list[i].Amount);
+                writer.WriteByte((byte)list[i].DamageType);
+                writer.WriteFp(list[i].DamageRatio);
+                writer.WriteFp(list[i].MissingHpRatio);
+                writer.WriteFp(list[i].FalloffPerHitPercent);
+                writer.WriteFp(list[i].MinDamageRatio);
+                writer.WriteInt32(list[i].RecipeId);
             }
         }
 
@@ -727,5 +954,258 @@ namespace FrameSyncMoba.FrameSync
         private static void WriteProjectileUid(CanonicalByteWriter writer, ProjectileUid uid) { writer.WriteInt32(uid.SpawnLogicTick); writer.WriteInt32(uid.RuntimeEntityPrefabId); writer.WriteByte(uid.SpawnSequenceInTick); }
         private static void WriteUidList(CanonicalByteWriter writer, IList<UnitUid> values) { writer.WriteInt32(values?.Count ?? 0); if (values != null) for (int i = 0; i < values.Count; i++) WriteUnitUid(writer, values[i]); }
         private static void WriteIntArray(CanonicalByteWriter writer, int[] values) { writer.WriteInt32(values?.Length ?? 0); if (values != null) for (int i = 0; i < values.Length; i++) writer.WriteInt32(values[i]); }
+
+        /// <summary>
+        /// Diagnostics: top-level checksum segments, each hashed with an
+        /// independent writer. Does not change the canonical overall hash.
+        /// </summary>
+        public static ChecksumSegment[] ComputeSegmentHashes(
+            in GameplaySnapshot snapshot,
+            GoldIncomeBatchDigest goldDigest)
+        {
+            var writer = new CanonicalByteWriter(
+                new byte[65536]);
+            var segments = new List<ChecksumSegment>();
+
+            writer.Reset();
+            writer.WriteInt32(snapshot.SchemaVersion);
+            writer.WriteUInt32(snapshot.RandomState.State);
+            WriteMatchRule(writer, snapshot.MatchRuleState);
+            segments.Add(new ChecksumSegment(
+                "Schema+Random+MatchRule",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteUnitWorld(writer, snapshot.UnitWorldState);
+            segments.Add(new ChecksumSegment(
+                "UnitWorld",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteCombat(writer, snapshot.CombatState);
+            segments.Add(new ChecksumSegment(
+                "Combat",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteProjectiles(writer, snapshot.ProjectileState);
+            segments.Add(new ChecksumSegment(
+                "Projectiles",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteEquipmentShop(
+                writer,
+                snapshot.EquipmentShopState);
+            segments.Add(new ChecksumSegment(
+                "EquipmentShop",
+                Hash(writer)));
+
+            writer.Reset();
+            WritePhysics(writer, snapshot.PhysicsState);
+            segments.Add(new ChecksumSegment(
+                "Physics",
+                Hash(writer)));
+
+            writer.Reset();
+            writer.WriteUInt64(goldDigest.Value);
+            segments.Add(new ChecksumSegment(
+                "GoldDigest",
+                Hash(writer)));
+
+            return segments.ToArray();
+        }
+
+        /// <summary>
+        /// Diagnostics: per-handler checksum hashes for one unit snapshot.
+        /// </summary>
+        public static ChecksumSegment[] ComputeUnitHandlerHashes(
+            in UnitSnapshot state)
+        {
+            var writer = new CanonicalByteWriter(
+                new byte[65536]);
+            var segments = new List<ChecksumSegment>();
+
+            writer.Reset();
+            WriteUnitBase(writer, state);
+            segments.Add(new ChecksumSegment(
+                "Base",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatLevel(writer, state.StatState);
+            segments.Add(new ChecksumSegment(
+                "StatLevel",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatVitals(writer, state.StatState);
+            segments.Add(new ChecksumSegment(
+                "StatVitals",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatSeq(writer, state.StatState);
+            segments.Add(new ChecksumSegment(
+                "StatSeq",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatShields(writer, state.StatState);
+            segments.Add(new ChecksumSegment(
+                "StatShields",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatEntrySegment(
+                writer,
+                state.StatState,
+                StatEntryField.Base);
+            segments.Add(new ChecksumSegment(
+                "StatEntryBase",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatEntrySegment(
+                writer,
+                state.StatState,
+                StatEntryField.Final);
+            segments.Add(new ChecksumSegment(
+                "StatEntryFinal",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatEntrySegment(
+                writer,
+                state.StatState,
+                StatEntryField.Prev);
+            segments.Add(new ChecksumSegment(
+                "StatEntryPrev",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatEntrySegment(
+                writer,
+                state.StatState,
+                StatEntryField.Dirty);
+            segments.Add(new ChecksumSegment(
+                "StatEntryDirty",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteStatEntrySegment(
+                writer,
+                state.StatState,
+                StatEntryField.Modifiers);
+            segments.Add(new ChecksumSegment(
+                "StatEntryModifiers",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteCombatModifiers(
+                writer,
+                state.CombatModifierState);
+            segments.Add(new ChecksumSegment(
+                "CombatModifiers",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteMovement(writer, state.MovementState);
+            segments.Add(new ChecksumSegment(
+                "Movement",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteLocomotion(writer, state.LocomotionState);
+            segments.Add(new ChecksumSegment(
+                "Locomotion",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteAttack(writer, state.AttackState);
+            segments.Add(new ChecksumSegment(
+                "Attack",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteAbility(writer, state.AbilityState);
+            segments.Add(new ChecksumSegment(
+                "Ability",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteBuffs(writer, state.BuffState);
+            segments.Add(new ChecksumSegment(
+                "Buffs",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteCrowdControl(writer, state.CCState);
+            segments.Add(new ChecksumSegment(
+                "CrowdControl",
+                Hash(writer)));
+
+            writer.Reset();
+            WriteEquipment(writer, state.EquipmentState);
+            segments.Add(new ChecksumSegment(
+                "Equipment",
+                Hash(writer)));
+
+            return segments.ToArray();
+        }
+
+        private static uint Hash(CanonicalByteWriter writer)
+        {
+            ArraySegment<byte> bytes =
+                writer.GetWrittenSegment();
+            return DeterministicHash32.Compute(
+                bytes.Array,
+                bytes.Offset,
+                bytes.Count);
+        }
+
+        private enum StatEntryField : byte
+        {
+            Base,
+            Final,
+            Prev,
+            Dirty,
+            Modifiers,
+        }
+
+        private static void WriteStatEntrySegment(
+            CanonicalByteWriter writer,
+            in StatHandlerSnapshot state,
+            StatEntryField field)
+        {
+            StatRuntimeEntrySnapshot[] entries =
+                state.Entries ??
+                Array.Empty<StatRuntimeEntrySnapshot>();
+            writer.WriteInt32(entries.Length);
+            for (int i = 0; i < entries.Length; i++)
+            {
+                StatRuntimeEntrySnapshot entry =
+                    entries[i];
+                writer.WriteInt32((int)entry.StatId);
+                switch (field)
+                {
+                    case StatEntryField.Base:
+                        WriteStatEntryBase(writer, entry);
+                        break;
+                    case StatEntryField.Final:
+                        WriteStatEntryFinal(writer, entry);
+                        break;
+                    case StatEntryField.Prev:
+                        WriteStatEntryPrev(writer, entry);
+                        break;
+                    case StatEntryField.Dirty:
+                        WriteStatEntryDirty(writer, entry);
+                        break;
+                    case StatEntryField.Modifiers:
+                        WriteStatEntryModifiers(writer, entry);
+                        break;
+                }
+            }
+        }
     }
 }

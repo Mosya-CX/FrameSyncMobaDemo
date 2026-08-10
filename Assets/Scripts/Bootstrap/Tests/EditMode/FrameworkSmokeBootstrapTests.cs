@@ -16,16 +16,16 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public void Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks()
         {
             GlobalGameplayData global = AssetDatabase.LoadAssetAtPath<GlobalGameplayData>(
-                "Assets/Config/Runtime/GlobalGameplayData.asset");
+                "Assets/Config/Formal/GlobalGameplayData.asset");
             UnitRuntimeCatalogAsset catalog =
                 AssetDatabase.LoadAssetAtPath<UnitRuntimeCatalogAsset>(
-                    "Assets/Fixtures/Framework/Config/NeutralUnitRuntimeCatalog.asset");
+                    "Assets/Config/Formal/FullMatchUnitRuntimeCatalog.asset");
             AbilityRuntimeCatalogAsset abilityCatalog =
                 AssetDatabase.LoadAssetAtPath<AbilityRuntimeCatalogAsset>(
-                    "Assets/Fixtures/Framework/Config/NeutralAbilityRuntimeCatalog.asset");
+                    "Assets/Config/Formal/Abilities/VarusAbilityRuntimeCatalog.asset");
             DeterministicMapConfig mapConfig =
                 AssetDatabase.LoadAssetAtPath<DeterministicMapConfig>(
-                    "Assets/Fixtures/Framework/Config/NeutralDeterministicMapConfig.asset");
+                    "Assets/Config/Formal/FullMatchDeterministicMapConfig.asset");
             Assert.That(global, Is.Not.Null);
             Assert.That(catalog, Is.Not.Null);
             Assert.That(abilityCatalog, Is.Not.Null);
@@ -66,14 +66,14 @@ namespace FrameSyncMoba.Bootstrap.Tests
                         UnitPrototypeId = 1001,
                         TeamId = 2,
                         UseMapSpawnPoint = true,
-                        SpawnPointId = 1,
+                        SpawnPointId = 5,
                         PlayerControlled = true,
                         PlayerSlot = 1,
                     },
                     new InitialUnitSpawnAuthoring
                     {
                         StableSpawnOrder = 2,
-                        UnitPrototypeId = 1002,
+                        UnitPrototypeId = 3001,
                         TeamId = 1,
                         UseMapSpawnPoint = true,
                         SpawnPointId = 10,
@@ -83,7 +83,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     new InitialUnitSpawnAuthoring
                     {
                         StableSpawnOrder = 3,
-                        UnitPrototypeId = 1002,
+                        UnitPrototypeId = 3002,
                         TeamId = 2,
                         UseMapSpawnPoint = true,
                         SpawnPointId = 11,
@@ -109,7 +109,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 Assert.That(
                     bootstrap.Runtime.GoldIncome
                         .ConfirmedIncomeThroughTick,
-                    Is.EqualTo(-1));
+                    Is.EqualTo(executed - 1),
+                    "Server-authority ticks confirm their gold batches immediately.");
                 Assert.That(
                     bootstrap.Runtime.MatchRule
                         .BlueBaseUnitUid.IsValid(),

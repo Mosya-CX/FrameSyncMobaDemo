@@ -107,7 +107,23 @@ namespace FrameSyncMoba.Unit
 
             fp zeroPenalty = EvaluateVelocity(input, fp2.zero, neighbors);
             if (zeroPenalty < bestPenalty)
-                return new RvoResult { UnitUid = input.SelfUid, FinalVelocity = fp2.zero };
+            {
+                // RVO deadlock escape: a fully surrounded unit would
+                // otherwise freeze at zero velocity forever (e.g. a minion
+                // boxed in at the lane meeting point, unable to close the
+                // last gap into attack range). Keep crawling in the desired
+                // direction at reduced speed instead of stopping completely;
+                // unit-vs-unit overlap remains soft and wall penetration is
+                // corrected separately by the grid/wall resolver.
+                fp2 crawl =
+                    input.DesiredVelocity *
+                    (fp)0.25m;
+                return new RvoResult
+                {
+                    UnitUid = input.SelfUid,
+                    FinalVelocity = crawl,
+                };
+            }
 
             return new RvoResult { UnitUid = input.SelfUid, FinalVelocity = best };
         }
@@ -164,21 +180,30 @@ namespace FrameSyncMoba.Unit
 
         private static fp2[] PrecomputeSampleDirections(int count)
         {
-            var dirs = new fp2[]
+            if (count <= 0)
             {
-                new fp2(fp.one, fp.zero), new fp2(-fp.one, fp.zero),
-                new fp2(fp.zero, fp.one), new fp2(fp.zero, -fp.one),
-                new fp2((fp)0.7071m, (fp)0.7071m), new fp2(-(fp)0.7071m, (fp)0.7071m),
-                new fp2((fp)0.7071m, -(fp)0.7071m), new fp2(-(fp)0.7071m, -(fp)0.7071m),
-                new fp2((fp)0.5m, fp.zero), new fp2(-(fp)0.5m, fp.zero),
-                new fp2(fp.zero, (fp)0.5m), new fp2(fp.zero, -(fp)0.5m),
-                new fp2((fp)0.3536m, (fp)0.3536m), new fp2(-(fp)0.3536m, (fp)0.3536m),
-                new fp2((fp)0.3536m, -(fp)0.3536m), new fp2(-(fp)0.3536m, -(fp)0.3536m),
-            };
-
-            int dirCount = System.Math.Min(count, dirs.Length);
-            var result = new fp2[dirCount];
-            Array.Copy(dirs, result, dirCount);
+                count = 1;
+            }
+            var result = new fp2[count];
+            fp twoPi =
+                (fp)6.2831853071795864769m;
+            int fullSpeedCount =
+                count / 2;
+            for (int i = 0; i < count; i++)
+            {
+                fp angle =
+                    twoPi * (fp)i /
+                    (fp)count;
+                fp scale =
+                    i < fullSpeedCount
+                        ? fp.one
+                        : (fp)0.5m;
+                result[i] = new fp2(
+                    fpmath.cos(angle) *
+                        scale,
+                    fpmath.sin(angle) *
+                        scale);
+            }
             return result;
         }
     }

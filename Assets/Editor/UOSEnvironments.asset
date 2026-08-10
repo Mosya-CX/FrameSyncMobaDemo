@@ -18,6 +18,6 @@ MonoBehaviour:
     appSecret: 99a4a037763c446b9ffcb99531063165
     appServiceSecret: 2445b9df33624cd3aec3ede4866eb226
     roomProfileUUID: 
-    matchmakingConfigID: 
+    matchmakingConfigID: f01c4e66-0023-43f6-af57-dcd8b73e7b90
     configPairs: []
   selectedAppID: 58593889-dafc-4ac2-ae40-d7183954cb47

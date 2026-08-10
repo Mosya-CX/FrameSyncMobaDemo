@@ -57,7 +57,7 @@ namespace FrameSyncMoba.FrameSync
                 fp2 delta = result - currentPosition;
                 if (delta.x != fp.zero || delta.y != fp.zero)
                 {
-                    delta = ForcedMoveExecutor.ResolveWall(
+                    delta = ResolveWallSlide(
                         currentPosition,
                         delta,
                         _pathGrid,
@@ -74,6 +74,39 @@ namespace FrameSyncMoba.FrameSync
                     selfUid);
             }
 
+            return result;
+        }
+
+        /// <summary>
+        /// Ordinary-route wall collision that slides along the blocked axis
+        /// instead of stopping the whole delta. Grid cells next to a wall are
+        /// conservatively marked blocked (cell radius + unit radius), so a
+        /// diagonal path may brush such a cell; stopping entirely would pin
+        /// the unit at the cell boundary forever.
+        /// </summary>
+        private static fp2 ResolveWallSlide(
+            fp2 from,
+            fp2 delta,
+            PathGridMap2D grid,
+            RadiusClass radiusClass)
+        {
+            fp2 result = delta;
+            if (delta.x != fp.zero)
+            {
+                result.x = ForcedMoveExecutor.ResolveWall(
+                    from,
+                    new fp2(delta.x, fp.zero),
+                    grid,
+                    radiusClass).x;
+            }
+            if (delta.y != fp.zero)
+            {
+                result.y = ForcedMoveExecutor.ResolveWall(
+                    from + new fp2(result.x, fp.zero),
+                    new fp2(fp.zero, delta.y),
+                    grid,
+                    radiusClass).y;
+            }
             return result;
         }
 

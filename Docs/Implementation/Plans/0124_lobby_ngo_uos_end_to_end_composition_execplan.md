@@ -1,8 +1,10 @@
 # ExecPlan 0124: Lobby, NGO and UOS end-to-end composition
 
-> Status: Code complete and local NGO bootstrap/authority loop verified on
-> 2026-07-29. Manual UI flow and live UOS allocation remain external acceptance
-> gates.
+> Status: Local packaged C/S accepted and the first live UOS two-client run
+> reached sustained Gameplay on 2026-08-10. Result/return/remote settlement is
+> not yet live-accepted. The live run also exposed an unresolved client
+> lifecycle ownership race, an unresolved startup transport-queue warning and an
+> unresolved client Loading/HUD timing observation. See `CURRENT_HANDOFF.md`.
 
 ## Purpose
 
@@ -17,8 +19,19 @@ Gameplay, result, settlement and return/shutdown.
 - [x] Implement lobby/start wire messages around existing contracts.
 - [x] Add one application-flow owner/driver per endpoint.
 - [x] Validate local Server + two Client NGO bootstrap and authority loop.
-- [ ] Validate visible UI actions/result flow and live UOS allocation in the
-  operator acceptance pass.
+- [x] Validate real UOS image allocation, server Ready, two-client matchmaking,
+  public NGO connection, identity, hero lock, load barrier, bootstrap and
+  sustained Gameplay.
+- [ ] Correct the UOS/LocalDirect client-connection ownership race found in the
+  first live logs. The current attempt gates `Update()` but leaves
+  `OnClientConnectedCallback` ungated; compilation and a helper-return test
+  passed without proving the behavior.
+- [ ] Add callback-level behavior coverage, rebuild and live-revalidate the
+  ownership correction.
+- [ ] Remove the startup UTP send-queue saturation and revalidate the same
+  two-client bootstrap burst.
+- [ ] Instrument and explain the observed late client Loading/HUD transition.
+- [ ] Validate result, return-to-Lobby and remote UOS settlement end to end.
 
 ## Surprises and discoveries
 
@@ -35,6 +48,26 @@ Gameplay, result, settlement and return/shutdown.
 - Server rollback history must be released after authority publication.
 - Client authoring spawn queues must be discarded when the authoritative
   initial snapshot supplies the complete Unit topology.
+- The Multiverse startup/profile ID and Matchmaking config ID are different
+  provider contracts. The working values are recorded in `CURRENT_HANDOFF.md`;
+  putting the profile ID into `MatchmakingConfigID` causes a config-not-found
+  failure.
+- Provider readiness depends on the coupled image resource tier in practice.
+  The tested 1 CPU / 1536 MB tier became Ready in about 10 seconds; the smaller
+  tier did not. The same image succeeding at the larger tier disproved the
+  earlier suspicion that the Ready SDK call itself was necessarily wrong.
+- In UOS mode `LobbyFlowController` owns client matchmaking, transport
+  connection and identity. `LocalNgoEndpointDriver` must not also execute its
+  LocalDirect notification/wait behavior; doing so caused a real, non-blocking
+  `Lobby action requires a connected NGO client` race in both client logs.
+- Broadcasting the approximately 45 KB fragmented bootstrap to two clients
+  produced one UTP send-queue-full error with the endpoint scenes' current
+  `m_MaxPacketQueueSize` 128 / `m_MaxPayloadSize` 6144. Both clients applied
+  the payload, but this is still a startup reliability risk.
+- The server timeline proves the D-033 five-second launch wait was honored.
+  The client HUD was nevertheless observed opening with match time near 30
+  seconds, and the current packaged client logs do not timestamp payload
+  receive, barrier reach or HUD open. The root cause therefore remains unknown.
 
 ## Decision log
 
@@ -46,14 +79,30 @@ Gameplay, result, settlement and return/shutdown.
   explicit external validation gate, never as a fake-success code path.
 - Keep initial authoring-spawn discard specific to initial authority restore;
   ordinary rollback retains its existing restore semantics.
+- Enforce exactly one client connection-lifecycle owner per flow mode:
+  `LocalNgoEndpointDriver` for `LocalDirect`, `LobbyFlowController` for
+  `UosOnline`. Keep `LobbyNetworkBridge` validation strict; do not catch or
+  suppress the ownership error.
+- Do not revise D-033 from the operator timing observation alone. First log UTC,
+  local monotonic time and simulation Tick at server broadcast, client payload
+  receive/apply, launch barrier, HUD open and first accepted AuthorityFrame.
+- Treat the UTP queue warning as unresolved until transport capacity is changed
+  through Unity MCP/Unity APIs and a live server log no longer reports it.
 
 ## Current repository context
 
 ClientBootstrap and ServerBootstrap contain the required NGO/UTP bridges,
 endpoint drivers and application bindings. Lobby/start wire messages transport
-and apply the existing payload. Local multi-process behavior is verified;
-provider dashboard/allocation and final visual UI behavior remain external
-acceptance work.
+and apply the existing payload. Local packaged multi-process behavior is
+accepted. The real UOS configuration is populated and a live allocation took
+two distinct clients through Gameplay. `LocalNgoEndpointDriver` now gates its
+`LocalNgoEndpointDriver.Update()` gates polling to `FrameFlowMode.LocalDirect`,
+but its unconditionally subscribed `OnClientConnected()` callback still calls
+the same notification method in UOS mode. The focused test only verifies the
+helper result and does not cover that callback. Completing this ownership fix,
+endpoint transport queue capacity and launch/HUD timestamp diagnostics are the
+immediate implementation/validation follow-up. Result/return/settlement remains
+a later acceptance item within this plan's original scope.
 
 ## Exact design sources
 
@@ -163,10 +212,48 @@ hero, ability, Buff, equipment, map or final UI content is added.
 
 ## Results
 
-Unity compiled with zero Console errors. The focused initial-snapshot test and
-the ServerBootstrap PlayMode test passed. Fresh Server and Client builds were
-then run as three processes: both clients connected, passed identity/Ready,
-applied the same StartTick 3 payload, bound controlled Units and advanced
-Gameplay to Tick 10/11 while the server reached Tick 11. No duplicate UID,
-bootstrap overflow, recovery-baseline, snapshot-capacity, frame-order or
-disconnect error occurred. Live UOS upload/allocation was not attempted.
+The original local acceptance compiled with zero Console errors. Its focused
+initial-snapshot and ServerBootstrap PlayMode tests passed. A fresh Server and
+two Clients connected, passed identity/Ready, applied the same StartTick 3
+payload, bound controlled Units and advanced Gameplay to Tick 10/11 while the
+server reached Tick 11. No duplicate UID, bootstrap overflow,
+recovery-baseline, snapshot-capacity, frame-order or disconnect error occurred.
+
+The 2026-08-10 live UOS pass subsequently proved more of the production path:
+
+- the Linux server image reached UOS Ready at 1 CPU / 1536 MB;
+- two separately identified clients received an allocation, connected to the
+  public NGO endpoint, completed identity and hero selection, loaded GameScene,
+  submitted Loaded/Ready and applied the StartTick 3 bootstrap;
+- the server continued deterministic Gameplay for minutes, with later combat
+  events at stable increasing Ticks (including Tick 1625 at 17:36:04.626);
+- the server's timestamp/Tick relationship is consistent with the configured
+  five-second D-033 launch delay.
+
+The live pass did not close the entire plan. Both clients logged a LocalDirect
+notification racing the UOS connection owner. An attempted correction in
+`LocalNgoEndpointDriver.cs` compiled and
+`ApplicationFlowTests.ClientConnectionLifecycle_HasExactlyOneOwnerPerFlowMode`
+passed 1/1, but the final source audit found that it only gates `Update()`;
+`OnClientConnected()` still reaches `NotifyClientConnectedOnce()` for UOS. The
+test only checks the helper return value and is not behavior coverage for the
+callback. The defect therefore remains open. The server also logged one UTP
+send-queue-full error immediately after bootstrap broadcast, and the client
+Loading/HUD timing observation remains undiagnosed because the required
+timestamp markers were absent. Result/return/remote settlement was not covered
+by this live run. Exact logs, IDs and the continuation checklist are recorded
+in `Docs/Implementation/CURRENT_HANDOFF.md`.
+
+## Validation results (latest evidence)
+
+| Area | Evidence | Disposition |
+|---|---|---|
+| Source compilation after owner attempt | Unity MCP refresh/compile, no project compiler error | Passed compilation only |
+| Owner rule | Helper-return EditMode test 1/1; callback remains ungated | Not closed; behavior test required |
+| Local packaged C/S | One server + two clients; accepted by repository owner | Passed for current local flow |
+| UOS allocation/Ready | Real provider allocation; Ready in about 10 seconds at 1 CPU / 1536 MB | Passed at tested tier |
+| UOS two-client Gameplay | Identity -> select -> GameScene -> Loaded/Ready -> StartTick 3 -> sustained Gameplay | Passed |
+| Client owner-race exception | Current attempt misses `OnClientConnectedCallback` | Source correction + test + rebuild/live retest required |
+| Bootstrap transport burst | One server send-queue-full error; both payloads still applied | Not closed |
+| Launch/HUD timing | Server five-second wait proven; client HUD observation lacks timestamps | Not diagnosed |
+| Result/return/settlement | Not reached in the recorded live pass | Not accepted |

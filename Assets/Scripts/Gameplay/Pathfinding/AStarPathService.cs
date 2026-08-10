@@ -13,8 +13,9 @@ namespace FrameSyncMoba.Unit
     {
         private const int MaxIterationsDefault = 1200;
         private const int BlockedTargetNeighborRadius = 3;
+        private readonly int _maxIterations;
         private static readonly fp StraightCost = fp.one;
-        // Octile diagonal cost: sqrt(2) ¡Ö 1.414213562. Use literal to avoid fpmath.sqrt precision.
+        // Octile diagonal cost: sqrt(2) ~ 1.414213562. Use literal to avoid fpmath.sqrt precision.
         private static readonly fp DiagonalCost = (fp)1.414213562m;
 
         private readonly PathGridMap2D _grid;
@@ -58,6 +59,13 @@ namespace FrameSyncMoba.Unit
             _gCosts = new fp[totalCells];
             _pathBuffer = new int[512];
             _searchId = 0;
+            // On large grids (e.g. a 200x200 map) a search can legitimately
+            // expand more than the old fixed 1200-node budget; scale the
+            // iteration budget with the grid so valid routes are not
+            // spuriously rejected.
+            _maxIterations = Math.Max(
+                MaxIterationsDefault,
+                totalCells);
         }
 
         /// <summary>
@@ -79,6 +87,14 @@ namespace FrameSyncMoba.Unit
         }
 
         /// <summary>
+        /// Search with the grid-scaled iteration budget.
+        /// </summary>
+        public PathResult FindPath(fp2 start, fp2 target)
+        {
+            return FindPath(start, target, _maxIterations);
+        }
+
+        /// <summary>
         /// Find a path from start to target for a specific RadiusClass.
         /// Uses the appropriate clearance layer for passability checks.
         /// </summary>
@@ -95,6 +111,21 @@ namespace FrameSyncMoba.Unit
                 return PathResult.Failed(PathStatus.InvalidStart);
 
             return FindPathImplRadiusAware(startCx, startCy, targetCx, targetCy, rc, maxIterations);
+        }
+
+        /// <summary>
+        /// Search with the grid-scaled iteration budget.
+        /// </summary>
+        public PathResult FindPath(
+            fp2 start,
+            fp2 target,
+            RadiusClass rc)
+        {
+            return FindPath(
+                start,
+                target,
+                rc,
+                _maxIterations);
         }
 
         private PathResult FindPathImpl(int startCx, int startCy, int targetCx, int targetCy, int maxIterations)
@@ -244,7 +275,7 @@ namespace FrameSyncMoba.Unit
                 current = _parentIndices[current];
             }
 
-            // Reverse to get start ¡ú target order
+            // Reverse to get start â†’ target order
             Array.Reverse(_pathBuffer, 0, _pathBufferCount);
 
             // Apply LOS smoothing

@@ -350,7 +350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.5882353}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -510,6 +510,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1755158824912915296}
+  - component: {fileID: 6973520748433337103}
+  - component: {fileID: 9174530572701244944}
+  - component: {fileID: 725065206923177891}
   m_Layer: 5
   m_Name: MatchPanel
   m_TagString: Untagged
@@ -539,6 +542,55 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6973520748433337103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8134075394256813692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d6e0199e1a9f6a46a8a916152cc9991, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pageId: 2
+  layer: 0
+--- !u!114 &9174530572701244944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8134075394256813692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c05ecf9860c11904d965ae18fb2ced36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasGroup: {fileID: 725065206923177891}
+  luaModule: UI.Match
+  refs:
+  - Name: StateText
+    Value: {fileID: 7021269684532240024}
+  - Name: TimeText
+    Value: {fileID: 609007616178290214}
+  - Name: CancelBtn
+    Value: {fileID: 7139984891166010552}
+  - Name: SearchingRoot
+    Value: {fileID: 5353172511513789230}
+--- !u!225 &725065206923177891
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8134075394256813692}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &9175170324939102351
 GameObject:
   m_ObjectHideFlags: 0

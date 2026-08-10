@@ -147,6 +147,94 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void
+            Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell()
+        {
+            PathGridMap2D grid = CreateGrid();
+            Unit chaser = CreateUnit(
+                30,
+                new fp2((fp)2, (fp)2),
+                new TeamId(1));
+            // Target placed so the A* destination cell centre (the cell
+            // containing the stable chase spot) lands outside the attack
+            // radius: cell (15,15) centre (15.5,15.5) is ~1.27 away from
+            // (16.4,16.4), while the chase stop distance is
+            // range - own radius = 0.75. Reaching that cell must not mark
+            // the chase task Completed; the unit keeps closing the gap.
+            Unit target = CreateUnit(
+                31,
+                new fp2(
+                    (fp)16.4m,
+                    (fp)16.4m),
+                new TeamId(2));
+            // Realistic per-tick speed: stat 50 * world scale 0.01 =
+            // 0.5 logic units per tick (below the follower reach
+            // threshold), so waypoints are not overshot.
+            chaser.StatHandler.SetStat(
+                StatId.MoveSpeed,
+                (fp)50m);
+            var world = new UnitWorld();
+            world.RegisterUnit(chaser);
+            world.RegisterUnit(target);
+            chaser.World = world;
+            target.World = world;
+            chaser.Locomotion = new UnitLocomotionAgent(
+                chaser,
+                grid);
+
+            fp range = fp.one;
+            RouteMoveRequest request =
+                RouteMoveRequest.FollowUnit(
+                    target.UnitUid,
+                    range,
+                    MovePurpose.ChaseForAttack);
+            Assert.That(
+                chaser.Locomotion.AcceptRouteRequest(request),
+                Is.EqualTo(MoveAcceptResult.Accepted));
+
+            const int maxTicks = 300;
+            bool completed = false;
+            for (int i = 0;
+                 i < maxTicks && !completed;
+                 i++)
+            {
+                LocomotionResult result =
+                    chaser.Locomotion.Evaluate();
+                chaser.MovementHandler
+                    .ApplyRouteMovement(result);
+                chaser.MovementHandler
+                    .TickUpdate();
+
+                if (chaser.Locomotion.CurrentTask.State ==
+                    MovementTaskState.Completed)
+                {
+                    completed = true;
+                    fp2 chaserPos =
+                        chaser.PhysicsEntity
+                            .Transform2D.Position;
+                    fp2 targetPos =
+                        target.PhysicsEntity
+                            .Transform2D.Position;
+                    fp dist =
+                        fpmath.length(
+                            targetPos -
+                            chaserPos);
+                    Assert.That(
+                        dist,
+                        Is.LessThanOrEqualTo(range),
+                        "Chase task completed while still outside " +
+                        $"attack range (dist={dist} range={range}).");
+                }
+            }
+
+            Assert.That(
+                completed,
+                Is.True,
+                "Chase never reached the attack range within " +
+                "the tick budget.");
+        }
+
+        [Test]
         public void PointMove_UsesDirectOrAStarByGrid()
         {
             PathGridMap2D grid = CreateGrid();

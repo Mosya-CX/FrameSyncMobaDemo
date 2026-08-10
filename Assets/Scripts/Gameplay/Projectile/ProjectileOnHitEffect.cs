@@ -8,12 +8,33 @@ namespace FrameSyncMoba.Unit
         public fp Amount;
         public DamageType DamageType;
         public fp DamageRatio;
+        /// <summary>
+        /// Magic damage equal to this fraction of the target's missing health
+        /// (0 = none). Resolved at hit time against the target's current
+        /// MaxHealth/CurrentHealth; deterministic.
+        /// </summary>
+        public fp MissingHpRatio;
+        /// <summary>
+        /// Damage reduction per extra unit hit, expressed as a fraction
+        /// (0.15 = -15% per extra hit). 0 = no falloff.
+        /// </summary>
+        public fp FalloffPerHitPercent;
+        /// <summary>
+        /// Floor for falloff (0.33 = never below 33% of the raw amount).
+        /// 0 = no floor.
+        /// </summary>
+        public fp MinDamageRatio;
         public int RecipeId;
         public bool IsValid =>
             Amount >= fp.zero &&
             DamageRatio >= fp.zero &&
+            MissingHpRatio >= fp.zero &&
+            FalloffPerHitPercent >= fp.zero &&
+            MinDamageRatio >= fp.zero &&
             RecipeId > 0 &&
-            (Amount > fp.zero || DamageRatio > fp.zero);
+            (Amount > fp.zero ||
+             DamageRatio > fp.zero ||
+             MissingHpRatio > fp.zero);
         public static readonly ProjectileOnHitDamage None = default;
     }
 
@@ -26,9 +47,10 @@ namespace FrameSyncMoba.Unit
 
     public struct ProjectileOnHitCC
     {
-        public CrowdControlType CCType;
+        public CrowdControlId ControlId;
         public int DurationTicks;
-        public bool IsValid => DurationTicks > 0;
+        public bool IsValid =>
+            ControlId.IsValid && DurationTicks > 0;
     }
 
     public struct ProjectileOnHitEffects

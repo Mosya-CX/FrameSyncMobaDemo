@@ -26,7 +26,7 @@ namespace FrameSyncMoba.Unit
     [Serializable]
     public struct ProjectileCrowdControlAuthoring
     {
-        public CrowdControlType Type;
+        [Min(1)] public int ControlId;
         [Min(1)] public int DurationTicks;
     }
 
@@ -37,6 +37,7 @@ namespace FrameSyncMoba.Unit
         [Min(1)] public int RuntimeEntityPrefabId;
         [Min(0f)] public float Speed;
         public float Acceleration;
+        public bool Homing;
         [Min(1)] public int MaxLifetimeTicks = 30;
         [Min(0f)] public float HitRadius = 0.1f;
         public ProjectileTargetFilter TargetFilter =
@@ -72,6 +73,7 @@ namespace FrameSyncMoba.Unit
                 RuntimeEntityPrefabId = RuntimeEntityPrefabId,
                 Speed = (fp)Speed,
                 Acceleration = (fp)Acceleration,
+                Homing = Homing,
                 MaxLifetimeTicks = MaxLifetimeTicks,
                 HitRadius = (fp)HitRadius,
                 TargetFilter = TargetFilter,
@@ -137,8 +139,8 @@ namespace FrameSyncMoba.Unit
             {
                 baked[i] = new ProjectileOnHitCC
                 {
-                    CCType =
-                        CrowdControlEffects[i].Type,
+                    ControlId = new CrowdControlId(
+                        CrowdControlEffects[i].ControlId),
                     DurationTicks =
                         CrowdControlEffects[i].DurationTicks,
                 };

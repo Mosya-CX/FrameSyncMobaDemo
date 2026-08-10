@@ -102,6 +102,7 @@ namespace FrameSyncMoba.FrameSync
         private const int EquipmentUndoPayloadByteLength = 1;
         private const int SwapEquipmentSlotPayloadByteLength = 2;
         private const int UseItemPayloadByteLength = 43;
+        private const int DebugPayloadByteLength = 5;
 
         public readonly CommandHeader Header;
         public readonly fp2 MoveTargetPoint;
@@ -114,6 +115,12 @@ namespace FrameSyncMoba.FrameSync
         public readonly int EquipmentId;
         public readonly byte SourceSlot;
         public readonly byte TargetSlot;
+
+        /// <summary>Debug command operation (see DebugCommandOp).</summary>
+        public byte DebugOp => AbilitySlot;
+
+        /// <summary>Debug command value (e.g. gold amount).</summary>
+        public int DebugValue => EquipmentId;
 
         private GameplayCommand(
             in CommandHeader header,
@@ -213,6 +220,19 @@ namespace FrameSyncMoba.FrameSync
                 default, 0, 0, 0);
         }
 
+        public static GameplayCommand CreateDebugCommand(
+            in CommandHeader header,
+            byte op,
+            int value)
+        {
+            CommandHeader canonicalHeader = header.WithPayload(
+                GameplayCommandKind.Debug,
+                DebugPayloadByteLength);
+            return new GameplayCommand(
+                canonicalHeader, default, default, op, default, default, default,
+                default, value, 0, 0);
+        }
+
         public static GameplayCommand CreateEquipmentPurchase(
             in CommandHeader header,
             int equipmentId)
@@ -280,6 +300,83 @@ namespace FrameSyncMoba.FrameSync
 
         public bool IsNone => Kind == GameplayCommandKind.None;
 
+        /// <summary>
+        /// Returns a copy of this Command targeting a different Tick. Used by
+        /// the server to re-target late Commands to its current Tick instead
+        /// of hard-rejecting them; all other fields stay identical.
+        /// </summary>
+        public GameplayCommand WithTargetTick(int targetTick)
+        {
+            if (IsNone)
+            {
+                return this;
+            }
+            CommandHeader header = new CommandHeader(
+                Header.CommandSeq,
+                Header.ClientId,
+                Header.PlayerSlot,
+                Header.ControlledUnitUid,
+                targetTick,
+                Header.CommandKind,
+                Header.BuildLocalTick,
+                Header.PayloadByteLength,
+                Header.SchemaVersion);
+            switch (Kind)
+            {
+                case GameplayCommandKind.Move:
+                    return CreateMove(header, MoveTargetPoint);
+                case GameplayCommandKind.Attack:
+                    return CreateAttack(header, AttackTargetUid);
+                case GameplayCommandKind.CastAbility:
+                    return CreateCastAbility(
+                        header,
+                        AbilitySlot,
+                        AbilityVerb,
+                        Aim);
+                case GameplayCommandKind.CancelAbility:
+                    return CreateCancelAbility(
+                        header,
+                        AbilitySlot,
+                        CancelReason);
+                case GameplayCommandKind.AllocateAbilitySkillPoint:
+                    return CreateAllocateAbilitySkillPoint(
+                        header,
+                        AbilitySlot);
+                case GameplayCommandKind.Debug:
+                    return CreateDebugCommand(
+                        header,
+                        AbilitySlot,
+                        EquipmentId);
+                case GameplayCommandKind.EquipmentShop:
+                    switch (ShopOperationType)
+                    {
+                        case EquipmentShopCommandOperationType.Purchase:
+                            return CreateEquipmentPurchase(
+                                header,
+                                EquipmentId);
+                        case EquipmentShopCommandOperationType.Sell:
+                            return CreateEquipmentSell(
+                                header,
+                                SourceSlot);
+                        case EquipmentShopCommandOperationType.Undo:
+                            return CreateEquipmentUndo(header);
+                        default:
+                            throw new InvalidOperationException(
+                                $"Unsupported EquipmentShop operation {ShopOperationType}.");
+                    }
+                case GameplayCommandKind.SwapEquipmentSlot:
+                    return CreateSwapEquipmentSlot(
+                        header,
+                        SourceSlot,
+                        TargetSlot);
+                case GameplayCommandKind.UseItem:
+                    return CreateUseItem(header, SourceSlot, Aim);
+                default:
+                    throw new InvalidOperationException(
+                        $"Re-targeting is not implemented for {Kind}.");
+            }
+        }
+
         public void WriteCanonicalBytes(CanonicalByteWriter writer)
         {
             if (writer == null) throw new ArgumentNullException(nameof(writer));
@@ -309,6 +406,11 @@ namespace FrameSyncMoba.FrameSync
 
                 case GameplayCommandKind.AllocateAbilitySkillPoint:
                     writer.WriteByte(AbilitySlot);
+                    break;
+
+                case GameplayCommandKind.Debug:
+                    writer.WriteByte(AbilitySlot);
+                    writer.WriteInt32(EquipmentId);
                     break;
 
                 case GameplayCommandKind.EquipmentShop:

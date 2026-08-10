@@ -1,29 +1,43 @@
 using System;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
-    /// Configuration for a single equipment item (Equipment/Gold v12 §2.1).
-    /// Plain serializable class — ScriptableObject wrappers deferred to authoring layer.
+    /// Authoring ScriptableObject for one equipment item
+    /// (Equipment/Gold v12 section 2.1).
     /// </summary>
-    [Serializable]
-    public sealed class EquipmentDefinition
+    [CreateAssetMenu(
+        fileName = "Equipment",
+        menuName = "MOBA/Equipment")]
+    public sealed class EquipmentDefinition :
+        ScriptableObject
     {
         public int Id;
         public string Name;
+        [TextArea]
         public string Description;
+        public Sprite Icon;
         public EquipmentTier Tier;
         public int Value;
         public int MaxStack = 1;
 
         public EquipmentFixedStatAuthoring[] FixedStats;
+        public EquipmentEffectDef[] Effects;
+        public EquipmentTagDefinition[] Tags;
+        public EquipmentRecipe Recipe;
+
+        /// <summary>
+        /// Stackability is derived from Tier (design v12 2.4):
+        /// only Consumable items stack.
+        /// </summary>
+        public bool CanStack =>
+            Tier == EquipmentTier.Consumable;
+
         public EquipmentFixedStat[] BakedFixedStats { get; private set; } =
             Array.Empty<EquipmentFixedStat>();
         public bool IsBaked { get; private set; }
-        public EquipmentEffectDef[] Effects;
-        public string[] Tags;
-        public EquipmentRecipe Recipe;
 
         public bool IsValid => Id != 0;
 

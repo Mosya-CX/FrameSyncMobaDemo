@@ -31,13 +31,28 @@ namespace FrameSyncMoba.Unit
 
             ProjectileOnHitEffects effects =
                 projectile.Def.OnHitEffects;
-            if (!effects.HasAnyEffect) return;
+            ProjectileOnHitDamage[] damageEffects =
+                projectile.OnHitDamageOverride != null
+                    ? projectile.OnHitDamageOverride
+                    : effects.DamageEffects;
+            bool hasDamage =
+                damageEffects != null &&
+                damageEffects.Length > 0;
+            bool hasOther =
+                (effects.BuffEffects != null &&
+                 effects.BuffEffects.Length > 0) ||
+                (effects.CCEffects != null &&
+                 effects.CCEffects.Length > 0);
+            if (!hasDamage && !hasOther) return;
 
-            SubmitDamageEffects(
-                projectile,
-                target,
-                unitWorld,
-                effects.DamageEffects);
+            if (hasDamage)
+            {
+                SubmitDamageEffects(
+                    projectile,
+                    target,
+                    unitWorld,
+                    damageEffects);
+            }
             ApplyBuffEffects(
                 projectile,
                 target,
@@ -163,6 +178,35 @@ namespace FrameSyncMoba.Unit
                         source.StatHandler.GetStat(statId) *
                         effect.DamageRatio;
                 }
+                if (effect.MissingHpRatio > fp.zero)
+                {
+                    fp maxHealth = target.StatHandler.GetStat(
+                        StatId.MaxHealth);
+                    fp missing = maxHealth -
+                        target.StatHandler.CurrentHealth;
+                    if (missing > fp.zero)
+                        amount += missing * effect.MissingHpRatio;
+                }
+
+                // Piercing falloff: each extra unit hit reduces the damage,
+                // clamped to MinDamageRatio (design hero case: -15%/hit, 33%
+                // floor). projectile.TotalHitCount already includes the
+                // current hit, so previous hits = TotalHitCount - 1.
+                if (effect.FalloffPerHitPercent > fp.zero &&
+                    projectile.TotalHitCount > 1)
+                {
+                    fp multiplier = fp.one -
+                        effect.FalloffPerHitPercent *
+                        (projectile.TotalHitCount - 1);
+                    if (effect.MinDamageRatio > fp.zero &&
+                        multiplier < effect.MinDamageRatio)
+                    {
+                        multiplier = effect.MinDamageRatio;
+                    }
+                    if (multiplier <= fp.zero)
+                        multiplier = fp.zero;
+                    amount *= multiplier;
+                }
 
                 if (amount <= fp.zero) continue;
                 var request = new DamageRequest
@@ -208,14 +252,17 @@ namespace FrameSyncMoba.Unit
                         $"Projectile Buff effect {i} is invalid.");
                 if (!world.BuffDefinitions.TryGet(
                         effect.BuffId,
-                        out BuffDef definition))
+                        out BuffDefinition definition))
                     throw new DeterministicSimulationException(
                         $"Projectile Buff effect references missing BuffConfigId {effect.BuffId.Value}.");
 
                 target.BuffHandler.Apply(
                     effect.BuffId,
                     definition,
-                    projectile.OwnerUnitUid);
+                    BuffSource.Create(
+                        projectile.OwnerUnitUid,
+                        BuffSourceType.Attack,
+                        0));
             }
         }
 
@@ -235,16 +282,10 @@ namespace FrameSyncMoba.Unit
                 if (!effect.IsValid)
                     throw new DeterministicSimulationException(
                         $"Projectile CC effect {i} is invalid.");
-                target.CrowdControl.SubmitConstraint(
-                    new CrowdControlConstraint
-                    {
-                        Type = effect.CCType,
-                        RemainingTicks =
-                            effect.DurationTicks,
-                        Priority = 1,
-                        SourceUnitUid =
-                            projectile.OwnerUnitUid,
-                    });
+                target.CrowdControl.Add(
+                    effect.ControlId,
+                    effect.DurationTicks,
+                    default);
             }
         }
 

@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd190d0d50aa5847a974015e823714e, type: 3}
+  m_Name: Buff_DesecratedGrievous
+  m_EditorClassIdentifier: 
+  ConfigId:
+    Value: 9112
+  Display:
+    Name: "\u6C61\u67D3\u91CD\u4F24"
+    Description: "\u6C61\u67D3\u91CD\u4F24"
+    Icon: {fileID: 0}
+  Life:
+    DurationSeconds: 0.25
+    Infinite: 0
+    RefreshMode: 1
+    ExtendSeconds: 0
+  Stack:
+    MaxStacks: 1
+    AddMode: 0
+    ReduceMode: 0
+    ReduceAmount: 1
+  Tags:
+    TagIds: 
+  Effects:
+  - Effect:
+      rid: 2586995997702356997
+  BlackboardLayout:
+    Slots: []
+  LifecycleReactions:
+    Added: []
+    Reapplied: []
+    Removed: []
+    StackChanged: []
+    Periodic: []
+  EventReactions:
+    DamageTaken: []
+    DamageDealt: []
+    HealTaken: []
+    HealDealt: []
+    ShieldApplied: []
+    AbilityCast: []
+    LevelUp: []
+    UnitDying: []
+    UnitDeath: []
+    UnitKill: []
+    OnHitDealt: []
+    CollisionEnter: []
+    CollisionExit: []
+  Priority: 0
+  PeriodicIntervalTicks: 0
+  ApplyVfxDefId: 0
+  ApplyVfxDurationSeconds: 0
+  InitialStacks: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586995997702356997
+      type: {class: StatRatioBuffEffect, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        Stat: 25
+        Ratio:
+          m_rawValue: -1717986944
+        HandleSlot:
+          Value: 1

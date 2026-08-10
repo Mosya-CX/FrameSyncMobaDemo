@@ -64,15 +64,6 @@ namespace FrameSyncMoba.Unit
             {
                 CombatEvents.RaiseUnitKill(killer.UnitUid, death.VictimUid);
             }
-
-            if (death.AssistantHeroUids != null)
-            {
-                for (int i = 0; i < death.AssistantHeroUids.Length; i++)
-                {
-                    CombatEvents.RaiseUnitAssist(
-                        death.AssistantHeroUids[i], death.VictimUid);
-                }
-            }
         }
 
         private void DistributeXpToHero(Unit hero, DeathResult death, bool isAssist = false)

@@ -42,12 +42,88 @@ namespace FrameSyncMoba.FrameSync
         public int MaxFutureCommandTicks => _pipeline.MaxFutureCommandTicks;
         public uint LastChecksum => _pipeline.LastChecksum;
         public SimulationTickPipeline TickPipeline => _pipeline;
+        /// <summary>Absolute UTC ticks when the match may start simulating
+        /// (0 = start immediately). Set from the authoritative bootstrap
+        /// payload.</summary>
+        public long LaunchUtcTicks { get; private set; }
+
+        public bool IsLaunchTimeReached =>
+            LaunchUtcTicks <= 0 ||
+            System.DateTime.UtcNow.Ticks >=
+            LaunchUtcTicks;
+
+        public void SetLaunchUtcTicks(long utcTicks)
+        {
+            LaunchUtcTicks = utcTicks;
+        }
         public PredictionRollbackCoordinator Prediction =>
             _rollbackCoordinator;
         public AuthorityFrameReplicator AuthorityFrames =>
             _authorityFrameReplicator;
         public AuthorityRecoveryCoordinator AuthorityRecovery =>
             _authorityRecoveryCoordinator;
+
+        /// <summary>
+        /// Active composition-root runtime that Lua UI pages query. It is set by
+        /// the application layer only; deterministic simulation never depends on it.
+        /// Design: MOBA_UI_Lua_System_Design_v9_1 sections 5.3, 10.11.
+        /// </summary>
+        public static FrameSyncGameRuntime Instance { get; private set; }
+
+        public static void RegisterActiveInstance(
+            FrameSyncGameRuntime runtime)
+        {
+            if (runtime == null)
+                throw new ArgumentNullException(nameof(runtime));
+            Instance = runtime;
+        }
+
+        public static void UnregisterActiveInstance(
+            FrameSyncGameRuntime runtime)
+        {
+            if (ReferenceEquals(Instance, runtime))
+                Instance = null;
+        }
+
+        /// <summary>
+        /// Player slot bound to the local client by the applied bootstrap payload.
+        /// </summary>
+        public int LocalPlayerSlot { get; private set; } = -1;
+
+        /// <summary>
+        /// IEquipmentShopView pre-bound to the local player (read-only).
+        /// </summary>
+        public Unit.IEquipmentShopView LocalEquipmentShopView { get; private set; }
+
+        public Unit.EquipmentShopRuntime EquipmentShop =>
+            _pipeline.EquipmentShop;
+
+        public void ConfigureShopCommandSubmitter(
+            Unit.IEquipmentShopCommandSubmitter submitter)
+        {
+            _pipeline.EquipmentShop
+                .SetCommandSubmitter(submitter);
+        }
+
+        public Unit.Unit GetLocalControlledUnit()
+        {
+            if (LocalPlayerSlot < 0)
+                return null;
+            return TryGetControlledUnit(
+                LocalPlayerSlot,
+                out Unit.Unit unit)
+                ? unit
+                : null;
+        }
+
+        public void BindLocalPlayerSlot(int playerSlot)
+        {
+            if (playerSlot < 0)
+                throw new ArgumentOutOfRangeException(nameof(playerSlot));
+            LocalPlayerSlot = playerSlot;
+            LocalEquipmentShopView =
+                CreateEquipmentShopView(playerSlot);
+        }
 
         public void ConfigureNonHeroTopology(
             in BakedMinionWaveConfig schedule,
@@ -75,7 +151,7 @@ namespace FrameSyncMoba.FrameSync
                 config.InitialEarnedGold,
                 config.EndingDurationTicks,
                 config.HeroRespawnBaseTicks,
-                config.HeroRespawnPerLevelTicks,
+                config.HeroRespawnPerMinuteTicks,
                 config.EquipmentSellRate,
                 config.RandomSeed,
                 config.SnapshotWindowTicks,
@@ -92,6 +168,9 @@ namespace FrameSyncMoba.FrameSync
                 unitWorld, minionSystem);
             _pipeline.MaxFutureCommandTicks = config.MaxFutureCommandTicks;
             MinCommandLeadTicks = config.MinCommandLeadTicks;
+            _pipeline.CombatSystem.NaturalRegenIntervalSeconds =
+                (Unity.Mathematics.FixedPoint.fp)
+                    config.NaturalRegenIntervalSeconds;
             _pipeline.NaturalGoldIncome = new NaturalGoldIncomeSystem(
                 GoldIncome,
                 MatchRule,
@@ -111,7 +190,7 @@ namespace FrameSyncMoba.FrameSync
             int initialEarnedGold,
             int endingDurationTicks,
             int heroRespawnBaseTicks,
-            int heroRespawnPerLevelTicks,
+            int heroRespawnPerMinuteTicks,
             fp equipmentSellRate,
             uint randomSeed,
             int snapshotWindowTicks = 512,
@@ -122,7 +201,7 @@ namespace FrameSyncMoba.FrameSync
             UnitWorld = unitWorld;
             PhysicsWorld = physicsWorld;
             CombatSystem = new Unit.CombatSystem(
-                unitWorld, heroRespawnBaseTicks, heroRespawnPerLevelTicks);
+                unitWorld, heroRespawnBaseTicks, heroRespawnPerMinuteTicks);
             MatchRule = new MatchRuleRuntime(endingDurationTicks);
             GoldIncome = new GoldIncomeRuntime();
             GoldIncome.Initialize(maxPlayers, initialEarnedGold);
@@ -132,6 +211,8 @@ namespace FrameSyncMoba.FrameSync
                 UnitWorld = unitWorld,
                 PhysicsWorld = physicsWorld,
                 PrefabTable = unitWorld.GlobalPrefabTable,
+                LogicSecondsPerTick =
+                    fp.one / (fp)unitWorld.TickRate,
             };
             var equipmentShop = new Unit.EquipmentShopRuntime();
             equipmentShop.Initialize(
@@ -139,6 +220,8 @@ namespace FrameSyncMoba.FrameSync
                 unitWorld.EquipmentDatabase ?? new Unit.EquipmentDatabase(),
                 equipmentSellRate,
                 unitWorld);
+            equipmentShop.ConfigureIncomeView(
+                GoldIncome);
             _pipeline = new SimulationTickPipeline(unitWorld, physicsWorld)
             {
                 CombatSystem = CombatSystem,
@@ -252,6 +335,13 @@ namespace FrameSyncMoba.FrameSync
                         "Player slot mappings must be stored in ascending order.");
             }
             _playerSlotMappings = copy;
+            for (int i = 0; i < copy.Length; i++)
+            {
+                UnityEngine.Debug.Log(
+                    $"[SlotMap] slot={copy[i].PlayerSlot} " +
+                    $"uid={copy[i].ControlledUnitUid} " +
+                    $"team={(UnitWorld.TryGetUnit(copy[i].ControlledUnitUid, out var mu) ? mu.TeamId.Value.ToString() : "?")}");
+            }
             bool canResolveAll = true;
             for (int i = 0; i < copy.Length; i++)
                 if (!UnitWorld.TryGetUnit(

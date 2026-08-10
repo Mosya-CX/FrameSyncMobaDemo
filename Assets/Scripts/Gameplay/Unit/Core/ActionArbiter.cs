@@ -7,6 +7,11 @@ namespace FrameSyncMoba.Unit
         Interrupt,
     }
 
+    /// <summary>
+    /// Unit-internal gate for ordinary behavior requests (Unit Framework
+    /// v27.3 3.4). The control system influences arbitration only through
+    /// CrowdControlHandler.State; no control-specific branches live here.
+    /// </summary>
     public sealed class ActionArbiter
     {
         private readonly Unit _owner;
@@ -17,12 +22,13 @@ namespace FrameSyncMoba.Unit
         {
             if (request == null) return ArbitrationResult.Rejected;
             if (!HasCapability(request.Kind)) return ArbitrationResult.Rejected;
-
-            if (HasBehaviorOverride(out ActionKind overrideKind))
+            if (IsActionBlockedByControl(request)) return ArbitrationResult.Rejected;
+            if ((request.Kind == ActionKind.Move ||
+                 request.Kind == ActionKind.Attack) &&
+                _owner.AbilityHandler != null &&
+                _owner.AbilityHandler.IsCastMovementLocked())
             {
-                if (request.Kind != overrideKind && overrideKind != ActionKind.None)
-                    return ArbitrationResult.Rejected;
-                return ArbitrationResult.Accepted;
+                return ArbitrationResult.Rejected;
             }
 
             ReservationState reservation = _owner.ActionRuntimes.BuildReservation();
@@ -46,6 +52,38 @@ namespace FrameSyncMoba.Unit
             return ArbitrationResult.Accepted;
         }
 
+        /// <summary>
+        /// Fixed-phase check that interrupts current runtimes whose action is
+        /// no longer allowed by the latest control state (Unit Framework
+        /// v27.3 3.4 EvaluateCurrentRuntimes).
+        /// </summary>
+        public void EvaluateCurrentRuntimes()
+        {
+            if (_owner.ActionRuntimes == null) return;
+            if (_owner.CrowdControl == null) return;
+            CrowdControlStateView controlState =
+                _owner.CrowdControl.State;
+
+            if ((controlState.BlockedActions &
+                 UnitActionBlockMask.VoluntaryMove) != 0)
+            {
+                _owner.ActionRuntimes.CancelByKind(
+                    ActionKind.Move);
+            }
+            if ((controlState.BlockedActions &
+                 UnitActionBlockMask.VoluntaryAttack) != 0)
+            {
+                _owner.ActionRuntimes.CancelByKind(
+                    ActionKind.Attack);
+            }
+            if ((controlState.BlockedActions &
+                 UnitActionBlockMask.AbilityCast) != 0)
+            {
+                _owner.ActionRuntimes.CancelByKind(
+                    ActionKind.Cast);
+            }
+        }
+
         private bool HasCapability(ActionKind kind)
         {
             ref readonly CapabilityState cap = ref _owner.CapabilityState;
@@ -58,23 +96,55 @@ namespace FrameSyncMoba.Unit
             };
         }
 
-        private bool HasBehaviorOverride(out ActionKind kind)
+        /// <summary>
+        /// Map an ordinary request kind onto the aggregated control block mask
+        /// (Unit Framework v27.3 3.4 step 4: directly read CrowdControlStateView).
+        /// Control-driven Move requests carry ControlMove purpose; control-driven
+        /// attacks are identified by the active behavior override.
+        /// </summary>
+        private bool IsActionBlockedByControl(
+            ActionRequest request)
         {
-            kind = ActionKind.None;
-            if (_owner.CrowdControl == null) return false;
-            var cc = _owner.CrowdControl.ActiveConstraint;
-            if (!cc.IsActive) return false;
-            switch (cc.Type)
+            if (_owner.CrowdControl == null)
             {
-                case CrowdControlType.Stun:
-                case CrowdControlType.Suppression:
-                    kind = ActionKind.None;
-                    return true;
-                case CrowdControlType.Disarm:
-                    kind = ActionKind.Move;
-                    return true;
-                case CrowdControlType.Silence:
-                    return false;
+                return false;
+            }
+            CrowdControlStateView controlState =
+                _owner.CrowdControl.State;
+
+            switch (request.Kind)
+            {
+                case ActionKind.Move:
+                    bool isControlMove =
+                        request is MoveActionRequest move &&
+                        move.Purpose ==
+                            MovePurpose.ControlMove;
+                    return isControlMove
+                        ? (controlState.BlockedActions &
+                           UnitActionBlockMask.ControlMove) != 0
+                        : (controlState.BlockedActions &
+                           UnitActionBlockMask.VoluntaryMove) != 0;
+
+                case ActionKind.Attack:
+                    bool isControlAttack =
+                        _owner.CrowdControl
+                            .TryGetBehaviorOverride(
+                                out CrowdControlBehaviorOverride behavior) &&
+                        behavior.Kind ==
+                            CrowdControlBehaviorKind.AttackTarget &&
+                        request is AttackActionRequest attack &&
+                        attack.TargetUnit ==
+                            behavior.TargetUnitUid;
+                    return isControlAttack
+                        ? (controlState.BlockedActions &
+                           UnitActionBlockMask.ControlAttack) != 0
+                        : (controlState.BlockedActions &
+                           UnitActionBlockMask.VoluntaryAttack) != 0;
+
+                case ActionKind.Cast:
+                    return (controlState.BlockedActions &
+                           UnitActionBlockMask.AbilityCast) != 0;
+
                 default:
                     return false;
             }

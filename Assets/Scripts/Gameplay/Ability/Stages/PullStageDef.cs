@@ -4,6 +4,11 @@ namespace FrameSyncMoba.Unit
 {
     public sealed class PullStageDef : StageDef
     {
+        private static readonly AbilityBlackboardKey<CrowdControlHandle>
+            PullControlHandleKey =
+                new AbilityBlackboardKey<CrowdControlHandle>(
+                    9001);
+
         public fp SpeedPerTick;
         public fp MinDistance = fp.one;
         public byte Priority;
@@ -50,28 +55,33 @@ namespace FrameSyncMoba.Unit
             int durationTicks = (int)fpmath.ceil(
                 travelDistance /
                 SpeedPerTick);
+            var parameters =
+                new CrowdControlParamWriter();
+            parameters.SetFp2(
+                ControlParamKeys.Direction,
+                direction);
+            parameters.SetFp(
+                ControlParamKeys.Distance,
+                travelDistance);
+            parameters.SetInt(
+                ControlParamKeys.MoveTicks,
+                durationTicks);
+            parameters.SetShort(
+                ControlParamKeys.ForcedMovePriority,
+                (short)Priority);
             CrowdControlAddResult result =
                 target.CrowdControl.Add(
-                    new CrowdControlConstraint
-                    {
-                        Type =
-                            CrowdControlType.Knockback,
-                        RemainingTicks =
-                            durationTicks,
-                        Priority = Priority,
-                        SourceUnitUid =
-                            caster.UnitUid,
-                        IsForcedMove = true,
-                        ForcedMoveConfigId =
-                            runtime.Definition.AbilityId,
-                        ForcedMoveDeltaPerTick =
-                            direction * SpeedPerTick,
-                        ForcedMoveWallPolicy =
-                            ForceMoveWallPolicy.StopAtWall,
-                    });
-            return result.Added
-                ? StageResult.Running
-                : StageResult.Failed;
+                    CrowdControlIds.KnockBack,
+                    durationTicks,
+                    parameters);
+            if (!result.Added)
+            {
+                return StageResult.Failed;
+            }
+            session.Blackboard.Set(
+                PullControlHandleKey,
+                result.Handle);
+            return StageResult.Running;
         }
 
         public override StageResult OnTick(
@@ -85,11 +95,15 @@ namespace FrameSyncMoba.Unit
             {
                 return StageResult.Failed;
             }
+            if (!session.Blackboard.TryGet(
+                    PullControlHandleKey,
+                    out CrowdControlHandle handle) ||
+                !handle.IsValid)
+            {
+                return StageResult.Completed;
+            }
             return target.CrowdControl
-                .TryGetActiveForcedMove(
-                    runtime.CasterUnitUid,
-                    runtime.Definition.AbilityId,
-                    out _)
+                    .GetRemainingTicks(handle) > 0
                 ? StageResult.Running
                 : StageResult.Completed;
         }
@@ -102,15 +116,14 @@ namespace FrameSyncMoba.Unit
                 runtime.World.TryGetUnit(
                     session.Aim.TargetUnitUid,
                     out Unit target) &&
-                target.CrowdControl
-                    .TryGetActiveForcedMove(
-                        runtime.CasterUnitUid,
-                        runtime.Definition.AbilityId,
-                        out CrowdControlHandle handle))
+                session.Blackboard.TryGet(
+                    PullControlHandleKey,
+                    out CrowdControlHandle handle) &&
+                handle.IsValid)
             {
                 target.CrowdControl.Remove(
                     handle,
-                    ControlRemoveReason.Manual);
+                    ControlRemoveReason.Explicit);
             }
         }
     }

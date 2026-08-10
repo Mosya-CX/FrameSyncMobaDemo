@@ -54,6 +54,38 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void ClearTargetIfMissing_RemovesDeadTarget_SoRestoreResolveSucceeds()
+        {
+            attacker.AttackHandler.BeginAttack(
+                target.UnitUid);
+            Assert.IsTrue(
+                attacker.AttackHandler.CurrentTargetUid ==
+                target.UnitUid);
+
+            // The target dies this Tick; the pipeline cleanup drops the
+            // attacker's stale reference before the Tick-end snapshot.
+            world.RequestEnterDying(target);
+            world.ConfirmUnitDeath(target);
+            attacker.AttackHandler
+                .ClearTargetIfMissing();
+
+            Assert.IsFalse(
+                attacker.AttackHandler
+                    .CurrentTargetUid.IsValid());
+
+            var snapshot = default(AttackSnapshot);
+            attacker.AttackHandler.Capture(
+                ref snapshot);
+            attacker.AttackHandler.Restore(
+                snapshot);
+            Assert.DoesNotThrow(
+                () => attacker.AttackHandler.Resolve(
+                    new RollbackContext(
+                        10,
+                        ExecutionMode.ClientReplay)));
+        }
+
+        [Test]
         public void BeginAndCancel_DoNotConsumeSequence()
         {
             Assert.AreEqual(
@@ -145,6 +177,57 @@ namespace FrameSyncMoba.Unit.Tests
                 Is.False);
             Assert.That(afterAttack,
                 Is.TypeOf<MoveActionRequest>());
+        }
+
+        [Test]
+        public void
+            ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup()
+        {
+            // Target in range: start a windup that is not yet committed.
+            target.PhysicsEntity.TeleportLogicPosition(
+                new fp2(fp.one / (fp)2, fp.zero));
+            attacker.StatHandler.SetStat(
+                StatId.AttackSpeed,
+                fp.one);
+            attacker.ApplyOrder(
+                Order.CreateAttack(
+                    target.UnitUid,
+                    true));
+            attacker.AttackHandler.BeginAttack(
+                target.UnitUid);
+
+            Assert.That(
+                attacker.AttackHandler
+                    .IsAttackCycleActive,
+                Is.True);
+            Assert.That(
+                attacker.AttackHandler
+                    .ImpactCommitted,
+                Is.False);
+
+            // A new Move order replaces the intent: the previous behavior
+            // terminates and the uncommitted windup is cancelled (Unit
+            // Framework v27.3: behavior changes go through Order/Intent).
+            attacker.ApplyOrder(
+                Order.CreateMove(
+                    new fp2((fp)5, (fp)5)));
+
+            Assert.That(
+                attacker.AttackHandler
+                    .CurrentTargetUid.IsValid(),
+                Is.False);
+            Assert.That(
+                attacker.AttackHandler
+                    .IsAttackCycleActive,
+                Is.False);
+            Assert.That(
+                attacker.AttackHandler
+                    .ImpactCommitted,
+                Is.False);
+            Assert.That(
+                attacker.Planner.CurrentIntent.Kind,
+                Is.EqualTo(
+                    IntentKind.MoveToPosition));
         }
 
         [Test]

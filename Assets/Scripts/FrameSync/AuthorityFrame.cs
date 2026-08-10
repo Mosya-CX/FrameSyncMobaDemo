@@ -159,6 +159,13 @@ namespace FrameSyncMoba.FrameSync
                                 header,
                                 reader.ReadByte());
                         break;
+                    case GameplayCommandKind.Debug:
+                        command =
+                            GameplayCommand.CreateDebugCommand(
+                                header,
+                                reader.ReadByte(),
+                                reader.ReadInt32());
+                        break;
                     case GameplayCommandKind.EquipmentShop:
                         EquipmentShopCommandOperationType operation =
                             (EquipmentShopCommandOperationType)reader.ReadByte();
@@ -261,12 +268,13 @@ namespace FrameSyncMoba.FrameSync
                 {
                     case AimKind.None: return AimSnapshot.None;
                     case AimKind.Self: return AimSnapshot.Self;
-                    case AimKind.Point: return AimSnapshot.ForPoint(point);
-                    case AimKind.Unit: return AimSnapshot.ForUnit(target);
-                    case AimKind.Direction: return AimSnapshot.ForDirection(direction);
-                    default:
-                        throw new DeterministicSimulationException(
-                            $"Unsupported AimKind {kind} in authoritative Command.");
+                case AimKind.Point: return AimSnapshot.ForPoint(point);
+                case AimKind.Unit: return AimSnapshot.ForUnit(target);
+                case AimKind.Direction:
+                    return AimSnapshot.ForDirectionNormalized(direction);
+                default:
+                    throw new DeterministicSimulationException(
+                        $"Unsupported AimKind {kind} in authoritative Command.");
                 }
             }
             public void RequireEnd()

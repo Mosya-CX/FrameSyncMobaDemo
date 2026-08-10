@@ -37,6 +37,14 @@ namespace FrameSyncMoba.Unit.Tests
                 MaxValue = 200m,
             });
 
+            table.Add(new StatDefinition
+            {
+                Id = StatId.HealingReceivedRatio,
+                DebugName = "HealingReceivedRatio",
+                DefaultBaseValue = 1m,
+                SupportsLevelGrowth = false,
+            });
+
             return table;
         }
 

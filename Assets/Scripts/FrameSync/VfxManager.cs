@@ -13,6 +13,13 @@ namespace FrameSyncMoba.FrameSync
         private readonly Dictionary<int, GameObject> _prefabCache =
             new Dictionary<int, GameObject>();
 
+        public void SetLibrary(VfxLibrary library)
+        {
+            _library = library;
+            _prefabCache.Clear();
+            _poolByDefId.Clear();
+        }
+
         public void PlayOrReconcile(in Unit.VfxEvent evt)
         {
             if (_library == null)
@@ -35,6 +42,17 @@ namespace FrameSyncMoba.FrameSync
             Vector3 targetPosition = new Vector3(
                 (float)evt.WorldPosition.x, 0f, (float)evt.WorldPosition.y);
             Vector3 sourcePosition = targetPosition;
+            bool attachToUnit = false;
+            UnitPresentationHost attachHost = null;
+            if (evt.AttachToUnit.HasValue &&
+                evt.AttachToUnit.Value.IsValid() &&
+                UnitPresentationRegistry.TryGetHost(
+                    evt.AttachToUnit.Value,
+                    out attachHost) &&
+                attachHost != null)
+            {
+                attachToUnit = true;
+            }
             if (evt.Id.SourceRuntimeUid.IsValid() &&
                 UnitPresentationRegistry.TryGetHost(
                     evt.Id.SourceRuntimeUid,
@@ -44,7 +62,22 @@ namespace FrameSyncMoba.FrameSync
                 sourcePosition = sourceHost.transform.position;
             }
 
-            instance.transform.position = targetPosition;
+            if (attachToUnit)
+            {
+                instance.transform.SetParent(
+                    attachHost.transform,
+                    false);
+                instance.transform.localPosition =
+                    Vector3.zero;
+            }
+            else
+            {
+                instance.transform.SetParent(
+                    transform,
+                    false);
+                instance.transform.position =
+                    targetPosition;
+            }
             instance.SetActive(true);
 
             VfxPlaybackHost playbackHost =
@@ -60,6 +93,11 @@ namespace FrameSyncMoba.FrameSync
             else
             {
                 duration = PlayParticleFallback(instance);
+            }
+            if (attachToUnit)
+            {
+                instance.transform.localPosition =
+                    Vector3.zero;
             }
 
             StartCoroutine(ReturnAfterPlay(
@@ -101,6 +139,15 @@ namespace FrameSyncMoba.FrameSync
                 instance.GetComponent<VfxPlaybackHost>();
             if (playbackHost != null)
                 playbackHost.ResetForPool();
+            instance.transform.SetParent(
+                transform,
+                false);
+            instance.transform.localPosition =
+                Vector3.zero;
+            instance.transform.localRotation =
+                Quaternion.identity;
+            instance.transform.localScale =
+                Vector3.one;
             instance.SetActive(false);
             if (!_poolByDefId.TryGetValue(vfxDefId, out Queue<GameObject> queue))
             {
@@ -135,26 +182,4 @@ namespace FrameSyncMoba.FrameSync
         }
     }
 
-    [CreateAssetMenu(menuName = "FrameSyncMoba/VFX Library")]
-    public sealed class VfxLibrary : ScriptableObject
-    {
-        [SerializeField] private VfxPrefabEntry[] _entries = System.Array.Empty<VfxPrefabEntry>();
-
-        [System.Serializable]
-        public struct VfxPrefabEntry
-        {
-            public int VfxDefId;
-            public GameObject Prefab;
-        }
-
-        public GameObject GetPrefab(int vfxDefId)
-        {
-            for (int i = 0; i < _entries.Length; i++)
-            {
-                if (_entries[i].VfxDefId == vfxDefId)
-                    return _entries[i].Prefab;
-            }
-            return null;
-        }
-    }
 }

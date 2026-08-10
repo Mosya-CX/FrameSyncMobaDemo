@@ -1,102 +1,162 @@
-using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using UnitType = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.PlayerInput
 {
+    /// <summary>
+    /// Local pointer resolver (Player Input v1.1 GameplayPointerResolver).
+    /// Ground points use a mathematical ray/plane intersection (no Unity
+    /// physics). Unit picking uses the deterministic logical positions:
+    /// nearest alive targetable unit within a pick radius of the clicked
+    /// ground point, tie-broken by unit kind and UnitUid. Presentation
+    /// colliders are not required.
+    /// </summary>
     public sealed class MouseWorldResolver
     {
         private readonly Camera camera;
         private readonly Plane groundPlane;
-        private readonly Func<Collider, UnitUid?> colliderToUnitUid;
-        private readonly List<UnitHitCandidate> candidates = new List<UnitHitCandidate>();
-        private readonly HashSet<UnitUid> deduplication = new HashSet<UnitUid>();
+        private readonly UnitWorld unitWorld;
+        private readonly fp pickRadius;
 
         /// <summary>
-        /// Last recorded screen position, updated each frame by the input controller.
+        /// Last recorded screen position, updated each frame by the input
+        /// controller.
         /// </summary>
         public Vector2 LastScreenPosition { get; set; }
 
         public MouseWorldResolver(
             Camera camera,
             fp groundY,
-            Func<Collider, UnitUid?> colliderToUnitUid = null)
+            UnitWorld unitWorld = null,
+            fp pickRadius = default)
         {
             this.camera = camera != null
                 ? camera
-                : throw new ArgumentNullException(nameof(camera));
-            groundPlane = new Plane(Vector3.up, new Vector3(0f, (float)groundY, 0f));
-            this.colliderToUnitUid = colliderToUnitUid;
+                : throw new System.ArgumentNullException(
+                    nameof(camera));
+            groundPlane = new Plane(
+                Vector3.up,
+                new Vector3(
+                    0f,
+                    (float)groundY,
+                    0f));
+            this.unitWorld = unitWorld;
+            this.pickRadius = pickRadius > fp.zero
+                ? pickRadius
+                : (fp)4;
         }
 
-        public fp2? ResolveGroundPoint(Vector2 screenPosition)
+        public fp2? ResolveGroundPoint(
+            Vector2 screenPosition)
         {
             Ray ray = camera.ScreenPointToRay(
-                new Vector3(screenPosition.x, screenPosition.y, 0f));
-            if (!groundPlane.Raycast(ray, out float enter)) return null;
+                new Vector3(
+                    screenPosition.x,
+                    screenPosition.y,
+                    0f));
+            if (!groundPlane.Raycast(
+                    ray,
+                    out float enter))
+            {
+                return null;
+            }
             Vector3 hit = ray.GetPoint(enter);
             return new fp2((fp)hit.x, (fp)hit.z);
         }
 
-        public UnitUid? ResolveUnitTarget(Vector2 screenPosition)
+        public UnitUid? ResolveUnitTarget(
+            Vector2 screenPosition)
         {
-            Ray ray = camera.ScreenPointToRay(
-                new Vector3(screenPosition.x, screenPosition.y, 0f));
-            RaycastHit[] hits = UnityEngine.Physics.RaycastAll(
-                ray, 1000f, LayerMask.GetMask("Unit"));
-
-            candidates.Clear();
-            deduplication.Clear();
-            for (int i = 0; i < hits.Length; i++)
+            fp2? ground =
+                ResolveGroundPoint(screenPosition);
+            if (!ground.HasValue ||
+                unitWorld == null)
             {
-                Collider collider = hits[i].collider;
-                UnitSelectionProxy proxy = collider.GetComponentInParent<UnitSelectionProxy>();
-                UnitUid? uid = proxy != null
-                    ? proxy.UnitUid
-                    : colliderToUnitUid?.Invoke(collider);
-                if (!uid.HasValue || !uid.Value.IsValid() || !deduplication.Add(uid.Value))
+                return null;
+            }
+            fp2 point = ground.Value;
+            fp radiusSq =
+                pickRadius * pickRadius;
+            IReadOnlyList<UnitType> units =
+                unitWorld.GetAllUnits();
+
+            UnitUid best = default;
+            fp bestDistanceSq =
+                new fp(int.MaxValue);
+            int bestKindPriority =
+                int.MaxValue;
+            for (int i = 0;
+                 i < units.Count;
+                 i++)
+            {
+                UnitType candidate = units[i];
+                if (candidate == null ||
+                    candidate.PhysicsEntity == null)
                 {
                     continue;
                 }
-
-                candidates.Add(new UnitHitCandidate(
-                    uid.Value,
-                    hits[i].distance,
-                    proxy != null ? proxy.SelectionPriority : 0));
+                if (candidate.LifeState !=
+                        LifeState.Alive ||
+                    !candidate.CapabilityState
+                        .IsTargetable ||
+                    candidate.TeamId ==
+                        TeamId.Neutral)
+                {
+                    continue;
+                }
+                fp2 position =
+                    candidate.PhysicsEntity
+                        .Transform2D.Position;
+                fp distanceSq =
+                    fpmath.lengthsq(
+                        position - point);
+                if (distanceSq > radiusSq)
+                {
+                    continue;
+                }
+                int kindPriority =
+                    GetKindPriority(
+                        candidate.UnitKind);
+                if (!best.IsValid() ||
+                    distanceSq < bestDistanceSq ||
+                    (distanceSq == bestDistanceSq &&
+                     (kindPriority <
+                          bestKindPriority ||
+                      (kindPriority ==
+                           bestKindPriority &&
+                       candidate.UnitUid
+                           .CompareTo(best) < 0))))
+                {
+                    best = candidate.UnitUid;
+                    bestDistanceSq = distanceSq;
+                    bestKindPriority =
+                        kindPriority;
+                }
             }
 
-            candidates.Sort(UnitHitCandidateComparer.Instance);
-            return candidates.Count > 0 ? candidates[0].UnitUid : (UnitUid?)null;
+            return best.IsValid()
+                ? best
+                : (UnitUid?)null;
         }
 
-        private readonly struct UnitHitCandidate
+        private static int GetKindPriority(
+            UnitKind kind)
         {
-            public readonly UnitUid UnitUid;
-            public readonly float RayDistance;
-            public readonly int SelectionPriority;
-
-            public UnitHitCandidate(UnitUid unitUid, float rayDistance, int selectionPriority)
+            switch (kind)
             {
-                UnitUid = unitUid;
-                RayDistance = rayDistance;
-                SelectionPriority = selectionPriority;
-            }
-        }
-
-        private sealed class UnitHitCandidateComparer : IComparer<UnitHitCandidate>
-        {
-            public static readonly UnitHitCandidateComparer Instance =
-                new UnitHitCandidateComparer();
-
-            public int Compare(UnitHitCandidate x, UnitHitCandidate y)
-            {
-                int comparison = x.RayDistance.CompareTo(y.RayDistance);
-                if (comparison != 0) return comparison;
-                comparison = y.SelectionPriority.CompareTo(x.SelectionPriority);
-                if (comparison != 0) return comparison;
-                return x.UnitUid.CompareTo(y.UnitUid);
+                case UnitKind.Hero:
+                    return 0;
+                case UnitKind.Monster:
+                    return 1;
+                case UnitKind.Minion:
+                    return 2;
+                case UnitKind.Structure:
+                    return 3;
+                default:
+                    return 4;
             }
         }
     }

@@ -9,6 +9,7 @@
         "FrameSyncMoba.FrameSync",
         "FrameSyncMoba.PlayerInput",
         "FrameSyncMoba.LuaBridge",
+        "XLua.Runtime",
         "Unity.Netcode.Runtime",
         "Unity.Networking.Transport",
         "Unity.Collections",
@@ -24,7 +25,9 @@
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        "Sirenix.OdinInspector.Attributes.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

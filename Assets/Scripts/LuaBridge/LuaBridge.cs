@@ -45,11 +45,13 @@ namespace FrameSyncMoba.LuaBridge
             Runtime.SetTableField("HUD", "Kills", dto.Kills);
             Runtime.SetTableField("HUD", "Deaths", dto.Deaths);
             Runtime.SetTableField("HUD", "Assists", dto.Assists);
+            Runtime.SetTableField("HUD", "CreepScore", dto.CreepScore);
 
             // All-player scoreboard arrays
             SetIntArray("Scoreboard", "Kills", dto.AllPlayerKills?.ToArray());
             SetIntArray("Scoreboard", "Deaths", dto.AllPlayerDeaths?.ToArray());
             SetIntArray("Scoreboard", "Assists", dto.AllPlayerAssists?.ToArray());
+            SetIntArray("Scoreboard", "CreepScore", dto.AllPlayerCreepScore?.ToArray());
             SetStringArray("Scoreboard", "Names", dto.AllPlayerNames?.ToArray());
 
             if (controlledUnit != null)

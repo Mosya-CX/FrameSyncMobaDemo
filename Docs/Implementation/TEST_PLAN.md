@@ -1,8 +1,15 @@
 # 完整对局测试计划
 
-> 更新日期：2026-07-29  
+> 更新日期：2026-08-10（执行状态同步）
 > 前置条件：`Docs/Implementation/TEST_PREPARATION.md` 第 8 节门禁全部通过。  
 > 测试内容均为中立夹具，不代表正式英雄、技能、装备或平衡内容。
+
+> 当前执行状态：本地 packaged C/S 已由仓库所有者暂时接受；真实 UOS 两客户端
+> 已跑到持续 Gameplay，但本计划尚未全通过。JungleCamp/TestMonster、测试装备
+> 商品目录、Result/Return/remote settlement 仍缺；UOS owner-race 的当前
+> 修复尝试还漏掉 NGO connection callback，启动 send queue/Loading 时间也需
+> 修正和新包复验。不要因为网络和兵线已运行，就跳过这些
+> 未完成条目。实时交接证据见 `Docs/Implementation/CURRENT_HANDOFF.md`。
 
 ## 1. 通过标准
 
@@ -97,7 +104,11 @@ Client 1 -> PlayerSlot 1 -> TestHero B
 
 ### 启动
 
-1. 启动一个 Dedicated Server。
+三个进程都必须带 `-logFile` 写到 `Builds/LocalNgo/Logs/`（命名 `cs<N>_<yyyyMMdd>_{server,client0,client1}.log`），
+完整启动命令见 `Docs/Implementation/BUILD_GUIDE.md` 第 4 节，完整测试流程/检查清单/日志解读见
+`Docs/Implementation/C_S_TEST_GUIDE.md`。
+
+1. 启动一个 Dedicated Server（不带 slot 参数）。
 2. 启动 Client 0（`--LocalPlayerSlot=0`）。
 3. 启动 Client 1（`--LocalPlayerSlot=1`）。
 4. 两端完成身份、选择、Ready、Loading 和同一 StartTick。

@@ -1,36 +1,35 @@
--- result.lua
--- Match result screen Lua script.
--- Reads HUD table populated by LuaBridge each tick.
--- (ExecPlan 0092, UI/Lua Design v9.1)
+-- Result page (design v9.1 9.5): shows the local team's win/loss icons.
+local UIBase = require("UI.Core.UIBase")
 
-local function OnResultShow()
-    local winner = HUD.WinnerTeam or 0
-    local reason = HUD.EndReason or "Unknown"
-    local duration = HUD.MatchDuration or 0
+local Result = setmetatable({}, { __index = UIBase })
+Result.__index = Result
 
-    local mins = math.floor(duration / 60)
-    local secs = duration % 60
-    local timeStr = string.format("%d:%02d", mins, secs)
+function Result.New(refs)
+    local self = UIBase.New(Result, refs)
 
-    if winner == 0 then
-        print("[Result] Draw after " .. timeStr)
-    else
-        print("[Result] Team " .. winner .. " wins after " .. timeStr .. " (" .. reason .. ")")
+    self:BindClick(self.ui.ContinueBtn, function()
+        GameFlow.ReturnMainMenu()
+    end)
+
+    return self
+end
+
+function Result:Refresh()
+    local victory = GameFlow.IsLocalTeamVictory()
+    local draw = GameFlow.LastMatchDraw()
+
+    if self.ui.VictoryIcon ~= nil then
+        self.ui.VictoryIcon:SetActive(victory)
     end
-
-    -- KDA from Scoreboard table
-    local names = Scoreboard.Names or {}
-    local kills = Scoreboard.Kills or {}
-    local deaths = Scoreboard.Deaths or {}
-    local assists = Scoreboard.Assists or {}
-
-    for i = 1, #names do
-        print(string.format("[Result] %s - K:%d D:%d A:%d",
-            names[i], kills[i] or 0, deaths[i] or 0, assists[i] or 0))
+    if self.ui.DefeatIcon ~= nil then
+        self.ui.DefeatIcon:SetActive(
+            not victory and not draw)
+    end
+    if self.ui.TitleText ~= nil then
+        self.ui.TitleText.text =
+            victory and "Victory"
+            or (draw and "Draw" or "Defeat")
     end
 end
 
--- Called by LuaRuntime when result screen is triggered
-function ShowResult()
-    OnResultShow()
-end
+return Result

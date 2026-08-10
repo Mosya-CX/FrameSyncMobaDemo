@@ -112,6 +112,10 @@ namespace FrameSyncMoba.Unit
         internal static void RaiseUnitAssist(UnitUid assistant, UnitUid victim)
         {
             _onUnitAssist?.Invoke(assistant, victim);
+            Unit victimUnit = TryResolveUnit?.Invoke(victim);
+            TryForwardToTarget(
+                assistant,
+                u => u.EventBus?.PublishUnitAssist(victimUnit));
         }
 
         internal static void RaiseLevelUp(UnitUid unitUid, int previousLevel, int newLevel)
@@ -140,6 +144,10 @@ namespace FrameSyncMoba.Unit
     {
         public UnitUid SourceUid;
         public UnitUid TargetUid;
+        /// <summary>Source descriptor of the damage (Attack/Ability/Buff/
+        /// AttackEffect/...). Enables effects to distinguish skill damage
+        /// from basic-attack damage without guessing.</summary>
+        public SourceDescriptor Source;
         public fp RawDamage;
         public fp MitigatedDamage;
         public fp ActualDamage;

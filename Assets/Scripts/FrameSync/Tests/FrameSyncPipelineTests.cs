@@ -110,16 +110,18 @@ namespace FrameSyncMoba.FrameSync.Tests
             var runtime = new FrameSyncGameRuntime(
                 _world, null, 0, 0, 180, 300, 60, (fp)7 / (fp)10, 42u);
 
-            // Submit a move command
+            // Submit a move command targeting the first tick after spawn.
+            // D-008 spawn-Tick gate: a unit cannot act during its own spawn
+            // Tick (SpawnLogicTick), so tick 0 is a setup Tick only.
             var unit2 = _world.GetAllUnits()[0];
             runtime.SubmitCommand(GameplayCommand.CreateMove(
-                CreateHeader(unit2.UnitUid, 0, 1),
+                CreateHeader(unit2.UnitUid, 1, 1),
                 new fp2(10, 0)));
 
-            // Execute one tick
-            runtime.ExecuteOneTick();
+            // Execute the setup Tick and the command Tick.
+            runtime.ExecuteTicks(2);
 
-            Assert.AreEqual(1, runtime.CurrentTick);
+            Assert.AreEqual(2, runtime.CurrentTick);
             Assert.AreNotEqual(fp2.zero, unit2.MovementHandler.Position);
         }
 

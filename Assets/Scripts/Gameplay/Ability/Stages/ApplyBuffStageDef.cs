@@ -30,10 +30,16 @@ namespace FrameSyncMoba.Unit
 
             if (!runtime.World.TryGetUnit(targetUid, out Unit target))
                 return StageResult.Failed;
-            if (!runtime.World.BuffDefinitions.TryGet(BuffConfigId, out BuffDef definition))
+            if (!runtime.World.BuffDefinitions.TryGet(BuffConfigId, out BuffDefinition definition))
                 return StageResult.Failed;
 
-            target.BuffHandler.Apply(BuffConfigId, definition, runtime.CasterUnitUid);
+            target.BuffHandler.Apply(
+                BuffConfigId,
+                definition,
+                BuffSource.Create(
+                    runtime.CasterUnitUid,
+                    BuffSourceType.Ability,
+                    0));
             return StageResult.Completed;
         }
     }

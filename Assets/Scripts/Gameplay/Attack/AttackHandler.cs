@@ -17,6 +17,7 @@ namespace FrameSyncMoba.Unit
     {
         AbilityEffect = 0,
         ScriptedRule = 1,
+        MoveCancelRecovery = 2,
     }
 
     public class AttackHandler : UnitHandler, IRollback<AttackSnapshot>
@@ -33,6 +34,8 @@ namespace FrameSyncMoba.Unit
         [SerializeField, Range(0f, 1f)] private float windupRatio = 0.2f;
         [SerializeField, Min(0)] private int projectileDefId;
         [SerializeField, Min(0)] private int commitSfxEventId;
+        [SerializeField] private PresentationAnchor commitSfxAnchor =
+            PresentationAnchor.UnitRoot;
 
         public fp WindupRatio
         {
@@ -52,6 +55,12 @@ namespace FrameSyncMoba.Unit
         {
             get => commitSfxEventId;
             set => commitSfxEventId = value;
+        }
+
+        public PresentationAnchor CommitSfxAnchor
+        {
+            get => commitSfxAnchor;
+            set => commitSfxAnchor = value;
         }
 
         public ref readonly AttackSnapshot Snapshot => ref _state;
@@ -193,6 +202,43 @@ namespace FrameSyncMoba.Unit
             }
         }
 
+        /// <summary>
+        /// Deterministically drops a current attack target that is no longer
+        /// alive/present (e.g. it died this Tick and was disposed). Called
+        /// after combat death disposals so the Tick-end snapshot never
+        /// carries a stale target reference, which would otherwise make a
+        /// later rollback restore fail "Attack snapshot references missing
+        /// target".
+        /// </summary>
+        public void ClearTargetIfMissing()
+        {
+            if (!_state.CurrentTargetUid.IsValid())
+            {
+                return;
+            }
+            if (_state.ImpactCommitted)
+            {
+                // A committed attack already handed the target to its
+                // projectile; the handler field stays set until the cycle
+                // completes (and Resolve tolerates a target that died
+                // mid-flight). Clearing it here would violate the
+                // committed-with-target snapshot invariant.
+                return;
+            }
+            UnitWorld world = Owner?.World;
+            bool targetAlive =
+                world != null &&
+                world.TryGetUnit(
+                    _state.CurrentTargetUid,
+                    out Unit target) &&
+                target.LifeState == LifeState.Alive;
+            if (targetAlive)
+            {
+                return;
+            }
+            CancelBeforeCommit();
+        }
+
         public virtual bool CommitAttack()
         {
             int currentTick = SimulationTickContext.Current.Tick;
@@ -271,6 +317,10 @@ namespace FrameSyncMoba.Unit
         protected virtual int ResolveCommitSfxEventId() =>
             commitSfxEventId;
 
+        protected virtual PresentationAnchor
+            ResolveCommitSfxAnchor() =>
+                commitSfxAnchor;
+
         protected virtual bool EmitDirectAttack(Unit target)
         {
             fp damage = GetAttackDamage();
@@ -321,7 +371,10 @@ namespace FrameSyncMoba.Unit
                     EmitterUnitUid = Owner.UnitUid,
                 },
                 sourcePosition,
-                direction);
+                direction,
+                null,
+                0,
+                target.UnitUid);
         }
 
         private bool EmitProjectileAttack(Unit target)
@@ -332,7 +385,20 @@ namespace FrameSyncMoba.Unit
 
             ProjectileUid uid = world.RequestSpawn(
                 BuildProjectileSpawnRequest(target));
+            if (uid.IsValid)
+            {
+                OnProjectileCommitted(uid);
+            }
             return uid.IsValid;
+        }
+
+        /// <summary>
+        /// Hook after a projectile attack is spawned (used by tower ramp and
+        /// in-flight locking). Base implementation does nothing.
+        /// </summary>
+        protected virtual void OnProjectileCommitted(
+            ProjectileUid uid)
+        {
         }
 
         private bool TryResolveTarget(
@@ -372,6 +438,7 @@ namespace FrameSyncMoba.Unit
         private void TurnToTargetImmediately(UnitUid targetUid)
         {
             if (!Owner.CapabilityState.CanTurn ||
+                !Owner.CapabilityState.CanMove ||
                 Owner.World == null ||
                 !Owner.World.TryGetUnit(targetUid, out Unit target))
             {
@@ -388,6 +455,9 @@ namespace FrameSyncMoba.Unit
         {
             int eventId = ResolveCommitSfxEventId();
             if (eventId == 0) return;
+            Debug.Log(
+                $"[AttackSfx] submit id={eventId} " +
+                $"seq={committedSequence}");
 
             int tick = SimulationTickContext.Current.Tick;
             var evt = new SfxEvent
@@ -403,6 +473,8 @@ namespace FrameSyncMoba.Unit
                 SfxDefId = eventId,
                 Anchor = SfxAnchor.UnitRoot,
                 AttachToUnit = Owner.UnitUid,
+                SocketKey =
+                    (int)ResolveCommitSfxAnchor(),
                 PitchScale = fp.one,
                 VolumeScale = fp.one,
             };
@@ -416,7 +488,7 @@ namespace FrameSyncMoba.Unit
             return Owner.StatHandler.GetStat(StatId.AttackSpeed);
         }
 
-        private fp GetAttackDamage()
+        protected fp GetAttackDamage()
         {
             if (Owner?.StatHandler == null) return fp.zero;
             return Owner.StatHandler.GetStat(StatId.AttackDamage);
@@ -444,13 +516,13 @@ namespace FrameSyncMoba.Unit
             return value;
         }
 
-        public void Capture(ref AttackSnapshot state)
+        public virtual void Capture(ref AttackSnapshot state)
         {
             ValidateState(_state);
             state = _state;
         }
 
-        public void Restore(in AttackSnapshot state)
+        public virtual void Restore(in AttackSnapshot state)
         {
             ValidateState(state);
             _state = state;
@@ -460,11 +532,13 @@ namespace FrameSyncMoba.Unit
         {
             UnitUid targetUid = _state.CurrentTargetUid;
             if (targetUid.IsValid() &&
+                !_state.ImpactCommitted &&
                 (Owner?.World == null ||
                  !Owner.World.TryGetUnit(targetUid, out _)))
             {
                 throw new DeterministicSimulationException(
-                    $"Attack snapshot references missing target {targetUid}.");
+                    $"Attack snapshot references missing target {targetUid} " +
+                    $"(owner={Owner?.UnitUid} tick={context.TargetTick}).");
             }
         }
 

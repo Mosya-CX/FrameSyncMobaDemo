@@ -281,7 +281,7 @@ The Gameplay player-input module handles:
 - Normal attack.
 - Q/W/E/R ability slots.
 - Local non-smart-cast aiming.
-- Hold-release ability input.
+- Ability input translation (composable event-to-signal mappings).
 
 Unity InputAction callbacks only write local input events.
 
@@ -289,7 +289,16 @@ Gameplay requests are processed later by the player-input module.
 
 Do not access or modify deterministic Gameplay directly inside InputAction callbacks.
 
-Player input mode is derived offline from the current `CastModelDef`.
+Player input mapping is authored per-skill data (an `InputMappingTemplate` of
+event-to-signal `Bindings`), defaulted from `CastModelDef` and validated
+offline in the editor (no Bake; runtime reads the validated config only).
+The input layer is an analyzer: an input event plus the skill's mapping
+template produces a cast intent (`Focus` / `Commit` / `Cancel` / local-aim
+only / nothing). Events absent from the template produce no action. The
+intent is handed to the unit's Planner / Arbiter (Unit Framework v27.3 §3);
+on acceptance it is translated to the existing `AbilitySignal` language and
+the `CastAbility` Command; rejected intents produce no Command. The mapping
+is never hard-coded in the input module.
 
 Do not duplicate these values in input configuration:
 
@@ -301,15 +310,27 @@ Do not duplicate these values in input configuration:
 - Cooldown.
 - Charge curves.
 
-For hold-release abilities:
+For the current hold-release (charge/guide) cast model, the default
+profile is:
 
-- Key press maps to the existing `Focus` signal.
-- Key release maps to the existing `Commit` signal.
-- Primary click also maps to the same `Commit` signal.
-- The first successful Commit request suppresses duplicate Commit input.
+- Key press maps to the existing `Focus` signal (enter charge).
+- Key release maps to no signal (no `Commit`, no `Cancel`).
+- Primary click maps to the existing `Commit` signal (cast).
+
+This is the current profile for charge abilities, not a hard rule: the
+architecture still permits any per-ability template to compose other
+event-to-signal mappings, as long as every mapped signal is an existing
+`AbilitySignal` verb and the template passes offline validation; runtime
+guessing is forbidden.
+
+Independent of the profile:
+
+- The first successful Commit request suppresses duplicate Commit input
+  regardless of which physical event triggered it.
 - Right click does not cancel an already activated hold-release ability.
 - Right click may still generate Move or Attack.
-- Skill timing is calculated from deterministic Focus and Commit execution Ticks.
+- Skill timing is calculated from deterministic Focus and Commit execution
+  Ticks.
 
 Input-local state:
 
@@ -490,7 +511,8 @@ For example:
 “Varus Q” means:
     prove that the generic Ability system supports
     Focus on press,
-    Commit on release or primary click,
+    Commit on primary click (key release is no signal in the current
+    charge profile),
     deterministic charge duration,
     projectile creation,
     session completion,
@@ -514,3 +536,15 @@ Use neutral test names such as:
 Do not use production hero names in runtime framework types.
 
 Framework code must remain data-driven so future production content can be added through configuration and existing extension points without modifying core simulation code.
+
+## 打包 / 构建
+
+打包入口与方法详见 `Docs/Implementation/BUILD_GUIDE.md`；
+本地 C/S 测试流程、启动方式与日志解读详见 `Docs/Implementation/C_S_TEST_GUIDE.md`。
+
+构建纪律（务必遵守）：
+
+- 打包命令只发送一次，发送后立即停止操作，不轮询、不重复触发，等待用户通知“打包结束”。
+- 打包过程中不要向 Unity 发送其它指令。
+- 本地 C/S 测试包 = `LocalNgoBuildMenu.BuildBoth()`（Server + Client）；UOS 服务器镜像 =
+  `BuildServerLinux()`。

@@ -160,6 +160,36 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.IsTrue(runtime.ActiveSession.CostPaid);
         }
 
+        [Test]
+        public void Toggle_FirstCommitActivatesAndSecondCommitTurnsOff()
+        {
+            AbilityRuntime runtime = InstallToggleAbility();
+
+            Assert.IsTrue(caster.AbilityHandler.HandleSignal(
+                CommitSignal(AimSnapshot.None)));
+            Assert.IsNotNull(runtime.ActiveSession);
+            Assert.AreEqual(
+                (byte)1,
+                runtime.ActiveSession.CurrentStageKey);
+
+            Assert.IsTrue(caster.AbilityHandler.HandleSignal(
+                CommitSignal(AimSnapshot.None)));
+            Assert.IsNull(runtime.ActiveSession);
+        }
+
+        [Test]
+        public void Toggle_TurnOffDoesNotStartCooldown()
+        {
+            AbilityRuntime runtime = InstallToggleAbility();
+
+            Assert.IsTrue(caster.AbilityHandler.HandleSignal(
+                CommitSignal(AimSnapshot.None)));
+            Assert.IsTrue(caster.AbilityHandler.HandleSignal(
+                CommitSignal(AimSnapshot.None)));
+
+            Assert.IsTrue(runtime.IsReady(20));
+        }
+
         private AbilityRuntime InstallCommitAbility(
             AbilityCostPlan cost,
             StageDef stage,
@@ -215,6 +245,31 @@ namespace FrameSyncMoba.Unit.Tests
                     AimKind = AimKind.Direction,
                     CastRange = (fp)5,
                     CostPlan = cost,
+                });
+        }
+
+        private AbilityRuntime InstallToggleAbility()
+        {
+            var model = new ToggleCastModelDef
+            {
+                Active = new CastStage
+                {
+                    StageKey = 1,
+                    Def = new TestStageDef(),
+                    DurationTicks = 360000,
+                    Interruptible = false,
+                },
+                ResourcePerTick = fp.zero,
+            };
+            return Install(
+                new AbilityDef
+                {
+                    AbilityId = 102,
+                    Name = "TestToggleAbility",
+                    CastModel = model,
+                    AimKind = AimKind.None,
+                    CastRange = fp.zero,
+                    CostPlan = default,
                 });
         }
 

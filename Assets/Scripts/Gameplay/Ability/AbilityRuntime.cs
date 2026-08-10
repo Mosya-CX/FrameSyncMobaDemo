@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -37,6 +38,27 @@ namespace FrameSyncMoba.Unit
         public bool IsLearned => Level > 0;
         public bool IsReady(int currentTick)
             => IsLearned && currentTick >= CooldownEndsAtTick && ActiveSession == null;
+
+        /// <summary>
+        /// Current UI icon for this ability instance (design v15.2): the
+        /// current cast stage's IconOverride when in a session, otherwise the
+        /// AbilityDef.Icon. Presentation-only; never affects Gameplay.
+        /// </summary>
+        public Sprite GetCurrentIcon()
+        {
+            Sprite icon = Definition?.Icon;
+            if (ActiveSession != null &&
+                Definition?.CastModel != null)
+            {
+                CastStage? stage =
+                    Definition.CastModel.GetStage(
+                        ActiveSession.CurrentStageKey);
+                if (stage.HasValue &&
+                    stage.Value.IconOverride != null)
+                    icon = stage.Value.IconOverride;
+            }
+            return icon;
+        }
 
         public void StartCooldown(int currentTick, int cooldownTicks)
             => CooldownEndsAtTick = currentTick + cooldownTicks;

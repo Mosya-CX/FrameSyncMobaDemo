@@ -78,6 +78,7 @@ namespace FrameSyncMoba.FrameSync
                     Kills = entries[i].Kills,
                     Deaths = entries[i].Deaths,
                     Assists = entries[i].Assists,
+                    CreepKills = entries[i].CreepKills,
                 };
             }
 

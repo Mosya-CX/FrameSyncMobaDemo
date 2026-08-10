@@ -20,6 +20,7 @@ namespace FrameSyncMoba.Unit
             owner.AbilityHandler?.OnDamageTaken(data);
             owner.BuffHandler?.OnDamageTaken(data);
             owner.EquipmentHandler?.OnDamageTaken(data);
+            owner.CrowdControl?.OnDamageTaken(data);
         }
 
         internal void PublishDamageDealt(in DamageEventData data)
@@ -69,6 +70,12 @@ namespace FrameSyncMoba.Unit
             owner.EquipmentHandler?.OnUnitKill(victim);
         }
 
+        internal void PublishUnitAssist(Unit victim)
+        {
+            owner.AbilityHandler?.OnUnitAssist(victim);
+            owner.BuffHandler?.OnUnitAssist(victim);
+        }
+
         internal void PublishLevelUp(int previousLevel, int newLevel)
         {
             owner.AbilityHandler?.OnLevelUp(previousLevel, newLevel);
@@ -86,6 +93,7 @@ namespace FrameSyncMoba.Unit
 
         internal void PublishOnHit(in OnHitEventData data)
         {
+            owner.AbilityHandler?.OnHitDealt(data);
             owner.BuffHandler?.OnHitDealt(data);
             owner.EquipmentHandler?.OnHitDealt(data);
         }

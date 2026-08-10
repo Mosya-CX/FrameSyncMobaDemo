@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 3168920449023672019}
   - component: {fileID: 6234642279132419105}
   - component: {fileID: 1560649845452673800}
-  - component: {fileID: 8193509109270971348}
+  - component: {fileID: 6253202753731754206}
   m_Layer: 5
   m_Name: ResultPanel
   m_TagString: Untagged
@@ -338,8 +338,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d6e0199e1a9f6a46a8a916152cc9991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pageId: 5
-  layer: 2
+  pageId: 7
+  layer: 0
 --- !u!114 &1560649845452673800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,28 +352,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c05ecf9860c11904d965ae18fb2ced36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvasGroup: {fileID: 0}
---- !u!114 &8193509109270971348
-MonoBehaviour:
+  canvasGroup: {fileID: 6253202753731754206}
+  luaModule: UI.Result
+  refs:
+  - Name: ContinueBtn
+    Value: {fileID: 5923921746312369207}
+  - Name: VictoryIcon
+    Value: {fileID: 7293240375956484836}
+  - Name: DefeatIcon
+    Value: {fileID: 2732492325609538414}
+--- !u!225 &6253202753731754206
+CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5031822139431748686}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea2822cb1ad37542bc3f60d51976e10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resultCanvas: {fileID: 0}
-  contentPanel: {fileID: 0}
-  winnerText: {fileID: 0}
-  durationText: {fileID: 0}
-  endReasonText: {fileID: 0}
-  kdaContainer: {fileID: 0}
-  kdaRowPrefab: {fileID: 0}
-  returnButton: {fileID: 5923921746312369207}
-  returnButtonText: {fileID: 0}
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5060701615081335234
 GameObject:
   m_ObjectHideFlags: 0

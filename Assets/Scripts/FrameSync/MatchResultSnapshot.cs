@@ -61,5 +61,6 @@ namespace FrameSyncMoba.FrameSync
         public int Kills;
         public int Deaths;
         public int Assists;
+        public int CreepKills;
     }
 }

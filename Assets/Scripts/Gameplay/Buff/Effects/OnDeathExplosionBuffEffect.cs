@@ -10,14 +10,27 @@ namespace FrameSyncMoba.Unit
         public DamageType DamageType = DamageType.Magic;
         public UnitTargetFilter TargetFilter = UnitTargetFilter.Default;
 
-        private const string TriggeredKey = "_ondeath_triggered";
+        public BuffStateSlotId TriggerSlot;
+
+        public override BuffStateSlotDefinition[]
+            RequiredSlotDefinitions =>
+                new[]
+                {
+                    new BuffStateSlotDefinition
+                    {
+                        SlotId = TriggerSlot,
+                        Kind = BuffValueKind.Bool,
+                    },
+                };
 
         private readonly List<Unit> _resultScratch = new List<Unit>();
         private readonly List<Physics.PhysicsEntity2D> _gridScratch = new List<Physics.PhysicsEntity2D>();
 
         public override void OnAdded(BuffRuntime runtime, Unit owner)
         {
-            runtime.Blackboard.SetNumber(TriggeredKey, fp.zero);
+            runtime.Blackboard.WriteBool(
+                TriggerSlot,
+                false);
         }
 
         public override void OnRemoved(BuffRuntime runtime, Unit owner) { }
@@ -29,10 +42,12 @@ namespace FrameSyncMoba.Unit
             if (ExplosionDamage <= fp.zero || ExplosionRadius <= fp.zero)
                 return;
 
-            fp triggered = runtime.Blackboard.GetNumberOrDefault(TriggeredKey);
-            if (triggered > fp.zero)
+            if (runtime.Blackboard.ReadBoolOrDefault(
+                    TriggerSlot))
                 return;
-            runtime.Blackboard.SetNumber(TriggeredKey, fp.one);
+            runtime.Blackboard.WriteBool(
+                TriggerSlot,
+                true);
 
             fp2 center = owner.MovementHandler?.Position ?? fp2.zero;
             var desc = new RangeQueryDesc

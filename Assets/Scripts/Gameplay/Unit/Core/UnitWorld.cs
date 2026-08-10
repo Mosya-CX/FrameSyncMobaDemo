@@ -29,6 +29,7 @@ namespace FrameSyncMoba.Unit
         public EquipmentDatabase EquipmentDatabase { get; set; }
         public AbilityDefinitionRegistry AbilityDefinitions { get; set; }
         public BuffDefinitionRegistry BuffDefinitions { get; set; }
+        public CrowdControlDefinitionRegistry CrowdControlDefinitions { get; set; }
         public PhysicsWorld PhysicsWorld { get; set; }
         public fp StatGrowthC { get; set; }
         public fp StatGrowthD { get; set; }
@@ -232,15 +233,20 @@ namespace FrameSyncMoba.Unit
                     TickRate,
                     AttackSequenceResetIntervalTicks,
                     request.Position);
-                unit.MovementHandler.SetMoveSpeedToLogicVelocityScale(
+                unit.MovementHandler?.SetMoveSpeedToLogicVelocityScale(
                     MoveSpeedToLogicVelocityScale);
-                unit.MovementHandler.SetLogicSecondsPerTick(
+                unit.MovementHandler?.SetLogicSecondsPerTick(
                     fp.one / (fp)TickRate);
-                unit.EquipmentHandler.DefinitionDatabase = EquipmentDatabase;
+                if (unit.EquipmentHandler != null)
+                    unit.EquipmentHandler.DefinitionDatabase = EquipmentDatabase;
                 unit.World = this;
-                unit.AbilityHandler.DefinitionRegistry = AbilityDefinitions;
-                unit.AbilityHandler.InitializeConfiguredLoadoutOrThrow();
+                if (unit.AbilityHandler != null)
+                {
+                    unit.AbilityHandler.DefinitionRegistry = AbilityDefinitions;
+                    unit.AbilityHandler.InitializeConfiguredLoadoutOrThrow();
+                }
                 unit.BuffHandler.DefinitionRegistry = BuffDefinitions;
+                unit.BuffHandler.ApplyInitialBuffs();
 
                 physicsEntity = unit.PhysicsEntity;
                 physicsEntity.SetLogicPose(request.Position, request.Forward);
@@ -265,7 +271,7 @@ namespace FrameSyncMoba.Unit
                     unit.Locomotion.SetFlowFieldRegistry(
                         FlowFieldRegistry);
                 }
-                unit.MovementHandler.SetCollisionResolver(
+                unit.MovementHandler?.SetCollisionResolver(
                     MovementCollisionResolver);
 
                 return unitUid;
@@ -430,6 +436,10 @@ namespace FrameSyncMoba.Unit
 
         internal void ClearAIControllersForRestore()
         {
+            for (int i = 0; i < aiControllers.Count; i++)
+            {
+                aiControllers[i].UnsubscribeEvents();
+            }
             aiControllers.Clear();
         }
 
@@ -462,15 +472,20 @@ namespace FrameSyncMoba.Unit
                     unitUid, ownerUid, prototype, teamId, StatDefinitionTable,
                     StatGrowthC, StatGrowthD, TickRate,
                     AttackSequenceResetIntervalTicks, position);
-                unit.MovementHandler.SetMoveSpeedToLogicVelocityScale(
+                unit.MovementHandler?.SetMoveSpeedToLogicVelocityScale(
                     MoveSpeedToLogicVelocityScale);
-                unit.MovementHandler.SetLogicSecondsPerTick(
+                unit.MovementHandler?.SetLogicSecondsPerTick(
                     fp.one / (fp)TickRate);
-                unit.EquipmentHandler.DefinitionDatabase = EquipmentDatabase;
+                if (unit.EquipmentHandler != null)
+                    unit.EquipmentHandler.DefinitionDatabase = EquipmentDatabase;
                 unit.World = this;
-                unit.AbilityHandler.DefinitionRegistry = AbilityDefinitions;
-                unit.AbilityHandler.InitializeConfiguredLoadoutOrThrow();
+                if (unit.AbilityHandler != null)
+                {
+                    unit.AbilityHandler.DefinitionRegistry = AbilityDefinitions;
+                    unit.AbilityHandler.InitializeConfiguredLoadoutOrThrow();
+                }
                 unit.BuffHandler.DefinitionRegistry = BuffDefinitions;
+                unit.BuffHandler.ApplyInitialBuffs();
                 physicsEntity = unit.PhysicsEntity;
                 physicsEntity.SetLogicPose(position, forward);
                 physicsEntity.SetQueryInfo(new PhysicsEntityQueryInfo(
@@ -494,8 +509,8 @@ namespace FrameSyncMoba.Unit
                     unit.Locomotion.SetFlowFieldRegistry(
                         FlowFieldRegistry);
                 }
-                unit.MovementHandler.SetCollisionResolver(
-                    MovementCollisionResolver);
+        unit.MovementHandler?.SetCollisionResolver(
+            MovementCollisionResolver);
                 runtimeRevision++;
                 return unit;
             }
@@ -531,6 +546,22 @@ namespace FrameSyncMoba.Unit
             if (revision < 0)
                 throw new DeterministicSimulationException("UnitWorld RuntimeRevision cannot be negative.");
             runtimeRevision = revision;
+        }
+
+        /// <summary>
+        /// Resets the per-Tick spawn sequence allocator after a rollback
+        /// restore. The allocator state is transient (not part of the
+        /// snapshot) and is normally reset on the first allocation of a
+        /// new Tick; an interrupted replay pass can leave
+        /// <c>currentSequenceLogicTick</c> equal to the next replayed Tick,
+        /// which would otherwise make the counter continue from a
+        /// partially-consumed value instead of zero.
+        /// </summary>
+        internal void ResetSpawnSequenceForRollbackRestore()
+        {
+            currentSequenceLogicTick = -1;
+            nextSpawnSequenceInTick = 0;
+            spawnSequenceExhausted = false;
         }
 
         internal byte AllocateSpawnSequence()
@@ -598,6 +629,23 @@ namespace FrameSyncMoba.Unit
             unit.ApplyLifeStateFromUnitWorld(LifeState.Respawning);
         }
 
+        /// <summary>
+        /// Debug/test helper: instantly revives a Dead unit at its home
+        /// spawn position with respawn health/resource rules applied.
+        /// Deterministic (part of the simulation), used by debug commands.
+        /// </summary>
+        public void ForceRevive(Unit unit)
+        {
+            if (unit == null ||
+                unit.LifeState != LifeState.Dead)
+            {
+                return;
+            }
+            BeginRespawn(unit);
+            CompleteRespawn(unit);
+            unit.ClearForRespawn();
+        }
+
         public void CompleteRespawn(Unit unit)
         {
             if (unit == null) throw new ArgumentNullException(nameof(unit));
@@ -605,6 +653,14 @@ namespace FrameSyncMoba.Unit
             unit.ApplyLifeStateFromUnitWorld(LifeState.Alive);
             ref CapabilityState capability = ref unit.RefCapabilityState();
             capability.ResetAliveDefault();
+
+            // Heroes and any other respawning unit return to their home
+            // spawn position captured at first materialization.
+            unit.PhysicsEntity.SetLogicPose(
+                unit.RespawnPosition,
+                unit.PhysicsEntity.Transform2D.Forward);
+            unit.MovementHandler?.ForceSetPosition(
+                unit.RespawnPosition);
 
             // Apply respawn health and resource rules from UnitPrototype config (Unit v27.3 ��1.6)
             if (UnitPrototypeTable != null
@@ -887,15 +943,9 @@ private static void ApplyRespawnResource(Unit unit, in UnitRespawnConfig config)
             ExperienceGainResult result = unit.StatHandler.AddExperience(amount);
             if (result.LeveledUp)
             {
-                AbilityHandler ability = unit.AbilityHandler;
-                if (ability != null)
-                {
-                    for (int i = 0; i < result.SkillPointsGained; i++)
-                    {
-                        ability.GrantSkillPoint();
-                    }
-                }
-
+                // Skill points are granted exactly once per level inside
+                // StatHandler.AddExperience (single choke point for all XP
+                // paths); granting here again would double-issue points.
                 for (int level = result.PreviousLevel; level < result.NewLevel; level++)
                     CombatEvents.RaiseLevelUp(unitUid, level, level + 1);
             }

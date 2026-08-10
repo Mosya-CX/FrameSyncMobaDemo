@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26f8388baef4e4144818c3567086f577, type: 3}
+  m_Name: CC_Fear
+  m_EditorClassIdentifier: 
+  controlId: 112
+  intensity: 1
+  tags: 262209
+  durationRule: 0
+  parameterSchema:
+  - Key: BehaviorId
+    Type: 2
+    Required: 1
+  - Key: Priority
+    Type: 1
+    Required: 1
+  - Key: Direction
+    Type: 7
+    Required: 1
+  modules:
+  - ModuleId: 1
+    ParamKey0: 
+    ParamKey1: 
+    ParamKey2: 
+    ParamKey3: 
+    StaticFp0: 0
+    StaticFp1: 0
+    StaticData: 13
+  - ModuleId: 6
+    ParamKey0: BehaviorId
+    ParamKey1: Priority
+    ParamKey2: 
+    ParamKey3: Direction
+    StaticFp0: 0
+    StaticFp1: 0
+    StaticData: 0
+  BakedParamLayout:
+  - keyValue: 8
+    Type: 2
+    Offset: 0
+    Size: 4
+  - keyValue: 9
+    Type: 1
+    Offset: 4
+    Size: 2
+  - keyValue: 4
+    Type: 7
+    Offset: 8
+    Size: 16
+  BakedRequiredMask: 7
+  BakedParamTotalSize: 24
+  BakedOnAddOps: []
+  BakedCollectOps:
+  - ExecutorIndex: 1
+    Hook: 1
+    StaticData: 13
+    StaticFp0:
+      m_rawValue: 0
+    StaticFp1:
+      m_rawValue: 0
+    ParamOffset0: -1
+    ParamOffset1: -1
+    ParamOffset2: -1
+    ParamOffset3: -1
+  - ExecutorIndex: 6
+    Hook: 1
+    StaticData: 0
+    StaticFp0:
+      m_rawValue: 0
+    StaticFp1:
+      m_rawValue: 0
+    ParamOffset0: 0
+    ParamOffset1: 4
+    ParamOffset2: -1
+    ParamOffset3: 8
+  BakedSignalOps: []
+  BakedOnRemoveOps: []
+  BakedSignalMask: 0

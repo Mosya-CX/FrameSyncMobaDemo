@@ -35,10 +35,12 @@ namespace FrameSyncMoba.LuaBridge
         public int Kills;
         public int Deaths;
         public int Assists;
+        public int CreepScore;
         // Aggregated all-player stats arrays for Lua scoreboard rendering
         public System.Collections.Generic.List<int> AllPlayerKills;
         public System.Collections.Generic.List<int> AllPlayerDeaths;
         public System.Collections.Generic.List<int> AllPlayerAssists;
+        public System.Collections.Generic.List<int> AllPlayerCreepScore;
         public System.Collections.Generic.List<string> AllPlayerNames;
 
         public static readonly UiSnapshotDto Empty = default;

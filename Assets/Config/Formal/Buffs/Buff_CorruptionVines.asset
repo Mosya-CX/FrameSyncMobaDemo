@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd190d0d50aa5847a974015e823714e, type: 3}
+  m_Name: Buff_CorruptionVines
+  m_EditorClassIdentifier: 
+  ConfigId:
+    Value: 9113
+  Display:
+    Name: "\u8150\u8D25\u85E4\u8513"
+    Description: "\u8150\u8D25\u85E4\u8513\uFF1A\u9010\u6B65\u65BD\u52A0\u67AF\u840E\u5C42\u6570\u5E76\u4F20\u64AD\u3002"
+    Icon: {fileID: 0}
+  Life:
+    DurationSeconds: 2
+    Infinite: 0
+    RefreshMode: 1
+    ExtendSeconds: 0
+  Stack:
+    MaxStacks: 1
+    AddMode: 0
+    ReduceMode: 0
+    ReduceAmount: 1
+  Tags:
+    TagIds: 
+  Effects:
+  - Effect:
+      rid: 2586995997702356998
+  BlackboardLayout:
+    Slots: []
+  LifecycleReactions:
+    Added: []
+    Reapplied: []
+    Removed: []
+    StackChanged: []
+    Periodic: []
+  EventReactions:
+    DamageTaken: []
+    DamageDealt: []
+    HealTaken: []
+    HealDealt: []
+    ShieldApplied: []
+    AbilityCast: []
+    LevelUp: []
+    UnitDying: []
+    UnitDeath: []
+    UnitKill: []
+    OnHitDealt: []
+    CollisionEnter: []
+    CollisionExit: []
+  Priority: 0
+  PeriodicIntervalTicks: 1
+  ApplyVfxDefId: 4104
+  ApplyVfxDurationSeconds: 2
+  InitialStacks: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586995997702356998
+      type: {class: CorruptionVineSpreadBuffEffect, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        BlightBuffConfigId: 9001
+        VineBuffConfigId: 9113
+        SpreadTagKey: VarusR.Vine
+        SpreadTagTicks: 180
+        TimerBuffConfigId: 9115
+        ContactTicks: 30
+        SpreadRadius:
+          m_rawValue: 23622320128
+        BlightStackAtTick1: 6
+        BlightStackAtTick2: 24
+        BlightStackAtTick3: 42
+        ElapsedTicksSlot:
+          Value: 1
+        CasterUnitUidSlot:
+          Value: 2
+        SpreadDamageBaseByLevel: 96000000fa0000005e0100005e0100005e010000
+        SpreadAbilityPowerRatio:
+          m_rawValue: 4294967296
+        SpreadDamageType: 1
+        SpreadRecipeId: 1
+        SpreadSourceAbilityId: 10014
+        SpreadCrowdControlId: 102
+        SpreadCrowdControlTicks: 60

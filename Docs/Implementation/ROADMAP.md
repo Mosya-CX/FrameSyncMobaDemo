@@ -2,6 +2,10 @@
 
 > This roadmap defines implementation order, not task completion status.  
 > Actual status is tracked in `MODULE_STATUS.md`.
+> For the current working-tree hand-off, real UOS evidence, open startup defects
+> and the exact next continuation order, read `CURRENT_HANDOFF.md` before using
+> this roadmap. Historical phase text must not override that live repository
+> context.
 
 > Current sequencing rule: D-023 rejects a standalone test-harness-first milestone, but every production feature slice includes the smallest focused automated test for that feature. Comprehensive regression expansion may come later. Every slice also requires Unity compilation, Console inspection and the smallest relevant runtime smoke validation.
 

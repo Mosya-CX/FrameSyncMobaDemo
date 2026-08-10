@@ -2,6 +2,7 @@ using System;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
 using FrameSyncMoba.Unit;
+using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.FrameSync
 {
@@ -13,6 +14,8 @@ namespace FrameSyncMoba.FrameSync
         public ushort UnitSubKindId;
         public TeamId TeamId;
         public int UnitPrototypeId;
+        /// <summary>Home spawn position used when this unit respawns.</summary>
+        public fp2 RespawnPosition;
         public LifeState LifeState;
         public CapabilityState CapabilityState;
         public HitReactionState HitReactionState;
@@ -28,6 +31,7 @@ namespace FrameSyncMoba.FrameSync
         public CrowdControlHandlerSnapshot CCState;
         public LocomotionAgentSnapshot LocomotionState;
         public EquipmentHandlerSnapshot EquipmentState;
+        public UnitTag[] Tags;
     }
 
     /// <summary>
@@ -53,7 +57,7 @@ namespace FrameSyncMoba.FrameSync
 
     public struct GameplaySnapshot
     {
-        public const int CurrentSchemaVersion = 13;
+        public const int CurrentSchemaVersion = 21;
         public int SchemaVersion;
 
         public DeterministicRandomSnapshot RandomState;

@@ -9,6 +9,12 @@ namespace FrameSyncMoba.Unit
         public int RuntimeEntityPrefabId;
         public fp Speed;
         public fp Acceleration;
+        /// <summary>
+        /// Homing projectile (design v19: 跟踪弹体): when set, the projectile
+        /// steers toward its locked TargetUnitUid each Tick and falls back to
+        /// straight-line motion when the target is missing.
+        /// </summary>
+        public bool Homing;
         public int MaxLifetimeTicks;
         public fp HitRadius;
         public ProjectileTargetFilter TargetFilter =

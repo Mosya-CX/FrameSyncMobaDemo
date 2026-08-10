@@ -10,7 +10,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         public void ProjectAsset_BakesInspectorFloatsToDeterministicValues()
         {
             GlobalGameplayData asset = AssetDatabase.LoadAssetAtPath<GlobalGameplayData>(
-                "Assets/Config/Runtime/GlobalGameplayData.asset");
+                "Assets/Config/Formal/GlobalGameplayData.asset");
             Assert.NotNull(asset);
             BakedGlobalGameplayData baked = asset.BakeOrThrow();
             Assert.AreEqual(30, baked.TickRate);

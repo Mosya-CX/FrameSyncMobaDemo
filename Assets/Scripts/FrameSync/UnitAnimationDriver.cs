@@ -54,7 +54,9 @@ namespace FrameSyncMoba.FrameSync
 
             if (unit.LifeState != _lastLifeState)
             {
-                PlayLifeState(unit.LifeState);
+                // LifeState parameter already drives the Animator transitions
+                // (AnyState -> Death, Death -> Idle on respawn). No code-side
+                // CrossFade is needed.
                 _lastLifeState = unit.LifeState;
             }
 
@@ -119,7 +121,6 @@ namespace FrameSyncMoba.FrameSync
                  attackSequence != _lastAttackSequence))
             {
                 SetTrigger(HashOrDefault(_profile?.AttackStartHash ?? 0, "AttackStart"));
-                PlayAttack(attackSequence);
                 _lastAttackSequence = attackSequence;
             }
             bool attackEnded =
@@ -136,12 +137,39 @@ namespace FrameSyncMoba.FrameSync
                 var activeCasts = abilityHandler.ActiveCasts;
                 if (activeCasts != null && activeCasts.Count > 0)
                 {
-                    var first = activeCasts[0];
-                    isCasting = true;
-                    abilityId = first.AbilityId;
-                    abilityStage = first.StageKey;
-                    stageElapsedTicks =
-                        first.StageElapsedTicks;
+                    // Prefer the first cast entry that actually has an
+                    // animation binding. Persistent toggles (e.g. Varus W)
+                    // sit in ActiveCasts without a binding and must not
+                    // shadow a real cast (E/R/Q release).
+                    ActiveAbilityCastInfo? selected = null;
+                    for (int ci = 0;
+                         ci < activeCasts.Count;
+                         ci++)
+                    {
+                        var candidate = activeCasts[ci];
+                        StageAnimationBinding binding =
+                            default;
+                        bool hasBinding =
+                            _profile != null &&
+                            _profile.TryGetStageBinding(
+                                candidate.AbilityId,
+                                candidate.StageKey,
+                                out binding);
+                        if (_profile == null ||
+                            hasBinding)
+                        {
+                            selected = candidate;
+                            break;
+                        }
+                    }
+                    if (selected.HasValue)
+                    {
+                        isCasting = true;
+                        abilityId = selected.Value.AbilityId;
+                        abilityStage = selected.Value.StageKey;
+                        stageElapsedTicks =
+                            selected.Value.StageElapsedTicks;
+                    }
                 }
             }
             SetBool(HashOrDefault(_profile?.IsCastingHash ?? 0, "IsCasting"), isCasting);
@@ -154,6 +182,8 @@ namespace FrameSyncMoba.FrameSync
                 (abilityId != _lastAbilityId ||
                  abilityStage != _lastAbilityStage))
             {
+                // Ability casts keep the profile stage binding (heroes use
+                // named states today); minions have no casts.
                 PlayAbilityStage(
                     abilityId,
                     abilityStage);
@@ -173,7 +203,7 @@ namespace FrameSyncMoba.FrameSync
                  _wasCasting ||
                  isMoving != _wasMoving))
             {
-                PlayLocomotion(isMoving);
+                // IsMoving / MoveSpeed parameters drive Idle <-> Move.
             }
             _wasMoving = isMoving;
             _wasCasting = isCasting;
@@ -191,58 +221,6 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < parameters.Length; i++)
                 _parameterHashes.Add(
                     parameters[i].nameHash);
-        }
-
-        private void PlayLifeState(
-            LifeState lifeState)
-        {
-            if (_profile == null)
-                return;
-            int stateHash = 0;
-            if (lifeState == LifeState.Dead)
-                stateHash = _profile.DeathStateHash;
-            else if (lifeState == LifeState.Alive &&
-                     _lastLifeState == LifeState.Respawning)
-                stateHash = _profile.RespawnStateHash != 0
-                    ? _profile.RespawnStateHash
-                    : _profile.IdleStateHash;
-            if (stateHash != 0)
-                _animator.CrossFade(
-                    stateHash,
-                    0.08f,
-                    0);
-        }
-
-        private void PlayAttack(int sequenceIndex)
-        {
-            int[] states = _profile?.AttackStateHashes;
-            if (states == null || states.Length == 0)
-                return;
-            int index = sequenceIndex %
-                        states.Length;
-            if (index < 0)
-                index += states.Length;
-            int stateHash = states[index];
-            if (stateHash != 0)
-                _animator.CrossFade(
-                    stateHash,
-                    0.04f,
-                    0);
-        }
-
-        private void PlayLocomotion(
-            bool isMoving)
-        {
-            if (_profile == null)
-                return;
-            int stateHash = isMoving
-                ? _profile.MoveStateHash
-                : _profile.IdleStateHash;
-            if (stateHash != 0)
-                _animator.CrossFade(
-                    stateHash,
-                    0.08f,
-                    0);
         }
 
         private void PlayAbilityStage(

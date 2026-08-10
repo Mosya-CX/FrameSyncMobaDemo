@@ -106,7 +106,9 @@ namespace FrameSyncMoba.Unit
                 fp maxSpeed =
                     locomotion.HasMovement
                         ? locomotion.DesiredSpeed
-                        : unit.MovementHandler.LogicMoveSpeed;
+                        : unit.MovementHandler != null
+                            ? unit.MovementHandler.LogicMoveSpeed
+                            : fp.zero;
                 var input = new RVOInput
                 {
                     SelfUid = unit.UnitUid,

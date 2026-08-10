@@ -64,6 +64,37 @@ namespace FrameSyncMoba.Bootstrap
         }
     }
 
+    /// <summary>
+    /// Immutable per-player hero-select view broadcast to every endpoint so
+    /// the Select page renders all players' choices identically.
+    /// Presentation-only; the lobby slot state machine remains authoritative.
+    /// </summary>
+    public readonly struct LobbySelectionSnapshot
+    {
+        public readonly int PlayerSlot;
+        public readonly string AccountId;
+        public readonly int TeamId;
+        public readonly int HeroConfigId;
+        public readonly bool IsLocked;
+        public readonly bool IsReady;
+
+        public LobbySelectionSnapshot(
+            int playerSlot,
+            string accountId,
+            int teamId,
+            int heroConfigId,
+            bool isLocked,
+            bool isReady)
+        {
+            PlayerSlot = playerSlot;
+            AccountId = accountId;
+            TeamId = teamId;
+            HeroConfigId = heroConfigId;
+            IsLocked = isLocked;
+            IsReady = isReady;
+        }
+    }
+
     public readonly struct GameServerAssignment
     {
         public readonly string IpAddress;
@@ -184,6 +215,7 @@ namespace FrameSyncMoba.Bootstrap
         private readonly IMatchmakingApplicationClient matchmaking;
         private readonly IGameServerConnectionService connection;
         private string ticketId;
+        private bool cancelMatchmakingRequested;
 
         public ClientApplicationState State { get; private set; } =
             ClientApplicationState.Boot;
@@ -230,18 +262,30 @@ namespace FrameSyncMoba.Bootstrap
         public async Task BeginMatchmakingAsync()
         {
             RequireState(ClientApplicationState.MainMenu);
+            cancelMatchmakingRequested = false;
+            ticketId = null;
             State = ClientApplicationState.Matchmaking;
             try
             {
-                ticketId = await matchmaking.CreateTicketAsync(
+                string createdTicketId =
+                    await matchmaking.CreateTicketAsync(
                     AccountSession.TestAccountId);
-                if (string.IsNullOrWhiteSpace(ticketId))
+                if (string.IsNullOrWhiteSpace(createdTicketId))
                     throw new InvalidOperationException(
                         "Matchmaking returned an empty ticket ID.");
+                if (cancelMatchmakingRequested)
+                {
+                    await matchmaking.CancelTicketAsync(
+                        createdTicketId);
+                    State = ClientApplicationState.MainMenu;
+                    return;
+                }
+                ticketId = createdTicketId;
                 State = ClientApplicationState.WaitingAssignment;
             }
             catch
             {
+                ticketId = null;
                 State = ClientApplicationState.MainMenu;
                 throw;
             }
@@ -252,11 +296,30 @@ namespace FrameSyncMoba.Bootstrap
             RequireState(ClientApplicationState.WaitingAssignment);
             GameServerAssignment? assignment =
                 await matchmaking.PollAssignmentAsync(ticketId);
+            if (cancelMatchmakingRequested ||
+                State != ClientApplicationState.WaitingAssignment)
+                return false;
             if (!assignment.HasValue) return false;
             Assignment = assignment.Value;
             State = ClientApplicationState.ConnectingServer;
             connection.BeginConnect(Assignment);
             return true;
+        }
+
+        public async Task CancelMatchmakingAsync()
+        {
+            RequireState(
+                ClientApplicationState.Matchmaking,
+                ClientApplicationState.WaitingAssignment);
+            cancelMatchmakingRequested = true;
+            string activeTicketId = ticketId;
+            ticketId = null;
+            Assignment = default;
+            connection.Disconnect();
+            State = ClientApplicationState.MainMenu;
+
+            if (!string.IsNullOrWhiteSpace(activeTicketId))
+                await matchmaking.CancelTicketAsync(activeTicketId);
         }
 
         public bool PollConnection()
@@ -491,6 +554,64 @@ namespace FrameSyncMoba.Bootstrap
         {
             RequireSlot(playerSlot);
             return slots[playerSlot].State;
+        }
+
+        public int SlotCount => slots.Length;
+
+        /// <summary>
+        /// Read-only per-slot view used to broadcast the complete hero-select
+        /// state to every endpoint.
+        /// </summary>
+        public LobbySelectionSnapshot GetSelectionSnapshot(
+            int playerSlot)
+        {
+            RequireSlot(playerSlot);
+            LobbySlot slot = slots[playerSlot];
+            return new LobbySelectionSnapshot(
+                playerSlot,
+                slot.AccountId,
+                slot.TeamId.Value,
+                slot.HeroConfigId,
+                (slot.State &
+                    LobbyPlayerSlotState.HeroLocked) != 0,
+                (slot.State &
+                    LobbyPlayerSlotState.Ready) != 0);
+        }
+
+        /// <summary>
+        /// Same-team duplicate rule: a hero already selected by another slot
+        /// on the same team cannot be picked again.
+        /// </summary>
+        public bool IsHeroBlockedInTeam(
+            int playerSlot,
+            int heroConfigId)
+        {
+            if (heroConfigId <= 0)
+            {
+                return false;
+            }
+            LobbySlot self = GetAssigned(playerSlot);
+            for (int i = 0;
+                 i < slots.Length;
+                 i++)
+            {
+                if (i == playerSlot)
+                {
+                    continue;
+                }
+                LobbySlot other = slots[i];
+                if ((other.State &
+                        LobbyPlayerSlotState.Assigned) == 0 ||
+                    other.TeamId != self.TeamId)
+                {
+                    continue;
+                }
+                if (other.HeroConfigId == heroConfigId)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void AddState(

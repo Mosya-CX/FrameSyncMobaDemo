@@ -12,6 +12,9 @@ namespace FrameSyncMoba.Unit
         private Unit _owner => Owner;
         public BuffDefinitionRegistry DefinitionRegistry { private get; set; }
 
+        private BuffConfigId[] initialBuffConfigIds =
+            Array.Empty<BuffConfigId>();
+
         /// <summary>Maximum active buffs before lowest-priority buff is dispelled. Default 255.</summary>
         public byte MaxBuffs = 255;
 
@@ -23,22 +26,102 @@ namespace FrameSyncMoba.Unit
 
         public int Count => _store.Count;
 
+        /// <summary>
+        /// Configure this unit's built-in initial buffs (authoring-driven,
+        /// not hard-coded per unit type). Applied once after the definition
+        /// registry is bound; infinite/permanent buffs then survive death via
+        /// the permanent-buff respawn lifecycle.
+        /// </summary>
+        public void SetInitialBuffConfigs(
+            BuffConfigId[] configIds)
+        {
+            initialBuffConfigIds = configIds ??
+                Array.Empty<BuffConfigId>();
+        }
+
+        /// <summary>
+        /// Apply all configured initial buffs from the bound definition
+        /// registry (design: built-in buffs are data-driven per prototype).
+        /// </summary>
+        public void ApplyInitialBuffs()
+        {
+            if (DefinitionRegistry == null ||
+                initialBuffConfigIds == null)
+            {
+                return;
+            }
+            for (int i = 0;
+                 i < initialBuffConfigIds.Length;
+                 i++)
+            {
+                BuffConfigId configId =
+                    initialBuffConfigIds[i];
+                if (!configId.IsValid ||
+                    !DefinitionRegistry.TryGet(
+                        configId,
+                        out BuffDefinition definition))
+                {
+                    continue;
+                }
+                Apply(
+                    configId,
+                    definition,
+                    BuffSource.Create(
+                        Owner?.UnitUid ?? default,
+                        BuffSourceType.Script,
+                        0));
+            }
+        }
+
+        /// <summary>
+        /// Read-only, stable BuffConfigId-ordered view for presentation/AI
+        /// queries (design v14.2 stable ordering). Never mutated.
+        /// </summary>
+        public System.Collections.Generic
+            .IReadOnlyList<BuffRuntime> GetAllOrdered()
+        {
+            return _store.GetAllOrdered();
+        }
+
         // ---- Apply / Remove / ReduceStack ----
 
-        public bool Apply(BuffConfigId configId, BuffDef definition, UnitUid sourceUnitUid)
+        public bool Apply(
+            BuffConfigId configId,
+            BuffDefinition definition,
+            UnitUid sourceUnitUid)
+        {
+            return Apply(
+                configId,
+                definition,
+                BuffSource.Create(
+                    sourceUnitUid,
+                    BuffSourceType.Script,
+                    0));
+        }
+
+        public bool Apply(
+            BuffConfigId configId,
+            BuffDefinition definition,
+            in BuffSource source)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
             if (!configId.IsValid) return false;
 
             if (_store.TryGet(configId, out var existing))
-                return Reapply(existing, definition, sourceUnitUid);
+                return Reapply(existing, definition, source);
 
-            return ApplyNew(configId, definition, sourceUnitUid);
+            return ApplyNew(configId, definition, source);
         }
 
-        private bool ApplyNew(BuffConfigId configId, BuffDef definition, UnitUid sourceUnitUid)
+        private bool ApplyNew(
+            BuffConfigId configId,
+            BuffDefinition definition,
+            in BuffSource source)
         {
-            var runtime = new BuffRuntime(configId, definition, sourceUnitUid);
+            var runtime = new BuffRuntime(
+                configId,
+                definition,
+                source);
             EnforceMaxBuffs(definition);
             _store.Add(runtime);
 
@@ -46,37 +129,124 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < effects.Length; i++)
                 effects[i].OnAdded(runtime, _owner);
 
+            RunLifecycleGroups(
+                definition.LifecycleReactions?.Added,
+                runtime);
+
+            int initialStacks = runtime.CurrentStacks;
+            for (int i = 0; i < effects.Length; i++)
+                effects[i].OnStackChanged(
+                    runtime,
+                    _owner,
+                    0,
+                    initialStacks);
+            RunStackChangedGroups(
+                runtime,
+                0,
+                initialStacks);
+
+            if (definition.ApplyVfxDefId > 0 &&
+                _owner.World != null &&
+                _owner.PhysicsEntity != null)
+            {
+                int tick =
+                    SimulationTickContext.Current.Tick;
+                float durationSeconds =
+                    definition.ApplyVfxDurationSeconds > 0f
+                        ? definition.ApplyVfxDurationSeconds
+                        : 1f;
+                VisualEventOutput.SubmitVfx(
+                    new VfxEvent
+                    {
+                        Id = new PresentationEventId
+                        {
+                            SourceLogicTick = tick,
+                            SourceKind =
+                                PresentationSourceKind.Unit,
+                            SourceRuntimeUid =
+                                _owner.UnitUid,
+                            EventSequence =
+                                (ushort)(definition.ConfigId
+                                    .Value & 0xFFFF),
+                            EventKey =
+                                PresentationEventKeys
+                                    .BuffApplied,
+                        },
+                        VfxDefId =
+                            definition.ApplyVfxDefId,
+                        WorldPosition =
+                            _owner.PhysicsEntity
+                                .Transform2D.Position,
+                        AttachToUnit =
+                            _owner.UnitUid,
+                        DurationScale =
+                            (fp)durationSeconds,
+                    });
+            }
+
             return true;
         }
 
-        private bool Reapply(BuffRuntime runtime, BuffDef definition, UnitUid sourceUnitUid)
+        private bool Reapply(
+            BuffRuntime runtime,
+            BuffDefinition definition,
+            in BuffSource source)
         {
             int oldStacks = runtime.CurrentStacks;
-            runtime.SetSource(sourceUnitUid);
+            runtime.SetSource(source);
 
-            if (definition.LifeRule == BuffLifeRule.Duration)
-                runtime.SetRemainingTicks(definition.DurationTicks);
-
-            if (definition.StackRule == BuffStackRule.Independent)
+            BuffLifeRuleConfig life =
+                definition.Life;
+            if (!definition.IsInfinite &&
+                life != null)
             {
-                int newStacks = oldStacks + 1;
-                if (newStacks > definition.MaxStacks) newStacks = definition.MaxStacks;
-                runtime.SetStacks(newStacks);
+                switch (life.RefreshMode)
+                {
+                    case BuffRefreshMode.RefreshToFull:
+                        runtime.SetRemainingTicks(
+                            definition.DurationTicks);
+                        break;
+                    case BuffRefreshMode.ExtendByAmount:
+                        runtime.SetRemainingTicks(
+                            runtime.RemainingTicks +
+                            definition.ExtendTicks);
+                        break;
+                    default:
+                        break;
+                }
             }
-            else if (definition.StackRule == BuffStackRule.Dependent)
+
+            BuffStackRuleConfig stack =
+                definition.Stack;
+            if (stack == null ||
+                stack.AddMode == BuffAddMode.Add)
             {
                 int newStacks = oldStacks + 1;
-                if (newStacks > definition.MaxStacks) newStacks = definition.MaxStacks;
+                if (newStacks >
+                    definition.MaxStacks)
+                    newStacks =
+                        definition.MaxStacks;
                 runtime.SetStacks(newStacks);
-                runtime.MarkDependentStack();
             }
 
             int newStackCount = runtime.CurrentStacks;
+            var effects = runtime.GetEffects();
+            for (int i = 0; i < effects.Length; i++)
+                effects[i].OnReapplied(
+                    runtime,
+                    _owner);
+            RunLifecycleGroups(
+                definition.LifecycleReactions
+                    ?.Reapplied,
+                runtime);
             if (newStackCount != oldStacks)
             {
-                var effects = runtime.GetEffects();
                 for (int i = 0; i < effects.Length; i++)
                     effects[i].OnStackChanged(runtime, _owner, oldStacks, newStackCount);
+                RunStackChangedGroups(
+                    runtime,
+                    oldStacks,
+                    newStackCount);
             }
 
             return true;
@@ -94,7 +264,26 @@ namespace FrameSyncMoba.Unit
             if (!_store.TryGet(configId, out var runtime)) return false;
 
             int oldStacks = runtime.CurrentStacks;
-            runtime.ReduceStacks(count);
+            BuffStackRuleConfig stack =
+                runtime.Definition.Stack;
+            if (stack != null &&
+                stack.ReduceMode ==
+                    BuffReduceMode.ClearAll)
+            {
+                runtime.SetStacks(0);
+            }
+            else
+            {
+                int reduceAmount =
+                    stack != null &&
+                    stack.ReduceAmount > 0
+                        ? stack.ReduceAmount
+                        : 1;
+                runtime.ReduceStacks(
+                    count > 0
+                        ? count
+                        : reduceAmount);
+            }
             int newStacks = runtime.CurrentStacks;
 
             if (newStacks != oldStacks)
@@ -102,6 +291,10 @@ namespace FrameSyncMoba.Unit
                 var effects = runtime.GetEffects();
                 for (int i = 0; i < effects.Length; i++)
                     effects[i].OnStackChanged(runtime, _owner, oldStacks, newStacks);
+                RunStackChangedGroups(
+                    runtime,
+                    oldStacks,
+                    newStacks);
             }
 
             if (runtime.IsStackExhausted())
@@ -125,6 +318,7 @@ namespace FrameSyncMoba.Unit
                 var effects = runtime.GetEffects();
                 for (int j = 0; j < effects.Length; j++)
                     effects[j].OnTick(runtime, _owner);
+                RunPeriodicReactions(runtime);
                 if (runtime.IsExpired())
                     _removalPending.Add(runtime);
             }
@@ -185,7 +379,7 @@ namespace FrameSyncMoba.Unit
                     _ => RemovalReason.ManualRemove,
                 };
                 runtime.BeginRemoval(removalReason);
-                ReleaseAllEffectHandles(runtime);
+                ClearEffectHandlesForDespawn(runtime);
                 runtime.Blackboard.InvalidateAll();
                 _store.Remove(runtime.ConfigId);
             }
@@ -203,7 +397,8 @@ namespace FrameSyncMoba.Unit
             {
                 var runtime = all[i];
                 runtime.BeginRemoval(reason);
-                ReleaseAllEffectHandles(runtime);
+                ClearEffectHandlesForDespawn(runtime);
+                runtime.Blackboard.InvalidateAll();
                 _store.Remove(runtime.ConfigId);
             }
         }
@@ -222,12 +417,58 @@ namespace FrameSyncMoba.Unit
             DispatchReaction(BuffReactionKind.HealDealt, default, data, default, null);
         public void OnShieldApplied(ShieldEventData data) =>
             DispatchReaction(BuffReactionKind.ShieldApplied, default, default, data, null);
+        public void OnAbilityCast(in AbilityCastEventData data)
+        {
+            IReadOnlyList<BuffRuntime> runtimes =
+                _store.GetAllOrdered();
+            for (int i = 0; i < runtimes.Count; i++)
+            {
+                BuffRuntime runtime = runtimes[i];
+                BuffEffect[] effects =
+                    runtime.GetEffects();
+                for (int j = 0; j < effects.Length; j++)
+                    effects[j].OnAbilityCast(
+                        runtime,
+                        _owner,
+                        data);
+                RunEventGroups(
+                    runtime.Definition
+                        .EventReactions?.AbilityCast,
+                    runtime);
+            }
+        }
+
+        public void OnLevelUp(
+            int previousLevel,
+            int newLevel)
+        {
+            IReadOnlyList<BuffRuntime> runtimes =
+                _store.GetAllOrdered();
+            for (int i = 0; i < runtimes.Count; i++)
+            {
+                BuffRuntime runtime = runtimes[i];
+                BuffEffect[] effects =
+                    runtime.GetEffects();
+                for (int j = 0; j < effects.Length; j++)
+                    effects[j].OnLevelUp(
+                        runtime,
+                        _owner,
+                        previousLevel,
+                        newLevel);
+                RunEventGroups(
+                    runtime.Definition
+                        .EventReactions?.LevelUp,
+                    runtime);
+            }
+        }
         public void OnUnitDying(Unit unit) =>
             DispatchReaction(BuffReactionKind.UnitDying, default, default, default, unit);
         public void OnUnitDeath(Unit unit) =>
             DispatchReaction(BuffReactionKind.UnitDeath, default, default, default, unit);
         public void OnUnitKill(Unit victim) =>
             DispatchReaction(BuffReactionKind.UnitKill, default, default, default, victim);
+        public void OnUnitAssist(Unit victim) =>
+            DispatchReaction(BuffReactionKind.UnitAssist, default, default, default, victim);
         public void OnUnitCollisionEnter(in UnitCollisionEnterEvent data) =>
             DispatchCollisionReaction(true, data, default);
         public void OnUnitCollisionExit(in UnitCollisionExitEvent data) =>
@@ -236,7 +477,75 @@ namespace FrameSyncMoba.Unit
         // ---- Query methods ----
 
         public bool HasBuff(BuffConfigId configId) => _store.TryGet(configId, out _);
-        public IReadOnlyList<BuffRuntime> GetAllBuffs() => _store.GetAllOrdered();
+
+        /// <summary>Read-only runtime lookup for effects that need to reach a
+        /// freshly applied Buff (e.g. successor-buff rules).</summary>
+        public bool TryGetRuntime(
+            BuffConfigId configId,
+            out BuffRuntime runtime) =>
+            _store.TryGet(configId, out runtime);
+
+        public bool GetBuffInfo(
+            BuffConfigId configId,
+            out BuffInfo info)
+        {
+            if (_store.TryGet(configId, out var runtime))
+            {
+                info = CreateInfo(runtime);
+                return true;
+            }
+            info = default;
+            return false;
+        }
+
+        public void GetBuffInfosByTag(
+            byte tag,
+            List<BuffInfo> result)
+        {
+            if (result == null || tag == 0)
+                return;
+            IReadOnlyList<BuffRuntime> ordered =
+                _store.GetAllOrdered();
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                BuffRuntime runtime = ordered[i];
+                if (!runtime.Definition.HasTag(tag))
+                    continue;
+                result.Add(CreateInfo(runtime));
+            }
+        }
+
+        public List<BuffInfo> GetAllBuffInfos()
+        {
+            IReadOnlyList<BuffRuntime> ordered =
+                _store.GetAllOrdered();
+            var result =
+                new List<BuffInfo>(ordered.Count);
+            for (int i = 0; i < ordered.Count; i++)
+                result.Add(CreateInfo(ordered[i]));
+            return result;
+        }
+
+        private BuffInfo CreateInfo(BuffRuntime runtime)
+        {
+            BuffDefinition definition =
+                runtime.Definition;
+            BuffDisplayInfo display =
+                definition.Display;
+            BuffTagSet tags = definition.Tags;
+            return new BuffInfo(
+                runtime.ConfigId,
+                display?.Name,
+                display?.Description,
+                display?.Icon,
+                runtime.CurrentStacks,
+                definition.MaxStacks,
+                definition.IsInfinite,
+                runtime.RemainingTicks,
+                definition.DurationTicks,
+                tags?.TagIds,
+                runtime.Source);
+        }
 
 
         // ---- Tag-based removal ----
@@ -249,7 +558,7 @@ namespace FrameSyncMoba.Unit
             var toRemove = new System.Collections.Generic.List<BuffRuntime>();
             for (int i = 0; i < ordered.Count; i++)
             {
-                if (ordered[i].Definition.Tag == tag)
+                if (ordered[i].Definition.HasTag(tag))
                     toRemove.Add(ordered[i]);
             }
             for (int i = 0; i < toRemove.Count; i++)
@@ -258,7 +567,8 @@ namespace FrameSyncMoba.Unit
 
         // ---- Internal helpers ----
 
-        private void EnforceMaxBuffs(BuffDef incomingDef)
+        private void EnforceMaxBuffs(
+            BuffDefinition incomingDef)
         {
             if (_store.Count < MaxBuffs) return;
             // Find lowest-priority (highest Priority value) non-permanent buff
@@ -286,9 +596,14 @@ namespace FrameSyncMoba.Unit
             IReadOnlyList<BuffRuntime> runtimes = _store.GetAllOrdered();
             for (int i = 0; i < runtimes.Count; i++)
             {
-                BuffEffect[] effects = runtimes[i].GetEffects();
+                BuffRuntime runtime = runtimes[i];
+                BuffEffect[] effects = runtime.GetEffects();
                 for (int j = 0; j < effects.Length; j++)
-                    effects[j].OnHitDealt(runtimes[i], _owner, data);
+                    effects[j].OnHitDealt(runtime, _owner, data);
+                RunEventGroups(
+                    runtime.Definition
+                        .EventReactions?.OnHitDealt,
+                    runtime);
             }
         }
 
@@ -296,9 +611,22 @@ namespace FrameSyncMoba.Unit
         {
             if (runtime.IsRemoving) return;
             runtime.BeginRemoval(reason);
+            RunLifecycleGroups(
+                runtime.Definition
+                    .LifecycleReactions?.Removed,
+                runtime);
             ReleaseAllEffectHandles(runtime);
-            runtime.Blackboard.InvalidateAll();
             _store.Remove(runtime.ConfigId);
+            var removedEffects = runtime.GetEffects();
+            for (int i = 0;
+                 i < removedEffects.Length;
+                 i++)
+            {
+                removedEffects[i].OnRemovedComplete(
+                    runtime,
+                    _owner);
+            }
+            runtime.Blackboard.InvalidateAll();
         }
 
         private void ReleaseAllEffectHandles(BuffRuntime runtime)
@@ -313,6 +641,144 @@ namespace FrameSyncMoba.Unit
             var effects = runtime.GetEffects();
             for (int i = 0; i < effects.Length; i++)
                 effects[i].ClearForDeath(runtime, _owner);
+        }
+
+        private void ClearEffectHandlesForDespawn(
+            BuffRuntime runtime)
+        {
+            var effects = runtime.GetEffects();
+            for (int i = 0; i < effects.Length; i++)
+                effects[i].ClearForDespawn(
+                    runtime,
+                    _owner);
+        }
+
+        // ---- Reaction dispatch ----
+
+        private void ExecuteReactionGroup(
+            BuffReactionGroup group,
+            BuffRuntime runtime)
+        {
+            if (group == null)
+                return;
+            if (group.Condition != null &&
+                !group.Condition.Passes(
+                    runtime,
+                    _owner))
+                return;
+            BuffReactionActionConfig[] actions =
+                group.Actions;
+            if (actions == null)
+                return;
+            for (int i = 0;
+                 i < actions.Length;
+                 i++)
+                actions[i]?.Execute(
+                    runtime,
+                    _owner);
+        }
+
+        private void RunLifecycleGroups(
+            BuffReactionGroup[] groups,
+            BuffRuntime runtime)
+        {
+            if (groups == null)
+                return;
+            for (int i = 0;
+                 i < groups.Length;
+                 i++)
+                ExecuteReactionGroup(
+                    groups[i],
+                    runtime);
+        }
+
+        private void RunEventGroups(
+            BuffReactionGroup[] groups,
+            BuffRuntime runtime)
+        {
+            RunLifecycleGroups(groups, runtime);
+        }
+
+        private void RunStackChangedGroups(
+            BuffRuntime runtime,
+            int previousStacks,
+            int currentStacks)
+        {
+            BuffStackChangedReactionGroup[] groups =
+                runtime.Definition
+                    .LifecycleReactions?.StackChanged;
+            if (groups == null)
+                return;
+            for (int i = 0;
+                 i < groups.Length;
+                 i++)
+            {
+                BuffStackChangedReactionGroup group =
+                    groups[i];
+                if (group == null)
+                    continue;
+                if (currentStacks < group.MinStack ||
+                    currentStacks > group.MaxStack)
+                    continue;
+                ExecuteReactionGroup(
+                    group,
+                    runtime);
+            }
+        }
+
+        private void RunPeriodicReactions(
+            BuffRuntime runtime)
+        {
+            BuffPeriodicReactionGroup[] groups =
+                runtime.Definition
+                    .LifecycleReactions?.Periodic;
+            if (groups == null)
+                return;
+            int currentTick =
+                SimulationTickContext.Current.Tick;
+            for (int i = 0;
+                 i < groups.Length;
+                 i++)
+            {
+                BuffPeriodicReactionGroup group =
+                    groups[i];
+                if (group == null ||
+                    !group.NextTriggerTickSlot.IsValid)
+                    continue;
+                int intervalTicks =
+                    BuffTickConverter.SecondsToTicks(
+                        group.IntervalSeconds);
+                if (intervalTicks <= 0)
+                    continue;
+                int next = runtime.Blackboard
+                    .ReadIntOrDefault(
+                        group.NextTriggerTickSlot);
+                if (next <= 0)
+                {
+                    next = group.TriggerImmediately
+                        ? currentTick
+                        : currentTick +
+                            intervalTicks;
+                    runtime.Blackboard.WriteInt(
+                        group.NextTriggerTickSlot,
+                        next);
+                    if (group.TriggerImmediately)
+                        ExecuteReactionGroup(
+                            group,
+                            runtime);
+                    continue;
+                }
+                if (currentTick >= next)
+                {
+                    ExecuteReactionGroup(
+                        group,
+                        runtime);
+                    runtime.Blackboard.WriteInt(
+                        group.NextTriggerTickSlot,
+                        currentTick +
+                            intervalTicks);
+                }
+            }
         }
 
         private void RebuildEffectHandlesForRespawn(BuffRuntime runtime)
@@ -336,6 +802,8 @@ namespace FrameSyncMoba.Unit
                 {
                     ConfigId = runtime.ConfigId,
                     SourceUnitUid = runtime.SourceUnitUid,
+                    SourceType = runtime.Source.SourceType,
+                    SourceConfigId = runtime.Source.SourceConfigId,
                     RemainingTicks = runtime.RemainingTicks,
                     CurrentStacks = runtime.CurrentStacks,
                     ElapsedTicks = runtime.ElapsedTicks,
@@ -362,11 +830,16 @@ namespace FrameSyncMoba.Unit
                     throw new DeterministicSimulationException(
                         "Buff snapshots must be in unique ConfigId order.");
                 if (DefinitionRegistry == null ||
-                    !DefinitionRegistry.TryGet(runtimeState.ConfigId, out BuffDef definition))
+                    !DefinitionRegistry.TryGet(runtimeState.ConfigId, out BuffDefinition definition))
                     throw new DeterministicSimulationException(
                         $"Buff snapshot references missing definition {runtimeState.ConfigId}.");
                 var runtime = new BuffRuntime(
-                    runtimeState.ConfigId, definition, runtimeState.SourceUnitUid);
+                    runtimeState.ConfigId,
+                    definition,
+                    BuffSource.Create(
+                        runtimeState.SourceUnitUid,
+                        runtimeState.SourceType,
+                        runtimeState.SourceConfigId));
                 runtime.Restore(runtimeState);
                 _store.Add(runtime);
                 previousId = runtimeState.ConfigId;
@@ -406,6 +879,8 @@ namespace FrameSyncMoba.Unit
             {
                 BuffRuntime runtime = runtimes[i];
                 BuffEffect[] effects = runtime.GetEffects();
+                BuffReactionGroup[] groups =
+                    GetEventGroups(runtime, kind);
                 for (int j = 0; j < effects.Length; j++)
                 {
                     BuffEffect effect = effects[j];
@@ -419,8 +894,41 @@ namespace FrameSyncMoba.Unit
                         case BuffReactionKind.UnitDying: effect.OnUnitDying(runtime, _owner); break;
                         case BuffReactionKind.UnitDeath: effect.OnUnitDeath(runtime, _owner); break;
                         case BuffReactionKind.UnitKill: effect.OnUnitKill(runtime, _owner, relatedUnit); break;
+                        case BuffReactionKind.UnitAssist: effect.OnUnitAssist(runtime, _owner, relatedUnit); break;
                     }
                 }
+                RunEventGroups(groups, runtime);
+            }
+        }
+
+        private static BuffReactionGroup[] GetEventGroups(
+            BuffRuntime runtime,
+            BuffReactionKind kind)
+        {
+            BuffEventReactions reactions =
+                runtime.Definition.EventReactions;
+            if (reactions == null)
+                return null;
+            switch (kind)
+            {
+                case BuffReactionKind.DamageTaken:
+                    return reactions.DamageTaken;
+                case BuffReactionKind.DamageDealt:
+                    return reactions.DamageDealt;
+                case BuffReactionKind.HealTaken:
+                    return reactions.HealTaken;
+                case BuffReactionKind.HealDealt:
+                    return reactions.HealDealt;
+                case BuffReactionKind.ShieldApplied:
+                    return reactions.ShieldApplied;
+                case BuffReactionKind.UnitDying:
+                    return reactions.UnitDying;
+                case BuffReactionKind.UnitDeath:
+                    return reactions.UnitDeath;
+                case BuffReactionKind.UnitKill:
+                    return reactions.UnitKill;
+                default:
+                    return null;
             }
         }
 
@@ -434,6 +942,7 @@ namespace FrameSyncMoba.Unit
             UnitDying,
             UnitDeath,
             UnitKill,
+            UnitAssist,
         }
 
         private void DispatchCollisionReaction(
@@ -446,6 +955,12 @@ namespace FrameSyncMoba.Unit
             {
                 BuffRuntime runtime = runtimes[runtimeIndex];
                 BuffEffect[] effects = runtime.GetEffects();
+                BuffReactionGroup[] groups =
+                    isEnter
+                        ? runtime.Definition
+                            .EventReactions?.CollisionEnter
+                        : runtime.Definition
+                            .EventReactions?.CollisionExit;
                 for (int effectIndex = 0; effectIndex < effects.Length; effectIndex++)
                 {
                     BuffEffect effect = effects[effectIndex];
@@ -455,6 +970,7 @@ namespace FrameSyncMoba.Unit
                     else
                         effect.OnUnitCollisionExit(runtime, _owner, exit);
                 }
+                RunEventGroups(groups, runtime);
             }
         }
     }

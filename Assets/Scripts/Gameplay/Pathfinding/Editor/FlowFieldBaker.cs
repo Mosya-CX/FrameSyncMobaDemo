@@ -10,7 +10,7 @@ namespace FrameSyncMoba.Unit.Editor
     public static class FlowFieldBaker
     {
         private const string DefaultOutputPath =
-            "Assets/Config/FullMatchTest/FlowFields";
+            "Assets/Config/Formal/FlowFields";
 
         [MenuItem(
             "Tools/Pathfinding/Bake Selected Flow Fields")]

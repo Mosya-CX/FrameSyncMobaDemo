@@ -18,6 +18,68 @@ namespace FrameSyncMoba.Unit
 
         public void SetIntent(in UnitIntent intent) { _currentIntent = intent; }
 
+        /// <summary>
+        /// Replace the long-term goal with a new order's intent. When the
+        /// intent actually changes, the previous behavior terminates: an
+        /// uncommitted attack windup is cancelled so it does not keep
+        /// committing after the goal switched (Attack Design v6.2 4.5 --
+        /// windup interruption is decided by the unit framework). Rollback
+        /// restore still uses SetIntent directly and never cancels.
+        /// </summary>
+        public void ReplaceIntent(in UnitIntent intent)
+        {
+            CancelPreviousBehaviorIfReplaced(
+                in intent);
+            _currentIntent = intent;
+        }
+
+        private void CancelPreviousBehaviorIfReplaced(
+            in UnitIntent intent)
+        {
+            if (SameBehavior(
+                    in _currentIntent,
+                    in intent))
+            {
+                return;
+            }
+            AttackHandler attack =
+                _owner?.AttackHandler;
+            if (attack != null &&
+                attack.IsAttackCycleActive &&
+                !attack.ImpactCommitted)
+            {
+                attack.CancelBeforeCommit();
+            }
+        }
+
+        private static bool SameBehavior(
+            in UnitIntent left,
+            in UnitIntent right)
+        {
+            if (left.Kind != right.Kind)
+            {
+                return false;
+            }
+            switch (left.Kind)
+            {
+                case IntentKind.AttackTarget:
+                    return left.TargetUnit ==
+                        right.TargetUnit;
+                case IntentKind.CastAbility:
+                    return left.AbilityId ==
+                            right.AbilityId &&
+                        left.AbilityVerb ==
+                            right.AbilityVerb &&
+                        left.AbilityAim ==
+                            right.AbilityAim;
+                case IntentKind.MoveToPosition:
+                    return left.TargetPosition
+                        .Equals(right.TargetPosition);
+                default:
+                    return true;
+            }
+        }
+
         public void ClearIntent() { _currentIntent = UnitIntent.None; }
 
         public void Tick(out ActionRequest primaryRequest)
@@ -28,7 +90,16 @@ namespace FrameSyncMoba.Unit
 
             int currentTick = SimulationTickContext.Current.Tick;
 
-            if (TryGetOverrideRequest(currentTick, out primaryRequest)) return;
+            // Unit Framework v27.3 3.3: the control system's stable forced
+            // behavior winner is the highest-priority planning input.
+            if (_owner.CrowdControl != null &&
+                _owner.CrowdControl.TryGetBehaviorOverride(
+                    out CrowdControlBehaviorOverride behavior))
+            {
+                primaryRequest =
+                    PlanForcedBehavior(behavior);
+                return;
+            }
             if (!_currentIntent.IsActive) return;
 
             switch (_currentIntent.Kind)
@@ -41,21 +112,37 @@ namespace FrameSyncMoba.Unit
             }
         }
 
-        private bool TryGetOverrideRequest(int currentTick, out ActionRequest request)
+        private ActionRequest PlanForcedBehavior(
+            in CrowdControlBehaviorOverride behavior)
         {
-            request = null;
-            if (_owner.CrowdControl == null) return false;
-            var cc = _owner.CrowdControl.ActiveConstraint;
-            if (!cc.IsActive) return false;
-            switch (cc.Type)
+            switch (behavior.Kind)
             {
-                case CrowdControlType.Stun:
-                case CrowdControlType.Suppression:
-                    return true; // Fully disabled
-                case CrowdControlType.Knockback:
-                    return true; // Handled by ForcedMoveExecutor
+                case CrowdControlBehaviorKind.AttackTarget:
+                    return behavior.TargetUnitUid.IsValid()
+                        ? new AttackActionRequest(
+                            behavior.TargetUnitUid)
+                        : null;
+
+                case CrowdControlBehaviorKind.MoveToTarget:
+                    return behavior.TargetUnitUid.IsValid()
+                        ? new MoveActionRequest(
+                            behavior.TargetUnitUid,
+                            (fp)0.5m,
+                            MovePurpose.ControlMove)
+                        : null;
+
+                case CrowdControlBehaviorKind.FleeDirection:
+                    fp2 current =
+                        _owner.PhysicsEntity
+                            .Transform2D.Position;
+                    return new MoveActionRequest(
+                        current +
+                        behavior.Direction * (fp)10,
+                        (fp)0.3m,
+                        MovePurpose.ControlMove);
+
                 default:
-                    return false;
+                    return null;
             }
         }
 
@@ -69,6 +156,15 @@ namespace FrameSyncMoba.Unit
             // next completed attack cycle gets a fresh attack/range decision.
             if (attack.IsAttackCycleActive)
                 return null;
+
+            // A charging/casting unit must not start a normal attack
+            // (Unit Framework v27.3 cast rule). The ability session owns the
+            // unit's action window.
+            if (_owner.AbilityHandler != null &&
+                _owner.AbilityHandler.HasActiveCastSession())
+            {
+                return null;
+            }
 
             AttackPlanStatus status =
                 attack.GetAttackPlanStatus(targetUid);
@@ -112,7 +208,15 @@ namespace FrameSyncMoba.Unit
             int abilityId = _currentIntent.AbilityId;
             if (_owner.AbilityHandler == null) { _currentIntent.Clear(); return null; }
 
-            fp castRange = (fp)4;
+            // Single source of truth: AbilityDef.CastRange. The behavior
+            // layer must not duplicate ability range (Player Input v1.1 4.1 /
+            // Unit Framework v27.3 cast intent). Zero means "no range
+            // requirement", matching AbilityHandler.IsWithinCastRange.
+            AbilityDef def =
+                _owner.AbilityHandler?.GetAbilityDef(
+                    (byte)abilityId);
+            fp castRange =
+                def?.CastRange ?? fp.zero;
             fp2 sourcePos = _owner.PhysicsEntity.Transform2D.Position;
             fp2 destPos = sourcePos;
             if (aim.Kind == AimKind.Unit)
@@ -129,12 +233,26 @@ namespace FrameSyncMoba.Unit
             else if (aim.Kind == AimKind.Point)
                 destPos = aim.TargetPoint;
 
-            fp distSq = fpmath.dot(sourcePos - destPos, sourcePos - destPos);
-            if (distSq <= castRange * castRange)
+            if (castRange <= fp.zero)
+            {
+                AbilitySignalVerb verb = _currentIntent.AbilityVerb;
+                _currentIntent.Clear();
                 return new CastActionRequest(
                     abilityId,
-                    _currentIntent.AbilityVerb,
+                    verb,
                     aim);
+            }
+
+            fp distSq = fpmath.dot(sourcePos - destPos, sourcePos - destPos);
+            if (distSq <= castRange * castRange)
+            {
+                AbilitySignalVerb verb = _currentIntent.AbilityVerb;
+                _currentIntent.Clear();
+                return new CastActionRequest(
+                    abilityId,
+                    verb,
+                    aim);
+            }
 
             if (_currentIntent.AllowChase)
                 return new MoveActionRequest(

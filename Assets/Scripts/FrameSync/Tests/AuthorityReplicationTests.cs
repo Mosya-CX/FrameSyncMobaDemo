@@ -52,6 +52,66 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void LateCommand_IsRetargetedToCurrentServerTick_NotRejected()
+        {
+            UnitUid unitUid = new UnitUid(0, 10, 1);
+            GameplayCommand late = GameplayCommand.CreateMove(
+                Header(unitUid, 3, 1),
+                new fp2(fp.one, fp.zero));
+            var buffer = new CommandRelayBuffer();
+
+            AcceptedCommandRelay[] relays = buffer.AcceptBundle(
+                GameplayCommandBundle.Create(
+                    7,
+                    1,
+                    0,
+                    new[] { late }),
+                5,
+                12,
+                null);
+
+            Assert.AreEqual(1, relays.Length);
+            Assert.AreEqual(5, relays[0].TargetTick);
+            GameplayCommand[] canonical =
+                relays[0].DecodeCommands();
+            Assert.AreEqual(1, canonical.Length);
+            Assert.AreEqual(5, canonical[0].TargetTick);
+            Assert.AreEqual(1u, canonical[0].CommandSeq);
+            Assert.AreEqual(
+                new fp2(fp.one, fp.zero),
+                canonical[0].MoveTargetPoint);
+        }
+
+        [Test]
+        public void DirectionAim_CastAbility_RoundTripsCanonically()
+        {
+            UnitUid uid = new UnitUid(0, 12, 1);
+            fp2 direction = fpmath.normalize(
+                new fp2((fp)3, (fp)4));
+            GameplayCommand cast =
+                GameplayCommand.CreateCastAbility(
+                    Header(uid, 10, 1),
+                    3,
+                    AbilitySignalVerb.Commit,
+                    AimSnapshot.ForDirection(direction));
+
+            GameplayCommand[] decoded =
+                GameplayCommandBundle.Create(
+                    7,
+                    1,
+                    0,
+                    new[] { cast }).DecodeCommands();
+
+            Assert.AreEqual(1, decoded.Length);
+            Assert.AreEqual(
+                AimKind.Direction,
+                decoded[0].Aim.Kind);
+            Assert.AreEqual(
+                cast.Aim,
+                decoded[0].Aim);
+        }
+
+        [Test]
         public void WireContracts_DoNotExposeCallerOwnedByteArrays()
         {
             UnitUid uid = new UnitUid(0, 11, 1);
@@ -213,7 +273,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         public void AuthorityRuntime_ReleasesClientRollbackHistory()
         {
             var runtime = new FrameSyncGameRuntime(
-                new UnitWorld(),
+                new UnitWorld { TickRate = 20 },
                 null,
                 2,
                 0,
@@ -240,7 +300,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         public void RestoreInitialSnapshot_SetsAuthorityBaseline()
         {
             var runtime = new FrameSyncGameRuntime(
-                new UnitWorld(),
+                new UnitWorld { TickRate = 20 },
                 null,
                 2,
                 0,

@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd190d0d50aa5847a974015e823714e, type: 3}
+  m_Name: Buff_RVineContactTimer
+  m_EditorClassIdentifier: 
+  ConfigId:
+    Value: 9115
+  Display:
+    Name: "\u85E4\u8513\u63A5\u89E6\u8BA1\u65F6"
+    Description: "\u5185\u90E8\u8BA1\u65F6\uFF0C\u4E0D\u663E\u793A\u3002"
+    Icon: {fileID: 0}
+  Life:
+    DurationSeconds: 60
+    Infinite: 1
+    RefreshMode: 1
+    ExtendSeconds: 0
+  Stack:
+    MaxStacks: 1
+    AddMode: 1
+    ReduceMode: 0
+    ReduceAmount: 1
+  Tags:
+    TagIds: 
+  Effects: []
+  BlackboardLayout:
+    Slots: []
+  LifecycleReactions:
+    Added: []
+    Reapplied: []
+    Removed: []
+    StackChanged: []
+    Periodic: []
+  EventReactions:
+    DamageTaken: []
+    DamageDealt: []
+    HealTaken: []
+    HealDealt: []
+    ShieldApplied: []
+    AbilityCast: []
+    LevelUp: []
+    UnitDying: []
+    UnitDeath: []
+    UnitKill: []
+    OnHitDealt: []
+    CollisionEnter: []
+    CollisionExit: []
+  Priority: 0
+  PeriodicIntervalTicks: 0
+  ApplyVfxDefId: 0
+  ApplyVfxDurationSeconds: 0
+  InitialStacks: 1
+  references:
+    version: 2
+    RefIds: []

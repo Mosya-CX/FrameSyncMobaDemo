@@ -25,7 +25,8 @@ namespace FrameSyncMoba.PlayerInput
             return world.TryGetUnit(
                     ownerUid,
                     out FrameSyncMoba.Unit.Unit unit) &&
-                unit.AbilityHandler.HasActiveSession(slot);
+            (unit.AbilityHandler?.HasActiveSession(slot) ??
+                false);
         }
 
         public bool IsWaitingForCommit(
@@ -35,7 +36,8 @@ namespace FrameSyncMoba.PlayerInput
             return world.TryGetUnit(
                     ownerUid,
                     out FrameSyncMoba.Unit.Unit unit) &&
-                unit.AbilityHandler.IsWaitingForCommit(slot);
+            (unit.AbilityHandler?.IsWaitingForCommit(slot) ??
+                false);
         }
     }
 }

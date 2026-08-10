@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.Unit;
 
 namespace FrameSyncMoba.FrameSync
 {
@@ -75,15 +76,26 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < sourceCount; i++)
             {
                 if (commands[i].Header.ClientId != clientId)
+                {
+                    LogBundleFailure(
+                        clientId,
+                        commands,
+                        $"ClientId mismatch at index {i}: " +
+                        $"command client={commands[i].Header.ClientId} " +
+                        $"bundle client={clientId}");
                     throw new ArgumentException(
                         "Every bundled Command must belong to the bundle ClientId.",
                         nameof(commands));
+                }
             }
 
             byte[] canonicalBytes =
                 CanonicalCommandCodec.Encode(commands);
             GameplayCommand[] canonicalCommands =
-                CanonicalCommandCodec.DecodeBundle(canonicalBytes);
+                TryDecodeBundleOrLogFailure(
+                    canonicalBytes,
+                    commands,
+                    clientId);
             int count = canonicalCommands.Length;
             int minTick = -1;
             int maxTick = -1;
@@ -107,6 +119,63 @@ namespace FrameSyncMoba.FrameSync
                 maxTick,
                 count,
                 canonicalBytes);
+        }
+
+        private static GameplayCommand[] TryDecodeBundleOrLogFailure(
+            byte[] canonicalBytes,
+            IReadOnlyList<GameplayCommand> sourceCommands,
+            ulong bundleClientId)
+        {
+            try
+            {
+                return CanonicalCommandCodec.DecodeBundle(
+                    canonicalBytes);
+            }
+            catch (System.Exception exception)
+            {
+                LogBundleFailure(
+                    bundleClientId,
+                    sourceCommands,
+                    "canonical round-trip failed: " +
+                    exception.Message);
+                throw;
+            }
+        }
+
+        private static void LogBundleFailure(
+            ulong bundleClientId,
+            IReadOnlyList<GameplayCommand> commands,
+            string reason)
+        {
+            var builder = new System.Text.StringBuilder();
+            builder.Append(
+                $"[BundleDiag] {reason}; bundleClient={bundleClientId} " +
+                $"count={commands?.Count ?? 0}");
+            if (commands != null)
+            {
+                var seenKeys =
+                    new HashSet<(int, int, UnitUid, uint)>();
+                for (int i = 0;
+                     i < commands.Count;
+                     i++)
+                {
+                    GameplayCommand command = commands[i];
+                    var key = (
+                        command.TargetTick,
+                        command.PlayerSlot,
+                        command.ControlledUnitUid,
+                        command.CommandSeq);
+                    builder.Append(
+                        $"\n  [{i}] kind={command.Kind} " +
+                        $"seq={command.CommandSeq} client={command.Header.ClientId} " +
+                        $"slot={command.PlayerSlot} uid={command.ControlledUnitUid} " +
+                        $"tick={command.TargetTick} build={command.Header.BuildLocalTick} " +
+                        $"payload={command.Header.PayloadByteLength} " +
+                        $"dupKey={seenKeys.Contains(key)}");
+                    seenKeys.Add(key);
+                }
+            }
+            UnityEngine.Debug.LogError(builder.ToString());
         }
 
         public GameplayCommand[] DecodeCommands()
@@ -220,10 +289,19 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < commands.Length; i++)
             {
                 GameplayCommand command = commands[i];
-                if (command.TargetTick < serverTick ||
-                    command.TargetTick > lastAllowedTick)
+                if (command.TargetTick < serverTick)
+                {
+                    // Late Command: its targeted Tick has already executed.
+                    // Re-target it to the current server Tick so the player's
+                    // input survives; the client's ordinary rollback replay
+                    // picks it up from the relay/authority frame.
+                    command = command.WithTargetTick(serverTick);
+                }
+                else if (command.TargetTick > lastAllowedTick)
+                {
                     throw new DeterministicSimulationException(
                         $"Command Tick {command.TargetTick} is outside server acceptance window [{serverTick}, {lastAllowedTick}].");
+                }
                 if (authorizeCommand != null && !authorizeCommand(command))
                     throw new DeterministicSimulationException(
                         $"Command {command.CommandSeq} failed its client/unit binding check.");
@@ -496,10 +574,99 @@ namespace FrameSyncMoba.FrameSync
                 commands,
                 flags,
                 pipeline.LastChecksum);
+            if (tick <= 5)
+                UnityEngine.Debug.Log(
+                    $"[Checksum] Server frame Tick {tick} " +
+                    $"checksum={pipeline.LastChecksum} " +
+                    $"commands={commands.Length}");
+            if (SharedGameplayChecksum.DetailedLoggingEnabled)
+            {
+                PrintDetailedChecksum(tick, pipeline);
+            }
             pipeline.GoldIncome?.ConfirmThroughTick(tick);
             recoveryArchive.Add(frame);
             AuthorityFrameBuilt?.Invoke(frame);
             return frame;
+        }
+
+        private static void PrintDetailedChecksum(
+            int tick,
+            SimulationTickPipeline pipeline)
+        {
+            GameplaySnapshot snapshot =
+                pipeline.CaptureAggregateSnapshot();
+            var lines = new System.Collections.Generic.List<string>
+            {
+                $"[ChecksumDetail] Tick {tick} server segments:",
+            };
+            GoldIncomeBatchDigest digest =
+                pipeline.GoldIncome?.GetBatchDigest(tick) ??
+                new GoldIncomeBatchDigest(0);
+            SharedGameplayChecksum.ChecksumSegment[] segments =
+                SharedGameplayChecksum.ComputeSegmentHashes(
+                    snapshot,
+                    digest);
+            for (int i = 0; i < segments.Length; i++)
+            {
+                lines.Add(
+                    $"  {segments[i].Label}={segments[i].Hash}");
+            }
+            UnitSnapshot[] units =
+                snapshot.UnitWorldState.Units ??
+                System.Array.Empty<UnitSnapshot>();
+            for (int u = 0; u < units.Length; u++)
+            {
+                lines.Add(
+                    $"  Unit {units[u].UnitUid} " +
+                    $"(kind={units[u].UnitKind}):");
+                var pos = units[u].PhysicsTransform.Position;
+                lines.Add(
+                    $"    pos=({pos.x},{pos.y})");
+                var loco = units[u].LocomotionState;
+                lines.Add(
+                    $"    locoActive={loco.HasActiveTask} " +
+                    $"purpose={loco.Task.Purpose} " +
+                    $"state={loco.Task.State} " +
+                    $"cursor={loco.FollowerState.PathCursor} " +
+                    $"routeFinished={loco.FollowerState.RouteFinished} " +
+                    $"needRepath={loco.Route.NeedRepath}");
+                SharedGameplayChecksum.ChecksumSegment[] handlers =
+                    SharedGameplayChecksum
+                        .ComputeUnitHandlerHashes(units[u]);
+                for (int h = 0;
+                     h < handlers.Length;
+                     h++)
+                {
+                    lines.Add(
+                        $"    {handlers[h].Label}=" +
+                        $"{handlers[h].Hash}");
+                }
+                var ccInstances =
+                    units[u].CCState.Instances;
+                lines.Add(
+                    $"    ccPendingSignals={units[u].CCState.PendingSignals} " +
+                    $"ccNextInstance={units[u].CCState.NextInstanceId} " +
+                    $"ccForcedMove={units[u].CCState.ActiveForcedMoveHandle.InstanceId}");
+                if (ccInstances != null &&
+                    ccInstances.Count > 0)
+                {
+                    for (int c = 0;
+                         c < ccInstances.Count;
+                         c++)
+                    {
+                        var inst = ccInstances[c];
+                        lines.Add(
+                            $"      CC id={inst.ControlId.Value} " +
+                            $"inst={inst.InstanceId} " +
+                            $"start={inst.StartTick} " +
+                            $"expire={inst.ExpireTick}");
+                    }
+                }
+            }
+            UnityEngine.Debug.Log(
+                string.Join(
+                    System.Environment.NewLine,
+                    lines));
         }
     }
 

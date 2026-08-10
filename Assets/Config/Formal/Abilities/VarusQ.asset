@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1ffb938a26d10b46b88354c8e8aeb8a, type: 3}
+  m_Name: VarusQ
+  m_EditorClassIdentifier: 
+  abilityId: 10011
+  abilityName: Piercing Arrow
+  icon: {fileID: 21300000, guid: 6118bc6bfec0b614594d040f5541d5bd, type: 3}
+  castModel:
+    rid: 2586995953099079698
+  castRange: 9.25
+  aimKind: 4
+  cooldownTicksByLevel:
+  - 480
+  - 450
+  - 420
+  - 390
+  - 360
+  costTiming: 0
+  castResourceCostByLevel:
+  - 50
+  - 55
+  - 60
+  - 65
+  - 70
+  healthCostByLevel: []
+  castConditions: []
+  passiveEffect:
+    rid: -2
+  stageDefs:
+  - rid: 2586995953099079738
+  - rid: 2586995953099079739
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 2586995953099079698
+      type: {class: HoldReleaseCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        holdStageKey: 1
+        holdDurationTicks: 120
+        holdInterruptible: 1
+        holdLockMovement: 0
+        releaseStageKey: 2
+        releaseDurationTicks: 0
+        releaseNotifyAbilityCastOnEnter: 0
+        releaseInterruptible: 0
+        holdIconOverride: {fileID: 21300000, guid: 4fadc3515107f0e4e979a26aeaa8e7b7,
+          type: 3}
+        releaseIconOverride: {fileID: 0}
+        holdTimeoutPolicy: 1
+        refundCostPercentOnTimeout: 0.5
+    - rid: 2586995953099079738
+      type: {class: ChargeStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 1
+        debugName: Focus
+        chargeRatioBlackboardKeyId: 1
+        maxChargeTicks: 45
+        consumeToggleSlot: 1
+        consumeToggleCooldownTicks: 1200
+        empoweredBlackboardKeyId: 2
+        selfSlowModifierPercent: 0.2
+        slowModifierBlackboardKeyId: 3
+    - rid: 2586995953099079739
+      type: {class: ChargeProjectileStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 2
+        debugName: Release
+        projectileDefId: 106
+        spawnOffsetDistance: 1
+        chargeRatioBlackboardKeyId: 1
+        empoweredBlackboardKeyId: 2
+        minBaseDamageByLevel:
+        - 53.33
+        - 100
+        - 146.67
+        - 193.33
+        - 240
+        maxBaseDamageByLevel:
+        - 80
+        - 150
+        - 220
+        - 290
+        - 360
+        minAttackDamageRatioByLevel:
+        - 0.8
+        - 0.8
+        - 0.8
+        - 0.8
+        - 0.8
+        maxAttackDamageRatioByLevel:
+        - 1.2
+        - 1.2
+        - 1.2
+        - 1.2
+        - 1.2
+        minMissingHpRatioByLevel:
+        - 0.06
+        - 0.07
+        - 0.08
+        - 0.09
+        - 0.1
+        maxMissingHpRatioByLevel:
+        - 0.09
+        - 0.105
+        - 0.12
+        - 0.135
+        - 0.15
+        minRange: 9.25
+        maxRange: 16.25
+        falloffPerHitPercent: 0.15
+        minDamageRatio: 0.33
+        recipeId: 10011

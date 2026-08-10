@@ -1,5 +1,7 @@
 using System;
+using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace FrameSyncMoba.PlayerInput
@@ -19,6 +21,7 @@ namespace FrameSyncMoba.PlayerInput
         private InputAction abilityW;
         private InputAction abilityE;
         private InputAction abilityR;
+        private InputAction expandStats;
 
         private LocalInputEventBuffer buffer;
         private MouseWorldResolver pointerResolver;
@@ -69,6 +72,11 @@ namespace FrameSyncMoba.PlayerInput
         private void LateUpdate()
         {
             if (buffer == null || commandRequester == null) return;
+            if (pointerResolver != null && pointerPosition != null)
+            {
+                pointerResolver.LastScreenPosition =
+                    pointerPosition.ReadValue<Vector2>();
+            }
             commandRequester.ProcessFrame(buffer, pointerResolver);
             UpdateIndicator();
         }
@@ -78,18 +86,30 @@ namespace FrameSyncMoba.PlayerInput
             if (indicatorDriver == null || pointerResolver == null) return;
             if (commandRequester == null || commandRequester.ControlledUnit == null) return;
 
-            // Check if any slot is in LocalAiming state
+            // Show and follow the indicator while the player is locally
+            // aiming (E/R) or holding a Focus session (Q hold-release).
             for (byte slot = 0; slot < 4; slot++)
             {
                 ref readonly var state = ref commandRequester.GetAbilityState(slot);
-                if (state.Kind == LocalAbilityInputStateKind.LocalAiming)
+                if (state.Kind == LocalAbilityInputStateKind.LocalAiming ||
+                    state.Kind == LocalAbilityInputStateKind.GameplayFocusing)
                 {
                     // Get the aim kind and cast range for this slot
                     if (commandRequester.TryGetAimInfo(slot, out var aimKind, out var castRange, out var casterPos, out var casterForward))
                     {
+                        fp groundRadius = fp.zero;
+                        commandRequester.TryGetGroundTargetRadius(
+                            slot,
+                            out groundRadius);
                         if (!indicatorDriver.IsVisible || indicatorDriver.ActiveKind != aimKind)
                         {
-                            indicatorDriver.Show(aimKind, castRange, casterPos, casterForward);
+                            indicatorDriver.Show(
+                                aimKind,
+                                castRange,
+                                casterPos,
+                                casterForward,
+                                true,
+                                groundRadius);
                         }
 
                         Vector2 screenPos = pointerResolver != null
@@ -129,6 +149,9 @@ namespace FrameSyncMoba.PlayerInput
             abilityW = gameplayMap.FindAction("AbilityW", true);
             abilityE = gameplayMap.FindAction("AbilityE", true);
             abilityR = gameplayMap.FindAction("AbilityR", true);
+            expandStats = gameplayMap.FindAction(
+                "ExpandStats",
+                true);
         }
 
         private void SubscribeActions()
@@ -145,6 +168,8 @@ namespace FrameSyncMoba.PlayerInput
             abilityE.canceled += OnAbilityEReleased;
             abilityR.performed += OnAbilityRPressed;
             abilityR.canceled += OnAbilityRReleased;
+            expandStats.performed += OnExpandStatsPressed;
+            expandStats.canceled += OnExpandStatsReleased;
             subscribed = true;
             gameplayMap.Enable();
         }
@@ -163,6 +188,8 @@ namespace FrameSyncMoba.PlayerInput
             abilityE.canceled -= OnAbilityEReleased;
             abilityR.performed -= OnAbilityRPressed;
             abilityR.canceled -= OnAbilityRReleased;
+            expandStats.performed -= OnExpandStatsPressed;
+            expandStats.canceled -= OnExpandStatsReleased;
             gameplayMap.Disable();
             subscribed = false;
         }
@@ -185,6 +212,14 @@ namespace FrameSyncMoba.PlayerInput
         private void OnAbilityRPressed(InputAction.CallbackContext context) => PushAbilityPressed(3);
         private void OnAbilityRReleased(InputAction.CallbackContext context) => PushAbilityReleased(3);
 
+        private void OnExpandStatsPressed(
+            InputAction.CallbackContext context) =>
+            PresentationInputState.ExpandStatsHeld = true;
+
+        private void OnExpandStatsReleased(
+            InputAction.CallbackContext context) =>
+            PresentationInputState.ExpandStatsHeld = false;
+
         private void PushAbilityPressed(byte slot) =>
             Push(LocalGameplayInputEventKind.AbilityKeyPressed, slot);
 
@@ -194,6 +229,12 @@ namespace FrameSyncMoba.PlayerInput
         private void Push(LocalGameplayInputEventKind kind, byte slot)
         {
             if (buffer == null) return;
+            if (kind == LocalGameplayInputEventKind.PrimaryClick ||
+                kind == LocalGameplayInputEventKind.SecondaryClick)
+            {
+                if (IsPointerOverBlockingUi())
+                    return;
+            }
             Vector2 screenPosition = pointerPosition != null
                 ? pointerPosition.ReadValue<Vector2>()
                 : Vector2.zero;
@@ -205,6 +246,18 @@ namespace FrameSyncMoba.PlayerInput
                     + LocalInputEventBuffer.MaxLocalInputEventsPerUnityFrame + ".",
                     this);
             }
+        }
+
+        /// <summary>
+        /// Design v1.1 16.4: pointer clicks over blocking UI must not produce
+        /// world Commands (no Commit, no Move/Attack). The UI map is handled by
+        /// InputSystemUIInputModule on the same pointer.
+        /// </summary>
+        private static bool IsPointerOverBlockingUi()
+        {
+            EventSystem eventSystem = EventSystem.current;
+            return eventSystem != null &&
+                eventSystem.IsPointerOverGameObject();
         }
     }
 }

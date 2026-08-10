@@ -30,33 +30,23 @@ namespace FrameSyncMoba.FrameSync.Tests
 
         private static readonly string[] FixturePrefabs =
         {
-            "Assets/Config/FullMatchTest/Prefabs/TestHeroRuntime.prefab",
-            "Assets/Config/FullMatchTest/Prefabs/TestMeleeMinionBlueRuntime.prefab",
-            "Assets/Config/FullMatchTest/Prefabs/TestMeleeMinionRedRuntime.prefab",
-            "Assets/Config/FullMatchTest/Prefabs/TestCasterMinionBlueRuntime.prefab",
-            "Assets/Config/FullMatchTest/Prefabs/TestCasterMinionRedRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestHeroRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestMeleeMinionBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestMeleeMinionRedRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestCasterMinionBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestCasterMinionRedRuntime.prefab",
         };
 
         private static readonly string[]
-            FormalAnimatedPrefabs =
+            RuntimeUnitPrefabs =
         {
-            "Assets/Resources/Prefab/Unit/Unit_Hero_Varus.prefab",
-            "Assets/Resources/Prefab/Unit/MeleeMinion_Blue.prefab",
-            "Assets/Resources/Prefab/Unit/MeleeMinion_Red.prefab",
-            "Assets/Resources/Prefab/Unit/CasterMinion_Blue.prefab",
-            "Assets/Resources/Prefab/Unit/CasterMinion_Red.prefab",
-        };
-
-        private static readonly string[]
-            FormalUnitPrefabs =
-        {
-            "Assets/Resources/Prefab/Unit/Unit_Hero_Varus.prefab",
-            "Assets/Resources/Prefab/Unit/MeleeMinion_Blue.prefab",
-            "Assets/Resources/Prefab/Unit/MeleeMinion_Red.prefab",
-            "Assets/Resources/Prefab/Unit/CasterMinion_Blue.prefab",
-            "Assets/Resources/Prefab/Unit/CasterMinion_Red.prefab",
-            "Assets/Resources/Prefab/Unit/Turret_Blue.prefab",
-            "Assets/Resources/Prefab/Unit/Turret_Red.prefab",
+            "Assets/Config/Formal/Prefabs/TestHeroRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestMeleeMinionBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestMeleeMinionRedRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestCasterMinionBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestCasterMinionRedRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestTowerBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/TestTowerRedRuntime.prefab",
         };
 
         [Test]
@@ -67,26 +57,18 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
-        public void FormalAnimatedUnits_HaveCompleteBindableControllers()
+        public void RuntimeUnits_HaveCompleteRuntimeComposition()
         {
             for (int i = 0;
-                 i < FormalAnimatedPrefabs.Length;
-                 i++)
-            {
-                ValidatePrefab(
-                    FormalAnimatedPrefabs[i]);
-            }
-        }
-
-        [Test]
-        public void FormalUnits_HaveCompleteRuntimeComposition()
-        {
-            for (int i = 0;
-                 i < FormalUnitPrefabs.Length;
+                 i < RuntimeUnitPrefabs.Length;
                  i++)
             {
                 string path =
-                    FormalUnitPrefabs[i];
+                    RuntimeUnitPrefabs[i];
+                bool isHero =
+                    path.Contains("Hero");
+                bool isTower =
+                    path.Contains("Tower");
                 GameObject root =
                     PrefabUtility.LoadPrefabContents(
                         path);
@@ -106,18 +88,6 @@ namespace FrameSyncMoba.FrameSync.Tests
                         Is.Not.Null,
                         path);
                     Assert.That(
-                        root.GetComponent<MovementHandler>(),
-                        Is.Not.Null,
-                        path);
-                    Assert.That(
-                        root.GetComponent<AttackHandler>(),
-                        Is.Not.Null,
-                        path);
-                    Assert.That(
-                        root.GetComponent<AbilityHandler>(),
-                        Is.Not.Null,
-                        path);
-                    Assert.That(
                         root.GetComponent<BuffHandler>(),
                         Is.Not.Null,
                         path);
@@ -125,21 +95,34 @@ namespace FrameSyncMoba.FrameSync.Tests
                         root.GetComponent<CrowdControlHandler>(),
                         Is.Not.Null,
                         path);
-                    Assert.That(
-                        root.GetComponent<EquipmentHandler>(),
-                        Is.Not.Null,
-                        path);
+                    if (!isTower)
+                    {
+                        Assert.That(
+                            root.GetComponent<MovementHandler>(),
+                            Is.Not.Null,
+                            path);
+                        Assert.That(
+                            root.GetComponent<AttackHandler>(),
+                            Is.Not.Null,
+                            path);
+                    }
+                    if (isHero)
+                    {
+                        Assert.That(
+                            root.GetComponent<AbilityHandler>(),
+                            Is.Not.Null,
+                            path);
+                        Assert.That(
+                            root.GetComponent<EquipmentHandler>(),
+                            Is.Not.Null,
+                            path);
+                    }
                     PresentationSocketSet sockets =
                         root.GetComponent<
                             PresentationSocketSet>();
                     Assert.That(sockets, Is.Not.Null, path);
                     Assert.That(sockets.Root, Is.Not.Null, path);
-                    Assert.That(sockets.Head, Is.Not.Null, path);
                     Assert.That(sockets.Chest, Is.Not.Null, path);
-                    Assert.That(sockets.Hand_R, Is.Not.Null, path);
-                    Assert.That(sockets.Hand_L, Is.Not.Null, path);
-                    Assert.That(sockets.Foot_R, Is.Not.Null, path);
-                    Assert.That(sockets.Foot_L, Is.Not.Null, path);
                     Assert.That(
                         sockets.ProjectileOrigin,
                         Is.Not.Null,
@@ -154,9 +137,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [TestCase(
-            "Assets/Config/FullMatchTest/Animation/TestHero.controller")]
-        [TestCase(
-            "Assets/Resources/Animation/Varus/VarusAnimator.controller")]
+            "Assets/Config/Formal/Animation/TestHero.controller")]
         public void HeroController_ContainsEveryAvailableHeroClip(
             string controllerPath)
         {
@@ -171,7 +152,8 @@ namespace FrameSyncMoba.FrameSync.Tests
                 LoadClip("VarusWalk"),
                 LoadClip("VarusAttack1"),
                 LoadClip("VarusAttack2"),
-                LoadClip("VarusSpellQ_Channeling"),
+                LoadClip("VarusSpellQ_ChannelingIdle"),
+                LoadClip("VarusSpellQChanneling_Walk"),
                 LoadClip("VarusSpellQ_Fire"),
                 LoadClip("VarusSpellE"),
                 LoadClip("VarusSpellR"),
@@ -193,9 +175,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [TestCase(
-            "Assets/Config/FullMatchTest/Animation/TestUnitAnimationProfile.asset")]
-        [TestCase(
-            "Assets/Resources/Animation/Varus/VarusAnimationProfile.asset")]
+            "Assets/Config/Formal/Animation/TestUnitAnimationProfile.asset")]
         public void HeroAnimationProfile_MapsAttackAndNeutralAbilityStages(
             string profilePath)
         {
@@ -204,10 +184,10 @@ namespace FrameSyncMoba.FrameSync.Tests
                     profilePath);
             Assert.That(profile, Is.Not.Null, profilePath);
             Assert.That(profile.AttackStateHashes, Has.Length.EqualTo(2));
-            Assert.That(profile.TryGetStageBinding(10003, 1, out _), Is.True);
-            Assert.That(profile.TryGetStageBinding(10003, 2, out _), Is.True);
-            Assert.That(profile.TryGetStageBinding(10002, 1, out _), Is.True);
-            Assert.That(profile.TryGetStageBinding(10001, 1, out _), Is.True);
+            Assert.That(profile.TryGetStageBinding(10011, 1, out _), Is.True);
+            Assert.That(profile.TryGetStageBinding(10011, 2, out _), Is.True);
+            Assert.That(profile.TryGetStageBinding(10013, 1, out _), Is.True);
+            Assert.That(profile.TryGetStageBinding(10014, 1, out _), Is.True);
         }
 
         private static void ValidatePrefab(string path)

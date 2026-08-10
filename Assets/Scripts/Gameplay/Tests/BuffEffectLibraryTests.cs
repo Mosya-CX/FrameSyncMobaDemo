@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit.Tests
 {
@@ -169,6 +170,8 @@ namespace FrameSyncMoba.Unit.Tests
                 ValuePerStack = 5m,
                 MaxStacks = 5,
                 DurationTicks = 300,
+                StackCountSlot = new BuffStateSlotId(5101),
+                HandleSlot = new BuffStateSlotId(5102),
             };
             var def = CreateBuffDef(5001, lifeRule: BuffLifeRule.Infinite,
                 effects: new BuffEffect[] { effect });
@@ -198,6 +201,8 @@ namespace FrameSyncMoba.Unit.Tests
                 ValuePerStack = 5m,
                 MaxStacks = 2,
                 DurationTicks = 300,
+                StackCountSlot = new BuffStateSlotId(5103),
+                HandleSlot = new BuffStateSlotId(5104),
             };
             var def = CreateBuffDef(5002, lifeRule: BuffLifeRule.Infinite,
                 effects: new BuffEffect[] { effect });
@@ -236,24 +241,48 @@ namespace FrameSyncMoba.Unit.Tests
             };
         }
 
-        private static BuffDef CreateBuffDef(
+        private static BuffDefinition CreateBuffDef(
             int configId,
             int intervalTicks = 0,
             int durationTicks = 60,
             BuffLifeRule lifeRule = BuffLifeRule.Duration,
             BuffEffect[] effects = null)
         {
-            return new BuffDef
+            var def =
+                ScriptableObject
+                    .CreateInstance<BuffDefinition>();
+            def.ConfigId = new BuffConfigId(configId);
+            def.Life = new BuffLifeRuleConfig
             {
-                ConfigId = new BuffConfigId(configId),
-                LifeRule = lifeRule,
-                StackRule = BuffStackRule.RefreshDuration,
-                DurationTicks = durationTicks,
-                MaxStacks = 1,
-                InitialStacks = 1,
-                PeriodicIntervalTicks = intervalTicks,
-                Effects = effects ?? System.Array.Empty<BuffEffect>(),
+                Infinite =
+                    lifeRule == BuffLifeRule.Infinite,
+                DurationSeconds =
+                    durationTicks /
+                    (float)BuffTickConverter.TickRate,
+                RefreshMode =
+                    BuffRefreshMode.RefreshToFull,
             };
+            def.Stack = new BuffStackRuleConfig
+            {
+                MaxStacks = 1,
+                AddMode = BuffAddMode.Ignore,
+                ReduceMode = BuffReduceMode.Reduce,
+            };
+            def.PeriodicIntervalTicks =
+                intervalTicks;
+            def.InitialStacks = 1;
+            BuffEffect[] arr =
+                effects ??
+                System.Array.Empty<BuffEffect>();
+            var configs =
+                new BuffEffectConfig[arr.Length];
+            for (int i = 0; i < arr.Length; i++)
+                configs[i] = new BuffEffectConfig
+                {
+                    Effect = arr[i],
+                };
+            def.Effects = configs;
+            return def;
         }
 
         private static StatDefinitionTable CreateFullStatTable()

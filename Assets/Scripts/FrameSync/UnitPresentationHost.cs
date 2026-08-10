@@ -16,6 +16,19 @@ namespace FrameSyncMoba.FrameSync
         [SerializeField] private Presentation.UnitAnimationProfile _profile;
         public Presentation.UnitAnimationProfile Profile => _profile;
 
+        private PresentationSocketSet _sockets;
+
+        /// <summary>
+        /// Named socket transforms for VFX / SFX attachment (Presentation
+        /// Design v13.2 section 6). Null when the unit prefab has no socket
+        /// set; consumers fall back to the host root.
+        /// </summary>
+        public PresentationSocketSet Sockets =>
+            _sockets != null
+                ? _sockets
+                : _sockets =
+                    GetComponent<PresentationSocketSet>();
+
         public void Bind(Unit.Unit unit)
         {
             if (_registeredUid.IsValid())

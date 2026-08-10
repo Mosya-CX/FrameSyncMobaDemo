@@ -22,22 +22,42 @@ namespace FrameSyncMoba.Unit
         public readonly int SourceId;
         public readonly int RecipeId;
         public readonly DamageTypeMask DamageTypes;
+        /// <summary>Bit mask over UnitKind (1 &lt;&lt; (int)UnitKind).
+        /// Zero matches every target kind.</summary>
+        public readonly ulong TargetKinds;
 
         public CombatModifierMatch(
             SourceTypeMask sourceTypes,
             int sourceId,
             int recipeId,
             DamageTypeMask damageTypes)
+            : this(
+                sourceTypes,
+                sourceId,
+                recipeId,
+                damageTypes,
+                targetKinds: 0UL)
+        {
+        }
+
+        public CombatModifierMatch(
+            SourceTypeMask sourceTypes,
+            int sourceId,
+            int recipeId,
+            DamageTypeMask damageTypes,
+            ulong targetKinds)
         {
             SourceTypes = sourceTypes;
             SourceId = sourceId;
             RecipeId = recipeId;
             DamageTypes = damageTypes;
+            TargetKinds = targetKinds;
         }
 
         public bool Matches(
             in CombatRequestHeader header,
-            DamageType damageType)
+            DamageType damageType,
+            UnitKind targetKind)
         {
             SourceTypeMask source =
                 (SourceTypeMask)(1 <<
@@ -52,7 +72,10 @@ namespace FrameSyncMoba.Unit
                    (RecipeId == 0 ||
                     RecipeId == header.RecipeId) &&
                    (DamageTypes == DamageTypeMask.None ||
-                    (DamageTypes & damage) != 0);
+                    (DamageTypes & damage) != 0) &&
+                   (TargetKinds == 0UL ||
+                    (TargetKinds &
+                     (1UL << (int)targetKind)) != 0);
         }
     }
 
@@ -118,6 +141,11 @@ namespace FrameSyncMoba.Unit
                         referenced = ReadStat(
                             targetStats,
                             term.Value.ValueId);
+                        break;
+                    case CombatValueRefKind.TargetCurrentHealth:
+                        referenced = targetStats != null
+                            ? targetStats.CurrentHealth
+                            : fp.zero;
                         break;
                     default:
                         throw new DeterministicSimulationException(

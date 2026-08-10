@@ -88,6 +88,70 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void NaturalRegen_AppliesPerInterval_ForHealthAndCastResource()
+        {
+            var world = new UnitWorld
+            {
+                TickRate = 30,
+                StatDefinitionTable = CreateRegenStatTable(),
+            };
+            world.DisposePolicyTable = _disposePolicies;
+            world.RespawnTimer = new RespawnTimer(world);
+            var prototype = new UnitPrototype
+            {
+                UnitPrototypeId = 99,
+                Name = "RegenUnit",
+                RuntimeEntityPrefabId = 99,
+                UnitKind = UnitKind.Hero,
+                UnitSubKindId = 0,
+                BaseStats = CreateRegenPreset(),
+            };
+            var combat = new CombatSystem(world, 300, 60);
+            combat.NaturalRegenIntervalSeconds = (fp)5;
+            Unit unit = world.SpawnUnit(
+                prototype,
+                TeamId.Neutral,
+                1,
+                0m,
+                0m);
+
+            fp maxHealth =
+                unit.StatHandler.GetStat(StatId.MaxHealth);
+            fp maxResource =
+                unit.StatHandler.GetStat(
+                    StatId.MaxCastResource);
+            unit.StatHandler.SetCurrentHealth(
+                maxHealth - (fp)50);
+            unit.StatHandler.SetCurrentCastResource(
+                maxResource - (fp)50);
+
+            for (int tick = 1;
+                 tick <= 30;
+                 tick++)
+            {
+                _controller.BeginTick(
+                    tick,
+                    ExecutionMode.ServerAuthority);
+                combat.BeginTick();
+                combat.SettleActiveRequests();
+                combat.EndTick();
+                _controller.EndTick();
+            }
+
+            // HealthRegeneration / CastResourceRegeneration = 5 per 5s ->
+            // +1 per second at 30 ticks/s.
+            Assert.That(
+                (double)(unit.StatHandler.CurrentHealth -
+                         (maxHealth - (fp)50)),
+                Is.InRange(0.9, 1.1));
+            Assert.That(
+                (double)(unit.StatHandler
+                         .CurrentCastResource -
+                         (maxResource - (fp)50)),
+                Is.InRange(0.9, 1.1));
+        }
+
+        [Test]
         public void DamageFormula_ArmorReducesDamage()
         {
             BeginTick(1);
@@ -497,6 +561,57 @@ namespace FrameSyncMoba.Unit.Tests
             {
                 StatId = StatId.AttackSpeed,
                 BaseValue = 0.625m,
+                GrowthValue = 0m,
+            });
+            return preset;
+        }
+
+        private static StatDefinitionTable CreateRegenStatTable()
+        {
+            var table = CreateCombatStatTable();
+            table.Add(new StatDefinition
+            {
+                Id = StatId.HealthRegeneration,
+                DebugName = "HP5",
+                DefaultBaseValue = 0m,
+                SupportsLevelGrowth = true,
+            });
+            table.Add(new StatDefinition
+            {
+                Id = StatId.MaxCastResource,
+                DebugName = "MP",
+                DefaultBaseValue = 0m,
+                SupportsLevelGrowth = true,
+            });
+            table.Add(new StatDefinition
+            {
+                Id = StatId.CastResourceRegeneration,
+                DebugName = "MP5",
+                DefaultBaseValue = 0m,
+                SupportsLevelGrowth = true,
+            });
+            return table;
+        }
+
+        private static StatPreset CreateRegenPreset()
+        {
+            var preset = CreateCombatPreset();
+            preset.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.HealthRegeneration,
+                BaseValue = 5m,
+                GrowthValue = 0m,
+            });
+            preset.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.MaxCastResource,
+                BaseValue = 200m,
+                GrowthValue = 0m,
+            });
+            preset.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.CastResourceRegeneration,
+                BaseValue = 5m,
                 GrowthValue = 0m,
             });
             return preset;

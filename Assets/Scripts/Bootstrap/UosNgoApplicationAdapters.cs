@@ -203,7 +203,15 @@ namespace FrameSyncMoba.Bootstrap
             if (networkManager.IsListening)
                 throw new InvalidOperationException(
                     "NetworkManager is already listening.");
-            RequireTransport();
+            UnityTransport transport = RequireTransport();
+            UnityTransport.ConnectionAddressData connectionData =
+                transport.ConnectionData;
+            transport.SetConnectionData(
+                string.IsNullOrWhiteSpace(connectionData.Address)
+                    ? "127.0.0.1"
+                    : connectionData.Address,
+                connectionData.Port,
+                "0.0.0.0");
             if (!networkManager.StartServer())
                 throw new InvalidOperationException(
                     "NGO failed to start the Dedicated Server.");
@@ -229,13 +237,25 @@ namespace FrameSyncMoba.Bootstrap
         IDedicatedServerPlatform
     {
         private bool initialized;
+        private bool multiverseInitialized;
+
+        public UosDedicatedServerPlatform(
+            bool multiverseAlreadyInitialized = false)
+        {
+            multiverseInitialized =
+                multiverseAlreadyInitialized;
+        }
 
         public async Task<DedicatedServerAllocation>
             ReadAllocationAsync()
         {
             if (!initialized)
             {
-                await MultiverseSDK.Initialize();
+                if (!multiverseInitialized)
+                {
+                    await MultiverseSDK.Initialize();
+                    multiverseInitialized = true;
+                }
                 await MatchmakingServerSDK.Initialize();
                 initialized = true;
             }

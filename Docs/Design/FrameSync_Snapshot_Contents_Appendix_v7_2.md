@@ -159,7 +159,18 @@ UnitWorldSnapshot
         ControllerKind
         OwnerUnitUid
         MinionState
+        LaneId
+        MinionLastThreatRefreshLogicTick
+        MinionNextDecisionLogicTick
+        MinionTargetLockUntilLogicTick
+        MinionEngageOrigin
+        MinionPendingAssistTargetUid
+        MinionPendingAssistExpireLogicTick
+        MinionThreatTable[] (UnitUid, Threat)
         MonsterState
+        CampId
+        MonsterCampSlotIndex
+        MonsterNextDecisionLogicTick
         TowerState
 
     RuntimeRevision
@@ -191,6 +202,7 @@ UnitWorld 按稳定 UnitUid 捕获 Unit。Unit 再聚合：
 
 ```text
 LifeState
+RespawnPosition
 Locomotion
 Behavior / Intent / Action
 AttackHandler
@@ -241,6 +253,33 @@ ProjectileWorldSnapshot
     ProjectileSnapshot[] ActiveProjectiles
 ```
 
+`ProjectileRuntimeSnapshot` 额外保存每实例的：
+
+```text
+ProjectileOnHitDamage[] OnHitDamageOverride
+```
+
+`PendingSpawnRecordSnapshot` 额外保存：
+
+```text
+ProjectileOnHitDamage[] OnHitDamageOverride
+int MaxLifetimeTicksOverride
+```
+
+`ProjectileOnHitDamage` 的快照成员为：
+
+```text
+Amount
+DamageType
+DamageRatio
+MissingHpRatio
+FalloffPerHitPercent
+MinDamageRatio
+RecipeId
+```
+
+这些成员参与 `SharedGameplayChecksum`（蓄力技能按实例覆盖投射物伤害与射程，必须两端一致）。
+
 恢复后重建：
 
 ```text
@@ -274,8 +313,8 @@ ProjectileWorld 自己保证每个 LogicTick 的 `SpawnSequenceInTick` 从 0 开
 ```csharp
 public struct CombatSystemSnapshot
 {
-    public DamageContributionTrackerSnapshot[]
-        DamageContributionTrackers;
+    public CombatContributionEventLogSnapshot[]
+        ContributionEventLogs;
 
     public DeferredCombatRequestSnapshot[]
         DeferredRequests;
@@ -283,22 +322,24 @@ public struct CombatSystemSnapshot
 ```
 
 ```csharp
-public struct DamageContributionTrackerSnapshot
+public struct CombatContributionEventLogSnapshot
 {
     public UnitUid VictimUnitUid;
+    public UnitUid LastHitContributorUid;
 
-    public DamageContributionRecordSnapshot[]
-        Records;
+    public CombatContributionEventSnapshot[]
+        Events;
 }
 ```
 
 ```csharp
-public struct DamageContributionRecordSnapshot
+public struct CombatContributionEventSnapshot
 {
     public UnitUid ContributorHeroUid;
-    public int LastContributionLogicTick;
-    public fp ContributionValue;
-    public int ExpireLogicTick;
+    public byte Kind;      // Damage / Shield / Heal
+    public fp Amount;
+    public int LogicTick;
+    public ushort SequenceInTick;
 }
 ```
 
@@ -712,4 +753,3 @@ PredictedMatchEndCandidateTick
     Combat DeferredRequests、GoldIncomeBatchDigest、
     SharedGameplayChecksum、交易结果和表现事件完全一致。
 ```
-

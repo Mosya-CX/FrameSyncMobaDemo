@@ -92,6 +92,19 @@ namespace FrameSyncMoba.Bootstrap
             if (nextBundleSequence == uint.MaxValue)
                 throw new DeterministicSimulationException(
                     "GameplayCommandBundle sequence exhausted.");
+            int minTick = int.MaxValue;
+            int maxTick = int.MinValue;
+            for (int i = 0; i < commands.Count; i++)
+            {
+                int t = commands[i].TargetTick;
+                if (t < minTick) minTick = t;
+                if (t > maxTick) maxTick = t;
+            }
+            UnityEngine.Debug.Log(
+                $"[CmdSend] local={runtime.CurrentTick} " +
+                $"sync={runtime.LatestSynchronizedServerTick} " +
+                $"count={commands.Count} min={minTick} max={maxTick} " +
+                $"client={networkManager.LocalClientId}");
             GameplayCommandBundle bundle =
                 GameplayCommandBundle.Create(
                     networkManager.LocalClientId,

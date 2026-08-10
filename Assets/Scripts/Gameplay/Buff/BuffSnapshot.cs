@@ -6,6 +6,8 @@ namespace FrameSyncMoba.Unit
     {
         public BuffConfigId ConfigId;
         public UnitUid SourceUnitUid;
+        public BuffSourceType SourceType;
+        public int SourceConfigId;
         public int RemainingTicks;
         public int CurrentStacks;
         public int ElapsedTicks;

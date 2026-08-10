@@ -26,7 +26,9 @@ namespace FrameSyncMoba.Unit
                 return (false, fp.zero);
 
             // Interruption check: CC that prevents ability usage breaks channel
-            if (caster.CrowdControl != null && caster.CrowdControl.IsActionRestricted)
+            if (caster.CrowdControl != null &&
+                caster.CrowdControl.IsBlocked(
+                    UnitActionBlockMask.AbilityCast))
                 return (false, fp.zero);
 
             // Hit reaction that interrupts abilities breaks channel
@@ -47,7 +49,9 @@ namespace FrameSyncMoba.Unit
         public static bool ShouldInterrupt(Unit caster)
         {
             if (caster == null) return true;
-            if (caster.CrowdControl != null && caster.CrowdControl.IsActionRestricted)
+            if (caster.CrowdControl != null &&
+                caster.CrowdControl.IsBlocked(
+                    UnitActionBlockMask.AbilityCast))
                 return true;
             if (caster.HitReaction.InterruptsAbility)
                 return true;

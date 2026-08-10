@@ -198,6 +198,48 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void
+            RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget()
+        {
+            // Both targets sit on the +x flight path. The projectile is
+            // locked to secondTarget; firstTarget stands between them and
+            // must NOT be hit even though the swept path overlaps it.
+            SetTargetPose(firstTarget, (fp)1);
+            SetTargetPose(secondTarget, (fp)2);
+            RegisterDefinition(
+                maxHits: 1,
+                endOnFirst: true,
+                restrictToTracked: true);
+            SpawnAndAdvance(
+                lockSecondTarget: true);
+            projectileWorld.AdvanceMotion();
+            physicsWorld.BuildUnitFinalGrid();
+
+            resolver.ResolveAllHits(projectileWorld);
+
+            Assert.AreEqual(
+                1,
+                resolver.PendingHits.Count);
+            Assert.AreEqual(
+                secondTarget.UnitUid,
+                resolver.PendingHits[0]
+                    .TargetUnitUid);
+
+            resolver.EmitEffects(projectileWorld);
+            projectileWorld.FlushDestroy();
+            combat.SettleActiveRequests();
+
+            Assert.AreEqual(
+                (fp)100,
+                firstTarget.StatHandler
+                    .CurrentHealth);
+            Assert.AreEqual(
+                (fp)75,
+                secondTarget.StatHandler
+                    .CurrentHealth);
+        }
+
+        [Test]
         public void SnapshotRoundTrip_PreservesSourceAndHitMemory()
         {
             RegisterDefinition(
@@ -235,10 +277,97 @@ namespace FrameSyncMoba.FrameSync.Tests
                 roundTrip.ActiveProjectiles[0].Position);
         }
 
+        [Test]
+        public void
+            Capture_PrunesHitMemoryForDisposedTargets()
+        {
+            // A projectile may still be alive after a unit it already hit
+            // has been disposed (death despawn). The snapshot must prune such
+            // hit-memory entries; otherwise ValidateUnitReferences throws on
+            // the next rollback through this tick.
+            RegisterDefinition(
+                maxHits: 2,
+                endOnFirst: false);
+            SpawnAndAdvance();
+            Assert.IsTrue(projectileWorld.TryGet(
+                projectileWorld.GetAllOrdered()[0].Uid,
+                out ProjectileRuntime runtime));
+            Assert.IsTrue(runtime.RegisterHit(
+                firstTarget.UnitUid,
+                10));
+
+            unitWorld.DespawnUnit(
+                new UnitDespawnRequest(
+                    firstTarget.UnitUid,
+                    UnitDespawnReason
+                        .ScriptedCleanup,
+                    UnitDespawnMode.Destroy));
+
+            ProjectileWorldSnapshot captured =
+                ProjectileWorldSnapshot.Empty;
+            projectileWorld.Capture(ref captured);
+
+            Assert.AreEqual(
+                1,
+                captured.ActiveProjectiles.Length);
+            Assert.AreEqual(
+                0,
+                captured.ActiveProjectiles[0]
+                    .HitRecords.Length);
+
+            projectileWorld.Restore(captured);
+            Assert.DoesNotThrow(
+                () => projectileWorld.Resolve(
+                    unitWorld));
+        }
+
+        [Test]
+        public void Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed()
+        {
+            RegisterDefinition(
+                maxHits: 2,
+                endOnFirst: false);
+            // The runtime ctor defaults LogicSecondsPerTick to 1; the world
+            // configures 1/TickRate. A restored projectile must keep the
+            // world value or it flies TickRate x too fast after a rollback.
+            projectileWorld.LogicSecondsPerTick =
+                (fp)1 / (fp)30;
+            SpawnAndAdvance();
+            fp afterFirst =
+                projectileWorld.GetAllOrdered()[0]
+                    .Position.x;
+
+            ProjectileWorldSnapshot captured =
+                ProjectileWorldSnapshot.Empty;
+            projectileWorld.Capture(ref captured);
+            projectileWorld.Restore(captured);
+            projectileWorld.Resolve(unitWorld);
+            projectileWorld.Rebuild(default);
+            projectileWorld.AdvanceMotion();
+            fp afterRestore =
+                projectileWorld.GetAllOrdered()[0]
+                    .Position.x;
+
+            fp deltaAfterRestore =
+                afterRestore - afterFirst;
+            fp deltaBefore =
+                afterFirst;
+            Assert.That(
+                (double)deltaAfterRestore,
+                Is.EqualTo((double)deltaBefore)
+                    .Within(0.0001));
+            Assert.That(
+                (double)deltaAfterRestore,
+                Is.LessThan((double)0.1),
+                "Restored projectile must advance by " +
+                "Speed * (1/TickRate), not Speed per Tick.");
+        }
+
         private void RegisterDefinition(
             int maxHits,
             bool endOnFirst,
-            int pierceCount = 0)
+            int pierceCount = 0,
+            bool restrictToTracked = false)
         {
             projectileWorld.DefRegistry.Register(
                 new ProjectileDef
@@ -258,6 +387,8 @@ namespace FrameSyncMoba.FrameSync.Tests
                             HitSameTargetPolicy.Once,
                         MaxTotalHitCount = maxHits,
                         InitialPierceCount = pierceCount,
+                        RestrictToTrackedTarget =
+                            restrictToTracked,
                         EndOnFirstValidHit = endOnFirst,
                         StopResolvingAfterEndRequested = true,
                     },
@@ -279,7 +410,8 @@ namespace FrameSyncMoba.FrameSync.Tests
                 });
         }
 
-        private void SpawnAndAdvance()
+        private void SpawnAndAdvance(
+            bool lockSecondTarget = false)
         {
             var source = new SourceDescriptor
             {
@@ -297,7 +429,11 @@ namespace FrameSyncMoba.FrameSync.Tests
                         owner.TeamId,
                         source,
                         fp2.zero,
-                        new fp2(fp.one, fp.zero)));
+                        new fp2(fp.one, fp.zero),
+                        targetUnitUid:
+                            lockSecondTarget
+                                ? secondTarget.UnitUid
+                                : default));
             Assert.IsTrue(uid.IsValid);
             projectileWorld.CommitSpawns();
             projectileWorld.AdvanceMotion();

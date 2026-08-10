@@ -179,6 +179,13 @@ namespace FrameSyncMoba.Unit
         public int MaxTotalHitCount;
         public int InitialPierceCount;
         public int InitialBounceCount;
+        /// <summary>
+        /// When true and the projectile has a locked TargetUnitUid, only
+        /// that tracked target can be hit, even if other valid targets
+        /// overlap the swept path (single-target homing attacks). Area and
+        /// pierce projectiles keep the flag false.
+        /// </summary>
+        public bool RestrictToTrackedTarget;
         public bool EndOnFirstValidHit;
         public bool StopResolvingAfterEndRequested;
 

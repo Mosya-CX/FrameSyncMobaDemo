@@ -68,6 +68,9 @@ namespace FrameSyncMoba.Unit
             }
         }
 
+        public override string ToString() =>
+            $"{SpawnLogicTick}/{RuntimeEntityPrefabId}/{SpawnSequenceInTick}";
+
         public static bool operator ==(UnitUid left, UnitUid right)
         {
             return left.Equals(right);

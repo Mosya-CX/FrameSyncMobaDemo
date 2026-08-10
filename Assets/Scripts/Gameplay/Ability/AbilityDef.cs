@@ -1,6 +1,7 @@
 using System;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -8,7 +9,17 @@ namespace FrameSyncMoba.Unit
     {
         public int AbilityId;
         public string Name;
-        public int CooldownTicks;
+        /// <summary>
+        /// Whether this ability is the unit's ultimate (usually the R slot).
+        /// Used for skill-point UI (LockMask) and slot-learning rules; the
+        /// actual level gates/max ranks live on the AbilitySlotDef.
+        /// </summary>
+        public bool IsUltimate;
+        /// <summary>Default UI icon (design v15.2). Serialized asset
+        /// reference; never created at runtime, never read by Gameplay.</summary>
+        public Sprite Icon;
+        /// <summary>Base cooldown by ability level (design v15.2 5.5).</summary>
+        public AbilityLevelValue CooldownByLevel;
         public AbilityCostPlan CostPlan;
         public CastModelDef CastModel;
         public fp CastRange;
@@ -19,10 +30,20 @@ namespace FrameSyncMoba.Unit
 
         public bool IsValid =>
             AbilityId > 0 &&
-            CooldownTicks >= 0 &&
             CastRange >= fp.zero &&
             CastModel != null &&
             CostPlan.IsValid;
+
+        public int GetCooldownTicks(int abilityLevel)
+        {
+            // Unlearned abilities (level 0) have no cooldown to display;
+            // the HUD's LockMask covers them.
+            if (abilityLevel <= 0 ||
+                !CooldownByLevel.HasValue)
+                return 0;
+            return (int)CooldownByLevel.Resolve(
+                abilityLevel);
+        }
     }
 
     public readonly struct AbilityLevelValue
@@ -49,10 +70,17 @@ namespace FrameSyncMoba.Unit
         public fp Resolve(int abilityLevel)
         {
             if (!HasValue) return fp.zero;
-            if (abilityLevel <= 0 || abilityLevel > values.Length)
-                throw new DeterministicSimulationException(
-                    $"Ability level {abilityLevel} is outside configured range 1..{values.Length}.");
-            return values[abilityLevel - 1];
+            // Skills now start at level 0 (unlearned). Level-0 lookups
+            // resolve to the rank-1 value instead of throwing, and anything
+            // above the configured ranks clamps to the last rank.
+            int index = abilityLevel <= 0
+                ? 0
+                : abilityLevel - 1;
+            if (index >= values.Length)
+            {
+                index = values.Length - 1;
+            }
+            return values[index];
         }
 
         public fp[] CopyValues() =>

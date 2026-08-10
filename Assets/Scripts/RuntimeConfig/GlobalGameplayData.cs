@@ -33,15 +33,21 @@ namespace FrameSyncMoba.RuntimeConfig
         [Min(1)] public int GameModeId = 1;
         [Min(1)] public int MaxPlayers = 10;
         [Min(0)] public float CountdownSeconds = 3f;
+        [Min(0f)] public float LaunchDelaySeconds = 5f;
         [Min(0)] public float EndingSeconds = 6f;
         [Min(0)] public int InitialEarnedGold = 500;
-        [Min(0)] public float HeroRespawnBaseSeconds = 10f;
-        [Min(0)] public float HeroRespawnPerLevelSeconds = 2f;
+        [Min(0)] public float HeroRespawnBaseSeconds = 5f;
+        [Min(0)] public float HeroRespawnPerMinuteSeconds = 0.5f;
         [Min(0.01f)] public float MinionWaveIntervalSeconds = 30f;
         [Min(0)] public float JungleResetTimeoutSeconds = 5f;
         [Min(0)] public float JungleResetDurationSeconds = 3f;
         [Min(0)] public float JungleRespawnDelaySeconds = 60f;
         [Range(0f, 1f)] public float EquipmentSellRate = 0.7f;
+        /// <summary>Natural health/cast-resource regen cadence. The unit
+        /// stats HealthRegeneration / CastResourceRegeneration express the
+        /// amount restored over this many wall-clock seconds (LoL-style
+        /// per-5s values).</summary>
+        [Min(0.1f)] public float NaturalRegenIntervalSeconds = 5f;
         [Min(1)] public uint RandomSeed = 12345u;
         [Min(1)] public int PeriodicGoldIntervalTicks = 15;
         [Min(0)] public int PeriodicGoldAmount = 2;
@@ -75,6 +81,10 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly int AuthorityRecoveryRetryTicks;
         public readonly int MaxAuthorityRecoveryAttemptsBeforeDisconnect;
         public readonly int StartLeadTicks;
+        /// <summary>Wall-clock seconds the server waits after broadcasting
+        /// the bootstrap payload before the match starts (all endpoints start
+        /// at the same absolute UTC instant).</summary>
+        public readonly float LaunchDelaySeconds;
         public readonly int MaxPlayers;
         public readonly int CountdownTicks;
         public readonly int EndingDurationTicks;
@@ -85,12 +95,13 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly fp MoveSpeedToLogicVelocityScale;
         public readonly int AttackSequenceResetIntervalTicks;
         public readonly int HeroRespawnBaseTicks;
-        public readonly int HeroRespawnPerLevelTicks;
+        public readonly int HeroRespawnPerMinuteTicks;
         public readonly BakedMinionWaveConfig MinionWaveConfig;
         public readonly int JungleResetTimeoutTicks;
         public readonly int JungleResetDurationTicks;
         public readonly int JungleRespawnDelayTicks;
         public readonly fp EquipmentSellRate;
+        public readonly float NaturalRegenIntervalSeconds;
         public readonly uint RandomSeed;
         public readonly int PeriodicGoldIntervalTicks;
         public readonly int PeriodicGoldAmount;
@@ -110,6 +121,7 @@ namespace FrameSyncMoba.RuntimeConfig
             int authorityRecoveryRetryTicks,
             int maxAuthorityRecoveryAttemptsBeforeDisconnect,
             int startLeadTicks,
+            float launchDelaySeconds,
             int maxPlayers,
             int countdownTicks,
             int endingDurationTicks,
@@ -120,12 +132,13 @@ namespace FrameSyncMoba.RuntimeConfig
             fp moveSpeedToLogicVelocityScale,
             int attackSequenceResetIntervalTicks,
             int heroRespawnBaseTicks,
-            int heroRespawnPerLevelTicks,
+            int heroRespawnPerMinuteTicks,
             BakedMinionWaveConfig minionWaveConfig,
             int jungleResetTimeoutTicks,
             int jungleResetDurationTicks,
             int jungleRespawnDelayTicks,
             fp equipmentSellRate,
+            float naturalRegenIntervalSeconds,
             uint randomSeed,
             int periodicGoldIntervalTicks,
             int periodicGoldAmount,
@@ -146,6 +159,7 @@ namespace FrameSyncMoba.RuntimeConfig
             MaxAuthorityRecoveryAttemptsBeforeDisconnect =
                 maxAuthorityRecoveryAttemptsBeforeDisconnect;
             StartLeadTicks = startLeadTicks;
+            LaunchDelaySeconds = launchDelaySeconds;
             MaxPlayers = maxPlayers;
             CountdownTicks = countdownTicks;
             EndingDurationTicks = endingDurationTicks;
@@ -156,12 +170,14 @@ namespace FrameSyncMoba.RuntimeConfig
             MoveSpeedToLogicVelocityScale = moveSpeedToLogicVelocityScale;
             AttackSequenceResetIntervalTicks = attackSequenceResetIntervalTicks;
             HeroRespawnBaseTicks = heroRespawnBaseTicks;
-            HeroRespawnPerLevelTicks = heroRespawnPerLevelTicks;
+            HeroRespawnPerMinuteTicks = heroRespawnPerMinuteTicks;
             MinionWaveConfig = minionWaveConfig;
             JungleResetTimeoutTicks = jungleResetTimeoutTicks;
             JungleResetDurationTicks = jungleResetDurationTicks;
             JungleRespawnDelayTicks = jungleRespawnDelayTicks;
             EquipmentSellRate = equipmentSellRate;
+            NaturalRegenIntervalSeconds =
+                naturalRegenIntervalSeconds;
             RandomSeed = randomSeed;
             PeriodicGoldIntervalTicks = periodicGoldIntervalTicks;
             PeriodicGoldAmount = periodicGoldAmount;
@@ -178,6 +194,7 @@ namespace FrameSyncMoba.RuntimeConfig
     public sealed class GlobalGameplayData : ScriptableObject
     {
         [SerializeField] private GlobalPrefabTable globalPrefabTable;
+        [SerializeField] private HeroDisplayTable heroDisplayTable;
         [SerializeField] private FrameSyncSettingsAuthoring frameSync =
             new FrameSyncSettingsAuthoring();
         [SerializeField] private CriticalDataVersionsAuthoring versions =
@@ -190,6 +207,13 @@ namespace FrameSyncMoba.RuntimeConfig
             new UnitSettingsAuthoring();
 
         public GlobalPrefabTable GlobalPrefabTable => globalPrefabTable;
+
+        /// <summary>
+        /// Hero select presentation data (avatar/name rows auto-synced from
+        /// hero prototypes). Presentation-only; never enters Gameplay state.
+        /// </summary>
+        public HeroDisplayTable HeroDisplayTable =>
+            heroDisplayTable;
 
         public BakedGlobalGameplayData BakeOrThrow()
         {
@@ -220,9 +244,10 @@ namespace FrameSyncMoba.RuntimeConfig
                 throw new InvalidOperationException(
                     "FrameSync timing, command window, player count, or InitialEarnedGold is invalid.");
             ValidateFiniteNonnegative(gameMode.CountdownSeconds, nameof(gameMode.CountdownSeconds));
+            ValidateFiniteNonnegative(gameMode.LaunchDelaySeconds, nameof(gameMode.LaunchDelaySeconds));
             ValidateFiniteNonnegative(gameMode.EndingSeconds, nameof(gameMode.EndingSeconds));
             ValidateFiniteNonnegative(gameMode.HeroRespawnBaseSeconds, nameof(gameMode.HeroRespawnBaseSeconds));
-            ValidateFiniteNonnegative(gameMode.HeroRespawnPerLevelSeconds, nameof(gameMode.HeroRespawnPerLevelSeconds));
+            ValidateFiniteNonnegative(gameMode.HeroRespawnPerMinuteSeconds, nameof(gameMode.HeroRespawnPerMinuteSeconds));
             ValidateFinitePositive(gameMode.MinionWaveIntervalSeconds, nameof(gameMode.MinionWaveIntervalSeconds));
             ValidateFiniteNonnegative(gameMode.JungleResetTimeoutSeconds, nameof(gameMode.JungleResetTimeoutSeconds));
             ValidateFiniteNonnegative(gameMode.JungleResetDurationSeconds, nameof(gameMode.JungleResetDurationSeconds));
@@ -230,6 +255,9 @@ namespace FrameSyncMoba.RuntimeConfig
             ValidateFiniteNonnegative(gameMode.EquipmentSellRate, nameof(gameMode.EquipmentSellRate));
             if (gameMode.EquipmentSellRate > 1f)
                 throw new InvalidOperationException("EquipmentSellRate must not exceed 1.");
+            ValidateFinitePositive(
+                gameMode.NaturalRegenIntervalSeconds,
+                nameof(gameMode.NaturalRegenIntervalSeconds));
             ValidateFinitePositive(physics.UnitGridCellSize, nameof(physics.UnitGridCellSize));
             ValidateFinite(unit.StatGrowthC, nameof(unit.StatGrowthC));
             ValidateFinite(unit.StatGrowthD, nameof(unit.StatGrowthD));
@@ -259,6 +287,7 @@ namespace FrameSyncMoba.RuntimeConfig
                 frameSync.AuthorityRecoveryRetryTicks,
                 frameSync.MaxAuthorityRecoveryAttemptsBeforeDisconnect,
                 frameSync.StartLeadTicks,
+                gameMode.LaunchDelaySeconds,
                 gameMode.MaxPlayers,
                 countdownTicks,
                 endingTicks,
@@ -269,12 +298,13 @@ namespace FrameSyncMoba.RuntimeConfig
                 (fp)unit.MoveSpeedToLogicVelocityScale,
                 unit.AttackSequenceResetIntervalTicks,
                 SecondsToTicks(gameMode.HeroRespawnBaseSeconds, frameSync.TickRate),
-                SecondsToTicks(gameMode.HeroRespawnPerLevelSeconds, frameSync.TickRate),
+                SecondsToTicks(gameMode.HeroRespawnPerMinuteSeconds, frameSync.TickRate),
                 bakedMinionWaveConfig,
                 SecondsToTicks(gameMode.JungleResetTimeoutSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.JungleResetDurationSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.JungleRespawnDelaySeconds, frameSync.TickRate),
                 (fp)gameMode.EquipmentSellRate,
+                gameMode.NaturalRegenIntervalSeconds,
                 gameMode.RandomSeed,
                 gameMode.PeriodicGoldIntervalTicks,
                 gameMode.PeriodicGoldAmount,

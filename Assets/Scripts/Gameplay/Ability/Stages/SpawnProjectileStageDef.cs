@@ -39,7 +39,12 @@ namespace FrameSyncMoba.Unit
                 spawnPos,
                 facing);
 
-            runtime.World.ProjectileWorld.RequestSpawn(request);
+            if (!runtime.World.ProjectileWorld
+                    .RequestSpawn(request)
+                    .IsValid)
+            {
+                return StageResult.Failed;
+            }
             return StageResult.Completed;
         }
     }

@@ -13,7 +13,7 @@ namespace FrameSyncMoba.Unit
         public DeathEffectDispatcher DeathEffectDispatcher { get; set; }
         public RespawnTimer RespawnTimer { get; set; }
         public int HeroRespawnBaseTicks { get; }
-        public int HeroRespawnPerLevelTicks { get; }
+        public int HeroRespawnPerMinuteTicks { get; }
 
         private readonly List<ShieldRequest> _shieldQueue = new List<ShieldRequest>();
         private readonly List<DamageRequest> _damageQueue = new List<DamageRequest>();
@@ -24,10 +24,8 @@ namespace FrameSyncMoba.Unit
         private ushort _nextSequenceInTick;
         private bool _sequenceExhausted;
         private int _currentSequenceLogicTick = -1;
-        private readonly Dictionary<UnitUid, DamageContributionTracker> _contributionTrackers = new Dictionary<UnitUid, DamageContributionTracker>();
-        private readonly Dictionary<UnitUid, UnitUid> _pendingKillerHeroUids =
-            new Dictionary<UnitUid, UnitUid>();
-        private readonly List<UnitUid> _contributionVictimScratch = new List<UnitUid>();
+        private readonly Dictionary<UnitUid, CombatContributionEventLog> _eventLogs = new Dictionary<UnitUid, CombatContributionEventLog>();
+        private readonly List<UnitUid> _eventLogVictimScratch = new List<UnitUid>();
         private readonly List<UnitUid> _pendingDying = new List<UnitUid>();
         private readonly List<DeathResult> _deathResults = new List<DeathResult>();
         private ushort _nextDeathSeq;
@@ -36,21 +34,30 @@ namespace FrameSyncMoba.Unit
         public int ShieldProcessed { get; private set; }
         public int DamageProcessed { get; private set; }
         public int HealProcessed { get; private set; }
+        /// <summary>
+        /// Wall-clock seconds over which the unit's HealthRegeneration /
+        /// CastResourceRegeneration stats are fully restored (design v13.2
+        /// 5: natural regen, LoL-style per-5s values). Configured from
+        /// GlobalGameplayData; defaults to 5.
+        /// </summary>
+        public Unity.Mathematics.FixedPoint.fp
+            NaturalRegenIntervalSeconds { get; set; } =
+            (Unity.Mathematics.FixedPoint.fp)5;
 
         public CombatSystem(
             UnitWorld unitWorld,
             int heroRespawnBaseTicks,
-            int heroRespawnPerLevelTicks)
+            int heroRespawnPerMinuteTicks)
         {
             if (unitWorld == null)
                 throw new System.ArgumentNullException(nameof(unitWorld));
             if (heroRespawnBaseTicks < 0)
                 throw new System.ArgumentOutOfRangeException(nameof(heroRespawnBaseTicks));
-            if (heroRespawnPerLevelTicks < 0)
-                throw new System.ArgumentOutOfRangeException(nameof(heroRespawnPerLevelTicks));
+            if (heroRespawnPerMinuteTicks < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(heroRespawnPerMinuteTicks));
             _unitWorld = unitWorld;
             HeroRespawnBaseTicks = heroRespawnBaseTicks;
-            HeroRespawnPerLevelTicks = heroRespawnPerLevelTicks;
+            HeroRespawnPerMinuteTicks = heroRespawnPerMinuteTicks;
             _snapshot = CombatSnapshot.Default;
         }
         public void SubmitShield(ShieldRequest request)
@@ -79,7 +86,6 @@ namespace FrameSyncMoba.Unit
         {
             _shieldQueue.Clear(); _damageQueue.Clear(); _healQueue.Clear();
             _pendingDying.Clear(); _deathResults.Clear();
-            _pendingKillerHeroUids.Clear();
             ShieldProcessed = 0; DamageProcessed = 0; HealProcessed = 0;
             _nextDeathSeq = 0; _deathSeqExhausted = false;
             _nextDeferredSeq = 0; _deferredSeqExhausted = false;
@@ -89,11 +95,11 @@ namespace FrameSyncMoba.Unit
             ImportDeferredRequests();
             int t = SimulationTickContext.Current.Tick;
             FillSortedContributionVictims();
-            for (int trackerIndex = 0;
-                 trackerIndex < _contributionVictimScratch.Count;
-                 trackerIndex++)
+            for (int victimIndex = 0;
+                 victimIndex < _eventLogVictimScratch.Count;
+                 victimIndex++)
             {
-                _contributionTrackers[_contributionVictimScratch[trackerIndex]]
+                _eventLogs[_eventLogVictimScratch[victimIndex]]
                     .PruneExpired(t);
             }
             IReadOnlyList<Unit> units = _unitWorld.GetAllUnits();
@@ -143,7 +149,6 @@ namespace FrameSyncMoba.Unit
             _damageQueue.Clear();
             _healQueue.Clear();
             _pendingDying.Clear();
-            _pendingKillerHeroUids.Clear();
         }
 
         public void EndTick()
@@ -207,14 +212,58 @@ namespace FrameSyncMoba.Unit
 
         private void ExecuteNaturalRegen()
         {
+            int tickRate = _unitWorld.TickRate;
+            if (tickRate <= 0)
+            {
+                return;
+            }
+            fp secondsPerTick =
+                fp.one / (fp)tickRate;
+            fp interval =
+                NaturalRegenIntervalSeconds > fp.zero
+                    ? NaturalRegenIntervalSeconds
+                    : (fp)5;
+            fp perTickScale =
+                secondsPerTick / interval;
             var all = _unitWorld.GetAllUnits();
             for (int i = 0; i < all.Count; i++)
             {
                 Unit u = all[i]; if (u.LifeState != LifeState.Alive) continue;
                 StatHandler st = u.StatHandler; if (st == null) continue;
-                fp reg = st.GetStat(StatId.HealthRegeneration); if (reg <= fp.zero) continue;
-                fp cur = st.CurrentHealth; fp max = st.GetStat(StatId.MaxHealth);
-                fp nw = cur + reg; if (nw > max) nw = max; st.SetCurrentHealth(nw);
+                fp healthReg =
+                    st.GetStat(
+                        StatId.HealthRegeneration);
+                if (healthReg > fp.zero)
+                {
+                    fp cur = st.CurrentHealth;
+                    fp max =
+                        st.GetStat(StatId.MaxHealth);
+                    fp nw =
+                        cur + healthReg * perTickScale;
+                    if (nw > max)
+                    {
+                        nw = max;
+                    }
+                    st.SetCurrentHealth(nw);
+                }
+                fp resourceReg =
+                    st.GetStat(
+                        StatId.CastResourceRegeneration);
+                if (resourceReg > fp.zero)
+                {
+                    fp cur =
+                        st.CurrentCastResource;
+                    fp max =
+                        st.GetStat(
+                            StatId.MaxCastResource);
+                    fp nw =
+                        cur + resourceReg * perTickScale;
+                    if (nw > max)
+                    {
+                        nw = max;
+                    }
+                    st.SetCurrentCastResource(nw);
+                }
             }
         }
 
@@ -229,6 +278,12 @@ namespace FrameSyncMoba.Unit
             fp applied = trg.StatHandler?.AddShield(
                 r.ShieldType, amt, r.DurationTicks, r.SourceUnitUid) ?? fp.zero;
             if (applied <= fp.zero) return;
+            RecordEvent(
+                r.SourceUnitUid,
+                trg,
+                CombatContributionKind.Shield,
+                applied,
+                r.Header.SequenceInTick);
             CombatEvents.RaiseShieldApplied(new ShieldEventData { SourceUid = r.SourceUnitUid, TargetUid = r.TargetUnitUid, ShieldAmount = amt, ShieldType = r.ShieldType });
             CombatEvents.OnCombatParticipationUnit?.Invoke(r.SourceUnitUid, r.TargetUnitUid, CombatParticipationFlags.ShieldGranted | CombatParticipationFlags.ShieldReceived);
         }
@@ -255,6 +310,7 @@ namespace FrameSyncMoba.Unit
                 CombatFormulaSlot.CoreValue,
                 req.BaseDamage,
                 req.BaseDamage,
+                target.UnitKind,
                 sourceStats,
                 stats,
                 ref policies);
@@ -292,6 +348,7 @@ namespace FrameSyncMoba.Unit
                 CombatFormulaSlot.PreDefenseValue,
                 req.BaseDamage,
                 raw,
+                target.UnitKind,
                 sourceStats,
                 stats,
                 ref policies);
@@ -305,6 +362,7 @@ namespace FrameSyncMoba.Unit
                 CombatFormulaSlot.DefenseInput,
                 req.BaseDamage,
                 res,
+                target.UnitKind,
                 sourceStats,
                 stats,
                 ref policies);
@@ -317,6 +375,7 @@ namespace FrameSyncMoba.Unit
                 CombatFormulaSlot.PostDefenseValue,
                 req.BaseDamage,
                 mitigated,
+                target.UnitKind,
                 sourceStats,
                 stats,
                 ref policies);
@@ -327,6 +386,7 @@ namespace FrameSyncMoba.Unit
                 CombatFormulaSlot.FinalValue,
                 req.BaseDamage,
                 mitigated,
+                target.UnitKind,
                 sourceStats,
                 stats,
                 ref policies);
@@ -357,11 +417,13 @@ namespace FrameSyncMoba.Unit
                 req.TargetUnitUid,
                 req.SourceUnitUid,
                 req.Header.SequenceInTick);
-            RecordContribution(
+            RecordEvent(
                 req.SourceUnitUid,
                 target,
-                shieldAbs + actualLifeDamage);
-            var evt = new DamageEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawDamage = raw, MitigatedDamage = mitigated, ActualDamage = actualLifeDamage + shieldAbs, DamageType = req.DamageType, IsCritical = isCrit };
+                CombatContributionKind.Damage,
+                shieldAbs + actualLifeDamage,
+                req.Header.SequenceInTick);
+            var evt = new DamageEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, Source = req.Header.SourceDescriptor, RawDamage = raw, MitigatedDamage = mitigated, ActualDamage = actualLifeDamage + shieldAbs, DamageType = req.DamageType, IsCritical = isCrit };
             CombatEvents.RaiseDamageTaken(evt); CombatEvents.RaiseDamageDealt(evt);
             // Fire on-hit event for attack damage
             if (req.Header.SourceDescriptor.SourceType == CombatSourceType.Attack)
@@ -380,8 +442,6 @@ namespace FrameSyncMoba.Unit
                 _unitWorld.RequestEnterDying(target);
                 if (!_pendingDying.Contains(req.TargetUnitUid))
                     _pendingDying.Add(req.TargetUnitUid);
-                _pendingKillerHeroUids[req.TargetUnitUid] =
-                    ResolveContributorHero(req.SourceUnitUid, target);
                 target.EventBus?.PublishUnitDying(target);
             }
             ApplyHitReaction(target, mitigated);
@@ -423,6 +483,10 @@ namespace FrameSyncMoba.Unit
             StatHandler stats = target.StatHandler; if (stats == null) return;
             fp amt = req.BaseValue;
             if (_unitWorld.TryGetUnit(req.SourceUnitUid, out Unit src) && src.StatHandler != null) { fp hp = src.StatHandler.GetStat(StatId.HealPower); amt *= (fp.one + hp); }
+            // Grievous wounds: incoming heals are reduced by the target's
+            // HealingReceivedRatio (1 = normal, 0.6 = -40%).
+            amt *= stats.GetStat(
+                StatId.HealingReceivedRatio);
             if (amt <= fp.zero) return;
             fp cur = stats.CurrentHealth; fp max = stats.GetStat(StatId.MaxHealth);
             fp nw = cur + amt; if (nw > max) nw = max; fp eff = nw - cur;
@@ -431,9 +495,17 @@ namespace FrameSyncMoba.Unit
             {
                 _unitWorld.RequestRecoverFromDying(target);
                 _pendingDying.Remove(req.TargetUnitUid);
-                _pendingKillerHeroUids.Remove(req.TargetUnitUid);
             }
             CombatEvents.RaiseHealTaken(new HealEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawHeal = req.BaseValue, EffectiveHeal = eff });
+            if (eff > fp.zero)
+            {
+                RecordEvent(
+                    req.SourceUnitUid,
+                    target,
+                    CombatContributionKind.Heal,
+                    eff,
+                    req.Header.SequenceInTick);
+            }
             CombatEvents.OnCombatParticipationUnit?.Invoke(req.SourceUnitUid, req.TargetUnitUid, CombatParticipationFlags.HealDealt | CombatParticipationFlags.HealTaken);
             CombatEvents.RaiseHealDealt(new HealEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawHeal = req.BaseValue, EffectiveHeal = eff });
         }
@@ -449,14 +521,27 @@ namespace FrameSyncMoba.Unit
                     unit.StatHandler.CurrentHealth > fp.zero)
                 {
                     _unitWorld.RequestRecoverFromDying(unit);
-                    _pendingKillerHeroUids.Remove(duid);
                     continue;
                 }
-                var trk = _contributionTrackers.TryGetValue(duid, out var t) ? t : null;
-                UnitUid kid = _pendingKillerHeroUids.TryGetValue(duid, out UnitUid frozenKiller)
-                    ? frozenKiller
+                var log = _eventLogs.TryGetValue(duid, out var l) ? l : null;
+                UnitUid kid = log != null
+                    ? log.ResolveKiller(
+                        SimulationTickContext.Current.Tick)
                     : default;
-                UnitUid[] assists = FreezeAssistantHeroUids(trk, kid, unit);
+                // Assists are a champion-only concept: only hero victims
+                // can have assistants, and assisting a minion/monster kill
+                // must not trigger assist rewards or assist reactions.
+                UnitUid[] assists =
+                    System.Array.Empty<UnitUid>();
+                if (unit.UnitKind == UnitKind.Hero &&
+                    log != null)
+                {
+                    assists = log.ResolveAssistants(
+                        SimulationTickContext.Current.Tick,
+                        _unitWorld,
+                        unit,
+                        kid);
+                }
                 if (_deathSeqExhausted)
                     throw new DeterministicSimulationException(
                         "Combat death SequenceInTick exhausted.");
@@ -464,13 +549,30 @@ namespace FrameSyncMoba.Unit
                 if (_nextDeathSeq == ushort.MaxValue) _deathSeqExhausted = true;
                 else _nextDeathSeq++;
                 var death = new DeathResult { VictimUid = duid, KillerHeroUid = kid, AssistantHeroUids = assists, DeathSequenceInTick = deathSequence, DeathLogicTick = SimulationTickContext.Current.Tick };
+                UnityEngine.Debug.Log(
+                    $"[CombatDeath] tick=" +
+                    $"{SimulationTickContext.Current.Tick} " +
+                    $"victim={duid} " +
+                    $"victimKind={unit.UnitKind} " +
+                    $"victimTeam={unit.TeamId.Value} " +
+                    $"killer={kid} " +
+                    $"assistCount={assists.Length}");
                 _deathResults.Add(death);
                 _unitWorld.ConfirmUnitDeath(unit);
                 CombatEvents.RaiseUnitDeath(duid, kid);
                 _unitWorld.FinalizeNonHeroDeath(unit);
                 if (kid.IsValid()) CombatEvents.RaiseUnitKill(kid, duid);
-                for (int assistantIndex = 0; assistantIndex < assists.Length; assistantIndex++)
-                    CombatEvents.RaiseUnitAssist(assists[assistantIndex], duid);
+                if (unit.UnitKind == UnitKind.Hero)
+                {
+                    for (int assistantIndex = 0;
+                         assistantIndex < assists.Length;
+                         assistantIndex++)
+                    {
+                        CombatEvents.RaiseUnitAssist(
+                            assists[assistantIndex],
+                            duid);
+                    }
+                }
                 SubmitDeathPresentation(
                     unit,
                     deathSequence);
@@ -483,8 +585,7 @@ namespace FrameSyncMoba.Unit
                         SimulationTickContext.Current.Tick,
                         GetRespawnDelay(unit));
                 }
-                _contributionTrackers.Remove(duid);
-                _pendingKillerHeroUids.Remove(duid);
+                _eventLogs.Remove(duid);
             }
         }
 
@@ -508,7 +609,8 @@ namespace FrameSyncMoba.Unit
                         .CombatDeath,
             };
             fp2 position =
-                unit.MovementHandler.Position;
+                unit.MovementHandler?.Position ??
+                fp2.zero;
             VisualEventOutput.SubmitVfx(new VfxEvent
             {
                 Id = eventId,
@@ -538,6 +640,7 @@ namespace FrameSyncMoba.Unit
             CombatFormulaSlot slot,
             fp baseValue,
             fp slotInput,
+            UnitKind targetKind,
             StatHandler sourceStats,
             StatHandler targetStats,
             ref CombatPolicyResolution policies)
@@ -551,6 +654,7 @@ namespace FrameSyncMoba.Unit
                 slot,
                 baseValue,
                 slotInput,
+                targetKind,
                 sourceStats,
                 targetStats,
                 ref accumulator,
@@ -562,6 +666,7 @@ namespace FrameSyncMoba.Unit
                 slot,
                 baseValue,
                 slotInput,
+                targetKind,
                 sourceStats,
                 targetStats,
                 ref accumulator,
@@ -572,33 +677,70 @@ namespace FrameSyncMoba.Unit
         public int GetRespawnDelay(Unit unit)
         {
             if (unit == null) throw new System.ArgumentNullException(nameof(unit));
+            int tickRate = _unitWorld.TickRate;
+            if (tickRate <= 0)
+                throw new DeterministicSimulationException(
+                    "UnitWorld.TickRate must be set before computing hero respawn delay.");
+            int ticksPerMinute = checked(tickRate * 60);
+            int elapsedMinutes =
+                SimulationTickContext.Current.Tick / ticksPerMinute;
             return checked(
                 HeroRespawnBaseTicks +
-                ((unit.Level - 1) * HeroRespawnPerLevelTicks));
+                (elapsedMinutes * HeroRespawnPerMinuteTicks));
         }
 
         private static void ApplyHitReaction(Unit target, fp dmg)
         {
             if (target == null || dmg <= fp.zero) return;
-            if (!target.HitReaction.IsActive) { target.HitReaction.Trigger(HitReactionKind.Flinch, 3); fp maxHp = target.StatHandler?.GetStat(StatId.MaxHealth) ?? fp.one; if (dmg > maxHp * (fp)0.1m) target.HitReaction.Trigger(HitReactionKind.Stagger, 6); }
+            if (target.HitReaction.IsActive)
+                return;
+            // Plain damage never interrupts. Interrupts (Stagger/Knockback/
+            // Interrupt) must come only from crowd control or explicit
+            // ability effects; here we only mark a non-interrupting Flinch
+            // so presentation can react without cutting attack/movement
+            // animation.
+            target.HitReaction.Trigger(
+                HitReactionKind.Flinch,
+                3);
         }
 
-        private void RecordContribution(UnitUid sourceUid, Unit victim, fp damage)
+        private void RecordEvent(
+            UnitUid sourceUid,
+            Unit victim,
+            CombatContributionKind kind,
+            fp amount,
+            ushort sequenceInTick)
         {
-            if (victim == null || damage <= fp.zero) return;
+            if (victim == null || amount <= fp.zero) return;
             UnitUid contributorHeroUid = ResolveContributorHero(sourceUid, victim);
-            if (!contributorHeroUid.IsValid()) return;
-            if (!_contributionTrackers.TryGetValue(
+            if (!_eventLogs.TryGetValue(
                     victim.UnitUid,
-                    out DamageContributionTracker tracker))
+                    out CombatContributionEventLog log))
             {
-                tracker = new DamageContributionTracker(victim.UnitUid);
-                _contributionTrackers.Add(victim.UnitUid, tracker);
+                log = new CombatContributionEventLog(
+                    victim.UnitUid);
+                _eventLogs.Add(victim.UnitUid, log);
             }
-            tracker.AddContribution(
-                contributorHeroUid,
-                damage,
-                SimulationTickContext.Current.Tick);
+            if (!contributorHeroUid.IsValid() &&
+                kind != CombatContributionKind.Damage)
+            {
+                // Non-hero shield/heal contributions are irrelevant to
+                // killer/assist resolution.
+                return;
+            }
+            log.AddEvent(
+                new CombatContributionEvent
+                {
+                    VictimUnitUid = victim.UnitUid,
+                    ContributorHeroUid =
+                        contributorHeroUid,
+                    Kind = kind,
+                    Amount = amount,
+                    LogicTick =
+                        SimulationTickContext
+                            .Current.Tick,
+                    SequenceInTick = sequenceInTick,
+                });
         }
 
         private UnitUid ResolveContributorHero(UnitUid sourceUid, Unit victim)
@@ -622,32 +764,11 @@ namespace FrameSyncMoba.Unit
                 $"Combat source owner chain exceeded 16 units from {sourceUid}.");
         }
 
-        private UnitUid[] FreezeAssistantHeroUids(
-            DamageContributionTracker tracker,
-            UnitUid killerHeroUid,
-            Unit victim)
-        {
-            if (tracker == null) return System.Array.Empty<UnitUid>();
-            tracker.PruneExpired(SimulationTickContext.Current.Tick);
-            List<DamageContributionRecord> records = tracker.GetContributorsByUid();
-            var assistants = new List<UnitUid>(records.Count);
-            for (int i = 0; i < records.Count; i++)
-            {
-                UnitUid candidate = records[i].ContributorHeroUid;
-                if (candidate == killerHeroUid) continue;
-                if (_unitWorld.TryGetUnit(candidate, out Unit hero) &&
-                    hero.UnitKind == UnitKind.Hero &&
-                    hero.TeamId != victim.TeamId)
-                    assistants.Add(candidate);
-            }
-            return assistants.ToArray();
-        }
-
         private void FillSortedContributionVictims()
         {
-            _contributionVictimScratch.Clear();
-            _contributionVictimScratch.AddRange(_contributionTrackers.Keys);
-            _contributionVictimScratch.Sort((left, right) => left.CompareTo(right));
+            _eventLogVictimScratch.Clear();
+            _eventLogVictimScratch.AddRange(_eventLogs.Keys);
+            _eventLogVictimScratch.Sort((left, right) => left.CompareTo(right));
         }
 
         private void ImportDeferredRequests()
@@ -684,34 +805,22 @@ namespace FrameSyncMoba.Unit
         private void FreezeSnapshot()
         {
             if (_shieldQueue.Count != 0 || _damageQueue.Count != 0 ||
-                _healQueue.Count != 0 || _pendingDying.Count != 0 ||
-                _pendingKillerHeroUids.Count != 0)
+                _healQueue.Count != 0 || _pendingDying.Count != 0)
                 throw new DeterministicSimulationException("Combat active queues must be empty before Capture.");
 
-            var trackers = new List<DamageContributionTracker>(_contributionTrackers.Values);
-            trackers.Sort((a, b) => a.VictimUid.CompareTo(b.VictimUid));
-            _snapshot.ContributionTrackers = new DamageContributionTrackerSnapshot[trackers.Count];
-            for (int index = 0; index < trackers.Count; index++)
+            var logs = new List<CombatContributionEventLog>(
+                _eventLogs.Values);
+            logs.Sort((a, b) =>
+                a.VictimUid.CompareTo(b.VictimUid));
+            _snapshot.ContributionEventLogs =
+                new CombatContributionEventLogSnapshot[
+                    logs.Count];
+            for (int index = 0;
+                 index < logs.Count;
+                 index++)
             {
-                DamageContributionTracker tracker = trackers[index];
-                var contributors = tracker.GetContributorsByUid();
-                var records = new DamageContributionRecordSnapshot[contributors.Count];
-                for (int i = 0; i < contributors.Count; i++)
-                {
-                    DamageContributionRecord record = contributors[i];
-                    records[i] = new DamageContributionRecordSnapshot
-                    {
-                        ContributorHeroUid = record.ContributorHeroUid,
-                        LastContributionLogicTick = record.LastContributionLogicTick,
-                        ContributionValue = record.ContributionValue,
-                        ExpireLogicTick = record.ExpireLogicTick,
-                    };
-                }
-                _snapshot.ContributionTrackers[index] = new DamageContributionTrackerSnapshot
-                {
-                    VictimUnitUid = tracker.VictimUid,
-                    Records = records,
-                };
+                _snapshot.ContributionEventLogs[index] =
+                    logs[index].Capture();
             }
             _deferredBuffer.Sort(CompareDeferredRequests);
             _snapshot.DeferredRequests = _deferredBuffer.ToArray();
@@ -723,36 +832,28 @@ namespace FrameSyncMoba.Unit
             _snapshot = snapshot;
             _deferredBuffer.Clear();
             if (snapshot.DeferredRequests != null) _deferredBuffer.AddRange(snapshot.DeferredRequests);
-            _contributionTrackers.Clear();
-            _pendingKillerHeroUids.Clear();
-            if (snapshot.ContributionTrackers != null)
+            _eventLogs.Clear();
+            if (snapshot.ContributionEventLogs != null)
             {
                 UnitUid previousVictim = default;
-                for (int i = 0; i < snapshot.ContributionTrackers.Length; i++)
+                for (int i = 0;
+                     i < snapshot.ContributionEventLogs.Length;
+                     i++)
                 {
-                    DamageContributionTrackerSnapshot trackerState = snapshot.ContributionTrackers[i];
-                    if (!trackerState.VictimUnitUid.IsValid() ||
+                    CombatContributionEventLogSnapshot logState =
+                        snapshot.ContributionEventLogs[i];
+                    if (!logState.VictimUnitUid.IsValid() ||
                         (i > 0 && previousVictim.CompareTo(
-                            trackerState.VictimUnitUid) >= 0))
+                            logState.VictimUnitUid) >= 0))
                         throw new DeterministicSimulationException(
-                            "Combat contribution trackers are not in canonical VictimUnitUid order.");
-                    previousVictim = trackerState.VictimUnitUid;
-                    var tracker = new DamageContributionTracker(trackerState.VictimUnitUid);
-                    if (trackerState.Records != null)
-                    {
-                        UnitUid previousContributor = default;
-                        for (int j = 0; j < trackerState.Records.Length; j++)
-                        {
-                            UnitUid contributor =
-                                trackerState.Records[j].ContributorHeroUid;
-                            if (j > 0 && previousContributor.CompareTo(contributor) >= 0)
-                                throw new DeterministicSimulationException(
-                                    "Combat contribution records are not in canonical ContributorHeroUid order.");
-                            previousContributor = contributor;
-                            tracker.RestoreRecord(trackerState.Records[j]);
-                        }
-                    }
-                    _contributionTrackers.Add(trackerState.VictimUnitUid, tracker);
+                            "Combat event logs are not in canonical VictimUnitUid order.");
+                    previousVictim = logState.VictimUnitUid;
+                    var log = new CombatContributionEventLog(
+                        logState.VictimUnitUid);
+                    log.Restore(logState);
+                    _eventLogs.Add(
+                        logState.VictimUnitUid,
+                        log);
                 }
             }
         }
@@ -760,19 +861,36 @@ namespace FrameSyncMoba.Unit
         public void Resolve(in RollbackContext context)
         {
             FillSortedContributionVictims();
-            for (int trackerIndex = 0;
-                 trackerIndex < _contributionVictimScratch.Count;
-                 trackerIndex++)
+            for (int victimIndex = 0;
+                 victimIndex < _eventLogVictimScratch.Count;
+                 victimIndex++)
             {
-                DamageContributionTracker tracker =
-                    _contributionTrackers[_contributionVictimScratch[trackerIndex]];
-                if (!_unitWorld.TryGetUnit(tracker.VictimUid, out _))
-                    throw new DeterministicSimulationException($"Missing Combat victim {tracker.VictimUid} during Resolve.");
-                var records = tracker.GetContributorsByUid();
-                for (int i = 0; i < records.Count; i++)
-                    if (!_unitWorld.TryGetUnit(records[i].ContributorHeroUid, out Unit contributor) ||
-                        contributor.UnitKind != UnitKind.Hero)
-                        throw new DeterministicSimulationException($"Missing Combat contributor {records[i].ContributorHeroUid} during Resolve.");
+                CombatContributionEventLog log =
+                    _eventLogs[_eventLogVictimScratch[victimIndex]];
+                if (!_unitWorld.TryGetUnit(
+                        log.VictimUid,
+                        out _))
+                {
+                    throw new DeterministicSimulationException(
+                        $"Missing Combat victim {log.VictimUid} during Resolve.");
+                }
+                var events = log.Events;
+                for (int i = 0;
+                     i < events.Count;
+                     i++)
+                {
+                    UnitUid contributor =
+                        events[i].ContributorHeroUid;
+                    if (!_unitWorld.TryGetUnit(
+                            contributor,
+                            out Unit contributorUnit) ||
+                        contributorUnit.UnitKind !=
+                            UnitKind.Hero)
+                    {
+                        throw new DeterministicSimulationException(
+                            $"Missing Combat contributor {contributor} during Resolve.");
+                    }
+                }
             }
         }
 

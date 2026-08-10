@@ -36,5 +36,6 @@ namespace FrameSyncMoba.Unit
         HealPower = 22,
         ShieldPower = 23,
         Tenacity = 24,
+        HealingReceivedRatio = 25,
     }
 }

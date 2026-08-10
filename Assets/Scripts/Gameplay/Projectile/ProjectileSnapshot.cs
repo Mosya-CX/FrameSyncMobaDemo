@@ -22,6 +22,8 @@ namespace FrameSyncMoba.Unit
         public int RemainingBounceCount;
         public int NextQueryLogicTick;
         public ProjectileHitRecord[] HitRecords;
+        public ProjectileOnHitDamage[] OnHitDamageOverride;
+        public UnitUid TargetUnitUid;
     }
 
     public struct PendingSpawnRecordSnapshot
@@ -33,6 +35,9 @@ namespace FrameSyncMoba.Unit
         public SourceDescriptor Source;
         public fp2 StartPosition;
         public fp2 Direction;
+        public ProjectileOnHitDamage[] OnHitDamageOverride;
+        public int MaxLifetimeTicksOverride;
+        public UnitUid TargetUnitUid;
     }
 
     public struct ProjectileWorldSnapshot

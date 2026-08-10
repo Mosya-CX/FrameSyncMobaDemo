@@ -2,6 +2,7 @@ using System;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 using UnitType = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.PlayerInput
@@ -15,6 +16,7 @@ namespace FrameSyncMoba.PlayerInput
             AbilitySignalVerb signal,
             in AimSnapshot aim,
             out GameplayCommandRequestReceipt receipt);
+        bool RequestAllocateAbilitySkillPoint(byte slot);
     }
 
     public interface IPlayerShopCommandRequester
@@ -24,26 +26,11 @@ namespace FrameSyncMoba.PlayerInput
         bool RequestEquipmentUndo();
     }
 
-    public enum BakedPlayerAbilityInputMode : byte
-    {
-        PressCommit = 0,
-        LocalAimPrimaryCommit = 1,
-        PressFocusReleaseOrPrimaryCommit = 2,
-    }
-
-    public readonly struct BakedPlayerAbilityInputProfile
-    {
-        public readonly BakedPlayerAbilityInputMode Mode;
-
-        public BakedPlayerAbilityInputProfile(BakedPlayerAbilityInputMode mode)
-        {
-            Mode = mode;
-        }
-    }
-
     public interface IPlayerAbilityInputProfileProvider
     {
-        bool TryGetProfile(byte slot, out BakedPlayerAbilityInputProfile profile);
+        bool TryGetTemplate(
+            byte slot,
+            out InputMappingTemplate template);
         bool TryGetAimKind(byte slot, out AimKind aimKind);
     }
 
@@ -92,7 +79,8 @@ namespace FrameSyncMoba.PlayerInput
 
     public sealed class PlayerCommandRequester :
         IPlayerGameplayCommandRequester,
-        IPlayerShopCommandRequester
+        IPlayerShopCommandRequester,
+        FrameSyncMoba.Unit.IEquipmentShopCommandSubmitter
     {
         private const int AbilitySlotCount = 4;
 
@@ -176,6 +164,90 @@ namespace FrameSyncMoba.PlayerInput
             return true;
         }
 
+        /// <summary>
+        /// Resolve the presentation-only ground circle radius for an aiming
+        /// ability (Point/Unit aim): the first area-stage radius (e.g.
+        /// AreaDamageStageDef) or the GroundTarget cast-model radius. Returns
+        /// false when the slot has no usable radius.
+        /// </summary>
+        public bool TryGetGroundTargetRadius(
+            byte slot,
+            out fp radius)
+        {
+            radius = fp.zero;
+            AbilityDef definition =
+                controlledUnit?.AbilityHandler
+                    ?.GetAbilityDef(slot);
+            CastModelDef model =
+                definition?.CastModel;
+            if (model == null)
+            {
+                return false;
+            }
+            CollectAreaRadius(model, ref radius);
+            if (radius > fp.zero)
+            {
+                return true;
+            }
+            if (model is GroundTargetCastModelDef ground)
+            {
+                radius = ground.Radius;
+                return radius > fp.zero;
+            }
+            return false;
+        }
+
+        private static void CollectAreaRadius(
+            CastModelDef model,
+            ref fp radius)
+        {
+            switch (model)
+            {
+                case CommitCastModelDef commit:
+                    CollectStageRadius(
+                        commit.Cast,
+                        ref radius);
+                    break;
+                case HoldReleaseCastModelDef hold:
+                    CollectStageRadius(
+                        hold.Hold,
+                        ref radius);
+                    CollectStageRadius(
+                        hold.Release,
+                        ref radius);
+                    break;
+                case ChannelCastModelDef channel:
+                    CollectStageRadius(
+                        channel.Channel,
+                        ref radius);
+                    break;
+                case ActiveSignalCastModelDef active:
+                    CollectStageRadius(
+                        active.Active,
+                        ref radius);
+                    break;
+                case ToggleCastModelDef toggle:
+                    CollectStageRadius(
+                        toggle.Active,
+                        ref radius);
+                    break;
+            }
+        }
+
+        private static void CollectStageRadius(
+            in CastStage stage,
+            ref fp radius)
+        {
+            if (radius > fp.zero)
+            {
+                return;
+            }
+            if (stage.Def is AreaDamageStageDef area)
+            {
+                radius = area.Radius;
+            }
+        }
+
         public void SetControlledUnit(UnitType unit)
         {
             if (controlledUnit == unit) return;
@@ -211,7 +283,7 @@ namespace FrameSyncMoba.PlayerInput
                         break;
 
                     case LocalGameplayInputEventKind.Cancel:
-                        CancelLocalAimOnly();
+                        ProcessCancel();
                         break;
                 }
             }
@@ -300,6 +372,96 @@ namespace FrameSyncMoba.PlayerInput
             return true;
         }
 
+        public bool RequestAllocateAbilitySkillPoint(
+            byte slot)
+        {
+            if (!CanRequestForControlledUnit() ||
+                slot >= AbilitySlotCount)
+                return false;
+            CommandHeader header =
+                CreateHeader(
+                    GameplayCommandKind
+                        .AllocateAbilitySkillPoint);
+            collector.Collect(
+                GameplayCommand
+                    .CreateAllocateAbilitySkillPoint(
+                        header,
+                        slot));
+            AdvanceSequence();
+            return true;
+        }
+
+        /// <summary>
+        /// Submits a deterministic debug command (GameScene testing only).
+        /// </summary>
+        public bool RequestDebugCommand(
+            byte op,
+            int value)
+        {
+            if (!CanRequestForControlledUnit())
+                return false;
+            CommandHeader header =
+                CreateHeader(
+                    GameplayCommandKind.Debug);
+            collector.Collect(
+                GameplayCommand
+                    .CreateDebugCommand(
+                        header,
+                        op,
+                        value));
+            AdvanceSequence();
+            return true;
+        }
+
+        void FrameSyncMoba.Unit
+            .IEquipmentShopCommandSubmitter
+            .SubmitPurchase(
+                int playerSlot,
+                int targetEquipmentId)
+        {
+            EnsureSubmitterSlotMatches(playerSlot);
+            if (!RequestEquipmentPurchase(
+                    targetEquipmentId))
+                throw new InvalidOperationException(
+                    "Shop purchase submission failed after RequestCheck passed.");
+        }
+
+        void FrameSyncMoba.Unit
+            .IEquipmentShopCommandSubmitter
+            .SubmitSell(
+                int playerSlot,
+                int sourceSlot)
+        {
+            EnsureSubmitterSlotMatches(playerSlot);
+            if (!RequestEquipmentSell(
+                    (byte)sourceSlot))
+                throw new InvalidOperationException(
+                    "Shop sell submission failed after RequestCheck passed.");
+        }
+
+        void FrameSyncMoba.Unit
+            .IEquipmentShopCommandSubmitter
+            .SubmitUndo(
+                int playerSlot)
+        {
+            EnsureSubmitterSlotMatches(playerSlot);
+            if (!RequestEquipmentUndo())
+                throw new InvalidOperationException(
+                    "Shop undo submission failed after RequestCheck passed.");
+        }
+
+        private void EnsureSubmitterSlotMatches(
+            int playerSlot)
+        {
+            if (!CanRequestForControlledUnit() ||
+                controlledUnit.ControlledByPlayerSlot !=
+                    playerSlot)
+            {
+                throw new InvalidOperationException(
+                    $"Shop submitter player slot {playerSlot} does not match the controlled unit.");
+            }
+        }
+
         private bool CanRequestForControlledUnit()
         {
             return controlledUnit != null &&
@@ -312,9 +474,19 @@ namespace FrameSyncMoba.PlayerInput
         {
             for (int i = 0; i < abilityStates.Length; i++)
             {
-                if (abilityStates[i].Kind == LocalAbilityInputStateKind.LocalAiming)
+                if (abilityStates[i].Kind !=
+                    LocalAbilityInputStateKind.LocalAiming)
+                    continue;
+                if (TryGetBinding(
+                        abilityStates[i].Slot,
+                        InputTrigger.SecondaryClick,
+                        out InputBinding binding) &&
+                    binding.Translation ==
+                        InputTranslation.CancelLocalAim)
                 {
                     abilityStates[i] = default;
+                    Debug.Log(
+                        $"[Input] SecondaryClick closed local aim on slot {i}.");
                     return;
                 }
             }
@@ -335,35 +507,40 @@ namespace FrameSyncMoba.PlayerInput
         {
             byte slot = inputEvent.AbilitySlot;
             if (slot >= AbilitySlotCount || controlledUnit == null) return;
+            // Unlearned abilities (level 0) must not produce indicators or
+            // cast commands (design v15.2 1.12 LockMask covers the HUD).
+            if (!IsAbilityLearned(slot))
+            {
+                Debug.Log(
+                    $"[Input] Press slot {slot} ignored: " +
+                    $"ability level 0 (not learned).");
+                return;
+            }
             ref LocalAbilityInputState state = ref abilityStates[slot];
             if (state.Kind != LocalAbilityInputStateKind.Idle) return;
 
-            BakedPlayerAbilityInputProfile profile = GetProfile(slot);
-            switch (profile.Mode)
+            if (!TryGetBinding(
+                    slot,
+                    InputTrigger.AbilityKeyPressed,
+                    out InputBinding binding))
             {
-                case BakedPlayerAbilityInputMode.PressCommit:
-                    if (TryBuildAim(slot, inputEvent, pointerResolver, out AimSnapshot pressAim)
-                        && RequestCastAbility(
-                            slot,
-                            AbilitySignalVerb.Commit,
-                            pressAim,
-                            out GameplayCommandRequestReceipt pressReceipt))
-                    {
-                        state = CreateState(
-                            slot,
-                            LocalAbilityInputStateKind.CommitRequested,
-                            pressReceipt);
-                    }
-                    break;
+                Debug.Log(
+                    $"[Input] Press slot {slot}: template has no AbilityKeyPressed binding, no action.");
+                return;
+            }
 
-                case BakedPlayerAbilityInputMode.LocalAimPrimaryCommit:
+            switch (binding.Translation)
+            {
+                case InputTranslation.LocalAimOnly:
                     state = CreateState(
                         slot,
                         LocalAbilityInputStateKind.LocalAiming,
                         default);
+                    Debug.Log(
+                        $"[Input] Press slot {slot}: LocalAimOnly -> LocalAiming (no command).");
                     break;
 
-                case BakedPlayerAbilityInputMode.PressFocusReleaseOrPrimaryCommit:
+                case InputTranslation.Focus:
                     if (RequestCastAbility(
                         slot,
                         AbilitySignalVerb.Focus,
@@ -374,9 +551,60 @@ namespace FrameSyncMoba.PlayerInput
                             slot,
                             LocalAbilityInputStateKind.FocusRequested,
                             focusReceipt);
+                        Debug.Log(
+                            $"[Input] Press slot {slot}: Focus -> FocusRequested (seq {focusReceipt.CommandSeq}).");
                     }
                     break;
+
+                case InputTranslation.Commit:
+                    if (TryBuildAim(
+                            slot,
+                            inputEvent,
+                            pointerResolver,
+                            binding.CaptureAim,
+                            out AimSnapshot pressAim) &&
+                        RequestCastAbility(
+                            slot,
+                            AbilitySignalVerb.Commit,
+                            pressAim,
+                            out GameplayCommandRequestReceipt
+                                pressReceipt))
+                    {
+                        state = CreateState(
+                            slot,
+                            LocalAbilityInputStateKind.CommitRequested,
+                            pressReceipt);
+                        Debug.Log(
+                            $"[Input] Press slot {slot}: Commit -> CommitRequested (seq {pressReceipt.CommandSeq}).");
+                    }
+                    break;
+
+                case InputTranslation.Cancel:
+                    if (RequestCastAbility(
+                        slot,
+                        AbilitySignalVerb.Cancel,
+                        AimSnapshot.None,
+                        out GameplayCommandRequestReceipt cancelReceipt))
+                    {
+                        state = default;
+                        Debug.Log(
+                            $"[Input] Press slot {slot}: Cancel -> Idle (seq {cancelReceipt.CommandSeq}).");
+                    }
+                    break;
+
+                default:
+                    Debug.Log(
+                        $"[Input] Press slot {slot}: translation {binding.Translation}, no action.");
+                    break;
             }
+        }
+
+        private bool IsAbilityLearned(byte slot)
+        {
+            int level =
+                controlledUnit?.AbilityHandler
+                    ?.GetAbilityLevel(slot) ?? 0;
+            return level > 0;
         }
 
         private void ProcessAbilityReleased(
@@ -392,17 +620,58 @@ namespace FrameSyncMoba.PlayerInput
                 return;
             }
 
-            if (!TryBuildAim(slot, inputEvent, pointerResolver, out AimSnapshot aim)) return;
-            if (RequestCastAbility(
-                slot,
-                AbilitySignalVerb.Commit,
-                aim,
-                out GameplayCommandRequestReceipt receipt))
-            {
-                state = CreateState(
+            if (!TryGetBinding(
                     slot,
-                    LocalAbilityInputStateKind.CommitRequested,
-                    receipt);
+                    InputTrigger.AbilityKeyReleased,
+                    out InputBinding binding))
+            {
+                Debug.Log(
+                    $"[Input] Release slot {slot}: template has no AbilityKeyReleased binding, no action.");
+                return;
+            }
+
+            switch (binding.Translation)
+            {
+                case InputTranslation.Commit:
+                    if (TryBuildAim(
+                            slot,
+                            inputEvent,
+                            pointerResolver,
+                            binding.CaptureAim,
+                            out AimSnapshot aim) &&
+                        RequestCastAbility(
+                            slot,
+                            AbilitySignalVerb.Commit,
+                            aim,
+                            out GameplayCommandRequestReceipt
+                                receipt))
+                    {
+                        state = CreateState(
+                            slot,
+                            LocalAbilityInputStateKind.CommitRequested,
+                            receipt);
+                        Debug.Log(
+                            $"[Input] Release slot {slot}: Commit -> CommitRequested (seq {receipt.CommandSeq}).");
+                    }
+                    break;
+
+                case InputTranslation.Cancel:
+                    if (RequestCastAbility(
+                        slot,
+                        AbilitySignalVerb.Cancel,
+                        AimSnapshot.None,
+                        out GameplayCommandRequestReceipt cancelReceipt))
+                    {
+                        state = default;
+                        Debug.Log(
+                            $"[Input] Release slot {slot}: Cancel -> Idle (seq {cancelReceipt.CommandSeq}).");
+                    }
+                    break;
+
+                default:
+                    Debug.Log(
+                        $"[Input] Release slot {slot}: translation {binding.Translation}, no action.");
+                    break;
             }
         }
 
@@ -419,8 +688,23 @@ namespace FrameSyncMoba.PlayerInput
                 {
                     continue;
                 }
+                if (!TryGetBinding(
+                        slot,
+                        InputTrigger.PrimaryClick,
+                        out InputBinding binding) ||
+                    binding.Translation !=
+                        InputTranslation.Commit)
+                {
+                    continue;
+                }
 
-                if (!TryBuildAim(slot, inputEvent, pointerResolver, out AimSnapshot aim)) return;
+                if (!TryBuildAim(
+                        slot,
+                        inputEvent,
+                        pointerResolver,
+                        binding.CaptureAim,
+                        out AimSnapshot aim))
+                    return;
                 if (RequestCastAbility(
                     slot,
                     AbilitySignalVerb.Commit,
@@ -431,6 +715,8 @@ namespace FrameSyncMoba.PlayerInput
                         slot,
                         LocalAbilityInputStateKind.CommitRequested,
                         receipt);
+                    Debug.Log(
+                        $"[Input] PrimaryClick slot {slot}: Commit -> CommitRequested (seq {receipt.CommandSeq}).");
                 }
                 return;
             }
@@ -440,10 +726,16 @@ namespace FrameSyncMoba.PlayerInput
             byte slot,
             in LocalGameplayInputEvent inputEvent,
             MouseWorldResolver pointerResolver,
+            bool captureAim,
             out AimSnapshot aim)
         {
             AimKind kind = AimKind.None;
             profileProvider?.TryGetAimKind(slot, out kind);
+            if (!captureAim)
+            {
+                aim = AimSnapshot.None;
+                return true;
+            }
             switch (kind)
             {
                 case AimKind.None:
@@ -484,16 +776,32 @@ namespace FrameSyncMoba.PlayerInput
             }
         }
 
-        private BakedPlayerAbilityInputProfile GetProfile(byte slot)
+        private bool TryGetBinding(
+            byte slot,
+            InputTrigger trigger,
+            out InputBinding binding)
         {
-            if (profileProvider != null
-                && profileProvider.TryGetProfile(slot, out BakedPlayerAbilityInputProfile profile))
+            InputMappingTemplate template =
+                GetTemplate(slot);
+            if (template != null &&
+                template.TryGet(trigger, out binding))
             {
-                return profile;
+                return true;
             }
+            binding = default;
+            return false;
+        }
 
-            return new BakedPlayerAbilityInputProfile(
-                BakedPlayerAbilityInputMode.PressCommit);
+        private InputMappingTemplate GetTemplate(byte slot)
+        {
+            if (profileProvider != null &&
+                profileProvider.TryGetTemplate(
+                    slot,
+                    out InputMappingTemplate template))
+            {
+                return template;
+            }
+            return AbilityInputMapping.DefaultPressCommit;
         }
 
         private CommandHeader CreateHeader(GameplayCommandKind kind)
@@ -537,6 +845,16 @@ namespace FrameSyncMoba.PlayerInput
                 {
                     state.Kind = LocalAbilityInputStateKind.GameplayFocusing;
                 }
+                else if (waiting
+                    && hasSession
+                    && state.Kind ==
+                        LocalAbilityInputStateKind.CommitRequested)
+                {
+                    // Commit was not accepted by Gameplay while the Session
+                    // still waits: recover to Focusing (design v1.1 17.4).
+                    state.Kind =
+                        LocalAbilityInputStateKind.GameplayFocusing;
+                }
                 else if (!hasSession
                     && (state.Kind == LocalAbilityInputStateKind.GameplayFocusing
                         || state.Kind == LocalAbilityInputStateKind.CommitRequested))
@@ -546,13 +864,45 @@ namespace FrameSyncMoba.PlayerInput
             }
         }
 
-        private void CancelLocalAimOnly()
+        private void ProcessCancel()
         {
             for (int i = 0; i < abilityStates.Length; i++)
             {
-                if (abilityStates[i].Kind == LocalAbilityInputStateKind.LocalAiming)
+                if (abilityStates[i].Kind !=
+                    LocalAbilityInputStateKind.LocalAiming)
+                    continue;
+
+                byte slot = abilityStates[i].Slot;
+                if (!TryGetBinding(
+                        slot,
+                        InputTrigger.Cancel,
+                        out InputBinding binding))
+                    continue;
+
+                switch (binding.Translation)
                 {
-                    abilityStates[i] = default;
+                    case InputTranslation.CancelLocalAim:
+                        abilityStates[i] = default;
+                        Debug.Log(
+                            $"[Input] Escape closed local aim on slot {slot}.");
+                        break;
+                    case InputTranslation.Cancel:
+                        if (RequestCastAbility(
+                            slot,
+                            AbilitySignalVerb.Cancel,
+                            AimSnapshot.None,
+                            out GameplayCommandRequestReceipt
+                                cancelReceipt))
+                        {
+                            abilityStates[i] = default;
+                            Debug.Log(
+                                $"[Input] Escape slot {slot}: Cancel -> Idle (seq {cancelReceipt.CommandSeq}).");
+                        }
+                        break;
+                    default:
+                        Debug.Log(
+                            $"[Input] Escape slot {slot}: translation {binding.Translation}, no action.");
+                        break;
                 }
             }
         }

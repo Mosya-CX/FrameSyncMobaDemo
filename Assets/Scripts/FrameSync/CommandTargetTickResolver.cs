@@ -72,6 +72,11 @@ namespace FrameSyncMoba.FrameSync
                 throw new DeterministicSimulationException(
                     $"Resolved Command TargetTick {targetTick} exceeds local future window ending at {latestAllowedTick}.");
             }
+            UnityEngine.Debug.Log(
+                $"[TickResolver] local={buildLocalTick} " +
+                $"sync={latestSynchronizedServerTick} " +
+                $"lead={minCommandLeadTicks} maxFuture={maxFutureCommandTicks} " +
+                $"-> target={targetTick}");
             return targetTick;
         }
     }

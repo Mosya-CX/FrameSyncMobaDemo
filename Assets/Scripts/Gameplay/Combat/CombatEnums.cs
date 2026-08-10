@@ -80,6 +80,7 @@ namespace FrameSyncMoba.Unit
         CurrentSlotValue = 1,
         SourceStat = 2,
         TargetStat = 3,
+        TargetCurrentHealth = 4,
     }
 
     public enum CombatPolicyKind : byte

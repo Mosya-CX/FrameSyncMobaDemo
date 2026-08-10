@@ -45,7 +45,7 @@ namespace FrameSyncMoba.Unit
             // Cooldown reduction for all abilities on cooldown
             if (CooldownReductionPercent > fp.zero && owner.AbilityHandler != null)
             {
-                owner.AbilityHandler.ApplyCooldownReductionPercent(
+            owner.AbilityHandler?.ApplyCooldownReductionPercent(
                     CooldownReductionPercent, currentTick);
             }
 

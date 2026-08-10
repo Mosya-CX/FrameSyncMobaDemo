@@ -14,6 +14,12 @@ namespace FrameSyncMoba.Unit
         public fp BaseDamage;
         public DamageType DamageType;
         public UnitTargetFilter TargetFilter;
+        /// <summary>Presentation VFX played at the aim point on cast
+        /// (0 = none).</summary>
+        public int VfxDefId;
+        /// <summary>Projectile definition spawned at the aim point (e.g. a
+        /// stationary ground field). 0 = none.</summary>
+        public int GroundProjectileDefId;
 
         private readonly List<Unit> _resultScratch = new List<Unit>();
         private readonly List<Physics.PhysicsEntity2D> _gridScratch = new List<Physics.PhysicsEntity2D>();
@@ -25,6 +31,59 @@ namespace FrameSyncMoba.Unit
                 return StageResult.Failed;
 
             fp2 center = session.Aim.TargetPoint;
+            int tick = SimulationTickContext.Current.Tick;
+
+            if (VfxDefId > 0)
+            {
+                VisualEventOutput.SubmitVfx(
+                    new VfxEvent
+                    {
+                        Id = new PresentationEventId
+                        {
+                            SourceLogicTick = tick,
+                            SourceKind =
+                                PresentationSourceKind.Unit,
+                            SourceRuntimeUid =
+                                runtime.CasterUnitUid,
+                            EventSequence = 0,
+                            EventKey =
+                                PresentationEventKeys
+                                    .AbilityCast,
+                        },
+                        VfxDefId = VfxDefId,
+                        WorldPosition = center,
+                        DurationScale = fp.one,
+                    });
+            }
+
+            if (GroundProjectileDefId > 0 &&
+                runtime.World.ProjectileWorld != null &&
+                runtime.World.TryGetUnit(
+                    runtime.CasterUnitUid,
+                    out Unit caster))
+            {
+                runtime.World.ProjectileWorld.RequestSpawn(
+                    new ProjectileSpawnRequest(
+                        GroundProjectileDefId,
+                        runtime.CasterUnitUid,
+                        caster.TeamId,
+                        new SourceDescriptor
+                        {
+                            SourceType =
+                                CombatSourceType.Ability,
+                            SourceId =
+                                runtime.Definition.AbilityId,
+                            OwnerUnitUid =
+                                runtime.CasterUnitUid,
+                            EmitterUnitUid =
+                                runtime.CasterUnitUid,
+                        },
+                        center,
+                        new fp2(
+                            fp.zero,
+                            fp.one)));
+            }
+
             var desc = new RangeQueryDesc
             {
                 Shape = Physics.PhysicsShape2D.CreateCircle(fp2.zero, Radius),

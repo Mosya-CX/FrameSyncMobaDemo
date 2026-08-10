@@ -44,6 +44,7 @@
 | 数值容器 | `StatHandler` |
 | 战斗公式修正 | `CombatModifierSet` |
 | 单位事件 | `UnitEventBus` |
+| 轻量隐形标记 | `UnitTag`（同效果去重、多次施放来源隔离） |
 | 移动执行引用 | `UnitLocomotionAgent` |
 | 空间状态组件引用 | `PhysicsEntity2D` |
 
@@ -100,6 +101,65 @@ v27.1 不保留第二套 `UnitId`。
 
 v27.1 也不恢复运行时 `UnitTags`。  
 稳定大类由 `UnitKind` 表达，所属大类下的主要分类由 `UnitSubKindId` 表达；基础数值、Handler 装配、死亡处理、对象池和空间形状仍然由 `UnitPrototype` 的独立配置字段直接表达。
+
+## 1.2A 轻量隐形标记 UnitTag
+
+### 1.2A.1 定位
+
+`UnitTag` 是直接内嵌在 `Unit` 上的轻量跨 Tick 隐形标记（普通 C# 字段，不挂 MonoBehaviour，不走 Buff 系统）。它的用途是：
+
+- **同效果去重**：同一来源的同一效果（例如一次韦鲁斯 R 的腐败藤蔓感染）在一段存活时间内只对同一单位生效一次；
+- **多次施放来源隔离**：两次施放使用相同的字符串 Key，但携带不同的 `UnitTagUid`，后一次施放会替换前一次的标记，开启完全独立的新生命周期（两次 R 的数据互不共享）。
+
+`UnitTag` 只表达"标记 / 去重 / 来源隔离"，没有任何数值、属性或表现效果；需要数值或效果时仍使用 `Buff` 等正式系统。
+
+> 与旧概念的区别：本设计案 1.2 中的运行时 `UnitTags`（静态分类标签）不恢复；`UnitTag` 是全新的轻量隐形标记机制，与静态分类无关。
+
+### 1.2A.2 数据结构
+
+```csharp
+public readonly struct UnitTagUid
+{
+    public readonly UnitUid SourceUnit;  // 施加者单位来源 id
+    public readonly byte    SourceKind;  // 来源类型：技能 / Buff / 装备 / 系统
+    public readonly int     SourceId;    // 具体来源 id（如技能 10014、Buff 9113）
+    public readonly int     Tick;        // 施加时的逻辑 Tick
+}
+
+public struct UnitTag
+{
+    public string     Key;            // 字符串标识符
+    public int        RemainingTicks; // 存活计时；0 = 永久
+    public UnitTagUid Uid;            // 唯一施加身份
+}
+```
+
+`UnitTagUid` 由"单位来源 id + 施加来源 id（技能、Buff、装备等）+ 逻辑 Tick"组成。同一个效果在同一帧内至多施加一次（调用方先按 Key 查重），因此同 Tick 同来源同 id 不会重复，无需额外的帧内序号。
+
+### 1.2A.3 规则
+
+| 场景 | 行为 |
+|---|---|
+| 同 Key + 相同 Uid 再次施加 | 刷新 `RemainingTicks` |
+| 同 Key + 不同 Uid（第二次 R） | 替换旧标记，重新开始完整存活计时 |
+| `RemainingTicks > 0` | 每个逻辑 Tick 递减 1，归零自动移除 |
+| `RemainingTicks == 0` | 永久标记，不递减 |
+| 死亡 / 重生 / 回收 | 全部清除 |
+
+### 1.2A.4 确定性与快照
+
+- 标记列表按 Key 的字符串序（`Ordinal`）维护稳定顺序；查重、推进、捕获均为确定性操作，不依赖 Unity 对象顺序或枚举顺序。
+- `UnitTag` 是跨 Tick 状态，必须进入 `UnitSnapshot`（`UnitTag[]`）参与帧同步快照与回滚；Restore 时按 Key 排序恢复。
+- 快照 Resolve 阶段校验 `UnitTagUid.SourceUnit` 必须仍存在于 `UnitWorld`，否则视为确定性恢复错误。
+- Tick 推进由帧同步管线在 Handler Tick 阶段统一调用（与 `BuffHandler.Advance` 同批），不依赖渲染帧。
+
+### 1.2A.5 用例：韦鲁斯 R 腐败藤蔓
+
+一次 R 感染目标时以 Key = `"VarusR.Vine"`、`Uid = (R 施法者, Ability, R 技能 id, 当前 Tick)` 施加标记：
+
+- 同一次 R 内，目标已带同 Key 标记则不再被重复感染；
+- 第二次 R 的 `Tick` 不同（`Uid` 不同），旧标记被替换，可重新感染同一英雄并独立传播；
+- 标记存活期（如 180 Tick）覆盖整条传播链，且远小于 R 冷却，天然满足"两次 R 之间信息不互通"。
 
 ## 1.3 UnitUid
 

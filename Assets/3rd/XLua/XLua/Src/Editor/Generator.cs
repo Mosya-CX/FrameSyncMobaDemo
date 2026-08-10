@@ -1826,7 +1826,16 @@ namespace CSObjectWrapEditor
             }
             if (!DelegateBridge.Gen_Flag)
             {
-                throw new InvalidOperationException("Code has not been generated, may be not work in phone!");
+                // FrameSyncMoba integration: the project uses XLua in
+                // reflection mode (LuaCallCSharp only, no hotfix or
+                // CSharpCallLua codegen), so an abort here would make every
+                // player build fail. Keep the build and surface the mode as a
+                // warning instead. Re-enable the hard check when the project
+                // moves to an AOT target that requires generated wrap code.
+                UnityEngine.Debug.LogWarning(
+                    "XLua wrap code was not generated; this player build " +
+                    "uses XLua reflection mode.");
+                return;
             }
         }
 #endif

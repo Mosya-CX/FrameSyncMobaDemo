@@ -17,9 +17,15 @@ namespace FrameSyncMoba.Unit
         {
             if (owner?.BuffHandler == null || !BuffConfigId.IsValid) return;
             if (owner.World?.BuffDefinitions == null) return;
-            if (!owner.World.BuffDefinitions.TryGet(BuffConfigId, out BuffDef def)) return;
+            if (!owner.World.BuffDefinitions.TryGet(BuffConfigId, out BuffDefinition def)) return;
 
-            owner.BuffHandler.Apply(BuffConfigId, def, owner.UnitUid);
+            owner.BuffHandler.Apply(
+                BuffConfigId,
+                def,
+                BuffSource.Create(
+                    owner.UnitUid,
+                    BuffSourceType.Item,
+                    0));
         }
     }
 }

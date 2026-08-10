@@ -125,6 +125,58 @@ namespace FrameSyncMoba.Unit
         }
 
         /// <summary>
+        /// Skip waypoints the unit is already pressed against (distance at
+        /// or below tolerance). A waypoint whose center sits inside another
+        /// unit's collision body can never be reached exactly; waiting on it
+        /// would dead-lock route movement forever.
+        /// </summary>
+        public bool SkipWaypointsWithin(
+            fp2 currentPosition,
+            fp tolerance)
+        {
+            if (RouteFinished ||
+                _pathCellIndices == null ||
+                PathCursor < 0)
+            {
+                return false;
+            }
+            bool skipped = false;
+            fp toleranceSq =
+                tolerance * tolerance;
+            while (PathCursor <
+                   _pathCellIndices.Length)
+            {
+                int cellIndex =
+                    _pathCellIndices[PathCursor];
+                int cx = cellIndex %
+                    _grid.Width;
+                int cy = cellIndex /
+                    _grid.Width;
+                fp2 waypointWorld =
+                    _grid.CellToWorld(
+                        cx, cy);
+                fp distSq = fpmath.dot(
+                    currentPosition -
+                        waypointWorld,
+                    currentPosition -
+                        waypointWorld);
+                if (distSq > toleranceSq)
+                {
+                    return skipped;
+                }
+                skipped = true;
+                if (PathCursor >=
+                    _pathCellIndices.Length - 1)
+                {
+                    RouteFinished = true;
+                    return skipped;
+                }
+                PathCursor++;
+            }
+            return skipped;
+        }
+
+        /// <summary>
         /// Check whether the unit has deviated laterally from the path corridor.
         /// Returns true if the unit is outside the allowed corridor width
         /// from the current path segment.

@@ -36,6 +36,8 @@ namespace FrameSyncMoba.FrameSync
         public int Kills;
         public int Deaths;
         public int Assists;
+        /// <summary>Last-hit minion/monster kills (creep score).</summary>
+        public int CreepKills;
     }
 
     public struct MatchStatisticsRuntimeSnapshot
@@ -46,6 +48,20 @@ namespace FrameSyncMoba.FrameSync
 
     public sealed class MatchStatisticsRuntime
     {
+        /// <summary>
+        /// Radius (world units) around a dying minion in which enemy heroes
+        /// share the minion's base experience (user rule: no gold sharing
+        /// for minion deaths; only the killer receives gold).
+        /// </summary>
+        public const int MinionRewardShareRadius = 800;
+
+        /// <summary>
+        /// Killer share of a hero-victim reward (Combat v13.2 11.5); the
+        /// remainder is split evenly among valid assisters.
+        /// </summary>
+        public static readonly fp HeroKillerShareRatio =
+            (fp)0.5m;
+
         private readonly List<MatchStatisticsEntry> entries =
             new List<MatchStatisticsEntry>();
         private readonly List<GoldAllocation> goldAllocations =
@@ -72,16 +88,56 @@ namespace FrameSyncMoba.FrameSync
                 if (!unitWorld.TryGetUnit(result.VictimUid, out UnitType victim))
                     throw new DeterministicSimulationException(
                         $"Formal death victim {result.VictimUid} is missing.");
-                if (victim.UnitKind == UnitKind.Hero)
+                bool heroVictim =
+                    victim.UnitKind == UnitKind.Hero;
+                if (heroVictim)
+                {
                     Increment(result.VictimUid, StatisticKind.Death);
+                    string killerTeam = "-";
+                    if (result.KillerHeroUid.IsValid() &&
+                        unitWorld.TryGetUnit(
+                            result.KillerHeroUid,
+                            out UnitType killerUnit))
+                    {
+                        killerTeam =
+                            killerUnit.TeamId.Value.ToString();
+                    }
+                    UnityEngine.Debug.Log(
+                        $"[MatchStats] hero death tick=" +
+                        $"{SimulationTickContext.Current.Tick} " +
+                        $"victim={result.VictimUid} " +
+                        $"victimTeam={victim.TeamId.Value} " +
+                        $"killer={result.KillerHeroUid} " +
+                        $"killerTeam={killerTeam}");
+                }
                 if (result.KillerHeroUid.IsValid())
                 {
                     ValidateHero(unitWorld, result.KillerHeroUid, "killer");
-                    Increment(result.KillerHeroUid, StatisticKind.Kill);
-                    AddGoldAllocation(
-                        result.KillerHeroUid,
-                        victim.BaseGoldValue,
-                        result.DeathSequenceInTick);
+                    string killStat =
+                        heroVictim
+                            ? "Kill"
+                            : (victim.UnitKind ==
+                                   UnitKind.Minion ||
+                               victim.UnitKind ==
+                                   UnitKind.Monster)
+                                ? "CreepKill"
+                                : "None";
+                    UnityEngine.Debug.Log(
+                        $"[MatchStats] death victim={result.VictimUid} " +
+                        $"victimKind={victim.UnitKind} " +
+                        $"killer={result.KillerHeroUid} " +
+                        $"killStat={killStat}");
+                    if (heroVictim)
+                    {
+                        Increment(result.KillerHeroUid, StatisticKind.Kill);
+                    }
+                    else if (victim.UnitKind == UnitKind.Minion ||
+                             victim.UnitKind == UnitKind.Monster)
+                    {
+                        Increment(
+                            result.KillerHeroUid,
+                            StatisticKind.CreepKill);
+                    }
                 }
                 UnitUid[] assistants = result.AssistantHeroUids ?? Array.Empty<UnitUid>();
                 UnitUid previousAssistant = default;
@@ -93,16 +149,334 @@ namespace FrameSyncMoba.FrameSync
                         throw new DeterministicSimulationException(
                             "Formal death assistants are not unique and stable-sorted.");
                     previousAssistant = assistant;
-                    ValidateHero(unitWorld, assistant, "assistant");
-                    Increment(assistant, StatisticKind.Assist);
-                    AddGoldAllocation(
-                        assistant,
-                        victim.BaseGoldValue > 0
-                            ? (int)(((long)victim.BaseGoldValue * 30L) / 100L)
-                            : 0,
-                        result.DeathSequenceInTick);
+                    if (heroVictim)
+                    {
+                        ValidateHero(unitWorld, assistant, "assistant");
+                        Increment(assistant, StatisticKind.Assist);
+                    }
+                }
+
+                // ---- Reward settlement ----
+                // Hero victims: killer + assisters split gold and experience
+                // (Combat v13.2 11.5).
+                // Minion victims: experience is shared with enemy heroes in
+                // MinionRewardShareRadius; gold goes to the killer only
+                // (user rule).
+                // Monster / structure victims: killer takes the full base
+                // gold and experience (Combat v13.2 11.6).
+                if (heroVictim)
+                {
+                    SettleHeroRewards(
+                        unitWorld,
+                        victim,
+                        result);
+                }
+                else if (victim.UnitKind ==
+                         UnitKind.Minion)
+                {
+                    SettleMinionRewards(
+                        unitWorld,
+                        victim,
+                        result);
+                }
+                else
+                {
+                    if (result.KillerHeroUid.IsValid())
+                    {
+                        AddGoldAllocation(
+                            result.KillerHeroUid,
+                            victim.BaseGoldValue,
+                            result.DeathSequenceInTick);
+                        if (victim.BaseExperienceValue > 0)
+                        {
+                            GrantExperience(
+                                unitWorld,
+                                result.KillerHeroUid,
+                                victim
+                                    .BaseExperienceValue);
+                        }
+                    }
                 }
             }
+        }
+
+        private void SettleHeroRewards(
+            UnitWorld unitWorld,
+            UnitType victim,
+            in DeathResult result)
+        {
+            int baseGold = victim.BaseGoldValue;
+            int baseExperience =
+                victim.BaseExperienceValue;
+            bool hasKiller =
+                result.KillerHeroUid.IsValid();
+            UnitUid[] assistants =
+                result.AssistantHeroUids ??
+                Array.Empty<UnitUid>();
+
+            if (hasKiller && assistants.Length == 0)
+            {
+                AddGoldAllocation(
+                    result.KillerHeroUid,
+                    baseGold,
+                    result.DeathSequenceInTick);
+                if (baseExperience > 0)
+                {
+                    GrantExperience(
+                        unitWorld,
+                        result.KillerHeroUid,
+                        baseExperience);
+                }
+                return;
+            }
+
+            if (hasKiller)
+            {
+                int killerGold =
+                    (int)((long)baseGold *
+                        RatioNumerator(
+                            HeroKillerShareRatio) /
+                        RatioDenominator(
+                            HeroKillerShareRatio));
+                int killerExperience =
+                    (int)((long)baseExperience *
+                        RatioNumerator(
+                            HeroKillerShareRatio) /
+                        RatioDenominator(
+                            HeroKillerShareRatio));
+                AddGoldAllocation(
+                    result.KillerHeroUid,
+                    killerGold,
+                    result.DeathSequenceInTick);
+                if (killerExperience > 0)
+                {
+                    GrantExperience(
+                        unitWorld,
+                        result.KillerHeroUid,
+                        killerExperience);
+                }
+                SplitAmong(
+                    unitWorld,
+                    assistants,
+                    baseGold - killerGold,
+                    baseExperience - killerExperience,
+                    result.DeathSequenceInTick);
+                return;
+            }
+
+            SplitAmong(
+                unitWorld,
+                assistants,
+                baseGold,
+                baseExperience,
+                result.DeathSequenceInTick);
+        }
+
+        private void SettleMinionRewards(
+            UnitWorld unitWorld,
+            UnitType victim,
+            in DeathResult result)
+        {
+            if (result.KillerHeroUid.IsValid())
+            {
+                AddGoldAllocation(
+                    result.KillerHeroUid,
+                    victim.BaseGoldValue,
+                    result.DeathSequenceInTick);
+            }
+            if (victim.BaseExperienceValue <= 0)
+            {
+                return;
+            }
+
+            // Experience recipients: the killer (forced, even if outside
+            // range) plus every alive enemy hero within the share radius.
+            var recipients =
+                new List<UnitUid>();
+            if (result.KillerHeroUid.IsValid() &&
+                IsEnemyHero(
+                    unitWorld,
+                    result.KillerHeroUid,
+                    victim))
+            {
+                recipients.Add(
+                    result.KillerHeroUid);
+            }
+            fp radiusSq =
+                (fp)MinionRewardShareRadius *
+                (fp)MinionRewardShareRadius;
+            fp2 victimPosition =
+                victim.PhysicsEntity != null
+                    ? victim.PhysicsEntity
+                        .Transform2D.Position
+                    : fp2.zero;
+            IReadOnlyList<UnitType> units =
+                unitWorld.GetAllUnits();
+            for (int i = 0;
+                 i < units.Count;
+                 i++)
+            {
+                UnitType candidate = units[i];
+                if (candidate == null ||
+                    candidate.UnitKind !=
+                        UnitKind.Hero ||
+                    candidate.LifeState !=
+                        LifeState.Alive ||
+                    candidate.TeamId ==
+                        victim.TeamId ||
+                    recipients.Contains(
+                        candidate.UnitUid) ||
+                    candidate.PhysicsEntity == null)
+                {
+                    continue;
+                }
+                fp2 delta =
+                    candidate.PhysicsEntity
+                        .Transform2D.Position -
+                    victimPosition;
+                if (fpmath.lengthsq(delta) >
+                    radiusSq)
+                {
+                    continue;
+                }
+                recipients.Add(
+                    candidate.UnitUid);
+            }
+            recipients.Sort(
+                (left, right) =>
+                    left.CompareTo(right));
+            SplitExperience(
+                unitWorld,
+                recipients,
+                victim.BaseExperienceValue);
+        }
+
+        private void SplitAmong(
+            UnitWorld unitWorld,
+            UnitUid[] assistants,
+            int goldRemainder,
+            int experienceRemainder,
+            ushort deathSequence)
+        {
+            if (assistants == null ||
+                assistants.Length == 0)
+            {
+                return;
+            }
+            int goldShare =
+                goldRemainder / assistants.Length;
+            int goldExtra =
+                goldRemainder -
+                goldShare * assistants.Length;
+            int experienceShare =
+                experienceRemainder /
+                assistants.Length;
+            int experienceExtra =
+                experienceRemainder -
+                experienceShare *
+                assistants.Length;
+            for (int i = 0;
+                 i < assistants.Length;
+                 i++)
+            {
+                int gold =
+                    goldShare +
+                    (i < goldExtra ? 1 : 0);
+                if (gold > 0)
+                {
+                    AddGoldAllocation(
+                        assistants[i],
+                        gold,
+                        deathSequence);
+                }
+                int experience =
+                    experienceShare +
+                    (i < experienceExtra
+                        ? 1
+                        : 0);
+                if (experience > 0)
+                {
+                    GrantExperience(
+                        unitWorld,
+                        assistants[i],
+                        experience);
+                }
+            }
+        }
+
+        private static void SplitExperience(
+            UnitWorld unitWorld,
+            List<UnitUid> recipients,
+            int totalExperience)
+        {
+            if (recipients == null ||
+                recipients.Count == 0 ||
+                totalExperience <= 0)
+            {
+                return;
+            }
+            int share =
+                totalExperience / recipients.Count;
+            int extra =
+                totalExperience -
+                share * recipients.Count;
+            for (int i = 0;
+                 i < recipients.Count;
+                 i++)
+            {
+                GrantExperience(
+                    unitWorld,
+                    recipients[i],
+                    share + (i < extra ? 1 : 0));
+            }
+        }
+
+        private static void GrantExperience(
+            UnitWorld unitWorld,
+            UnitUid heroUid,
+            int amount)
+        {
+            if (amount <= 0 ||
+                !unitWorld.TryGetUnit(
+                    heroUid,
+                    out UnitType hero))
+            {
+                return;
+            }
+            hero.StatHandler?.AddExperience(
+                amount);
+        }
+
+        private static bool IsEnemyHero(
+            UnitWorld unitWorld,
+            UnitUid uid,
+            UnitType victim)
+        {
+            if (!unitWorld.TryGetUnit(
+                    uid,
+                    out UnitType unit))
+            {
+                return false;
+            }
+            return unit.UnitKind ==
+                    UnitKind.Hero &&
+                unit.TeamId != victim.TeamId;
+        }
+
+        private static long RatioNumerator(fp ratio)
+        {
+            return ratio == fp.zero
+                ? 0
+                : (long)(ratio *
+                    (fp)1000m);
+        }
+
+        private static long RatioDenominator(
+            fp ratio)
+        {
+            return ratio == fp.zero
+                ? 1
+                : 1000;
         }
 
         public void Capture(ref MatchStatisticsRuntimeSnapshot state) =>
@@ -118,7 +492,8 @@ namespace FrameSyncMoba.FrameSync
                 MatchStatisticsEntry entry = restored[i];
                 if (!entry.HeroUnitUid.IsValid() ||
                     (i > 0 && previous.CompareTo(entry.HeroUnitUid) >= 0) ||
-                    entry.Kills < 0 || entry.Deaths < 0 || entry.Assists < 0)
+                    entry.Kills < 0 || entry.Deaths < 0 ||
+                    entry.Assists < 0 || entry.CreepKills < 0)
                     throw new DeterministicSimulationException(
                         "Match statistics snapshot is invalid or non-canonical.");
                 previous = entry.HeroUnitUid;
@@ -137,6 +512,7 @@ namespace FrameSyncMoba.FrameSync
                 case StatisticKind.Kill: entry.Kills++; break;
                 case StatisticKind.Death: entry.Deaths++; break;
                 case StatisticKind.Assist: entry.Assists++; break;
+                case StatisticKind.CreepKill: entry.CreepKills++; break;
             }
             if (found) entries[index] = entry;
             else entries.Insert(index, entry);
@@ -181,7 +557,7 @@ namespace FrameSyncMoba.FrameSync
                     $"Formal death {role} {uid} is missing or is not a Hero.");
         }
 
-        private enum StatisticKind : byte { Kill, Death, Assist }
+        private enum StatisticKind : byte { Kill, Death, Assist, CreepKill }
     }
 
     public struct MatchRuleRuntimeSnapshot

@@ -3,6 +3,7 @@ using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Bootstrap.Tests
 {
@@ -52,7 +53,12 @@ namespace FrameSyncMoba.Bootstrap.Tests
     {
         [Test] public void EquipmentDefinition_CreateFromConfig_Valid()
         {
-            var def = new EquipmentDefinition { Id = 1001, Name = "Test Sword", Value = 500 };
+            var def =
+                ScriptableObject
+                    .CreateInstance<EquipmentDefinition>();
+            def.Id = 1001;
+            def.Name = "Test Sword";
+            def.Value = 500;
             Assert.That(def.Id, Is.EqualTo(1001)); Assert.That(def.Name, Is.EqualTo("Test Sword")); Assert.That(def.Value, Is.EqualTo(500));
         }
 

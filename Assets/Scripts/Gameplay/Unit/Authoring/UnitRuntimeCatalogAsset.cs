@@ -4,6 +4,9 @@ using FrameSyncMoba.Physics;
 using FrameSyncMoba.RuntimeConfig;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace FrameSyncMoba.Unit
 {
@@ -153,6 +156,8 @@ namespace FrameSyncMoba.Unit
         public ushort UnitSubKindId;
         [Min(0)] public int BaseGoldValue;
         [Min(0)] public int BaseExperienceValue;
+        public int[] InitialBuffConfigIds =
+            Array.Empty<int>();
         public ushort UnitDisposePolicyId;
         public UnitRespawnConfig RespawnConfig = UnitRespawnConfig.CannotRespawn;
         public UnitPoolConfig PoolConfig = UnitPoolConfig.Default;
@@ -218,6 +223,8 @@ namespace FrameSyncMoba.Unit
                 },
                 BaseGoldValue = BaseGoldValue,
                 BaseExperienceValue = BaseExperienceValue,
+                InitialBuffConfigIds =
+                    BakeInitialBuffConfigs(),
                 UnitDisposePolicyId = UnitDisposePolicyId,
                 RespawnConfig = RespawnConfig,
                 PoolConfig = PoolConfig,
@@ -225,6 +232,32 @@ namespace FrameSyncMoba.Unit
                 LocomotionProfile = locomotion,
                 PhysicsProfile = physics,
             };
+        }
+
+        private BuffConfigId[] BakeInitialBuffConfigs()
+        {
+            if (InitialBuffConfigIds == null ||
+                InitialBuffConfigIds.Length == 0)
+            {
+                return Array.Empty<BuffConfigId>();
+            }
+            var result =
+                new BuffConfigId[
+                    InitialBuffConfigIds.Length];
+            for (int i = 0;
+                 i < InitialBuffConfigIds.Length;
+                 i++)
+            {
+                if (InitialBuffConfigIds[i] <= 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Prototype {UnitPrototypeId} initial BuffConfigId must be positive.");
+                }
+                result[i] =
+                    new BuffConfigId(
+                        InitialBuffConfigIds[i]);
+            }
+            return result;
         }
 
         private static void ValidateLevelExperience(LevelExperienceConfig config)
@@ -278,9 +311,40 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private List<UnitPrototypeAuthoring> unitPrototypes =
             new List<UnitPrototypeAuthoring>();
         [SerializeField] private UnitDisposePolicyTable disposePolicyTable;
+#if UNITY_EDITOR
+        [Header("Editor hero display auto-sync (design v10.2 17.x)")]
+        [Tooltip("Hero prototypes automatically create matching avatar/name rows in this table.")]
+        [SerializeField] private HeroDisplayTable heroDisplayTable;
+#endif
 
         public IReadOnlyList<StatDefinitionAuthoring> StatDefinitions => statDefinitions;
         public IReadOnlyList<UnitPrototypeAuthoring> UnitPrototypes => unitPrototypes;
+#if UNITY_EDITOR
+        public HeroDisplayTable HeroDisplayTableForSync =>
+            heroDisplayTable;
+#endif
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (heroDisplayTable == null)
+                return;
+            EditorApplication.delayCall -=
+                DelaySyncHeroDisplay;
+            EditorApplication.delayCall +=
+                DelaySyncHeroDisplay;
+        }
+
+        private void DelaySyncHeroDisplay()
+        {
+            if (this == null ||
+                heroDisplayTable == null)
+                return;
+            HeroDisplayTableSync.Sync(
+                heroDisplayTable,
+                this);
+        }
+#endif
 
         public BakedUnitRuntimeCatalog BakeOrThrow(GlobalPrefabTable prefabTable)
         {
@@ -376,14 +440,53 @@ namespace FrameSyncMoba.Unit
             if (prefab.GetComponent<Unit>() == null)
                 throw new InvalidOperationException(
                     $"Unit prefab {prototype.RuntimeEntityPrefabId} needs Unit on its root.");
+            // Unit Framework v27.3 1.7: only Physics/Stat/Buff are universal.
+            // Movement / Attack / Ability / CrowdControl / Equipment presence
+            // must match the authored HandlerLoadout (towers have no
+            // Movement/Ability/Equipment; minions have no Ability/Equipment).
             RequireExactlyOne<PhysicsEntity2D>(prefab, prototype);
             RequireExactlyOne<StatHandler>(prefab, prototype);
-            RequireExactlyOne<MovementHandler>(prefab, prototype);
-            RequireExactlyOne<AttackHandler>(prefab, prototype);
-            RequireExactlyOne<AbilityHandler>(prefab, prototype);
             RequireExactlyOne<BuffHandler>(prefab, prototype);
-            RequireExactlyOne<CrowdControlHandler>(prefab, prototype);
-            RequireExactlyOne<EquipmentHandler>(prefab, prototype);
+            RequireLoadoutPresence<MovementHandler>(
+                prefab, prototype, "MovementHandler",
+                prototype.Loadout.HasMovement);
+            RequireLoadoutPresence<AttackHandler>(
+                prefab, prototype, "AttackHandler",
+                prototype.Loadout.HasAttack);
+            RequireLoadoutPresence<AbilityHandler>(
+                prefab, prototype, "AbilityHandler",
+                prototype.Loadout.HasAbility);
+            RequireLoadoutPresence<CrowdControlHandler>(
+                prefab, prototype, "CrowdControlHandler",
+                prototype.Loadout.HasCrowdControl);
+            RequireLoadoutPresence<EquipmentHandler>(
+                prefab, prototype, "EquipmentHandler",
+                prototype.Loadout.HasEquipment);
+        }
+
+        private static void RequireLoadoutPresence<T>(
+            GameObject prefab,
+            UnitPrototype prototype,
+            string label,
+            bool expected) where T : Component
+        {
+            int count =
+                prefab.GetComponentsInChildren<T>(
+                    true).Length;
+            if (count > 1)
+            {
+                throw new InvalidOperationException(
+                    $"Unit prefab {prototype.RuntimeEntityPrefabId} " +
+                    $"has more than one {typeof(T).Name}.");
+            }
+            bool present = count == 1;
+            if (present != expected)
+            {
+                throw new InvalidOperationException(
+                    $"Unit prefab {prototype.RuntimeEntityPrefabId} " +
+                    $"{label} presence ({present}) disagrees with " +
+                    $"its HandlerLoadout ({expected}).");
+            }
         }
 
         private static void ValidateLifecycleConfiguration(

@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+#if UNITY_EDITOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace FrameSyncMoba.Unit
 {
@@ -148,7 +151,15 @@ namespace FrameSyncMoba.Unit
             {
                 int immunityDuration = durationTicks == 0 ? int.MaxValue : durationTicks;
                 instance.CrowdControlImmunityHandle = Owner.CrowdControl.AddImmunity(
-                    new CrowdControlImmunitySpec(immunityDuration));
+                    new CrowdControlImmunitySpec(
+                        new CrowdControlTagQuery(
+                            new CrowdControlTagMask(
+                                CrowdControlDefinition.ControlTagBits.Control),
+                            default,
+                            default),
+                        immunityDuration,
+                        blockCount: 0,
+                        priority: 0));
             }
 
             shieldInstances.Add(instance);
@@ -301,7 +312,15 @@ namespace FrameSyncMoba.Unit
               if (levelsGained > 0 && Owner?.AbilityHandler != null)
               {
                   for (int i = 0; i < levelsGained; i++)
-                      Owner.AbilityHandler.GrantSkillPoint();
+                      Owner.AbilityHandler?.GrantSkillPoint();
+              }
+
+              if (levelsGained > 0 &&
+                  Owner?.BuffHandler != null)
+              {
+                  Owner.BuffHandler.OnLevelUp(
+                      previousLevel,
+                      level);
               }
 
             return new ExperienceGainResult
@@ -442,6 +461,13 @@ namespace FrameSyncMoba.Unit
 
         public fp GetStat(StatId statId)
         {
+            // Uninitialized runtime (Inspector/Odin preview, authoring view):
+            // no definition table exists yet, so every stat resolves to zero
+            // instead of throwing.
+            if (definitionTable == null)
+            {
+                return fp.zero;
+            }
             if (entries.TryGetValue(statId, out StatRuntimeEntry entry))
             {
                 if (entry.Dirty)
@@ -511,6 +537,108 @@ namespace FrameSyncMoba.Unit
         public override void ClearForDeath() => ClearShields();
 
         public override void ClearForRespawn() => ClearShields();
+
+#if UNITY_EDITOR
+        // ---- Editor-only live runtime view (Odin; never in builds) ----
+        // Odin Inspector repaints live in Play Mode, so the key values below
+        // update in real time without any per-frame enumeration. The full
+        // StatId table is opt-in (folded away by default).
+
+        [ShowInInspector]
+        [ReadOnly]
+        [PropertyOrder(-100)]
+        [LabelText("Runtime Level")]
+        public int EditorLevel => level;
+
+        [ShowInInspector]
+        [ReadOnly]
+        [PropertyOrder(-99)]
+        [LabelText("Runtime Health")]
+        public string EditorHealth =>
+            FormatEditorStat(currentHealth) +
+            " / " +
+            FormatEditorStat(
+                GetStat(StatId.MaxHealth));
+
+        [ShowInInspector]
+        [ReadOnly]
+        [PropertyOrder(-98)]
+        [LabelText("Runtime Resource")]
+        public string EditorResource =>
+            FormatEditorStat(
+                currentCastResource) +
+            " / " +
+            FormatEditorStat(
+                GetStat(
+                    StatId.MaxCastResource));
+
+        [ShowInInspector]
+        [ReadOnly]
+        [PropertyOrder(-97)]
+        [LabelText("Runtime Experience")]
+        public int EditorExperience =>
+            currentExperience;
+
+        [ShowInInspector]
+        [ReadOnly]
+        [PropertyOrder(-96)]
+        [LabelText("Runtime Shields")]
+        public string EditorShields =>
+            FormatEditorStat(
+                CurrentShield);
+
+        [ShowInInspector]
+        [PropertyOrder(-95)]
+        [FoldoutGroup("All Stats")]
+        [LabelText("Show All Stats")]
+        public bool EditorShowAllStats;
+
+        [ShowInInspector]
+        [ReadOnly]
+        [FoldoutGroup("All Stats")]
+        [ShowIf("EditorShowAllStats")]
+        [LabelText("Final Values")]
+        public List<string> EditorAllStats
+        {
+            get
+            {
+                var values = new List<string>();
+                Array all =
+                    Enum.GetValues(
+                        typeof(StatId));
+                var ids =
+                    new List<StatId>(
+                        all.Length);
+                for (int i = 0;
+                     i < all.Length;
+                     i++)
+                {
+                    ids.Add(
+                        (StatId)all.GetValue(
+                            i));
+                }
+                ids.Sort(
+                    (left, right) =>
+                        left.CompareTo(right));
+                for (int i = 0;
+                     i < ids.Count;
+                     i++)
+                {
+                    values.Add(
+                        ids[i] + ": " +
+                        FormatEditorStat(
+                            GetStat(ids[i])));
+                }
+                return values;
+            }
+        }
+
+        private static string FormatEditorStat(
+            fp value)
+        {
+            return value.ToString();
+        }
+#endif
 
 
         /// <summary>
@@ -583,6 +711,13 @@ namespace FrameSyncMoba.Unit
             {
                 StatId statId = captureStatIds[statIndex];
                 StatRuntimeEntry entry = entries[statId];
+                StatModifier[] modifiers =
+                    entry.Modifiers.ToArray();
+                Array.Sort(
+                    modifiers,
+                    (left, right) =>
+                        left.StatSeq.CompareTo(
+                            right.StatSeq));
 
                 entryList.Add(new StatRuntimeEntrySnapshot
                 {
@@ -591,7 +726,7 @@ namespace FrameSyncMoba.Unit
                     FinalValue = entry.FinalValue,
                     PreviousLogicTickFinalValue = entry.PreviousLogicTickFinalValue,
                     Dirty = entry.Dirty,
-                    Modifiers = entry.Modifiers.ToArray(),
+                    Modifiers = modifiers,
                 });
             }
             state.Entries = entryList.ToArray();
@@ -633,6 +768,29 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < state.Entries.Length; i++)
             {
                 StatRuntimeEntrySnapshot snap = state.Entries[i];
+
+                if (!configs.ContainsKey(snap.StatId))
+                {
+                    // Runtime-added stats (e.g. HealingReceivedRatio applied
+                    // by a Buff) are not part of the unit preset. A
+                    // rollback-reconstructed StatHandler only has preset
+                    // configs after InitializeRuntime, so the restored entry
+                    // must lazily recreate its config exactly like
+                    // AddModifier does; otherwise FinalizeTick -> Recompute
+                    // throws KeyNotFoundException on the next tick.
+                    if (!definitionTable.TryGet(snap.StatId, out StatDefinition def))
+                    {
+                        throw new DeterministicSimulationException(
+                            $"StatHandler snapshot references StatId {snap.StatId} " +
+                            "which is not in the StatDefinitionTable.");
+                    }
+                    configs[snap.StatId] = new StatConfig
+                    {
+                        BaseValue = def.DefaultBaseValue,
+                        GrowthValue = default,
+                        Definition = def,
+                    };
+                }
 
                 var entry = new StatRuntimeEntry
                 {

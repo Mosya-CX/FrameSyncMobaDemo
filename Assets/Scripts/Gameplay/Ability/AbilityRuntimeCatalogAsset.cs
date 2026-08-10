@@ -14,6 +14,15 @@ namespace FrameSyncMoba.Unit
             Array.Empty<AbilityAsset>();
         [SerializeField] private AbilitySlotDef[] slots =
             Array.Empty<AbilitySlotDef>();
+        [SerializeField] private FixedPassiveDefinitionAsset[]
+            fixedPassives = Array.Empty<FixedPassiveDefinitionAsset>();
+
+        /// <summary>
+        /// Authoring assets (presentation icon lookup). Gameplay only uses the
+        /// baked <see cref="AbilityDef"/> registry.
+        /// </summary>
+        public IReadOnlyList<AbilityAsset> Abilities =>
+            abilities;
 
         public AbilityDefinitionRegistry BakeOrThrow()
         {
@@ -44,6 +53,21 @@ namespace FrameSyncMoba.Unit
                         $"Duplicate Ability SlotId {slot.SlotId}.");
                 slot.ValidateOrThrow(registry);
                 registry.RegisterSlot(slot);
+            }
+
+            if (fixedPassives == null)
+                throw new InvalidOperationException(
+                    "Ability catalog fixed passives must not be null.");
+            for (int i = 0;
+                 i < fixedPassives.Length;
+                 i++)
+            {
+                FixedPassiveDefinitionAsset passive =
+                    fixedPassives[i];
+                if (passive == null)
+                    throw new InvalidOperationException(
+                        $"Ability catalog fixed passive {i} is null.");
+                registry.Register(passive.Bake());
             }
             return registry;
         }

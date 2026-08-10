@@ -51,6 +51,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
             public int PathCursor = -1;
             public bool NeedRepath;
             public int LastSeenTick;
+            public int StuckTicks;
+            public bool StuckLogged;
         }
 
         private void Awake()
@@ -95,12 +97,45 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 MovementTask task = unit.Locomotion != null
                     ? unit.Locomotion.CurrentTask
                     : MovementTask.None;
+                string attackDetail =
+                    BuildAttackStateDetail(
+                        unit.AttackHandler);
                 Debug.Log(
                     $"[MinionDiag][PreTick={tick}] Uid={FormatUid(unit.UnitUid)} " +
                     $"Plan={planStatus} IntentTarget={FormatUid(targetUid)} " +
                     $"Task={task.Purpose}/{task.State} Stop={task.StopDistance} " +
-                    $"ActionRuntimes={unit.ActionRuntimes?.Count ?? 0}");
+                    $"ActionRuntimes={unit.ActionRuntimes?.Count ?? 0} " +
+                    $"Atk[{attackDetail}]");
             }
+        }
+
+        private static string BuildAttackStateDetail(
+            AttackHandler attack)
+        {
+            if (attack == null)
+            {
+                return "no-handler";
+            }
+            FieldInfo stateField =
+                typeof(AttackHandler).GetField(
+                    "_state",
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic);
+            if (stateField == null)
+            {
+                return "no-state";
+            }
+            object state = stateField.GetValue(attack);
+            return
+                $"Start={state.GetType().GetField("AttackStartLogicTick")?.GetValue(state)} " +
+                $"Impact={state.GetType().GetField("ImpactLogicTick")?.GetValue(state)} " +
+                $"Ready={state.GetType().GetField("NextAttackReadyLogicTick")?.GetValue(state)} " +
+                $"Dur={state.GetType().GetField("ResolvedAttackDurationTicks")?.GetValue(state)} " +
+                $"Windup={state.GetType().GetField("ResolvedWindupTicks")?.GetValue(state)} " +
+                $"Committed={state.GetType().GetField("ImpactCommitted")?.GetValue(state)} " +
+                $"LastHit={state.GetType().GetField("LastSuccessfulAttackLogicTick")?.GetValue(state)} " +
+                $"Cycle={attack.IsAttackCycleActive} " +
+                $"ReadyNow={attack.IsAttackReady()}";
         }
 
         private void OnDestroy()
@@ -324,6 +359,31 @@ namespace FrameSyncMoba.Bootstrap.Tests
             fp2 actualVelocity = movement?.Velocity ?? fp2.zero;
             string nearestPoint = GetNearestKeyPoint(position, out fp nearestDistance);
 
+            // Stuck detection: an alive minion that neither moves nor holds
+            // an active movement task for a long window. Emits one detailed
+            // diagnostic line per stuck unit (attack cycle, range, target
+            // distance, capability/CC state) to localize the stall.
+            if (unit.LifeState == LifeState.Alive &&
+                fpmath.lengthsq(step) <=
+                    (fp)0.1m)
+            {
+                trace.StuckTicks++;
+            }
+            else
+            {
+                trace.StuckTicks = 0;
+                trace.StuckLogged = false;
+            }
+            if (trace.StuckTicks >= 15 &&
+                !trace.StuckLogged)
+            {
+                trace.StuckLogged = true;
+                LogStuckDiagnostic(
+                    completedTick,
+                    unit,
+                    position);
+            }
+
             if (logEverySimulationTick)
             {
                 Debug.Log(
@@ -381,6 +441,88 @@ namespace FrameSyncMoba.Bootstrap.Tests
             trace.PathCursor = follower.PathCursor;
             trace.NeedRepath = locomotion.Route.NeedRepath;
             trace.LastSeenTick = completedTick;
+        }
+
+        private void LogStuckDiagnostic(
+            int tick,
+            UnitType unit,
+            fp2 position)
+        {
+            AttackHandler attack = unit.AttackHandler;
+            string targetDistance = "none";
+            if (unit.Intent.TargetUnit.IsValid() &&
+                bootstrap.UnitWorld.TryGetUnit(
+                    unit.Intent.TargetUnit,
+                    out UnitType target) &&
+                target?.PhysicsEntity != null)
+            {
+                targetDistance = Format(
+                    fpmath.length(
+                        position -
+                        target.PhysicsEntity
+                            .Transform2D.Position));
+            }
+            string stateDetail = "no-attack-handler";
+            if (attack != null)
+            {
+                FieldInfo stateField =
+                    typeof(AttackHandler).GetField(
+                        "_state",
+                        BindingFlags.Instance |
+                        BindingFlags.NonPublic);
+                if (stateField != null)
+                {
+                    object state =
+                        stateField.GetValue(attack);
+                    stateDetail =
+                        $"Start={state.GetType().GetField("AttackStartLogicTick")?.GetValue(state)} " +
+                        $"Impact={state.GetType().GetField("ImpactLogicTick")?.GetValue(state)} " +
+                        $"Ready={state.GetType().GetField("NextAttackReadyLogicTick")?.GetValue(state)} " +
+                        $"Dur={state.GetType().GetField("ResolvedAttackDurationTicks")?.GetValue(state)} " +
+                        $"Windup={state.GetType().GetField("ResolvedWindupTicks")?.GetValue(state)} " +
+                        $"Committed={state.GetType().GetField("ImpactCommitted")?.GetValue(state)} " +
+                        $"LastHit={state.GetType().GetField("LastSuccessfulAttackLogicTick")?.GetValue(state)}";
+                }
+            }
+            string message =
+                $"[MinionDiag][Stuck] Tick={tick} " +
+                $"Uid={FormatUid(unit.UnitUid)} " +
+                $"Team={unit.TeamId.Value} " +
+                $"Pos={Format(position)} " +
+                $"Intent={unit.Intent.Kind} " +
+                $"IntentTarget={FormatUid(unit.Intent.TargetUnit)} " +
+                $"AttackCycle={attack?.IsAttackCycleActive} " +
+                $"AttackTarget={FormatUid(attack?.CurrentTargetUid ?? default)} " +
+                $"AttackReady={attack?.IsAttackReady()} " +
+                $"AtkSpeed={unit.StatHandler?.GetStat(StatId.AttackSpeed)} " +
+                $"Range={attack?.CurrentAttackRange} " +
+                $"TargetDist={targetDistance} " +
+                $"CanMove={unit.CapabilityState.CanMove} " +
+                $"CanAttack={unit.CapabilityState.CanAttack} " +
+                $"CCMove={unit.CrowdControl?.IsBlocked(UnitActionBlockMask.VoluntaryMove)} " +
+                $"CCAttack={unit.CrowdControl?.IsBlocked(UnitActionBlockMask.VoluntaryAttack)} " +
+                $"ActionRuntimes={unit.ActionRuntimes?.Count} " +
+                $"State[{stateDetail}]";
+            Debug.LogWarning(message);
+            try
+            {
+                string dir =
+                    System.IO.Path.Combine(
+                        Application.dataPath,
+                        "..",
+                        "Logs");
+                System.IO.Directory.CreateDirectory(
+                    dir);
+                System.IO.File.AppendAllText(
+                    System.IO.Path.Combine(
+                        dir,
+                        "minion_stuck.log"),
+                    message + "\n");
+            }
+            catch (System.Exception)
+            {
+                // File logging is diagnostic-only.
+            }
         }
 
         private string BuildPathDetails(

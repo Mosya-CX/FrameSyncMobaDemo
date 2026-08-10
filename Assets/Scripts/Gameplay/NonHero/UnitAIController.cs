@@ -123,6 +123,16 @@ namespace FrameSyncMoba.Unit
         {
         }
 
+        /// <summary>
+        /// Releases deterministic event subscriptions owned by this controller.
+        /// Called when the controller is detached from the runtime (death,
+        /// despawn, or rollback restore replacement) so stale instances never
+        /// keep processing damage events after being discarded.
+        /// </summary>
+        public virtual void UnsubscribeEvents()
+        {
+        }
+
         public virtual void ClearForRespawn()
         {
         }
@@ -134,11 +144,29 @@ namespace FrameSyncMoba.Unit
 
     public sealed class MinionAIController : UnitAIController
     {
-        private static readonly fp AcquireRangePadding = fp.one;
+        // 索敌距离 = 攻击距离 + 150码（逻辑单位 1.5，可配置）。
+        private static readonly fp AcquireRangePadding = (fp)1.5m;
         private static readonly fp ChaseMaxDistance = (fp)12m;
         private static readonly fp LaneReturnThreshold = (fp)15m;
         private const int TargetLockTicks = 30;
         private const int DecisionIntervalTicks = 5;
+
+        // ---- Threat model (integer scale 0..1000, configurable) ----
+        // 新索敌目标的初始仇恨（80%，不满，避免新目标立即覆盖正在攻击的目标）。
+        private static readonly int InitialThreat = 800;
+        // 每个 AI 刷新 Tick 的固定衰减量。
+        private static readonly int ThreatDecayPerRefresh = 20;
+        // 攻击目标时每刷新加：AttackThreatGainBase * (range / max(d, minDist))。
+        private static readonly int AttackThreatGainBase = 30;
+        // 被攻击时对攻击者每刷新加：DamageThreatGainBase * (range / max(d, minDist))。
+        private static readonly int DamageThreatGainBase = 60;
+        // 1/d 反比距离的最小分母，防止贴脸时增益爆炸。
+        private static readonly fp MinThreatDistance = (fp)0.5m;
+        // 低于该值的仇恨被遗忘（从表中移除）。
+        private static readonly int ThreatForgetThreshold = 50;
+        // 切换目标要求新目标仇恨超过当前目标仇恨的余量，避免抖动。
+        private static readonly int ThreatSwitchMargin = 50;
+        private static readonly int MaxThreat = 1000;
 
         public MinionAIState AIState { get; private set; }
         public int LaneId { get; set; }
@@ -148,11 +176,24 @@ namespace FrameSyncMoba.Unit
                 IntentKind.AttackTarget
                 ? OwnerUnit.Intent.TargetUnit
                 : default;
+        /// <summary>Read-only threat toward an enemy (tests / diagnostics).</summary>
+        public int GetThreatValue(UnitUid uid) =>
+            GetThreat(uid);
         public fp2 EngageOrigin { get; private set; }
         public int TargetLockedUntilTick { get; private set; }
         public int NextDecisionLogicTick { get; private set; }
         public UnitUid PendingAssistTargetUid { get; private set; }
         public int PendingAssistExpireLogicTick { get; private set; }
+
+        private readonly List<ThreatEntry> threatTable =
+            new List<ThreatEntry>(8);
+        private int lastThreatRefreshTick = -1;
+
+        private struct ThreatEntry
+        {
+            public UnitUid Uid;
+            public int Threat;
+        }
 
         public MinionAIController(Unit owner, int laneId) : base(owner)
         {
@@ -162,6 +203,8 @@ namespace FrameSyncMoba.Unit
             EngageOrigin = fp2.zero;
             NextDecisionLogicTick =
                 owner.UnitUid.SpawnLogicTick + 1;
+            CombatEvents.OnDamageTaken +=
+                HandleDamageTaken;
         }
 
         public override void AIThink()
@@ -172,11 +215,58 @@ namespace FrameSyncMoba.Unit
             if (currentTick < NextDecisionLogicTick)
                 return;
 
+            // Threat refresh: decay, apply attack gain for this window, then
+            // prune invalid entries (damage-taken gains were applied by
+            // HandleDamageTaken as the hits landed).
+            int previousRefreshTick =
+                lastThreatRefreshTick;
+            lastThreatRefreshTick = currentTick;
+            AddAttackThreat(
+                previousRefreshTick);
+            DecayThreat();
+            PruneThreatTable();
+
             UnitUid currentTarget = CurrentTargetUid;
             bool currentTargetIsLegal =
                 currentTarget.IsValid() &&
                 IsValidTarget(currentTarget) &&
                 IsWithinChaseBoundary();
+            UnitUid highestThreat =
+                ResolveHighestThreatTarget();
+
+            if (currentTargetIsLegal &&
+                !highestThreat.IsValid())
+            {
+                // No valid threat entry (e.g. all forgotten) but the locked
+                // target is still legal: refresh its threat so it stays.
+                SetThreat(
+                    currentTarget,
+                    InitialThreat);
+                highestThreat =
+                    currentTarget;
+            }
+
+            if (currentTargetIsLegal &&
+                highestThreat.IsValid() &&
+                highestThreat != currentTarget &&
+                GetThreat(highestThreat) >
+                    GetThreat(currentTarget) +
+                    ThreatSwitchMargin &&
+                CanSwitchTarget())
+            {
+                // A strictly higher-threat valid enemy appeared and the
+                // attack is not mid-windup: switch to it (backswing rule).
+                if (currentTarget.IsValid() &&
+                    currentTarget != highestThreat)
+                {
+                    ClearOrder();
+                }
+                AcquireTarget(highestThreat);
+                AIState = MinionAIState.EngageTarget;
+                ScheduleNextDecision(currentTick);
+                return;
+            }
+
             if (currentTargetIsLegal)
             {
                 AIState = MinionAIState.EngageTarget;
@@ -184,14 +274,33 @@ namespace FrameSyncMoba.Unit
                 return;
             }
 
-            UnitUid bestTarget = FindBestTarget();
-            if (currentTarget.IsValid() &&
-                currentTarget != bestTarget)
-                ClearOrder();
-
-            if (bestTarget.IsValid())
+            if (highestThreat.IsValid())
             {
-                AcquireTarget(bestTarget);
+                if (currentTarget.IsValid() &&
+                    currentTarget != highestThreat)
+                {
+                    ClearOrder();
+                }
+                AcquireTarget(highestThreat);
+                AIState = MinionAIState.EngageTarget;
+                ScheduleNextDecision(currentTick);
+                return;
+            }
+
+            // No threat object: acquisition search within
+            // AttackRange + AcquireRangePadding. New targets start at
+            // InitialThreat (80%).
+            UnitUid acquired = FindBestTarget();
+            if (acquired.IsValid())
+            {
+                if (currentTarget.IsValid() &&
+                    currentTarget != acquired)
+                {
+                    ClearOrder();
+                }
+                SetThreat(acquired, InitialThreat);
+                AcquireTarget(acquired);
+                AIState = MinionAIState.EngageTarget;
                 ScheduleNextDecision(currentTick);
                 return;
             }
@@ -220,6 +329,264 @@ namespace FrameSyncMoba.Unit
             IssueLaneAdvanceOrder(LaneId);
             ScheduleNextDecision(currentTick);
         }
+
+        /// <summary>
+        /// Reactive threat: being hit by an enemy adds threat to that enemy,
+        /// scaled inversely by distance (DamageThreatGain * range / d).
+        /// </summary>
+        private void HandleDamageTaken(
+            DamageEventData data)
+        {
+            if (OwnerUnit == null ||
+                data.TargetUid != OwnerUnitUid)
+            {
+                return;
+            }
+            UnitUid attacker = data.SourceUid;
+            if (!attacker.IsValid() ||
+                attacker == OwnerUnitUid)
+            {
+                return;
+            }
+            if (OwnerUnit.World == null ||
+                !OwnerUnit.World.TryGetUnit(
+                    attacker,
+                    out Unit attackerUnit) ||
+                attackerUnit.PhysicsEntity == null ||
+                OwnerUnit.PhysicsEntity == null)
+            {
+                return;
+            }
+            fp2 myPos =
+                OwnerUnit.PhysicsEntity
+                    .Transform2D.Position;
+            fp2 atkPos =
+                attackerUnit.PhysicsEntity
+                    .Transform2D.Position;
+            fp distance =
+                fpmath.length(atkPos - myPos);
+            AddThreat(
+                attacker,
+                GainFromDistance(
+                    DamageThreatGainBase,
+                    distance));
+        }
+
+        /// <summary>
+        /// Aggressive threat: attacking the current target this refresh adds
+        /// threat toward it, scaled inversely by distance.
+        /// </summary>
+        private void AddAttackThreat(
+            int previousRefreshTick)
+        {
+            AttackHandler attack =
+                OwnerUnit?.AttackHandler;
+            if (attack == null)
+            {
+                return;
+            }
+            int lastHit =
+                attack.LastSuccessfulAttackLogicTick;
+            if (lastHit <= InvalidLogicTick ||
+                lastHit < previousRefreshTick)
+            {
+                return;
+            }
+            UnitUid target =
+                attack.CurrentTargetUid;
+            if (!target.IsValid())
+            {
+                return;
+            }
+            fp distance =
+                DistanceTo(target);
+            AddThreat(
+                target,
+                GainFromDistance(
+                    AttackThreatGainBase,
+                    distance));
+        }
+
+        private void DecayThreat()
+        {
+            for (int i = threatTable.Count - 1;
+                 i >= 0;
+                 i--)
+            {
+                ThreatEntry entry =
+                    threatTable[i];
+                entry.Threat -=
+                    ThreatDecayPerRefresh;
+                threatTable[i] = entry;
+                if (entry.Threat <
+                    ThreatForgetThreshold)
+                {
+                    threatTable.RemoveAt(i);
+                }
+            }
+        }
+
+        private void PruneThreatTable()
+        {
+            for (int i = threatTable.Count - 1;
+                 i >= 0;
+                 i--)
+            {
+                UnitUid uid = threatTable[i].Uid;
+                if (!IsValidTarget(uid) ||
+                    !IsWithinChaseBoundary())
+                {
+                    threatTable.RemoveAt(i);
+                }
+            }
+        }
+
+        private UnitUid ResolveHighestThreatTarget()
+        {
+            UnitUid best = default;
+            int bestThreat = 0;
+            for (int i = 0;
+                 i < threatTable.Count;
+                 i++)
+            {
+                ThreatEntry entry =
+                    threatTable[i];
+                if (entry.Threat <= bestThreat)
+                {
+                    continue;
+                }
+                bestThreat = entry.Threat;
+                best = entry.Uid;
+            }
+            return best;
+        }
+
+        private int GetThreat(UnitUid uid)
+        {
+            int index = FindThreatIndex(uid);
+            return index >= 0
+                ? threatTable[index].Threat
+                : 0;
+        }
+
+        private void SetThreat(
+            UnitUid uid,
+            int value)
+        {
+            int clamped =
+                value < 0
+                    ? 0
+                    : value > MaxThreat
+                        ? MaxThreat
+                        : value;
+            int index = FindThreatIndex(uid);
+            if (index >= 0)
+            {
+                ThreatEntry entry =
+                    threatTable[index];
+                entry.Threat = clamped;
+                threatTable[index] = entry;
+                return;
+            }
+            threatTable.Add(
+                new ThreatEntry
+                {
+                    Uid = uid,
+                    Threat = clamped,
+                });
+            threatTable.Sort(
+                (a, b) =>
+                    a.Uid.CompareTo(b.Uid));
+        }
+
+        private void AddThreat(
+            UnitUid uid,
+            int amount)
+        {
+            SetThreat(
+                uid,
+                GetThreat(uid) + amount);
+        }
+
+        private int FindThreatIndex(UnitUid uid)
+        {
+            for (int i = 0;
+                 i < threatTable.Count;
+                 i++)
+            {
+                if (threatTable[i].Uid == uid)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private bool CanSwitchTarget()
+        {
+            AttackHandler attack =
+                OwnerUnit?.AttackHandler;
+            if (attack == null)
+            {
+                return true;
+            }
+            // Only switch during the attack backswing (post-commit) or when
+            // no attack cycle is active; never mid-windup, which would
+            // cancel the in-flight attack.
+            return !attack.IsAttackCycleActive ||
+                attack.ImpactCommitted;
+        }
+
+        /// <summary>
+        /// Integer threat gain: gainBase * (range / max(distance, minDist)).
+        /// Distances are scaled to centi-logic units so the ratio stays in
+        /// integer arithmetic (no fixed-point storage in the threat table).
+        /// </summary>
+        private int GainFromDistance(
+            int gainBase,
+            fp distance)
+        {
+            fp range =
+                OwnerUnit?.AttackHandler
+                    ?.CurrentAttackRange ??
+                fp.one;
+            int rangeCenti =
+                (int)(range * (fp)100m +
+                    (fp)0.5m);
+            int distCenti =
+                (int)(fpmath.max(
+                    distance,
+                    MinThreatDistance) *
+                (fp)100m +
+                (fp)0.5m);
+            if (distCenti <= 0)
+            {
+                distCenti = 1;
+            }
+            return gainBase *
+                rangeCenti /
+                distCenti;
+        }
+
+        private fp DistanceTo(UnitUid uid)
+        {
+            if (OwnerUnit?.PhysicsEntity == null ||
+                OwnerUnit.World == null ||
+                !OwnerUnit.World.TryGetUnit(
+                    uid,
+                    out Unit other) ||
+                other.PhysicsEntity == null)
+            {
+                return MinThreatDistance;
+            }
+            return fpmath.length(
+                other.PhysicsEntity
+                    .Transform2D.Position -
+                OwnerUnit.PhysicsEntity
+                    .Transform2D.Position);
+        }
+
+        private const int InvalidLogicTick = -1;
 
         private UnitUid FindBestTarget()
         {
@@ -366,6 +733,8 @@ namespace FrameSyncMoba.Unit
             base.Capture(ref state);
             state.MinionState = AIState;
             state.LaneId = LaneId;
+            state.MinionLastThreatRefreshLogicTick =
+                lastThreatRefreshTick;
             state.MinionNextDecisionLogicTick =
                 NextDecisionLogicTick;
             state.MinionTargetLockUntilLogicTick =
@@ -376,6 +745,8 @@ namespace FrameSyncMoba.Unit
                 PendingAssistTargetUid;
             state.MinionPendingAssistExpireLogicTick =
                 PendingAssistExpireLogicTick;
+            state.MinionThreatTable =
+                CaptureThreatTable();
         }
 
         public override void Restore(in UnitAIControllerSnapshot state)
@@ -383,6 +754,8 @@ namespace FrameSyncMoba.Unit
             base.Restore(in state);
             AIState = state.MinionState;
             LaneId = state.LaneId;
+            lastThreatRefreshTick =
+                state.MinionLastThreatRefreshLogicTick;
             NextDecisionLogicTick =
                 state.MinionNextDecisionLogicTick;
             TargetLockedUntilTick =
@@ -393,6 +766,69 @@ namespace FrameSyncMoba.Unit
                 state.MinionPendingAssistTargetUid;
             PendingAssistExpireLogicTick =
                 state.MinionPendingAssistExpireLogicTick;
+            RestoreThreatTable(
+                state.MinionThreatTable);
+        }
+
+        public override void ClearForDeath()
+        {
+            UnsubscribeEvents();
+            threatTable.Clear();
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            CombatEvents.OnDamageTaken -=
+                HandleDamageTaken;
+        }
+
+        public override void ClearForRespawn()
+        {
+            threatTable.Clear();
+        }
+
+        private MinionThreatSnapshotEntry[]
+            CaptureThreatTable()
+        {
+            var result =
+                new MinionThreatSnapshotEntry[
+                    threatTable.Count];
+            for (int i = 0;
+                 i < threatTable.Count;
+                 i++)
+            {
+                result[i] =
+                    new MinionThreatSnapshotEntry
+                    {
+                        Uid = threatTable[i].Uid,
+                        Threat = threatTable[i].Threat,
+                    };
+            }
+            return result;
+        }
+
+        private void RestoreThreatTable(
+            MinionThreatSnapshotEntry[] entries)
+        {
+            threatTable.Clear();
+            if (entries == null)
+            {
+                return;
+            }
+            for (int i = 0;
+                 i < entries.Length;
+                 i++)
+            {
+                threatTable.Add(
+                    new ThreatEntry
+                    {
+                        Uid = entries[i].Uid,
+                        Threat = entries[i].Threat,
+                    });
+            }
+            threatTable.Sort(
+                (a, b) =>
+                    a.Uid.CompareTo(b.Uid));
         }
     }
 
@@ -607,6 +1043,15 @@ namespace FrameSyncMoba.Unit
                 !OwnerUnit.CapabilityState.CanAttack)
             {
                 LoseTarget();
+                return;
+            }
+
+            // NonHero v5 8.5: while a tower shot is in flight, keep the same
+            // locked target and do not re-select or issue a new order.
+            if (OwnerUnit.AttackHandler is
+                    TowerAttackHandler tower &&
+                tower.HasUnresolvedProjectile)
+            {
                 return;
             }
 

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92d2072a0ec06843bdb0facdf57ccd4, type: 3}
+  m_Name: CrowdControlCatalog
+  m_EditorClassIdentifier: 
+  Definitions:
+  - {fileID: 11400000, guid: 245fd2ed3b4c7a24ea1f9fed13cda2e8, type: 2}
+  - {fileID: 11400000, guid: 9d4f15f978a54ce44a81f25a91de3dbf, type: 2}
+  - {fileID: 11400000, guid: d10f1ed06216f904a8f5f8da5e938294, type: 2}
+  - {fileID: 11400000, guid: b9e71f2a58928764cad97ff093245357, type: 2}
+  - {fileID: 11400000, guid: 658b4a3796228a94985c0e3d1ad14158, type: 2}
+  - {fileID: 11400000, guid: 7591f2047516663478b0945ceb1ff1bf, type: 2}
+  - {fileID: 11400000, guid: b6da36dfc3b16884d869780d5107fd3a, type: 2}
+  - {fileID: 11400000, guid: ec6ccc90e78e9a749820986589627668, type: 2}
+  - {fileID: 11400000, guid: 2fe52b5b213f31547a4d69f7a7fe1ad6, type: 2}
+  - {fileID: 11400000, guid: efbfa473f76d7c444ade09247b86757e, type: 2}
+  - {fileID: 11400000, guid: 3c89f594cb9242b4bb529802ece85229, type: 2}
+  - {fileID: 11400000, guid: 4ffa6ca9850313a499734e9712e4d35b, type: 2}

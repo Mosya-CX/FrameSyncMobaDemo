@@ -157,6 +157,18 @@ namespace FrameSyncMoba.FrameSync
 
                 var units = _unitWorld.GetAllUnits();
 
+                // Control system advances before behavior planning so the
+                // Planner/Arbiter read this Tick's final StateView, and the
+                // coarse CapabilityState is refreshed from it (Unit Framework
+                // v27.3 8.4).
+                for (int i = 0; i < units.Count; i++)
+                {
+                    UnitType unit = units[i];
+                    if (unit == null) continue;
+                    unit.CrowdControl?.Advance();
+                    unit.RefreshCapabilityState();
+                }
+
                 // Phase 0: BehaviorPlanner + ActionArbiter (Unit Framework v27.3 §3)
                 foreach (var unit in units)
                 {
@@ -201,13 +213,22 @@ namespace FrameSyncMoba.FrameSync
                 foreach (var unit in units)
                 {
                     if (unit == null) continue;
+                    unit.TickTags();
                     unit.BuffHandler?.Advance();
                     unit.EquipmentHandler?.AdvanceEffects();
-                    unit.CrowdControl?.TickUpdate();
                     unit.HitReaction.TickUpdate();
                     unit.AbilityHandler?.TickUpdate();
                     unit.MovementHandler?.TickUpdate();
                     unit.AttackHandler?.TickUpdate();
+                }
+
+                // Fixed-phase check: interrupt runtimes whose action is now
+                // blocked by the latest control state (Unit Framework v27.3
+                // 3.4 EvaluateCurrentRuntimes).
+                for (int i = 0; i < units.Count; i++)
+                {
+                    if (units[i] == null) continue;
+                    units[i].Arbiter?.EvaluateCurrentRuntimes();
                 }
 
                 // Phase 3.5: Wall penetration detection and correction
@@ -292,7 +313,30 @@ namespace FrameSyncMoba.FrameSync
                 _unitWorld.ProcessPostCombatDeathDisposals(
                     CombatSystem?.DeathResults);
 
+                // Drop attack targets that died this Tick so Tick-end
+                // snapshots never hold stale unit references.
+                var attackCleanup =
+                    _unitWorld.GetAllUnits();
+                for (int ci = 0;
+                     ci < attackCleanup.Count;
+                     ci++)
+                {
+                    attackCleanup[ci]?.AttackHandler
+                        ?.ClearTargetIfMissing();
+                }
+
                 TickNonHeroSystems(tick);
+                // Unit v27.3 5.5.1: recompute every still-Dirty stat at tick
+                // end so the next tick's previous-value baseline (and the
+                // checksum) is identical regardless of spawn vs restore path.
+                var finalizeUnits = _unitWorld.GetAllUnits();
+                for (int i = 0;
+                     i < finalizeUnits.Count;
+                     i++)
+                {
+                    finalizeUnits[i]
+                        .StatHandler?.FinalizeTick();
+                }
                 GameplaySnapshot checksumState = CaptureAggregateSnapshot();
                 GoldIncomeBatchDigest goldDigest = GoldIncome?.GetBatchDigest(tick)
                     ?? new GoldIncomeBatchDigest(0);
@@ -323,6 +367,7 @@ namespace FrameSyncMoba.FrameSync
                     UnitSubKindId = unit.UnitSubKindId,
                     TeamId = unit.TeamId,
                     UnitPrototypeId = unit.UnitPrototypeId,
+                    RespawnPosition = unit.RespawnPosition,
                     LifeState = unit.LifeState,
                     CapabilityState = unit.CapabilityState,
                     HitReactionState = unit.HitReaction,
@@ -339,6 +384,7 @@ namespace FrameSyncMoba.FrameSync
                 unit.CrowdControl?.Capture(ref us.CCState);
                 unit.Locomotion?.Capture(ref us.LocomotionState);
                 unit.EquipmentHandler?.Capture(ref us.EquipmentState);
+                us.Tags = unit.CaptureTags();
                 _unitStateBuffer.Add(us);
             }
             snapshot.UnitWorldState.Units = _unitStateBuffer.ToArray();
@@ -376,7 +422,8 @@ namespace FrameSyncMoba.FrameSync
             int snapshotTick = -1,
             ExecutionMode executionMode = ExecutionMode.ServerAuthority)
         {
-            if (snapshot.SchemaVersion != 13)
+            if (snapshot.SchemaVersion !=
+                GameplaySnapshot.CurrentSchemaVersion)
             {
                 throw new DeterministicSimulationException(
                     $"Unsupported GameplaySnapshot schema {snapshot.SchemaVersion}; expected {GameplaySnapshot.CurrentSchemaVersion}.");
@@ -419,6 +466,7 @@ namespace FrameSyncMoba.FrameSync
 
             ReconcileUnitTopology(states);
             _unitWorld.RestoreRuntimeRevision(snapshot.UnitWorldState.RuntimeRevision);
+            _unitWorld.ResetSpawnSequenceForRollbackRestore();
 
             for (int i = 0; i < states.Length; i++)
             {
@@ -435,7 +483,8 @@ namespace FrameSyncMoba.FrameSync
                     us.UnitPrototypeId,
                     us.LifeState,
                     us.CapabilityState,
-                    us.HitReactionState);
+                    us.HitReactionState,
+                    us.RespawnPosition);
                 unit.RestoreBehaviorState(us.IntentState);
                 unit.StatHandler?.Restore(us.StatState);
                 unit.CombatModifiers?.Restore(us.CombatModifierState);
@@ -446,6 +495,7 @@ namespace FrameSyncMoba.FrameSync
                 unit.CrowdControl?.Restore(us.CCState);
                 unit.Locomotion?.Restore(us.LocomotionState);
                 unit.EquipmentHandler?.Restore(us.EquipmentState);
+                unit.RestoreTags(us.Tags);
                 unit.PhysicsEntity.RestoreLogicSpatialState(us.PhysicsTransform, us.PhysicsShape);
             }
             _unitWorld.RespawnTimer?.Restore(
@@ -605,6 +655,23 @@ namespace FrameSyncMoba.FrameSync
                 unit.CrowdControl?.Resolve(context);
                 unit.Locomotion?.Resolve(context);
                 unit.EquipmentHandler?.Resolve(context);
+                var tags = unit.Tags;
+                for (int t = 0;
+                     t < tags.Count;
+                     t++)
+                {
+                    UnitTag tag = tags[t];
+                    if (tag.Uid.SourceUnit.IsValid() &&
+                        !_unitWorld.TryGetUnit(
+                            tag.Uid.SourceUnit,
+                            out _))
+                    {
+                        throw new DeterministicSimulationException(
+                            $"Unit {unit.UnitUid} tag '{tag.Key}' " +
+                            $"references missing source " +
+                            $"{tag.Uid.SourceUnit}.");
+                    }
+                }
             }
             CombatSystem?.Resolve(context);
             MatchRule?.Resolve(_unitWorld);
@@ -630,6 +697,7 @@ namespace FrameSyncMoba.FrameSync
                 unit.CrowdControl?.Rebuild(context);
                 unit.Locomotion?.Rebuild(context);
                 unit.EquipmentHandler?.Rebuild(context);
+                unit.RefreshCapabilityState();
             }
             CombatSystem?.Rebuild(context);
             EquipmentShop?.Rebuild(context);
@@ -655,6 +723,14 @@ namespace FrameSyncMoba.FrameSync
             {
                 unit.AbilityHandler?.TryAllocateSkillPoint(
                     command.AbilitySlot);
+                return;
+            }
+            if (command.Kind ==
+                GameplayCommandKind.Debug)
+            {
+                DispatchDebugCommand(
+                    command,
+                    unit);
                 return;
             }
             if (command.Kind ==
@@ -689,7 +765,7 @@ namespace FrameSyncMoba.FrameSync
             {
                 if (command.Kind == GameplayCommandKind.Move)
                 {
-                    unit.Planner.SetIntent(new UnitIntent
+                    unit.Planner.ReplaceIntent(new UnitIntent
                     {
                         Kind = IntentKind.MoveToPosition,
                         TargetPosition = command.MoveTargetPoint,
@@ -699,7 +775,7 @@ namespace FrameSyncMoba.FrameSync
                 }
                 else if (command.Kind == GameplayCommandKind.Attack)
                 {
-                    unit.Planner.SetIntent(new UnitIntent
+                    unit.Planner.ReplaceIntent(new UnitIntent
                     {
                         Kind = IntentKind.AttackTarget,
                         TargetUnit = command.AttackTargetUid,
@@ -709,7 +785,7 @@ namespace FrameSyncMoba.FrameSync
                 }
                 else if (command.Kind == GameplayCommandKind.CastAbility)
                 {
-                    unit.Planner.SetIntent(new UnitIntent
+                    unit.Planner.ReplaceIntent(new UnitIntent
                     {
                         Kind = IntentKind.CastAbility,
                         AbilityId = command.AbilitySlot,
@@ -731,6 +807,7 @@ namespace FrameSyncMoba.FrameSync
             // Legacy path for units without Planner
             if (command.Kind == GameplayCommandKind.Move)
             {
+                CancelWindupForNewOrder(unit);
                 if (unit.Locomotion != null)
                 {
                     var request = RouteMoveRequest.ToPosition(command.MoveTargetPoint);
@@ -744,9 +821,146 @@ namespace FrameSyncMoba.FrameSync
                         new MoveIntent(command.MoveTargetPoint - currentPosition));
                 }
             }
-            else if (command.Kind == GameplayCommandKind.Attack) unit.AttackHandler?.ApplyAttackInput(command.AttackTargetUid);
-            else if (command.Kind == GameplayCommandKind.CastAbility) unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = command.AbilityVerb, Aim = command.Aim });
+            else if (command.Kind == GameplayCommandKind.Attack)
+            {
+                CancelWindupForNewOrder(
+                    unit,
+                    command.AttackTargetUid,
+                    isAttack: true);
+                unit.AttackHandler?.ApplyAttackInput(command.AttackTargetUid);
+            }
+            else if (command.Kind == GameplayCommandKind.CastAbility)
+            {
+                CancelWindupForNewOrder(unit);
+                unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = command.AbilityVerb, Aim = command.Aim });
+            }
             else if (command.Kind == GameplayCommandKind.CancelAbility) unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = AbilitySignalVerb.Cancel, Aim = AimSnapshot.None });
+        }
+
+        /// <summary>
+        /// A new Order/Command replaces the previous behavior (Unit Framework
+        /// v27.3 4.x): terminate an uncommitted attack windup so it does not
+        /// keep committing after the goal changed. Same-target attack
+        /// repeats keep the in-flight windup (no restart).
+        /// </summary>
+        private static void CancelWindupForNewOrder(
+            UnitType unit,
+            UnitUid newAttackTarget = default,
+            bool isAttack = false)
+        {
+            AttackHandler attack =
+                unit?.AttackHandler;
+            if (attack == null ||
+                !attack.IsAttackCycleActive ||
+                attack.ImpactCommitted)
+            {
+                return;
+            }
+            if (isAttack &&
+                attack.CurrentTargetUid ==
+                    newAttackTarget)
+            {
+                return;
+            }
+            attack.CancelBeforeCommit();
+        }
+
+        private void DispatchDebugCommand(
+            GameplayCommand command,
+            UnitType unit)
+        {
+            switch ((DebugCommandOp)command.DebugOp)
+            {
+                case DebugCommandOp.Heal:
+                    fp maxHp =
+                        unit.StatHandler
+                            ?.GetStat(
+                                StatId.MaxHealth) ??
+                        fp.one;
+                    unit.StatHandler
+                        ?.SetCurrentHealth(maxHp);
+                    break;
+                case DebugCommandOp.RestoreMana:
+                    fp maxResource =
+                        unit.StatHandler
+                            ?.GetStat(
+                                StatId
+                                    .MaxCastResource) ??
+                        fp.one;
+                    unit.StatHandler
+                        ?.SetCurrentCastResource(
+                            maxResource);
+                    break;
+                case DebugCommandOp.Revive:
+                    _unitWorld.ForceRevive(unit);
+                    break;
+                case DebugCommandOp.LevelUp:
+                    int required =
+                        unit.StatHandler
+                            ?.ExperienceRequiredForNextLevel
+                            ?? 0;
+                    if (required > 0)
+                    {
+                        unit.StatHandler
+                            ?.AddExperience(required);
+                    }
+                    break;
+                case DebugCommandOp.AddGold:
+                    GoldIncome?.RequestGoldIncome(
+                        command.PlayerSlot,
+                        command.DebugValue,
+                        GoldIncomeReason.UnitKill);
+                    break;
+                case DebugCommandOp.Kill:
+                    if (unit.UnitKind == UnitKind.Structure)
+                    {
+                        break;
+                    }
+                    fp killBase =
+                        unit.StatHandler
+                            ?.GetStat(
+                                StatId.MaxHealth) ??
+                        fp.zero;
+                    fp killDamage =
+                        killBase > fp.zero
+                            ? killBase * (fp)100
+                            : (fp)99999;
+                    var killSource =
+                        new SourceDescriptor
+                        {
+                            SourceType =
+                                CombatSourceType.Attack,
+                            SourceId =
+                                CombatBuiltinSourceId
+                                    .BasicAttack,
+                            OwnerUnitUid =
+                                unit.UnitUid,
+                            EmitterUnitUid =
+                                unit.UnitUid,
+                        };
+                    CombatSystem?.SubmitDamage(
+                        new DamageRequest
+                        {
+                            Header =
+                                new CombatRequestHeader
+                                {
+                                    SourceUnitUid =
+                                        unit.UnitUid,
+                                    TargetUnitUid =
+                                        unit.UnitUid,
+                                    SourceDescriptor =
+                                        killSource,
+                                    RecipeId =
+                                        CombatBuiltinRecipeId
+                                            .BasicAttackDamage,
+                                },
+                            DamageType =
+                                DamageType.True,
+                            BaseDamage =
+                                killDamage,
+                        });
+                    break;
+            }
         }
 
         private void DispatchEquipmentShopCommand(
@@ -822,6 +1036,7 @@ namespace FrameSyncMoba.FrameSync
 
         private void ExecuteActionRequest(UnitType unit, ActionRequest request, bool interrupt)
         {
+            unit.CrowdControl?.OnOwnerActionStarted();
             if (interrupt && unit.ActionRuntimes != null)
             {
                 // Cancel lower-priority actions before starting this one
@@ -846,6 +1061,22 @@ namespace FrameSyncMoba.FrameSync
                             moveReq.Purpose;
                         routeReq.AllowRVO = true;
                         unit.Locomotion.AcceptRouteRequest(routeReq);
+
+                        // Attack-move cancel: a new movement request during
+                        // the attack recovery window ends the recovery
+                        // immediately so the next attack can start sooner
+                        // (MoveCancelRecovery, attack design v6.2).
+                        if (unit.AttackHandler != null &&
+                            unit.AttackHandler
+                                .IsAttackCycleActive &&
+                            unit.AttackHandler
+                                .ImpactCommitted)
+                        {
+                            unit.AttackHandler
+                                .ResetAttackTimer(
+                                    AttackTimerResetReason
+                                        .MoveCancelRecovery);
+                        }
                     }
                     else if (unit.MovementHandler != null)
                     {

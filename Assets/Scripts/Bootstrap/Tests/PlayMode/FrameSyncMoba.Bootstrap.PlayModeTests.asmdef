@@ -3,14 +3,20 @@
     "rootNamespace": "FrameSyncMoba.Bootstrap.Tests",
     "references": [
         "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.LuaBridge",
         "FrameSyncMoba.RuntimeConfig",
         "FrameSyncMoba.PlayerInput",
+        "FrameSyncMoba.Testing",
         "FrameSyncMoba.FrameSync",
         "FrameSyncMoba.Unit",
         "FrameSyncMoba.Physics",
         "FrameSyncMoba.Deterministic",
+        "Unity.Netcode.Runtime",
+        "UnityEditor",
         "Unity.Mathematics.FixedPoint",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.InputSystem.TestFramework",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

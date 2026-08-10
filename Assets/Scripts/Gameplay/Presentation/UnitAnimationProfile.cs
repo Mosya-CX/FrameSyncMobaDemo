@@ -59,6 +59,9 @@ namespace FrameSyncMoba.Presentation
         [Tooltip("Hash for the 'AbilityStageProgress' float parameter.")]
         public int AbilityStageProgressHash;
 
+        [Tooltip("Hash for the 'IsCharging' boolean parameter (movable-charge overlay).")]
+        public int IsChargingHash;
+
         [Tooltip("Hash for the 'LifeState' integer parameter.")]
         public int LifeStateHash;
 
@@ -103,6 +106,7 @@ namespace FrameSyncMoba.Presentation
             profile.AttackStartHash = Animator.StringToHash("AttackStart");
             profile.IsCastingHash = Animator.StringToHash("IsCasting");
             profile.AbilityStageProgressHash = Animator.StringToHash("AbilityStageProgress");
+            profile.IsChargingHash = Animator.StringToHash("IsCharging");
             profile.LifeStateHash = Animator.StringToHash("LifeState");
             profile.IsControlledHash = Animator.StringToHash("IsControlled");
             profile.IdleStateHash = Animator.StringToHash("Base Layer.Idle");

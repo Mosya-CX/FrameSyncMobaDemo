@@ -223,7 +223,140 @@ Design deviation:
 
 ---
 
-# 4. 项目边界
+# 4. UnityMCP 优先原则
+
+## 4.1 默认操作通道
+
+凡是 Unity 相关操作，只要 UnityMCP 支持，就必须优先使用 UnityMCP。
+
+包括但不限于：
+
+```text
+检查 Unity 版本和 Packages
+检查 Project Settings
+检查 asmdef
+触发脚本编译
+读取 Console
+运行 EditMode 测试
+运行 PlayMode 测试
+检查当前 Scene
+检查 GameObject 和 Component
+检查 Prefab
+检查 ScriptableObject
+检查 Input Actions
+检查 EventSystem 和 InputSystemUIInputModule
+创建或修改 Unity 资产
+验证序列化引用
+刷新 AssetDatabase
+```
+
+不得仅因为直接编辑文本更快，就绕过 UnityMCP 操作 Unity 资产。
+
+## 4.2 禁止优先手改 Unity 序列化文件
+
+以下文件默认不得优先直接编辑：
+
+```text
+.unity
+.prefab
+.asset
+.controller
+.anim
+.inputactions
+ProjectSettings 下由 Unity 管理的序列化文件
+```
+
+正确顺序：
+
+```text
+1. 先尝试 UnityMCP。
+2. UnityMCP 不支持或明确失败时，记录失败原因。
+3. 再选择最安全的替代方式。
+4. 替代操作后必须通过 UnityMCP 重新加载、检查引用并验证结果。
+```
+
+不得手工修改 YAML 后跳过 Unity 验证。
+
+## 4.3 C#、Markdown 和普通文本
+
+以下内容可以直接通过仓库文件工具编辑：
+
+```text
+C# 源文件
+Markdown
+JSON 配置
+普通文本
+非 Unity 管理的工具脚本
+```
+
+但修改 C# 后仍必须优先通过 UnityMCP：
+
+```text
+触发 Unity 编译
+读取 Console
+运行相关测试
+```
+
+不能只依赖外部 C# 编译器或文本检查声称 Unity 项目已经验证。
+
+## 4.4 UnityMCP 不可用时
+
+UnityMCP 不可用、能力缺失或连续失败时，可以使用替代工具，但必须记录：
+
+```text
+原计划使用的 UnityMCP 操作
+不可用或失败的具体原因
+采用的替代方式
+替代方式的风险
+后续如何通过 Unity 验证
+```
+
+如果缺少 UnityMCP 导致无法可靠验证：
+
+```text
+场景
+Prefab
+ScriptableObject
+Input Actions
+序列化引用
+PlayMode 行为
+```
+
+不得把相关工作标记为完全验证。
+
+## 4.5 候选和 ExecPlan 要求
+
+涉及 Unity 操作的候选摘要和正式 ExecPlan 必须写明：
+
+```text
+UnityMCP operations:
+    <需要执行的 MCP 操作>
+```
+
+如果计划不需要 UnityMCP，也要写：
+
+```text
+UnityMCP operations:
+    Compilation and relevant test execution only
+```
+
+不得只写模糊的“验证 Unity”。
+
+## 4.6 收口报告
+
+每轮最终汇报必须注明：
+
+```text
+UnityMCP 使用情况
+通过 UnityMCP 完成的操作
+未能通过 UnityMCP 完成的操作及原因
+采用的替代方式
+是否仍存在未验证的 Unity 资产或生命周期行为
+```
+
+---
+
+# 5. 项目边界
 
 当前目标是实现：
 
@@ -250,7 +383,7 @@ Design deviation:
 
 ---
 
-# 5. 候选规模规则
+# 6. 候选规模规则
 
 每个候选必须给出预计代码修改量。
 
@@ -339,7 +472,7 @@ Package lock 文件
 
 ---
 
-# 6. 首次接管模式
+# 7. 首次接管模式
 
 用户发送：
 
@@ -394,7 +527,7 @@ Go / Conditional Go / No-Go
 
 ---
 
-# 7. 用户命令
+# 8. 用户命令
 
 正常情况下，用户只需发送：
 
@@ -428,7 +561,7 @@ Go / Conditional Go / No-Go
 
 ---
 
-# 8. 执行候选模式
+# 9. 执行候选模式
 
 收到：
 
@@ -438,7 +571,7 @@ Go / Conditional Go / No-Go
 
 后自动完成整轮。
 
-## 8.1 即时生成正式 ExecPlan
+## 9.1 即时生成正式 ExecPlan
 
 从 `NEXT_CANDIDATES.md` 读取被选候选，只为它生成一份正式 ExecPlan。
 
@@ -467,7 +600,7 @@ AGENTS.md
 历史审计内容
 ```
 
-## 8.2 最小执行前检查
+## 9.2 最小执行前检查
 
 只检查：
 
@@ -482,7 +615,7 @@ AGENTS.md
 
 已有近期可靠基线，且相关代码没有变化时，直接复用该基线。
 
-## 8.3 实施
+## 9.3 实施
 
 严格执行正式 ExecPlan。
 
@@ -502,7 +635,7 @@ AGENTS.md
 
 任何会改变正式设计契约或跨模块架构的方案都不属于“普通实现细节”，必须走设计偏离审批。
 
-## 8.4 测试随实现同步完成
+## 9.4 测试随实现同步完成
 
 不再执行“编码结束后重新开始一轮完整验收”。
 
@@ -524,13 +657,15 @@ Unity 生命周期、GameObject、场景、资产、Input、UI、Presentation
 代码修改完成后只做一次最终：
 
 ```text
-Unity 编译
-相关测试集
-Console 检查
+通过 UnityMCP 触发 Unity 编译
+通过 UnityMCP 检查 Console
+通过 UnityMCP 运行相关测试集
 最终 diff 检查
 ```
 
-## 8.5 定向收口检查
+只有 UnityMCP 明确不可用时才允许使用替代方式，并必须记录原因。
+
+## 9.5 定向收口检查
 
 只检查本轮触及内容：
 
@@ -562,7 +697,7 @@ Completed and verified
 
 ---
 
-# 9. 文档更新最小化
+# 10. 文档更新最小化
 
 每轮必须更新：
 
@@ -601,7 +736,7 @@ MODULE_STATUS.md 中受影响的行
 
 ---
 
-# 10. 下一轮候选只写摘要
+# 11. 下一轮候选只写摘要
 
 执行收口后，覆盖更新：
 
@@ -629,6 +764,7 @@ Snapshot / 序列化 / Checksum 影响
 主要风险
 下游解锁价值
 Design conformance：Strict，或 Approval required
+UnityMCP operations
 ```
 
 每个候选摘要建议控制在：
@@ -664,7 +800,7 @@ Design conformance：Strict，或 Approval required
 
 ---
 
-# 11. 允许停止的阻断
+# 12. 允许停止的阻断
 
 只有以下情况可以停止执行并请求用户决策：
 
@@ -681,7 +817,7 @@ Design conformance：Strict，或 Approval required
 
 ---
 
-# 12. 每轮最终输出
+# 13. 每轮最终输出
 
 最终输出保持简短：
 
@@ -696,6 +832,7 @@ Design conformance：Strict，或 Approval required
 EditMode / PlayMode 结果
 设计一致性结论
 是否存在设计偏离，以及批准记录
+UnityMCP 使用和验证结果
 范围外问题
 ```
 
@@ -712,7 +849,7 @@ NEXT_CANDIDATES.md 路径
 
 ---
 
-# 13. 当前动作
+# 14. 当前动作
 
 首次使用时进入接管模式。
 

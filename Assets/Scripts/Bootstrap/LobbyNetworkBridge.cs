@@ -34,6 +34,10 @@ namespace FrameSyncMoba.Bootstrap
             "FrameSyncMoba.Lobby.IdentityAccepted.v1";
         private const string LockMessage =
             "FrameSyncMoba.Lobby.Lock.v1";
+        private const string LobbyStateMessage =
+            "FrameSyncMoba.Lobby.State.v1";
+        private const string LoadSceneMessage =
+            "FrameSyncMoba.Lobby.LoadScene.v1";
         private const string LoadedMessage =
             "FrameSyncMoba.Lobby.Loaded.v1";
         private const string ReadyMessage =
@@ -47,7 +51,6 @@ namespace FrameSyncMoba.Bootstrap
         private readonly Dictionary<ulong, int>
             clientSlots =
                 new Dictionary<ulong, int>();
-        private GameBootstrap bootstrap;
         private LobbySessionFlowNetwork lobby;
         private LocalLobbySlotDefinition[]
             serverSlots =
@@ -68,15 +71,35 @@ namespace FrameSyncMoba.Bootstrap
 
         public bool IsBound =>
             isServerOwner || isClientOwner;
+        /// <summary>
+        /// True when the persistent NetworkManager is reachable. NGO's
+        /// CustomMessagingManager only exists after StartServer/StartClient,
+        /// so this check deliberately does not require it; the driver must
+        /// start the network before binding the bridge.
+        /// </summary>
+        public bool IsNetworkReady
+        {
+            get
+            {
+                if (networkManager == null)
+                    networkManager =
+                        FindObjectOfType<NetworkManager>(true);
+                return networkManager != null;
+            }
+        }
         public bool HasAppliedBootstrap =>
-            bootstrap != null &&
-            bootstrap.IsMatchReady;
+            GameSessionContext.Bootstrap != null &&
+            GameSessionContext.Bootstrap.IsMatchReady;
         public event Action<GameBootstrapPayload>
             BootstrapApplied;
         public event Action IdentityAccepted;
+        public event Action<GameStartConfig> StartScheduled;
+        public event Action AllHeroesLocked;
+        public event Action HeroLocked;
+        public event Action<int> ConfirmedCountChanged;
+        public event Action LoadSceneRequested;
 
         public void BindServer(
-            GameBootstrap gameBootstrap,
             LocalLobbySlotDefinition[] slots,
             string localMatchId,
             int localStartLeadTicks,
@@ -85,12 +108,10 @@ namespace FrameSyncMoba.Bootstrap
             uint randomSeed)
         {
             RequireUnbound();
-            bootstrap = gameBootstrap ??
-                throw new ArgumentNullException(
-                    nameof(gameBootstrap));
             if (networkManager == null)
                 throw new InvalidOperationException(
                     "LobbyNetworkBridge requires NetworkManager.");
+            RequireVersions();
             serverSlots =
                 ValidateAndCopySlots(slots);
             matchId =
@@ -120,18 +141,15 @@ namespace FrameSyncMoba.Bootstrap
         }
 
         public void BindClient(
-            GameBootstrap gameBootstrap,
             int playerSlot,
             string accountId,
             ClientUiActionRouter actionRouter)
         {
             RequireUnbound();
-            bootstrap = gameBootstrap ??
-                throw new ArgumentNullException(
-                    nameof(gameBootstrap));
             if (networkManager == null)
                 throw new InvalidOperationException(
                     "LobbyNetworkBridge requires NetworkManager.");
+            RequireVersions();
             if (playerSlot < 0 ||
                 playerSlot >= 10)
                 throw new ArgumentOutOfRangeException(
@@ -163,7 +181,7 @@ namespace FrameSyncMoba.Bootstrap
                 LobbyWireCodec.WriteIdentity(
                     localPlayerSlot,
                     localAccountId,
-                    bootstrap.LocalVersions));
+                    GameSessionContext.Versions.Value));
         }
 
         public void SubmitAutomaticReady(
@@ -193,11 +211,20 @@ namespace FrameSyncMoba.Bootstrap
                 LockMessage,
                 LobbyWireCodec.WritePositiveInt(
                     heroConfigId));
+            HeroLocked?.Invoke();
+        }
+
+        public void SubmitLoadedAndReady()
+        {
+            SendLoaded();
+            SendReady(true);
         }
 
         public void SendLoaded()
         {
             RequireConnectedClient();
+            Debug.Log(
+                $"[Lobby] Client slot {localPlayerSlot} sending Loaded.");
             SendToServer(
                 LoadedMessage,
                 LobbyWireCodec.WriteMarker());
@@ -215,6 +242,8 @@ namespace FrameSyncMoba.Bootstrap
             }
             if (localReadySent)
                 return;
+            Debug.Log(
+                $"[Lobby] Client slot {localPlayerSlot} sending Ready.");
             SendToServer(
                 ReadyMessage,
                 LobbyWireCodec.WriteMarker());
@@ -225,6 +254,9 @@ namespace FrameSyncMoba.Bootstrap
         {
             if (registered)
                 return;
+            if (!IsNetworkReady)
+                throw new InvalidOperationException(
+                    "LobbyNetworkBridge requires a live NetworkManager.");
             CustomMessagingManager messages =
                 networkManager
                     .CustomMessagingManager;
@@ -240,6 +272,12 @@ namespace FrameSyncMoba.Bootstrap
             messages.RegisterNamedMessageHandler(
                 LockMessage,
                 ReceiveLock);
+            messages.RegisterNamedMessageHandler(
+                LobbyStateMessage,
+                ReceiveLobbyState);
+            messages.RegisterNamedMessageHandler(
+                LoadSceneMessage,
+                ReceiveLoadScene);
             messages.RegisterNamedMessageHandler(
                 LoadedMessage,
                 ReceiveLoaded);
@@ -260,18 +298,12 @@ namespace FrameSyncMoba.Bootstrap
             LobbyIdentity identity =
                 LobbyWireCodec.ReadIdentity(
                     ReadPayload(reader));
-            bootstrap.LocalVersions
+            GameSessionContext.Versions.Value
                 .RequireExactMatch(
                     identity.Versions);
             LocalLobbySlotDefinition definition =
-                GetServerSlot(
-                    identity.PlayerSlot);
-            if (!string.Equals(
-                    definition.AccountId,
-                    identity.AccountId,
-                    StringComparison.Ordinal))
-                throw new DeterministicSimulationException(
-                    "Lobby account does not match its assigned local slot.");
+                FindSlotByAccountId(
+                    identity.AccountId);
             if (clientSlots.ContainsKey(
                     senderClientId))
                 throw new DeterministicSimulationException(
@@ -292,10 +324,33 @@ namespace FrameSyncMoba.Bootstrap
             clientSlots.Add(
                 senderClientId,
                 definition.PlayerSlot);
-            SendToClient(
-                IdentityAcceptedMessage,
-                senderClientId,
-                LobbyWireCodec.WriteMarker());
+            // Hero select opens only after every assigned player has joined
+            // matchmaking (identity verified), so the party enters together.
+            if (AreAllSlotsVerified())
+            {
+                Broadcast(
+                    IdentityAcceptedMessage,
+                    LobbyWireCodec.WriteMarker());
+                Debug.Log(
+                    "[Lobby] All players verified; broadcasting identity " +
+                    "acceptance.");
+            }
+        }
+
+        private LocalLobbySlotDefinition
+            FindSlotByAccountId(
+                string accountId)
+        {
+            for (int i = 0;
+                 i < serverSlots.Length;
+                 i++)
+                if (string.Equals(
+                        serverSlots[i].AccountId,
+                        accountId,
+                        StringComparison.Ordinal))
+                    return serverSlots[i];
+            throw new DeterministicSimulationException(
+                "Lobby account is not part of the allocated match.");
         }
 
         private void ReceiveIdentityAccepted(
@@ -322,13 +377,20 @@ namespace FrameSyncMoba.Bootstrap
             int hero =
                 LobbyWireCodec.ReadPositiveInt(
                     ReadPayload(reader));
-            LocalLobbySlotDefinition definition =
-                GetServerSlot(slot);
-            if (hero !=
-                definition.HeroConfigId)
-                throw new DeterministicSimulationException(
-                    "The local fixture selected a HeroConfigId not present in its frozen composition.");
+            // Same-team duplicate rule: a hero already selected by another
+            // slot on the same team cannot be picked again.
+            if (lobby.IsHeroBlockedInTeam(
+                    slot,
+                    hero))
+            {
+                Debug.LogWarning(
+                    $"[Lobby] Rejected duplicate hero {hero} for slot " +
+                    $"{slot} (same team already selected it).");
+                BroadcastLobbyState();
+                return;
+            }
             lobby.SelectHero(slot, hero);
+            BroadcastLobbyState();
         }
 
         private void ReceiveLock(
@@ -341,12 +403,57 @@ namespace FrameSyncMoba.Bootstrap
             int hero =
                 LobbyWireCodec.ReadPositiveInt(
                     ReadPayload(reader));
-            if (hero !=
-                GetServerSlot(slot)
-                    .HeroConfigId)
-                throw new DeterministicSimulationException(
-                    "Locked HeroConfigId disagrees with the selected fixture.");
             lobby.LockHero(slot);
+            BroadcastLobbyState();
+            CheckAllHeroesLocked();
+        }
+
+        private void ReceiveLobbyState(
+            ulong senderClientId,
+            FastBufferReader reader)
+        {
+            if (!isClientOwner ||
+                senderClientId !=
+                NetworkManager.ServerClientId)
+                throw new DeterministicSimulationException(
+                    "Lobby state must come from the server.");
+            LobbySelectionSnapshot[] snapshots =
+                LobbyWireCodec.ReadLobbyState(
+                    ReadPayload(reader));
+            GameFlowLuaBridge.ApplyLobbySelection(
+                snapshots,
+                localPlayerSlot);
+            int confirmed = 0;
+            for (int i = 0;
+                 i < snapshots.Length;
+                 i++)
+            {
+                if (snapshots[i].IsLocked)
+                {
+                    confirmed++;
+                }
+            }
+            GameFlowLuaBridge.ConfirmedHeroCount =
+                confirmed;
+            ConfirmedCountChanged?.Invoke(
+                confirmed);
+            GameFlowLuaBridge.UiManager?
+                .RefreshLuaHost(
+                    UIPageId.Select);
+        }
+
+        private void ReceiveLoadScene(
+            ulong senderClientId,
+            FastBufferReader reader)
+        {
+            if (!isClientOwner ||
+                senderClientId !=
+                NetworkManager.ServerClientId)
+                throw new DeterministicSimulationException(
+                    "Load scene request must come from the server.");
+            LobbyWireCodec.ReadMarker(
+                ReadPayload(reader));
+            LoadSceneRequested?.Invoke();
         }
 
         private void ReceiveLoaded(
@@ -356,6 +463,8 @@ namespace FrameSyncMoba.Bootstrap
             RequireServerOwner();
             LobbyWireCodec.ReadMarker(
                 ReadPayload(reader));
+            Debug.Log(
+                $"[Lobby] Server received Loaded from client {senderClientId}.");
             lobby.MarkGameplaySceneLoaded(
                 GetClientSlot(
                     senderClientId));
@@ -368,43 +477,72 @@ namespace FrameSyncMoba.Bootstrap
             RequireServerOwner();
             LobbyWireCodec.ReadMarker(
                 ReadPayload(reader));
+            Debug.Log(
+                $"[Lobby] Server received Ready from client {senderClientId}; " +
+                $"canSchedule={lobby.CanScheduleStart()}");
             lobby.MarkReady(
                 GetClientSlot(
                     senderClientId));
+            BroadcastLobbyState();
             TryScheduleStart();
         }
 
         private void TryScheduleStart()
         {
+            Debug.Log(
+                $"[Lobby] TryScheduleStart canSchedule=" +
+                $"{lobby.CanScheduleStart()} " +
+                $"scheduled={lobby.IsStartScheduled}");
             if (!lobby.CanScheduleStart())
                 return;
+            FrameSyncVersionHandshake versions =
+                GameSessionContext.Versions.HasValue
+                    ? GameSessionContext.Versions.Value
+                    : GameSessionContext.Bootstrap != null
+                        ? GameSessionContext.Bootstrap.LocalVersions
+                        : default;
+            if (versions.GameplayDataVersion == 0)
+                throw new DeterministicSimulationException(
+                    "Lobby start requires a deterministic version handshake.");
             GameStartConfig config =
                 lobby.ScheduleStart(
                     matchId,
                     gameModeId,
                     mapConfigId,
                     teamCount,
-                    bootstrap.Runtime
-                        .CurrentTick,
+                    GameSessionContext.Bootstrap != null
+                        ? GameSessionContext.Bootstrap.Runtime.CurrentTick
+                        : 0,
                     startLeadTicks,
                     initialRandomSeed,
-                    bootstrap.LocalVersions
-                        .GameplayDataVersion);
-            GameBootstrapPayload payload =
-                bootstrap
-                    .BuildAuthoritativeBootstrapPayload(
-                        config);
+                    versions.GameplayDataVersion);
+            GameSessionContext.PendingServerStart =
+                config;
+            Debug.Log(
+                $"[Lobby] Start scheduled for match '{config.MatchId}' " +
+                $"at StartTick {config.StartTick}; " +
+                "GameScene will build and broadcast the authoritative payload.");
+            StartScheduled?.Invoke(config);
+        }
+
+        /// <summary>
+        /// Server-side payload broadcast. Called by GameScene's GameBootstrap
+        /// after it builds the authoritative payload from
+        /// <see cref="GameSessionContext.PendingServerStart"/>.
+        /// </summary>
+        public void BroadcastBootstrap(
+            in GameBootstrapPayload payload)
+        {
+            RequireServerOwner();
             byte[] bytes =
                 BootstrapPayloadWireCodec.Write(
                     payload);
-            bootstrap.ApplyGameBootstrapPayload(
-                payload);
             Broadcast(
                 BootstrapMessage,
                 bytes);
             Debug.Log(
-                $"[LocalNGO] Server applied and broadcast bootstrap " +
-                $"for match '{payload.GameStartConfig.MatchId}' at " +
+                $"[Lobby] Server broadcast bootstrap for match " +
+                $"'{payload.GameStartConfig.MatchId}' at " +
                 $"StartTick {payload.StartTick}.");
         }
 
@@ -420,13 +558,90 @@ namespace FrameSyncMoba.Bootstrap
             GameBootstrapPayload payload =
                 BootstrapPayloadWireCodec.Read(
                     ReadPayload(reader));
-            bootstrap.ApplyGameBootstrapPayload(
-                payload);
+            if (GameSessionContext.Bootstrap == null ||
+                GameSessionContext.Bootstrap.IsMatchReady)
+            {
+                GameSessionContext.ReceivedClientPayload =
+                    payload;
+            }
+            else
+            {
+                GameSessionContext.Bootstrap
+                    .ApplyGameBootstrapPayload(
+                        payload);
+                BootstrapApplied?.Invoke(payload);
+            }
             Debug.Log(
                 $"[LocalNGO] Client slot {localPlayerSlot} applied " +
                 $"bootstrap for match '{payload.GameStartConfig.MatchId}' " +
                 $"at StartTick {payload.StartTick}.");
-            BootstrapApplied?.Invoke(payload);
+        }
+
+        private void CheckAllHeroesLocked()
+        {
+            if (lobby == null)
+                return;
+            for (int i = 0;
+                 i < serverSlots.Length;
+                 i++)
+                if ((lobby.GetState(i) &
+                        LobbyPlayerSlotState.HeroLocked) ==
+                    0)
+                    return;
+            Broadcast(
+                LoadSceneMessage,
+                LobbyWireCodec.WriteMarker());
+            Debug.Log(
+                "[Lobby] All heroes locked; broadcasting load scene " +
+                "to all clients.");
+            AllHeroesLocked?.Invoke();
+        }
+
+        private bool AreAllSlotsVerified()
+        {
+            if (lobby == null)
+                return false;
+            for (int i = 0;
+                 i < serverSlots.Length;
+                 i++)
+                if ((lobby.GetState(i) &
+                        LobbyPlayerSlotState
+                            .IdentityVerified) ==
+                    0)
+                    return false;
+            return true;
+        }
+
+        private void BroadcastLobbyState()
+        {
+            if (lobby == null)
+            {
+                return;
+            }
+            var snapshots =
+                new LobbySelectionSnapshot[
+                    lobby.SlotCount];
+            for (int i = 0;
+                 i < snapshots.Length;
+                 i++)
+            {
+                snapshots[i] =
+                    lobby.GetSelectionSnapshot(
+                        i);
+            }
+            Broadcast(
+                LobbyStateMessage,
+                LobbyWireCodec.WriteLobbyState(
+                    snapshots));
+        }
+
+        private static void RequireVersions()
+        {
+            if (!GameSessionContext.Versions.HasValue)
+                throw new InvalidOperationException(
+                    "LobbyNetworkBridge requires GameSessionContext.Versions " +
+                    "before binding. The Lobby driver must compute the " +
+                    "deterministic version handshake first.");
         }
 
         private void SendToServer(
@@ -546,6 +761,14 @@ namespace FrameSyncMoba.Bootstrap
 
         private void ReturnToMainMenu()
         {
+            Shutdown();
+        }
+
+        /// <summary>
+        /// Tears down the NGO session when returning to the Lobby/Main menu.
+        /// </summary>
+        public void Shutdown()
+        {
             if (networkManager != null &&
                 networkManager.IsListening)
                 networkManager.Shutdown();
@@ -586,6 +809,11 @@ namespace FrameSyncMoba.Bootstrap
             CustomMessagingManager messages =
                 networkManager
                     .CustomMessagingManager;
+            if (messages == null)
+            {
+                registered = false;
+                return;
+            }
             messages.UnregisterNamedMessageHandler(
                 IdentityMessage);
             messages.UnregisterNamedMessageHandler(
@@ -769,6 +997,105 @@ namespace FrameSyncMoba.Bootstrap
 
         public static byte[] WriteMarker() =>
             new[] { Marker };
+
+        public static byte[] WriteLobbyState(
+            LobbySelectionSnapshot[] snapshots)
+        {
+            if (snapshots == null ||
+                snapshots.Length == 0 ||
+                snapshots.Length > 10)
+            {
+                throw new ArgumentException(
+                    "Lobby state requires 1-10 slots.",
+                    nameof(snapshots));
+            }
+            return Write(
+                writer =>
+                {
+                    writer.Write(
+                        snapshots.Length);
+                    for (int i = 0;
+                         i < snapshots.Length;
+                         i++)
+                    {
+                        LobbySelectionSnapshot
+                            snapshot =
+                                snapshots[i];
+                        writer.Write(
+                            snapshot.PlayerSlot);
+                        BootstrapPayloadWireCodec
+                            .WriteString(
+                                writer,
+                                snapshot.AccountId);
+                        writer.Write(
+                            snapshot.TeamId);
+                        writer.Write(
+                            snapshot.HeroConfigId);
+                        writer.Write(
+                            snapshot.IsLocked);
+                        writer.Write(
+                            snapshot.IsReady);
+                    }
+                });
+        }
+
+        public static LobbySelectionSnapshot[]
+            ReadLobbyState(byte[] bytes)
+        {
+            return Read(
+                bytes,
+                reader =>
+                {
+                    int count =
+                        reader.ReadInt32();
+                    if (count < 1 ||
+                        count > 10)
+                    {
+                        throw new
+                            DeterministicSimulationException(
+                                "Lobby state slot count is invalid.");
+                    }
+                    var snapshots =
+                        new LobbySelectionSnapshot[
+                            count];
+                    for (int i = 0;
+                         i < count;
+                         i++)
+                    {
+                        int slot =
+                            reader.ReadInt32();
+                        string accountId =
+                            BootstrapPayloadWireCodec
+                                .ReadString(reader);
+                        int teamId =
+                            reader.ReadInt32();
+                        int heroId =
+                            reader.ReadInt32();
+                        bool locked =
+                            reader.ReadBoolean();
+                        bool ready =
+                            reader.ReadBoolean();
+                        if (slot != i ||
+                            string.IsNullOrWhiteSpace(
+                                accountId) ||
+                            teamId <= 0)
+                        {
+                            throw new
+                                DeterministicSimulationException(
+                                    "Lobby state slot is invalid.");
+                        }
+                        snapshots[i] =
+                            new LobbySelectionSnapshot(
+                                slot,
+                                accountId,
+                                teamId,
+                                heroId,
+                                locked,
+                                ready);
+                    }
+                    return snapshots;
+                });
+        }
 
         public static void ReadMarker(
             byte[] bytes)

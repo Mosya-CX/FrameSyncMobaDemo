@@ -730,7 +730,7 @@ GameObject:
   - component: {fileID: 2025752700381977979}
   - component: {fileID: 6462366606127533280}
   - component: {fileID: 6151856513256808106}
-  - component: {fileID: 817708248292715478}
+  - component: {fileID: -3140935117593196735}
   m_Layer: 5
   m_Name: MainPanel
   m_TagString: Untagged
@@ -787,21 +787,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c05ecf9860c11904d965ae18fb2ced36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvasGroup: {fileID: 0}
---- !u!114 &817708248292715478
-MonoBehaviour:
+  canvasGroup: {fileID: -3140935117593196735}
+  luaModule: UI.Main
+  refs:
+  - Name: NameText
+    Value: {fileID: 7947366116418080825}
+  - Name: StartBtn
+    Value: {fileID: 3347927729157267392}
+  - Name: QuitBtn
+    Value: {fileID: 9140319557672062044}
+--- !u!225 &-3140935117593196735
+CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8857868045401810774}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc582ea16118882439e5d9bd0703af77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  heroSelectPage: {fileID: 0}
-  readyStatusText: {fileID: 0}
-  readyStatusTextMeshPro: {fileID: 7947366116418080825}
-  readyButton: {fileID: 3347927729157267392}
-  actionRouter: {fileID: 0}
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

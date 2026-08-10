@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceebe5169722b774f97bc365f3070240, type: 3}
+  m_Name: FullMatchTestBuffCatalog
+  m_EditorClassIdentifier: 
+  Definitions:
+  - {fileID: 11400000, guid: f23a48fe70f8d504c9fb8a98cb94f1b7, type: 2}
+  - {fileID: 11400000, guid: 5a4b18ea3df75544a9f1f39983da662e, type: 2}
+  - {fileID: 11400000, guid: 92d427a40267f5a4fb08cbc5e8f2e14b, type: 2}
+  - {fileID: 11400000, guid: 3a972ade4ffc00f4887925b177e2fd2e, type: 2}
+  - {fileID: 11400000, guid: 0bfb054b0a2b50347b47b33a3d4523d4, type: 2}
+  - {fileID: 11400000, guid: ebe0fff2c87b3ff4d8162d69df16bcf6, type: 2}
+  - {fileID: 11400000, guid: bc4b667791827e546be7fb76eb88210c, type: 2}
+  - {fileID: 11400000, guid: 22e8c11e1690f0442b121fa5d011d20c, type: 2}
+  - {fileID: 11400000, guid: 3516da3ec2a493a499f55cbd6466846e, type: 2}
+  - {fileID: 11400000, guid: 40b3e80b30072784e85d556ded55b5f7, type: 2}

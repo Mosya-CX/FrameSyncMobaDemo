@@ -2,21 +2,30 @@ using UnityEngine;
 
 namespace FrameSyncMoba.Bootstrap
 {
+    /// <summary>
+    /// Stable page identity (UI design v9.1 2.2). The enum name stays
+    /// UIPageId because the MonoBehaviour UIPage already owns the name.
+    /// </summary>
     public enum UIPageId : byte
     {
         None = 0,
-        Lobby = 1,
-        HeroSelect = 2,
-        GameplayHud = 3,
-        Shop = 4,
-        Result = 5,
+        Main = 1,
+        Match = 2,
+        Select = 3,
+        Load = 4,
+        HUD = 5,
+        Shop = 6,
+        Result = 7,
     }
 
+    /// <summary>
+    /// Page layers (UI design v9.1 2.3): Main layer holds one main page;
+    /// BattleOverlay holds Shop above HUD.
+    /// </summary>
     public enum UIPageLayer : byte
     {
-        Page = 0,
-        Popup = 1,
-        Overlay = 2,
+        Main = 0,
+        BattleOverlay = 1,
     }
 
     [DisallowMultipleComponent]

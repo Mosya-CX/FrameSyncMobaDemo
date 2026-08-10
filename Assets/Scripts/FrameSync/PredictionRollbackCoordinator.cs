@@ -290,8 +290,22 @@ namespace FrameSyncMoba.FrameSync
 
                 if (!verificationByTick.TryGetValue(frame.Tick, out verification) ||
                     verification.SharedGameplayChecksum != frame.SharedGameplayChecksum)
+                {
+                    UnityEngine.Debug.LogError(
+                        $"[Checksum] Tick {frame.Tick} " +
+                        $"local={pipeline.LocalSimulationTick} " +
+                        $"sync={LatestAuthorityFrameTick} " +
+                        $"expected(server)={frame.SharedGameplayChecksum} " +
+                        $"actual(client)=" +
+                        $"{(verificationByTick.TryGetValue(frame.Tick, out var v) ? v.SharedGameplayChecksum : 0u)} " +
+                        $"commandsMatch={commandsMatch} " +
+                        $"commands={frame.CanonicalCommandBytes?.Length ?? 0}");
+                    PrintDetailedChecksumDiagnostics(
+                        frame.Tick,
+                        pipeline);
                     throw new DeterministicSimulationException(
                         $"Authority replay checksum mismatch remains at Tick {frame.Tick}.");
+                }
 
                 pipeline.GoldIncome?.ConfirmThroughTick(frame.Tick);
                 LatestAuthorityFrameTick = frame.Tick;
@@ -344,6 +358,42 @@ namespace FrameSyncMoba.FrameSync
             int replayEndTick = authorityEndsMatch
                 ? checked(frame.Tick + 1)
                 : predictedEndTick;
+
+            // Ordinary rollback must not drop the player's already-created
+            // Commands that target ticks beyond the replay window:
+            // ReplaceCommandsForNextTick clears the pipeline collector during
+            // the replay, and losing them would permanently desync the
+            // client's future prediction against the server's accepted
+            // Commands.
+            var pendingCommands = new List<GameplayCommand>();
+            if (!authorityEndsMatch)
+            {
+                List<GameplayCommand> current =
+                    pipeline.CommandCollector
+                        .GetCanonicalCommands();
+                for (int i = 0;
+                     i < current.Count;
+                     i++)
+                {
+                    if (current[i].TargetTick >=
+                        replayEndTick)
+                    {
+                        pendingCommands.Add(
+                            current[i]);
+                    }
+                }
+            }
+            UnityEngine.Debug.Log(
+                $"[Rollback] tick={frame.Tick} " +
+                $"anchorUnits={anchor.Gameplay.UnitWorldState.Units?.Length ?? -1}");
+            UnityEngine.Debug.Log(
+                $"[Rollback] tick={frame.Tick} " +
+                $"anchor={anchor.SnapshotTick} " +
+                $"replayEnd={replayEndTick} " +
+                $"predictedEnd={predictedEndTick} " +
+                $"pendingPreserved={pendingCommands.Count} " +
+                $"authorityEndsMatch={authorityEndsMatch}");
+
             if (authorityEndsMatch)
                 RemoveCommandHistoryAfter(frame.Tick);
             pipeline.RestoreFromSnapshot(
@@ -370,6 +420,55 @@ namespace FrameSyncMoba.FrameSync
                     IReadOnlyList<GameplayCommand> commands = GetReplayCommands(tick, frame);
                     pipeline.ReplaceCommandsForNextTick(commands);
                     pipeline.ExecuteTick(tickController, ExecutionMode.ClientReplay);
+                    if (tick == frame.Tick)
+                    {
+                        // The verification compares the state AT frame.Tick,
+                        // not the post-replay end state. Log positions at the
+                        // first replayed tick so they are comparable to the
+                        // server's frame.Tick detail.
+                        var firstTickSnapshot =
+                            pipeline.CaptureAggregateSnapshot();
+                        var firstDigest =
+                            pipeline.GoldIncome?.GetBatchDigest(
+                                frame.Tick) ??
+                            new GoldIncomeBatchDigest(0);
+                        var firstSegments =
+                            SharedGameplayChecksum
+                                .ComputeSegmentHashes(
+                                    firstTickSnapshot,
+                                    firstDigest);
+                        var firstLines =
+                            new System.Collections.Generic.List<string>
+                            {
+                                $"[ReplaySegs] tick={frame.Tick} " +
+                                $"server={frame.SharedGameplayChecksum} " +
+                                $"local={pipeline.LastChecksum}",
+                            };
+                        for (int si = 0;
+                             si < firstSegments.Length;
+                             si++)
+                        {
+                            firstLines.Add(
+                                $"  {firstSegments[si].Label}=" +
+                                $"{firstSegments[si].Hash}");
+                        }
+                        UnityEngine.Debug.Log(
+                            string.Join(
+                                System.Environment.NewLine,
+                                firstLines));
+                        var firstUnits =
+                            firstTickSnapshot.UnitWorldState.Units;
+                        for (int ui = 0;
+                             ui < firstUnits.Length;
+                             ui++)
+                        {
+                            var pu = firstUnits[ui].PhysicsTransform.Position;
+                            UnityEngine.Debug.Log(
+                                $"[ReplayFirst] tick={frame.Tick} " +
+                                $"unit={firstUnits[ui].UnitUid} " +
+                                $"pos=({pu.x},{pu.y})");
+                        }
+                    }
                 }
             }
             finally
@@ -377,6 +476,104 @@ namespace FrameSyncMoba.FrameSync
                 replaying = false;
                 pipeline.AuthorityReplayTick = -1;
             }
+            if (pendingCommands.Count > 0)
+            {
+                pipeline.ReplaceCommandsForNextTick(
+                    pendingCommands);
+            }
+            uint replayedTickChecksum =
+                verificationByTick.TryGetValue(
+                    frame.Tick,
+                    out LocalFrameVerificationRecord
+                        replayedRecord)
+                    ? replayedRecord.SharedGameplayChecksum
+                    : 0u;
+            UnityEngine.Debug.Log(
+                $"[Rollback] replay done tick={frame.Tick} " +
+                $"local={pipeline.LocalSimulationTick} " +
+                $"tickChecksum={replayedTickChecksum} " +
+                $"server={frame.SharedGameplayChecksum} " +
+                $"match={replayedTickChecksum == frame.SharedGameplayChecksum}");
+        }
+
+        private static void PrintDetailedChecksumDiagnostics(
+            int tick,
+            SimulationTickPipeline pipeline)
+        {
+            GameplaySnapshot predicted =
+                pipeline.CaptureAggregateSnapshot();
+            var lines = new System.Collections.Generic.List<string>
+            {
+                $"[ChecksumDetail] Tick {tick} predicted(client) segments:",
+            };
+            GoldIncomeBatchDigest digest =
+                pipeline.GoldIncome?.GetBatchDigest(tick) ??
+                new GoldIncomeBatchDigest(0);
+            SharedGameplayChecksum.ChecksumSegment[] segments =
+                SharedGameplayChecksum.ComputeSegmentHashes(
+                    predicted,
+                    digest);
+            for (int i = 0; i < segments.Length; i++)
+            {
+                lines.Add(
+                    $"  {segments[i].Label}={segments[i].Hash}");
+            }
+            UnitSnapshot[] units =
+                predicted.UnitWorldState.Units ??
+                System.Array.Empty<UnitSnapshot>();
+            for (int u = 0; u < units.Length; u++)
+            {
+                lines.Add(
+                    $"  Unit {units[u].UnitUid} " +
+                    $"(kind={units[u].UnitKind}):");
+                var pos = units[u].PhysicsTransform.Position;
+                lines.Add(
+                    $"    pos=({pos.x},{pos.y})");
+                var loco = units[u].LocomotionState;
+                lines.Add(
+                    $"    locoActive={loco.HasActiveTask} " +
+                    $"purpose={loco.Task.Purpose} " +
+                    $"state={loco.Task.State} " +
+                    $"cursor={loco.FollowerState.PathCursor} " +
+                    $"routeFinished={loco.FollowerState.RouteFinished} " +
+                    $"needRepath={loco.Route.NeedRepath}");
+                SharedGameplayChecksum.ChecksumSegment[] handlers =
+                    SharedGameplayChecksum
+                        .ComputeUnitHandlerHashes(units[u]);
+                for (int h = 0;
+                     h < handlers.Length;
+                     h++)
+                {
+                    lines.Add(
+                        $"    {handlers[h].Label}=" +
+                        $"{handlers[h].Hash}");
+                }
+                var ccInstances =
+                    units[u].CCState.Instances;
+                lines.Add(
+                    $"    ccPendingSignals={units[u].CCState.PendingSignals} " +
+                    $"ccNextInstance={units[u].CCState.NextInstanceId} " +
+                    $"ccForcedMove={units[u].CCState.ActiveForcedMoveHandle.InstanceId}");
+                if (ccInstances != null &&
+                    ccInstances.Count > 0)
+                {
+                    for (int c = 0;
+                         c < ccInstances.Count;
+                         c++)
+                    {
+                        var inst = ccInstances[c];
+                        lines.Add(
+                            $"      CC id={inst.ControlId.Value} " +
+                            $"inst={inst.InstanceId} " +
+                            $"start={inst.StartTick} " +
+                            $"expire={inst.ExpireTick}");
+                    }
+                }
+            }
+            UnityEngine.Debug.LogError(
+                string.Join(
+                    System.Environment.NewLine,
+                    lines));
         }
 
         private IReadOnlyList<GameplayCommand> GetReplayCommands(int tick, in AuthorityFrame currentFrame)
@@ -400,6 +597,10 @@ namespace FrameSyncMoba.FrameSync
             IReadOnlyList<GameplayCommand> commands,
             uint checksum)
         {
+            if (tick <= 5)
+                UnityEngine.Debug.Log(
+                    $"[Checksum] Client local Tick {tick} " +
+                    $"checksum={checksum} commands={commands.Count}");
             if (!commandHistory.TryGetValue(tick, out CommandHistoryRecord record) || replaying)
             {
                 GameplayCommand[] copy = CopyAndValidateCommands(tick, commands);

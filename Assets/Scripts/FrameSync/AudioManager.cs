@@ -25,8 +25,16 @@ namespace FrameSyncMoba.FrameSync
             }
         }
 
+        public void SetLibrary(AudioLibrary library)
+        {
+            _library = library;
+        }
+
         public void PlayOrReconcile(in Unit.SfxEvent evt)
         {
+            Debug.Log(
+                $"[AudioManager] enter id={evt.SfxDefId} " +
+                $"library={_library != null}");
             if (_library == null)
             {
                 Debug.Log(string.Format("[AudioManager] SFX {0} (no AudioLibrary configured)", evt.SfxDefId));
@@ -34,6 +42,13 @@ namespace FrameSyncMoba.FrameSync
             }
 
             AudioClip clip = _library.GetClip(evt.SfxDefId);
+            string clipName =
+                clip != null
+                    ? clip.name
+                    : "null";
+            Debug.Log(
+                $"[AudioManager] clip={clipName} " +
+                $"listener={FindObjectOfType<AudioListener>() != null}");
             if (clip == null)
             {
                 Debug.LogWarning(string.Format("[AudioManager] SFX {0}: clip not found", evt.SfxDefId));
@@ -50,15 +65,86 @@ namespace FrameSyncMoba.FrameSync
                 return;
 
             source.clip = clip;
-            if (evt.WorldPosition.x != default || evt.WorldPosition.y != default)
-            {
-                source.transform.position = new Vector3(
-                    (float)evt.WorldPosition.x, 0f, (float)evt.WorldPosition.y);
-            }
+            source.transform.position = ResolvePosition(evt);
             source.Play();
 
             _activeCounts[evt.SfxDefId] = active + 1;
             StartCoroutine(ReleaseAfterPlay(source, evt.SfxDefId, clip.length));
+        }
+
+        /// <summary>
+        /// Playback position: prefer the explicit world position, otherwise
+        /// the presentation host of the attached unit (Presentation Design
+        /// v13.2 section 5: managers query hosts, never PhysicsEntity).
+        /// </summary>
+        private Vector3 ResolvePosition(
+            in Unit.SfxEvent evt)
+        {
+            if (evt.WorldPosition.x != default ||
+                evt.WorldPosition.y != default)
+            {
+                return new Vector3(
+                    (float)evt.WorldPosition.x,
+                    0f,
+                    (float)evt.WorldPosition.y);
+            }
+            if (evt.AttachToUnit.HasValue &&
+                UnitPresentationRegistry.TryGetHost(
+                    evt.AttachToUnit.Value,
+                    out UnitPresentationHost host) &&
+                host != null)
+            {
+                Transform socket =
+                    ResolveSocket(
+                        host,
+                        evt.SocketKey);
+                return socket != null
+                    ? socket.position
+                    : host.transform.position;
+            }
+            return transform.position;
+        }
+
+        /// <summary>
+        /// Maps a PresentationAnchor socket key to the host's socket
+        /// Transform (Attack Design v6.2 2.2). Returns null when the unit
+        /// has no socket set or the socket is not assigned.
+        /// </summary>
+        private static Transform ResolveSocket(
+            UnitPresentationHost host,
+            int socketKey)
+        {
+            PresentationSocketSet sockets =
+                host.Sockets;
+            if (sockets == null)
+            {
+                return null;
+            }
+            string socketName =
+                socketKey switch
+                {
+                    (int)Unit.PresentationAnchor.Head =>
+                        "head",
+                    (int)Unit.PresentationAnchor.Chest =>
+                        "chest",
+                    (int)Unit.PresentationAnchor.HandR =>
+                        "hand_r",
+                    (int)Unit.PresentationAnchor.HandL =>
+                        "hand_l",
+                    (int)Unit.PresentationAnchor.FootR =>
+                        "foot_r",
+                    (int)Unit.PresentationAnchor.FootL =>
+                        "foot_l",
+                    (int)Unit.PresentationAnchor
+                        .ProjectileOrigin =>
+                        "projectileorigin",
+                    _ => "root",
+                };
+            return sockets.TryGetSocket(
+                    socketName,
+                    out Transform socket)
+                ? socket
+                : null;
         }
 
         private AudioSource GetAvailableSource()
@@ -88,26 +174,4 @@ namespace FrameSyncMoba.FrameSync
         }
     }
 
-    [CreateAssetMenu(menuName = "FrameSyncMoba/Audio Library")]
-    public sealed class AudioLibrary : ScriptableObject
-    {
-        [SerializeField] private AudioClipEntry[] _entries = System.Array.Empty<AudioClipEntry>();
-
-        [System.Serializable]
-        public struct AudioClipEntry
-        {
-            public int SfxDefId;
-            public AudioClip Clip;
-        }
-
-        public AudioClip GetClip(int sfxDefId)
-        {
-            for (int i = 0; i < _entries.Length; i++)
-            {
-                if (_entries[i].SfxDefId == sfxDefId)
-                    return _entries[i].Clip;
-            }
-            return null;
-        }
-    }
 }

@@ -19,6 +19,9 @@ namespace FrameSyncMoba.Unit
     {
         public const int CombatHit = 1;
         public const int CombatDeath = 2;
+        public const int AbilityCast = 3;
+        public const int BuffApplied = 4;
+        public const int BuffDetonated = 5;
     }
 
     public struct PresentationEventId : IEquatable<PresentationEventId>

@@ -2476,8 +2476,15 @@ Drowsy：
 | Tags | Control、Drowsy |
 | Modules | AddControlOnNaturalExpire |
 | 静态模块参数 | SleepControlId |
+| 参数 Key | SleepDurationTicks（Int，必填）：转化后 Sleep 的持续 Tick，由施加方在 Add 时写入 |
 
 OnRemove 只有 reason = NaturalExpire 时返回 AddControl 命令。
+
+> v6.2 决议（D-036）：转化后控制的持续时间不放入模块静态参数，而是由
+> Drowsy 实例的动态参数 `SleepDurationTicks` 提供。设计案只声明了
+> `SleepControlId` 一个静态参数；持续时间属于每次施加的意图，按 4.9 的
+> 参数哲学走 Key 参数。Bake 校验 `AddControlOnNaturalExpire` 必须绑定一个
+> Int 类型参数偏移。
 
 Cleanse Drowsy 不生成 Sleep。
 

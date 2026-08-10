@@ -3194,6 +3194,13 @@ Enter Cast.Stage
 蓄力后释放的方向技能
 ```
 
+> **当前蓄力型施法模型的输入默认**：按下技能键进入蓄力（Focus），
+> 技能键松开不产生任何 AbilitySignal（不 Commit、不 Cancel），左键
+> Commit 施放。这是本版本蓄力型模型（HoldRelease）的默认输入预设
+> （Player Input v1.1 §4.4），不是模型级硬约束；输入层仍允许每技能
+> 模板自定义其它组合（须通过离线合法性检查）。模型本身不把"松键"
+> 当作信号来源。
+
 结构：
 
 ```text
@@ -3229,7 +3236,8 @@ flowchart TD
 
 ```text
 Focus 创建 Session
-Commit 从 Hold 推进到 Release
+Commit 从 Hold 推进到 Release（当前默认由输入层左键提供）
+技能键松开在当前默认预设下不产生信号，不参与模型推进
 Cancel 取消
 Hold 超时后自动释放还是取消
 Release 完成或超时后的推进

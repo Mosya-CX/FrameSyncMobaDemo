@@ -58,6 +58,25 @@ namespace FrameSyncMoba.RuntimeConfig
         }
     }
 
+    /// <summary>
+    /// Authorable ID range for one PrefabKind (design v10.2 17.5). PrefabId
+    /// allocation is per kind so hero prefabs never collide with projectile,
+    /// VFX, audio or misc ids.
+    /// </summary>
+    [Serializable]
+    public sealed class PrefabKindRangeConfig
+    {
+        public PrefabKind Kind;
+        [Min(1)] public int IdRangeStart = 1000;
+        [Min(1)] public int IdRangeEnd = 1999;
+
+        public bool Contains(int prefabId)
+        {
+            return prefabId >= IdRangeStart &&
+                   prefabId <= IdRangeEnd;
+        }
+    }
+
     [CreateAssetMenu(
         fileName = "GlobalPrefabTable",
         menuName = "FrameSyncMoba/Runtime/Global Prefab Table")]
@@ -66,12 +85,18 @@ namespace FrameSyncMoba.RuntimeConfig
         [Header("Stable runtime prefab mappings")]
         [Tooltip("Entries are resolved by the fixed PrefabKind plus PrefabId pair.")]
         [SerializeField] private List<PrefabGroup> prefabGroups = new List<PrefabGroup>();
+        [Header("Per-kind ID ranges (design v10.2 17.5)")]
+        [Tooltip("Configured ranges override the built-in defaults. IDs must stay inside their kind range.")]
+        [SerializeField] private List<PrefabKindRangeConfig> kindRanges =
+            new List<PrefabKindRangeConfig>();
 
         private readonly Dictionary<long, GameObject> runtimeLookup =
             new Dictionary<long, GameObject>();
         private bool isLookupBuilt;
 
         public IReadOnlyList<PrefabGroup> PrefabGroups => prefabGroups;
+        public IReadOnlyList<PrefabKindRangeConfig> KindRanges =>
+            kindRanges;
 
         public bool TryGetPrefab(PrefabKind kind, int prefabId, out GameObject prefab)
         {
@@ -106,6 +131,18 @@ namespace FrameSyncMoba.RuntimeConfig
             isLookupBuilt = false;
         }
 
+        internal void ReplaceRangesForTests(
+            IEnumerable<PrefabKindRangeConfig> ranges)
+        {
+            kindRanges.Clear();
+            if (ranges != null)
+            {
+                kindRanges.AddRange(ranges);
+            }
+
+            isLookupBuilt = false;
+        }
+
         private void OnEnable()
         {
             isLookupBuilt = false;
@@ -134,6 +171,7 @@ namespace FrameSyncMoba.RuntimeConfig
         private void RebuildLookup()
         {
             runtimeLookup.Clear();
+            ValidateRanges();
 
             for (int groupIndex = 0; groupIndex < prefabGroups.Count; groupIndex++)
             {
@@ -165,6 +203,17 @@ namespace FrameSyncMoba.RuntimeConfig
                             $"{group.Kind} prefab {entry.PrefabId} has no Unity prefab assigned.");
                     }
 
+                    (int start, int end) range =
+                        ResolveRange(group.Kind);
+                    if (range.start > 0 &&
+                        (entry.PrefabId < range.start ||
+                         entry.PrefabId > range.end))
+                    {
+                        throw new InvalidOperationException(
+                            $"{group.Kind} PrefabId {entry.PrefabId} is outside the " +
+                            $"configured range [{range.start}, {range.end}].");
+                    }
+
                     long key = BuildKey(group.Kind, entry.PrefabId);
                     if (runtimeLookup.ContainsKey(key))
                     {
@@ -177,6 +226,72 @@ namespace FrameSyncMoba.RuntimeConfig
             }
 
             isLookupBuilt = true;
+        }
+
+        private void ValidateRanges()
+        {
+            for (int i = 0; i < kindRanges.Count; i++)
+            {
+                PrefabKindRangeConfig range =
+                    kindRanges[i];
+                if (range == null)
+                    throw new InvalidOperationException(
+                        $"Prefab kind range {i} is null.");
+                if (range.IdRangeStart <= 0 ||
+                    range.IdRangeEnd < range.IdRangeStart)
+                    throw new InvalidOperationException(
+                        $"Prefab kind range {i} is invalid: " +
+                        $"[{range.IdRangeStart}, {range.IdRangeEnd}].");
+                for (int j = i + 1;
+                     j < kindRanges.Count;
+                     j++)
+                {
+                    PrefabKindRangeConfig other =
+                        kindRanges[j];
+                    if (other == null)
+                        continue;
+                    if (other.Kind == range.Kind)
+                        throw new InvalidOperationException(
+                            $"Prefab kind range for {range.Kind} is defined twice.");
+                    if (other.IdRangeStart <= range.IdRangeEnd &&
+                        other.IdRangeEnd >= range.IdRangeStart)
+                        throw new InvalidOperationException(
+                            $"Prefab kind ranges overlap: {range.Kind} " +
+                            $"[{range.IdRangeStart},{range.IdRangeEnd}] and " +
+                            $"{other.Kind} [{other.IdRangeStart},{other.IdRangeEnd}].");
+                }
+            }
+        }
+
+        private (int start, int end) ResolveRange(
+            PrefabKind kind)
+        {
+            for (int i = 0;
+                 i < kindRanges.Count;
+                 i++)
+            {
+                PrefabKindRangeConfig range =
+                    kindRanges[i];
+                if (range != null &&
+                    range.Kind == kind)
+                    return (range.IdRangeStart,
+                        range.IdRangeEnd);
+            }
+            switch (kind)
+            {
+                case PrefabKind.Unit:
+                    return (1000, 1999);
+                case PrefabKind.Projectile:
+                    return (2000, 2999);
+                case PrefabKind.ParticleVfx:
+                    return (3000, 3999);
+                case PrefabKind.AudioEmitter:
+                    return (4000, 4999);
+                case PrefabKind.Misc:
+                    return (5000, 5999);
+                default:
+                    return (0, 0);
+            }
         }
 
         private static long BuildKey(PrefabKind kind, int prefabId)

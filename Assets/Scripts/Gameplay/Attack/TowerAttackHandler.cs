@@ -1,160 +1,156 @@
-﻿using System;
-using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
-using UnitType = FrameSyncMoba.Unit.Unit;
-using UnitUid = FrameSyncMoba.Unit.UnitUid;
-using UnitKind = FrameSyncMoba.Unit.UnitKind;
-using LifeState = FrameSyncMoba.Unit.LifeState;
-using TeamId = FrameSyncMoba.Unit.TeamId;
-using UnitDisposePolicyConfig = FrameSyncMoba.Unit.UnitDisposePolicyConfig;
-using UnitDisposePolicyKind = FrameSyncMoba.Unit.UnitDisposePolicyKind;
-using UnitPrototype = FrameSyncMoba.Unit.UnitPrototype;
-using UnitWorld = FrameSyncMoba.Unit.UnitWorld;
-using UnitSpawnRequest = FrameSyncMoba.Unit.UnitSpawnRequest;
-using AttackHandler = FrameSyncMoba.Unit.AttackHandler;
 
-namespace FrameSyncMoba.Gameplay.Attack
+namespace FrameSyncMoba.Unit
 {
-    public class TowerAttackHandler
+    /// <summary>
+    /// Tower-specific AttackHandler (NonHero v5 搂9). Keeps the base attack
+    /// cycle and adds:
+    ///   - hero damage ramp: first hit = base attack damage (180), every
+    ///     following hit on the same hero x1.5, capped at 600;
+    ///   - in-flight projectile locking: while a tower shot is unresolved the
+    ///     AI keeps the same target (HasUnresolvedProjectile).
+    /// Deterministic: ramp counters and the pending projectile are part of
+    /// AttackSnapshot (rollback-safe).
+    /// </summary>
+    public class TowerAttackHandler : AttackHandler
     {
-        private readonly UnitType _owner;
-        private readonly AttackHandler _baseAttackHandler;
+        private static readonly fp RampMultiplier =
+            (fp)1.5m;
+        private static readonly fp MaxRampDamage =
+            (fp)600m;
 
-        private UnitUid _currentTarget;
-        private int _lockExpireTick;
-        private int _cooldownUntilTick;
+        private UnitUid rampTarget;
+        private int rampHits;
+        private ProjectileUid pendingProjectile;
+        private UnitUid lockedTarget;
 
-        private static readonly fp TowerAttackRange = (fp)8m;
-        private static readonly int TowerAttackCooldownTicks = 45;
-        private static readonly int TargetLockDurationTicks = 90;
+        public bool HasUnresolvedProjectile =>
+            pendingProjectile.IsValid &&
+            Owner?.World?.ProjectileWorld != null &&
+            Owner.World.ProjectileWorld.TryGet(
+                pendingProjectile,
+                out _);
 
-        public TowerAttackHandler(UnitType owner, AttackHandler baseAttackHandler)
+        public UnitUid LockedTarget => lockedTarget;
+
+        protected override ProjectileSpawnRequest
+            BuildProjectileSpawnRequest(Unit target)
         {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            _baseAttackHandler = baseAttackHandler ?? throw new ArgumentNullException(nameof(baseAttackHandler));
-        }
-
-        public UnitUid CurrentTarget => _currentTarget;
-        public bool HasTarget => _currentTarget.IsValid();
-        public bool IsOnCooldown => SimulationTickContext.Current.Tick < _cooldownUntilTick;
-
-        public void EvaluateTarget()
-        {
-            int currentTick = SimulationTickContext.Current.Tick;
-            if (_currentTarget.IsValid() && currentTick < _lockExpireTick && IsValidTowerTarget(_currentTarget))
-                return;
-            _currentTarget = default;
-            UnitUid bestTarget = FindBestTowerTarget();
-            if (bestTarget.IsValid())
-            {
-                _currentTarget = bestTarget;
-                _lockExpireTick = currentTick + TargetLockDurationTicks;
-            }
-        }
-
-        public void SubmitAttack()
-        {
-            if (!_currentTarget.IsValid()) return;
-            int currentTick = SimulationTickContext.Current.Tick;
-            if (currentTick < _cooldownUntilTick) return;
-            if (_baseAttackHandler != null && IsValidTowerTarget(_currentTarget))
-            {
-                _baseAttackHandler.ApplyAttackInput(_currentTarget);
-                _cooldownUntilTick = currentTick + TowerAttackCooldownTicks;
-            }
-        }
-
-        private UnitUid FindBestTowerTarget()
-        {
-            if (_owner.World == null) return default;
-            var allUnits = _owner.World.GetAllUnits();
-            fp2 towerPos = _owner.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
-            TeamId myTeam = _owner.TeamId;
-            UnitUid bestTarget = default;
-            int bestPriority = int.MaxValue;
-            fp bestDistance = new fp(int.MaxValue);
-            for (int i = 0; i < allUnits.Count; i++)
-            {
-                UnitType candidate = allUnits[i];
-                if (candidate == _owner) continue;
-                if (candidate.TeamId == myTeam) continue;
-                if (candidate.LifeState != LifeState.Alive) continue;
-                fp2 candidatePos = candidate.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
-                fp dist = fpmath.distance(towerPos, candidatePos);
-                if (dist > TowerAttackRange) continue;
-                int priority = GetTowerTargetPriority(candidate);
-                if (priority < bestPriority || (priority == bestPriority && dist < bestDistance))
+            ProjectileSpawnRequest baseRequest =
+                base.BuildProjectileSpawnRequest(
+                    target);
+            fp damage = ResolveTowerDamage(
+                target);
+            return new ProjectileSpawnRequest(
+                baseRequest.ProjectileDefId,
+                baseRequest.OwnerUnitUid,
+                baseRequest.TeamSnapshot,
+                baseRequest.Source,
+                baseRequest.StartPosition,
+                baseRequest.Direction,
+                onHitDamageOverride: new[]
                 {
-                    bestPriority = priority;
-                    bestDistance = dist;
-                    bestTarget = candidate.UnitUid;
-                }
-                else if (priority == bestPriority && dist == bestDistance
-                    && bestTarget.CompareTo(candidate.UnitUid) > 0)
-                {
-                    bestTarget = candidate.UnitUid;
-                }
-            }
-            return bestTarget;
+                    new ProjectileOnHitDamage
+                    {
+                        Amount = damage,
+                        DamageType =
+                            DamageType.Physical,
+                        RecipeId =
+                            CombatBuiltinRecipeId
+                                .BasicAttackDamage,
+                    },
+                },
+                maxLifetimeTicksOverride:
+                    baseRequest
+                        .MaxLifetimeTicksOverride,
+                targetUnitUid:
+                    baseRequest.TargetUnitUid);
         }
 
-        private int GetTowerTargetPriority(UnitType candidate)
+        protected override void OnProjectileCommitted(
+            ProjectileUid uid)
         {
-            TeamId myTeam = _owner.TeamId;
-            if (candidate.AttackHandler != null)
+            pendingProjectile = uid;
+            lockedTarget = CurrentTargetUid;
+            if (lockedTarget.IsValid() &&
+                IsHero(lockedTarget))
             {
-                UnitUid theirTarget = candidate.AttackHandler.CurrentTargetUid;
-                if (theirTarget.IsValid()
-                    && _owner.World.TryGetUnit(theirTarget, out UnitType victim)
-                    && victim.TeamId == myTeam)
+                if (lockedTarget != rampTarget)
                 {
-                    if (victim.UnitKind == UnitKind.Hero) return 0;
-                    if (victim.UnitKind == UnitKind.Minion) return 1;
+                    rampTarget = lockedTarget;
+                    rampHits = 0;
+                }
+                rampHits++;
+            }
+        }
+
+        private fp ResolveTowerDamage(
+            Unit target)
+        {
+            fp baseDamage = GetAttackDamage();
+            if (target == null ||
+                target.UnitKind != UnitKind.Hero)
+            {
+                // Minions and other non-hero targets: flat base damage.
+                return baseDamage;
+            }
+            return ResolveRampDamage(
+                baseDamage,
+                rampHits);
+        }
+
+        /// <summary>
+        /// Hero ramp formula: base * 1.5 ^ hits, capped at 600
+        /// (hits = number of already-fired hits on the same hero).
+        /// </summary>
+        internal static fp ResolveRampDamage(
+            fp baseDamage,
+            int hits)
+        {
+            fp damage = baseDamage;
+            for (int i = 0; i < hits; i++)
+            {
+                damage *= RampMultiplier;
+                if (damage > MaxRampDamage)
+                {
+                    damage = MaxRampDamage;
+                    break;
                 }
             }
-            switch (candidate.UnitKind)
-            {
-                case UnitKind.Minion: return 2;
-                case UnitKind.Hero: return 3;
-                case UnitKind.Monster: return 4;
-                default: return 5;
-            }
+            return damage;
         }
 
-        private bool IsValidTowerTarget(UnitUid targetUid)
+        private bool IsHero(UnitUid uid)
         {
-            if (!targetUid.IsValid()) return false;
-            if (_owner.World == null) return false;
-            if (!_owner.World.TryGetUnit(targetUid, out UnitType target)) return false;
-            if (target.LifeState != LifeState.Alive) return false;
-            if (target.TeamId == _owner.TeamId) return false;
-            fp2 towerPos = _owner.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
-            fp2 targetPos = target.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
-            return fpmath.distance(towerPos, targetPos) <= TowerAttackRange;
+            return Owner?.World != null &&
+                Owner.World.TryGetUnit(
+                    uid,
+                    out Unit target) &&
+                target.UnitKind == UnitKind.Hero;
         }
 
-        public void Clear() { _currentTarget = default; _lockExpireTick = 0; _cooldownUntilTick = 0; }
-
-        public void Capture(ref TowerAttackHandlerSnapshot snapshot)
+        public override void Capture(
+            ref AttackSnapshot state)
         {
-            snapshot.CurrentTarget = _currentTarget;
-            snapshot.LockExpireTick = _lockExpireTick;
-            snapshot.CooldownUntilTick = _cooldownUntilTick;
+            base.Capture(ref state);
+            state.RampTargetUnitUid = rampTarget;
+            state.RampHitCount = rampHits;
+            state.PendingProjectileUid =
+                pendingProjectile;
+            state.LockedTargetUnitUid =
+                lockedTarget;
         }
 
-        public void Restore(in TowerAttackHandlerSnapshot snapshot)
+        public override void Restore(
+            in AttackSnapshot state)
         {
-            _currentTarget = snapshot.CurrentTarget;
-            _lockExpireTick = snapshot.LockExpireTick;
-            _cooldownUntilTick = snapshot.CooldownUntilTick;
+            base.Restore(in state);
+            rampTarget = state.RampTargetUnitUid;
+            rampHits = state.RampHitCount;
+            pendingProjectile =
+                state.PendingProjectileUid;
+            lockedTarget =
+                state.LockedTargetUnitUid;
         }
-    }
-
-    [Serializable]
-    public struct TowerAttackHandlerSnapshot
-    {
-        public UnitUid CurrentTarget;
-        public int LockExpireTick;
-        public int CooldownUntilTick;
     }
 }

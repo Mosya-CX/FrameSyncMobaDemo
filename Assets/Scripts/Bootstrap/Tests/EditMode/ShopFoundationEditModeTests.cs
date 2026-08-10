@@ -3,6 +3,7 @@ using FrameSyncMoba.Unit;
 using FrameSyncMoba.Deterministic;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Bootstrap.Tests
 {
@@ -167,15 +168,19 @@ namespace FrameSyncMoba.Bootstrap.Tests
         private static EquipmentDefinition MakeEquipment(
             int id, string name, int value, EquipmentTier tier)
         {
-            return new EquipmentDefinition
-            {
-                Id = id,
-                Name = name,
-                Description = "Test equipment " + id,
-                Tier = tier,
-                Value = value,
-                MaxStack = (tier == EquipmentTier.Consumable) ? 3 : 1,
-            };
+            var def =
+                ScriptableObject
+                    .CreateInstance<EquipmentDefinition>();
+            def.Id = id;
+            def.Name = name;
+            def.Description = "Test equipment " + id;
+            def.Tier = tier;
+            def.Value = value;
+            def.MaxStack =
+                tier == EquipmentTier.Consumable
+                    ? 3
+                    : 1;
+            return def;
         }
     }
 }

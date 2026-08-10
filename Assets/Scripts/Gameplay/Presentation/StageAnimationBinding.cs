@@ -27,6 +27,13 @@ namespace FrameSyncMoba.Presentation
         [Range(0f, 1f)]
         public float EndNormalizedTime;
 
+        /// <summary>
+        /// When true the stage plays on the "CastOverlay" animator layer
+        /// (upper-body mask) while the base layer keeps locomotion, for
+        /// movable-cast stages such as a charge Hold.
+        /// </summary>
+        public bool OverlayLayer;
+
         public static readonly StageAnimationBinding Empty = default;
     }
 }

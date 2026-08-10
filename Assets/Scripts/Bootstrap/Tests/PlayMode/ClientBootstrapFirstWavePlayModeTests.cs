@@ -5,6 +5,7 @@ using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
+using Unity.Netcode;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,20 +14,45 @@ using UnitType = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.Bootstrap.Tests
 {
-    public sealed class ClientBootstrapFirstWavePlayModeTests
+    public sealed class GameSceneFirstWavePlayModeTests
     {
+        [UnitySetUp]
+        public IEnumerator SetUp()
+        {
+            ResetPersistentSession();
+            yield return null;
+        }
+
+        [UnityTearDown]
+        public IEnumerator TearDown()
+        {
+            // Destroying the listening NGO server during cleanup logs expected
+            // transport shutdown errors; swallow them so they never leak.
+            LogAssert.ignoreFailingMessages = true;
+            ResetPersistentSession();
+            yield return null;
+            LogAssert.ignoreFailingMessages = false;
+        }
+
         [UnityTest]
-        public IEnumerator ClientBootstrap_FirstWaveUsesFlowFieldsAndMoves()
+        public IEnumerator GameScene_FirstWaveUsesFlowFieldsAndMoves()
         {
             yield return SceneManager.LoadSceneAsync(
-                "ClientBootstrap",
+                GameSessionContext.ServerBootstrapSceneName,
                 LoadSceneMode.Single);
+            yield return WaitForScene(
+                GameSessionContext.LobbySceneName);
+            yield return SceneManager.LoadSceneAsync(
+                GameSessionContext.GameSceneName,
+                LoadSceneMode.Single);
+            yield return WaitForScene(
+                GameSessionContext.GameSceneName);
 
             GameBootstrap bootstrap =
                 Object.FindObjectOfType<GameBootstrap>();
             Assert.NotNull(
                 bootstrap,
-                "ClientBootstrap must contain GameBootstrap.");
+                "GameScene must contain GameBootstrap.");
             Assert.IsTrue(
                 bootstrap.IsInitialized,
                 "The production bootstrap must initialize from its serialized assets.");
@@ -511,6 +537,46 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     BindingFlags.NonPublic);
             Assert.NotNull(field);
             field.SetValue(bootstrap, value);
+        }
+
+        private static IEnumerator WaitForScene(
+            string sceneName,
+            int maxFrames = 600)
+        {
+            int guard = 0;
+            while (SceneManager.GetActiveScene().name !=
+                   sceneName &&
+                   guard++ < maxFrames)
+                yield return null;
+        }
+
+        private static void ResetPersistentSession()
+        {
+            NetworkManager[] managers =
+                Object.FindObjectsOfType<NetworkManager>(true);
+            for (int i = 0;
+                 i < managers.Length;
+                 i++)
+            {
+                NetworkManager manager = managers[i];
+                if (manager.IsListening)
+                    manager.Shutdown();
+                Object.Destroy(manager.gameObject);
+            }
+            var uiManagers =
+                Object.FindObjectsOfType<UIManager>(true);
+            for (int i = 0;
+                 i < uiManagers.Length;
+                 i++)
+                Object.Destroy(uiManagers[i].gameObject);
+            var eventSystems =
+                Object.FindObjectsOfType<
+                    UnityEngine.EventSystems.EventSystem>(true);
+            for (int i = 0;
+                 i < eventSystems.Length;
+                 i++)
+                Object.Destroy(eventSystems[i].gameObject);
+            GameSessionContext.ResetSession();
         }
     }
 }

@@ -54,16 +54,33 @@ namespace FrameSyncMoba.Unit
         public UnitUid OwnerUnitUid;
         public MinionAIState MinionState;
         public int LaneId;
+        /// <summary>
+        /// Last AI-refresh Tick that already applied threat decay/attack gain.
+        /// Must be snapshotted: rollback reconstruction otherwise resets it to
+        /// -1 and replays a spurious attack-threat gain on the first decision.
+        /// </summary>
+        public int MinionLastThreatRefreshLogicTick;
         public int MinionNextDecisionLogicTick;
         public int MinionTargetLockUntilLogicTick;
         public fp2 MinionEngageOrigin;
         public UnitUid MinionPendingAssistTargetUid;
         public int MinionPendingAssistExpireLogicTick;
+        public MinionThreatSnapshotEntry[] MinionThreatTable;
         public MonsterAIState MonsterState;
         public int CampId;
         public int MonsterCampSlotIndex;
         public int MonsterNextDecisionLogicTick;
         public TowerAIState TowerState;
+    }
+
+    /// <summary>
+    /// One entry of the minion threat table (UnitUid + normalized threat in
+    /// [0,1]). Sorted by Uid for deterministic iteration.
+    /// </summary>
+    public struct MinionThreatSnapshotEntry
+    {
+        public UnitUid Uid;
+        public int Threat;
     }
 
     public enum UnitAIControllerKind : byte

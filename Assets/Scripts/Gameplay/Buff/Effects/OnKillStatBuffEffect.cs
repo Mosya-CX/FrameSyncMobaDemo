@@ -2,71 +2,138 @@ using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
 {
+    /// <summary>
+    /// Grants a per-stack stat value on kill. Uses one stat handle whose value
+    /// is updated through StatHandler.SetModifierValue (design v14.2 9.3).
+    /// </summary>
     public sealed class OnKillStatBuffEffect : BuffEffect
     {
         public StatId StatId = StatId.AttackDamage;
-        public StatModifierOperation Operation = StatModifierOperation.FlatAdd;
+        public StatModifierOperation Operation =
+            StatModifierOperation.FlatAdd;
         public fp ValuePerStack = (fp)5;
         public int MaxStacks = 5;
         public int DurationTicks = 300;
+        public BuffStateSlotId StackCountSlot;
+        public BuffStateSlotId HandleSlot;
 
-        private const string StackCountKey = "_onkill_stacks";
-        private const string HandlePrefix = "_onkill_handle_";
-
-        public override void OnAdded(BuffRuntime runtime, Unit owner)
-        {
-            runtime.Blackboard.SetNumber(StackCountKey, fp.zero);
-        }
-
-        public override void OnRemoved(BuffRuntime runtime, Unit owner)
-        {
-            fp countFp = runtime.Blackboard.GetNumberOrDefault(StackCountKey);
-            int stacks = (int)countFp;
-            for (int i = 0; i < stacks; i++)
-            {
-                string key = HandlePrefix + i.ToString();
-                if (runtime.Blackboard.TryGetStatHandle(key, out var handle) && handle.IsValid)
+        public override BuffStateSlotDefinition[]
+            RequiredSlotDefinitions =>
+                new[]
                 {
-                    owner?.StatHandler?.RemoveModifier(handle);
-                }
-            }
-            runtime.Blackboard.SetNumber(StackCountKey, fp.zero);
+                    new BuffStateSlotDefinition
+                    {
+                        SlotId = StackCountSlot,
+                        Kind = BuffValueKind.Int,
+                    },
+                    new BuffStateSlotDefinition
+                    {
+                        SlotId = HandleSlot,
+                        Kind =
+                            BuffValueKind
+                                .StatModifierHandle,
+                    },
+                };
+
+        public override void OnAdded(
+            BuffRuntime runtime,
+            Unit owner)
+        {
+            runtime.Blackboard.WriteInt(
+                StackCountSlot,
+                0);
         }
 
-        public override void OnUnitKill(BuffRuntime runtime, Unit owner, Unit victim)
+        public override void OnUnitKill(
+            BuffRuntime runtime,
+            Unit owner,
+            Unit victim)
         {
-            if (owner?.StatHandler == null || ValuePerStack <= fp.zero)
+            if (owner?.StatHandler == null ||
+                ValuePerStack <= fp.zero)
                 return;
-
-            fp countFp = runtime.Blackboard.GetNumberOrDefault(StackCountKey);
-            int stacks = (int)countFp;
+            int stacks = runtime.Blackboard
+                .ReadIntOrDefault(StackCountSlot);
             if (stacks >= MaxStacks)
                 return;
-
-            var handle = owner.StatHandler.AddModifier(StatId, Operation, ValuePerStack);
-            runtime.Blackboard.SetStatHandle(HandlePrefix + stacks.ToString(), handle);
-            runtime.Blackboard.SetNumber(StackCountKey, (fp)(stacks + 1));
-        }
-
-        public override void ClearForDeath(BuffRuntime runtime, Unit owner)
-        {
-            fp countFp = runtime.Blackboard.GetNumberOrDefault(StackCountKey);
-            int stacks = (int)countFp;
-            for (int i = 0; i < stacks; i++)
+            int newStacks = stacks + 1;
+            runtime.Blackboard.WriteInt(
+                StackCountSlot,
+                newStacks);
+            if (runtime.Blackboard
+                    .TryGetStatHandle(
+                        HandleSlot,
+                        out var handle) &&
+                handle.IsValid)
             {
-                string key = HandlePrefix + i.ToString();
-                if (runtime.Blackboard.TryGetStatHandle(key, out var handle) && handle.IsValid)
-                {
-                    owner?.StatHandler?.RemoveModifier(handle);
-                    runtime.Blackboard.SetStatHandle(key, default);
-                }
+                owner.StatHandler.SetModifierValue(
+                    handle,
+                    ValuePerStack * newStacks);
             }
-            runtime.Blackboard.SetNumber(StackCountKey, fp.zero);
+            else
+            {
+                var created = owner.StatHandler
+                    .AddModifier(
+                        StatId,
+                        Operation,
+                        ValuePerStack * newStacks);
+                runtime.Blackboard.WriteStatHandle(
+                    HandleSlot,
+                    created);
+            }
         }
 
-        public override void ClearForRespawn(BuffRuntime runtime, Unit owner)
+        public override void OnRemoved(
+            BuffRuntime runtime,
+            Unit owner)
         {
-            runtime.Blackboard.SetNumber(StackCountKey, fp.zero);
+            ReleaseHandle(runtime, owner);
+        }
+
+        public override void ClearForDeath(
+            BuffRuntime runtime,
+            Unit owner)
+        {
+            ReleaseHandle(runtime, owner);
+        }
+
+        public override void ClearForDespawn(
+            BuffRuntime runtime,
+            Unit owner)
+        {
+            ReleaseHandle(runtime, owner);
+        }
+
+        public override void ClearForRespawn(
+            BuffRuntime runtime,
+            Unit owner)
+        {
+            runtime.Blackboard.WriteInt(
+                StackCountSlot,
+                0);
+        }
+
+        private void ReleaseHandle(
+            BuffRuntime runtime,
+            Unit owner)
+        {
+            if (owner?.StatHandler == null)
+                return;
+            if (runtime.Blackboard
+                    .TryGetStatHandle(
+                        HandleSlot,
+                        out var handle) &&
+                handle.IsValid)
+            {
+                owner.StatHandler.RemoveModifier(
+                    handle);
+                runtime.Blackboard.WriteStatHandle(
+                    HandleSlot,
+                    default);
+            }
+            runtime.Blackboard.WriteInt(
+                StackCountSlot,
+                0);
         }
     }
 }

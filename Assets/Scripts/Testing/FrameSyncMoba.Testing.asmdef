@@ -9,7 +9,7 @@
     "Unity.Mathematics",
     "Unity.Mathematics.FixedPoint"
   ],
-  "includePlatforms": ["Editor"],
+  "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,

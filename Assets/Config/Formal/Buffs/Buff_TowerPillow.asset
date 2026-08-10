@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd190d0d50aa5847a974015e823714e, type: 3}
+  m_Name: Buff_TowerPillow
+  m_EditorClassIdentifier: 
+  ConfigId:
+    Value: 9103
+  Display:
+    Name: 
+    Description: 
+    Icon: {fileID: 0}
+  Life:
+    DurationSeconds: 60
+    Infinite: 1
+    RefreshMode: 1
+    ExtendSeconds: 0
+  Stack:
+    MaxStacks: 1
+    AddMode: 0
+    ReduceMode: 0
+    ReduceAmount: 1
+  Tags:
+    TagIds: 
+  Effects:
+  - Effect:
+      rid: 2586995981196722178
+  BlackboardLayout:
+    Slots: []
+  LifecycleReactions:
+    Added: []
+    Reapplied: []
+    Removed: []
+    StackChanged: []
+    Periodic: []
+  EventReactions:
+    DamageTaken: []
+    DamageDealt: []
+    HealTaken: []
+    HealDealt: []
+    ShieldApplied: []
+    AbilityCast: []
+    LevelUp: []
+    UnitDying: []
+    UnitDeath: []
+    UnitKill: []
+    OnHitDealt: []
+    CollisionEnter: []
+    CollisionExit: []
+  Priority: 0
+  PeriodicIntervalTicks: 0
+  InitialStacks: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586995981196722178
+      type: {class: CombatModifierBuffEffect, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        HandleSlot:
+          Value: 1
