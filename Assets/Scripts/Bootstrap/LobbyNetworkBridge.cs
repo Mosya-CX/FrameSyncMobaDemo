@@ -44,6 +44,10 @@ namespace FrameSyncMoba.Bootstrap
             "FrameSyncMoba.Lobby.Ready.v1";
         private const string BootstrapMessage =
             "FrameSyncMoba.GameBootstrapPayload.v1";
+        private const string BootstrapAppliedMessage =
+            "FrameSyncMoba.BootstrapApplied.v1";
+        private const string LaunchCommitMessage =
+            "FrameSyncMoba.LaunchCommit.v1";
 
         [SerializeField] private NetworkManager
             networkManager;
@@ -51,6 +55,9 @@ namespace FrameSyncMoba.Bootstrap
         private readonly Dictionary<ulong, int>
             clientSlots =
                 new Dictionary<ulong, int>();
+        private readonly BootstrapAppliedBarrier
+            bootstrapAppliedBarrier =
+                new BootstrapAppliedBarrier();
         private LobbySessionFlowNetwork lobby;
         private LocalLobbySlotDefinition[]
             serverSlots =
@@ -59,6 +66,7 @@ namespace FrameSyncMoba.Bootstrap
         private bool isServerOwner;
         private bool isClientOwner;
         private bool localReadySent;
+        private bool localBootstrapAppliedSent;
         private int localPlayerSlot = -1;
         private string localAccountId;
         private string matchId;
@@ -92,6 +100,7 @@ namespace FrameSyncMoba.Bootstrap
             GameSessionContext.Bootstrap.IsMatchReady;
         public event Action<GameBootstrapPayload>
             BootstrapApplied;
+        public event Action AllClientsBootstrapApplied;
         public event Action IdentityAccepted;
         public event Action<GameStartConfig> StartScheduled;
         public event Action AllHeroesLocked;
@@ -220,6 +229,35 @@ namespace FrameSyncMoba.Bootstrap
             SendReady(true);
         }
 
+        /// <summary>
+        /// Sent after the client restored the bootstrap snapshot and completed
+        /// local player binding. Duplicate local submissions are suppressed.
+        /// </summary>
+        public void SubmitBootstrapApplied(
+            in GameBootstrapPayload payload)
+        {
+            if (localBootstrapAppliedSent)
+                return;
+            RequireConnectedClient();
+            if (!HasAppliedBootstrap)
+                throw new InvalidOperationException(
+                    "BootstrapApplied requires an applied bootstrap.");
+            var confirmation =
+                new BootstrapAppliedConfirmation(
+                    payload.GameStartConfig.MatchId,
+                    payload.StartTick);
+            SendToServer(
+                BootstrapAppliedMessage,
+                MatchLaunchWireCodec
+                    .WriteBootstrapApplied(
+                        confirmation));
+            localBootstrapAppliedSent = true;
+            Debug.Log(
+                $"[BootstrapApplied] Client slot {localPlayerSlot} " +
+                $"confirmed match '{confirmation.MatchId}' " +
+                $"StartTick {confirmation.StartTick}.");
+        }
+
         public void SendLoaded()
         {
             RequireConnectedClient();
@@ -287,6 +325,12 @@ namespace FrameSyncMoba.Bootstrap
             messages.RegisterNamedMessageHandler(
                 BootstrapMessage,
                 ReceiveBootstrap);
+            messages.RegisterNamedMessageHandler(
+                BootstrapAppliedMessage,
+                ReceiveBootstrapApplied);
+            messages.RegisterNamedMessageHandler(
+                LaunchCommitMessage,
+                ReceiveLaunchCommit);
             registered = true;
         }
 
@@ -534,6 +578,11 @@ namespace FrameSyncMoba.Bootstrap
             in GameBootstrapPayload payload)
         {
             RequireServerOwner();
+            if (payload.LaunchUtcTicks != 0)
+                throw new DeterministicSimulationException(
+                    "Bootstrap must not authorize simulation launch.");
+            bootstrapAppliedBarrier.Initialize(
+                payload.GameStartConfig);
             byte[] bytes =
                 BootstrapPayloadWireCodec.Write(
                     payload);
@@ -543,7 +592,26 @@ namespace FrameSyncMoba.Bootstrap
             Debug.Log(
                 $"[Lobby] Server broadcast bootstrap for match " +
                 $"'{payload.GameStartConfig.MatchId}' at " +
-                $"StartTick {payload.StartTick}.");
+                $"StartTick {payload.StartTick}; waiting for " +
+                $"{bootstrapAppliedBarrier.ExpectedCount} " +
+                "BootstrapApplied confirmations.");
+        }
+
+        public void BroadcastLaunchCommit(
+            in MatchLaunchCommit commit)
+        {
+            RequireServerOwner();
+            if (!bootstrapAppliedBarrier.IsComplete)
+                throw new InvalidOperationException(
+                    "LaunchCommit requires every client BootstrapApplied confirmation.");
+            Broadcast(
+                LaunchCommitMessage,
+                MatchLaunchWireCodec
+                    .WriteLaunchCommit(commit));
+            Debug.Log(
+                $"[LaunchCommit] Server broadcast match " +
+                $"'{commit.MatchId}' StartTick {commit.StartTick} " +
+                $"LaunchUtcTicks {commit.LaunchUtcTicks}.");
         }
 
         private void ReceiveBootstrap(
@@ -558,6 +626,9 @@ namespace FrameSyncMoba.Bootstrap
             GameBootstrapPayload payload =
                 BootstrapPayloadWireCodec.Read(
                     ReadPayload(reader));
+            if (payload.LaunchUtcTicks != 0)
+                throw new DeterministicSimulationException(
+                    "Bootstrap must not contain a launch authorization.");
             if (GameSessionContext.Bootstrap == null ||
                 GameSessionContext.Bootstrap.IsMatchReady)
             {
@@ -572,9 +643,54 @@ namespace FrameSyncMoba.Bootstrap
                 BootstrapApplied?.Invoke(payload);
             }
             Debug.Log(
-                $"[LocalNGO] Client slot {localPlayerSlot} applied " +
+                $"[LocalNGO] Client slot {localPlayerSlot} received " +
                 $"bootstrap for match '{payload.GameStartConfig.MatchId}' " +
                 $"at StartTick {payload.StartTick}.");
+        }
+
+        private void ReceiveBootstrapApplied(
+            ulong senderClientId,
+            FastBufferReader reader)
+        {
+            RequireServerOwner();
+            BootstrapAppliedConfirmation confirmation =
+                MatchLaunchWireCodec
+                    .ReadBootstrapApplied(
+                        ReadPayload(reader));
+            bool completed =
+                bootstrapAppliedBarrier.MarkApplied(
+                    senderClientId,
+                    confirmation);
+            Debug.Log(
+                $"[BootstrapApplied] Server accepted client " +
+                $"{senderClientId}; " +
+                $"{bootstrapAppliedBarrier.AppliedCount}/" +
+                $"{bootstrapAppliedBarrier.ExpectedCount} ready.");
+            if (completed)
+                AllClientsBootstrapApplied?.Invoke();
+        }
+
+        private void ReceiveLaunchCommit(
+            ulong senderClientId,
+            FastBufferReader reader)
+        {
+            if (!isClientOwner ||
+                senderClientId !=
+                NetworkManager.ServerClientId)
+                throw new DeterministicSimulationException(
+                    "LaunchCommit must come from the server.");
+            MatchLaunchCommit commit =
+                MatchLaunchWireCodec.ReadLaunchCommit(
+                    ReadPayload(reader));
+            if (GameSessionContext.Bootstrap == null ||
+                !GameSessionContext.Bootstrap.IsMatchReady)
+            {
+                GameSessionContext.ReceivedClientLaunchCommit =
+                    commit;
+                return;
+            }
+            GameSessionContext.Bootstrap
+                .ApplyMatchLaunchCommit(commit);
         }
 
         private void CheckAllHeroesLocked()
@@ -828,6 +944,10 @@ namespace FrameSyncMoba.Bootstrap
                 ReadyMessage);
             messages.UnregisterNamedMessageHandler(
                 BootstrapMessage);
+            messages.UnregisterNamedMessageHandler(
+                BootstrapAppliedMessage);
+            messages.UnregisterNamedMessageHandler(
+                LaunchCommitMessage);
             registered = false;
         }
 

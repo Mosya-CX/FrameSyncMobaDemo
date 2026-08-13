@@ -39,5 +39,16 @@ namespace FrameSyncMoba.PlayerInput
             (unit.AbilityHandler?.IsWaitingForCommit(slot) ??
                 false);
         }
+
+        public bool CanOpenLocalAim(
+            UnitUid ownerUid,
+            byte slot)
+        {
+            return world.TryGetUnit(
+                    ownerUid,
+                    out FrameSyncMoba.Unit.Unit unit) &&
+                (unit.AbilityHandler?.CanOpenLocalAim(slot) ??
+                    false);
+        }
     }
 }

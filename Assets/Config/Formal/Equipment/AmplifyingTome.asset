@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10968a781afdb4648aab6bb16996728c, type: 3}
+  m_Name: AmplifyingTome
+  m_EditorClassIdentifier: 
+  Id: 31002
+  Name: Amplifying Tome
+  Description: Grants 20 Ability Power.
+  Icon: {fileID: 21300000, guid: eb073a169e8d14f41a58c531b824a368, type: 3}
+  Tier: 1
+  Value: 400
+  MaxStack: 1
+  FixedStats:
+  - Stat: 6
+    Value: 20
+  Effects: []
+  Tags: []
+  Recipe:
+    Components: []
+  references:
+    version: 2
+    RefIds: []

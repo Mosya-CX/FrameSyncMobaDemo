@@ -1,7 +1,9 @@
 using FrameSyncMoba.FrameSync;
+using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
 using UnityEngine;
+using Unity.Mathematics.FixedPoint;
 using UnitType = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.PlayerInput.Tests
@@ -701,6 +703,471 @@ namespace FrameSyncMoba.PlayerInput.Tests
                 collector.GetCanonicalCommands(),
                 Is.Empty,
                 "Unlearned ability must not produce a cast Command.");
+        }
+
+        [Test]
+        public void LocalAim_PressBlockedWhenRuntimeCannotOpenAim()
+        {
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new LocalAimTemplateProvider(),
+                new FakeAbilityRuntimeView
+                {
+                    CanOpenAim = false,
+                });
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind
+                    .AbilityKeyPressed,
+                0,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind.Idle),
+                "Cooldown/lockout must not open a local aim indicator.");
+            Assert.That(
+                collector.GetCanonicalCommands(),
+                Is.Empty);
+        }
+
+        [Test]
+        public void
+            SequentialRecast_CommitAcceptedMovesLocalStateBackToIdle()
+        {
+            SetCurrentTick(10);
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var view = new FakeAbilityRuntimeView
+            {
+                CanOpenAim = true,
+            };
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new LocalAimTemplateProvider(),
+                view);
+
+            Camera camera = CreateDownwardCamera();
+            var resolver =
+                new MouseWorldResolver(
+                    camera,
+                    fp.zero,
+                    null);
+            try
+            {
+                var buffer = new LocalInputEventBuffer();
+                buffer.Push(
+                    LocalGameplayInputEventKind
+                        .AbilityKeyPressed,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+                buffer.Push(
+                    LocalGameplayInputEventKind
+                        .PrimaryClick,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+
+                Assert.That(
+                    requester.GetAbilityState(0).Kind,
+                    Is.EqualTo(
+                        LocalAbilityInputStateKind
+                            .CommitRequested));
+                Assert.That(
+                    collector.GetCanonicalCommands(),
+                    Has.Count.EqualTo(1));
+
+                // The Runtime executed the Commit and advanced the session
+                // into a recast window: still active, no longer waiting for
+                // Commit.
+                SetCurrentTick(15);
+                view.HasSession = true;
+                view.WaitingForCommit = false;
+                requester.ProcessFrame(buffer, resolver);
+
+                Assert.That(
+                    requester.GetAbilityState(0).Kind,
+                    Is.EqualTo(
+                        LocalAbilityInputStateKind.Idle),
+                    "After a recast window opens the local state must " +
+                    "return to Idle so the next key press can aim the " +
+                    "next stage.");
+
+                // A fresh key press can now open the next stage's local aim.
+                buffer.Push(
+                    LocalGameplayInputEventKind
+                        .AbilityKeyPressed,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+                Assert.That(
+                    requester.GetAbilityState(0).Kind,
+                    Is.EqualTo(
+                        LocalAbilityInputStateKind
+                            .LocalAiming));
+            }
+            finally
+            {
+                Object.DestroyImmediate(
+                    camera.gameObject);
+            }
+        }
+
+        [Test]
+        public void
+            FocusRequested_ReturnsIdleAfterTargetReachedWithNoSession()
+        {
+            SetCurrentTick(10);
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new HoldReleaseTemplateProvider(),
+                new FakeAbilityRuntimeView());
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind
+                    .AbilityKeyPressed,
+                0,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind
+                        .FocusRequested));
+
+            // The Runtime executed the Focus but no Session exists (e.g. the
+            // ability was on cooldown): the local state must return to Idle.
+            SetCurrentTick(15);
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind.Idle));
+            Assert.That(
+                collector.GetCanonicalCommands(),
+                Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void
+            FocusRequested_BecomesGameplayFocusingWhenSessionObserved()
+        {
+            SetCurrentTick(10);
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var view = new FakeAbilityRuntimeView();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                new CommandCollector(),
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new HoldReleaseTemplateProvider(),
+                view);
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind
+                    .AbilityKeyPressed,
+                0,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+
+            SetCurrentTick(15);
+            view.HasSession = true;
+            view.WaitingForCommit = true;
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind
+                        .GameplayFocusing));
+        }
+
+        [Test]
+        public void
+            CommitRequested_RecoversToFocusingWhenSessionStillWaits()
+        {
+            SetCurrentTick(10);
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var view = new FakeAbilityRuntimeView();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                new CommandCollector(),
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new HoldReleaseTemplateProvider(),
+                view);
+
+            Camera camera = CreateDownwardCamera();
+            var resolver =
+                new MouseWorldResolver(
+                    camera,
+                    fp.zero,
+                    null);
+            try
+            {
+                var buffer = new LocalInputEventBuffer();
+                buffer.Push(
+                    LocalGameplayInputEventKind
+                        .AbilityKeyPressed,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+                buffer.Push(
+                    LocalGameplayInputEventKind
+                        .PrimaryClick,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+                Assert.That(
+                    requester.GetAbilityState(0).Kind,
+                    Is.EqualTo(
+                        LocalAbilityInputStateKind
+                            .CommitRequested));
+
+                // Commit was not accepted by Gameplay while the Session
+                // still waits in the Hold stage: recover to Focusing.
+                SetCurrentTick(15);
+                view.HasSession = true;
+                view.WaitingForCommit = true;
+                requester.ProcessFrame(buffer, resolver);
+                Assert.That(
+                    requester.GetAbilityState(0).Kind,
+                    Is.EqualTo(
+                        LocalAbilityInputStateKind
+                            .GameplayFocusing));
+            }
+            finally
+            {
+                Object.DestroyImmediate(
+                    camera.gameObject);
+            }
+        }
+
+        [Test]
+        public void
+            CanOpenLocalAim_SequentialRecast_GatesByReadyAndRecastLockout()
+        {
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1),
+                learnTestAbilities: false);
+            AbilityHandler handler = unit.AbilityHandler;
+            Assert.That(handler, Is.Not.Null);
+            var slot = new AbilitySlotRuntime
+            {
+                SlotIndex = 0,
+                AllocatedPoints = 1,
+                MaxAllocatedPoints = 5,
+                ActiveAbilityId = 200,
+            };
+            var runtime = new AbilityRuntime
+            {
+                Definition = new AbilityDef
+                {
+                    AbilityId = 200,
+                    CastModel =
+                        CreateSequentialRecastModel(),
+                    AimKind = AimKind.Direction,
+                    CastRange = (fp)6m,
+                    CostPlan = default,
+                    CooldownByLevel = default,
+                },
+                Level = 1,
+            };
+            slot.AddAbility(runtime);
+            handler.AddSlot(slot);
+
+            SetCurrentTick(50);
+
+            // No session and not on cooldown: ready to open local aim.
+            Assert.That(
+                handler.CanOpenLocalAim(0),
+                Is.True);
+
+            // Q1 impact is playing: a Commit cannot advance the session, so
+            // local aim must stay closed.
+            runtime.BeginSession(
+                1,
+                0,
+                AimSnapshot.None);
+            runtime.ActiveSession.CurrentStageKey = 1;
+            runtime.ActiveSession.StageElapsedTicks = 10;
+            Assert.That(
+                handler.CanOpenLocalAim(0),
+                Is.False);
+
+            // Recast window before the minimum recast delay: still blocked.
+            runtime.ActiveSession.CurrentStageKey = 2;
+            runtime.ActiveSession.StageElapsedTicks = 10;
+            Assert.That(
+                handler.CanOpenLocalAim(0),
+                Is.False);
+
+            // Recast window after the minimum recast delay: Q2 may be aimed.
+            runtime.ActiveSession.StageElapsedTicks = 30;
+            Assert.That(
+                handler.CanOpenLocalAim(0),
+                Is.True);
+
+            // Ability on cooldown with no session: blocked.
+            runtime.EndSession(0, 0);
+            runtime.StartCooldown(0, 100);
+            Assert.That(
+                handler.CanOpenLocalAim(0),
+                Is.False);
+        }
+
+        private static SequentialRecastCastModelDef
+            CreateSequentialRecastModel()
+        {
+            CastStage impact =
+                new CastStage
+                {
+                    StageKey = 1,
+                    DurationTicks = 27,
+                    LockMovement = true,
+                };
+            CastStage window =
+                new CastStage
+                {
+                    StageKey = 2,
+                    DurationTicks = 120,
+                    Interruptible = true,
+                };
+            CastStage secondImpact =
+                new CastStage
+                {
+                    StageKey = 3,
+                    DurationTicks = 27,
+                    LockMovement = true,
+                };
+            CastStage secondWindow =
+                new CastStage
+                {
+                    StageKey = 4,
+                    DurationTicks = 120,
+                    Interruptible = true,
+                };
+            CastStage finalImpact =
+                new CastStage
+                {
+                    StageKey = 5,
+                    DurationTicks = 27,
+                    LockMovement = true,
+                };
+            return new SequentialRecastCastModelDef
+            {
+                FirstImpact = impact,
+                FirstRecastWindow = window,
+                SecondImpact = secondImpact,
+                SecondRecastWindow = secondWindow,
+                FinalImpact = finalImpact,
+                FirstMinimumRecastDelayTicks = 30,
+                SecondMinimumRecastDelayTicks = 30,
+            };
+        }
+
+        private static void SetCurrentTick(int tick)
+        {
+            var controller =
+                new SimulationTickContextController();
+            controller.BeginTick(
+                tick,
+                ExecutionMode.ClientPrediction);
+            controller.EndTick();
+        }
+
+        private sealed class FakeAbilityRuntimeView :
+            ILocalAbilityRuntimeView
+        {
+            public bool HasSession;
+            public bool WaitingForCommit;
+            public bool CanOpenAim = true;
+
+            public bool HasActiveSession(
+                UnitUid ownerUid,
+                byte slot) =>
+                HasSession;
+
+            public bool IsWaitingForCommit(
+                UnitUid ownerUid,
+                byte slot) =>
+                WaitingForCommit;
+
+            public bool CanOpenLocalAim(
+                UnitUid ownerUid,
+                byte slot) =>
+                CanOpenAim;
         }
 
         [Test]

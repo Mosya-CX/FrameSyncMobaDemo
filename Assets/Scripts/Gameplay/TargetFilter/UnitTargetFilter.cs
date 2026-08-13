@@ -7,6 +7,7 @@ namespace FrameSyncMoba.Unit
     /// (Physics v13.1 section 9.2/9.5).
     /// All conditions are ANDed — a unit must pass all active filters.
     /// </summary>
+    [System.Serializable]
     public struct UnitTargetFilter
     {
         public TeamQueryRule TeamRule;

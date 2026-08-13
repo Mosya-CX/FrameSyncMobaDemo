@@ -12,9 +12,18 @@ namespace FrameSyncMoba.Unit
     {
         /// <summary>Buff definition to apply. Set at bake time from equipment definition.</summary>
         public BuffConfigId BuffConfigId;
+        public bool IgnoreRepeatedOnHit;
 
-        public override void Execute(Unit owner, EquipmentInstance instance)
+        public override void Execute(
+            ref EquipmentEffectExecutionContext context,
+            ref EquipmentEffectModuleRuntimeState state)
         {
+            Unit owner = context.Owner;
+            EquipmentInstance instance = context.Instance;
+            if (IgnoreRepeatedOnHit &&
+                context.Timing == EquipmentEffectInvokeTiming.OnHitDealt &&
+                context.OnHit.IsRepeated)
+                return;
             if (owner?.BuffHandler == null || !BuffConfigId.IsValid) return;
             if (owner.World?.BuffDefinitions == null) return;
             if (!owner.World.BuffDefinitions.TryGet(BuffConfigId, out BuffDefinition def)) return;
@@ -25,7 +34,7 @@ namespace FrameSyncMoba.Unit
                 BuffSource.Create(
                     owner.UnitUid,
                     BuffSourceType.Item,
-                    0));
+                    instance?.Definition?.Id ?? 0));
         }
     }
 }

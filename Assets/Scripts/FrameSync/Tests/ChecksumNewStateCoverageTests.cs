@@ -111,6 +111,20 @@ namespace FrameSyncMoba.FrameSync.Tests
                 "MinionThreatTable must participate in the checksum.");
         }
 
+        [Test]
+        public void Checksum_ChangesWhenEquipmentTriggerCountDiffers()
+        {
+            GameplaySnapshot twoTriggers = CreateMinimalSnapshot();
+            GameplaySnapshot noTriggers = CreateMinimalSnapshot();
+            twoTriggers.UnitWorldState = CreateEquipmentState(2);
+            noTriggers.UnitWorldState = CreateEquipmentState(0);
+
+            Assert.AreNotEqual(
+                Compute(twoTriggers),
+                Compute(noTriggers),
+                "Equipment module TriggerCount must participate in the checksum.");
+        }
+
         private static GameplaySnapshot CreateMinimalSnapshot()
         {
             return new GameplaySnapshot
@@ -155,6 +169,59 @@ namespace FrameSyncMoba.FrameSync.Tests
                                     new UnitUid(21, 1201, 0),
                                 Threat = threat,
                             },
+                        },
+                    },
+                },
+            };
+        }
+
+        private static UnitWorldSnapshot CreateEquipmentState(int triggerCount)
+        {
+            var slots = new System.Collections.Generic.List<EquipmentSlotSnapshot>(
+                EquipmentHandler.SlotCount);
+            slots.Add(new EquipmentSlotSnapshot
+            {
+                Occupied = true,
+                EquipmentId = 31005,
+                StackCount = 1,
+                FixedStatHandles =
+                    new System.Collections.Generic.List<StatModifierHandle>(),
+                EffectStates = new System.Collections.Generic.List<EquipmentEffectRuntimeSnapshot>
+                {
+                    new EquipmentEffectRuntimeSnapshot
+                    {
+                        ModuleStates = new System.Collections.Generic.List<EquipmentEffectModuleRuntimeState>(),
+                    },
+                    new EquipmentEffectRuntimeSnapshot
+                    {
+                        ModuleStates = new System.Collections.Generic.List<EquipmentEffectModuleRuntimeState>
+                        {
+                            default,
+                            new EquipmentEffectModuleRuntimeState
+                            {
+                                TriggerCount = triggerCount,
+                            },
+                        },
+                    },
+                },
+            });
+            while (slots.Count < EquipmentHandler.SlotCount)
+                slots.Add(EquipmentSlotSnapshot.Empty);
+
+            return new UnitWorldSnapshot
+            {
+                Units = new[]
+                {
+                    new UnitSnapshot
+                    {
+                        UnitUid = new UnitUid(20, 1001, 0),
+                        UnitKind = UnitKind.Hero,
+                        TeamId = new TeamId(1),
+                        UnitPrototypeId = 1001,
+                        EquipmentState = new EquipmentHandlerSnapshot
+                        {
+                            Slots = slots,
+                            SharedCooldowns = new System.Collections.Generic.List<EquipmentSharedCooldownSnapshot>(),
                         },
                     },
                 },

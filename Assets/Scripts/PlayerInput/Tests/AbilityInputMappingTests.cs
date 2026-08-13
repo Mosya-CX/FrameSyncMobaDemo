@@ -382,5 +382,132 @@ namespace FrameSyncMoba.PlayerInput.Tests
                 Object.DestroyImmediate(gameObject);
             }
         }
+
+        [Test]
+        public void SequentialRecastDirection_DefaultsToLeftClickCommit()
+        {
+            InputMappingTemplate template =
+                AbilityInputMapping.BuildDefault(
+                    new SequentialRecastCastModelDef(),
+                    AimKind.Direction);
+            InputBinding press = Expect(
+                template,
+                InputTrigger.AbilityKeyPressed);
+            InputBinding click = Expect(
+                template,
+                InputTrigger.PrimaryClick);
+
+            Assert.That(
+                press.Translation,
+                Is.EqualTo(InputTranslation.LocalAimOnly));
+            Assert.That(
+                click.Translation,
+                Is.EqualTo(InputTranslation.Commit));
+            Assert.That(click.CaptureAim, Is.True);
+        }
+
+        [Test]
+        public void DirectionalZoneResolver_FollowsSequentialRecastStage()
+        {
+            var first = new DirectionalMultiZoneDamageStageDef
+            {
+                StageDefId = 1,
+                Shape = DirectionalZoneShape.Rectangle,
+            };
+            var second = new DirectionalMultiZoneDamageStageDef
+            {
+                StageDefId = 3,
+                Shape = DirectionalZoneShape.Trapezoid,
+            };
+            var final = new DirectionalMultiZoneDamageStageDef
+            {
+                StageDefId = 5,
+                Shape = DirectionalZoneShape.OffsetCircle,
+            };
+            var model = new SequentialRecastCastModelDef
+            {
+                FirstImpact = new CastStage
+                {
+                    StageKey = 1,
+                    Def = first,
+                },
+                FirstRecastWindow = new CastStage
+                {
+                    StageKey = 2,
+                },
+                SecondImpact = new CastStage
+                {
+                    StageKey = 3,
+                    Def = second,
+                },
+                SecondRecastWindow = new CastStage
+                {
+                    StageKey = 4,
+                },
+                FinalImpact = new CastStage
+                {
+                    StageKey = 5,
+                    Def = final,
+                },
+            };
+            var runtime = new AbilityRuntime
+            {
+                Level = 1,
+                Definition = new AbilityDef
+                {
+                    AbilityId = 10021,
+                    CastModel = model,
+                    AimKind = AimKind.Direction,
+                },
+            };
+            var holder = new GameObject("IndicatorResolverFixture");
+            try
+            {
+                AbilityHandler handler =
+                    holder.AddComponent<AbilityHandler>();
+                var slot = new AbilitySlotRuntime
+                {
+                    SlotIndex = 0,
+                    ActiveAbilityId = 10021,
+                };
+                slot.AddAbility(runtime);
+                handler.AddSlot(slot);
+
+                Assert.That(
+                    AbilityIndicatorGeometryResolver
+                        .TryResolveDirectionalZone(
+                            handler,
+                            0,
+                            out DirectionalMultiZoneDamageStageDef
+                                resolved),
+                    Is.True);
+                Assert.That(resolved, Is.SameAs(first));
+
+                AbilitySession session = runtime.BeginSession(
+                    1,
+                    0,
+                    AimSnapshot.None);
+                session.CurrentStageKey = 2;
+                Assert.That(
+                    AbilityIndicatorGeometryResolver
+                        .TryResolveDirectionalZone(
+                            handler,
+                            0,
+                            out resolved),
+                    Is.True);
+                Assert.That(resolved, Is.SameAs(second));
+                session.CurrentStageKey = 4;
+                AbilityIndicatorGeometryResolver
+                    .TryResolveDirectionalZone(
+                        handler,
+                        0,
+                        out resolved);
+                Assert.That(resolved, Is.SameAs(final));
+            }
+            finally
+            {
+                Object.DestroyImmediate(holder);
+            }
+        }
     }
 }

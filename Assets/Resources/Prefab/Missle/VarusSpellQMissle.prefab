@@ -59,13 +59,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed0a9cc1ab86cbe4484aa191eda97ca8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shapeKind: 1
-  localOffset: {x: 0, y: 0}
-  radius: 0.18
+  shapeKind: 3
+  localOffset: {x: 0, y: 1.68}
+  radius: 0
   length: 0
   width: 0
-  halfExtents: {x: 0, y: 0}
+  halfExtents: {x: 0.3, y: 0.7}
   sweepFromPrevious: 1
+  showGizmo: 1
 --- !u!1 &3750240216504030492
 GameObject:
   m_ObjectHideFlags: 0

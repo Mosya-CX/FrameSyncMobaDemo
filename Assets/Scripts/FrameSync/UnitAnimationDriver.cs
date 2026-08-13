@@ -1,5 +1,6 @@
 using FrameSyncMoba.Unit;
 using FrameSyncMoba.Presentation;
+using FrameSyncMoba.Deterministic;
 using System.Collections.Generic;
 using UnityEngine;
 using UnitType = FrameSyncMoba.Unit.Unit;
@@ -15,12 +16,14 @@ namespace FrameSyncMoba.FrameSync
         private readonly HashSet<int> _parameterHashes = new HashSet<int>();
         private bool _wasAttacking;
         private int _lastAttackSequence = int.MinValue;
+        private int _lastAttackStartLogicTick = int.MinValue;
         private int _lastAbilityId;
         private int _lastAbilityStage = -1;
         private LifeState _lastLifeState = (LifeState)byte.MaxValue;
         private bool _wasMoving;
         private bool _wasCasting;
         private bool _hasDrivenFrame;
+        private bool _wasAnimationVariantActive;
 
         private void Awake()
         {
@@ -65,10 +68,14 @@ namespace FrameSyncMoba.FrameSync
                 SetBool(HashOrDefault(_profile?.IsMovingHash ?? 0, "IsMoving"), false);
                 SetFloat(HashOrDefault(_profile?.MoveSpeedHash ?? 0, "MoveSpeed"), 0f);
                 SetBool(HashOrDefault(_profile?.IsAttackingHash ?? 0, "IsAttacking"), false);
+                SetBool(HashOrDefault(_profile?.IsEmpoweredAttackHash ?? 0, "IsEmpoweredAttack"), false);
                 SetBool(HashOrDefault(_profile?.IsCastingHash ?? 0, "IsCasting"), false);
+                SetBool(HashOrDefault(_profile?.IsPassiveReadyHash ?? 0, "IsPassiveReady"), false);
+                SetBool(HashOrDefault(_profile?.IsAnimationVariantActiveHash ?? 0, "IsAnimationVariantActive"), false);
                 _wasMoving = false;
                 _wasCasting = false;
                 _wasAttacking = false;
+                _wasAnimationVariantActive = false;
                 _hasDrivenFrame = true;
                 return;
             }
@@ -81,25 +88,68 @@ namespace FrameSyncMoba.FrameSync
                 isMoving = movement.IsMoving;
                 if (isMoving)
                 {
-                    float sx = (float)movement.Velocity.x;
-                    float sy = (float)movement.Velocity.y;
-                    moveSpeed = Mathf.Sqrt(sx * sx + sy * sy);
+                    // Use the stable stat-derived move speed instead of the
+                    // instantaneous velocity: collision/RVO push can make the
+                    // per-Tick velocity wobble and the Animator blend would
+                    // stutter with it.
+                    moveSpeed =
+                        (float)movement.LogicMoveSpeed;
                 }
             }
             SetBool(HashOrDefault(_profile?.IsMovingHash ?? 0, "IsMoving"), isMoving);
             SetFloat(HashOrDefault(_profile?.MoveSpeedHash ?? 0, "MoveSpeed"), moveSpeed);
+
+            var abilityHandler = unit.AbilityHandler;
+            int currentLogicTick = SimulationTickContext.Current.Tick;
+            bool isPassiveReady =
+                _profile != null &&
+                abilityHandler != null &&
+                abilityHandler.IsFixedPassiveReady(
+                    _profile.PassiveReadyAbilityId,
+                    currentLogicTick);
+            bool isAnimationVariantActive =
+                _profile != null &&
+                _profile.AnimationVariantBuffConfigId > 0 &&
+                unit.BuffHandler != null &&
+                unit.BuffHandler.HasBuff(
+                    new BuffConfigId(
+                        _profile.AnimationVariantBuffConfigId));
+            SetBool(
+                HashOrDefault(
+                    _profile?.IsPassiveReadyHash ?? 0,
+                    "IsPassiveReady"),
+                isPassiveReady);
+            SetBool(
+                HashOrDefault(
+                    _profile?.IsAnimationVariantActiveHash ?? 0,
+                    "IsAnimationVariantActive"),
+                isAnimationVariantActive);
+            if (_hasDrivenFrame &&
+                _wasAnimationVariantActive &&
+                !isAnimationVariantActive)
+            {
+                SetTrigger(HashOrDefault(
+                    _profile?.AnimationVariantExitHash ?? 0,
+                    "AnimationVariantExit"));
+            }
 
             var attack = unit.AttackHandler;
             bool isAttacking = false;
             int attackSequence = 0;
             bool isRecovering = false;
             float attackMotionTime = 0f;
+            bool isEmpoweredAttack = false;
+            int attackStartLogicTick = -1;
             if (attack != null)
             {
                 var attackAnim =
                     attack.GetAnimationSnapshot();
                 isAttacking = attackAnim.IsAttacking;
+                attackStartLogicTick =
+                    attackAnim.AttackStartLogicTick;
                 attackSequence = attackAnim.SequenceIndex;
+                isEmpoweredAttack =
+                    attackAnim.IsEmpoweredAttack;
                 if (attackAnim.ImpactCommitted)
                 {
                     isRecovering = true;
@@ -113,21 +163,32 @@ namespace FrameSyncMoba.FrameSync
             }
             SetBool(HashOrDefault(_profile?.IsAttackingHash ?? 0, "IsAttacking"), isAttacking);
             SetBool(HashOrDefault(_profile?.IsAttackRecoveringHash ?? 0, "IsAttackRecovering"), isRecovering);
-            SetInteger(HashOrDefault(_profile?.AttackSequenceIndexHash ?? 0, "AttackSequenceIndex"), attackSequence);
+            SetBool(HashOrDefault(_profile?.IsEmpoweredAttackHash ?? 0, "IsEmpoweredAttack"), isEmpoweredAttack);
+            int attackAnimationVariant =
+                ResolveAttackAnimationVariant(
+                    attackSequence,
+                    _profile?.AttackStateHashes?.Length ?? 0);
+            SetInteger(
+                HashOrDefault(
+                    _profile?.AttackSequenceIndexHash ?? 0,
+                    "AttackSequenceIndex"),
+                attackAnimationVariant);
             SetFloat(HashOrDefault(_profile?.AttackMotionTimeHash ?? 0, "AttackMotionTime"), attackMotionTime);
 
             if (isAttacking &&
                 (!_wasAttacking ||
-                 attackSequence != _lastAttackSequence))
+                 attackStartLogicTick !=
+                    _lastAttackStartLogicTick))
             {
                 SetTrigger(HashOrDefault(_profile?.AttackStartHash ?? 0, "AttackStart"));
                 _lastAttackSequence = attackSequence;
+                _lastAttackStartLogicTick =
+                    attackStartLogicTick;
             }
             bool attackEnded =
                 _wasAttacking &&
                 !isAttacking;
 
-            var abilityHandler = unit.AbilityHandler;
             bool isCasting = false;
             int abilityId = 0;
             int abilityStage = -1;
@@ -186,7 +247,9 @@ namespace FrameSyncMoba.FrameSync
                 // named states today); minions have no casts.
                 PlayAbilityStage(
                     abilityId,
-                    abilityStage);
+                    abilityStage,
+                    isPassiveReady,
+                    isAnimationVariantActive);
                 _lastAbilityId = abilityId;
                 _lastAbilityStage = abilityStage;
             }
@@ -208,6 +271,7 @@ namespace FrameSyncMoba.FrameSync
             _wasMoving = isMoving;
             _wasCasting = isCasting;
             _wasAttacking = isAttacking;
+            _wasAnimationVariantActive = isAnimationVariantActive;
             _hasDrivenFrame = true;
         }
 
@@ -225,7 +289,9 @@ namespace FrameSyncMoba.FrameSync
 
         private void PlayAbilityStage(
             int abilityId,
-            int stageIndex)
+            int stageIndex,
+            bool isPassiveReady,
+            bool isAnimationVariantActive)
         {
             if (_profile == null ||
                 !_profile.TryGetStageBinding(
@@ -234,8 +300,16 @@ namespace FrameSyncMoba.FrameSync
                     out StageAnimationBinding binding) ||
                 binding.StateNameHash == 0)
                 return;
+            int stateNameHash =
+                isAnimationVariantActive &&
+                binding.AnimationVariantStateNameHash != 0
+                    ? binding.AnimationVariantStateNameHash
+                    : isPassiveReady &&
+                      binding.PassiveReadyStateNameHash != 0
+                        ? binding.PassiveReadyStateNameHash
+                        : binding.StateNameHash;
             _animator.CrossFade(
-                binding.StateNameHash,
+                stateNameHash,
                 0.04f,
                 0,
                 binding.StartNormalizedTime);
@@ -248,6 +322,23 @@ namespace FrameSyncMoba.FrameSync
             return configuredHash != 0
                 ? configuredHash
                 : Animator.StringToHash(defaultName);
+        }
+
+        /// <summary>
+        /// Maps the deterministic, monotonically cycling Gameplay attack
+        /// sequence onto the finite presentation variants authored by the
+        /// unit animation profile.
+        /// </summary>
+        public static int ResolveAttackAnimationVariant(
+            int attackSequence,
+            int variantCount)
+        {
+            if (variantCount <= 0)
+                return attackSequence;
+            int remainder = attackSequence % variantCount;
+            return remainder < 0
+                ? remainder + variantCount
+                : remainder;
         }
 
         private void SetBool(int hash, bool value)

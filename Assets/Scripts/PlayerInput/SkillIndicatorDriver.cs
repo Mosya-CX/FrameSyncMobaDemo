@@ -8,12 +8,11 @@ namespace FrameSyncMoba.PlayerInput
     /// Manages ability aim indicator GameObjects.
     ///
     /// Supports the MOBA skill-indicator rules:
-    /// - Q/E/R show a translucent cast-range circle around the caster;
-    /// - Q/R (Direction) show a rounded bar that points at the cursor and can
-    ///   grow as the ability charges (UpdateDirectionLength);
-    /// - E (Point) shows a cursor-following ground circle whose radius is
-    ///   configurable (UpdateGroundRadius);
-    /// - W has no indicator.
+    /// - ordinary Direction aims show a rounded bar toward the cursor;
+    /// - directional multi-zone stages draw their exact primary and sweet-
+    ///   spot outlines from the formal runtime definition;
+    /// - Point/Unit aims show a cursor-following ground circle;
+    /// - aiming abilities may also show a cast-range circle.
     ///
     /// Presentation only; never affects Gameplay.
     /// </summary>
@@ -38,6 +37,9 @@ namespace FrameSyncMoba.PlayerInput
         private Transform _directionHead;
         private Transform _groundDisc;
         private Transform _rangeDisc;
+        private LineRenderer _directionalZoneOutline;
+        private LineRenderer _directionalSweetSpotOutline;
+        private Material _runtimeLineMaterial;
 
         private AimKind _activeKind;
         private fp _activeRange;
@@ -45,9 +47,13 @@ namespace FrameSyncMoba.PlayerInput
         private bool _showRangeCircle;
         private fp _groundRadius;
         private fp _directionLength;
+        private DirectionalMultiZoneDamageStageDef
+            _activeDirectionalZone;
 
         public bool IsVisible => _visible;
         public AimKind ActiveKind => _activeKind;
+        public DirectionalMultiZoneDamageStageDef
+            ActiveDirectionalZone => _activeDirectionalZone;
 
         /// <summary>
         /// Assign prefabs before the driver is enabled. Safe to call before
@@ -132,16 +138,23 @@ namespace FrameSyncMoba.PlayerInput
             fp2 casterPosition,
             fp2 casterForward,
             bool showRangeCircle = true,
-            fp targetRadius = default)
+            fp targetRadius = default,
+            DirectionalMultiZoneDamageStageDef
+                directionalZone = null)
         {
             EnsureInstances();
             HideAllInstances();
 
             _activeKind = kind;
             _activeRange = castRange;
+            _activeDirectionalZone =
+                kind == AimKind.Direction
+                    ? directionalZone
+                    : null;
             _showRangeCircle =
                 showRangeCircle &&
-                kind != AimKind.None;
+                kind != AimKind.None &&
+                _activeDirectionalZone == null;
             _groundRadius =
                 targetRadius > fp.zero
                     ? targetRadius
@@ -176,8 +189,22 @@ namespace FrameSyncMoba.PlayerInput
                     $"scale={(_rangeDisc != null ? _rangeDisc.lossyScale.ToString() : "NULL")}");
             }
 
-            GameObject target =
-                GetIndicatorForAimKind(kind);
+            if (_activeDirectionalZone != null)
+            {
+                EnsureDirectionalZoneLines();
+                SetLineActive(
+                    _directionalZoneOutline,
+                    true);
+                SetLineActive(
+                    _directionalSweetSpotOutline,
+                    true);
+                UpdateDirectionalZoneIndicator(
+                    casterPosition,
+                    casterForward);
+                return;
+            }
+
+            GameObject target = GetIndicatorForAimKind(kind);
             if (target != null)
             {
                 target.SetActive(true);
@@ -210,6 +237,23 @@ namespace FrameSyncMoba.PlayerInput
                         .transform,
                     casterPosition,
                     DirectionBarHeight);
+            }
+
+            if (_activeDirectionalZone != null)
+            {
+                fp2 toTarget =
+                    cursorWorldPos - casterPosition;
+                fp distSq = fpmath.dot(toTarget, toTarget);
+                fp2 forward = casterForward;
+                if (distSq > fp.zero)
+                {
+                    forward =
+                        toTarget / fpmath.sqrt(distSq);
+                }
+                UpdateDirectionalZoneIndicator(
+                    casterPosition,
+                    forward);
+                return;
             }
 
             GameObject target =
@@ -302,6 +346,7 @@ namespace FrameSyncMoba.PlayerInput
             _visible = false;
             _activeKind = AimKind.None;
             _showRangeCircle = false;
+            _activeDirectionalZone = null;
             UnityEngine.Debug.Log(
                 "[Indicator] Hide");
         }
@@ -331,7 +376,237 @@ namespace FrameSyncMoba.PlayerInput
             _directionHead = null;
             _groundDisc = null;
             _rangeDisc = null;
+            if (_directionalZoneOutline != null)
+                Destroy(_directionalZoneOutline.gameObject);
+            if (_directionalSweetSpotOutline != null)
+                Destroy(_directionalSweetSpotOutline.gameObject);
+            if (_runtimeLineMaterial != null)
+                Destroy(_runtimeLineMaterial);
+            _directionalZoneOutline = null;
+            _directionalSweetSpotOutline = null;
+            _runtimeLineMaterial = null;
+            _activeDirectionalZone = null;
             _visible = false;
+        }
+
+        private void EnsureDirectionalZoneLines()
+        {
+            if (_runtimeLineMaterial == null)
+            {
+                Shader shader = Shader.Find("Sprites/Default");
+                if (shader != null)
+                {
+                    _runtimeLineMaterial = new Material(shader)
+                    {
+                        name = "RuntimeAbilityIndicatorLine",
+                        hideFlags = HideFlags.HideAndDontSave,
+                    };
+                }
+            }
+            if (_directionalZoneOutline == null)
+            {
+                _directionalZoneOutline = CreateZoneLine(
+                    "DirectionalZoneOutline",
+                    new Color(0.15f, 0.75f, 1f, 0.95f),
+                    0.08f);
+            }
+            if (_directionalSweetSpotOutline == null)
+            {
+                _directionalSweetSpotOutline = CreateZoneLine(
+                    "DirectionalSweetSpotOutline",
+                    new Color(1f, 0.78f, 0.08f, 1f),
+                    0.1f);
+            }
+        }
+
+        private LineRenderer CreateZoneLine(
+            string objectName,
+            Color color,
+            float width)
+        {
+            var holder = new GameObject(objectName);
+            holder.transform.SetParent(transform, false);
+            var line = holder.AddComponent<LineRenderer>();
+            line.useWorldSpace = false;
+            line.loop = true;
+            line.startWidth = width;
+            line.endWidth = width;
+            line.startColor = color;
+            line.endColor = color;
+            line.numCornerVertices = 2;
+            line.numCapVertices = 2;
+            line.shadowCastingMode =
+                UnityEngine.Rendering.ShadowCastingMode.Off;
+            line.receiveShadows = false;
+            if (_runtimeLineMaterial != null)
+                line.sharedMaterial = _runtimeLineMaterial;
+            holder.SetActive(false);
+            return line;
+        }
+
+        private void UpdateDirectionalZoneIndicator(
+            fp2 casterPosition,
+            fp2 forward)
+        {
+            if (_activeDirectionalZone == null)
+                return;
+            EnsureDirectionalZoneLines();
+            Transform root =
+                _directionalZoneOutline.transform;
+            SetWorldXZPosition(
+                root,
+                casterPosition,
+                DirectionBarHeight);
+            Vector3 unityForward =
+                Fp2ToVector3Direction(forward);
+            if (unityForward.sqrMagnitude > 0.0001f)
+                root.forward = unityForward.normalized;
+            _directionalSweetSpotOutline.transform
+                .SetPositionAndRotation(
+                    root.position,
+                    root.rotation);
+
+            WritePrimaryZone(
+                _directionalZoneOutline,
+                _activeDirectionalZone);
+            WriteSweetSpotZone(
+                _directionalSweetSpotOutline,
+                _activeDirectionalZone);
+        }
+
+        private static void WritePrimaryZone(
+            LineRenderer line,
+            DirectionalMultiZoneDamageStageDef zone)
+        {
+            if (zone.Shape == DirectionalZoneShape.OffsetCircle)
+            {
+                WriteCircle(
+                    line,
+                    (float)zone.CircleForwardOffset,
+                    (float)zone.CircleRadius);
+                return;
+            }
+            float farWidth =
+                zone.Shape == DirectionalZoneShape.Trapezoid
+                    ? (float)zone.FarHalfWidth
+                    : (float)zone.NearHalfWidth;
+            WriteTrapezoid(
+                line,
+                (float)zone.ForwardStart,
+                (float)zone.ForwardLength,
+                (float)zone.NearHalfWidth,
+                farWidth);
+        }
+
+        private static void WriteSweetSpotZone(
+            LineRenderer line,
+            DirectionalMultiZoneDamageStageDef zone)
+        {
+            if (zone.Shape == DirectionalZoneShape.OffsetCircle)
+            {
+                WriteCircle(
+                    line,
+                    (float)zone.CircleForwardOffset,
+                    (float)zone.SweetCircleRadius);
+                return;
+            }
+            if (zone.SweetForwardEnd <= zone.SweetForwardStart)
+            {
+                SetLineActive(line, false);
+                return;
+            }
+            SetLineActive(line, true);
+            float nearWidth = WidthAt(
+                zone,
+                (float)zone.SweetForwardStart);
+            float farWidth = WidthAt(
+                zone,
+                (float)zone.SweetForwardEnd);
+            WriteTrapezoid(
+                line,
+                (float)zone.SweetForwardStart,
+                (float)(zone.SweetForwardEnd -
+                    zone.SweetForwardStart),
+                nearWidth,
+                farWidth);
+        }
+
+        private static float WidthAt(
+            DirectionalMultiZoneDamageStageDef zone,
+            float longitudinal)
+        {
+            if (zone.Shape != DirectionalZoneShape.Trapezoid ||
+                zone.ForwardLength <= fp.zero)
+            {
+                return (float)zone.NearHalfWidth;
+            }
+            float t = Mathf.Clamp01(
+                (longitudinal - (float)zone.ForwardStart) /
+                (float)zone.ForwardLength);
+            return Mathf.Lerp(
+                (float)zone.NearHalfWidth,
+                (float)zone.FarHalfWidth,
+                t);
+        }
+
+        private static void WriteTrapezoid(
+            LineRenderer line,
+            float start,
+            float length,
+            float nearHalfWidth,
+            float farHalfWidth)
+        {
+            SetLineActive(line, true);
+            line.loop = true;
+            line.positionCount = 4;
+            float end = start + length;
+            line.SetPosition(0,
+                new Vector3(-nearHalfWidth, 0f, start));
+            line.SetPosition(1,
+                new Vector3(nearHalfWidth, 0f, start));
+            line.SetPosition(2,
+                new Vector3(farHalfWidth, 0f, end));
+            line.SetPosition(3,
+                new Vector3(-farHalfWidth, 0f, end));
+        }
+
+        private static void WriteCircle(
+            LineRenderer line,
+            float forwardOffset,
+            float radius)
+        {
+            if (radius <= 0f)
+            {
+                SetLineActive(line, false);
+                return;
+            }
+            SetLineActive(line, true);
+            const int segments = 48;
+            line.loop = true;
+            line.positionCount = segments;
+            for (int i = 0; i < segments; i++)
+            {
+                float angle =
+                    i * Mathf.PI * 2f / segments;
+                line.SetPosition(
+                    i,
+                    new Vector3(
+                        Mathf.Cos(angle) * radius,
+                        0f,
+                        forwardOffset +
+                        Mathf.Sin(angle) * radius));
+            }
+        }
+
+        private static void SetLineActive(
+            LineRenderer line,
+            bool active)
+        {
+            if (line != null &&
+                line.gameObject.activeSelf != active)
+            {
+                line.gameObject.SetActive(active);
+            }
         }
 
         private GameObject GetIndicatorForAimKind(
@@ -581,6 +856,8 @@ namespace FrameSyncMoba.PlayerInput
                 _groundTargetInstance
                     .SetActive(false);
             }
+            SetLineActive(_directionalZoneOutline, false);
+            SetLineActive(_directionalSweetSpotOutline, false);
         }
 
         private static Vector3 Fp2ToVector3(

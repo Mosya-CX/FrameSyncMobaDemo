@@ -49,9 +49,10 @@ namespace FrameSyncMoba.FrameSync
     public sealed class MatchStatisticsRuntime
     {
         /// <summary>
-        /// Radius (world units) around a dying minion in which enemy heroes
-        /// share the minion's base experience (user rule: no gold sharing
-        /// for minion deaths; only the killer receives gold).
+        /// Authored/stat-distance radius around a dying minion in which
+        /// enemy heroes share the minion's base experience. It is converted
+        /// to logic distance through UnitWorld.StatDistanceToLogicDistanceScale.
+        /// Minion gold is not shared; only the killer receives gold.
         /// </summary>
         public const int MinionRewardShareRadius = 800;
 
@@ -59,8 +60,8 @@ namespace FrameSyncMoba.FrameSync
         /// Killer share of a hero-victim reward (Combat v13.2 11.5); the
         /// remainder is split evenly among valid assisters.
         /// </summary>
-        public static readonly fp HeroKillerShareRatio =
-            (fp)0.5m;
+        public const int HeroKillerShareNumerator = 3;
+        public const int HeroKillerShareDenominator = 5;
 
         private readonly List<MatchStatisticsEntry> entries =
             new List<MatchStatisticsEntry>();
@@ -233,17 +234,15 @@ namespace FrameSyncMoba.FrameSync
             if (hasKiller)
             {
                 int killerGold =
-                    (int)((long)baseGold *
-                        RatioNumerator(
-                            HeroKillerShareRatio) /
-                        RatioDenominator(
-                            HeroKillerShareRatio));
+                    ScaleIntegerFloor(
+                        baseGold,
+                        HeroKillerShareNumerator,
+                        HeroKillerShareDenominator);
                 int killerExperience =
-                    (int)((long)baseExperience *
-                        RatioNumerator(
-                            HeroKillerShareRatio) /
-                        RatioDenominator(
-                            HeroKillerShareRatio));
+                    ScaleIntegerFloor(
+                        baseExperience,
+                        HeroKillerShareNumerator,
+                        HeroKillerShareDenominator);
                 AddGoldAllocation(
                     result.KillerHeroUid,
                     killerGold,
@@ -302,9 +301,11 @@ namespace FrameSyncMoba.FrameSync
                 recipients.Add(
                     result.KillerHeroUid);
             }
-            fp radiusSq =
+            fp logicRadius =
                 (fp)MinionRewardShareRadius *
-                (fp)MinionRewardShareRadius;
+                unitWorld.StatDistanceToLogicDistanceScale;
+            fp radiusSq =
+                logicRadius * logicRadius;
             fp2 victimPosition =
                 victim.PhysicsEntity != null
                     ? victim.PhysicsEntity
@@ -463,20 +464,25 @@ namespace FrameSyncMoba.FrameSync
                 unit.TeamId != victim.TeamId;
         }
 
-        private static long RatioNumerator(fp ratio)
+        private static int ScaleIntegerFloor(
+            int amount,
+            int numerator,
+            int denominator)
         {
-            return ratio == fp.zero
-                ? 0
-                : (long)(ratio *
-                    (fp)1000m);
-        }
-
-        private static long RatioDenominator(
-            fp ratio)
-        {
-            return ratio == fp.zero
-                ? 1
-                : 1000;
+            if (amount < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(amount));
+            }
+            if (numerator < 0 || denominator <= 0 ||
+                numerator > denominator)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(numerator));
+            }
+            return checked(
+                (int)((long)amount * numerator /
+                    denominator));
         }
 
         public void Capture(ref MatchStatisticsRuntimeSnapshot state) =>
@@ -541,7 +547,7 @@ namespace FrameSyncMoba.FrameSync
             goldAllocations.Add(new GoldAllocation
             {
                 ReceiverHeroUid = receiver,
-                GoldAmount = (fp)amount,
+                GoldAmount = amount,
                 DeathSequenceInTick = deathSequence,
             });
         }

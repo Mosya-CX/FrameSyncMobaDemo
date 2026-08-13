@@ -25,8 +25,14 @@ namespace FrameSyncMoba.Bootstrap
             "FrameSyncMoba.AuthorityRecoveryResponse.v1";
         private const string MatchResultMessage =
             "FrameSyncMoba.MatchResultState.v1";
+        private const string PingRequestMessage =
+            "FrameSyncMoba.PresentationPingRequest.v1";
+        private const string PingResponseMessage =
+            "FrameSyncMoba.PresentationPingResponse.v1";
 
         [SerializeField] private NetworkManager networkManager;
+        [SerializeField, Min(0.1f)]
+        private float pingRefreshIntervalSeconds = 0.5f;
 
         private FrameSyncGameRuntime runtime;
         private Func<ulong, GameplayCommand, bool>
@@ -36,6 +42,7 @@ namespace FrameSyncMoba.Bootstrap
         private bool registered;
         private string matchId;
         private MatchResultState? pendingMatchResult;
+        private PresentationPingTracker pingTracker;
 
         public bool IsBound => runtime != null;
         internal bool IsConnectedClient =>
@@ -44,6 +51,8 @@ namespace FrameSyncMoba.Bootstrap
             !networkManager.IsServer &&
             networkManager.IsConnectedClient;
         public event Action<MatchResultState> MatchResultReady;
+        public int LatestPingMilliseconds =>
+            pingTracker?.LatestRoundTripMilliseconds ?? -1;
 
         public void SetMatchId(string matchId)
         {
@@ -68,6 +77,8 @@ namespace FrameSyncMoba.Bootstrap
                 throw new InvalidOperationException(
                     "FrameSyncNetworkBridge requires NetworkManager.");
             this.authorizeCommand = authorizeCommand;
+            pingTracker = new PresentationPingTracker(
+                pingRefreshIntervalSeconds);
             TryRegisterHandlers();
             runtime.AuthorityFrames.AuthorityFrameBuilt +=
                 OnAuthorityFrameBuilt;
@@ -136,6 +147,28 @@ namespace FrameSyncMoba.Bootstrap
                     request));
         }
 
+        public void TickPresentationPing(double realtimeSeconds)
+        {
+            if (!IsConnectedClient ||
+                pingTracker == null ||
+                !pingTracker.TryBegin(
+                    realtimeSeconds,
+                    out uint sequence))
+                return;
+            using (var writer = new FastBufferWriter(
+                sizeof(uint),
+                Allocator.Temp))
+            {
+                writer.WriteValueSafe(sequence);
+                networkManager.CustomMessagingManager
+                    .SendNamedMessage(
+                        PingRequestMessage,
+                        NetworkManager.ServerClientId,
+                        writer,
+                        NetworkDelivery.Unreliable);
+            }
+        }
+
         private bool TryRegisterHandlers()
         {
             if (registered)
@@ -162,6 +195,12 @@ namespace FrameSyncMoba.Bootstrap
             messages.RegisterNamedMessageHandler(
                 MatchResultMessage,
                 ReceiveMatchResult);
+            messages.RegisterNamedMessageHandler(
+                PingRequestMessage,
+                ReceivePingRequest);
+            messages.RegisterNamedMessageHandler(
+                PingResponseMessage,
+                ReceivePingResponse);
             registered = true;
             return true;
         }
@@ -186,6 +225,10 @@ namespace FrameSyncMoba.Bootstrap
                 RecoveryResponseMessage);
             messages.UnregisterNamedMessageHandler(
                 MatchResultMessage);
+            messages.UnregisterNamedMessageHandler(
+                PingRequestMessage);
+            messages.UnregisterNamedMessageHandler(
+                PingResponseMessage);
             registered = false;
         }
 
@@ -211,6 +254,37 @@ namespace FrameSyncMoba.Bootstrap
                 Broadcast(
                     RelayMessage,
                     FrameSyncWireCodec.WriteRelay(relays[i]));
+        }
+
+        private void ReceivePingRequest(
+            ulong senderClientId,
+            FastBufferReader reader)
+        {
+            RequireServer();
+            reader.ReadValueSafe(out uint sequence);
+            using (var writer = new FastBufferWriter(
+                sizeof(uint),
+                Allocator.Temp))
+            {
+                writer.WriteValueSafe(sequence);
+                networkManager.CustomMessagingManager
+                    .SendNamedMessage(
+                        PingResponseMessage,
+                        senderClientId,
+                        writer,
+                        NetworkDelivery.Unreliable);
+            }
+        }
+
+        private void ReceivePingResponse(
+            ulong senderClientId,
+            FastBufferReader reader)
+        {
+            RequireClientServerSender(senderClientId);
+            reader.ReadValueSafe(out uint sequence);
+            pingTracker?.TryComplete(
+                sequence,
+                Time.realtimeSinceStartupAsDouble);
         }
 
         private void ReceiveRelay(
@@ -416,6 +490,66 @@ namespace FrameSyncMoba.Bootstrap
                 runtime.AuthorityFrames.AuthorityFrameBuilt -=
                     OnAuthorityFrameBuilt;
             UnregisterHandlers();
+        }
+    }
+
+    /// <summary>
+    /// Presentation-only ping cadence and round-trip measurement. It never
+    /// enters Gameplay commands, snapshots, or checksums.
+    /// </summary>
+    public sealed class PresentationPingTracker
+    {
+        private readonly double intervalSeconds;
+        private double nextSendRealtime;
+        private double pendingSendRealtime;
+        private uint nextSequence = 1;
+        private uint pendingSequence;
+
+        public int LatestRoundTripMilliseconds { get; private set; } = -1;
+
+        public PresentationPingTracker(double intervalSeconds)
+        {
+            if (intervalSeconds <= 0d ||
+                double.IsNaN(intervalSeconds) ||
+                double.IsInfinity(intervalSeconds))
+                throw new ArgumentOutOfRangeException(
+                    nameof(intervalSeconds));
+            this.intervalSeconds = intervalSeconds;
+        }
+
+        public bool TryBegin(
+            double realtimeSeconds,
+            out uint sequence)
+        {
+            sequence = 0;
+            if (realtimeSeconds < nextSendRealtime)
+                return false;
+            sequence = nextSequence;
+            nextSequence = nextSequence == uint.MaxValue
+                ? 1u
+                : nextSequence + 1u;
+            pendingSequence = sequence;
+            pendingSendRealtime = realtimeSeconds;
+            nextSendRealtime = realtimeSeconds + intervalSeconds;
+            return true;
+        }
+
+        public bool TryComplete(
+            uint sequence,
+            double realtimeSeconds)
+        {
+            if (sequence == 0 ||
+                sequence != pendingSequence ||
+                realtimeSeconds < pendingSendRealtime)
+                return false;
+            double milliseconds =
+                (realtimeSeconds - pendingSendRealtime) * 1000d;
+            LatestRoundTripMilliseconds =
+                milliseconds >= int.MaxValue
+                    ? int.MaxValue
+                    : (int)Math.Round(milliseconds);
+            pendingSequence = 0;
+            return true;
         }
     }
 

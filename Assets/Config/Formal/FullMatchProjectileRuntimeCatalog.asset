@@ -207,6 +207,7 @@ MonoBehaviour:
       MaxTotalHitCount: 5
       InitialPierceCount: 4
       InitialBounceCount: 0
+      RestrictToTrackedTarget: 0
       EndOnFirstValidHit: 0
       StopResolvingAfterEndRequested: 1
     DamageEffects:
@@ -240,6 +241,7 @@ MonoBehaviour:
       MaxTotalHitCount: 1
       InitialPierceCount: 0
       InitialBounceCount: 0
+      RestrictToTrackedTarget: 0
       EndOnFirstValidHit: 1
       StopResolvingAfterEndRequested: 1
     DamageEffects:
@@ -250,6 +252,8 @@ MonoBehaviour:
     BuffEffects:
     - BuffConfigId: 9113
       DurationTicks: 60
+      TargetKinds:
+        mask: 0
     CrowdControlEffects:
     - ControlId: 102
       DurationTicks: 60
@@ -259,7 +263,7 @@ MonoBehaviour:
     Acceleration: 0
     Homing: 0
     MaxLifetimeTicks: 120
-    HitRadius: 3
+    HitRadius: 2.75
     TargetFilter:
       TeamRule: 0
       UnitKindMask: 15
@@ -277,12 +281,85 @@ MonoBehaviour:
       MaxTotalHitCount: 999
       InitialPierceCount: 0
       InitialBounceCount: 0
+      RestrictToTrackedTarget: 0
       EndOnFirstValidHit: 0
       StopResolvingAfterEndRequested: 0
     DamageEffects: []
     BuffEffects:
     - BuffConfigId: 9111
       DurationTicks: 8
+      TargetKinds:
+        mask: 0
     - BuffConfigId: 9112
       DurationTicks: 8
+      TargetKinds:
+        mask: 0
+    CrowdControlEffects: []
+  - DefId: 109
+    RuntimeEntityPrefabId: 2105
+    Speed: 18
+    Acceleration: 0
+    Homing: 0
+    MaxLifetimeTicks: 15
+    HitRadius: 0.2
+    TargetFilter:
+      TeamRule: 0
+      UnitKindMask: 7
+      IncludeSubKindIds: 
+      ExcludeSubKindIds: 
+      IncludePrototypeIds: 
+      ExcludePrototypeIds: 
+      AllowedLifeStates: 1
+      RequireTargetable: 1
+    HitPolicy:
+      Enabled: 1
+      QueryIntervalTicks: 1
+      SameTargetPolicy: 0
+      SameTargetCooldownTicks: 0
+      MaxTotalHitCount: 1
+      InitialPierceCount: 0
+      InitialBounceCount: 0
+      RestrictToTrackedTarget: 0
+      EndOnFirstValidHit: 1
+      StopResolvingAfterEndRequested: 1
+    DamageEffects: []
+    BuffEffects:
+    - BuffConfigId: 12021
+      DurationTicks: 45
+      TargetKinds:
+        mask: 0
+    - BuffConfigId: 12022
+      DurationTicks: 45
+      TargetKinds:
+        mask: 1
+    CrowdControlEffects: []
+  - DefId: 110
+    RuntimeEntityPrefabId: 2106
+    Speed: 0
+    Acceleration: 0
+    Homing: 0
+    MaxLifetimeTicks: 45
+    HitRadius: 0
+    TargetFilter:
+      TeamRule: 3
+      UnitKindMask: 15
+      IncludeSubKindIds: 
+      ExcludeSubKindIds: 
+      IncludePrototypeIds: 
+      ExcludePrototypeIds: 
+      AllowedLifeStates: 1
+      RequireTargetable: 0
+    HitPolicy:
+      Enabled: 0
+      QueryIntervalTicks: 0
+      SameTargetPolicy: 0
+      SameTargetCooldownTicks: 0
+      MaxTotalHitCount: 0
+      InitialPierceCount: 0
+      InitialBounceCount: 0
+      RestrictToTrackedTarget: 0
+      EndOnFirstValidHit: 0
+      StopResolvingAfterEndRequested: 1
+    DamageEffects: []
+    BuffEffects: []
     CrowdControlEffects: []

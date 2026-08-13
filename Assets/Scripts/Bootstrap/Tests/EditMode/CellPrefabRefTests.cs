@@ -27,11 +27,40 @@ namespace FrameSyncMoba.Bootstrap.Tests
         [Test]
         public void EquipmentShopCell_ButtonRefIsButtonAndStateRefsBound()
         {
+            const string path =
+                "Assets/Resources/Prefab/UI/EquipmentShopCell.prefab";
             Validate(
-                "Assets/Resources/Prefab/UI/EquipmentShopCell.prefab",
+                path,
                 "UI.ShopCell",
+                "Icon",
                 "SelectTip",
                 "OwnedMask");
+            GameObject root =
+                AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            Image icon = root.transform.Find("Icon")
+                ?.GetComponent<Image>();
+            Assert.That(
+                icon,
+                Is.Not.Null,
+                path + " must expose an Image icon.");
+            Image ownedMask = root.transform
+                .Find("OwnedMask")
+                ?.GetComponent<Image>();
+            Assert.That(ownedMask, Is.Not.Null);
+            Assert.That(
+                ownedMask.raycastTarget,
+                Is.False,
+                "OwnedMask is visual-only and must not block cell selection.");
+            Graphic[] ownedGraphics = ownedMask
+                .GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < ownedGraphics.Length; i++)
+            {
+                Assert.That(
+                    ownedGraphics[i].raycastTarget,
+                    Is.False,
+                    ownedGraphics[i].name +
+                    " is inside OwnedMask and must not block cell selection.");
+            }
         }
 
         private static void Validate(

@@ -1,16 +1,17 @@
 using System;
+using FrameSyncMoba.Deterministic;
 
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
-    /// Dispatches fixed UnitEventBus routes to equipment effect modules
-    /// in stable Slot→Effect→Module order (Equipment/Gold v12 §3.5, §3.12).
+    /// Dispatches fixed UnitEventBus routes to equipment effect modules in
+    /// stable Slot→Effect→Module order (Equipment/Gold v12 §3.5, §3.12).
     /// </summary>
     public sealed class EquipmentEffectDispatch
     {
         private readonly Unit _owner;
+        private bool _repeatRequested;
 
-        // Context data for event-driven modules. Set by event handlers before dispatch.
         internal DamageEventData LastDamageDealt;
         internal HealEventData LastHealDealt;
         internal UnitUid LastKillVictimUid;
@@ -21,83 +22,205 @@ namespace FrameSyncMoba.Unit
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
         }
 
-        /// <summary>Per-Tick advance for Tick-timed effect modules.</summary>
         public void Advance()
         {
-            var handler = _owner.EquipmentHandler;
-            if (handler == null) return;
+            DispatchForTiming(EquipmentEffectInvokeTiming.Tick);
+        }
 
-            for (int slot = 0; slot < EquipmentHandler.SlotCount; slot++)
+        internal void RequestRepeatedOnHit()
+        {
+            if (!LastOnHit.IsRepeated)
+                _repeatRequested = true;
+        }
+
+        /// <summary>
+        /// Asks every equipped effect module for an empowered-strike recipe
+        /// that is ready for <paramref name="target"/> (stable Slot to Effect
+        /// to Module order). Returns the first ready recipe; the caller uses
+        /// it to build the basic-attack damage request.
+        /// </summary>
+        internal bool TryResolveEmpoweredAttackRecipe(
+            Unit target,
+            out int recipeId)
+        {
+            recipeId = 0;
+            if (target == null)
             {
-                var inst = handler.GetSlot(slot);
-                if (inst?.Definition?.Effects == null) continue;
-
-                for (int fxIdx = 0; fxIdx < inst.Definition.Effects.Length; fxIdx++)
+                return false;
+            }
+            EquipmentHandler handler =
+                _owner.EquipmentHandler;
+            if (handler == null)
+            {
+                return false;
+            }
+            for (int slot = 0;
+                 slot < EquipmentHandler.SlotCount;
+                 slot++)
+            {
+                EquipmentInstance instance =
+                    handler.GetSlot(slot);
+                if (instance?.Definition?.Effects == null ||
+                    instance.EffectRuntimes == null)
                 {
-                    var fxDef = inst.Definition.Effects[fxIdx];
-                    if (fxDef?.Modules == null) continue;
-
-                    for (int modIdx = 0; modIdx < fxDef.Modules.Length; modIdx++)
+                    continue;
+                }
+                for (int fxIdx = 0;
+                     fxIdx < instance.Definition.Effects.Length;
+                     fxIdx++)
+                {
+                    EquipmentEffectDef effect =
+                        instance.Definition.Effects[fxIdx];
+                    if (effect?.Modules == null)
                     {
-                        var mod = fxDef.Modules[modIdx];
-                        if (mod == null) continue;
-
-                        bool hasTickTiming = false;
-                        if (mod.InvokeTimings != null)
+                        continue;
+                    }
+                    for (int modIdx = 0;
+                         modIdx < effect.Modules.Length;
+                         modIdx++)
+                    {
+                        if (effect.Modules[modIdx] is
+                            IEmpoweredAttackProvider provider &&
+                            provider.IsReadyForTarget(
+                                _owner,
+                                target))
                         {
-                            for (int t = 0; t < mod.InvokeTimings.Length; t++)
-                            {
-                                if (mod.InvokeTimings[t] == EquipmentEffectInvokeTiming.Tick)
-                                { hasTickTiming = true; break; }
-                            }
+                            recipeId =
+                                provider.EmpoweredRecipeId;
+                            return true;
                         }
-
-                        if (hasTickTiming && mod.CanExecute())
-                            mod.Execute(_owner, inst);
                     }
                 }
             }
+            return false;
         }
 
-        // ---- Event handlers (iterate Slot→Effect→Module) ----
+        internal void DispatchInstanceForTiming(
+            EquipmentInstance instance,
+            EquipmentEffectInvokeTiming timing,
+            AimSnapshot target = default)
+        {
+            if (instance?.Definition?.Effects == null ||
+                instance.EffectRuntimes == null)
+                return;
+            if (instance.Definition.Effects.Length !=
+                instance.EffectRuntimes.Length)
+                throw new DeterministicSimulationException(
+                    $"Equipment {instance.Definition.Id} effect runtime count mismatch.");
+
+            for (int fxIdx = 0;
+                 fxIdx < instance.Definition.Effects.Length;
+                 fxIdx++)
+            {
+                EquipmentEffectDef effect =
+                    instance.Definition.Effects[fxIdx];
+                EquipmentEffectRuntime runtime =
+                    instance.EffectRuntimes[fxIdx];
+                if (effect?.Modules == null)
+                    continue;
+                if (runtime?.ModuleStates == null ||
+                    runtime.ModuleStates.Length != effect.Modules.Length)
+                    throw new DeterministicSimulationException(
+                        $"Equipment {instance.Definition.Id} effect {fxIdx} module-state count mismatch.");
+
+                for (int modIdx = 0;
+                     modIdx < effect.Modules.Length;
+                     modIdx++)
+                {
+                    EquipmentEffectModule module = effect.Modules[modIdx];
+                    if (module == null || !HasTiming(module, timing))
+                        continue;
+
+                    ref EquipmentEffectModuleRuntimeState state =
+                        ref runtime.ModuleStates[modIdx];
+                    var context = new EquipmentEffectExecutionContext
+                    {
+                        Owner = _owner,
+                        Instance = instance,
+                        Dispatch = this,
+                        Timing = timing,
+                        Target = target,
+                        OnHit = LastOnHit,
+                    };
+                    if (module.CanExecute(ref context, ref state))
+                        module.Execute(ref context, ref state);
+                }
+            }
+        }
 
         private void DispatchForTiming(EquipmentEffectInvokeTiming timing)
         {
-            var handler = _owner.EquipmentHandler;
-            if (handler == null) return;
+            EquipmentHandler handler = _owner.EquipmentHandler;
+            if (handler == null)
+                return;
 
             for (int slot = 0; slot < EquipmentHandler.SlotCount; slot++)
-            {
-                var inst = handler.GetSlot(slot);
-                if (inst?.Definition?.Effects == null) continue;
-
-                for (int fxIdx = 0; fxIdx < inst.Definition.Effects.Length; fxIdx++)
-                {
-                    var fxDef = inst.Definition.Effects[fxIdx];
-                    if (fxDef?.Modules == null) continue;
-
-                    for (int modIdx = 0; modIdx < fxDef.Modules.Length; modIdx++)
-                    {
-                        var mod = fxDef.Modules[modIdx];
-                        if (mod == null || mod.InvokeTimings == null) continue;
-
-                        for (int t = 0; t < mod.InvokeTimings.Length; t++)
-                        {
-                            if (mod.InvokeTimings[t] == timing && mod.CanExecute())
-                                mod.Execute(_owner, inst);
-                        }
-                    }
-                }
-            }
+                DispatchInstanceForTiming(handler.GetSlot(slot), timing);
         }
 
-        public void OnDamageTaken(in DamageEventData data) => DispatchForTiming(EquipmentEffectInvokeTiming.DamageTaken);
-        public void OnDamageDealt(in DamageEventData data) { LastDamageDealt = data; DispatchForTiming(EquipmentEffectInvokeTiming.DamageDealt); }
-        public void OnHealTaken(in HealEventData data) => DispatchForTiming(EquipmentEffectInvokeTiming.HealTaken);
-        public void OnHealDealt(in HealEventData data) { LastHealDealt = data; DispatchForTiming(EquipmentEffectInvokeTiming.HealDealt); }
-        public void OnUnitDying(Unit unit) => DispatchForTiming(EquipmentEffectInvokeTiming.UnitDying);
-        public void OnUnitDeath(Unit unit) => DispatchForTiming(EquipmentEffectInvokeTiming.UnitDeath);
-        public void OnUnitKill(Unit unit) { LastKillVictimUid = unit?.UnitUid ?? default; DispatchForTiming(EquipmentEffectInvokeTiming.UnitKill); }
-        public void OnHitDealt(in OnHitEventData data) { LastOnHit = data; DispatchForTiming(EquipmentEffectInvokeTiming.OnHitDealt); }
+        private static bool HasTiming(
+            EquipmentEffectModule module,
+            EquipmentEffectInvokeTiming timing)
+        {
+            EquipmentEffectInvokeTiming[] timings = module.InvokeTimings;
+            if (timings == null)
+                return false;
+            for (int i = 0; i < timings.Length; i++)
+                if (timings[i] == timing)
+                    return true;
+            return false;
+        }
+
+        public void OnDamageTaken(in DamageEventData data)
+        {
+            DispatchForTiming(EquipmentEffectInvokeTiming.DamageTaken);
+        }
+
+        public void OnDamageDealt(in DamageEventData data)
+        {
+            LastDamageDealt = data;
+            DispatchForTiming(EquipmentEffectInvokeTiming.DamageDealt);
+        }
+
+        public void OnHealTaken(in HealEventData data)
+        {
+            DispatchForTiming(EquipmentEffectInvokeTiming.HealTaken);
+        }
+
+        public void OnHealDealt(in HealEventData data)
+        {
+            LastHealDealt = data;
+            DispatchForTiming(EquipmentEffectInvokeTiming.HealDealt);
+        }
+
+        public void OnUnitDying(Unit unit)
+        {
+            DispatchForTiming(EquipmentEffectInvokeTiming.UnitDying);
+        }
+
+        public void OnUnitDeath(Unit unit)
+        {
+            DispatchForTiming(EquipmentEffectInvokeTiming.UnitDeath);
+        }
+
+        public void OnUnitKill(Unit unit)
+        {
+            LastKillVictimUid = unit?.UnitUid ?? default;
+            DispatchForTiming(EquipmentEffectInvokeTiming.UnitKill);
+        }
+
+        public void OnHitDealt(in OnHitEventData data)
+        {
+            LastOnHit = data;
+            _repeatRequested = false;
+            DispatchForTiming(EquipmentEffectInvokeTiming.OnHitDealt);
+
+            if (data.IsRepeated || !_repeatRequested)
+                return;
+
+            OnHitEventData repeated = data;
+            repeated.IsRepeated = true;
+            _owner.EventBus.PublishOnHit(repeated);
+        }
     }
 }

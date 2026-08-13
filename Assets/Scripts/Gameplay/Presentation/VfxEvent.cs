@@ -9,6 +9,7 @@ namespace FrameSyncMoba.Unit
         public fp2 WorldPosition;
         public fp2 WorldDirection;
         public UnitUid? AttachToUnit;
+        public UnitUid? TargetUnit;
         public int SocketKey;
         public fp DurationScale;
     }

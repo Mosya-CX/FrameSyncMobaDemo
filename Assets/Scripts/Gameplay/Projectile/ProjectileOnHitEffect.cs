@@ -24,6 +24,11 @@ namespace FrameSyncMoba.Unit
         /// 0 = no floor.
         /// </summary>
         public fp MinDamageRatio;
+        /// <summary>
+        /// Optional multiplier applied when the hit target is a Minion.
+        /// Zero keeps the historical 1x behavior for existing content.
+        /// </summary>
+        public fp MinionDamageMultiplier;
         public int RecipeId;
         public bool IsValid =>
             Amount >= fp.zero &&
@@ -42,6 +47,8 @@ namespace FrameSyncMoba.Unit
     {
         public BuffConfigId BuffId;
         public int DurationTicks;
+        /// <summary>Empty means all projectile-valid target kinds.</summary>
+        public UnitKindMask TargetKinds;
         public bool IsValid => BuffId.IsValid && DurationTicks > 0;
     }
 

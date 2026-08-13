@@ -35,7 +35,7 @@ namespace FrameSyncMoba.RuntimeConfig
         [Min(0)] public float CountdownSeconds = 3f;
         [Min(0f)] public float LaunchDelaySeconds = 5f;
         [Min(0)] public float EndingSeconds = 6f;
-        [Min(0)] public int InitialEarnedGold = 500;
+        [Min(0)] public int InitialEarnedGold = 1500;
         [Min(0)] public float HeroRespawnBaseSeconds = 5f;
         [Min(0)] public float HeroRespawnPerMinuteSeconds = 0.5f;
         [Min(0.01f)] public float MinionWaveIntervalSeconds = 30f;
@@ -66,6 +66,12 @@ namespace FrameSyncMoba.RuntimeConfig
         public float StatGrowthD = 0.0175f;
         [Min(0.0001f)] public float MoveSpeedToLogicVelocityScale = 0.01f;
         [Min(1)] public int AttackSequenceResetIntervalTicks = 90;
+        /// <summary>
+        /// Units with AttackRange strictly above this value are treated as
+        /// ranged (e.g. melee ~125-225, ranged ~500+). Used by item passives
+        /// that scale differently for melee vs ranged owners.
+        /// </summary>
+        [Min(1)] public int RangedAttackRangeThreshold = 275;
     }
 
     public readonly struct BakedGlobalGameplayData
@@ -94,6 +100,7 @@ namespace FrameSyncMoba.RuntimeConfig
         public readonly fp StatGrowthD;
         public readonly fp MoveSpeedToLogicVelocityScale;
         public readonly int AttackSequenceResetIntervalTicks;
+        public readonly int RangedAttackRangeThreshold;
         public readonly int HeroRespawnBaseTicks;
         public readonly int HeroRespawnPerMinuteTicks;
         public readonly BakedMinionWaveConfig MinionWaveConfig;
@@ -131,6 +138,7 @@ namespace FrameSyncMoba.RuntimeConfig
             fp statGrowthD,
             fp moveSpeedToLogicVelocityScale,
             int attackSequenceResetIntervalTicks,
+            int rangedAttackRangeThreshold,
             int heroRespawnBaseTicks,
             int heroRespawnPerMinuteTicks,
             BakedMinionWaveConfig minionWaveConfig,
@@ -169,6 +177,7 @@ namespace FrameSyncMoba.RuntimeConfig
             StatGrowthD = statGrowthD;
             MoveSpeedToLogicVelocityScale = moveSpeedToLogicVelocityScale;
             AttackSequenceResetIntervalTicks = attackSequenceResetIntervalTicks;
+            RangedAttackRangeThreshold = rangedAttackRangeThreshold;
             HeroRespawnBaseTicks = heroRespawnBaseTicks;
             HeroRespawnPerMinuteTicks = heroRespawnPerMinuteTicks;
             MinionWaveConfig = minionWaveConfig;
@@ -267,6 +276,9 @@ namespace FrameSyncMoba.RuntimeConfig
             if (unit.AttackSequenceResetIntervalTicks < 1)
                 throw new InvalidOperationException(
                     "AttackSequenceResetIntervalTicks must be at least 1.");
+            if (unit.RangedAttackRangeThreshold < 1)
+                throw new InvalidOperationException(
+                    "RangedAttackRangeThreshold must be at least 1.");
 
             int countdownTicks = SecondsToTicks(
                 gameMode.CountdownSeconds, frameSync.TickRate);
@@ -297,6 +309,7 @@ namespace FrameSyncMoba.RuntimeConfig
                 (fp)unit.StatGrowthD,
                 (fp)unit.MoveSpeedToLogicVelocityScale,
                 unit.AttackSequenceResetIntervalTicks,
+                unit.RangedAttackRangeThreshold,
                 SecondsToTicks(gameMode.HeroRespawnBaseSeconds, frameSync.TickRate),
                 SecondsToTicks(gameMode.HeroRespawnPerMinuteSeconds, frameSync.TickRate),
                 bakedMinionWaveConfig,

@@ -78,7 +78,7 @@ namespace FrameSyncMoba.Unit.Tests
                 new UnitPrototype
                 {
                     UnitPrototypeId = 100,
-                    Name = "SkillTestHero",
+            Name = "SkillVarus",
                     RuntimeEntityPrefabId = 101,
                     UnitKind = UnitKind.Hero,
                     UnitSubKindId = 0,

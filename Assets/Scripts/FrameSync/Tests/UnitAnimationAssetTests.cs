@@ -30,23 +30,23 @@ namespace FrameSyncMoba.FrameSync.Tests
 
         private static readonly string[] FixturePrefabs =
         {
-            "Assets/Config/Formal/Prefabs/TestHeroRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestMeleeMinionBlueRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestMeleeMinionRedRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestCasterMinionBlueRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestCasterMinionRedRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/VarusRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestMeleeMinionBlueRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestMeleeMinionRedRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestCasterMinionBlueRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestCasterMinionRedRuntime.prefab",
         };
 
         private static readonly string[]
             RuntimeUnitPrefabs =
         {
-            "Assets/Config/Formal/Prefabs/TestHeroRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestMeleeMinionBlueRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestMeleeMinionRedRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestCasterMinionBlueRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestCasterMinionRedRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestTowerBlueRuntime.prefab",
-            "Assets/Config/Formal/Prefabs/TestTowerRedRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/VarusRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestMeleeMinionBlueRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestMeleeMinionRedRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestCasterMinionBlueRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestCasterMinionRedRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestTowerBlueRuntime.prefab",
+            "Assets/Resources/Prefab/Unit/TestTowerRedRuntime.prefab",
         };
 
         [Test]
@@ -137,7 +137,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [TestCase(
-            "Assets/Config/Formal/Animation/TestHero.controller")]
+            "Assets/Config/Formal/Animation/Varus.controller")]
         public void HeroController_ContainsEveryAvailableHeroClip(
             string controllerPath)
         {

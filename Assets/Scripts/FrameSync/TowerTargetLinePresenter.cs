@@ -3,9 +3,9 @@ using UnityEngine;
 namespace FrameSyncMoba.Unit
 {
     /// <summary>
-    /// Presentation-only red line from a tower to its projectile-locked
-    /// target (NonHero v5 搂9). Shown while a tower shot is unresolved;
-    /// never touches deterministic state.
+    /// Client presentation-only red line from a tower to its current attack
+    /// intent. Target replacement is followed immediately; the component
+    /// never modifies deterministic Gameplay state.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class TowerTargetLinePresenter :
@@ -16,6 +16,10 @@ namespace FrameSyncMoba.Unit
 
         private void Awake()
         {
+#if UNITY_SERVER
+            enabled = false;
+            return;
+#else
             line = gameObject.AddComponent<LineRenderer>();
             Shader shader =
                 Shader.Find("Sprites/Default");
@@ -31,6 +35,7 @@ namespace FrameSyncMoba.Unit
             line.positionCount = 2;
             line.useWorldSpace = true;
             line.enabled = false;
+#endif
         }
 
         private void LateUpdate()
@@ -47,31 +52,53 @@ namespace FrameSyncMoba.Unit
             }
             if (towerUnit == null ||
                 !(towerUnit.AttackHandler is
-                    TowerAttackHandler tower) ||
+                    TowerAttackHandler) ||
                 towerUnit.World == null)
             {
                 return;
             }
-            // Continuous target-lock line (pure presentation): shown while
-            // the tower has a valid, living attack target, independent of
-            // the attack cadence / in-flight projectile.
-            UnitUid targetUid =
-                tower.LockedTarget.IsValid()
-                    ? tower.LockedTarget
-                    : tower.CurrentTargetUid;
-            if (!targetUid.IsValid() ||
-                !towerUnit.World.TryGetUnit(
-                    targetUid,
-                    out Unit target) ||
-                target.LifeState != LifeState.Alive)
+
+            // Never fall back to the last projectile lock: that UID may be
+            // stale after the target dies or later respawns.
+            if (!TryResolveDisplayTarget(
+                    towerUnit,
+                    out Unit target))
             {
                 return;
             }
+
             Vector3 from = towerUnit.transform.position;
             from.y += 2f;
             line.SetPosition(0, from);
             line.SetPosition(1, target.transform.position);
             line.enabled = true;
+        }
+
+        private static bool TryResolveDisplayTarget(
+            Unit tower,
+            out Unit target)
+        {
+            target = null;
+            if (tower?.World == null ||
+                tower.Intent.Kind != IntentKind.AttackTarget)
+            {
+                return false;
+            }
+
+            UnitUid targetUid = tower.Intent.TargetUnit;
+            if (!targetUid.IsValid() ||
+                !tower.World.TryGetUnit(targetUid, out target) ||
+                target == null ||
+                target.LifeState != LifeState.Alive ||
+                !target.CapabilityState.IsTargetable ||
+                target.TeamId == TeamId.Neutral ||
+                target.TeamId == tower.TeamId)
+            {
+                target = null;
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -24,14 +24,16 @@ namespace FrameSyncMoba.Unit
         /// <summary>Minimum ticks between activations (0 = every cast).</summary>
         public int InternalCooldownTicks;
 
-        public override void Execute(Unit owner, EquipmentInstance instance)
+        public override void Execute(
+            ref EquipmentEffectExecutionContext context,
+            ref EquipmentEffectModuleRuntimeState state)
         {
+            Unit owner = context.Owner;
             if (owner == null) return;
 
-            // Internal cooldown
-            var state = FindModuleState(instance);
             int currentTick = Deterministic.SimulationTickContext.Current.Tick;
-            if (InternalCooldownTicks > 0 && currentTick < state.NextExecuteTick)
+            if (InternalCooldownTicks > 0 &&
+                currentTick < state.InternalCooldownReadyTick)
                 return;
 
             // Mana restore
@@ -49,32 +51,8 @@ namespace FrameSyncMoba.Unit
                     CooldownReductionPercent, currentTick);
             }
 
-            state.NextExecuteTick = currentTick + InternalCooldownTicks;
-        }
-
-        private EquipmentEffectModuleRuntimeState FindModuleState(EquipmentInstance instance)
-        {
-            if (instance?.EffectRuntimes == null)
-                return default;
-
-            for (int fxIdx = 0; fxIdx < instance.EffectRuntimes.Length; fxIdx++)
-            {
-                var fx = instance.EffectRuntimes[fxIdx];
-                if (fx?.Definition?.Modules == null) continue;
-
-                for (int modIdx = 0; modIdx < fx.Definition.Modules.Length; modIdx++)
-                {
-                    if (ReferenceEquals(fx.Definition.Modules[modIdx], this) &&
-                        fx.ModuleStates != null && modIdx < fx.ModuleStates.Length)
-                    {
-                        var s = fx.ModuleStates[modIdx];
-                        fx.ModuleStates[modIdx] = s;
-                        return s;
-                    }
-                }
-            }
-
-            return default;
+            state.InternalCooldownReadyTick = checked(
+                currentTick + InternalCooldownTicks);
         }
     }
 }

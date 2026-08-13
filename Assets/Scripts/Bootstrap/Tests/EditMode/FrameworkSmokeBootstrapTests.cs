@@ -226,6 +226,192 @@ namespace FrameSyncMoba.Bootstrap.Tests
             }
         }
 
+        [Test]
+        public void
+            Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn()
+        {
+            GlobalGameplayData global =
+                AssetDatabase.LoadAssetAtPath<
+                    GlobalGameplayData>(
+                        "Assets/Config/Formal/GlobalGameplayData.asset");
+            UnitRuntimeCatalogAsset catalog =
+                AssetDatabase.LoadAssetAtPath<
+                    UnitRuntimeCatalogAsset>(
+                        "Assets/Config/Formal/FullMatchUnitRuntimeCatalog.asset");
+            AbilityRuntimeCatalogAsset abilityCatalog =
+                AssetDatabase.LoadAssetAtPath<
+                    AbilityRuntimeCatalogAsset>(
+                        "Assets/Config/Formal/Abilities/FormalHeroAbilityRuntimeCatalog.asset");
+            DeterministicMapConfig mapConfig =
+                AssetDatabase.LoadAssetAtPath<
+                    DeterministicMapConfig>(
+                        "Assets/Config/Formal/FullMatchDeterministicMapConfig.asset");
+            Assert.That(global, Is.Not.Null);
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(abilityCatalog, Is.Not.Null);
+            Assert.That(mapConfig, Is.Not.Null);
+
+            var root = new GameObject(
+                "HeroBindBootstrapTest");
+            try
+            {
+                var bootstrap =
+                    root.AddComponent<GameBootstrap>();
+                SetField(
+                    bootstrap,
+                    "globalGameplayData",
+                    global);
+                SetField(
+                    bootstrap,
+                    "unitRuntimeCatalog",
+                    catalog);
+                SetField(
+                    bootstrap,
+                    "abilityRuntimeCatalog",
+                    abilityCatalog);
+                SetField(
+                    bootstrap,
+                    "deterministicMapConfig",
+                    mapConfig);
+                SetField(
+                    bootstrap,
+                    "dedicatedServer",
+                    true);
+                SetField(
+                    bootstrap,
+                    "driveSimulationFromUnityUpdate",
+                    false);
+                SetField(
+                    bootstrap,
+                    "autoApplyLocalFixturePayload",
+                    false);
+                SetField(
+                    bootstrap,
+                    "initialUnitSpawns",
+                    new System.Collections.Generic.List<
+                        InitialUnitSpawnAuthoring>
+                    {
+                        new InitialUnitSpawnAuthoring
+                        {
+                            StableSpawnOrder = 0,
+                            UnitPrototypeId = 1001,
+                            TeamId = 1,
+                            UseMapSpawnPoint = true,
+                            SpawnPointId = 0,
+                            PlayerControlled = true,
+                            PlayerSlot = 0,
+                        },
+                        new InitialUnitSpawnAuthoring
+                        {
+                            StableSpawnOrder = 1,
+                            UnitPrototypeId = 1001,
+                            TeamId = 2,
+                            UseMapSpawnPoint = true,
+                            SpawnPointId = 5,
+                            PlayerControlled = true,
+                            PlayerSlot = 1,
+                        },
+                        new InitialUnitSpawnAuthoring
+                        {
+                            StableSpawnOrder = 2,
+                            UnitPrototypeId = 3001,
+                            TeamId = 1,
+                            UseMapSpawnPoint = true,
+                            SpawnPointId = 10,
+                            MatchTopologyRole =
+                                MatchTopologyRole.BlueBase,
+                            EnableTowerAI = true,
+                        },
+                        new InitialUnitSpawnAuthoring
+                        {
+                            StableSpawnOrder = 3,
+                            UnitPrototypeId = 3002,
+                            TeamId = 2,
+                            UseMapSpawnPoint = true,
+                            SpawnPointId = 11,
+                            MatchTopologyRole =
+                                MatchTopologyRole.RedBase,
+                            EnableTowerAI = true,
+                        },
+                    });
+                InvokeAwake(bootstrap);
+
+                // Slot 1 picks Aatrox (1002); the authored scene spawn only
+                // knew Varus (1001). The binding must replace the prototype
+                // from the lobby selection and build the payload successfully.
+                var config =
+                    new GameStartConfig(
+                        "hero-bind-test",
+                        1,
+                        1,
+                        2,
+                        2,
+                        new[]
+                        {
+                            new PlayerSlotConfig(
+                                0,
+                                "PlayerZero",
+                                1,
+                                new TeamId(1),
+                                1001,
+                                0),
+                            new PlayerSlotConfig(
+                                1,
+                                "PlayerOne",
+                                2,
+                                new TeamId(2),
+                                1002,
+                                5),
+                        },
+                        3,
+                        12345u,
+                        bootstrap.LocalVersions
+                            .GameplayDataVersion);
+
+                GameBootstrapPayload payload =
+                    bootstrap
+                        .BuildAuthoritativeBootstrapPayload(
+                            config);
+
+                Assert.That(
+                    payload.PlayerSlotMappings,
+                    Has.Length.EqualTo(2));
+                UnitSnapshot[] units =
+                    payload.InitialGameplaySnapshot
+                        .UnitWorldState.Units;
+                Assert.That(
+                    System.Array.Exists(
+                        units,
+                        u =>
+                            u.UnitPrototypeId == 1001),
+                    Is.True,
+                    "Slot 0 must spawn Varus (1001).");
+                Assert.That(
+                    System.Array.Exists(
+                        units,
+                        u =>
+                            u.UnitPrototypeId == 1002),
+                    Is.True,
+                    "Slot 1 must spawn Aatrox (1002).");
+            }
+            finally
+            {
+                UnitType[] units =
+                    UnityEngine.Object
+                        .FindObjectsOfType<UnitType>();
+                for (int i = 0;
+                     i < units.Length;
+                     i++)
+                {
+                    UnityEngine.Object
+                        .DestroyImmediate(
+                            units[i].gameObject);
+                }
+                UnityEngine.Object
+                    .DestroyImmediate(root);
+            }
+        }
+
         private static void SetField<T>(GameBootstrap target, string name, T value)
         {
             FieldInfo field = typeof(GameBootstrap).GetField(

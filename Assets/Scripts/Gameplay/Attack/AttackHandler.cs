@@ -189,6 +189,16 @@ namespace FrameSyncMoba.Unit
                 return;
             }
 
+            // A crowd-control block (knock-up / knock-back / stun ...) that
+            // landed mid-windup must cancel the in-progress attack, not just
+            // prevent new attacks.
+            if (Owner != null &&
+                !Owner.CapabilityState.CanAttack)
+            {
+                CancelBeforeCommit();
+                return;
+            }
+
             if (Owner.HitReaction.InterruptsAttack)
             {
                 CancelBeforeCommit();
@@ -308,8 +318,52 @@ namespace FrameSyncMoba.Unit
         protected virtual bool ValidateAdditionalTarget(Unit target) =>
             true;
 
-        protected virtual bool ResolveIsEmpoweredAttack() =>
-            false;
+        protected virtual bool ResolveIsEmpoweredAttack()
+        {
+            if (Owner?.World == null ||
+                !Owner.World.TryGetUnit(
+                    _state.CurrentTargetUid,
+                    out Unit target))
+            {
+                return false;
+            }
+            if (Owner.AbilityHandler != null &&
+                Owner.AbilityHandler
+                    .IsEmpoweredBasicAttackReady(
+                        SimulationTickContext.Current.Tick,
+                        target))
+            {
+                return true;
+            }
+            // An equipped empowered-strike item (e.g. Sundered Sky) may also
+            // turn the current attack into an empowered strike.
+            return Owner.EquipmentHandler != null &&
+                Owner.EquipmentHandler
+                    .TryResolveEmpoweredAttackRecipe(
+                        target,
+                        out _);
+        }
+
+        /// <summary>
+        /// Resolves the damage recipe used by this attack against
+        /// <paramref name="target"/>. The default consults the equipment
+        /// system for a ready empowered-strike recipe and otherwise uses the
+        /// project-fixed basic-attack recipe (Attack module v6.2 section 4).
+        /// </summary>
+        protected virtual int ResolveAttackRecipeId(
+            Unit target)
+        {
+            if (Owner?.EquipmentHandler != null &&
+                Owner.EquipmentHandler
+                    .TryResolveEmpoweredAttackRecipe(
+                        target,
+                        out int recipeId))
+            {
+                return recipeId;
+            }
+            return CombatBuiltinRecipeId
+                .BasicAttackDamage;
+        }
 
         protected virtual int ResolveProjectileDefId() =>
             projectileDefId;
@@ -327,6 +381,7 @@ namespace FrameSyncMoba.Unit
             CombatSystem combat = Owner.World?.CombatSystem;
             if (damage <= fp.zero || combat == null)
                 return false;
+            int recipeId = ResolveAttackRecipeId(target);
 
             var source = new SourceDescriptor
             {
@@ -342,8 +397,7 @@ namespace FrameSyncMoba.Unit
                     SourceUnitUid = Owner.UnitUid,
                     TargetUnitUid = target.UnitUid,
                     SourceDescriptor = source,
-                    RecipeId =
-                        CombatBuiltinRecipeId.BasicAttackDamage,
+                    RecipeId = recipeId,
                 },
                 DamageType = DamageType.Physical,
                 BaseDamage = damage,
@@ -359,6 +413,25 @@ namespace FrameSyncMoba.Unit
             fp2 direction =
                 target.PhysicsEntity.Transform2D.Position -
                 sourcePosition;
+            int recipeId = ResolveAttackRecipeId(target);
+            ProjectileOnHitDamage[] onHitOverride = null;
+            if (recipeId !=
+                CombatBuiltinRecipeId.BasicAttackDamage)
+            {
+                // Carry the empowered recipe (and the same 1x AttackDamage
+                // ratio as the static basic-attack projectile effect) so the
+                // hit settles through the empowered-strike modifiers.
+                onHitOverride = new[]
+                {
+                    new ProjectileOnHitDamage
+                    {
+                        Amount = fp.zero,
+                        DamageRatio = fp.one,
+                        DamageType = DamageType.Physical,
+                        RecipeId = recipeId,
+                    },
+                };
+            }
             return new ProjectileSpawnRequest(
                 ResolveProjectileDefId(),
                 Owner.UnitUid,
@@ -372,7 +445,7 @@ namespace FrameSyncMoba.Unit
                 },
                 sourcePosition,
                 direction,
-                null,
+                onHitOverride,
                 0,
                 target.UnitUid);
         }
@@ -581,8 +654,10 @@ namespace FrameSyncMoba.Unit
             return new AttackAnimationSnapshot
             {
                 IsAttacking = hasCycle,
+                AttackStartLogicTick = _state.AttackStartLogicTick,
                 SequenceIndex = animationSequence,
                 ImpactCommitted = _state.ImpactCommitted,
+                IsEmpoweredAttack = _state.IsEmpoweredAttack,
                 WindupProgress = Mathf.Clamp01(windupProgress),
                 RecoveryProgress = Mathf.Clamp01(recoveryProgress),
             };

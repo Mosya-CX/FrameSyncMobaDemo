@@ -57,7 +57,7 @@ namespace FrameSyncMoba.FrameSync
 
     public struct GameplaySnapshot
     {
-        public const int CurrentSchemaVersion = 21;
+        public const int CurrentSchemaVersion = 22;
         public int SchemaVersion;
 
         public DeterministicRandomSnapshot RandomState;

@@ -14,6 +14,14 @@ namespace FrameSyncMoba.Physics
         [Tooltip("When enabled, LateUpdate syncs the logical Transform2D to the Unity Transform.")]
         private bool syncTransform = true;
 
+        private Vector3 presentationStartPosition;
+        private Vector3 presentationTargetPosition;
+        private Quaternion presentationStartRotation = Quaternion.identity;
+        private Quaternion presentationTargetRotation = Quaternion.identity;
+        private float presentationElapsed;
+        private bool presentationInitialized;
+        private bool presentationSnapRequested = true;
+
         public PhysicsTransform2D Transform2D { get; private set; }
 
         public PhysicsShape2D Shape { get; private set; }
@@ -72,6 +80,7 @@ namespace FrameSyncMoba.Physics
                 Transform2D.Forward,
                 Transform2D.Right);
             CommitTransform(transform);
+            presentationSnapRequested = true;
         }
 
         public void SetLogicForward(fp2 forward)
@@ -109,6 +118,7 @@ namespace FrameSyncMoba.Physics
             Transform2D = transform;
             Shape = shape;
             Bounds = bounds;
+            presentationSnapRequested = true;
         }
 
         /// <summary>
@@ -122,6 +132,8 @@ namespace FrameSyncMoba.Physics
             Shape = default;
             Bounds = default;
             QueryInfo = default;
+            presentationInitialized = false;
+            presentationSnapRequested = true;
         }
 
         /// <summary>
@@ -134,18 +146,83 @@ namespace FrameSyncMoba.Physics
             if (!syncTransform) return;
 
             var pos2D = Transform2D.Position;
-            transform.position = new Vector3(
+            Vector3 desiredPosition = new Vector3(
                 (float)pos2D.x,
                 0f,
                 (float)pos2D.y);
 
             var fwd2D = Transform2D.Forward;
+            Quaternion desiredRotation = transform.rotation;
             if (fwd2D.x != fp.zero || fwd2D.y != fp.zero)
             {
                 var fwd = new Vector3((float)fwd2D.x, 0f, (float)fwd2D.y);
                 if (fwd.sqrMagnitude > 0.0001f)
-                    transform.forward = fwd.normalized;
+                    desiredRotation = Quaternion.LookRotation(
+                        fwd.normalized,
+                        Vector3.up);
             }
+
+            ProjectPresentationPose(desiredPosition, desiredRotation);
+        }
+
+        private void ProjectPresentationPose(
+            Vector3 desiredPosition,
+            Quaternion desiredRotation)
+        {
+            bool smoothingEnabled =
+                PhysicsPresentationSettings.Enabled &&
+                Application.isPlaying;
+            float snapDistance =
+                PhysicsPresentationSettings.SnapDistance;
+            bool exceedsSnapDistance =
+                presentationInitialized &&
+                (desiredPosition - presentationTargetPosition)
+                    .sqrMagnitude > snapDistance * snapDistance;
+            if (!smoothingEnabled ||
+                !presentationInitialized ||
+                presentationSnapRequested ||
+                exceedsSnapDistance)
+            {
+                transform.SetPositionAndRotation(
+                    desiredPosition,
+                    desiredRotation);
+                presentationStartPosition = desiredPosition;
+                presentationTargetPosition = desiredPosition;
+                presentationStartRotation = desiredRotation;
+                presentationTargetRotation = desiredRotation;
+                presentationElapsed =
+                    PhysicsPresentationSettings.DurationSeconds;
+                presentationInitialized = true;
+                presentationSnapRequested = false;
+                return;
+            }
+
+            if ((desiredPosition - presentationTargetPosition)
+                    .sqrMagnitude > 0.0000001f ||
+                Quaternion.Angle(
+                    desiredRotation,
+                    presentationTargetRotation) > 0.001f)
+            {
+                presentationStartPosition = transform.position;
+                presentationTargetPosition = desiredPosition;
+                presentationStartRotation = transform.rotation;
+                presentationTargetRotation = desiredRotation;
+                presentationElapsed = 0f;
+            }
+
+            presentationElapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(
+                presentationElapsed /
+                PhysicsPresentationSettings.DurationSeconds);
+            transform.SetPositionAndRotation(
+                Vector3.LerpUnclamped(
+                    presentationStartPosition,
+                    presentationTargetPosition,
+                    t),
+                Quaternion.SlerpUnclamped(
+                    presentationStartRotation,
+                    presentationTargetRotation,
+                    t));
         }
 
         private void CommitTransform(in PhysicsTransform2D transform)

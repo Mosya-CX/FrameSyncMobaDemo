@@ -29,8 +29,11 @@ namespace FrameSyncMoba.Bootstrap
     /// directly (editor play only, not packaged).
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class HeroTestDriver : MonoBehaviour
+    public sealed class HeroTestDriver : MonoBehaviour,
+        IEquipmentShopCommandSubmitter
     {
+        private const int InitialShopGold = 10000;
+
         [Header("Map (logic units)")]
         [SerializeField] private float mapWidth = 40f;
         [SerializeField] private float mapHeight = 40f;
@@ -38,7 +41,7 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField] private float cellSize = 0.5f;
 
         [Header("Hero")]
-        [SerializeField] private int heroPrototypeId = 1001;
+        [SerializeField] private int heroPrototypeId = 1002;
         [SerializeField] private Vector2 heroSpawn = new Vector2(-15f, -15f);
         [SerializeField] private int dummyPrototypeId = 1001;
         [SerializeField] private Vector2 dummySpawn = new Vector2(-10f, -10f);
@@ -63,11 +66,7 @@ namespace FrameSyncMoba.Bootstrap
         private float accumulator;
         private uint commandSeq = 1;
         private UnitUid attackTarget;
-        private bool eAiming;
-        private bool rAiming;
-        private bool qAiming;
-        private bool qSessionWasActive;
-        private int qAimingGraceFrames;
+        private int aimingAbilitySlot = -1;
         private SkillIndicatorDriver indicatorDriver;
         private PresentationEventDispatcher vfxDispatcher;
 
@@ -78,6 +77,9 @@ namespace FrameSyncMoba.Bootstrap
         private UnitUid? hoveredUnit;
         private HeroDisplayTable heroDisplayTable;
         private EquipmentDatabase equipmentDatabase;
+        private GoldIncomeRuntime goldIncome;
+        private EquipmentShopRuntime equipmentShop;
+        private string shopStatus = "";
         private LineRenderer attackRangeRing;
         private float dummyRespawnTimer = -1f;
         private Material outlineRimMaterial;
@@ -131,8 +133,15 @@ namespace FrameSyncMoba.Bootstrap
             BuildWorld();
             BuildMap();
             SpawnHero();
+            ConfigureTestShop();
             SpawnDummiesAtScenePoints();
             EnsureIndicatorDriver();
+            var verticalMotion = gameObject.AddComponent<
+                CrowdControlVerticalMotionPresenter>();
+            verticalMotion.Initialize(
+                () => world.GetAllUnits(),
+                () => CurrentTick,
+                30f);
             if (followCamera != null && hero != null)
             {
                 followCamera.SetDebugTarget(hero.transform);
@@ -243,25 +252,6 @@ namespace FrameSyncMoba.Bootstrap
             vfxDispatcher.RegisterSfxHandler(
                 sfxBridge);
 
-            // Persistent Blight stack marks (1 = left, 2 = left+right,
-            // 3 = triangle). Presentation-only.
-            var blightMarks =
-                new GameObject(
-                    "HeroTestBlightMarks");
-            var marksPresenter =
-                blightMarks.AddComponent<
-                    BlightStackMarkPresenter>();
-            marksPresenter.Initialize(
-                AssetDatabase
-                    .LoadAssetAtPath<GameObject>(
-                        "Assets/Resources/Prefab/VFX/RevengeMarkVFX.prefab"),
-                () => world != null
-                    ? (System.Collections.Generic
-                        .IReadOnlyList<UnitType>)
-                        world.GetAllUnits()
-                    : System.Array
-                        .Empty<UnitType>());
-
         }
 
         private void BuildWorld()
@@ -285,7 +275,7 @@ namespace FrameSyncMoba.Bootstrap
                 .BakeOrThrow(config.PrefabTable);
             var abilityCatalog = AssetDatabase
                 .LoadAssetAtPath<AbilityRuntimeCatalogAsset>(
-                    "Assets/Config/Formal/Abilities/VarusAbilityRuntimeCatalog.asset")
+                    "Assets/Config/Formal/Abilities/FormalHeroAbilityRuntimeCatalog.asset")
                 .BakeOrThrow();
 
             physicsWorld = new PhysicsWorld
@@ -295,10 +285,17 @@ namespace FrameSyncMoba.Bootstrap
                     GridCellSize = config.UnitGridCellSize,
                 },
             };
-            // No formal equipment yet (test fixture removed): the shop runs
-            // with an empty database until production items are authored.
+            EquipmentCatalogAsset equipmentCatalog =
+                AssetDatabase
+                    .LoadAssetAtPath<EquipmentCatalogAsset>(
+                        "Assets/Config/Formal/Equipment/FormalEquipmentCatalog.asset");
+            if (equipmentCatalog == null)
+            {
+                throw new System.InvalidOperationException(
+                    "HeroTestScene requires the formal Equipment catalog.");
+            }
             equipmentDatabase =
-                new EquipmentDatabase();
+                equipmentCatalog.BakeOrThrow();
             world = new UnitWorld
             {
                 PhysicsWorld = physicsWorld,
@@ -322,6 +319,8 @@ namespace FrameSyncMoba.Bootstrap
                 TickRate = config.TickRate,
                 AttackSequenceResetIntervalTicks =
                     config.AttackSequenceResetIntervalTicks,
+                RangedAttackRangeThreshold =
+                    config.RangedAttackRangeThreshold,
             };
             world.RangeQuery =
                 new RangeQueryService(physicsWorld);
@@ -373,11 +372,25 @@ namespace FrameSyncMoba.Bootstrap
                     LogicSecondsPerTick =
                         fp.one / (fp)config.TickRate,
                 };
+            goldIncome = new GoldIncomeRuntime();
+            goldIncome.Initialize(
+                1,
+                InitialShopGold);
+            equipmentShop = new EquipmentShopRuntime();
+            equipmentShop.Initialize(
+                1,
+                equipmentDatabase,
+                config.EquipmentSellRate,
+                world);
+            equipmentShop.ConfigureIncomeView(
+                goldIncome);
             pipeline = new SimulationTickPipeline(
                 world,
                 physicsWorld)
             {
                 CombatSystem = combat,
+                GoldIncome = goldIncome,
+                EquipmentShop = equipmentShop,
                 ProjectileWorld = projectileWorld,
                 ProjectileHitResolver =
                     new ProjectileHitResolver(
@@ -392,6 +405,19 @@ namespace FrameSyncMoba.Bootstrap
                 projectileWorld;
             world.RandomService =
                 randomService;
+        }
+
+        private void ConfigureTestShop()
+        {
+            if (hero == null || equipmentShop == null)
+            {
+                throw new System.InvalidOperationException(
+                    "HeroTestScene requires a spawned hero and EquipmentShopRuntime.");
+            }
+            equipmentShop.GetOrCreateTrader(
+                0,
+                hero.UnitUid);
+            equipmentShop.SetCommandSubmitter(this);
         }
 
         private void BuildMap()
@@ -504,8 +530,8 @@ namespace FrameSyncMoba.Bootstrap
         /// <summary>
         /// Auto-detects every DummySpawnPoint marker in the scene and spawns
         /// a punching-bag dummy at each position. Teams alternate by marker
-        /// index so the Corruption Vines spread can chain between adjacent
-        /// dummies (spread only affects enemy heroes).
+        /// index so team filters and multi-target ability behavior can be
+        /// inspected against both friendly and enemy hero units.
         /// </summary>
         private void SpawnDummiesAtScenePoints()
         {
@@ -933,7 +959,7 @@ namespace FrameSyncMoba.Bootstrap
                     UnitType unit = Local();
                     return unit?.AbilityHandler != null
                         ? unit.AbilityHandler
-                            .GetCooldownRemainingTicks(
+                            .GetDisplayCooldownRemainingTicks(
                                 (byte)slot,
                                 CurrentTick)
                         : 0;
@@ -944,7 +970,7 @@ namespace FrameSyncMoba.Bootstrap
                     UnitType unit = Local();
                     return unit?.AbilityHandler != null
                         ? unit.AbilityHandler
-                            .GetCooldownTotalTicks(
+                            .GetDisplayCooldownTotalTicks(
                                 (byte)slot)
                         : 0;
                 };
@@ -958,7 +984,7 @@ namespace FrameSyncMoba.Bootstrap
                     }
                     int remaining =
                         unit.AbilityHandler
-                            .GetCooldownRemainingTicks(
+                            .GetDisplayCooldownRemainingTicks(
                                 (byte)slot,
                                 CurrentTick);
                     return remaining *
@@ -1004,7 +1030,8 @@ namespace FrameSyncMoba.Bootstrap
                     return entry.Avatar;
                 };
             GameFlowLuaBridge.GetHudGold =
-                () => 999999;
+                () => equipmentShop
+                    ?.GetCurrentAvailableGold(0) ?? 0;
             // Local test scene has no network sync; keep the Ping label
             // hidden (value -1). The real client binds a live RTT instead.
             GameFlowLuaBridge.GetLocalPing =
@@ -1071,19 +1098,23 @@ namespace FrameSyncMoba.Bootstrap
                         statName);
             GameFlowLuaBridge
                 .GetLocalEquipmentSlotCount =
-                () => 0;
+                () => EquipmentHandler.SlotCount;
             GameFlowLuaBridge
                 .GetLocalEquipmentSlotId =
-                _ => 0;
+                slot => hero?.EquipmentHandler
+                    ?.GetSlotDef(slot)?.Id ?? 0;
             GameFlowLuaBridge
                 .GetLocalEquipmentSlotName =
-                _ => "";
+                slot => hero?.EquipmentHandler
+                    ?.GetSlotDef(slot)?.Name ?? "";
             GameFlowLuaBridge
                 .GetLocalEquipmentSlotStack =
-                _ => 0;
+                slot => hero?.EquipmentHandler
+                    ?.GetSlot(slot)?.StackCount ?? 0;
             GameFlowLuaBridge
                 .GetLocalEquipmentSlotIcon =
-                _ => null;
+                slot => hero?.EquipmentHandler
+                    ?.GetSlotDef(slot)?.Icon;
             GameFlowLuaBridge.FocusShopEquipment =
                 (_, __) =>
                 {
@@ -1098,10 +1129,43 @@ namespace FrameSyncMoba.Bootstrap
                 };
             GameFlowLuaBridge
                 .GetPassiveCooldownRemainingSeconds =
-                () => 0f;
+                () =>
+                {
+                    UnitType unit = Local();
+                    PassiveAbilityRuntime passive =
+                        unit?.AbilityHandler?.FixedPassive;
+                    if (passive == null)
+                        return 0f;
+                    int remaining =
+                        passive.EffectRuntime.State
+                            .NextReadyLogicTick - CurrentTick;
+                    return Mathf.Max(0, remaining) *
+                        (1f / Mathf.Max(
+                            1,
+                            Mathf.RoundToInt(
+                                ticksPerSecond)));
+                };
             GameFlowLuaBridge
                 .GetPassiveCooldownTotalSeconds =
-                () => 0f;
+                () =>
+                {
+                    UnitType unit = Local();
+                    PassiveAbilityRuntime passive =
+                        unit?.AbilityHandler?.FixedPassive;
+                    if (passive == null ||
+                        unit?.StatHandler == null)
+                    {
+                        return 0f;
+                    }
+                    int ticks = passive.Definition
+                        .GetCooldownTicks(
+                            unit.StatHandler.Level);
+                    return ticks *
+                        (1f / Mathf.Max(
+                            1,
+                            Mathf.RoundToInt(
+                                ticksPerSecond)));
+                };
             GameFlowLuaBridge.GetLocalBuffCount =
                 () => Local()?.BuffHandler
                     ?.GetAllOrdered()?.Count ?? 0;
@@ -1143,7 +1207,7 @@ namespace FrameSyncMoba.Bootstrap
                         ?.Definition
                         ?.MaxStacks ?? 1) > 1;
 
-            // ---- Shop (infinite gold test mode) ----
+            // ---- Shop (formal runtime, local Tick command submission) ----
 
             GameFlowLuaBridge.GetShopItemCount =
                 () =>
@@ -1184,7 +1248,7 @@ namespace FrameSyncMoba.Bootstrap
                             ? defs[index].Description ?? ""
                             : "";
                 };
-            GameFlowLuaBridge.GetShopItemPrice =
+            GameFlowLuaBridge.GetShopItemIcon =
                 index =>
                 {
                     var defs =
@@ -1193,8 +1257,26 @@ namespace FrameSyncMoba.Bootstrap
                     return defs != null &&
                         index >= 0 &&
                         index < defs.Count
-                            ? defs[index].Value
-                            : 0;
+                            ? defs[index].Icon
+                            : null;
+                };
+            GameFlowLuaBridge.GetShopItemPrice =
+                index =>
+                {
+                    var defs =
+                        equipmentDatabase
+                            ?.AllDefinitions;
+                    if (defs == null ||
+                        index < 0 ||
+                        index >= defs.Count)
+                    {
+                        return 0;
+                    }
+                    return equipmentShop
+                        ?.CalculatePurchasePrice(
+                            0,
+                            defs[index].Id) ??
+                        defs[index].Value;
                 };
             GameFlowLuaBridge.GetShopItemNameById =
                 equipmentId =>
@@ -1212,7 +1294,13 @@ namespace FrameSyncMoba.Bootstrap
                         equipmentDatabase
                             ?.GetDefinition(
                                 equipmentId);
-                    return def?.Value ?? 0;
+                    return def == null
+                        ? 0
+                        : equipmentShop
+                            ?.CalculatePurchasePrice(
+                                0,
+                                equipmentId) ??
+                            def.Value;
                 };
             GameFlowLuaBridge.GetShopItemEffectById =
                 equipmentId =>
@@ -1279,47 +1367,49 @@ namespace FrameSyncMoba.Bootstrap
                         parts);
                 };
             GameFlowLuaBridge.GetCurrentGold =
-                () => 999999;
+                () => equipmentShop
+                    ?.GetCurrentAvailableGold(0) ?? 0;
             GameFlowLuaBridge.CanUndo =
-                () => false;
+                () => equipmentShop != null &&
+                    equipmentShop.CanUndo(
+                        0,
+                        equipmentShop
+                            .GetCurrentAvailableGold(0),
+                        out _);
             GameFlowLuaBridge.RequestPurchase =
                 equipmentId =>
                 {
-                    if (hero == null)
-                    {
-                        return;
-                    }
-                    EquipmentDefinition def =
-                        equipmentDatabase
-                            ?.GetDefinition(
-                                equipmentId);
-                    if (def == null)
-                    {
-                        return;
-                    }
-                    int slot =
-                        hero.EquipmentHandler
-                            .FirstEmptySlot();
-                    if (slot < 0)
-                    {
-                        return;
-                    }
-                    hero.EquipmentHandler.Add(
-                        def,
-                        slot);
+                    EquipmentShopRequestCheck check =
+                        equipmentShop.RequestPurchase(
+                            0,
+                            equipmentId);
+                    shopStatus = check.Allowed
+                        ? ""
+                        : check.FailureReason
+                            .ToString();
                 };
             GameFlowLuaBridge.RequestSell =
                 slot =>
                 {
-                    if (hero?.EquipmentHandler == null)
-                    {
-                        return;
-                    }
-                    hero.EquipmentHandler.Remove(
-                        slot);
+                    EquipmentShopRequestCheck check =
+                        equipmentShop.RequestSell(
+                            0,
+                            slot);
+                    shopStatus = check.Allowed
+                        ? ""
+                        : check.FailureReason
+                            .ToString();
                 };
             GameFlowLuaBridge.RequestUndo =
-                () => { };
+                () =>
+                {
+                    EquipmentShopRequestCheck check =
+                        equipmentShop.RequestUndo(0);
+                    shopStatus = check.Allowed
+                        ? ""
+                        : check.FailureReason
+                            .ToString();
+                };
             GameFlowLuaBridge.IsEquipmentOwned =
                 equipmentId =>
                 {
@@ -1331,7 +1421,7 @@ namespace FrameSyncMoba.Bootstrap
                         ?.HasDefinition(def) ?? false;
                 };
             GameFlowLuaBridge.GetShopStatus =
-                () => "";
+                () => shopStatus;
         }
 
         private BuffRuntime BuffAt(int index)
@@ -1446,6 +1536,11 @@ namespace FrameSyncMoba.Bootstrap
             }
             uiManager.RefreshLuaHost(
                 UIPageId.HUD);
+            if (uiManager.IsOpen(UIPageId.Shop))
+            {
+                uiManager.RefreshLuaHost(
+                    UIPageId.Shop);
+            }
         }
 
         /// <summary>
@@ -1726,8 +1821,7 @@ namespace FrameSyncMoba.Bootstrap
             {
                 // Right click cancels local aim (SecondaryClick ->
                 // CancelLocalAim in the current default aim profile).
-                eAiming = false;
-                rAiming = false;
+                aimingAbilitySlot = -1;
                 if (hoveredUnit.HasValue)
                 {
                     SubmitAttack(
@@ -1773,80 +1867,58 @@ namespace FrameSyncMoba.Bootstrap
                 aimPoint - heroPos;
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                if (!IsAbilityLearned(0))
+                if (!IsAbilityLearned(0) ||
+                    !CanOpenHeroTestAim(0))
                 {
                     return;
                 }
-                qAiming = true;
-                qSessionWasActive = false;
-                qAimingGraceFrames = 0;
-                SubmitCast(
-                    0,
-                    AbilitySignalVerb.Focus,
-                    AimSnapshot.None);
+                aimingAbilitySlot = 0;
             }
             if (Input.GetKeyDown(KeyCode.W))
             {
-                if (!IsAbilityLearned(1))
+                if (!IsAbilityLearned(1) ||
+                    !CanOpenHeroTestAim(1))
                 {
                     return;
                 }
-                SubmitCast(
-                    1,
-                    AbilitySignalVerb.Commit,
-                    AimSnapshot.None);
+                aimingAbilitySlot = 1;
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
-                // Local aim only: no Command until the primary click commits.
                 if (!IsAbilityLearned(2))
                 {
                     return;
                 }
-                eAiming = true;
+                SubmitCast(
+                    2,
+                    AbilitySignalVerb.Commit,
+                    AimSnapshot.ForDirection(
+                        direction));
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
-                // Local aim only: no Command until the primary click commits.
                 if (!IsAbilityLearned(3))
                 {
                     return;
                 }
-                rAiming = true;
+                SubmitCast(
+                    3,
+                    AbilitySignalVerb.Commit,
+                    AimSnapshot.None);
             }
 
-            // Primary click commits the currently aiming / charging ability
-            // (Player Input v1.1 current charge profile: press=Focus,
-            // release=None, click=Commit).
+            // Q/W use the formal local-aim flow: the ability key only opens
+            // the indicator and primary click emits the deterministic Commit.
             if (Input.GetMouseButtonDown(0))
             {
-                if (hero.AbilityHandler != null &&
-                    hero.AbilityHandler.HasActiveSession(0) &&
-                    hero.AbilityHandler.IsWaitingForCommit(0))
+                if (aimingAbilitySlot >= 0)
                 {
                     SubmitCast(
-                        0,
+                        (byte)aimingAbilitySlot,
                         AbilitySignalVerb.Commit,
                         AimSnapshot.ForDirection(
                             direction));
-                }
-                else if (eAiming)
-                {
-                    SubmitCast(
-                        2,
-                        AbilitySignalVerb.Commit,
-                        AimSnapshot.ForPoint(
-                            aimPoint));
-                    eAiming = false;
-                }
-                else if (rAiming)
-                {
-                    SubmitCast(
-                        3,
-                        AbilitySignalVerb.Commit,
-                        AimSnapshot.ForDirection(
-                            direction));
-                    rAiming = false;
+                    aimingAbilitySlot = -1;
                 }
             }
         }
@@ -1867,8 +1939,31 @@ namespace FrameSyncMoba.Bootstrap
         }
 
         /// <summary>
+        /// Mirrors the C/S input gate: a local-aim indicator must not open
+        /// while the ability is on cooldown or while the active session is
+        /// inside a stage that cannot accept the next Commit (e.g. the
+        /// minimum recast-delay lockout of Aatrox Q).
+        /// </summary>
+        private bool CanOpenHeroTestAim(byte slot)
+        {
+            bool allowed =
+                hero?.AbilityHandler
+                    ?.CanOpenLocalAim(slot) ??
+                false;
+            if (!allowed)
+            {
+                Debug.Log(
+                    $"[HeroTest] Slot {slot} local aim blocked " +
+                    "(cooldown or current session cannot accept the " +
+                    "next Commit).");
+            }
+            return allowed;
+        }
+
+        /// <summary>
         /// Finds or builds the 2D skill indicator driver used by the hero
-        /// test scene (Q charge bar, E ground circle, R direction bar).
+        /// test scene. Aatrox Q/W use local directional aim, E commits toward
+        /// the cursor immediately, and R is self-cast.
         /// </summary>
         private void EnsureIndicatorDriver()
         {
@@ -1898,14 +1993,7 @@ namespace FrameSyncMoba.Bootstrap
         }
 
         /// <summary>
-        /// Drives the skill indicators every frame:
-        /// - Q (Direction): cast-range circle at max range + a rounded bar
-        ///   that grows with the charge ratio; other commands cannot cancel
-        ///   it, only the charge ending (release/interrupt/timeout) hides it.
-        /// - E (Point): cast-range circle + a cursor-following circle with
-        ///   the desecrated-ground radius.
-        /// - R (Direction): cast-range circle + a direction bar.
-        /// - W has no indicator.
+        /// Drives the current Aatrox Q/W local directional indicator.
         /// </summary>
         private void UpdateIndicators()
         {
@@ -1927,218 +2015,67 @@ namespace FrameSyncMoba.Bootstrap
             fp2 aimPoint =
                 ground ?? heroPos;
 
-            if (qAiming)
+            if (aimingAbilitySlot >= 0)
             {
-                UpdateQIndicator(
+                UpdateAbilityIndicator(
+                    (byte)aimingAbilitySlot,
                     heroPos,
                     forward,
                     aimPoint);
                 return;
             }
-            if (eAiming)
-            {
-                UpdateEIndicator(
-                    heroPos,
-                    forward,
-                    aimPoint);
-                return;
-            }
-            if (rAiming)
-            {
-                UpdateRIndicator(
-                    heroPos,
-                    forward,
-                    aimPoint);
-                return;
-            }
-
             if (indicatorDriver.IsVisible)
             {
                 indicatorDriver.Hide();
             }
         }
 
-        private void UpdateQIndicator(
+        private void UpdateAbilityIndicator(
+            byte slot,
             fp2 heroPos,
             fp2 forward,
             fp2 aimPoint)
         {
-            AbilityRuntime q =
+            fp castRange = (fp)3m;
+            AbilityDef abilityDef =
                 hero.AbilityHandler?
-                    .GetActiveRuntime(0);
-            AbilitySession session =
-                q?.ActiveSession;
-            bool hasSession =
-                session != null &&
-                !session.Cancelled &&
-                !session.Interrupted;
-
-            if (!hasSession &&
-                qSessionWasActive)
+                    .GetAbilityDef(slot);
+            if (abilityDef != null &&
+                abilityDef.IsValid)
             {
-                // Charge ended: released, interrupted or timed out.
-                qAiming = false;
-                qSessionWasActive = false;
-                return;
-            }
-            qSessionWasActive =
-                hasSession;
-
-            fp minRange = (fp)9.25m;
-            fp maxRange = (fp)16.25m;
-            int maxChargeTicks = 45;
-            if (hasSession)
-            {
-                CastStage? hold =
-                    q.Definition?.CastModel
-                        ?.GetStage(
-                            session
-                                .CurrentStageKey);
-                if (hold.HasValue &&
-                    hold.Value.Def is
-                        ChargeStageDef charge)
-                {
-                    maxChargeTicks =
-                        Mathf.Max(
-                            1,
-                            charge.MaxChargeTicks);
-                }
-                if (q.Definition?.CastModel is
-                    HoldReleaseCastModelDef
-                        holdModel &&
-                    holdModel.Release.Def is
-                        ChargeProjectileStageDef
-                            release)
-                {
-                    minRange =
-                        release.MinRange;
-                    maxRange =
-                        release.MaxRange;
-                }
+                castRange =
+                    abilityDef.CastRange;
             }
 
-            float ratio = 0f;
-            if (hasSession)
-            {
-                ratio =
-                    Mathf.Clamp01(
-                        (float)session
-                            .StageElapsedTicks /
-                        maxChargeTicks);
-            }
-            else
-            {
-                // The Focus command was pressed but the logic session has
-                // not been created yet (same-frame). Keep the indicator at
-                // the minimum length; abandon it after a grace period when
-                // the charge never starts (e.g. not ready).
-                qAimingGraceFrames++;
-                if (qAimingGraceFrames >
-                    120)
-                {
-                    qAiming = false;
-                    qSessionWasActive =
-                        false;
-                    return;
-                }
-            }
-            fp length =
-                minRange +
-                (maxRange - minRange) *
-                (fp)ratio;
+            DirectionalMultiZoneDamageStageDef zone = null;
+            AbilityIndicatorGeometryResolver
+                .TryResolveDirectionalZone(
+                    hero.AbilityHandler,
+                    slot,
+                    out zone);
 
             if (!indicatorDriver.IsVisible ||
                 indicatorDriver.ActiveKind !=
-                    AimKind.Direction)
+                    AimKind.Direction ||
+                !object.ReferenceEquals(
+                    indicatorDriver.ActiveDirectionalZone,
+                    zone))
             {
                 indicatorDriver.Show(
                     AimKind.Direction,
-                    maxRange,
-                    heroPos,
-                    forward);
-            }
-            indicatorDriver.UpdateCursor(
-                aimPoint,
-                heroPos,
-                forward);
-            indicatorDriver
-                .UpdateDirectionLength(
-                    length);
-        }
-
-        private void UpdateEIndicator(
-            fp2 heroPos,
-            fp2 forward,
-            fp2 aimPoint)
-        {
-            fp castRange = (fp)9.25m;
-            fp groundRadius = (fp)3m;
-            AbilityDef eDef =
-                hero.AbilityHandler?
-                    .GetAbilityDef(2);
-            if (eDef != null &&
-                eDef.IsValid)
-            {
-                castRange =
-                    eDef.CastRange;
-                if (eDef.CastModel is
-                    CommitCastModelDef eModel &&
-                    eModel.Cast.Def is
-                        AreaDamageStageDef area)
-                {
-                    groundRadius =
-                        area.Radius;
-                }
-            }
-
-            if (!indicatorDriver.IsVisible ||
-                indicatorDriver.ActiveKind !=
-                    AimKind.Point)
-            {
-                indicatorDriver.Show(
-                    AimKind.Point,
                     castRange,
                     heroPos,
                     forward,
-                    true,
-                    groundRadius);
+                    zone == null,
+                    default,
+                    zone);
             }
             indicatorDriver.UpdateCursor(
                 aimPoint,
                 heroPos,
                 forward);
-        }
-
-        private void UpdateRIndicator(
-            fp2 heroPos,
-            fp2 forward,
-            fp2 aimPoint)
-        {
-            fp castRange = (fp)10.75m;
-            AbilityDef rDef =
-                hero.AbilityHandler?
-                    .GetAbilityDef(3);
-            if (rDef != null &&
-                rDef.IsValid)
-            {
-                castRange =
-                    rDef.CastRange;
-            }
-
-            if (!indicatorDriver.IsVisible ||
-                indicatorDriver.ActiveKind !=
-                    AimKind.Direction)
-            {
-                indicatorDriver.Show(
-                    AimKind.Direction,
-                    castRange,
-                    heroPos,
-                    forward);
-            }
-            indicatorDriver.UpdateCursor(
-                aimPoint,
-                heroPos,
-                forward);
+            indicatorDriver.UpdateDirectionLength(
+                castRange);
         }
 
         /// <summary>
@@ -2293,30 +2230,52 @@ namespace FrameSyncMoba.Bootstrap
                     Mathf.Max(1f,
                         ticksPerSecond * 0.5f);
             }
-            if (Input.GetKeyDown(KeyCode.J))
+        }
+
+        private void DamageHero100()
+        {
+            if (hero?.StatHandler == null)
             {
-                ResetDummies();
+                return;
             }
-            if (Input.GetKeyDown(KeyCode.M))
+            hero.StatHandler.SetCurrentHealth(
+                hero.StatHandler.CurrentHealth -
+                (fp)100);
+        }
+
+        private void HealHero100()
+        {
+            if (hero?.StatHandler == null)
             {
-                RefillMana();
+                return;
             }
-            if (Input.GetKeyDown(KeyCode.K))
+            hero.StatHandler.SetCurrentHealth(
+                hero.StatHandler.CurrentHealth +
+                (fp)100);
+        }
+
+        private void RestoreMana100()
+        {
+            if (hero?.StatHandler == null)
             {
-                ResetCooldowns();
+                return;
             }
-            if (Input.GetKeyDown(KeyCode.B))
+            hero.StatHandler.SetCurrentCastResource(
+                hero.StatHandler
+                    .CurrentCastResource +
+                (fp)100);
+        }
+
+        private void DrainMana100()
+        {
+            if (hero?.StatHandler == null)
             {
-                SpawnDummy();
+                return;
             }
-            if (Input.GetKeyDown(KeyCode.G))
-            {
-                SpawnDummiesAtScenePoints();
-            }
-            if (Input.GetKeyDown(KeyCode.H))
-            {
-                RebuildGridFromSceneObstacles();
-            }
+            hero.StatHandler.SetCurrentCastResource(
+                hero.StatHandler
+                    .CurrentCastResource -
+                (fp)100);
         }
 
         private void ResetDummies()
@@ -2543,6 +2502,56 @@ namespace FrameSyncMoba.Bootstrap
                 0);
         }
 
+        void IEquipmentShopCommandSubmitter.SubmitPurchase(
+            int playerSlot,
+            int targetEquipmentId)
+        {
+            ValidateTestShopPlayer(playerSlot);
+            pipeline.SubmitCommand(
+                GameplayCommand.CreateEquipmentPurchase(
+                    MakeHeader(
+                        GameplayCommandKind.EquipmentShop),
+                    targetEquipmentId));
+        }
+
+        void IEquipmentShopCommandSubmitter.SubmitSell(
+            int playerSlot,
+            int sourceSlot)
+        {
+            ValidateTestShopPlayer(playerSlot);
+            if ((uint)sourceSlot >= EquipmentHandler.SlotCount)
+            {
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(sourceSlot));
+            }
+            pipeline.SubmitCommand(
+                GameplayCommand.CreateEquipmentSell(
+                    MakeHeader(
+                        GameplayCommandKind.EquipmentShop),
+                    (byte)sourceSlot));
+        }
+
+        void IEquipmentShopCommandSubmitter.SubmitUndo(
+            int playerSlot)
+        {
+            ValidateTestShopPlayer(playerSlot);
+            pipeline.SubmitCommand(
+                GameplayCommand.CreateEquipmentUndo(
+                    MakeHeader(
+                        GameplayCommandKind.EquipmentShop)));
+        }
+
+        private static void ValidateTestShopPlayer(
+            int playerSlot)
+        {
+            if (playerSlot != 0)
+            {
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(playerSlot),
+                    "HeroTestScene has exactly one local player.");
+            }
+        }
+
         private fp2? ScreenToGround(
             Vector2 screenPosition)
         {
@@ -2619,67 +2628,39 @@ namespace FrameSyncMoba.Bootstrap
                 }
                 GUILayout.Space(8f);
                 if (GUILayout.Button(
-                        paused
-                            ? "Resume (Space)"
-                            : "Pause (Space)"))
+                        "扣100血"))
                 {
-                    paused = !paused;
+                    DamageHero100();
                 }
                 if (GUILayout.Button(
-                        "Step 1 Tick (N)"))
+                        "加100血"))
                 {
-                    pipeline.ExecuteTick(
-                        tickController,
-                        ExecutionMode.ServerAuthority);
+                    HealHero100();
                 }
                 if (GUILayout.Button(
-                        "Reset Dummies (J)"))
-                {
-                    ResetDummies();
-                }
-                if (GUILayout.Button(
-                        "Refill Mana (M)"))
-                {
-                    RefillMana();
-                }
-                if (GUILayout.Button(
-                        "Reset Cooldowns (K)"))
+                        "重置技能CD"))
                 {
                     ResetCooldowns();
                 }
                 if (GUILayout.Button(
-                        "Level Up (L)"))
+                        "升级"))
                 {
                     GrantDebugLevel();
                 }
                 if (GUILayout.Button(
-                        "Spawn Dummy (B)"))
+                        "回100蓝"))
                 {
-                    SpawnDummy();
+                    RestoreMana100();
                 }
                 if (GUILayout.Button(
-                        "Spawn Scene Dummies (G)"))
+                        "扣100蓝"))
                 {
-                    SpawnDummiesAtScenePoints();
-                }
-                if (GUILayout.Button(
-                        "Rebake Grid (H)"))
-                {
-                    RebuildGridFromSceneObstacles();
-                }
-                if (GUILayout.Button(
-                        "Attack Dummy (T)") &&
-                    dummies.Count > 0)
-                {
-                    SubmitAttack(
-                        dummies[0].UnitUid);
+                    DrainMana100();
                 }
                 GUILayout.Label(
                     "Controls: WASD move, RMB move, " +
-                    "Q charge + LMB release, W toggle, " +
-                    "E/R aim + LMB cast, T attack, " +
-                    "M refill mana, K reset CD, " +
-                    "B dummy, G scene dummies, " +
+                    "Q/W cast toward cursor, E aim + LMB, " +
+                    "R self-cast, T attack, L level up, " +
                     "Space pause, " +
                     "N step, F/V speed");
                 GUILayout.EndArea();

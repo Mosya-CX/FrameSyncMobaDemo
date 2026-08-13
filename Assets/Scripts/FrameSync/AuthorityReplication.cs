@@ -574,12 +574,12 @@ namespace FrameSyncMoba.FrameSync
                 commands,
                 flags,
                 pipeline.LastChecksum);
-            if (tick <= 5)
-                UnityEngine.Debug.Log(
-                    $"[Checksum] Server frame Tick {tick} " +
-                    $"checksum={pipeline.LastChecksum} " +
-                    $"commands={commands.Length}");
-            if (SharedGameplayChecksum.DetailedLoggingEnabled)
+            // Healthy-run baseline is quiet; detail prints only when the
+            // checksum-detail flag is enabled for a diagnostic round.
+            // Rate-limit the full per-unit detail so a diagnostic round with
+            // -checksumDetail stays readable instead of growing hundreds of MB.
+            if (SharedGameplayChecksum.DetailedLoggingEnabled &&
+                (tick % 30 == 0 || tick <= 5))
             {
                 PrintDetailedChecksum(tick, pipeline);
             }
@@ -641,6 +641,9 @@ namespace FrameSyncMoba.FrameSync
                         $"    {handlers[h].Label}=" +
                         $"{handlers[h].Hash}");
                 }
+                ChecksumDiagnosticFormatter.AppendEquipmentSlots(
+                    lines,
+                    units[u]);
                 var ccInstances =
                     units[u].CCState.Instances;
                 lines.Add(
@@ -663,6 +666,9 @@ namespace FrameSyncMoba.FrameSync
                     }
                 }
             }
+            ChecksumDiagnosticFormatter.AppendShopState(
+                lines,
+                snapshot.EquipmentShopState);
             UnityEngine.Debug.Log(
                 string.Join(
                     System.Environment.NewLine,

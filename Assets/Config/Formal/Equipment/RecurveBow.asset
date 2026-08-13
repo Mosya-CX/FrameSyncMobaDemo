@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10968a781afdb4648aab6bb16996728c, type: 3}
+  m_Name: RecurveBow
+  m_EditorClassIdentifier: 
+  Id: 31004
+  Name: Recurve Bow
+  Description: Grants 15% Attack Speed. Basic attacks deal 15 bonus physical damage on hit.
+  Icon: {fileID: 21300000, guid: 6b7a039792e48b5468c197a77371f7d1, type: 3}
+  Tier: 2
+  Value: 700
+  MaxStack: 1
+  FixedStats:
+  - Stat: 9
+    Value: 0.15
+  Effects:
+  - Name: Recurve
+    Description: Basic attacks deal 15 bonus physical damage on hit.
+    IsActive: 0
+    ActiveSettings:
+      CooldownTicks: 0
+      ChargeCost: 0
+    Modules:
+    - rid: 2586996066344501248
+  Tags: []
+  Recipe:
+    Components:
+    - Item: {fileID: 11400000, guid: e85d40669023def4791da7aeea37e8bf, type: 2}
+      Count: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586996066344501248
+      type: {class: OnHitBonusDamageModule, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        InvokeTimings: 0e
+        BonusDamage:
+          m_rawValue: 64424509440
+        DamageType: 0
+        InternalCooldownTicks: 0

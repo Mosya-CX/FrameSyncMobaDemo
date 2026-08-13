@@ -515,6 +515,19 @@ namespace FrameSyncMoba.Unit
             }
         }
 
+        public bool HasTag(byte tag)
+        {
+            if (tag == 0) return false;
+            IReadOnlyList<BuffRuntime> ordered =
+                _store.GetAllOrdered();
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                if (ordered[i].Definition.HasTag(tag))
+                    return true;
+            }
+            return false;
+        }
+
         public List<BuffInfo> GetAllBuffInfos()
         {
             IReadOnlyList<BuffRuntime> ordered =

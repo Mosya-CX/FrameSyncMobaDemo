@@ -387,7 +387,13 @@ MoveActionRequest(
         AttackRange + DefaultAttackMoveStopPadding))
 ```
 
-真正的形状距离算法复用物理模拟系统已经提供的单位范围查询语义，Planner 和 `AttackHandler` 都不能再各自发明一套中心点半径公式。
+真正的攻击距离判定复用物理模拟系统提供的统一单位范围查询，正式语义为：
+
+```text
+distance(SourceCenter, TargetCenter) - Target.CollisionRadius <= Source.AttackRange
+```
+
+只扣除目标碰撞半径，不扣除攻击者碰撞半径。Planner 和 `AttackHandler` 都不能再各自实现另一套距离公式。
 
 `GetAttackPlanStatus` 的判断顺序固定为：
 

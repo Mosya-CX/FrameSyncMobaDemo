@@ -294,8 +294,10 @@ stateDiagram-v2
     AwaitAssignedPlayers --> HeroSelecting
     HeroSelecting --> LoadingGame : 全员锁定英雄
     LoadingGame --> ReadyBarrier
-    ReadyBarrier --> StartScheduled : 全员加载并 Ready
-    StartScheduled --> GameplayStarted : 到达统一 StartTick
+    ReadyBarrier --> BootstrapBroadcast : 全员加载并 Ready
+    BootstrapBroadcast --> BootstrapAppliedBarrier : 客户端恢复快照并完成本地绑定
+    BootstrapAppliedBarrier --> LaunchCommitted : 全员 BootstrapApplied
+    LaunchCommitted --> GameplayStarted : 到达各端启动门槛
 ```
 
 ## 3.4 开局条件
@@ -321,7 +323,7 @@ AssignedPlayerCount == GameStartPlayerCount
 StartTick = ServerTick + StartLeadTicks
 ```
 
-并广播统一启动数据。
+并广播统一启动数据。`StartTick` 只定义首个 Gameplay Tick，不直接授权任何端开始模拟。
 
 ## 3.5 `GameBootstrapPayload`
 
@@ -337,6 +339,35 @@ GameBootstrapPayload
     InitialRandomSeed
     PlayerSlotMappings
 ```
+
+`GameBootstrapPayload` 只负责冻结开局配置、初始快照和控制权映射。为保持 wire v2
+布局兼容，现有 `LaunchUtcTicks` 字段保留但必须为 `0`；它不再具有启动授权语义。
+
+客户端恢复快照并完成本地受控单位绑定后发送：
+
+```text
+BootstrapAppliedConfirmation
+    MatchId
+    StartTick
+```
+
+服务端只接受冻结 `PlayerSlots` 中的 `ControllerClientId`，按 PlayerSlot 顺序维护确认
+屏障。相同客户端对相同 MatchId/StartTick 的重复确认幂等；错误比赛、错误 StartTick
+或未知客户端必须显式失败。
+
+全员确认后，服务端才计算并广播：
+
+```text
+MatchLaunchCommit
+    MatchId
+    StartTick
+    LaunchUtcTicks = ServerUtcNow + LaunchDelaySeconds
+```
+
+服务端在绝对 `LaunchUtcTicks` 到达时执行首 Tick。客户端可在该时刻前
+`MaxPredictionLeadTicks - 1` 个 Tick 开始预测，因此其实际等待时间自然等于
+`LaunchDelaySeconds - 消息传输耗时 - 提前预测时长`。客户端同时受权威预测窗口和
+绝对墙钟 Tick 上限约束，禁止因启动追赶在数秒内执行数十秒的逻辑 Tick。
 
 语义：
 
@@ -373,7 +404,8 @@ ConfirmedIncomeThroughTick =
 锁定英雄
 场景加载完成
 大厅 Ready
-启动确认
+BootstrapApplied
+LaunchCommit
 ```
 
 这些使用大厅网络消息，不进入玩家 GameplayCommand。
@@ -2555,4 +2587,3 @@ AuthorityRecovery 仅补 AuthorityFrame
 31. 账户身份运行时不保存金币总量。
 32. 服务端持久化层只接收已确认金币批次。
 ```
-

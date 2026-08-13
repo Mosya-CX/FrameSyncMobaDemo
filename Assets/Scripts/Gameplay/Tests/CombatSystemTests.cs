@@ -73,7 +73,6 @@ namespace FrameSyncMoba.Unit.Tests
             BeginTick(1);
             var attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
             var target = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
-
             fp initialHealth = target.StatHandler.CurrentHealth;
 
             _combat.BeginTick();
@@ -85,6 +84,64 @@ namespace FrameSyncMoba.Unit.Tests
             fp finalHealth = target.StatHandler.CurrentHealth;
             Assert.Less(finalHealth, initialHealth);
             Assert.Greater(finalHealth, fp.zero);
+        }
+
+        [Test]
+        public void Omnivamp_HealsSourceForFractionOfSettledDamage()
+        {
+            BeginTick(1);
+            var attacker =
+                _world.SpawnUnit(
+                    _prototype,
+                    TeamId.Neutral,
+                    1,
+                    0m,
+                    0m);
+            var target =
+                _world.SpawnUnit(
+                    _prototype,
+                    TeamId.Neutral,
+                    1,
+                    0m,
+                    0m);
+            attacker.StatHandler.AddModifier(
+                StatId.Omnivamp,
+                StatModifierOperation.FlatAdd,
+                (fp)0.2m);
+            attacker.StatHandler.FinalizeTick();
+
+            // Spawn leaves the attacker at full health, so the drain heal
+            // would be capped away; drop its health first.
+            attacker.StatHandler.SetCurrentHealth(
+                attacker.StatHandler.GetStat(
+                    StatId.MaxHealth) -
+                (fp)100m);
+            fp startHealth =
+                attacker.StatHandler.CurrentHealth;
+            _combat.BeginTick();
+            _combat.SubmitDamage(
+                new DamageRequest
+                {
+                    Header = CombatRequestHeader.Create(
+                        attacker.UnitUid,
+                        target.UnitUid,
+                        CombatSourceType.Attack,
+                        CombatBuiltinSourceId.BasicAttack,
+                        CombatBuiltinRecipeId
+                            .BasicAttackDamage),
+                    BaseDamage = (fp)100m,
+                    DamageType = DamageType.Physical,
+                });
+            _combat.SettleActiveRequests();
+            _combat.EndTick();
+
+            fp healed =
+                attacker.StatHandler.CurrentHealth -
+                startHealth;
+            Assert.That(healed, Is.GreaterThan(fp.zero));
+            Assert.That(
+                healed,
+                Is.LessThanOrEqualTo((fp)20m));
         }
 
         [Test]
@@ -531,6 +588,34 @@ namespace FrameSyncMoba.Unit.Tests
                 Id = StatId.AttackSpeed,
                 DebugName = "AS",
                 DefaultBaseValue = 0.625m,
+                SupportsLevelGrowth = false,
+            });
+            table.Add(new StatDefinition
+            {
+                Id = StatId.Omnivamp,
+                DebugName = "Omnivamp",
+                DefaultBaseValue = 0m,
+                SupportsLevelGrowth = true,
+            });
+            table.Add(new StatDefinition
+            {
+                Id = StatId.LifeSteal,
+                DebugName = "LifeSteal",
+                DefaultBaseValue = 0m,
+                SupportsLevelGrowth = true,
+            });
+            table.Add(new StatDefinition
+            {
+                Id = StatId.HealPower,
+                DebugName = "HealPower",
+                DefaultBaseValue = 0m,
+                SupportsLevelGrowth = true,
+            });
+            table.Add(new StatDefinition
+            {
+                Id = StatId.HealingReceivedRatio,
+                DebugName = "HealingReceivedRatio",
+                DefaultBaseValue = 1m,
                 SupportsLevelGrowth = false,
             });
             return table;

@@ -12,8 +12,10 @@ function Load:Refresh()
     local value = GameFlow.LocalLoadProgress()
     value = math.max(0, math.min(1, value))
     self.ui.ProgressBar.value = value
-    self.ui.ProgressText.text =
-        string.format("%d%%", math.floor(value * 100))
+    self.ui.ProgressText.text = string.format(
+        "%s  %d%%",
+        GameFlow.GetLoadingStatus(),
+        math.floor(value * 100))
 end
 
 return Load

@@ -597,7 +597,9 @@ Implementation consequences:
 
 ## D-031 — Varus passive P, charge slow/refund, per-level cooldown (2026-08-06)
 
-**Status:** Frozen (implementation complete 2026-08-06)
+**Status:** Partially superseded by D-044. The absolute UTC barrier and stat
+Dirty finalization remain frozen; carrying launch authorization inside
+`GameBootstrapPayload` no longer applies.
 
 Following the hero design document and Ability v15.2 review:
 
@@ -706,6 +708,12 @@ Implementation consequences:
   at server broadcast, client payload receive/apply, launch-barrier reach, HUD
   open and first accepted authority. Revise D-033 only if that evidence proves
   the contract itself is defective.
+
+The 2026-08-14 timestamped UOS logs resolved that observation: client Tick 3
+and server Tick 3 began at essentially the same wall-clock instant, but the
+client then executed through roughly Tick 1080 in about 2.6 seconds before
+returning to 30 Hz. This was a prediction-start runaway, not 30 seconds of
+network RTT or a server-side delay.
 
 ## D-034 — Assist event chain and assist-driven Revenge buff (2026-08-06)
 
@@ -832,6 +840,11 @@ Non-hero content decisions for towers and lane minions:
   `HasUnresolvedProjectile` keeps `TowerAIController` from re-targeting
   (v5 8.5). Ramp/lock state lives in `AttackSnapshot` (rollback-safe) and is
   checksummed. `TowerTargetLinePresenter` draws the red line presentation-only.
+  Per the 2026-08-11 user clarification, the line follows the tower's current
+  `AttackTarget` intent rather than the last projectile lock: intent replacement
+  switches the endpoint immediately, while a dead/invalid target with no
+  successor disables rendering. The presenter never writes Gameplay state and
+  does not enter snapshots or checksums.
   Both test and formal tower prefabs were migrated from AttackHandler to
   TowerAttackHandler.
 - **Single runtime chain (superseded by D-038).** Resource layout was
@@ -861,8 +874,9 @@ Assets/Config/Tests/    test-only configs (HeroTestMapConfig)
 Assets/Resources/       C/S-used UI / missiles / indicators / VFX / materials
 ```
 
-- Removed: `Assets/Fixtures/` (test fixtures incl. the only equipment
-  catalog — no formal equipment exists yet, `equipmentCatalog` is null),
+- Removed: `Assets/Fixtures/` (at the time this removed the only equipment
+  catalog and left `equipmentCatalog` null; D-039 later introduced the formal
+  packaged catalog),
   the dead `Config/Formal/` pair (`FormalUnitRuntimeCatalog` /
   `FormalGlobalPrefabTable`), `Config/Runtime/` + `Config/FullMatchTest/`
   (merged into `Config/Formal/`), and `Assets/Resources/Prefab/Unit/`
@@ -875,3 +889,169 @@ Assets/Resources/       C/S-used UI / missiles / indicators / VFX / materials
   Attack2 states (AnyState entry on `AttackStart`, alternating by
   `AttackSequenceIndex`, exit on `IsAttacking == false`). Note Unity
   2022.3.62 `AnimatorConditionMode`: Equals=6, NotEqual=7.
+
+## D-039 — Hero spawn slots are bound from lobby selection (2026-08-12)
+
+Player-controlled initial spawns no longer hardcode the hero prototype in the
+scene composition (`initialUnitSpawns`). The spawn slot (spawn point + team)
+is the deterministic topology; the hero prototype is taken from
+`PlayerSlotConfig.HeroConfigId` at payload build time
+(`GameBootstrap.BindSelectedHeroesToPlayerSpawns` +
+`SimulationTickPipeline.OverrideInitialSpawnPrototype`), identical on every
+endpoint because the authoritative payload carries the resulting snapshot.
+Adding a hero therefore only requires the prefab table, unit catalog and hero
+display table — never a scene edit. The authored `UnitPrototypeId` on a
+player-controlled spawn is now only a placeholder/fallback.
+
+## D-039 — First formal equipment catalog and repeat-safe On-Hit (2026-08-10)
+
+**Status:** Implemented and focused-tested by ExecPlan 0132.
+
+- The first packaged equipment catalog lives under
+  `Assets/Config/Formal/Equipment/` and contains Dagger (31001), Amplifying
+  Tome (31002), Pickaxe (31003), Recurve Bow (31004) and Guinsoo's Rageblade
+  (31005). GameScene references this catalog; Seething Strike uses the formal
+  Buff catalog with BuffConfigId 31901.
+- HeroTestScene is driven by `HeroTestDriver`, not GameBootstrap. Its
+  local-Tick shop must bake the same formal equipment catalog, initialize the
+  formal `GoldIncomeRuntime` with a 10000-gold baseline, and submit the same
+  canonical shop Commands into its local `SimulationTickPipeline` without a
+  network transport. Constructing an empty `EquipmentDatabase` or mutating the
+  `EquipmentHandler` directly from UI is a stale pre-D-039 fallback and is
+  covered by dedicated PlayMode regressions.
+- Equipment modules receive a tick-local execution context and their exact
+  `EquipmentEffectModuleRuntimeState` by `ref`. Persistent counters and
+  internal cooldowns therefore cannot be lost through struct copies.
+- A repeated On-Hit is the existing On-Hit event with `IsRepeated = true`, not
+  a second Attack or a second Command. It routes through existing Ability,
+  Buff and Equipment handlers; the stack grant and repeat generator ignore
+  repeats, preventing recursion. The attack that reaches four stacks counts
+  as the first full-stack hit.
+- The runtime module member formerly named `TimerTicks` is the formal
+  `TriggerCount`; it is snapshotted and checksummed. GameplaySnapshot schema
+  advances from 21 to 22, so client and server packages must be rebuilt as a
+  matching pair.
+
+## D-040 — Lazy Shop Trader bootstrap and minion reward distance conversion (2026-08-11)
+
+**Status:** Frozen clarification of Equipment/Gold v12 and Combat v13.2.
+
+- `ShopTraderRuntime` remains absent until the first successful Purchase or
+  Sell transaction. UI price queries and local RequestCheck are read-only and
+  must not create Trader state.
+- Before Trader creation, `EquipmentShopRuntime` resolves the controlled hero
+  from the existing stable `Unit.ControlledByPlayerSlot` mapping. Once Trader
+  exists, its snapshotted `ControlledUnitUid` remains the authoritative shop
+  binding. Multiple Units carrying the same PlayerSlot are a deterministic
+  configuration error.
+- The command pipeline creates Trader state only after Purchase/Sell planning
+  succeeds, then applies the transaction and OperationLog record. Undo never
+  creates an initial Trader.
+- `MatchStatisticsRuntime.MinionRewardShareRadius` is authored in the same
+  stat-distance domain as attack ranges. It is converted exactly once through
+  `UnitWorld.StatDistanceToLogicDistanceScale` before comparing squared logic
+  positions. At the current 0.01 scale, radius 800 is approximately 8 logic
+  units.
+
+## D-041 -- Integer kill rewards and formal test gold (2026-08-11)
+
+**Status:** Implemented for the current reward pipeline; one cross-document
+producer-contract conflict remains unresolved.
+
+- All gold values and allocations are non-negative integers. In particular,
+  `GoldAllocation.GoldAmount` is `int`; kill allocation and
+  `GoldIncomeRuntime.RequestGoldIncome` no longer cross an `fp` boundary.
+- Formal C/S match initialization starts every player at 1500 earned gold.
+  HeroTest remains a separate local-Tick fixture with its explicit 10000-gold
+  test baseline.
+- Formal base kill values are melee minion 21, ranged minion 14 and hero 300.
+  Per the current user rule, minion gold belongs only to the last-hitting hero;
+  nearby enemy heroes continue to share minion experience within the converted
+  reward radius.
+- A hero killer receives `floor(BaseGold * 3 / 5)` and valid assistants split
+  the remaining `2 / 5` in stable order. Thus a 300-gold kill with two assists
+  is 180/60/60. With no assistants the killer receives all 300.
+- Confirmed UnitKill income emits one `[GoldIncomeConfirmed]` diagnostic with
+  Tick, PlayerSlot, integer amount and the resulting confirmed total. Natural
+  income does not emit this diagnostic.
+
+The current documents disagree on allocation ownership: Equipment/Gold v12
+sections 6.5-6.6 place allocation generation in `MatchStatisticsRuntime`, while
+Combat v13.2 sections 1.5 and 11.10 require `CombatSystem` to emit
+`GoldIncomeAllocation` with PlayerSlot and Reason. The existing implementation
+follows v12 and still allocates by ReceiverHeroUid before the pipeline resolves
+PlayerSlot. This task does not silently choose a new owner or migrate that
+public producer contract; only the shared integer Amount contract and requested
+balance behavior are frozen here.
+
+## D-042 -- Sequential-recast UI projection and cast-facing preservation (2026-08-12)
+
+**Status:** Implemented and focused-tested by ExecPlan 0133.
+
+- A sequential-recast model's first and second waiting-window `CastStage`
+  receive the following impact stage's authored icon override. The UI therefore
+  shows the next legal cast (Q2, then Q3) as soon as the previous impact enters
+  its recast window, while continuing to obey Ability v15.2's rule that UI
+  reads the current `CastStage.IconOverride`.
+- Dash movement may translate a Unit while another active `CastStage` owns
+  `LockMovement`, but preserves that locked cast's deterministic facing instead
+  of replacing it with the dash direction. No hero-ID branch and no new
+  snapshot member are introduced; the active Ability session already owns the
+  stage and aim.
+- An attached VFX with non-zero `VfxEvent.WorldDirection` follows its host's
+  position while retaining that direction in world space. Later host rotation
+  must not rotate the effect a second time. This remains presentation-only.
+- HeroTest binds the fixed-passive cooldown state to the HUD bridge instead of
+  returning constant zero values.
+
+## D-043 -- Compile-selectable bounded asynchronous diagnostics (2026-08-13)
+
+**Status:** Implemented and focused-tested by ExecPlan 0134.
+
+- Diagnostics are presentation/operations output only. They never participate
+  in Gameplay state, Commands, snapshots, deterministic ordering or checksums.
+- Enabled Player builds define `FRAME_SYNC_MOBA_DIAGNOSTICS`. Calls marked with
+  that conditional symbol enqueue bounded work; disabled builds omit the call
+  sites and do not create a worker, subscribe to Unity logging or perform IO.
+- Producers never wait for file/stdout IO. A below-normal dedicated background
+  thread owns batching, formatting, directory creation, file writes, stdout
+  mirroring and mismatch-artifact construction.
+- Normal and priority queues are both bounded. Saturation drops entries and
+  increments a visible counter instead of blocking the simulation thread.
+- Client and server Unity logs are mirrored into an owned diagnostic file.
+  Explicit FrameSync diagnostics are also mirrored to process stdout so UOS
+  Dedicated Server log collection receives them. A packaged client places its
+  diagnostic file beside the explicit Unity `-logFile`; otherwise it uses
+  `Application.persistentDataPath/FrameSyncDiagnostics`.
+- Writer failures are sent to stderr and exposed to the Unity host, which emits
+  a visible Unity error. Empty catch-and-ignore is not the failure contract.
+- Normal Gameplay shutdown may wait only for the configured bounded exit flush;
+  Gameplay execution never waits for the diagnostic worker.
+
+## D-044 -- Two-phase bootstrap acknowledgement and launch commit (2026-08-14)
+
+**Status:** Implemented in source; rebuilt two-client UOS acceptance pending.
+
+- `GameBootstrapPayload` restores the authoritative initial snapshot and frozen
+  player mapping but never authorizes simulation. Its legacy wire-v2
+  `LaunchUtcTicks` slot is retained as zero to avoid a second snapshot codec
+  migration.
+- A client sends `BootstrapAppliedConfirmation(MatchId, StartTick)` only after
+  snapshot Restore/Resolve/Rebuild and local controlled-unit binding complete.
+  The server tracks the frozen roster in PlayerSlot order; identical duplicate
+  confirmations are idempotent and invalid senders or identities fail visibly.
+- Only after every assigned client confirms does the server compute
+  `MatchLaunchCommit.LaunchUtcTicks = UtcNow + LaunchDelaySeconds` and broadcast
+  the commit. The server waits until that absolute instant. A client may begin
+  `MaxPredictionLeadTicks - 1` Ticks early, which automatically subtracts both
+  real message transit time and the configured prediction lead from its wait.
+- Client prediction is independently bounded by an absolute wall-clock Tick
+  ceiling advancing at `TickRate`, in addition to the authority-frame
+  prediction window. A startup bookkeeping defect can therefore no longer
+  execute approximately 30 seconds of Gameplay in a few render seconds.
+- External flow mode exclusively selects UOS or LocalDirect; serialized
+  LocalDirect defaults cannot leak into UOS. `LoadingGame -> InGame` occurs at
+  LaunchCommit, while actual Tick execution still waits for the endpoint's
+  launch threshold.
+- `GameplayDataVersion` advances from 1 to 2 so mixed old/new client and server
+  packages are rejected during the lobby version handshake.

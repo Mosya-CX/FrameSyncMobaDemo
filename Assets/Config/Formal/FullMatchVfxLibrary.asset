@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: FullMatchVfxLibrary
   m_EditorClassIdentifier: 
   _entries:
+  - VfxDefId: 3101
+    Prefab: {fileID: 1655698680135638720, guid: c104df327fc900e459d8d8d88080e74c,
+      type: 3}
+  - VfxDefId: 3102
+    Prefab: {fileID: 7380546849583131499, guid: e548ee90e7b95e74fa2b03d68ec88b7a,
+      type: 3}
+  - VfxDefId: 3103
+    Prefab: {fileID: 824778260668550615, guid: 4c4378ba777eca9439d5d0e74413316d, type: 3}
   - VfxDefId: 4001
     Prefab: {fileID: 8419295962886281488, guid: bfe65ff0689be0f4bb52ef5cd63cccbc,
       type: 3}

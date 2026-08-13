@@ -150,11 +150,8 @@ namespace FrameSyncMoba.Unit
             handler = null;
             failure =
                 EquipmentShopFailureReason.None;
-            ShopTraderRuntime trader =
-                GetTrader(playerSlot);
-            if (trader == null ||
-                !_unitWorld.TryGetUnit(
-                    trader.ControlledUnitUid,
+            if (!TryResolveControlledUnit(
+                    playerSlot,
                     out Unit unit) ||
                 unit.EquipmentHandler == null)
             {
@@ -165,6 +162,41 @@ namespace FrameSyncMoba.Unit
             }
             handler = unit.EquipmentHandler;
             return true;
+        }
+
+        private bool TryResolveControlledUnit(
+            int playerSlot,
+            out Unit controlledUnit)
+        {
+            controlledUnit = null;
+            ShopTraderRuntime trader =
+                GetTrader(playerSlot);
+            if (trader != null)
+            {
+                return _unitWorld.TryGetUnit(
+                    trader.ControlledUnitUid,
+                    out controlledUnit);
+            }
+
+            IReadOnlyList<Unit> units =
+                _unitWorld.GetAllUnits();
+            for (int i = 0; i < units.Count; i++)
+            {
+                Unit candidate = units[i];
+                if (candidate == null ||
+                    candidate.ControlledByPlayerSlot !=
+                        playerSlot)
+                {
+                    continue;
+                }
+                if (controlledUnit != null)
+                {
+                    throw new DeterministicSimulationException(
+                        $"PlayerSlot {playerSlot} controls multiple Units.");
+                }
+                controlledUnit = candidate;
+            }
+            return controlledUnit != null;
         }
 
         public void Initialize(
@@ -182,6 +214,37 @@ namespace FrameSyncMoba.Unit
             _unitWorld = unitWorld ?? throw new ArgumentNullException(nameof(unitWorld));
             SellRate = sellRate;
             _tradersByPlayerSlot = new ShopTraderRuntime[maxPlayers];
+            // Equipment/Gold v12 5.22: any combat participation invalidates
+            // the trader's undoable-operation stack. CombatSystem raises this
+            // deterministically on every endpoint so the invalidation stays
+            // in sync across server and clients.
+            CombatEvents.OnCombatParticipationUnit +=
+                OnCombatParticipation;
+        }
+
+        private void OnCombatParticipation(
+            UnitUid sourceUnitUid,
+            UnitUid targetUnitUid,
+            CombatParticipationFlags flags)
+        {
+            if (flags == CombatParticipationFlags.None)
+                return;
+            InvalidateParticipantUndo(sourceUnitUid, flags);
+            InvalidateParticipantUndo(targetUnitUid, flags);
+        }
+
+        private void InvalidateParticipantUndo(
+            UnitUid unitUid,
+            CombatParticipationFlags flags)
+        {
+            if (!unitUid.IsValid() ||
+                _unitWorld == null ||
+                !_unitWorld.TryGetUnit(unitUid, out Unit unit))
+                return;
+            int playerSlot = unit.ControlledByPlayerSlot;
+            if (playerSlot < 0)
+                return;
+            InvalidateUndoByCombat(playerSlot, flags);
         }
 
         public ShopTraderRuntime GetOrCreateTrader(int playerSlot, UnitUid controlledUnitUid)
@@ -231,11 +294,8 @@ namespace FrameSyncMoba.Unit
             int playerSlot,
             int targetEquipmentId)
         {
-            ShopTraderRuntime trader =
-                GetTrader(playerSlot);
-            if (trader == null ||
-                !_unitWorld.TryGetUnit(
-                    trader.ControlledUnitUid,
+            if (!TryResolveControlledUnit(
+                    playerSlot,
                     out Unit unit) ||
                 unit.EquipmentHandler == null)
                 return 0;
@@ -402,6 +462,15 @@ namespace FrameSyncMoba.Unit
 
             trader.OperationLog.Add(record);
             trader.UndoableOperationStack.Add(seq);
+            FrameSyncDiagnostics.Log(
+                $"[Shop] Purchase p={playerSlot} " +
+                $"item={plan.TargetEquipmentId} " +
+                $"slot={plan.DestinationSlot} " +
+                $"tick={SimulationTickContext.Current.Tick} " +
+                $"rev={handler.RuntimeRevision} " +
+                $"slotDef={handler.GetSlotDef(plan.DestinationSlot)?.Id ?? 0} " +
+                $"merge={plan.MergeIntoExistingStack} " +
+                $"mode={SimulationTickContext.Current.ExecutionMode}");
             return true;
         }
 
@@ -855,10 +924,12 @@ namespace FrameSyncMoba.Unit
 
         public void Capture(ref EquipmentShopRuntimeSnapshot state)
         {
-            if (state.CreatedTraders == null)
-                state.CreatedTraders = new System.Collections.Generic.List<ShopTraderRuntimeSnapshot>();
-            else
-                state.CreatedTraders.Clear();
+            // Always allocate a fresh list: the snapshot must own its list so
+            // later captures (which share the static Empty instance) cannot
+            // mutate the content of previously captured snapshots. Reusing
+            // the passed-in list corrupted rollback anchors' shop state.
+            state.CreatedTraders =
+                new System.Collections.Generic.List<ShopTraderRuntimeSnapshot>();
             for (int i = 0; i < _tradersByPlayerSlot.Length; i++)
             {
                 var trader = _tradersByPlayerSlot[i];
@@ -892,6 +963,17 @@ namespace FrameSyncMoba.Unit
 
         public void Restore(in EquipmentShopRuntimeSnapshot state)
         {
+            int snapshotOps = 0;
+            if (state.CreatedTraders != null)
+            {
+                for (int s = 0; s < state.CreatedTraders.Count; s++)
+                    snapshotOps +=
+                        state.CreatedTraders[s].OperationLog?.Count ?? 0;
+            }
+            FrameSyncDiagnostics.Log(
+                $"[Shop] RestoreIn snapshotOps={snapshotOps} " +
+                $"tick={SimulationTickContext.Current.Tick} " +
+                $"mode={SimulationTickContext.Current.ExecutionMode}");
             _tradersByPlayerSlot = new ShopTraderRuntime[_maxPlayers];
             if (state.CreatedTraders == null) return;
 
@@ -950,6 +1032,18 @@ namespace FrameSyncMoba.Unit
                 }
 
                 _tradersByPlayerSlot[trader.Player] = trader;
+            }
+            for (int i = 0; i < _tradersByPlayerSlot.Length; i++)
+            {
+                ShopTraderRuntime trader = _tradersByPlayerSlot[i];
+                if (trader == null)
+                    continue;
+                FrameSyncDiagnostics.Log(
+                    $"[Shop] Restore p={trader.Player} " +
+                    $"ops={trader.OperationLog.Count} " +
+                    $"undo={trader.UndoableOperationStack.Count} " +
+                    $"tick={SimulationTickContext.Current.Tick} " +
+                    $"mode={SimulationTickContext.Current.ExecutionMode}");
             }
         }
 

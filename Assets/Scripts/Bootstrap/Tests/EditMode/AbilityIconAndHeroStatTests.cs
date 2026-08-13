@@ -13,7 +13,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
     public sealed class AbilityIconAndHeroStatTests
     {
         [Test]
-        public void TestHeroCatalog_MatchesVarusBaseStats()
+        public void VarusCatalog_MatchesVarusBaseStats()
         {
             var catalog = AssetDatabase.LoadAssetAtPath<
                 UnitRuntimeCatalogAsset>(

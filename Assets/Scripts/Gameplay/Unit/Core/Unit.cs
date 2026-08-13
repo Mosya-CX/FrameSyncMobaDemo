@@ -311,7 +311,8 @@ namespace FrameSyncMoba.Unit
             SimulationTickContext.Current.Tick > UnitUid.SpawnLogicTick;
 
         bool IUnitCollisionParticipant.CanParticipateInUnitCollision =>
-            LifeState == LifeState.Alive || LifeState == LifeState.Dying;
+            (LifeState == LifeState.Alive || LifeState == LifeState.Dying) &&
+            !(BuffHandler?.HasTag(GameplayBuffTags.Ghosting) ?? false);
 
         void IUnitCollisionParticipant.PublishUnitCollisionEnter(
             RuntimeUidQueryValue otherUid,

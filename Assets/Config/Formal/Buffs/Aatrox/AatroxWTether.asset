@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd190d0d50aa5847a974015e823714e, type: 3}
+  m_Name: AatroxWTether
+  m_EditorClassIdentifier: 
+  ConfigId:
+    Value: 12022
+  Display:
+    Name: Infernal Chains Tether
+    Description: Leave the marked zone before the chain pulls you back.
+    Icon: {fileID: 21300000, guid: 804f3e1b015d3c445af822036f4058ba, type: 3}
+  Life:
+    DurationSeconds: 1.5
+    Infinite: 0
+    RefreshMode: 1
+    ExtendSeconds: 0
+  Stack:
+    MaxStacks: 1
+    AddMode: 0
+    ReduceMode: 0
+    ReduceAmount: 1
+  Tags:
+    TagIds: 
+  Effects:
+  - Effect:
+      rid: 2586996089610567744
+  BlackboardLayout:
+    Slots: []
+  LifecycleReactions:
+    Added: []
+    Reapplied: []
+    Removed: []
+    StackChanged: []
+    Periodic: []
+  EventReactions:
+    DamageTaken: []
+    DamageDealt: []
+    HealTaken: []
+    HealDealt: []
+    ShieldApplied: []
+    AbilityCast: []
+    LevelUp: []
+    UnitDying: []
+    UnitDeath: []
+    UnitKill: []
+    OnHitDealt: []
+    CollisionEnter: []
+    CollisionExit: []
+  Priority: 100
+  PeriodicIntervalTicks: 0
+  ApplyVfxDefId: 0
+  ApplyVfxDurationSeconds: 0
+  InitialStacks: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586996089610567744
+      type: {class: TetherZoneBuffEffect, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        AreaProjectileDefId: 110
+        BaseDamageByAbilityLevel:
+          values:
+          - m_rawValue: 128849018880
+          - m_rawValue: 171798691840
+          - m_rawValue: 214748364800
+          - m_rawValue: 257698037760
+          - m_rawValue: 300647710720
+        AttackDamageRatioByAbilityLevel:
+          values:
+          - m_rawValue: 1717986944
+          - m_rawValue: 1717986944
+          - m_rawValue: 1717986944
+          - m_rawValue: 1717986944
+          - m_rawValue: 1717986944
+        SlowRatioByAbilityLevel:
+          values:
+          - m_rawValue: 1073741824
+          - m_rawValue: 1181116032
+          - m_rawValue: 1288490240
+          - m_rawValue: 1395864320
+          - m_rawValue: 1503238528
+        PullDurationTicks: 9
+        PullPriority: 120
+        RecipeId: 100222
+        AnchorSlot:
+          Value: 1
+        ForwardSlot:
+          Value: 2
+        EscapedSlot:
+          Value: 3
+        SlowHandleSlot:
+          Value: 4
+        ProjectileSpawnTickSlot:
+          Value: 5
+        ProjectilePrefabIdSlot:
+          Value: 6
+        ProjectileSequenceSlot:
+          Value: 7

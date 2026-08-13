@@ -43,7 +43,7 @@ namespace FrameSyncMoba.Unit.Tests
             _prototype = new UnitPrototype
             {
                 UnitPrototypeId = 1,
-                Name = "TestHero",
+            Name = "Varus",
                 RuntimeEntityPrefabId = 100,
                 UnitKind = UnitKind.Hero,
                 UnitSubKindId = 0,

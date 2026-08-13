@@ -1,4 +1,5 @@
 using System;
+using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
@@ -46,6 +47,12 @@ namespace FrameSyncMoba.PlayerInput
     {
         bool HasActiveSession(UnitUid ownerUid, byte slot);
         bool IsWaitingForCommit(UnitUid ownerUid, byte slot);
+        /// <summary>
+        /// Whether the slot may open a local aim indicator right now: the
+        /// ability is ready (learned, not on cooldown, no session) or the
+        /// active session can accept a real next-stage Commit immediately.
+        /// </summary>
+        bool CanOpenLocalAim(UnitUid ownerUid, byte slot);
     }
 
     public readonly struct GameplayCommandRequestReceipt
@@ -532,6 +539,15 @@ namespace FrameSyncMoba.PlayerInput
             switch (binding.Translation)
             {
                 case InputTranslation.LocalAimOnly:
+                    if (!CanOpenLocalAim(slot))
+                    {
+                        Debug.Log(
+                            $"[Input] Press slot {slot}: " +
+                            "LocalAimOnly ignored (ability on cooldown " +
+                            "or current session cannot accept the next " +
+                            "Commit).");
+                        return;
+                    }
                     state = CreateState(
                         slot,
                         LocalAbilityInputStateKind.LocalAiming,
@@ -605,6 +621,19 @@ namespace FrameSyncMoba.PlayerInput
                 controlledUnit?.AbilityHandler
                     ?.GetAbilityLevel(slot) ?? 0;
             return level > 0;
+        }
+
+        private bool CanOpenLocalAim(byte slot)
+        {
+            if (abilityRuntimeView != null)
+            {
+                return abilityRuntimeView.CanOpenLocalAim(
+                    controlledUnit.UnitUid,
+                    slot);
+            }
+            return controlledUnit?.AbilityHandler
+                    ?.CanOpenLocalAim(slot) ??
+                true;
         }
 
         private void ProcessAbilityReleased(
@@ -832,34 +861,83 @@ namespace FrameSyncMoba.PlayerInput
         private void SynchronizeAbilityRuntimeView()
         {
             if (abilityRuntimeView == null || controlledUnit == null) return;
+            // The deterministic tick published by the last completed
+            // simulation Tick. A Command whose Receipt.TargetTick has been
+            // executed is observable through the runtime view; until then
+            // the local state stays pending so duplicate input is
+            // suppressed (Player Input v1.1 17.4).
+            int currentTick =
+                SimulationTickContext.Current.Tick;
             for (byte slot = 0; slot < AbilitySlotCount; slot++)
             {
                 ref LocalAbilityInputState state = ref abilityStates[slot];
+                if (state.Kind == LocalAbilityInputStateKind.Idle ||
+                    state.Kind == LocalAbilityInputStateKind.LocalAiming)
+                {
+                    continue;
+                }
                 bool hasSession = abilityRuntimeView.HasActiveSession(
                     controlledUnit.UnitUid, slot);
                 bool waiting = abilityRuntimeView.IsWaitingForCommit(
                     controlledUnit.UnitUid, slot);
+                bool targetReached =
+                    currentTick >=
+                    state.LastRequestReceipt.TargetTick;
 
-                if (waiting
-                    && state.Kind == LocalAbilityInputStateKind.FocusRequested)
+                switch (state.Kind)
                 {
-                    state.Kind = LocalAbilityInputStateKind.GameplayFocusing;
-                }
-                else if (waiting
-                    && hasSession
-                    && state.Kind ==
-                        LocalAbilityInputStateKind.CommitRequested)
-                {
-                    // Commit was not accepted by Gameplay while the Session
-                    // still waits: recover to Focusing (design v1.1 17.4).
-                    state.Kind =
-                        LocalAbilityInputStateKind.GameplayFocusing;
-                }
-                else if (!hasSession
-                    && (state.Kind == LocalAbilityInputStateKind.GameplayFocusing
-                        || state.Kind == LocalAbilityInputStateKind.CommitRequested))
-                {
-                    state = default;
+                    case LocalAbilityInputStateKind.FocusRequested:
+                        // Player Input v1.1 17.4: only after the Receipt
+                        // TargetTick may the runtime view decide the fate of
+                        // the Focus Command.
+                        if (!targetReached)
+                        {
+                            break;
+                        }
+                        if (hasSession || waiting)
+                        {
+                            state.Kind =
+                                LocalAbilityInputStateKind
+                                    .GameplayFocusing;
+                        }
+                        else
+                        {
+                            state = default;
+                        }
+                        break;
+
+                    case LocalAbilityInputStateKind.GameplayFocusing:
+                        if (!hasSession)
+                        {
+                            state = default;
+                        }
+                        break;
+
+                    case LocalAbilityInputStateKind.CommitRequested:
+                        // Player Input v1.1 17.4: only after the Receipt
+                        // TargetTick may the runtime view decide the fate of
+                        // the Commit Command.
+                        if (!targetReached)
+                        {
+                            break;
+                        }
+                        if (waiting && hasSession)
+                        {
+                            // Commit was not accepted by Gameplay while the
+                            // Session still waits: recover to Focusing.
+                            state.Kind =
+                                LocalAbilityInputStateKind
+                                    .GameplayFocusing;
+                        }
+                        else
+                        {
+                            // Session ended, or the session advanced past
+                            // the waiting stage (e.g. a sequential recast
+                            // window): the local state returns to Idle so
+                            // the next key press can open the next stage.
+                            state = default;
+                        }
+                        break;
                 }
             }
         }

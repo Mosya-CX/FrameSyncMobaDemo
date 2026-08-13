@@ -111,6 +111,39 @@ namespace FrameSyncMoba.FrameSync
                     topologyRole));
         }
 
+        /// <summary>
+        /// Replaces the unit prototype of a queued initial spawn
+        /// (index-aligned with GameBootstrap.frozenInitialSpawns).
+        /// Player-controlled hero slots are bound to the hero selected during
+        /// lobby, so the authored scene composition stays hero-agnostic and
+        /// adding a hero never requires editing the scene spawn table.
+        /// </summary>
+        public void OverrideInitialSpawnPrototype(
+            int spawnIndex,
+            int unitPrototypeId)
+        {
+            if (spawnIndex < 0 ||
+                spawnIndex >= _initialSpawnRequests.Count)
+                throw new ArgumentOutOfRangeException(
+                    nameof(spawnIndex));
+            if (unitPrototypeId <= 0)
+                throw new ArgumentException(
+                    "Initial spawn prototype must be positive.",
+                    nameof(unitPrototypeId));
+            InitialSpawnEntry entry =
+                _initialSpawnRequests[spawnIndex];
+            _initialSpawnRequests[spawnIndex] =
+                new InitialSpawnEntry(
+                    new UnitSpawnRequest(
+                        unitPrototypeId,
+                        entry.Request.TeamId,
+                        entry.Request.Position,
+                        entry.Request.Forward,
+                        entry.Request.OwnerUid,
+                        entry.Request.Reason),
+                    entry.TopologyRole);
+        }
+
         public UnitUid[] MaterializeInitialSpawnsForBootstrap(
             SimulationTickContextController controller,
             int startTick)
@@ -301,7 +334,7 @@ namespace FrameSyncMoba.FrameSync
                         int playerSlot = receiver.ControlledByPlayerSlot;
                         if (playerSlot >= 0)
                         {
-                            int goldAmount = (int)alloc.GoldAmount;
+                            int goldAmount = alloc.GoldAmount;
                             if (goldAmount > 0)
                                 GoldIncome.RequestGoldIncome(
                                     playerSlot, goldAmount, GoldIncomeReason.UnitKill);
@@ -342,12 +375,50 @@ namespace FrameSyncMoba.FrameSync
                     ?? new GoldIncomeBatchDigest(0);
                 LastChecksum = SharedGameplayChecksum.Compute(
                     checksumState, goldDigest, _checksumWriter);
+                LogShopCommandChecksumSegments(
+                    tick,
+                    executionMode,
+                    commands,
+                    checksumState,
+                    goldDigest);
                 TickCompleted?.Invoke(tick, commands, LastChecksum);
             }
             finally
             {
                 controller.EndTick();
                 LocalSimulationTick = tick + 1;
+            }
+        }
+
+        private static void LogShopCommandChecksumSegments(
+            int tick,
+            ExecutionMode executionMode,
+            IReadOnlyList<GameplayCommand> commands,
+            in GameplaySnapshot snapshot,
+            GoldIncomeBatchDigest goldDigest)
+        {
+            bool hasShopCommand = false;
+            for (int i = 0; i < commands.Count; i++)
+            {
+                if (commands[i].Kind != GameplayCommandKind.EquipmentShop)
+                    continue;
+                hasShopCommand = true;
+                break;
+            }
+            if (!hasShopCommand)
+                return;
+
+            SharedGameplayChecksum.ChecksumSegment[] segments =
+                SharedGameplayChecksum.ComputeSegmentHashes(
+                    snapshot,
+                    goldDigest);
+            for (int i = 0; i < segments.Length; i++)
+            {
+                UnityEngine.Debug.Log(
+                    $"[ChecksumSegment] tick={tick} " +
+                    $"mode={executionMode} " +
+                    $"segment={segments[i].Label} " +
+                    $"hash={segments[i].Hash}");
             }
         }
 
@@ -971,9 +1042,6 @@ namespace FrameSyncMoba.FrameSync
                 unit.EquipmentHandler == null ||
                 GoldIncome == null)
                 return;
-            EquipmentShop.GetOrCreateTrader(
-                command.PlayerSlot,
-                command.ControlledUnitUid);
             int currentGold = checked(
                 GoldIncome.GetConfirmedEarnedGoldTotal(
                     command.PlayerSlot) +
@@ -989,11 +1057,16 @@ namespace FrameSyncMoba.FrameSync
                             unit.EquipmentHandler,
                             out EquipmentPurchasePlan plan,
                             out _))
+                    {
+                        EquipmentShop.GetOrCreateTrader(
+                            command.PlayerSlot,
+                            command.ControlledUnitUid);
                         EquipmentShop.ProcessPurchase(
                             command.PlayerSlot,
                             plan,
                             unit.EquipmentHandler,
                             out _);
+                    }
                     break;
                 case EquipmentShopCommandOperationType.Sell:
                     if (EquipmentShop.TrySell(
@@ -1002,12 +1075,17 @@ namespace FrameSyncMoba.FrameSync
                             unit.EquipmentHandler,
                             out int sellValue,
                             out _))
+                    {
+                        EquipmentShop.GetOrCreateTrader(
+                            command.PlayerSlot,
+                            command.ControlledUnitUid);
                         EquipmentShop.ProcessSell(
                             command.PlayerSlot,
                             command.SourceSlot,
                             unit.EquipmentHandler,
                             sellValue,
                             out _);
+                    }
                     break;
                 case EquipmentShopCommandOperationType.Undo:
                     if (EquipmentShop.CanUndo(

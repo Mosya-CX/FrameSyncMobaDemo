@@ -19,6 +19,8 @@ FrameSyncMoba/Build Local NGO/
     Build Server
     Build Server Linux (UOS)
     Build Client
+    Build Client Windows (UOS)
+    Build Client + Server (UOS, Once)
     Build Both
     Clear Build-Both Retry Guard
 ```
@@ -31,6 +33,8 @@ FrameSyncMoba/Build Local NGO/
 | `BuildClient()` | Windows64 Player（Development） | ClientBootstrap + Lobby + GameScene | `Builds/LocalNgo/Client/FrameSyncMobaClient.exe` |
 | `BuildBoth()` | 上述两者依次构建 | 同上 | 同上 |
 | `BuildServerLinux()` | Linux64 DedicatedServer | ServerBootstrap + Lobby + GameScene | `Builds/UosServer/FrameSyncMobaServer.x86_64` |
+| `BuildClientUos()` | Windows64 Player（Development、UOS Online） | ClientBootstrap + Lobby + GameScene | `Builds/UosClient/FrameSyncMobaClient.exe` |
+| `BuildUosClientAndServerOnce()` | UOS Windows Client 后接 Linux DedicatedServer，并自动压缩服务端 | 同上 | `Builds/UosClient/`、`Builds/UosServer/`、`Builds/UosUpload/` |
 | `ClearBuildBothRetryGuard()` | - | - | 清除 120 秒防重守卫 |
 
 本地 C/S 测试包 = `BuildBoth()`：先 Server 后 Client。
@@ -49,7 +53,23 @@ FrameSyncMoba/Build Local NGO/
 FrameSyncMoba.EditorTools.LocalNgoBuildMenu.BuildBoth();
 ```
 
-### 3.3 UOS 服务器镜像
+### 3.3 UOS 一键构建
+
+在 Unity 编辑器中点击：
+
+```text
+FrameSyncMoba/Build Local NGO/Build Client + Server (UOS, Once)
+```
+
+该入口依次构建 UOS Windows 客户端和 Linux Dedicated Server。服务端构建成功后会自动生成上传 ZIP 与 SHA-256 文件。组合入口与两个子步骤都有 120 秒防重守卫；重复菜单调用会被忽略，若前一轮只完成了一端，短时间重试也只会继续尚未成功的一端。
+
+通过 Unity MCP 调用时只需执行一次：
+
+```text
+FrameSyncMoba.EditorTools.LocalNgoBuildMenu.BuildUosClientAndServerOnce();
+```
+
+### 3.4 UOS 服务器镜像
 
 构建 `Build Server Linux (UOS)`，将 `Builds/UosServer/` 目录打成 zip 上传到 UOS 控制台。
 
@@ -126,3 +146,46 @@ Start-Process -FilePath "E:\Unity\Item\FrameSyncMobaDemo\Builds\LocalNgo\Client\
 - `BuildBoth` 的 120 秒守卫：上一次构建完成后的 120 秒内重复调用会被忽略
   （用于吞掉 MCP 桥接重试产生的重复调用）。
 - 若确实需要立刻重新打包，先执行 `Clear Build-Both Retry Guard` 清掉守卫再打包。
+
+### 3.2.1 批处理模式打包（推荐：快、省 CPU/内存）
+
+当本机 CPU/内存紧张（例如同时运行 Unity 编辑器与 Codex）时，推荐先关闭 Unity 编辑器，再用 headless 批处理模式打包（无窗口/渲染开销，并释放编辑器占用的资源）：
+
+`	ext
+Builds\build_both.bat
+`
+
+脚本内部执行：
+
+`	ext
+Unity.exe -batchmode -quit -projectPath <项目路径> -executeMethod FrameSyncMoba.EditorTools.LocalNgoBuildMenu.BuildBoth -logFile Builds\LocalNgo\Logs\build_both_batch.log
+`
+
+要点：
+- 必须先关闭当前项目的 Unity 编辑器（同一项目 Library 被占用，批处理与编辑器不能同时打开同一项目）；
+- 关闭前保存未保存的场景/预制体修改；
+- 打包完成后重新打开编辑器（Codex 会自动重连 MCP）；
+- exit code 0 = 成功；非 0 时查看 -logFile 末尾的 BuildReport。
+
+## 7. UOS 服务端自动压缩
+
+`BuildServerLinux()` 仅在 Linux Dedicated Server 的 `BuildReport` 成功后，
+自动生成：
+
+```text
+Builds/UosUpload/FrameSyncMobaServer_uos_<yyyyMMdd-HHmmss>.zip
+Builds/UosUpload/FrameSyncMobaServer_uos_<yyyyMMdd-HHmmss>.zip.sha256
+```
+
+ZIP 根目录直接包含 `FrameSyncMobaServer.x86_64`、`UnityPlayer.so` 和
+`FrameSyncMobaServer_Data/`，不会额外嵌套 `UosServer/`。Unity 生成的
+`*_BurstDebugInformation_DoNotShip` 调试目录不会进入上传包。
+
+压缩使用临时文件并在成功后改名；压缩或完整性检查失败时不会留下可误上传
+的 ZIP。已有上传包不会覆盖，同一秒重复压缩会追加 `-01`、`-02` 等后缀。
+
+只压缩当前 `Builds/UosServer`、不重新构建也不上传时，可以双击：
+
+```text
+Tools/PackageLatestUosServer.cmd
+```

@@ -276,6 +276,8 @@ namespace FrameSyncMoba.FrameSync.Tests
                 TickRate = baked.TickRate,
                 AttackSequenceResetIntervalTicks =
                     baked.AttackSequenceResetIntervalTicks,
+                RangedAttackRangeThreshold =
+                    baked.RangedAttackRangeThreshold,
                 StatGrowthC = baked.StatGrowthC,
                 StatGrowthD = baked.StatGrowthD,
             };

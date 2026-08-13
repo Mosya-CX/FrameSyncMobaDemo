@@ -357,6 +357,17 @@ namespace FrameSyncMoba.Unit
                 configs[statId] = config;
                 entries[statId] = new StatRuntimeEntry { Dirty = true };
             }
+            else if (!entries.ContainsKey(statId))
+            {
+                // Stale config carried across a rollback Restore: Restore
+                // rebuilds entries from the snapshot but intentionally keeps
+                // configs (they also hold preset base values). A runtime-added
+                // stat (e.g. an ability-passive modifier like Omnivamp) that
+                // was created live before the rollback anchor can therefore
+                // exist in configs while its entry is absent after restore.
+                // Recreate the entry so the modifier can attach during replay.
+                entries[statId] = new StatRuntimeEntry { Dirty = true };
+            }
 
             StatRuntimeEntry entry = entries[statId];
             uint seq = nextStatSeq;
@@ -490,6 +501,53 @@ namespace FrameSyncMoba.Unit
             throw new ArgumentException(
                 $"StatId {statId} is not a valid stat.", nameof(statId));
         }
+
+        /// <summary>
+        /// Base value of a stat: the prototype preset base plus level
+        /// growth, before every FlatAdd / BaseRatio / FinalRatio modifier
+        /// (Unit v27.3 5.2.1 base/bonus read split). Equipment and Buff
+        /// bonuses surface through GetStat - GetBaseStat.
+        /// </summary>
+        public fp GetBaseStat(StatId statId)
+        {
+            if (definitionTable == null)
+            {
+                return fp.zero;
+            }
+            if (entries.TryGetValue(
+                    statId,
+                    out StatRuntimeEntry entry))
+            {
+                if (entry.Dirty)
+                {
+                    Recompute(statId, entry);
+                }
+                return entry.LevelBaseValue;
+            }
+            if (configs.TryGetValue(
+                    statId,
+                    out StatConfig config))
+            {
+                return config.Definition.DefaultBaseValue;
+            }
+            if (definitionTable.TryGet(
+                    statId,
+                    out StatDefinition def))
+            {
+                return def.DefaultBaseValue;
+            }
+            throw new ArgumentException(
+                $"StatId {statId} is not a valid stat.",
+                nameof(statId));
+        }
+
+        /// <summary>
+        /// Bonus part of a stat: everything added by modifiers on top of the
+        /// base value (total - base). Only AttackDamage exists as a stat;
+        /// base and bonus are read splits, not separate properties.
+        /// </summary>
+        public fp GetBonusStat(StatId statId) =>
+            GetStat(statId) - GetBaseStat(statId);
 
         public StatChange GetChangeThisTick(StatId statId)
         {

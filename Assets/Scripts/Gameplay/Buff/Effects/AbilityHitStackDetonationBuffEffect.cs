@@ -93,9 +93,8 @@ namespace FrameSyncMoba.Unit
                 abilityPower * AbilityPowerRatioPerStack;
 
             bool hero = owner.UnitKind == UnitKind.Hero;
-            bool monster = owner.UnitKind ==
-                UnitKind.Monster;
-            if (monster &&
+            bool nonHero = owner.UnitKind != UnitKind.Hero;
+            if (nonHero &&
                 MaxDamagePerStackVsNonHero > fp.zero &&
                 perStack > MaxDamagePerStackVsNonHero)
             {

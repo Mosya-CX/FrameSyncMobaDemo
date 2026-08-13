@@ -11,6 +11,7 @@ namespace FrameSyncMoba.Bootstrap
     /// Presentation only, never touches deterministic state.
     /// </summary>
     [ExecuteAlways]
+    [DefaultExecutionOrder(1100)]
     [DisallowMultipleComponent]
     public sealed class ClientUnitOutline : MonoBehaviour
     {
@@ -140,8 +141,12 @@ namespace FrameSyncMoba.Bootstrap
                 outlineGo.hideFlags =
                     HideFlags.DontSave;
             }
+            Transform targetTransform =
+                targetRenderer != null
+                    ? targetRenderer.transform
+                    : targetMeshRenderer.transform;
             outlineGo.transform.SetParent(
-                targetRenderer.transform,
+                targetTransform,
                 false);
             outlineFilter =
                 outlineGo.AddComponent<
@@ -152,8 +157,6 @@ namespace FrameSyncMoba.Bootstrap
             materialInstance =
                 new Material(
                     outlineMaterial);
-            outlineRenderer.sharedMaterial =
-                materialInstance;
             if (Application.isPlaying)
             {
                 bakedMesh =
@@ -182,6 +185,8 @@ namespace FrameSyncMoba.Bootstrap
                     }
                 }
             }
+            ApplyOutlineMaterials(
+                outlineFilter.sharedMesh);
             if (!Application.isPlaying)
             {
                 outlineFilter.hideFlags =
@@ -236,6 +241,8 @@ namespace FrameSyncMoba.Bootstrap
                 }
                 targetRenderer.BakeMesh(
                     bakedMesh);
+                ApplyOutlineMaterials(
+                    bakedMesh);
                 // BakeMesh outputs vertices already scaled by the
                 // renderer's world lossyScale, but the outline object is a
                 // child of the renderer and inherits that scale again. Divide
@@ -275,7 +282,58 @@ namespace FrameSyncMoba.Bootstrap
             {
                 outlineFilter.sharedMesh =
                     targetRenderer.sharedMesh;
+                ApplyOutlineMaterials(
+                    targetRenderer.sharedMesh);
             }
+        }
+
+        private void ApplyOutlineMaterials(
+            Mesh sourceMesh)
+        {
+            if (outlineRenderer == null ||
+                materialInstance == null ||
+                sourceMesh == null)
+            {
+                return;
+            }
+
+            int subMeshCount =
+                Mathf.Max(
+                    1,
+                    sourceMesh.subMeshCount);
+            Material[] materials =
+                outlineRenderer.sharedMaterials;
+            if (materials.Length == subMeshCount)
+            {
+                bool allAssigned = true;
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    if (materials[i] !=
+                        materialInstance)
+                    {
+                        allAssigned = false;
+                        break;
+                    }
+                }
+                if (allAssigned)
+                {
+                    return;
+                }
+            }
+
+            materials =
+                new Material[subMeshCount];
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                materials[i] =
+                    materialInstance;
+            }
+            outlineRenderer.sharedMaterials =
+                materials;
         }
 
         private void LateUpdate()

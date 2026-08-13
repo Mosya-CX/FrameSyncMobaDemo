@@ -442,13 +442,19 @@ namespace FrameSyncMoba.Unit
 
         private void AdvanceDash()
         {
+            fp2 facing = _dash.Direction;
+            bool preserveCastFacing =
+                Owner?.AbilityHandler != null &&
+                Owner.AbilityHandler.TryGetLockedCastDirection(
+                    out facing);
             AdvanceTrajectory(
                 _dash.StartTick,
                 GetDashDurationTicks(),
                 _dash.StartPosition,
                 _dash.TargetPosition,
-                _dash.Direction,
+                facing,
                 _dash.WallPolicy,
+                preserveCastFacing,
                 out bool finished);
             if (finished)
             {
@@ -467,6 +473,7 @@ namespace FrameSyncMoba.Unit
                 _forcedMove.TargetPosition,
                 _forcedMove.Direction,
                 _forcedMove.WallPolicy,
+                false,
                 out bool finished);
             if (!finished)
             {
@@ -485,6 +492,7 @@ namespace FrameSyncMoba.Unit
             fp2 targetPosition,
             fp2 direction,
             ForceMoveWallPolicy wallPolicy,
+            bool preserveDesiredFacing,
             out bool finished)
         {
             int elapsed =
@@ -517,7 +525,8 @@ namespace FrameSyncMoba.Unit
             CommitContinuousMovement(
                 delta,
                 direction,
-                delta);
+                delta,
+                preserveDesiredFacing);
             finished =
                 completedTicks >= durationTicks;
         }
@@ -525,7 +534,8 @@ namespace FrameSyncMoba.Unit
         private void CommitContinuousMovement(
             fp2 desiredDelta,
             fp2 desiredFacing,
-            fp2 velocity)
+            fp2 velocity,
+            bool preserveDesiredFacing = false)
         {
             fp2 start = CurrentPosition;
             fp2 desiredPosition =
@@ -544,9 +554,10 @@ namespace FrameSyncMoba.Unit
             fp2 actualDelta =
                 desiredPosition - start;
             fp2 facing = CurrentForward;
-            fp2 facingSource =
-                actualDelta.x != fp.zero ||
-                actualDelta.y != fp.zero
+            fp2 facingSource = preserveDesiredFacing
+                ? desiredFacing
+                : actualDelta.x != fp.zero ||
+                  actualDelta.y != fp.zero
                     ? actualDelta
                     : desiredFacing;
             if (Physics.PhysicsGeometry2D.TryCreateFacing(
@@ -561,9 +572,13 @@ namespace FrameSyncMoba.Unit
                 desiredPosition,
                 facing);
             _velocity = velocity;
+            // Animation intent: a unit that WANTS to move keeps the walk
+            // animation even when collision overlap momentarily clamps the
+            // actual displacement to zero (otherwise IsMoving flickers
+            // Idle/Walk and the walk loop stutters around other units).
             _isMoving =
-                actualDelta.x != fp.zero ||
-                actualDelta.y != fp.zero;
+                velocity.x != fp.zero ||
+                velocity.y != fp.zero;
             _targetDirection =
                 _isMoving
                     ? facing

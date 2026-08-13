@@ -66,6 +66,31 @@ namespace FrameSyncMoba.Bootstrap.Tests
         }
 
         [Test]
+        public void Capture_SnapshotsOwnTheirCreatedTradersList()
+        {
+            EquipmentShopRuntimeSnapshot first =
+                EquipmentShopRuntimeSnapshot.Empty;
+            _shop.Capture(ref first);
+
+            _shop.GetOrCreateTrader(
+                0,
+                new UnitUid(1, 1101, 0));
+
+            EquipmentShopRuntimeSnapshot second =
+                EquipmentShopRuntimeSnapshot.Empty;
+            _shop.Capture(ref second);
+
+            Assert.That(
+                first.CreatedTraders.Count,
+                Is.EqualTo(0),
+                "A later capture must not mutate an earlier snapshot's " +
+                "shop state (shared CreatedTraders list bug).");
+            Assert.That(
+                second.CreatedTraders.Count,
+                Is.EqualTo(1));
+        }
+
+        [Test]
         public void ShopTrader_CreateAndRetrieve()
         {
             var uid = new UnitUid(0, 42, 1);

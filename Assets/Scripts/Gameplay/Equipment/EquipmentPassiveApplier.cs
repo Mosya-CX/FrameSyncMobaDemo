@@ -23,28 +23,9 @@ namespace FrameSyncMoba.Unit
             // Fixed stats are already applied by EquipmentHandler.Add
             // Here we handle any additional passive effects that require runtime creation
 
-            if (definition.Effects == null) return;
-
-            for (int i = 0; i < definition.Effects.Length; i++)
-            {
-                var effectDef = definition.Effects[i];
-                if (effectDef == null || effectDef.Modules == null) continue;
-
-                // Execute OnEquipped-timed modules
-                for (int m = 0; m < effectDef.Modules.Length; m++)
-                {
-                    var module = effectDef.Modules[m];
-                    if (module?.InvokeTimings == null) continue;
-                    for (int t = 0; t < module.InvokeTimings.Length; t++)
-                    {
-                        if (module.InvokeTimings[t] == EquipmentEffectInvokeTiming.OnEquipped
-                            && module.CanExecute())
-                        {
-                            module.Execute(owner, instance);
-                        }
-                    }
-                }
-            }
+            owner.EquipmentHandler?.DispatchEffectByTiming(
+                instance,
+                EquipmentEffectInvokeTiming.OnEquipped);
         }
 
         /// <summary>
@@ -55,26 +36,9 @@ namespace FrameSyncMoba.Unit
         {
             if (owner == null || instance?.Definition?.Effects == null) return;
 
-            for (int i = 0; i < instance.Definition.Effects.Length; i++)
-            {
-                var effectDef = instance.Definition.Effects[i];
-                if (effectDef == null || effectDef.Modules == null) continue;
-
-                // Execute OnUnequipped-timed modules
-                for (int m = 0; m < effectDef.Modules.Length; m++)
-                {
-                    var module = effectDef.Modules[m];
-                    if (module?.InvokeTimings == null) continue;
-                    for (int t = 0; t < module.InvokeTimings.Length; t++)
-                    {
-                        if (module.InvokeTimings[t] == EquipmentEffectInvokeTiming.OnUnequipped
-                            && module.CanExecute())
-                        {
-                            module.Execute(owner, instance);
-                        }
-                    }
-                }
-            }
+            owner.EquipmentHandler?.DispatchEffectByTiming(
+                instance,
+                EquipmentEffectInvokeTiming.OnUnequipped);
 
             // Release runtime handles
             if (instance._fixedStatHandles != null && owner.StatHandler != null)

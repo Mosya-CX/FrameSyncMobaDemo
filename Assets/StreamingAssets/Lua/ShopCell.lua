@@ -26,6 +26,12 @@ end
 function ShopCell:Bind(data)
     UICellBase.Bind(self, data)
     self.equipmentId = data.EquipmentId
+    if self.ui.Icon ~= nil then
+        self.ui.Icon.sprite = data.Icon
+        self.ui.Icon.color = data.Icon ~= nil
+            and Color.white
+            or Color(0.35, 0.35, 0.35, 1)
+    end
     if self.ui.Cost ~= nil then
         self.ui.Cost.text =
             tostring(data.Price or 0)

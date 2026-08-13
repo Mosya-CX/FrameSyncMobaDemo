@@ -209,6 +209,11 @@ namespace FrameSyncMoba.Unit
                 }
 
                 if (amount <= fp.zero) continue;
+                if (target.UnitKind == UnitKind.Minion &&
+                    effect.MinionDamageMultiplier > fp.zero)
+                {
+                    amount *= effect.MinionDamageMultiplier;
+                }
                 var request = new DamageRequest
                 {
                     Header = new CombatRequestHeader
@@ -250,6 +255,11 @@ namespace FrameSyncMoba.Unit
                 if (!effect.IsValid)
                     throw new DeterministicSimulationException(
                         $"Projectile Buff effect {i} is invalid.");
+                if (!effect.TargetKinds.IsEmpty &&
+                    !effect.TargetKinds.Contains(target.UnitKind))
+                {
+                    continue;
+                }
                 if (!world.BuffDefinitions.TryGet(
                         effect.BuffId,
                         out BuffDefinition definition))
@@ -261,8 +271,28 @@ namespace FrameSyncMoba.Unit
                     definition,
                     BuffSource.Create(
                         projectile.OwnerUnitUid,
-                        BuffSourceType.Attack,
-                        0));
+                        ResolveBuffSourceType(
+                            projectile.Source.SourceType),
+                        projectile.Source.SourceId));
+            }
+        }
+
+        private static BuffSourceType ResolveBuffSourceType(
+            CombatSourceType sourceType)
+        {
+            switch (sourceType)
+            {
+                case CombatSourceType.Attack:
+                case CombatSourceType.AttackEffect:
+                    return BuffSourceType.Attack;
+                case CombatSourceType.Ability:
+                    return BuffSourceType.Ability;
+                case CombatSourceType.Buff:
+                    return BuffSourceType.Script;
+                case CombatSourceType.Equipment:
+                    return BuffSourceType.Item;
+                default:
+                    return BuffSourceType.Environment;
             }
         }
 

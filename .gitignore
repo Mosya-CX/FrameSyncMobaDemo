@@ -7,8 +7,8 @@
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
-/[Bb]uilds/
-/[Ll]ogs/
+**/[Ll]ogs/
+**/[Ll]og/
 /[Uu]ser[Ss]ettings/
 *.log
 
@@ -36,6 +36,9 @@
 ExportedObj/
 .consulo/
 *.csproj
+!Tools/**/*.csproj
+Tools/**/bin/
+Tools/**/obj/
 *.unityproj
 *.sln
 *.suo
@@ -64,6 +67,9 @@ sysinfo.txt
 *.unitypackage
 *.unitypackage.meta
 *.app
+
+# Local clients, dedicated servers, upload archives and captured media.
+/Builds/
 
 # Crashlytics generated file
 crashlytics-build.properties

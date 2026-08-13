@@ -30,6 +30,8 @@ namespace FrameSyncMoba.Bootstrap
             () => false;
         public static Func<float> MatchElapsedSeconds =
             () => 0f;
+        public static Func<string> GetMatchStatus =
+            () => "Idle";
         public static Func<bool> CanCancelMatchmaking =
             () => false;
 
@@ -262,6 +264,8 @@ namespace FrameSyncMoba.Bootstrap
 
         public static Func<float> LocalLoadProgress =
             () => 0f;
+        public static Func<string> GetLoadingStatus =
+            () => "Preparing";
         public static Func<bool> LastMatchVictory =
             () => false;
         public static Func<bool> IsLocalTeamVictory =
@@ -279,6 +283,8 @@ namespace FrameSyncMoba.Bootstrap
             _ => "";
         public static Func<int, string> GetShopItemDescription =
             _ => "";
+        public static Func<int, Sprite> GetShopItemIcon =
+            _ => null;
         public static Func<int, int> GetShopItemPrice =
             _ => 0;
         public static Func<int, string> GetShopItemNameById =

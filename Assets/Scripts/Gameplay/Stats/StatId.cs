@@ -34,7 +34,6 @@ namespace FrameSyncMoba.Unit
         LifeSteal = 20,
         Omnivamp = 21,
         HealPower = 22,
-        ShieldPower = 23,
         Tenacity = 24,
         HealingReceivedRatio = 25,
     }

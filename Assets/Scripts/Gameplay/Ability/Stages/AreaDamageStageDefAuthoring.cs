@@ -28,6 +28,16 @@ namespace FrameSyncMoba.Unit
 
         public override StageDef Bake()
         {
+            if (targetFilter.UnitKindMask.IsEmpty)
+            {
+                throw new InvalidOperationException(
+                    $"Area damage stage '{DebugName}' requires at least one target UnitKind.");
+            }
+            if (targetFilter.LifeStateMask.IsEmpty)
+            {
+                throw new InvalidOperationException(
+                    $"Area damage stage '{DebugName}' requires at least one target LifeState.");
+            }
             return new AreaDamageStageDef
             {
                 StageDefId = StageKey,

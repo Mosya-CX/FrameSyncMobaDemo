@@ -26,12 +26,19 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField] private LocalNgoEndpointDriver localNgoDriver;
         [SerializeField] private float assignmentPollIntervalSeconds =
             2f;
+        [SerializeField, Min(0.05f)]
+        private float presentationRefreshIntervalSeconds = 0.2f;
 
         private bool matchmakingRunning;
         private bool connectionPollRunning;
         private float matchStartRealtime;
         private int selectedHeroConfigId = -1;
         private bool sceneLoadTriggered;
+        private bool matchPresentationActive;
+        private float nextPresentationRefreshRealtime;
+        private float localLoadProgress;
+        private string matchStatus = "Idle";
+        private string loadingStatus = "Preparing battle";
 
         private void Awake()
         {
@@ -112,10 +119,12 @@ namespace FrameSyncMoba.Bootstrap
                 () => matchmakingRunning;
             GameFlowLuaBridge.MatchElapsedSeconds =
                 () =>
-                    matchmakingRunning
+                    matchPresentationActive
                         ? Time.realtimeSinceStartup -
                           matchStartRealtime
                         : 0f;
+            GameFlowLuaBridge.GetMatchStatus =
+                () => matchStatus;
             GameFlowLuaBridge.CanCancelMatchmaking =
                 () => matchmakingRunning;
             GameFlowLuaBridge.ChooseHero =
@@ -141,7 +150,9 @@ namespace FrameSyncMoba.Bootstrap
             GameFlowLuaBridge.BindHeroSelect(
                 GameSessionContext.HeroDisplayTable);
             GameFlowLuaBridge.LocalLoadProgress =
-                () => 1f;
+                () => localLoadProgress;
+            GameFlowLuaBridge.GetLoadingStatus =
+                () => loadingStatus;
             GameFlowLuaBridge.ReturnMainMenu =
                 ReturnToMainMenu;
         }
@@ -163,6 +174,11 @@ namespace FrameSyncMoba.Bootstrap
         {
             if (matchmakingRunning)
                 return;
+            matchmakingRunning = true;
+            matchPresentationActive = true;
+            matchStatus = "Searching";
+            matchStartRealtime =
+                Time.realtimeSinceStartup;
             if (GameSessionContext.FlowMode !=
                 FrameFlowMode.UosOnline)
             {
@@ -177,10 +193,12 @@ namespace FrameSyncMoba.Bootstrap
                 return;
             }
             if (GameSessionContext.ClientFlow == null)
+            {
+                matchmakingRunning = false;
+                matchPresentationActive = false;
+                matchStatus = "Unavailable";
                 return;
-            matchmakingRunning = true;
-            matchStartRealtime =
-                Time.realtimeSinceStartup;
+            }
             if (uiManager != null)
                 uiManager.ShowPage(UIPageId.Match);
             StartCoroutine(RunMatchmaking());
@@ -191,6 +209,8 @@ namespace FrameSyncMoba.Bootstrap
             if (!matchmakingRunning)
                 return;
             matchmakingRunning = false;
+            matchPresentationActive = false;
+            matchStatus = "Cancelled";
             connectionPollRunning = false;
             StopAllCoroutines();
             if (uiManager != null)
@@ -250,6 +270,7 @@ namespace FrameSyncMoba.Bootstrap
                 yield break;
             }
             matchmakingRunning = false;
+            matchStatus = "Match found - connecting";
             Debug.Log(
                 $"[Lobby] Assignment received: " +
                 $"{flow.Assignment.IpAddress}:{flow.Assignment.Port}.");
@@ -262,6 +283,8 @@ namespace FrameSyncMoba.Bootstrap
             Exception exception)
         {
             matchmakingRunning = false;
+            matchPresentationActive = false;
+            matchStatus = "Matchmaking failed";
             if (exception != null)
                 Debug.LogException(
                     exception,
@@ -298,6 +321,7 @@ namespace FrameSyncMoba.Bootstrap
             {
                 Debug.Log(
                     "[Lobby] NGO connection established; sending identity.");
+                matchStatus = "Connected - joining lobby";
                 if (lobbyBridge != null)
                 {
                     lobbyBridge.BindClient(
@@ -329,6 +353,8 @@ namespace FrameSyncMoba.Bootstrap
 
         private void OnIdentityAccepted()
         {
+            matchPresentationActive = false;
+            matchStatus = "Match ready";
             Debug.Log(
                 "[Lobby] Client identity accepted; opening hero select.");
             if (uiManager != null)
@@ -353,12 +379,56 @@ namespace FrameSyncMoba.Bootstrap
             if (sceneLoadTriggered)
                 return;
             sceneLoadTriggered = true;
+            ClientApplicationFlow flow =
+                GameSessionContext.ClientFlow;
+            if (flow != null &&
+                flow.State ==
+                ClientApplicationState.Lobby)
+                flow.BeginLoadingGame();
             Debug.Log(
                 "[Lobby] Server confirmed all heroes; loading GameScene.");
             if (uiManager != null)
                 uiManager.ShowPage(UIPageId.Load);
-            SceneManager.LoadScene(
-                GameSessionContext.GameSceneName);
+            StartCoroutine(LoadGameSceneAsync());
+        }
+
+        private IEnumerator LoadGameSceneAsync()
+        {
+            localLoadProgress = 0f;
+            loadingStatus = "Loading battle scene";
+            AsyncOperation operation =
+                SceneManager.LoadSceneAsync(
+                    GameSessionContext.GameSceneName);
+            if (operation == null)
+                throw new InvalidOperationException(
+                    "Failed to create the GameScene load operation.");
+            operation.allowSceneActivation = false;
+            while (operation.progress < 0.9f)
+            {
+                localLoadProgress =
+                    Mathf.Clamp01(operation.progress / 0.9f);
+                yield return null;
+            }
+            localLoadProgress = 1f;
+            loadingStatus = "Entering battle";
+            uiManager?.RefreshLuaHost(UIPageId.Load);
+            yield return null;
+            operation.allowSceneActivation = true;
+        }
+
+        private void Update()
+        {
+            if (uiManager == null ||
+                Time.realtimeSinceStartup <
+                nextPresentationRefreshRealtime)
+                return;
+            nextPresentationRefreshRealtime =
+                Time.realtimeSinceStartup +
+                presentationRefreshIntervalSeconds;
+            if (uiManager.IsOpen(UIPageId.Match))
+                uiManager.RefreshLuaHost(UIPageId.Match);
+            if (uiManager.IsOpen(UIPageId.Load))
+                uiManager.RefreshLuaHost(UIPageId.Load);
         }
 
         private void ReturnToMainMenu()
@@ -366,6 +436,8 @@ namespace FrameSyncMoba.Bootstrap
             GameSessionContext.LobbyBridge?
                 .Shutdown();
             matchmakingRunning = false;
+            matchPresentationActive = false;
+            matchStatus = "Idle";
             if (uiManager != null)
                 uiManager.ShowPage(UIPageId.Main);
         }

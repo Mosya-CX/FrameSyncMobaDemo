@@ -17,7 +17,7 @@ end
 
 function Match:Refresh()
     local searching = GameFlow.IsSearching()
-    self.ui.StateText.text = searching and "Searching" or "Idle"
+    self.ui.StateText.text = GameFlow.GetMatchStatus()
     self.ui.TimeText.text = UIFormat.Time(GameFlow.MatchElapsedSeconds())
     self.ui.SearchingRoot:SetActive(searching)
     self.ui.CancelBtn.interactable = GameFlow.CanCancelMatchmaking()

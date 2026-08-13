@@ -27,7 +27,10 @@ namespace FrameSyncMoba.Unit
         public override StageResult OnEnter(AbilitySession session, AbilityRuntime runtime)
         {
             if (runtime.World == null || runtime.World.RangeQuery == null ||
-                runtime.World.CombatSystem == null)
+                runtime.World.CombatSystem == null ||
+                !runtime.World.TryGetUnit(
+                    runtime.CasterUnitUid,
+                    out Unit caster))
                 return StageResult.Failed;
 
             fp2 center = session.Aim.TargetPoint;
@@ -58,9 +61,7 @@ namespace FrameSyncMoba.Unit
 
             if (GroundProjectileDefId > 0 &&
                 runtime.World.ProjectileWorld != null &&
-                runtime.World.TryGetUnit(
-                    runtime.CasterUnitUid,
-                    out Unit caster))
+                caster != null)
             {
                 runtime.World.ProjectileWorld.RequestSpawn(
                     new ProjectileSpawnRequest(
@@ -96,7 +97,7 @@ namespace FrameSyncMoba.Unit
             runtime.World.RangeQuery.Query(
                 desc,
                 runtime.CasterUnitUid,
-                default,
+                caster.TeamId,
                 _resultScratch,
                 _gridScratch);
 

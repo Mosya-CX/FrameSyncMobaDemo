@@ -40,15 +40,16 @@ namespace FrameSyncMoba.Unit
             if (source == null || target == null || range < fp.zero)
                 return false;
 
-            // Attack range is the straight-line center distance between the
-            // two units (no AABB, no radius subtraction).
+            // Attack reach is measured from the source center to the target
+            // collision boundary. The source radius is intentionally not
+            // included: distance - target radius <= configured range.
             fp2 sourcePos =
                 source.Transform2D.Position;
             fp2 targetPos =
                 target.Transform2D.Position;
             fp distance =
                 fpmath.length(targetPos - sourcePos);
-            return distance <= range;
+            return distance - target.Shape.Radius <= range;
         }
 
         /// <summary>

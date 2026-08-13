@@ -15,5 +15,9 @@ MonoBehaviour:
   entries:
   - UnitPrototypeId: 1001
     HeroPrefabId: 1101
-    DisplayName: Test Hero
+    DisplayName: Varus
     Avatar: {fileID: 21300000, guid: b54876e9c470b774fa7adc1a21c34d1e, type: 3}
+  - UnitPrototypeId: 1002
+    HeroPrefabId: 1102
+    DisplayName: Aatrox
+    Avatar: {fileID: 21300000, guid: 05cc6a8fbb52ed246b0f3b4720325ef1, type: 3}

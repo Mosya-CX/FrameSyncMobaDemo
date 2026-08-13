@@ -11,6 +11,11 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private float speedPerTick = 1f;
         [Min(0f)]
         [SerializeField] private float totalDistance = 8f;
+        [SerializeField] private ForceMoveWallPolicy wallPolicy =
+            ForceMoveWallPolicy.StopAtWall;
+        [SerializeField] private bool resetAttackTimerOnStart;
+        [Min(0f)] [SerializeField] private float maxTerrainCrossingDistance;
+        [SerializeField] private bool extendThroughTerrain;
 
         public float SpeedPerTick => speedPerTick;
         public float TotalDistance => totalDistance;
@@ -30,6 +35,11 @@ namespace FrameSyncMoba.Unit
                 DebugName = DebugName,
                 SpeedPerTick = (fp)speedPerTick,
                 TotalDistance = (fp)totalDistance,
+                WallPolicy = wallPolicy,
+                ResetAttackTimerOnStart = resetAttackTimerOnStart,
+                MaxTerrainCrossingDistance =
+                    (fp)maxTerrainCrossingDistance,
+                ExtendThroughTerrain = extendThroughTerrain,
             };
         }
     }

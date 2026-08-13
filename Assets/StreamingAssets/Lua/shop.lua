@@ -62,6 +62,7 @@ function Shop:RefreshCatalog()
         cells[#cells + 1] = {
             EquipmentId = equipmentId,
             Name = GameFlow.GetShopItemName(i),
+            Icon = GameFlow.GetShopItemIcon(i),
             Price = GameFlow.GetShopItemPrice(i),
             Selected = (equipmentId ==
                 self.selectedEquipmentId),
@@ -76,11 +77,22 @@ end
 
 function Shop:RefreshDetail()
     local id = self.selectedEquipmentId
+    self.focusOwnedSlot = -1
     if id <= 0 then
         if self.ui.Detail ~= nil then
             self.ui.Detail:SetActive(false)
         end
+        if self.ui.SellBtn ~= nil then
+            self.ui.SellBtn.interactable = false
+        end
         return
+    end
+    local slotCount = GameFlow.GetLocalEquipmentSlotCount()
+    for slot = 0, slotCount - 1 do
+        if GameFlow.GetLocalEquipmentSlotId(slot) == id then
+            self.focusOwnedSlot = slot
+            break
+        end
     end
     if self.ui.Detail ~= nil then
         self.ui.Detail:SetActive(true)
@@ -101,6 +113,10 @@ function Shop:RefreshDetail()
     if self.ui.PropertyBonusDescription ~= nil then
         self.ui.PropertyBonusDescription.text =
             GameFlow.GetShopItemStatById(id) or ""
+    end
+    if self.ui.SellBtn ~= nil then
+        self.ui.SellBtn.interactable =
+            self.focusOwnedSlot >= 0
     end
 end
 

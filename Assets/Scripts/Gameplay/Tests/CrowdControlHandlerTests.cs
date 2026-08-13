@@ -453,6 +453,97 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void
+            Restore_ValidatesRestoredForcedMoveHandleNotPreRestoreHandle()
+        {
+            // Runtime owns forced move A when the snapshot is captured.
+            CrowdControlAddResult first =
+                unit.CrowdControl.Add(
+                    CrowdControlIds.KnockBack,
+                    2,
+                    KnockBackParams(
+                        new fp2(fp.one, fp.zero),
+                        (fp)3m,
+                        2,
+                        100));
+            Assert.That(first.Added, Is.True);
+            CrowdControlHandle firstHandle =
+                first.Handle;
+            Assert.That(
+                unit.CrowdControl.ActiveForcedMoveHandle,
+                Is.EqualTo(firstHandle));
+
+            CrowdControlHandlerSnapshot snapshot =
+                default;
+            unit.CrowdControl.Capture(
+                ref snapshot);
+            Assert.That(
+                snapshot.ActiveForcedMoveHandle,
+                Is.EqualTo(firstHandle));
+
+            // Before the rollback the runtime owns a DIFFERENT forced move B
+            // that the snapshot does not contain.
+            unit.CrowdControl.ClearForDeath();
+            CrowdControlAddResult second =
+                unit.CrowdControl.Add(
+                    CrowdControlIds.KnockBack,
+                    2,
+                    KnockBackParams(
+                        new fp2(fp.zero, fp.one),
+                        (fp)3m,
+                        2,
+                        100));
+            Assert.That(second.Added, Is.True);
+            Assert.That(
+                second.Handle.InstanceId,
+                Is.Not.EqualTo(
+                    firstHandle.InstanceId));
+
+            // Restore validates the RESTORED handle (A) against the restored
+            // instance list; the pre-restore handle B is irrelevant and must
+            // not fail the rollback.
+            Assert.DoesNotThrow(
+                () => unit.CrowdControl.Restore(
+                    snapshot));
+            Assert.That(
+                unit.CrowdControl.ActiveForcedMoveHandle,
+                Is.EqualTo(firstHandle));
+            Assert.That(
+                unit.CrowdControl.Count,
+                Is.EqualTo(1));
+        }
+
+        [Test]
+        public void
+            Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances()
+        {
+            CrowdControlAddResult first =
+                unit.CrowdControl.Add(
+                    CrowdControlIds.KnockBack,
+                    2,
+                    KnockBackParams(
+                        new fp2(fp.one, fp.zero),
+                        (fp)3m,
+                        2,
+                        100));
+            Assert.That(first.Added, Is.True);
+
+            CrowdControlHandlerSnapshot snapshot =
+                default;
+            unit.CrowdControl.Capture(
+                ref snapshot);
+            // Corrupt the snapshot: the active forced-move handle now points
+            // at an instance that is absent from the restored list. The
+            // canonical-state validation must reject this inconsistent state.
+            snapshot.Instances.Clear();
+
+            Assert.Throws<
+                DeterministicSimulationException>(
+                () => unit.CrowdControl.Restore(
+                    snapshot));
+        }
+
+        [Test]
         public void Lifecycle_DeathClearsButKeepsIds_InitResetsIds()
         {
             CrowdControlAddResult first =

@@ -153,6 +153,13 @@ namespace FrameSyncMoba.Unit
                     output.Add(vector.Aim);
                     output.Add(vector.Execute);
                     break;
+                case SequentialRecastCastModelDef sequential:
+                    output.Add(sequential.FirstImpact);
+                    output.Add(sequential.FirstRecastWindow);
+                    output.Add(sequential.SecondImpact);
+                    output.Add(sequential.SecondRecastWindow);
+                    output.Add(sequential.FinalImpact);
+                    break;
                 default:
                     throw new ArgumentException(
                         $"Unsupported CastModel {model?.GetType().Name}.");

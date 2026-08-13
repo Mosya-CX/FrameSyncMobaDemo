@@ -67,8 +67,10 @@ namespace FrameSyncMoba.Unit
     public struct AttackAnimationSnapshot
     {
         public bool IsAttacking;
+        public int AttackStartLogicTick;
         public byte SequenceIndex;
         public bool ImpactCommitted;
+        public bool IsEmpoweredAttack;
         public float WindupProgress;
         public float RecoveryProgress;
     }

@@ -189,14 +189,6 @@ MonoBehaviour:
     MinValue: 0
     HasMaxValue: 0
     MaxValue: 0
-  - Id: 23
-    DebugName: ShieldPower
-    DefaultBaseValue: 0
-    SupportsLevelGrowth: 0
-    HasMinValue: 1
-    MinValue: 0
-    HasMaxValue: 0
-    MaxValue: 0
   - Id: 24
     DebugName: Tenacity
     DefaultBaseValue: 0
@@ -215,11 +207,11 @@ MonoBehaviour:
     MaxValue: 1
   unitPrototypes:
   - UnitPrototypeId: 1001
-    Name: Test Hero
+    Name: Varus
     RuntimeEntityPrefabId: 1101
     UnitKind: 0
     UnitSubKindId: 0
-    BaseGoldValue: 0
+    BaseGoldValue: 300
     BaseExperienceValue: 0
     InitialBuffConfigIds: 
     UnitDisposePolicyId: 1
@@ -300,12 +292,98 @@ MonoBehaviour:
     - StatId: 15
       BaseValue: 1.75
       GrowthValue: 0
+  - UnitPrototypeId: 1002
+    Name: Aatrox
+    RuntimeEntityPrefabId: 1102
+    UnitKind: 0
+    UnitSubKindId: 0
+    BaseGoldValue: 300
+    BaseExperienceValue: 0
+    InitialBuffConfigIds: 
+    UnitDisposePolicyId: 1
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 1
+      HasAttack: 1
+      HasAbility: 1
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 1
+    Locomotion:
+      BaseMoveSpeed: 345
+      CollisionRadius: 0.45
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.45
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 650
+      GrowthValue: 114
+    - StatId: 2
+      BaseValue: 0.6
+      GrowthValue: 0.1
+    - StatId: 3
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 4
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 60
+      GrowthValue: 5
+    - StatId: 6
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 38
+      GrowthValue: 4.8
+    - StatId: 8
+      BaseValue: 32
+      GrowthValue: 2.05
+    - StatId: 9
+      BaseValue: 0.651
+      GrowthValue: 0.025
+    - StatId: 10
+      BaseValue: 175
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 345
+      GrowthValue: 0
+    - StatId: 14
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 15
+      BaseValue: 1.75
+      GrowthValue: 0
   - UnitPrototypeId: 2001
     Name: Blue Melee Minion
     RuntimeEntityPrefabId: 1201
     UnitKind: 1
     UnitSubKindId: 1
-    BaseGoldValue: 20
+    BaseGoldValue: 21
     BaseExperienceValue: 60
     InitialBuffConfigIds: 8d2300008f230000
     UnitDisposePolicyId: 2
@@ -373,7 +451,7 @@ MonoBehaviour:
     RuntimeEntityPrefabId: 1202
     UnitKind: 1
     UnitSubKindId: 1
-    BaseGoldValue: 20
+    BaseGoldValue: 21
     BaseExperienceValue: 60
     InitialBuffConfigIds: 8d2300008f230000
     UnitDisposePolicyId: 2

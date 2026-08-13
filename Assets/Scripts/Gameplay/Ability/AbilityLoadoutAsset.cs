@@ -60,8 +60,9 @@ namespace FrameSyncMoba.Unit
                                 .Clone()
                             : System.Array
                                 .Empty<int>(),
-                    ActiveAbilityId =
-                        slotDef.InitialActiveAbilityId,
+                    ActiveAbilityId = ResolveInitialActiveAbilityId(
+                        loadout,
+                        slotDef),
                 };
                 Dictionary<int, int> initialLevels =
                     BuildInitialLevelMap(
@@ -104,6 +105,21 @@ namespace FrameSyncMoba.Unit
                 }
                 handler.SetFixedPassive(passive);
             }
+        }
+
+        private static int ResolveInitialActiveAbilityId(
+            AbilityLoadoutSlot loadout,
+            AbilitySlotDef slotDef)
+        {
+            int abilityId = loadout.InitialActiveAbilityId > 0
+                ? loadout.InitialActiveAbilityId
+                : slotDef.InitialActiveAbilityId;
+            if (Array.IndexOf(slotDef.AbilityIds, abilityId) < 0)
+            {
+                throw new InvalidOperationException(
+                    $"Ability slot {loadout.SlotId} active AbilityId {abilityId} is not registered in the slot.");
+            }
+            return abilityId;
         }
 
         private static Dictionary<int, int>

@@ -30,6 +30,13 @@ namespace FrameSyncMoba.Unit
     public static class CombatBuiltinRecipeId
     {
         public const int BasicAttackDamage = 1;
+        /// <summary>
+        /// Recipe used by an empowered basic attack (e.g. an item passive
+        /// that turns the next attack into a guaranteed critical strike).
+        /// Settlement modifiers may Match this RecipeId to affect only the
+        /// empowered strike (Combat v13.2 section 4.2/7.7).
+        /// </summary>
+        public const int EmpoweredAttackDamage = 2;
     }
 
     /// <summary>

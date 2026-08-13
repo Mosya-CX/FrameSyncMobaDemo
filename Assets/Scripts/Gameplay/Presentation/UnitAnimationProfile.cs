@@ -44,6 +44,9 @@ namespace FrameSyncMoba.Presentation
         [Tooltip("Hash for the 'IsAttackRecovering' boolean parameter.")]
         public int IsAttackRecoveringHash;
 
+        [Tooltip("Hash for the 'IsEmpoweredAttack' boolean parameter.")]
+        public int IsEmpoweredAttackHash;
+
         [Tooltip("Hash for the 'AttackSequenceIndex' integer parameter.")]
         public int AttackSequenceIndexHash;
 
@@ -67,6 +70,22 @@ namespace FrameSyncMoba.Presentation
 
         [Tooltip("Hash for the 'IsControlled' boolean parameter.")]
         public int IsControlledHash;
+
+        [Tooltip("Hash for the optional 'IsPassiveReady' boolean parameter.")]
+        public int IsPassiveReadyHash;
+
+        [Tooltip("Hash for the optional 'IsAnimationVariantActive' boolean parameter.")]
+        public int IsAnimationVariantActiveHash;
+
+        [Tooltip("Hash for the optional trigger fired when an animation variant ends.")]
+        public int AnimationVariantExitHash;
+
+        [Header("Read-only Gameplay Variants")]
+        [Tooltip("Fixed passive AbilityId whose ready state selects optional locomotion/stage variants. Zero disables the mapping.")]
+        public int PassiveReadyAbilityId;
+
+        [Tooltip("BuffConfigId whose current presence selects an alternate animation form. Zero disables the mapping.")]
+        public int AnimationVariantBuffConfigId;
 
         [Header("State Names")]
         public int IdleStateHash;
@@ -101,6 +120,7 @@ namespace FrameSyncMoba.Presentation
             profile.MoveSpeedHash = Animator.StringToHash("MoveSpeed");
             profile.IsAttackingHash = Animator.StringToHash("IsAttacking");
             profile.IsAttackRecoveringHash = Animator.StringToHash("IsAttackRecovering");
+            profile.IsEmpoweredAttackHash = Animator.StringToHash("IsEmpoweredAttack");
             profile.AttackSequenceIndexHash = Animator.StringToHash("AttackSequenceIndex");
             profile.AttackMotionTimeHash = Animator.StringToHash("AttackMotionTime");
             profile.AttackStartHash = Animator.StringToHash("AttackStart");
@@ -109,6 +129,9 @@ namespace FrameSyncMoba.Presentation
             profile.IsChargingHash = Animator.StringToHash("IsCharging");
             profile.LifeStateHash = Animator.StringToHash("LifeState");
             profile.IsControlledHash = Animator.StringToHash("IsControlled");
+            profile.IsPassiveReadyHash = Animator.StringToHash("IsPassiveReady");
+            profile.IsAnimationVariantActiveHash = Animator.StringToHash("IsAnimationVariantActive");
+            profile.AnimationVariantExitHash = Animator.StringToHash("AnimationVariantExit");
             profile.IdleStateHash = Animator.StringToHash("Base Layer.Idle");
             profile.MoveStateHash = Animator.StringToHash("Base Layer.Move");
             profile.DeathStateHash = Animator.StringToHash("Base Layer.Death");

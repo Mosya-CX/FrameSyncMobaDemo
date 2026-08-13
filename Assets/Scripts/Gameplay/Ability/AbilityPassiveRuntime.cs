@@ -31,6 +31,7 @@ namespace FrameSyncMoba.Unit
         public virtual void OnUnitDeath(Unit owner, ref AbilityPassiveRuntimeState state) { }
         public virtual void OnRespawn(Unit owner, ref AbilityPassiveRuntimeState state) { }
         public virtual void Rebuild(Unit owner, ref AbilityPassiveRuntimeState state) { }
+        public virtual void OnTick(Unit owner, ref AbilityPassiveRuntimeState state) { }
         public virtual bool OnDamageTaken(Unit owner, in DamageEventData data, ref AbilityPassiveRuntimeState state) => false;
         public virtual bool OnDamageDealt(Unit owner, in DamageEventData data, ref AbilityPassiveRuntimeState state) => false;
         public virtual bool OnHealTaken(Unit owner, in HealEventData data, ref AbilityPassiveRuntimeState state) => false;
@@ -56,7 +57,27 @@ namespace FrameSyncMoba.Unit
         }
     }
 
-    public abstract class PassiveAbilityEffectDef : AbilityPassiveEffectDefBase { }
+    public abstract class PassiveAbilityEffectDef : AbilityPassiveEffectDefBase
+    {
+        /// <summary>
+        /// True when a ready instance of this passive changes the next basic
+        /// attack into an empowered attack. AttackHandler reads this semantic
+        /// once at BeginAttack and locks the result into AttackSnapshot;
+        /// presentation never infers empowered attacks from passive state.
+        /// </summary>
+        public virtual bool EmpowersBasicAttack => false;
+
+        /// <summary>
+        /// Target-sensitive eligibility evaluated only by AttackHandler while
+        /// beginning a real basic attack. Content can exclude target kinds
+        /// without putting hero-specific rules into AttackHandler.
+        /// </summary>
+        public virtual bool CanEmpowerBasicAttack(
+            Unit owner,
+            Unit target,
+            in AbilityPassiveRuntimeState state) =>
+                EmpowersBasicAttack;
+    }
 
     public sealed class PassiveAbilityDef
     {
@@ -116,6 +137,7 @@ namespace FrameSyncMoba.Unit
         public void Death(Unit owner) => Definition.OnUnitDeath(owner, ref State);
         public void Respawn(Unit owner) => Definition.OnRespawn(owner, ref State);
         public void Rebuild(Unit owner) => Definition.Rebuild(owner, ref State);
+        public void Tick(Unit owner) => Definition.OnTick(owner, ref State);
         public bool DamageTaken(Unit owner, in DamageEventData data) => Definition.ListensTo(AbilityPassiveListenerMask.DamageTaken) && Definition.OnDamageTaken(owner, data, ref State);
         public bool DamageDealt(Unit owner, in DamageEventData data) => Definition.ListensTo(AbilityPassiveListenerMask.DamageDealt) && Definition.OnDamageDealt(owner, data, ref State);
         public bool HealTaken(Unit owner, in HealEventData data) => Definition.ListensTo(AbilityPassiveListenerMask.HealTaken) && Definition.OnHealTaken(owner, data, ref State);

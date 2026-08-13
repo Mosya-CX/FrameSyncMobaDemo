@@ -206,6 +206,37 @@ namespace FrameSyncMoba.Unit
             out ProjectileRuntime runtime) =>
             lookup.TryGetValue(uid, out runtime);
 
+        public bool RequestEnd(
+            ProjectileUid uid,
+            ProjectileEndReason reason =
+                ProjectileEndReason.ExplicitRequest)
+        {
+            if (!uid.IsValid)
+                return false;
+            if (lookup.TryGetValue(uid, out ProjectileRuntime runtime))
+            {
+                runtime.RequestEnd(reason);
+                return true;
+            }
+            if (!pendingByUid.TryGetValue(
+                    uid,
+                    out PendingSpawnEntry pending))
+            {
+                return false;
+            }
+
+            pendingByUid.Remove(uid);
+            for (int i = 0; i < pendingSpawns.Count; i++)
+            {
+                if (pendingSpawns[i].Uid != uid)
+                    continue;
+                pendingSpawns.RemoveAt(i);
+                return true;
+            }
+            throw new DeterministicSimulationException(
+                $"Pending projectile index is missing {pending.Uid}.");
+        }
+
         public IReadOnlyList<ProjectileRuntime>
             GetAllOrdered() => ordered;
 

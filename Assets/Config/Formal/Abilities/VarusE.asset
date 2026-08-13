@@ -15,6 +15,7 @@ MonoBehaviour:
   abilityId: 10013
   abilityName: Hail of Arrows
   icon: {fileID: 21300000, guid: 0d1ee503e046e064790a584b400c97e2, type: 3}
+  isUltimate: 0
   castModel:
     rid: 2586995953099079726
   castRange: 9.25
@@ -51,6 +52,17 @@ MonoBehaviour:
         radius: 3
         baseDamage: 60
         damageType: 0
+        targetFilter:
+          TeamRule: 1
+          UnitKindMask:
+            mask: 4294967295
+          RequireSubKind: 0
+          UnitSubKindId: 0
+          RequirePrototype: 0
+          UnitPrototypeId: 0
+          LifeStateMask:
+            mask: 1
+          RequireTargetable: 1
         vfxDefId: 4001
         groundProjectileDefId: 108
     - rid: 2586995953099079726

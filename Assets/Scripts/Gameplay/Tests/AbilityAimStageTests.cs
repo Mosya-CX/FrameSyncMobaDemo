@@ -117,6 +117,78 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void AreaDamageStage_DamagesEnemyStructure()
+        {
+            UnitWorld world = new UnitWorld();
+            UnitType caster = UnitTestFactory.SpawnUnit(
+                world,
+                CreatePrototype(),
+                new TeamId(1),
+                20,
+                fp.zero,
+                fp.zero);
+            UnitType structure = UnitTestFactory.SpawnUnit(
+                world,
+                CreatePrototype(UnitKind.Structure, 2, 1002),
+                new TeamId(2),
+                20,
+                fp.zero,
+                fp.zero);
+            SetPose(structure, new fp2((fp)3, fp.zero));
+
+            var combat = new CombatSystem(world, 0, 0);
+            world.CombatSystem = combat;
+            combat.BeginTick();
+            world.RangeQuery =
+                new RangeQueryService(world.PhysicsWorld);
+            world.PhysicsWorld.BuildUnitFinalGrid();
+
+            Install(
+                world,
+                caster,
+                new AbilityDef
+                {
+                    AbilityId = 202,
+                    Name = "TestAreaStructure",
+                    CastModel = new CommitCastModelDef
+                    {
+                        Cast = new CastStage
+                        {
+                            StageKey = 1,
+                            DurationTicks = 1,
+                            Def = new AreaDamageStageDef
+                            {
+                                Radius = (fp)1.5m,
+                                BaseDamage = (fp)30,
+                                DamageType = DamageType.Physical,
+                                TargetFilter = new UnitTargetFilter
+                                {
+                                    TeamRule = TeamQueryRule.EnemyOnly,
+                                    UnitKindMask = UnitKindMask.All,
+                                    LifeStateMask =
+                                        UnitLifeStateMask.AliveOnly,
+                                    RequireTargetable = true,
+                                },
+                            },
+                        },
+                    },
+                    AimKind = AimKind.Point,
+                    CastRange = (fp)5,
+                    CostPlan = default,
+                    CooldownByLevel = default,
+                });
+
+            Assert.IsTrue(caster.AbilityHandler.HandleSignal(
+                CommitSignal(AimSnapshot.ForPoint(
+                    new fp2((fp)3, fp.zero)))));
+            combat.SettleActiveRequests();
+
+            Assert.AreEqual(
+                (fp)70,
+                structure.StatHandler.CurrentHealth);
+        }
+
+        [Test]
         public void SpawnProjectileStage_FiresTowardAimDirection()
         {
             UnitWorld world = new UnitWorld();
@@ -249,7 +321,10 @@ namespace FrameSyncMoba.Unit.Tests
                 new fp2(fp.one, fp.zero));
         }
 
-        private static UnitPrototype CreatePrototype()
+        private static UnitPrototype CreatePrototype(
+            UnitKind kind = UnitKind.Hero,
+            int prototypeId = 1,
+            int prefabId = 1001)
         {
             var preset = new StatPreset();
             preset.Stats.Add(new StatPresetEntry
@@ -264,9 +339,9 @@ namespace FrameSyncMoba.Unit.Tests
             });
             return new UnitPrototype
             {
-                UnitPrototypeId = 1,
-                RuntimeEntityPrefabId = 1001,
-                UnitKind = UnitKind.Hero,
+                UnitPrototypeId = prototypeId,
+                RuntimeEntityPrefabId = prefabId,
+                UnitKind = kind,
                 BaseStats = preset,
                 Loadout = HandlerLoadout.DefaultHero,
             };

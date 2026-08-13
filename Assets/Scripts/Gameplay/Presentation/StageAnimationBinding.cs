@@ -19,6 +19,19 @@ namespace FrameSyncMoba.Presentation
         /// <summary>Full name hash of the Animator state to play.</summary>
         public int StateNameHash;
 
+        /// <summary>
+        /// Optional state used while UnitAnimationProfile's configured fixed
+        /// passive is ready. Zero falls back to StateNameHash.
+        /// </summary>
+        public int PassiveReadyStateNameHash;
+
+        /// <summary>
+        /// Optional state used while UnitAnimationProfile's configured form
+        /// Buff is active. This has priority over PassiveReadyStateNameHash;
+        /// zero falls back to the other configured state.
+        /// </summary>
+        public int AnimationVariantStateNameHash;
+
         /// <summary>Normalized time (0..1) to start playback from.</summary>
         [Range(0f, 1f)]
         public float StartNormalizedTime;

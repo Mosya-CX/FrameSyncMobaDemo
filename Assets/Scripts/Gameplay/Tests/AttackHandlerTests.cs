@@ -1,4 +1,5 @@
 using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.Physics;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
 
@@ -101,6 +102,41 @@ namespace FrameSyncMoba.Unit.Tests
 
             Assert.IsFalse(attacker.AttackHandler.CurrentTargetUid.IsValid());
             Assert.AreEqual(0, attacker.AttackHandler.AttackSequenceIndex);
+        }
+
+        [Test]
+        public void BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot()
+        {
+            attacker.AbilityHandler.SetFixedPassive(
+                new PassiveAbilityDef
+                {
+                    AbilityId = 7001,
+                    Name = "Test empowered attack",
+                    PassiveEffect =
+                        new TestEmpoweredAttackPassive(),
+                    CooldownByUnitLevel =
+                        new[] { 30 },
+                });
+
+            attacker.AttackHandler.BeginAttack(
+                target.UnitUid);
+
+            AttackSnapshot gameplay =
+                Capture(attacker.AttackHandler);
+            AttackAnimationSnapshot animation =
+                attacker.AttackHandler
+                    .GetAnimationSnapshot();
+            Assert.IsTrue(gameplay.IsEmpoweredAttack);
+            Assert.IsTrue(animation.IsEmpoweredAttack);
+            Assert.AreEqual(
+                gameplay.AttackStartLogicTick,
+                animation.AttackStartLogicTick);
+
+            attacker.AttackHandler.Restore(gameplay);
+            Assert.IsTrue(
+                attacker.AttackHandler
+                    .GetAnimationSnapshot()
+                    .IsEmpoweredAttack);
         }
 
         [Test]
@@ -244,6 +280,38 @@ namespace FrameSyncMoba.Unit.Tests
                     attacker.AttackHandler.CurrentAttackRange -
                     (fp)2),
                 Is.LessThan((fp)0.000001m));
+        }
+
+        [Test]
+        public void AttackRange_IncludesTargetCollisionRadiusOnly()
+        {
+            target.PhysicsEntity.SetLogicShape(
+                PhysicsShape2D.CreateCircle(fp2.zero, (fp)0.75m));
+            fp reach =
+                attacker.AttackHandler.CurrentAttackRange;
+            fp targetRadius =
+                target.PhysicsEntity.Shape.Radius;
+            Assert.That(targetRadius, Is.GreaterThan(fp.zero));
+            attacker.PhysicsEntity.TeleportLogicPosition(
+                fp2.zero);
+            target.PhysicsEntity.TeleportLogicPosition(
+                new fp2(reach + targetRadius, fp.zero));
+
+            Assert.That(
+                attacker.AttackHandler.GetAttackPlanStatus(
+                    target.UnitUid),
+                Is.EqualTo(AttackPlanStatus.Ready),
+                "The target collision boundary is exactly on attack reach.");
+
+            target.PhysicsEntity.TeleportLogicPosition(
+                new fp2(
+                    reach + targetRadius +
+                    (fp)0.0001m,
+                    fp.zero));
+            Assert.That(
+                attacker.AttackHandler.GetAttackPlanStatus(
+                    target.UnitUid),
+                Is.EqualTo(AttackPlanStatus.OutOfRange));
         }
 
         [Test]
@@ -434,6 +502,12 @@ namespace FrameSyncMoba.Unit.Tests
             AttackSnapshot state = default;
             handler.Capture(ref state);
             return state;
+        }
+
+        private sealed class TestEmpoweredAttackPassive :
+            PassiveAbilityEffectDef
+        {
+            public override bool EmpowersBasicAttack => true;
         }
 
         private static StatDefinitionTable CreateStatTable()

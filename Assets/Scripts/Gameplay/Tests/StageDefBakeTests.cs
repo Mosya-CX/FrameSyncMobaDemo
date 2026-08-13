@@ -1,5 +1,8 @@
+using System;
+using System.Reflection;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit.Tests
 {
@@ -70,10 +73,21 @@ namespace FrameSyncMoba.Unit.Tests
                 SpeedPerTick = (fp)1,
                 TotalDistance = (fp)8,
             };
+            UnitWorld world = new UnitWorld();
+            UnitPrototype prototype = CreateTestPrototype();
+            Unit caster = UnitTestFactory.SpawnUnit(
+                world,
+                prototype,
+                new TeamId(1),
+                20,
+                fp.zero,
+                fp.zero);
             var runtime = new AbilityRuntime
             {
                 Definition = new AbilityDef { AbilityId = 1 },
             };
+            runtime.World = world;
+            runtime.CasterUnitUid = caster.UnitUid;
             var aim = AimSnapshot.ForDirection(new fp2(fp.one, fp.zero));
             var session = runtime.BeginSession(1, 0, aim);
 
@@ -119,6 +133,53 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void AreaDamageAuthoring_Bake_RejectsEmptyTargetMasks()
+        {
+            var authoring = new AreaDamageStageDefAuthoring();
+            FieldInfo filterField =
+                typeof(AreaDamageStageDefAuthoring).GetField(
+                    "targetFilter",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(filterField, Is.Not.Null);
+            filterField.SetValue(authoring, default(UnitTargetFilter));
+
+            Assert.Throws<InvalidOperationException>(
+                () => authoring.Bake());
+        }
+
+        [Test]
+        public void UnitTargetFilter_JsonRoundTrip_PreservesMasks()
+        {
+            var holder = new TargetFilterHolder
+            {
+                Filter = new UnitTargetFilter
+                {
+                    TeamRule = TeamQueryRule.EnemyOnly,
+                    UnitKindMask = UnitKindMask.All,
+                    LifeStateMask = UnitLifeStateMask.AliveOnly,
+                    RequireTargetable = true,
+                },
+            };
+
+            string json = JsonUtility.ToJson(holder);
+            TargetFilterHolder restored =
+                JsonUtility.FromJson<TargetFilterHolder>(json);
+
+            Assert.That(
+                restored.Filter.UnitKindMask.Contains(
+                    UnitKind.Structure),
+                Is.True);
+            Assert.That(
+                restored.Filter.LifeStateMask.Contains(
+                    LifeState.Alive),
+                Is.True);
+            Assert.That(
+                restored.Filter.LifeStateMask.Contains(
+                    LifeState.Dead),
+                Is.False);
+        }
+
+        [Test]
         public void SpawnProjectileAuthoring_Bake_ProducesValidStageDef()
         {
             var authoring = new SpawnProjectileStageDefAuthoring();
@@ -147,6 +208,15 @@ namespace FrameSyncMoba.Unit.Tests
         public void DashAuthoring_Bake_ProducesValidStageDef()
         {
             var authoring = new DashStageDefAuthoring();
+            FieldInfo stageKeyField =
+                typeof(StageDefAuthoring).GetField(
+                    "stageKey",
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic);
+            Assert.That(stageKeyField, Is.Not.Null);
+            stageKeyField.SetValue(
+                authoring,
+                (byte)4);
 
             var def = authoring.Bake();
 
@@ -154,6 +224,29 @@ namespace FrameSyncMoba.Unit.Tests
             var dashDef = (DashStageDef)def;
             Assert.That(dashDef.SpeedPerTick, Is.GreaterThan(fp.zero));
             Assert.That(dashDef.TotalDistance, Is.GreaterThan(fp.zero));
+        }
+
+        private static UnitPrototype CreateTestPrototype()
+        {
+            var preset = new StatPreset();
+            preset.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.MaxHealth,
+                BaseValue = (fp)100,
+            });
+            preset.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.MaxCastResource,
+                BaseValue = (fp)100,
+            });
+            return new UnitPrototype
+            {
+                UnitPrototypeId = 7,
+                RuntimeEntityPrefabId = 1007,
+                UnitKind = UnitKind.Hero,
+                BaseStats = preset,
+                Loadout = HandlerLoadout.DefaultHero,
+            };
         }
 
         [Test]
@@ -194,6 +287,12 @@ namespace FrameSyncMoba.Unit.Tests
             var session = runtime.BeginSession(1, 0, AimSnapshot.None);
 
             Assert.DoesNotThrow(() => def.OnExit(session, runtime));
+        }
+
+        [Serializable]
+        private sealed class TargetFilterHolder
+        {
+            public UnitTargetFilter Filter;
         }
     }
 }

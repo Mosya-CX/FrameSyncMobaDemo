@@ -56,6 +56,42 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void InitialRequestCheck_UsesPlayerSlotMappingWithoutCreatingTrader()
+        {
+            EquipmentDefinition item =
+                Definition(2, 75, EquipmentTier.Basic);
+            RequestContext context =
+                CreateContext(
+                    item,
+                    100,
+                    createTrader: false);
+
+            Assert.That(
+                context.Shop.GetTrader(0),
+                Is.Null,
+                "Trader state must remain lazy until a command succeeds.");
+            Assert.That(
+                context.Shop.CalculatePurchasePrice(
+                    0,
+                    item.Id),
+                Is.EqualTo(item.Value));
+
+            EquipmentShopRequestCheck check =
+                context.Shop.RequestPurchase(
+                    0,
+                    item.Id);
+
+            Assert.That(check.Allowed, Is.True);
+            Assert.That(
+                context.Submitter.Purchases,
+                Is.EqualTo(new[] { item.Id }));
+            Assert.That(
+                context.Shop.GetTrader(0),
+                Is.Null,
+                "A side-effect-free RequestCheck must not create Trader state.");
+        }
+
+        [Test]
         public void RequestPurchase_InsufficientGold_RejectsWithoutSubmission()
         {
             EquipmentDefinition item =
@@ -207,7 +243,8 @@ namespace FrameSyncMoba.Unit.Tests
             EquipmentDefinition item,
             int confirmedGold,
             bool withIncomeView = true,
-            bool withSubmitter = true)
+            bool withSubmitter = true,
+            bool createTrader = true)
         {
             var database = new EquipmentDatabase();
             database.Register(item);
@@ -222,6 +259,7 @@ namespace FrameSyncMoba.Unit.Tests
                 0,
                 new TeamId(1));
             unit.World = world;
+            unit.ControlledByPlayerSlot = 0;
             unit.EquipmentHandler.DefinitionDatabase =
                 database;
             world.RegisterUnit(unit);
@@ -232,7 +270,12 @@ namespace FrameSyncMoba.Unit.Tests
                 database,
                 (fp)7 / (fp)10,
                 world);
-            shop.GetOrCreateTrader(0, unit.UnitUid);
+            if (createTrader)
+            {
+                shop.GetOrCreateTrader(
+                    0,
+                    unit.UnitUid);
+            }
 
             var submitter = new RecordingSubmitter();
             if (withIncomeView)

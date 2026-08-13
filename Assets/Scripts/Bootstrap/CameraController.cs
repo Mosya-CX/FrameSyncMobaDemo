@@ -10,6 +10,7 @@ namespace FrameSyncMoba.Bootstrap
     /// when unlocked the camera pans with the mouse at screen edges. Scroll
     /// altitude zoom is intentionally not implemented yet.
     /// </summary>
+    [DefaultExecutionOrder(1000)]
     [DisallowMultipleComponent]
     public sealed class CameraController : MonoBehaviour
     {
@@ -18,6 +19,11 @@ namespace FrameSyncMoba.Bootstrap
             "When assigned, this target is used instead of resolving the " +
             "local controlled unit through GameSessionContext.")]
         [SerializeField] private Transform debugTarget;
+
+        [Header("Shared presentation configuration")]
+        [SerializeField] private MobaCameraPresentationConfig
+            presentationConfig;
+        [SerializeField] private byte previewTeamId = 1;
 
         [Header("Camera tuning")]
         [SerializeField] private float followSpeed = 8f;
@@ -57,17 +63,29 @@ namespace FrameSyncMoba.Bootstrap
 
         private Transform target;
         private bool targetResolved;
+        private bool targetUsesLogicPoseProjection;
         private bool followLocked;
         private Camera mainCamera;
         private Vector2 currentClampMin;
         private Vector2 currentClampMax;
 
+        public MobaCameraPresentationConfig PresentationConfig =>
+            presentationConfig;
+        public byte PreviewTeamId => previewTeamId;
+
         private void Awake()
         {
             followLocked = startLocked;
             mainCamera = GetComponent<Camera>();
-            transform.rotation =
-                Quaternion.Euler(sideAngle, 0f, 0f);
+            if (presentationConfig != null)
+            {
+                ApplyPresentationConfig(previewTeamId);
+            }
+            else
+            {
+                transform.rotation =
+                    Quaternion.Euler(sideAngle, 0f, 0f);
+            }
         }
 
         private void Update()
@@ -75,10 +93,21 @@ namespace FrameSyncMoba.Bootstrap
             if (Input.GetKeyDown(lockKey))
                 followLocked = !followLocked;
 
-            if (followLocked)
-                FollowLocalHero();
-            else
+            if (!followLocked)
+            {
                 EdgePan();
+                ClampToBounds();
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (!followLocked)
+            {
+                return;
+            }
+
+            FollowLocalHero();
             ClampToBounds();
         }
 
@@ -118,6 +147,59 @@ namespace FrameSyncMoba.Bootstrap
             debugTarget = target;
             this.target = target;
             targetResolved = target != null;
+            targetUsesLogicPoseProjection =
+                target != null &&
+                target.GetComponent<Physics.PhysicsEntity2D>() != null;
+        }
+
+        public void SetPresentationConfig(
+            MobaCameraPresentationConfig config,
+            byte teamId)
+        {
+            presentationConfig = config;
+            ApplyPresentationConfig(teamId);
+        }
+
+        public void ApplyPresentationConfig(byte teamId)
+        {
+            previewTeamId = teamId;
+            if (presentationConfig == null)
+                return;
+
+            CameraSideSettings side =
+                presentationConfig.ResolveSide(teamId);
+            followSpeed = Mathf.Max(0.01f, side.FollowSpeed);
+            panSpeed = Mathf.Max(0.01f, side.PanSpeed);
+            edgeSize = Mathf.Max(0f, side.EdgeSize);
+            followOffset = side.FollowOffset;
+            transform.rotation = Quaternion.Euler(side.EulerAngles);
+            if (mainCamera == null)
+                mainCamera = GetComponent<Camera>();
+            if (mainCamera != null)
+                mainCamera.fieldOfView = side.FieldOfView;
+
+            presentationConfig.ApplyRenderPacing();
+            Physics.PhysicsPresentationSettings.Configure(
+                presentationConfig.SmoothLogicPose &&
+                !Application.isBatchMode,
+                presentationConfig.SmoothingDuration,
+                presentationConfig.SmoothingSnapDistance);
+        }
+
+        public void ApplyDebugSide(
+            CameraSideSettings side,
+            byte teamId)
+        {
+            previewTeamId = teamId;
+            followSpeed = Mathf.Max(0.01f, side.FollowSpeed);
+            panSpeed = Mathf.Max(0.01f, side.PanSpeed);
+            edgeSize = Mathf.Max(0f, side.EdgeSize);
+            followOffset = side.FollowOffset;
+            transform.rotation = Quaternion.Euler(side.EulerAngles);
+            if (mainCamera == null)
+                mainCamera = GetComponent<Camera>();
+            if (mainCamera != null)
+                mainCamera.fieldOfView = side.FieldOfView;
         }
 
         /// <summary>
@@ -182,6 +264,20 @@ namespace FrameSyncMoba.Bootstrap
                 followOffset;
             // The camera only moves on the XZ plane; height stays fixed.
             desired.y = transform.position.y;
+            if (targetUsesLogicPoseProjection)
+            {
+                // Locked MOBA camera follows after PhysicsEntity2D has
+                // projected the current logic pose. Smoothing a 30 Hz stepped
+                // unit root with render-frame delta makes the camera and its
+                // target use different timelines, which presents as unit
+                // shake/ghosting. Exact late follow keeps the controlled unit
+                // stable in screen space.
+                transform.position = desired;
+                return;
+            }
+
+            // Non-Gameplay debug rigs move continuously and can retain the
+            // authored damping used by CameraDebugScene.
             transform.position = Vector3.Lerp(
                 transform.position,
                 desired,
@@ -355,6 +451,8 @@ namespace FrameSyncMoba.Bootstrap
             if (debugTarget != null)
             {
                 target = debugTarget;
+                targetUsesLogicPoseProjection =
+                    target.GetComponent<Physics.PhysicsEntity2D>() != null;
                 return;
             }
             GameBootstrap bootstrap =
@@ -368,10 +466,15 @@ namespace FrameSyncMoba.Bootstrap
             if (unit == null)
             {
                 target = null;
+                targetUsesLogicPoseProjection = false;
                 targetResolved = false;
                 return;
             }
             target = unit.transform;
+            targetUsesLogicPoseProjection =
+                unit.PhysicsEntity != null;
+            if (presentationConfig != null)
+                ApplyPresentationConfig(unit.TeamId.Value);
         }
     }
 }

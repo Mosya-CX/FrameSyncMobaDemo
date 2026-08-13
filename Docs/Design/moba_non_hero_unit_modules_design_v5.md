@@ -1613,32 +1613,14 @@ EndOnFirstValidHit = true
 
 ## 9.6 红线逻辑状态
 
-红线表达防御塔当前攻击锁定，而不是塔弹轨迹。
-
-TowerAttackHandler 对表现层提供只读状态：
-
-~~~text
-LockedTargetUid
-HasLockedTarget
-HasUnresolvedProjectile
-~~~
-
-HasLockedTarget 的语义：
-
-~~~text
-LockedTargetUid 有效
-并且
-本次攻击处于 Commit 前有效阶段
-或上一发塔弹仍为 Pending / Active
-~~~
+红线表达防御塔当前 `AttackTarget` 意图，而不是塔弹轨迹，也不是上一发塔弹的历史锁定目标。红线只由客户端表现层读取 Gameplay 的只读当前意图，不向 Gameplay 回写，也不进入快照或校验和。
 
 表现结果：
 
-- BeginAttack 后的前摇阶段显示红线。
-- Commit 后，塔弹飞行期间红线继续连接原目标。
-- 塔弹命中或正式结束后红线消失。
-- Commit 前取消时红线立即消失。
-- 在途期间出现更高优先级目标，不切换当前红线。
+- 当前 `AttackTarget` 合法且存活时显示红线，与攻击前摇、后摇和塔弹飞行进度无关。
+- AI 把 `AttackTarget` 替换为下一目标时，红线在同一表现帧直接切换到新目标。
+- 当前目标死亡、不可选中、意图被清除且没有后续目标时，红线立即停止渲染。
+- 不允许回退读取 `TowerAttackHandler.LockedTargetUid`；该字段可能描述已经结束的历史塔弹。
 
 ## 9.7 TowerTargetLinePresenter
 
@@ -1652,12 +1634,12 @@ public sealed class TowerTargetLinePresenter
 它读取：
 
 - 防御塔发射端表现挂点。
-- TowerAttackHandler.HasLockedTarget。
-- LockedTargetUid 对应单位的表现挂点。
+- 塔 Unit 当前只读 `AttackTarget` 意图。
+- 当前意图对应且仍存活、可选中的敌方单位表现挂点。
 
-Presenter 负责启用、更新和关闭红色 LineRenderer。它不拥有 Gameplay 目标，不向 AI 或 AttackHandler 回写状态，也不进入快照。
+Presenter 负责启用、更新和关闭红色 LineRenderer。`UNITY_SERVER` 构建不创建 LineRenderer；客户端 Presenter 不拥有 Gameplay 目标，不向 AI 或 AttackHandler 回写状态，也不进入快照。
 
-线段端点可以在渲染帧平滑跟随模型；是否应该显示红线仍由逻辑状态决定，不能由 Animator Event 或本地特效状态决定。
+线段端点可以在渲染帧平滑跟随模型；目标 UID 的替换直接衔接新端点。是否应该显示红线仍由只读当前意图和目标合法性决定，不能由 Animator Event、本地特效状态或历史塔弹锁定决定。
 
 ## 9.8 恢复与性能关注点
 

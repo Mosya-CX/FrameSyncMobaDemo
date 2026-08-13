@@ -31,5 +31,7 @@ namespace FrameSyncMoba.Unit
             new CrowdControlId(111);
         public static readonly CrowdControlId Fear =
             new CrowdControlId(112);
+        public static readonly CrowdControlId KnockUp =
+            new CrowdControlId(113);
     }
 }

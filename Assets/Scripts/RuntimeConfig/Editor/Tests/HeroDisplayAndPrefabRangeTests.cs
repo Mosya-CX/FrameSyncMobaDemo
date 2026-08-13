@@ -51,7 +51,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
             var table = NewTable();
             var prototypes = new List<UnitPrototypeAuthoring>
             {
-                Hero(1001, 1101, "Test Hero"),
+            Hero(1001, 1101, "Varus"),
             };
 
             bool changed =
@@ -67,7 +67,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
                 Is.EqualTo(1101));
             Assert.That(
                 table.GetEntry(0).DisplayName,
-                Is.EqualTo("Test Hero"));
+            Is.EqualTo("Varus"));
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
             var table = NewTable();
             var prototypes = new List<UnitPrototypeAuthoring>
             {
-                Hero(1001, 1101, "Test Hero"),
+            Hero(1001, 1101, "Varus"),
             };
 
             HeroDisplayTableSync.Sync(table, prototypes);
@@ -139,7 +139,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
             var table = NewTable();
             var prototypes = new List<UnitPrototypeAuthoring>
             {
-                Hero(1001, 1101, "Test Hero"),
+            Hero(1001, 1101, "Varus"),
             };
             HeroDisplayTableSync.Sync(table, prototypes);
 
@@ -161,7 +161,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
             var table = NewTable();
             var prototypes = new List<UnitPrototypeAuthoring>
             {
-                Hero(1001, 1101, "Test Hero"),
+            Hero(1001, 1101, "Varus"),
             };
             HeroDisplayTableSync.Sync(table, prototypes);
 

@@ -38,7 +38,7 @@ namespace FrameSyncMoba.Unit
     public struct GoldAllocation
     {
         public UnitUid ReceiverHeroUid;
-        public Unity.Mathematics.FixedPoint.fp GoldAmount;
+        public int GoldAmount;
         public ushort DeathSequenceInTick;
     }
 }

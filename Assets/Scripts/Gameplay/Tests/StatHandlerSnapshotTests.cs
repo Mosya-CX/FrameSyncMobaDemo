@@ -61,6 +61,44 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void AddModifier_AfterRestoreWithoutRuntimeStatEntry_RecreatesEntry()
+        {
+            StatHandler h = UnitTestFactory.CreateStatHandler(
+                UnitTestFactory.CreateDefaultStatTable(),
+                StatTestHelpers.CreateSimplePreset(),
+                StatTestHelpers.DefaultOwnerUid,
+                level: 1,
+                statGrowthC: 0.5m,
+                statGrowthD: 0m);
+
+            // Snapshot captured before the runtime stat exists.
+            StatHandlerSnapshot before = default;
+            h.Capture(ref before);
+
+            // Live run creates the runtime-added stat config (like learning
+            // E applies the Omnivamp passive modifier).
+            h.AddModifier(
+                StatId.Omnivamp,
+                StatModifierOperation.FlatAdd,
+                (fp)0.08m);
+
+            // Rollback restore to the pre-stat snapshot: entries are rebuilt
+            // without Omnivamp, but the stale config survives in configs.
+            h.Restore(in before);
+
+            // Replay re-applies the modifier: must not KeyNotFound because
+            // the entry was recreated.
+            Assert.DoesNotThrow(
+                () => h.AddModifier(
+                    StatId.Omnivamp,
+                    StatModifierOperation.FlatAdd,
+                    (fp)0.08m));
+            Assert.That(
+                h.GetStat(StatId.Omnivamp),
+                Is.EqualTo((fp)0.08m));
+        }
+
+        [Test]
         public void RollbackReplay_Equivalence()
         {
             // Execute 3 ticks, capture, execute 3 more, restore, re-execute 3

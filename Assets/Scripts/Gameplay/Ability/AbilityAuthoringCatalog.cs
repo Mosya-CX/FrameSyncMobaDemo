@@ -72,6 +72,8 @@ namespace FrameSyncMoba.Unit
     public sealed class AbilityLoadoutSlot
     {
         public byte SlotId;
+        [Tooltip("Optional per-loadout active ability. Zero uses the slot definition default.")]
+        public int InitialActiveAbilityId;
         public byte InitialAllocatedPoints;
         public AbilityInitialLevel[] InitialLevels =
             Array.Empty<AbilityInitialLevel>();

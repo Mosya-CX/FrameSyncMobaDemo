@@ -243,8 +243,21 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < records.Length; i++)
             {
                 GoldIncomeRecord record = records[i];
-                confirmedEarnedGoldTotals[record.PlayerSlot] = checked(
+                int confirmedTotal = checked(
                     confirmedEarnedGoldTotals[record.PlayerSlot] + record.Amount);
+                confirmedEarnedGoldTotals[record.PlayerSlot] =
+                    confirmedTotal;
+                if (record.Reason ==
+                    GoldIncomeReason.UnitKill)
+                {
+                    UnityEngine.Debug.Log(
+                        $"[GoldIncomeConfirmed] tick={logicTick} " +
+                        $"slot={record.PlayerSlot} " +
+                        $"amount={record.Amount} " +
+                        $"total={confirmedTotal} " +
+                        $"sequence={record.IncomeSequenceInTick} " +
+                        $"reason={record.Reason}");
+                }
             }
             unconfirmedBatches.RemoveAt(batchIndex);
             confirmedIncomeThroughTick = logicTick;

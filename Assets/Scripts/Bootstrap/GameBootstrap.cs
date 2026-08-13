@@ -97,6 +97,9 @@ namespace FrameSyncMoba.Bootstrap
         public PhysicsWorld PhysicsWorld { get; private set; }
         public bool IsInitialized => Runtime != null;
         public bool IsMatchReady => matchBootstrapApplied;
+        public bool IsLaunchCommitted =>
+            !UsesNetworkSimulation ||
+            launchCommitApplied;
         public FrameSyncVersionHandshake LocalVersions { get; private set; }
         public MatchFlowStateMachine MatchFlow { get; private set; }
         public GameApplicationFlowManager ApplicationFlow { get; private set; }
@@ -115,9 +118,16 @@ namespace FrameSyncMoba.Bootstrap
         private GameStartConfig? activeGameStartConfig;
         private int recoveryControlTick;
         private bool hudLaunchPending;
+        private float gameLoadProgress = 0.7f;
+        private string gameLoadStatus = "Waiting for match data";
+        private long loadWaitStartUtcTicks;
+        private long loadWaitDurationTicks = 1;
+        private int matchStartTick;
+        private bool launchScheduleLogged;
         private BakedGlobalGameplayData bakedConfig;
         private BakedDeterministicMapData bakedMap;
         private bool matchBootstrapApplied;
+        private bool launchCommitApplied;
         private List<InitialUnitSpawnAuthoring> frozenInitialSpawns =
             new List<InitialUnitSpawnAuthoring>();
         private LaneRuntimeData[] nonHeroLanes =
@@ -127,14 +137,18 @@ namespace FrameSyncMoba.Bootstrap
         {
             if (GameSessionContext.IsDedicatedServer)
                 dedicatedServer = true;
+            FrameSyncDiagnosticsUnityHost.EnsureInitialized(
+                dedicatedServer);
             if (GameSessionContext.FlowManagedExternally)
             {
-                if (GameSessionContext.FlowMode ==
-                    FrameFlowMode.UosOnline)
-                    enableOnlineApplicationFlow = true;
-                else if (GameSessionContext.FlowMode ==
-                         FrameFlowMode.LocalDirect)
-                    localDevelopmentNetworkFlow = true;
+                // External flow ownership is exclusive. Serialized scene
+                // defaults must never leak LocalDirect behavior into UOS.
+                enableOnlineApplicationFlow =
+                    GameSessionContext.FlowMode ==
+                    FrameFlowMode.UosOnline;
+                localDevelopmentNetworkFlow =
+                    GameSessionContext.FlowMode ==
+                    FrameFlowMode.LocalDirect;
                 autoApplyLocalFixturePayload = false;
             }
             else
@@ -151,6 +165,14 @@ namespace FrameSyncMoba.Bootstrap
                     $"{nameof(GameBootstrap)} requires GlobalGameplayData.");
             BakedGlobalGameplayData config = globalGameplayData.BakeOrThrow();
             bakedConfig = config;
+            Debug.Log(
+                $"[FrameSyncConfig] tickRate={config.TickRate} " +
+                $"maxPredictionLead={config.MaxPredictionLeadTicks} " +
+                $"maxTicksPerFrame={config.MaxLogicTicksPerUnityFrame} " +
+                $"launchDelay={config.LaunchDelaySeconds:F3}s " +
+                $"flow={GameSessionContext.FlowMode} " +
+                $"online={enableOnlineApplicationFlow} " +
+                $"localDirect={localDevelopmentNetworkFlow}");
             EnsureAudioListener();
             LocalVersions = new FrameSyncVersionHandshake(
                 config.GameplayDataVersion,
@@ -206,6 +228,8 @@ namespace FrameSyncMoba.Bootstrap
                 TickRate = config.TickRate,
                 AttackSequenceResetIntervalTicks =
                     config.AttackSequenceResetIntervalTicks,
+                RangedAttackRangeThreshold =
+                    config.RangedAttackRangeThreshold,
             };
             if (buffCatalog != null)
             {
@@ -287,16 +311,6 @@ namespace FrameSyncMoba.Bootstrap
                     "this process is the Dedicated Server; input is ignored.");
             }
 
-            if (!dedicatedServer &&
-                playerInputController != null &&
-                playerInputController.CommandRequester is
-                    IEquipmentShopCommandSubmitter
-                    shopSubmitter)
-            {
-                Runtime.ConfigureShopCommandSubmitter(
-                    shopSubmitter);
-            }
-
             // Wire presentation event handlers
             if (presentationDispatcher != null)
             {
@@ -338,6 +352,19 @@ namespace FrameSyncMoba.Bootstrap
                         () => UnitWorld
                             .GetAllUnits());
                 }
+
+                var verticalMotion =
+                    GetComponent<
+                        CrowdControlVerticalMotionPresenter>();
+                if (verticalMotion == null)
+                {
+                    verticalMotion = gameObject.AddComponent<
+                        CrowdControlVerticalMotionPresenter>();
+                }
+                verticalMotion.Initialize(
+                    () => UnitWorld.GetAllUnits(),
+                    () => Runtime.CurrentTick,
+                    (float)(1d / logicDeltaSeconds));
             }
 
             if (autoApplyLocalFixturePayload &&
@@ -423,6 +450,12 @@ namespace FrameSyncMoba.Bootstrap
                     OnLobbyStartScheduled;
                 GameSessionContext.LobbyBridge.StartScheduled +=
                     OnLobbyStartScheduled;
+                GameSessionContext.LobbyBridge
+                    .AllClientsBootstrapApplied -=
+                    OnAllClientsBootstrapApplied;
+                GameSessionContext.LobbyBridge
+                    .AllClientsBootstrapApplied +=
+                    OnAllClientsBootstrapApplied;
             }
             if (!dedicatedServer &&
                 GameSessionContext.ReceivedClientPayload.HasValue &&
@@ -430,6 +463,15 @@ namespace FrameSyncMoba.Bootstrap
             {
                 ApplyGameBootstrapPayload(
                     GameSessionContext.ReceivedClientPayload.Value);
+            }
+            if (!dedicatedServer &&
+                GameSessionContext.ReceivedClientLaunchCommit.HasValue &&
+                matchBootstrapApplied &&
+                !launchCommitApplied)
+            {
+                ApplyMatchLaunchCommit(
+                    GameSessionContext
+                        .ReceivedClientLaunchCommit.Value);
             }
         }
 
@@ -651,6 +693,8 @@ namespace FrameSyncMoba.Bootstrap
                     .IsConnectedClient)
             {
                 frameSyncNetworkBridge.SendLocalCommands();
+                frameSyncNetworkBridge.TickPresentationPing(
+                    Time.realtimeSinceStartupAsDouble);
                 recoveryAccumulatorSeconds +=
                     Time.unscaledDeltaTime;
                 while (recoveryAccumulatorSeconds >=
@@ -667,14 +711,51 @@ namespace FrameSyncMoba.Bootstrap
                 AdvanceSimulationByElapsedSeconds(Time.unscaledDeltaTime);
             if (hudLaunchPending &&
                 Runtime != null &&
-                Runtime.IsLaunchTimeReached &&
+                !IsEndpointLaunchTimeReached())
+            {
+                if (!launchCommitApplied)
+                {
+                    gameLoadProgress = 0.9f;
+                    gameLoadStatus =
+                        "Waiting for all players";
+                }
+                else
+                {
+                    long elapsedTicks = Math.Max(
+                        0L,
+                        DateTime.UtcNow.Ticks -
+                        loadWaitStartUtcTicks);
+                    float waitProgress = Mathf.Clamp01(
+                        (float)((double)elapsedTicks /
+                        loadWaitDurationTicks));
+                    gameLoadProgress =
+                        Mathf.Lerp(0.9f, 0.99f, waitProgress);
+                    gameLoadStatus =
+                        "Synchronizing players";
+                }
+            }
+            if (hudLaunchPending &&
+                Runtime != null &&
+                IsEndpointLaunchTimeReached() &&
                 uiManager != null)
             {
                 hudLaunchPending = false;
+                gameLoadProgress = 1f;
+                gameLoadStatus = "Entering battle";
                 uiManager.CloseAll();
                 uiManager.ShowPage(UIPageId.HUD);
             }
+            RefreshLoadingLua();
             RefreshHudLua();
+        }
+
+        private void RefreshLoadingLua()
+        {
+            if (dedicatedServer ||
+                uiManager == null ||
+                !uiManager.IsOpen(UIPageId.Load))
+                return;
+            uiManager.RefreshLuaHost(UIPageId.Load);
         }
 
         /// <summary>
@@ -689,6 +770,8 @@ namespace FrameSyncMoba.Bootstrap
                 !uiManager.IsOpen(UIPageId.HUD))
                 return;
             uiManager.RefreshLuaHost(UIPageId.HUD);
+            if (uiManager.IsOpen(UIPageId.Shop))
+                uiManager.RefreshLuaHost(UIPageId.Shop);
         }
 
         private async void Start()
@@ -782,9 +865,9 @@ namespace FrameSyncMoba.Bootstrap
         }
 
         /// <summary>
-        /// Server-side GameScene hand-off: build the authoritative payload
-        /// from the Lobby-scheduled start, apply it locally and broadcast it
-        /// through the persistent bridge.
+        /// Server-side GameScene hand-off: build the authoritative snapshot,
+        /// apply it locally and broadcast it. Simulation remains blocked until
+        /// every frozen client reports BootstrapApplied.
         /// </summary>
         private void BuildAndBroadcastServerPayload()
         {
@@ -798,15 +881,37 @@ namespace FrameSyncMoba.Bootstrap
                 BuildAuthoritativeBootstrapPayload(
                     config);
             ApplyGameBootstrapPayload(payload);
-            GameSessionContext.LobbyBridge?
-                .BroadcastBootstrap(payload);
+            LobbyNetworkBridge bridge =
+                GameSessionContext.LobbyBridge ??
+                throw new InvalidOperationException(
+                    "Server bootstrap requires the persistent LobbyNetworkBridge.");
             GameSessionContext.ServerFlow?
                 .BeginLoadingBarrier();
-            GameSessionContext.ServerFlow?
-                .StartGameplay();
+            bridge.BroadcastBootstrap(payload);
             Debug.Log(
                 $"[GameBootstrap] Server applied and broadcast payload for " +
-                $"match '{config.MatchId}' at StartTick {config.StartTick}.");
+                $"match '{config.MatchId}' at StartTick {config.StartTick}; " +
+                "simulation is waiting for BootstrapApplied.");
+        }
+
+        private void OnAllClientsBootstrapApplied()
+        {
+            if (!dedicatedServer ||
+                !matchBootstrapApplied ||
+                !activeGameStartConfig.HasValue)
+                throw new InvalidOperationException(
+                    "BootstrapApplied barrier completed without an active server bootstrap.");
+            GameStartConfig config =
+                activeGameStartConfig.Value;
+            var commit = new MatchLaunchCommit(
+                config.MatchId,
+                config.StartTick,
+                DateTime.UtcNow.AddSeconds(
+                    bakedConfig.LaunchDelaySeconds)
+                    .Ticks);
+            ApplyMatchLaunchCommit(commit);
+            GameSessionContext.LobbyBridge?
+                .BroadcastLaunchCommit(commit);
         }
 
         public void BindFrameSyncNetworkRuntime()
@@ -939,6 +1044,8 @@ namespace FrameSyncMoba.Bootstrap
                 config.InitialRandomSeed,
                 config.GameStartPlayerCount,
                 bakedConfig.InitialEarnedGold);
+            BindSelectedHeroesToPlayerSpawns(
+                in config);
             UnitUid[] spawned =
                 Runtime.MaterializeInitialSpawnsForBootstrap(
                     config.StartTick);
@@ -963,9 +1070,7 @@ namespace FrameSyncMoba.Bootstrap
                 config.StartTick,
                 config.InitialRandomSeed,
                 mappings,
-                System.DateTime.UtcNow.AddSeconds(
-                    bakedConfig.LaunchDelaySeconds)
-                    .Ticks);
+                0);
         }
 
         public void ApplyGameBootstrapPayload(
@@ -977,6 +1082,9 @@ namespace FrameSyncMoba.Bootstrap
             if (matchBootstrapApplied)
                 throw new InvalidOperationException(
                     "The match bootstrap payload was already applied.");
+            if (payload.LaunchUtcTicks != 0)
+                throw new DeterministicSimulationException(
+                    "GameBootstrapPayload must not authorize simulation launch.");
 
             LocalVersions.RequireExactMatch(
                 payload.Versions);
@@ -986,8 +1094,16 @@ namespace FrameSyncMoba.Bootstrap
                 payload.InitialRandomSeed,
                 payload.GameStartConfig.GameStartPlayerCount,
                 bakedConfig.InitialEarnedGold);
-            Runtime.SetLaunchUtcTicks(
-                payload.LaunchUtcTicks);
+            Runtime.SetLaunchUtcTicks(0);
+            matchStartTick = payload.StartTick;
+            launchScheduleLogged = false;
+            launchCommitApplied =
+                !UsesNetworkSimulation;
+            gameLoadProgress = 0.9f;
+            gameLoadStatus =
+                UsesNetworkSimulation
+                    ? "Waiting for all players"
+                    : "Ready";
             Runtime.ConfigurePlayerSlotMappings(
                 payload.PlayerSlotMappings);
             Runtime.RestoreInitialSnapshot(
@@ -1000,18 +1116,131 @@ namespace FrameSyncMoba.Bootstrap
                 payload.GameStartConfig;
             frameSyncNetworkBridge?.SetMatchId(
                 payload.GameStartConfig.MatchId);
+            FrameSyncDiagnosticsUnityHost.SetContext(
+                payload.GameStartConfig.MatchId,
+                LocalPlayerSlot);
             matchBootstrapApplied = true;
             if (!dedicatedServer)
             {
                 TryBindConfiguredLocalPlayer();
+                if (UsesNetworkSimulation &&
+                    !IsLocalPlayerBound)
+                    throw new DeterministicSimulationException(
+                        "Client must bind its controlled unit before BootstrapApplied.");
                 if (uiManager != null &&
                     GameSessionContext.FlowManagedExternally)
                 {
-                    // Keep the Loading page until the wall-clock launch
-                    // instant; the battle HUD opens when the countdown ends.
+                    // Keep Loading visible through the BootstrapApplied barrier
+                    // and the later wall-clock LaunchCommit.
                     hudLaunchPending = true;
                 }
+                if (UsesNetworkSimulation &&
+                    GameSessionContext.FlowManagedExternally)
+                    GameSessionContext.LobbyBridge?
+                        .SubmitBootstrapApplied(payload);
             }
+            Debug.Log(
+                $"[BootstrapApplied] role=" +
+                $"{(dedicatedServer ? "server" : "client")} " +
+                $"match='{payload.GameStartConfig.MatchId}' " +
+                $"startTick={payload.StartTick} " +
+                $"localBound={IsLocalPlayerBound}; waiting for LaunchCommit.");
+        }
+
+        public void ApplyMatchLaunchCommit(
+            in MatchLaunchCommit commit)
+        {
+            if (!UsesNetworkSimulation)
+                throw new InvalidOperationException(
+                    "LaunchCommit is only valid for network simulation.");
+            if (!matchBootstrapApplied ||
+                !activeGameStartConfig.HasValue)
+                throw new InvalidOperationException(
+                    "LaunchCommit requires an applied bootstrap.");
+
+            commit.ValidateOrThrow();
+            GameStartConfig config =
+                activeGameStartConfig.Value;
+            if (!string.Equals(
+                    commit.MatchId,
+                    config.MatchId,
+                    StringComparison.Ordinal) ||
+                commit.StartTick != config.StartTick)
+                throw new DeterministicSimulationException(
+                    "LaunchCommit does not match the applied bootstrap.");
+            if (launchCommitApplied)
+            {
+                if (Runtime.LaunchUtcTicks ==
+                    commit.LaunchUtcTicks)
+                    return;
+                throw new DeterministicSimulationException(
+                    "A conflicting LaunchCommit was received.");
+            }
+
+            Runtime.SetLaunchUtcTicks(
+                commit.LaunchUtcTicks);
+            launchCommitApplied = true;
+            launchScheduleLogged = false;
+            int clientLeadTicks =
+                GetClientLaunchLeadTicks();
+            long clientLaunchUtcTicks =
+                FrameSyncLaunchSchedule
+                    .GetClientPredictionLaunchUtcTicks(
+                        commit.LaunchUtcTicks,
+                        bakedConfig.TickRate,
+                        clientLeadTicks);
+            long endpointLaunchUtcTicks = dedicatedServer
+                ? commit.LaunchUtcTicks
+                : clientLaunchUtcTicks;
+            loadWaitStartUtcTicks =
+                DateTime.UtcNow.Ticks;
+            loadWaitDurationTicks = Math.Max(
+                1L,
+                endpointLaunchUtcTicks -
+                loadWaitStartUtcTicks);
+            gameLoadStatus = "Synchronizing players";
+
+            if (dedicatedServer)
+            {
+                DedicatedServerApplicationFlow server =
+                    GameSessionContext.ServerFlow;
+                if (server != null &&
+                    server.State ==
+                    DedicatedServerApplicationState.LoadingBarrier)
+                    server.StartGameplay();
+            }
+            else
+            {
+                ClientApplicationFlow client =
+                    GameSessionContext.ClientFlow ??
+                    ApplicationFlow?.Client;
+                if (client != null)
+                {
+                    if (client.State ==
+                        ClientApplicationState.Lobby)
+                        client.BeginLoadingGame();
+                    if (client.State ==
+                        ClientApplicationState.LoadingGame)
+                        client.EnterGame();
+                    if (client.State !=
+                        ClientApplicationState.InGame)
+                        throw new InvalidOperationException(
+                            $"LaunchCommit arrived while client flow is {client.State}.");
+                }
+            }
+
+            GameSessionContext.ReceivedClientLaunchCommit =
+                null;
+            Debug.Log(
+                $"[LaunchCommit] role=" +
+                $"{(dedicatedServer ? "server" : "client")} " +
+                $"receivedUtc={loadWaitStartUtcTicks} " +
+                $"serverLaunchUtc={commit.LaunchUtcTicks} " +
+                $"clientLaunchUtc={clientLaunchUtcTicks} " +
+                $"remainingMs=" +
+                $"{Math.Max(0d, (endpointLaunchUtcTicks - loadWaitStartUtcTicks) / (double)TimeSpan.TicksPerMillisecond):F1} " +
+                $"leadTicks={clientLeadTicks} " +
+                $"startTick={commit.StartTick}");
         }
 
         private void ConfigureClientPresentation()
@@ -1102,6 +1331,15 @@ namespace FrameSyncMoba.Bootstrap
                         : null);
                 GameFlowLuaBridge.LocalLoadProgress =
                     () => 1f;
+                GameFlowLuaBridge.GetLoadingStatus =
+                    () => "Ready";
+            }
+            else
+            {
+                GameFlowLuaBridge.LocalLoadProgress =
+                    () => gameLoadProgress;
+                GameFlowLuaBridge.GetLoadingStatus =
+                    () => gameLoadStatus;
             }
             GameFlowLuaBridge.IsLocalTeamVictory =
                 () =>
@@ -1191,7 +1429,7 @@ namespace FrameSyncMoba.Bootstrap
                             ? defs[index].Description ?? ""
                             : "";
                 };
-            GameFlowLuaBridge.GetShopItemPrice =
+            GameFlowLuaBridge.GetShopItemIcon =
                 index =>
                 {
                     var defs =
@@ -1200,8 +1438,26 @@ namespace FrameSyncMoba.Bootstrap
                     return defs != null &&
                         index >= 0 &&
                         index < defs.Count
-                            ? defs[index].Value
-                            : 0;
+                            ? defs[index].Icon
+                            : null;
+                };
+            GameFlowLuaBridge.GetShopItemPrice =
+                index =>
+                {
+                    var defs =
+                        equipmentDatabase
+                            ?.AllDefinitions;
+                    if (defs == null ||
+                        index < 0 ||
+                        index >= defs.Count)
+                        return 0;
+                    var view =
+                        Runtime.LocalEquipmentShopView;
+                    return view != null &&
+                        Runtime.LocalPlayerSlot >= 0
+                            ? view.CalculatePurchasePrice(
+                                defs[index].Id)
+                            : defs[index].Value;
                 };
             GameFlowLuaBridge.GetShopItemNameById =
                 equipmentId =>
@@ -1299,12 +1555,33 @@ namespace FrameSyncMoba.Bootstrap
                 equipmentId =>
                 {
                     if (Runtime.LocalPlayerSlot < 0)
+                    {
+                        Debug.LogWarning(
+                            $"[ShopRequest] purchase item={equipmentId} " +
+                            "rejected reason=LocalPlayerNotBound");
+                        GameFlowLuaBridge.GetShopStatus =
+                            () => "LocalPlayerNotBound";
                         return;
+                    }
+                    int playerSlot =
+                        Runtime.LocalPlayerSlot;
+                    int gold = Runtime.EquipmentShop
+                        .GetCurrentAvailableGold(
+                            playerSlot);
+                    int price = Runtime.EquipmentShop
+                        .CalculatePurchasePrice(
+                            playerSlot,
+                            equipmentId);
                     var check =
                         Runtime.EquipmentShop
                             .RequestPurchase(
-                                Runtime.LocalPlayerSlot,
+                                playerSlot,
                                 equipmentId);
+                    Debug.Log(
+                        $"[ShopRequest] purchase item={equipmentId} " +
+                        $"slot={playerSlot} gold={gold} price={price} " +
+                        $"allowed={check.Allowed} " +
+                        $"reason={check.FailureReason}");
                     GameFlowLuaBridge.GetShopStatus =
                         () =>
                             check.Allowed
@@ -1316,20 +1593,58 @@ namespace FrameSyncMoba.Bootstrap
                 slot =>
                 {
                     if (Runtime.LocalPlayerSlot < 0)
+                    {
+                        Debug.LogWarning(
+                            $"[ShopRequest] sell inventorySlot={slot} " +
+                            "rejected reason=LocalPlayerNotBound");
+                        GameFlowLuaBridge.GetShopStatus =
+                            () => "LocalPlayerNotBound";
                         return;
-                    Runtime.EquipmentShop
+                    }
+                    int playerSlot =
+                        Runtime.LocalPlayerSlot;
+                    var check = Runtime.EquipmentShop
                         .RequestSell(
-                            Runtime.LocalPlayerSlot,
+                            playerSlot,
                             slot);
+                    Debug.Log(
+                        $"[ShopRequest] sell inventorySlot={slot} " +
+                        $"slot={playerSlot} allowed={check.Allowed} " +
+                        $"reason={check.FailureReason}");
+                    GameFlowLuaBridge.GetShopStatus =
+                        () =>
+                            check.Allowed
+                                ? ""
+                                : check.FailureReason
+                                    .ToString();
                 };
             GameFlowLuaBridge.RequestUndo =
                 () =>
                 {
                     if (Runtime.LocalPlayerSlot < 0)
+                    {
+                        Debug.LogWarning(
+                            "[ShopRequest] undo rejected " +
+                            "reason=LocalPlayerNotBound");
+                        GameFlowLuaBridge.GetShopStatus =
+                            () => "LocalPlayerNotBound";
                         return;
-                    Runtime.EquipmentShop
+                    }
+                    int playerSlot =
+                        Runtime.LocalPlayerSlot;
+                    var check = Runtime.EquipmentShop
                         .RequestUndo(
-                            Runtime.LocalPlayerSlot);
+                            playerSlot);
+                    Debug.Log(
+                        $"[ShopRequest] undo slot={playerSlot} " +
+                        $"allowed={check.Allowed} " +
+                        $"reason={check.FailureReason}");
+                    GameFlowLuaBridge.GetShopStatus =
+                        () =>
+                            check.Allowed
+                                ? ""
+                                : check.FailureReason
+                                    .ToString();
                 };
 
             // ---- HUD read-only data ----
@@ -1383,7 +1698,7 @@ namespace FrameSyncMoba.Bootstrap
                         Runtime.GetLocalControlledUnit();
                     return unit?.AbilityHandler != null
                         ? unit.AbilityHandler
-                            .GetCooldownRemainingTicks(
+                            .GetDisplayCooldownRemainingTicks(
                                 (byte)slot,
                                 Runtime.CurrentTick)
                         : 0;
@@ -1395,7 +1710,7 @@ namespace FrameSyncMoba.Bootstrap
                         Runtime.GetLocalControlledUnit();
                     return unit?.AbilityHandler != null
                         ? unit.AbilityHandler
-                            .GetCooldownTotalTicks(
+                            .GetDisplayCooldownTotalTicks(
                                 (byte)slot)
                         : 0;
                 };
@@ -1408,7 +1723,7 @@ namespace FrameSyncMoba.Bootstrap
                         return 0f;
                     int remaining =
                         unit.AbilityHandler
-                            .GetCooldownRemainingTicks(
+                            .GetDisplayCooldownRemainingTicks(
                                 (byte)slot,
                                 Runtime.CurrentTick);
                     return remaining *
@@ -1530,25 +1845,11 @@ namespace FrameSyncMoba.Bootstrap
             // Ping label is enabled only while a network sync session is
             // active; offline/local scenes report -1 so the HUD hides it.
             GameFlowLuaBridge.GetLocalPing =
-                () =>
-                {
-                    Unity.Netcode.NetworkManager network =
-                        Unity.Netcode.NetworkManager
-                            .Singleton;
-                    if (network == null ||
-                        !network.IsClient ||
-                        !network.IsConnectedClient ||
-                        network.NetworkConfig == null ||
-                        network.NetworkConfig
-                            .NetworkTransport == null)
-                    {
-                        return -1;
-                    }
-                    return (int)network.NetworkConfig
-                        .NetworkTransport.GetCurrentRtt(
-                            Unity.Netcode.NetworkManager
-                                .ServerClientId);
-                };
+                () => frameSyncNetworkBridge != null &&
+                      frameSyncNetworkBridge.IsConnectedClient
+                    ? frameSyncNetworkBridge
+                        .LatestPingMilliseconds
+                    : -1;
             GameFlowLuaBridge.CloseShop =
                 () => uiManager?.HideOverlay(
                     UIPageId.Shop);
@@ -1986,6 +2287,9 @@ namespace FrameSyncMoba.Bootstrap
                     controlledUnit);
                 LocalPlayerSlot =
                     slot.PlayerSlot;
+                FrameSyncDiagnosticsUnityHost.SetContext(
+                    activeGameStartConfig.Value.MatchId,
+                    LocalPlayerSlot);
                 Runtime.BindLocalPlayerSlot(
                     slot.PlayerSlot);
                 FrameSyncGameRuntime.RegisterActiveInstance(
@@ -2262,6 +2566,73 @@ namespace FrameSyncMoba.Bootstrap
             return mappings;
         }
 
+        /// <summary>
+        /// Player-controlled initial spawns are bound to the hero selected in
+        /// the lobby: the spawn slot (spawn point + team) is the deterministic
+        /// topology, the hero prototype comes from
+        /// PlayerSlotConfig.HeroConfigId instead of the authored scene value.
+        /// This keeps the scene composition hero-agnostic (adding a hero only
+        /// needs the prefab table, unit catalog and hero display table).
+        /// </summary>
+        private void BindSelectedHeroesToPlayerSpawns(
+            in GameStartConfig config)
+        {
+            for (int slotIndex = 0;
+                 slotIndex < config.PlayerSlots.Length;
+                 slotIndex++)
+            {
+                PlayerSlotConfig slot =
+                    config.PlayerSlots[slotIndex];
+                int spawnIndex =
+                    FindPlayerSpawnIndex(slot);
+                if (spawnIndex < 0)
+                    throw new DeterministicSimulationException(
+                        $"PlayerSlot {slot.PlayerSlot} has no matching " +
+                        "player spawn slot.");
+                InitialUnitSpawnAuthoring spawn =
+                    frozenInitialSpawns[spawnIndex];
+                if (spawn.UnitPrototypeId ==
+                    slot.HeroConfigId)
+                {
+                    continue;
+                }
+                spawn.UnitPrototypeId =
+                    slot.HeroConfigId;
+                frozenInitialSpawns[spawnIndex] =
+                    spawn;
+                Runtime.TickPipeline
+                    .OverrideInitialSpawnPrototype(
+                        spawnIndex,
+                        slot.HeroConfigId);
+            }
+        }
+
+        private int FindPlayerSpawnIndex(
+            in PlayerSlotConfig slot)
+        {
+            for (int i = 0;
+                 i < frozenInitialSpawns.Count;
+                 i++)
+            {
+                InitialUnitSpawnAuthoring spawn =
+                    frozenInitialSpawns[i];
+                if (!spawn.PlayerControlled)
+                    continue;
+                int resolvedSpawnPointId =
+                    spawn.UseMapSpawnPoint
+                        ? spawn.SpawnPointId
+                        : spawn.StableSpawnOrder;
+                if (resolvedSpawnPointId ==
+                        slot.SpawnPointId &&
+                    spawn.TeamId ==
+                        slot.TeamId.Value)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         private void ConfigureInitialAIControllers(
             UnitUid[] spawned)
         {
@@ -2382,12 +2753,12 @@ namespace FrameSyncMoba.Bootstrap
                 return 0;
 
             logicAccumulatorSeconds += elapsedSeconds;
-            // Wall-clock launch barrier: both server and clients wait for the
-            // absolute UTC instant carried by the authoritative payload so
-            // every endpoint starts its first tick at the same real time.
+            long utcNowTicks = DateTime.UtcNow.Ticks;
+            // The server starts at the authoritative instant. The client may
+            // begin only its small prediction lead before that instant.
             if (UsesNetworkSimulation &&
                 Runtime != null &&
-                !Runtime.IsLaunchTimeReached)
+                !IsEndpointLaunchTimeReached(utcNowTicks))
             {
                 logicAccumulatorSeconds = 0d;
                 return 0;
@@ -2400,15 +2771,18 @@ namespace FrameSyncMoba.Bootstrap
                 // Client prediction lead control (FrameSync v10.2 8.7/8.8):
                 // keep the client a few Ticks ahead of the confirmed server
                 // Tick so Commands target future Ticks and tolerate network
-                // latency. Catch-up / pre-run is CPU-capped by
-                // MaxLogicTicksPerUnityFrame but NOT wall-clock gated.
+                // latency. Both the authority lead and the absolute launch
+                // timeline bound prediction independently.
                 int targetLead = Math.Max(
-                    1,
+                    0,
                     bakedConfig.MaxPredictionLeadTicks - 1);
                 while (executed <
                            MaxLogicTicksPerUnityFrame &&
                        Runtime.Prediction.PredictedTickCount <
-                           targetLead)
+                           targetLead &&
+                       CanExecuteClientPredictionTick(
+                           utcNowTicks,
+                           targetLead))
                 {
                     if (!Runtime.ExecutePredictionTick())
                     {
@@ -2431,6 +2805,9 @@ namespace FrameSyncMoba.Bootstrap
                     else
                     {
                         if (!IsClientGameplayActive() ||
+                            !CanExecuteClientPredictionTick(
+                                utcNowTicks,
+                                GetClientLaunchLeadTicks()) ||
                             !Runtime.ExecutePredictionTick())
                             break;
                     }
@@ -2443,6 +2820,68 @@ namespace FrameSyncMoba.Bootstrap
                 executed++;
             }
             return executed;
+        }
+
+        private int GetClientLaunchLeadTicks()
+        {
+            return Math.Max(
+                0,
+                bakedConfig.MaxPredictionLeadTicks - 1);
+        }
+
+        private bool IsEndpointLaunchTimeReached()
+        {
+            return IsEndpointLaunchTimeReached(
+                DateTime.UtcNow.Ticks);
+        }
+
+        private bool IsEndpointLaunchTimeReached(
+            long utcNowTicks)
+        {
+            if (UsesNetworkSimulation &&
+                !launchCommitApplied)
+                return false;
+            if (Runtime == null ||
+                Runtime.LaunchUtcTicks <= 0)
+                return !UsesNetworkSimulation;
+            if (dedicatedServer)
+                return utcNowTicks >= Runtime.LaunchUtcTicks;
+            return FrameSyncLaunchSchedule
+                .IsClientPredictionLaunchReached(
+                    utcNowTicks,
+                    Runtime.LaunchUtcTicks,
+                    bakedConfig.TickRate,
+                    GetClientLaunchLeadTicks());
+        }
+
+        private bool CanExecuteClientPredictionTick(
+            long utcNowTicks,
+            int predictionLeadTicks)
+        {
+            int maximumTickExclusive =
+                FrameSyncLaunchSchedule
+                    .GetMaximumClientSimulationTickExclusive(
+                        matchStartTick,
+                        Runtime.LaunchUtcTicks,
+                        utcNowTicks,
+                        bakedConfig.TickRate,
+                        predictionLeadTicks);
+            bool allowed = Runtime.CurrentTick < maximumTickExclusive;
+            if (!launchScheduleLogged &&
+                (!allowed || Runtime.CurrentTick > matchStartTick))
+            {
+                launchScheduleLogged = true;
+                Debug.Log(
+                    $"[LaunchSchedule] gate local={Runtime.CurrentTick} " +
+                    $"authority=" +
+                    $"{Runtime.Prediction.LatestAuthorityFrameTick} " +
+                    $"predicted={Runtime.Prediction.PredictedTickCount} " +
+                    $"coordinatorLimit=" +
+                    $"{Runtime.Prediction.MaxPredictionLeadTicks} " +
+                    $"wallClockLimitExclusive={maximumTickExclusive} " +
+                    $"allowed={allowed}");
+            }
+            return allowed;
         }
 
         private bool IsServerGameplayActive()
@@ -2482,10 +2921,21 @@ namespace FrameSyncMoba.Bootstrap
 
             controlledUnit.ControlledByPlayerSlot = playerSlot;
             var buffer = new LocalInputEventBuffer();
+            MobaCameraPresentationConfig cameraConfig =
+                gameplayCamera
+                    .GetComponent<CameraController>()
+                    ?.PresentationConfig;
+            fp pointerGroundY = cameraConfig != null
+                ? (fp)cameraConfig.PointerGroundY
+                : fp.zero;
+            fp pointerPickRadius = cameraConfig != null
+                ? (fp)cameraConfig.PointerPickRadius
+                : (fp)4;
             var resolver = new MouseWorldResolver(
                 gameplayCamera,
-                fp.zero,
-                UnitWorld);
+                pointerGroundY,
+                UnitWorld,
+                pointerPickRadius);
             var outlineDriver =
                 GetComponent<UnitOutlineHoverDriver>();
             if (outlineDriver == null)
@@ -2497,7 +2947,16 @@ namespace FrameSyncMoba.Bootstrap
             outlineDriver.Initialize(
                 resolver,
                 UnitWorld,
-                controlledUnit.TeamId);
+                controlledUnit.TeamId,
+                cameraConfig != null
+                    ? cameraConfig.FriendlyOutlineColor
+                    : Color.green,
+                cameraConfig != null
+                    ? cameraConfig.EnemyOutlineColor
+                    : Color.red,
+                cameraConfig != null
+                    ? cameraConfig.OutlineWidth
+                    : 0.05f);
             var requester = new PlayerCommandRequester(
                 controlledUnit,
                 new GameplayInputGate(),
@@ -2509,6 +2968,7 @@ namespace FrameSyncMoba.Bootstrap
                     controlledUnit.AbilityHandler),
                 new UnitWorldAbilityRuntimeView(UnitWorld));
             playerInputController.Initialize(buffer, resolver, requester);
+            Runtime.ConfigureShopCommandSubmitter(requester);
             if (indicatorDriver != null)
             {
                 playerInputController.SetIndicatorDriver(indicatorDriver);
@@ -2683,12 +3143,12 @@ namespace FrameSyncMoba.Bootstrap
 
         private static int GetCooldownTicks(UnitType unit, byte slot, int currentTick)
         {
-            return unit.AbilityHandler?.GetCooldownRemainingTicks(slot, currentTick) ?? 0;
+            return unit.AbilityHandler?.GetDisplayCooldownRemainingTicks(slot, currentTick) ?? 0;
         }
 
         private static int GetCooldownTotalTicks(UnitType unit, byte slot)
         {
-            return unit.AbilityHandler?.GetCooldownTotalTicks(slot) ?? 1;
+            return unit.AbilityHandler?.GetDisplayCooldownTotalTicks(slot) ?? 1;
         }
 
         private string _lastHudBuffSignature;
@@ -2754,6 +3214,14 @@ namespace FrameSyncMoba.Bootstrap
             if (frameSyncNetworkBridge != null)
                 frameSyncNetworkBridge.MatchResultReady -=
                     OnMatchResultReady;
+            if (GameSessionContext.LobbyBridge != null)
+            {
+                GameSessionContext.LobbyBridge.StartScheduled -=
+                    OnLobbyStartScheduled;
+                GameSessionContext.LobbyBridge
+                    .AllClientsBootstrapApplied -=
+                    OnAllClientsBootstrapApplied;
+            }
         }
     }
 }

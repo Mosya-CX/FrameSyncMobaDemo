@@ -80,6 +80,35 @@ namespace FrameSyncMoba.FrameSync
             }
             instance.SetActive(true);
 
+            Vector3 eventDirection = new Vector3(
+                (float)evt.WorldDirection.x,
+                0f,
+                (float)evt.WorldDirection.y);
+            if (eventDirection.sqrMagnitude > 0.0001f)
+                instance.transform.rotation =
+                    Quaternion.LookRotation(eventDirection.normalized);
+            VfxWorldDirectionLock directionLock =
+                instance.GetComponent<VfxWorldDirectionLock>();
+            if (attachToUnit &&
+                eventDirection.sqrMagnitude > 0.0001f)
+            {
+                if (directionLock == null)
+                {
+                    directionLock = instance.AddComponent<
+                        VfxWorldDirectionLock>();
+                }
+                directionLock.Begin(eventDirection);
+            }
+            else
+            {
+                directionLock?.ResetForPool();
+            }
+
+            VfxUnitTargetLineBinder targetLine =
+                instance.GetComponent<VfxUnitTargetLineBinder>();
+            if (targetLine != null)
+                targetLine.Begin(targetPosition, evt.TargetUnit);
+
             VfxPlaybackHost playbackHost =
                 instance.GetComponent<VfxPlaybackHost>();
             float duration;
@@ -92,7 +121,9 @@ namespace FrameSyncMoba.FrameSync
             }
             else
             {
-                duration = PlayParticleFallback(instance);
+                duration = PlayParticleFallback(
+                    instance,
+                    Mathf.Max(0.01f, (float)evt.DurationScale));
             }
             if (attachToUnit)
             {
@@ -135,10 +166,15 @@ namespace FrameSyncMoba.FrameSync
 
         private void ReturnToPool(int vfxDefId, GameObject instance)
         {
+            VfxUnitTargetLineBinder targetLine =
+                instance.GetComponent<VfxUnitTargetLineBinder>();
+            targetLine?.ResetForPool();
             VfxPlaybackHost playbackHost =
                 instance.GetComponent<VfxPlaybackHost>();
             if (playbackHost != null)
                 playbackHost.ResetForPool();
+            instance.GetComponent<VfxWorldDirectionLock>()
+                ?.ResetForPool();
             instance.transform.SetParent(
                 transform,
                 false);
@@ -158,7 +194,8 @@ namespace FrameSyncMoba.FrameSync
         }
 
         private static float PlayParticleFallback(
-            GameObject instance)
+            GameObject instance,
+            float durationScale)
         {
             ParticleSystem[] systems = instance.GetComponentsInChildren<ParticleSystem>();
             float maxDuration = 1f;
@@ -168,7 +205,7 @@ namespace FrameSyncMoba.FrameSync
                 float dur = systems[i].main.duration + systems[i].main.startLifetime.constantMax;
                 if (dur > maxDuration) maxDuration = dur;
             }
-            return maxDuration;
+            return maxDuration * durationScale;
         }
 
         private System.Collections.IEnumerator ReturnAfterPlay(

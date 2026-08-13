@@ -208,9 +208,10 @@ namespace FrameSyncMoba.FrameSync
         public readonly int InitialSnapshotTick;
         public readonly int StartTick;
         public readonly uint InitialRandomSeed;
-        /// <summary>Absolute UTC ticks at which every endpoint starts its
-        /// first simulation tick (0 = start immediately). Wall-clock based,
-        /// not a logic-tick countdown.</summary>
+        /// <summary>
+        /// Legacy wire-layout field. The two-phase startup contract requires
+        /// this to be 0; MatchLaunchCommit exclusively authorizes simulation.
+        /// </summary>
         public readonly long LaunchUtcTicks;
 
         public PlayerSlotUnitMapping[] PlayerSlotMappings =>
@@ -239,6 +240,9 @@ namespace FrameSyncMoba.FrameSync
                 initialRandomSeed != gameStartConfig.InitialRandomSeed)
                 throw new DeterministicSimulationException(
                     "Bootstrap Tick or random seed disagrees with GameStartConfig.");
+            if (launchUtcTicks != 0)
+                throw new DeterministicSimulationException(
+                    "GameBootstrapPayload cannot authorize simulation launch.");
 
             PlayerSlotConfig[] slots = gameStartConfig.PlayerSlots;
             if (playerSlotMappings == null ||

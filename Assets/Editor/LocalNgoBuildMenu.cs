@@ -64,6 +64,25 @@ namespace FrameSyncMoba.EditorTools
         }
 
         [MenuItem(
+            "FrameSyncMoba/Build Local NGO/Build Client + Server (UOS, Once)")]
+        public static void BuildUosClientAndServerOnce()
+        {
+            RunExclusive(
+                "both-uos",
+                () =>
+                {
+                    RunCompositeBuildStepOnce(
+                        "client-windows-uos",
+                        "UOS Windows client",
+                        BuildClientUosCore);
+                    RunCompositeBuildStepOnce(
+                        "server-linux-uos",
+                        "UOS Linux server",
+                        BuildServerLinuxCore);
+                });
+        }
+
+        [MenuItem(
             "FrameSyncMoba/Build Local NGO/Build Both")]
         public static void BuildBoth()
         {
@@ -96,6 +115,7 @@ namespace FrameSyncMoba.EditorTools
                 "client-windows-local",
                 "client-windows-uos",
                 "both-local",
+                "both-uos",
             };
             for (int i = 0; i < keys.Length; i++)
                 SessionState.EraseString(
@@ -124,6 +144,14 @@ namespace FrameSyncMoba.EditorTools
                     UosServerBuildRoot,
                     "FrameSyncMobaServer.x86_64"));
             BuildLinuxServer(output);
+            UosServerUploadPackage package =
+                UosServerUploadPackager.CreateArchive(
+                    Path.GetDirectoryName(output),
+                    Path.GetFullPath(
+                        UosServerUploadPackager.DefaultUploadRoot),
+                    DateTime.Now);
+            UnityEngine.Debug.Log(
+                UosServerUploadPackager.FormatSuccessLog(package));
         }
 
         private static void BuildLinuxServer(string output)
@@ -140,6 +168,14 @@ namespace FrameSyncMoba.EditorTools
                 LobbyScene,
                 GameScene,
             };
+            string[] scriptingDefines =
+                FrameSyncDiagnosticBuildOptions
+                    .ComposeScriptingDefines(
+                        true,
+                        UosOnlineBuildDefine);
+            LogDiagnosticBuildMode(
+                "UOS Linux server",
+                scriptingDefines);
             var options =
                 new BuildPlayerOptions
                 {
@@ -155,7 +191,7 @@ namespace FrameSyncMoba.EditorTools
                         (int)StandaloneBuildSubtarget
                             .Server,
                     extraScriptingDefines =
-                        new[] { UosOnlineBuildDefine },
+                        scriptingDefines,
                 };
             BuildReport report =
                 BuildPipeline.BuildPlayer(options);
@@ -233,6 +269,30 @@ namespace FrameSyncMoba.EditorTools
             }
         }
 
+        private static void RunCompositeBuildStepOnce(
+            string buildKey,
+            string displayName,
+            Action buildAction)
+        {
+            if (WasBuildRecentlyCompleted(buildKey))
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[Build] Skipped duplicate {displayName} step " +
+                    "because it completed recently.");
+                return;
+            }
+
+            buildAction();
+            MarkBuildCompleted(buildKey);
+        }
+
+        private static void MarkBuildCompleted(string buildKey)
+        {
+            SessionState.SetString(
+                BuildCompletedGuardKeyPrefix + buildKey,
+                DateTime.UtcNow.Ticks.ToString());
+        }
+
         private static void Build(
             string scene,
             string output,
@@ -251,6 +311,18 @@ namespace FrameSyncMoba.EditorTools
                 LobbyScene,
                 GameScene,
             };
+            string[] scriptingDefines =
+                FrameSyncDiagnosticBuildOptions
+                    .ComposeScriptingDefines(
+                        uosOnline,
+                        UosOnlineBuildDefine);
+            LogDiagnosticBuildMode(
+                dedicatedServer
+                    ? "Local Windows server"
+                    : uosOnline
+                        ? "UOS Windows client"
+                        : "Local Windows client",
+                scriptingDefines);
             var options =
                 new BuildPlayerOptions
                 {
@@ -268,9 +340,8 @@ namespace FrameSyncMoba.EditorTools
                             .Server
                         : (int)StandaloneBuildSubtarget
                             .Player,
-                    extraScriptingDefines = uosOnline
-                        ? new[] { UosOnlineBuildDefine }
-                        : Array.Empty<string>(),
+                    extraScriptingDefines =
+                        scriptingDefines,
                 };
             BuildReport report =
                 BuildPipeline.BuildPlayer(options);
@@ -278,6 +349,30 @@ namespace FrameSyncMoba.EditorTools
                 BuildResult.Succeeded)
                 throw new InvalidOperationException(
                     $"{(dedicatedServer ? "Server" : "Client")} build failed: {report.summary.result}.");
+        }
+
+        private static void LogDiagnosticBuildMode(
+            string targetName,
+            IReadOnlyList<string> scriptingDefines)
+        {
+            bool diagnosticsIncluded = false;
+            for (int i = 0; i < scriptingDefines.Count; i++)
+            {
+                if (string.Equals(
+                        scriptingDefines[i],
+                        FrameSyncDiagnosticBuildOptions
+                            .DiagnosticsBuildDefine,
+                        StringComparison.Ordinal))
+                {
+                    diagnosticsIncluded = true;
+                    break;
+                }
+            }
+            UnityEngine.Debug.Log(
+                $"[Build] {targetName}: async diagnostics " +
+                (diagnosticsIncluded
+                    ? "included."
+                    : "fully compiled out."));
         }
     }
 }

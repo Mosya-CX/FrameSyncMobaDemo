@@ -3,6 +3,8 @@
 本文档描述本地 C/S 测试的完整流程：测试目的、打包入口、启动方式、日志信息与常见问题排查。
 资源布局与打包纪律分别见 `Docs/Architecture/REPOSITORY_MAP.md` 与
 `Docs/Implementation/BUILD_GUIDE.md`。
+异步诊断日志路径、UOS stdout 行为和完全裁除的打包开关见
+`Docs/Implementation/ASYNC_DIAGNOSTICS_GUIDE.md`。
 
 ## 1. 测试目的
 
@@ -11,7 +13,7 @@
 - 两个客户端 + 一个 Dedicated Server 走通 主菜单 -> 匹配 -> 选英雄 -> Loading -> GameScene；
 - 双端在同一 `StartTick` 开始，客户端预测 + 权威帧回滚重演；
 - 心跳/延迟指标：本地 Ping（UTP RTT）、模拟落后 Tick（`local - sync`）；
-- 战斗内容：移动、普攻、Q/W/E/R、Buff、击杀/死亡/复活、计分板、补刀、金币/商店（当前商店为空目录）、技能点升级；
+- 战斗内容：移动、普攻、Q/W/E/R、Buff、击杀/死亡/复活、计分板、补刀、金币/商店（正式五件装备目录）、技能点升级；
 - 长时间稳定性：不应出现 `DeterministicSimulationException` / 校验码不一致 / 单端刷错卡死。
 
 ## 2. 打包入口
@@ -88,7 +90,7 @@ Start-Process -FilePath "$base\Client\FrameSyncMobaClient.exe" `
    - HUD：生命/法力、属性栏（数值格式）、技能图标/冷却、技能点升级按钮、Buff 栏（含层数）、
      Ping 值、计分板 KDA/补刀、队伍比分；
    - 击杀/死亡/复活（复活点重生）、助攻结算、被动 P 触发；
-   - 商店（当前装备目录为空，页面可打开、无商品）；
+   - 商店：显示 Dagger、Amplifying Tome、Pickaxe、Recurve Bow、Guinsoo's Rageblade 及对应图标/基础价格；购买小件后合成件显示扣除已持有组件的动态价格；购买、出售、撤销和六格装备栏状态一致；
    - 长时间运行无校验码报错、无单端卡死。
 
 ## 5. 日志信息
@@ -116,6 +118,8 @@ Start-Process -FilePath "$base\Client\FrameSyncMobaClient.exe" `
 | `[Scoreboard] rank=... breakdown=[uid:k/d/a/c]` | 计分板，已改为**仅内容变化时**打印 |
 | `[VfxManager] VFX N: prefab not found` / `[AudioManager] SFX N: clip not found` | VFX/音频绑定缺失（表现层警告） |
 | `[HudBuffs]` / `[Indicator]` / `[AttackSfx]` | 表现层诊断 |
+| `[ShopRequest] purchase item=... slot=... gold=... price=... allowed=... reason=...` | 每次购买点击的本地 RequestCheck；正常基础装备 price 应为正式配置值，不应全部为 0 |
+| `[ShopRequest] sell ...` / `[ShopRequest] undo ...` | 每次出售/撤销点击的 RequestCheck 结果 |
 | 分配器 dump（`Failed Allocations` / `##utp:MemoryLeaks`） | 进程退出时的内存报告，`Failed Allocations` 是分配器桶重试计数，不代表系统内存不足 |
 
 ### 5.3 历史问题与已修复项（排查参考）
@@ -138,8 +142,9 @@ Start-Process -FilePath "$base\Client\FrameSyncMobaClient.exe" `
 | 一个客户端大量报错卡死 | 读对应 client 日志，找第一条 Exception / `[Checksum]` 不一致点 |
 | 服务端/客户端日志没落盘 | 启动时漏带 `-logFile` |
 | 本地 Ping 200-300ms | 传输 RTT 受帧卡顿与日志刷屏影响；先确认无每帧刷屏日志 |
-| 英雄攻击动画不显示 | `TestHero.controller` 需含 Attack1/Attack2 状态（AnyState `AttackStart` 进入） |
+| 英雄攻击动画不显示 | `Varus.controller` 需含 Attack1/Attack2 状态（AnyState `AttackStart` 进入） |
 | exe 时间戳未变 | 已知正常，见 2.3 |
+| 商店五件装备全部显示 0 且不能购买 | 先找 `[ShopRequest]`：若 `price=0`/`ControlledUnitNotFound`，检查 PlayerSlot→ControlledUnit 映射是否已应用；不要通过预建 Trader 绕过，v12 要求 Trader 在首笔成功交易时才创建 |
 
 ## 7. 资源布局（正式 / 测试）
 
@@ -147,4 +152,4 @@ Start-Process -FilePath "$base\Client\FrameSyncMobaClient.exe" `
   GlobalPrefabTable -> 目录/预制体/动画/流场/VFX/地图等），C/S 测试与此一致。
 - `Assets/Config/Tests/`：测试专用配置（如 HeroTestMapConfig）。
 - `Assets/Resources/`：C/S 实际使用的 UI / 弹道 / 指示器 / VFX / 材质 / 数据。
-- 英雄即韦鲁斯：`Formal/Prefabs/TestHeroRuntime.prefab` + `Formal/Abilities/Varus*`。
+- 英雄即韦鲁斯：`Formal/Prefabs/VarusRuntime.prefab` + `Formal/Abilities/Varus*`。

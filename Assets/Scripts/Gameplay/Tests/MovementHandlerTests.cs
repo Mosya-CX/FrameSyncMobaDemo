@@ -143,6 +143,54 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void Dash_DuringLockedDirectionalCast_PreservesCastFacing()
+        {
+            Unit owner = handler.Owner;
+            AbilityRuntime runtime = owner.AbilityHandler
+                .GetActiveRuntime(0);
+            runtime.Definition = new AbilityDef
+            {
+                AbilityId = 91001,
+                Name = "LockedDirectionalCast",
+                AimKind = AimKind.Direction,
+                CastModel = new CommitCastModelDef
+                {
+                    Cast = new CastStage
+                    {
+                        StageKey = 1,
+                        DurationTicks = 10,
+                        LockMovement = true,
+                        Def = new DelayStageDef(),
+                    },
+                },
+            };
+            runtime.Level = 1;
+            Assert.That(owner.AbilityHandler.HandleSignal(
+                    new AbilitySignal
+                    {
+                        Slot = 0,
+                        Verb = AbilitySignalVerb.Commit,
+                        Aim = AimSnapshot.ForDirection(
+                            new fp2(fp.zero, fp.one)),
+                    }),
+                Is.True);
+
+            Assert.That(handler.StartDash(
+                    new DashRequest(
+                        91002,
+                        new fp2(fp.one, fp.zero),
+                        (fp)3,
+                        3)),
+                Is.True);
+            handler.TickUpdate();
+
+            Assert.That(handler.Position.x, Is.GreaterThan(fp.zero));
+            Assert.That(handler.Facing.x, Is.EqualTo(fp.zero));
+            Assert.That(handler.Facing.y,
+                Is.GreaterThan((fp)0.999m));
+        }
+
+        [Test]
         public void SetMoveSpeed_ChangesSpeed()
         {
             fp newSpeed = 10m;

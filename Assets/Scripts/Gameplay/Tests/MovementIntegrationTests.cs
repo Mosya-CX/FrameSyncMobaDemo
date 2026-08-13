@@ -25,7 +25,7 @@ namespace FrameSyncMoba.Unit.Tests
             prototype = new UnitPrototype
             {
                 UnitPrototypeId = 1,
-                Name = "TestHero",
+            Name = "Varus",
                 RuntimeEntityPrefabId = 99,
                 UnitKind = UnitKind.Hero,
                 UnitSubKindId = 0,
@@ -267,7 +267,7 @@ namespace FrameSyncMoba.Unit.Tests
             var proto2 = new UnitPrototype
             {
                 UnitPrototypeId = 1,
-                Name = "TestHero",
+            Name = "Varus",
                 RuntimeEntityPrefabId = 99,
                 UnitKind = UnitKind.Hero,
                 UnitSubKindId = 0,

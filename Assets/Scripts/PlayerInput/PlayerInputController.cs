@@ -1,4 +1,5 @@
 using System;
+using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -101,15 +102,27 @@ namespace FrameSyncMoba.PlayerInput
                         commandRequester.TryGetGroundTargetRadius(
                             slot,
                             out groundRadius);
-                        if (!indicatorDriver.IsVisible || indicatorDriver.ActiveKind != aimKind)
+                        DirectionalMultiZoneDamageStageDef zone = null;
+                        AbilityIndicatorGeometryResolver
+                            .TryResolveDirectionalZone(
+                                commandRequester.ControlledUnit
+                                    .AbilityHandler,
+                                slot,
+                                out zone);
+                        if (!indicatorDriver.IsVisible ||
+                            indicatorDriver.ActiveKind != aimKind ||
+                            !ReferenceEquals(
+                                indicatorDriver.ActiveDirectionalZone,
+                                zone))
                         {
                             indicatorDriver.Show(
                                 aimKind,
                                 castRange,
                                 casterPos,
                                 casterForward,
-                                true,
-                                groundRadius);
+                                zone == null,
+                                groundRadius,
+                                zone);
                         }
 
                         Vector2 screenPos = pointerResolver != null

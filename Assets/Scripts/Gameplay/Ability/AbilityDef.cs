@@ -46,9 +46,10 @@ namespace FrameSyncMoba.Unit
         }
     }
 
-    public readonly struct AbilityLevelValue
+    [Serializable]
+    public struct AbilityLevelValue
     {
-        private readonly fp[] values;
+        [SerializeField] private fp[] values;
 
         public AbilityLevelValue(fp[] values)
         {

@@ -91,5 +91,29 @@ namespace FrameSyncMoba.Bootstrap.Tests
             LuaDataCache.Latest = dto;
             Assert.That(LuaDataCache.HasValidData, Is.True);
         }
+
+        [Test]
+        public void KnockBackArc_IsHalfKnockUpArc()
+        {
+            float knockUp =
+                CrowdControlVerticalMotionPresenter
+                    .EvaluateArcHeight(
+                        10,
+                        40,
+                        25,
+                        30f,
+                        false);
+            float knockBack =
+                CrowdControlVerticalMotionPresenter
+                    .EvaluateArcHeight(
+                        10,
+                        40,
+                        25,
+                        30f,
+                        true);
+            Assert.That(knockUp, Is.GreaterThan(0f));
+            Assert.That(knockBack,
+                Is.EqualTo(knockUp * 0.5f).Within(.0001f));
+        }
     }
 }

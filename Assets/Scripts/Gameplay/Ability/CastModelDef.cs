@@ -12,6 +12,7 @@ namespace FrameSyncMoba.Unit
         Toggle = 4,
         GroundTarget = 5,
         VectorTarget = 6,
+        SequentialRecast = 7,
     }
 
     public struct CastStage
@@ -38,8 +39,32 @@ namespace FrameSyncMoba.Unit
         public CastModelKind Kind { get; protected set; }
         public abstract CastStage? GetStage(byte stageKey);
         public abstract int? HandleSignal(AbilitySignal signal, byte currentStageKey);
+
+        public virtual bool CanHandleSignal(
+            AbilitySignal signal,
+            byte currentStageKey,
+            int stageElapsedTicks) => true;
         public abstract byte? ResolveIndicatorStage(byte currentStageKey);
         public abstract bool TryInterrupt(byte currentStageKey);
+
+        /// <summary>
+        /// Resolves the deterministic transition produced by a completed or
+        /// timed-out stage. A null result ends the session and starts its
+        /// normal cooldown. Existing cast models preserve their historical
+        /// completion-as-Commit behavior; models with explicit recast
+        /// windows override this method so a timeout never invents input.
+        /// </summary>
+        public virtual int? ResolveStageEnd(
+            byte currentStageKey,
+            bool timedOut)
+        {
+            return HandleSignal(
+                new AbilitySignal
+                {
+                    Verb = AbilitySignalVerb.Commit,
+                },
+                currentStageKey);
+        }
     }
 
     public sealed class CommitCastModelDef : CastModelDef
@@ -217,5 +242,94 @@ namespace FrameSyncMoba.Unit
         public override byte? ResolveIndicatorStage(byte currentStageKey) => Aim.StageKey;
         public override bool TryInterrupt(byte currentStageKey)
             => (currentStageKey == Aim.StageKey) ? Aim.Interruptible : Execute.Interruptible;
+    }
+
+    /// <summary>
+    /// Reusable three-impact cast model separated by two finite recast
+    /// windows. Impact completion advances to the matching window; only a
+    /// real Commit advances a window to the next impact. A window timeout or
+    /// final-impact completion ends the session.
+    /// </summary>
+    public sealed class SequentialRecastCastModelDef : CastModelDef
+    {
+        public CastStage FirstImpact;
+        public CastStage FirstRecastWindow;
+        public CastStage SecondImpact;
+        public CastStage SecondRecastWindow;
+        public CastStage FinalImpact;
+        public int FirstMinimumRecastDelayTicks;
+        public int SecondMinimumRecastDelayTicks;
+
+        public SequentialRecastCastModelDef()
+        {
+            Kind = CastModelKind.SequentialRecast;
+        }
+
+        public override CastStage? GetStage(byte stageKey)
+        {
+            if (stageKey == FirstImpact.StageKey) return FirstImpact;
+            if (stageKey == FirstRecastWindow.StageKey) return FirstRecastWindow;
+            if (stageKey == SecondImpact.StageKey) return SecondImpact;
+            if (stageKey == SecondRecastWindow.StageKey) return SecondRecastWindow;
+            if (stageKey == FinalImpact.StageKey) return FinalImpact;
+            return null;
+        }
+
+        public override int? HandleSignal(
+            AbilitySignal signal,
+            byte currentStageKey)
+        {
+            if (signal.Verb != AbilitySignalVerb.Commit)
+                return null;
+            if (currentStageKey == byte.MaxValue)
+                return FirstImpact.StageKey;
+            if (currentStageKey == FirstRecastWindow.StageKey)
+                return SecondImpact.StageKey;
+            if (currentStageKey == SecondRecastWindow.StageKey)
+                return FinalImpact.StageKey;
+            return null;
+        }
+
+        public override bool CanHandleSignal(
+            AbilitySignal signal,
+            byte currentStageKey,
+            int stageElapsedTicks)
+        {
+            if (signal.Verb != AbilitySignalVerb.Commit)
+                return true;
+            if (currentStageKey == FirstRecastWindow.StageKey)
+                return stageElapsedTicks >= FirstMinimumRecastDelayTicks;
+            if (currentStageKey == SecondRecastWindow.StageKey)
+                return stageElapsedTicks >= SecondMinimumRecastDelayTicks;
+            return true;
+        }
+
+        public override int? ResolveStageEnd(
+            byte currentStageKey,
+            bool timedOut)
+        {
+            if (currentStageKey == FirstImpact.StageKey)
+                return FirstRecastWindow.StageKey;
+            if (currentStageKey == SecondImpact.StageKey)
+                return SecondRecastWindow.StageKey;
+            return null;
+        }
+
+        public override byte? ResolveIndicatorStage(byte currentStageKey)
+        {
+            if (currentStageKey == FirstRecastWindow.StageKey)
+                return SecondImpact.StageKey;
+            if (currentStageKey == SecondRecastWindow.StageKey)
+                return FinalImpact.StageKey;
+            return currentStageKey == byte.MaxValue
+                ? FirstImpact.StageKey
+                : currentStageKey;
+        }
+
+        public override bool TryInterrupt(byte currentStageKey)
+        {
+            CastStage? stage = GetStage(currentStageKey);
+            return stage.HasValue && stage.Value.Interruptible;
+        }
     }
 }

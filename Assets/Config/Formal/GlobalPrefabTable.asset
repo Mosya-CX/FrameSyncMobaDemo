@@ -20,6 +20,11 @@ MonoBehaviour:
         type: 3}
       gameplayConfigId: 0
       editorAssetGuid: 8386d2da6f6754946a202d33532daffd
+    - prefabId: 1102
+      unityPrefab: {fileID: 3061924797276683814, guid: e7b912ff51273d94aa44a93069b84017,
+        type: 3}
+      gameplayConfigId: 1002
+      editorAssetGuid: e7b912ff51273d94aa44a93069b84017
     - prefabId: 1201
       unityPrefab: {fileID: 8201025477135345303, guid: 3ccd4e1aedf4eec4e858f61a124b015d,
         type: 3}
@@ -57,16 +62,6 @@ MonoBehaviour:
         type: 3}
       gameplayConfigId: 0
       editorAssetGuid: 6f4a50dde2a01f745bed4b9d9324f5fa
-    - prefabId: 2201
-      unityPrefab: {fileID: 6155321660705030543, guid: b3eb1d4dc78a3914883c5db568ff2514,
-        type: 3}
-      gameplayConfigId: 0
-      editorAssetGuid: b3eb1d4dc78a3914883c5db568ff2514
-    - prefabId: 2202
-      unityPrefab: {fileID: 5687170441397324268, guid: d0e27105677f5f4439bc6bf3e582435c,
-        type: 3}
-      gameplayConfigId: 0
-      editorAssetGuid: d0e27105677f5f4439bc6bf3e582435c
     - prefabId: 2102
       unityPrefab: {fileID: 2994231105842552593, guid: 3b9c7c4bd406ebf449736a4a6c7432c8,
         type: 3}
@@ -82,6 +77,43 @@ MonoBehaviour:
         type: 3}
       gameplayConfigId: 0
       editorAssetGuid: c024096fa5aceb144b1c7ffedbc285fc
+    - prefabId: 2105
+      unityPrefab: {fileID: 2710942116863487041, guid: 45b294545c967314f9decb88c44d5920,
+        type: 3}
+      gameplayConfigId: 109
+      editorAssetGuid: 45b294545c967314f9decb88c44d5920
+    - prefabId: 2201
+      unityPrefab: {fileID: 6155321660705030543, guid: b3eb1d4dc78a3914883c5db568ff2514,
+        type: 3}
+      gameplayConfigId: 0
+      editorAssetGuid: b3eb1d4dc78a3914883c5db568ff2514
+    - prefabId: 2202
+      unityPrefab: {fileID: 5687170441397324268, guid: d0e27105677f5f4439bc6bf3e582435c,
+        type: 3}
+      gameplayConfigId: 0
+      editorAssetGuid: d0e27105677f5f4439bc6bf3e582435c
+    - prefabId: 2106
+      unityPrefab: {fileID: 8849441152326411992, guid: 3561a9ede028f4741a955188d8b48b97,
+        type: 3}
+      gameplayConfigId: 110
+      editorAssetGuid: 3561a9ede028f4741a955188d8b48b97
+  - kind: 2
+    entries:
+    - prefabId: 3101
+      unityPrefab: {fileID: 1655698680135638720, guid: c104df327fc900e459d8d8d88080e74c,
+        type: 3}
+      gameplayConfigId: 3101
+      editorAssetGuid: c104df327fc900e459d8d8d88080e74c
+    - prefabId: 3102
+      unityPrefab: {fileID: 7380546849583131499, guid: e548ee90e7b95e74fa2b03d68ec88b7a,
+        type: 3}
+      gameplayConfigId: 3102
+      editorAssetGuid: e548ee90e7b95e74fa2b03d68ec88b7a
+    - prefabId: 3103
+      unityPrefab: {fileID: 824778260668550615, guid: 4c4378ba777eca9439d5d0e74413316d,
+        type: 3}
+      gameplayConfigId: 3103
+      editorAssetGuid: 4c4378ba777eca9439d5d0e74413316d
   kindRanges:
   - Kind: 0
     IdRangeStart: 1000

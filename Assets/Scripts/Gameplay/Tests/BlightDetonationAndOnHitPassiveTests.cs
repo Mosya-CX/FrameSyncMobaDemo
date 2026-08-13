@@ -147,6 +147,34 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void Detonation_Structure_CapsPerStackDamage()
+        {
+            UnitType structure = UnitTestFactory.SpawnUnit(
+                world,
+                CreatePrototype(
+                    UnitKind.Structure,
+                    (fp)10000,
+                    3),
+                new TeamId(2),
+                30,
+                fp.zero,
+                fp.zero);
+            ApplyBlightTwice(structure);
+            combat.BeginTick();
+
+            DealAbilityDamageTo(structure, (fp)10);
+            combat.SettleActiveRequests();
+
+            Assert.AreEqual(
+                (double)((fp)10000 - (fp)10 - (fp)240),
+                (double)structure.StatHandler.CurrentHealth,
+                0.01);
+            Assert.IsFalse(
+                structure.BuffHandler.HasBuff(
+                    new BuffConfigId(BlightConfigId)));
+        }
+
+        [Test]
         public void Detonation_Hero_GrantsCooldownReduction()
         {
             ApplyBlightTwice();
@@ -234,13 +262,51 @@ namespace FrameSyncMoba.Unit.Tests
                 "W passive must apply a blight stack.");
         }
 
+        [Test]
+        public void WPassive_OnHit_AppliesToStructure()
+        {
+            UnitType structure = UnitTestFactory.SpawnUnit(
+                world,
+                CreatePrototype(
+                    UnitKind.Structure,
+                    (fp)1000,
+                    4),
+                new TeamId(2),
+                30,
+                fp.zero,
+                fp.zero);
+            combat.BeginTick();
+
+            caster.AbilityHandler.OnHitDealt(
+                new OnHitEventData
+                {
+                    SourceUid = caster.UnitUid,
+                    TargetUid = structure.UnitUid,
+                    DamageType = DamageType.Physical,
+                });
+            combat.SettleActiveRequests();
+
+            Assert.AreEqual(
+                (double)((fp)1000 - (fp)19),
+                (double)structure.StatHandler.CurrentHealth,
+                0.0001);
+            Assert.IsTrue(
+                structure.BuffHandler.HasBuff(
+                    new BuffConfigId(BlightConfigId)));
+        }
+
         private void ApplyBlightTwice()
         {
-            target.BuffHandler.Apply(
+            ApplyBlightTwice(target);
+        }
+
+        private void ApplyBlightTwice(UnitType victim)
+        {
+            victim.BuffHandler.Apply(
                 new BuffConfigId(BlightConfigId),
                 CreateBlightDefinition(),
                 caster.UnitUid);
-            target.BuffHandler.Apply(
+            victim.BuffHandler.Apply(
                 new BuffConfigId(BlightConfigId),
                 CreateBlightDefinition(),
                 caster.UnitUid);

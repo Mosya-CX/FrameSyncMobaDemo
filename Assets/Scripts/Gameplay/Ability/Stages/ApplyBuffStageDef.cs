@@ -39,7 +39,7 @@ namespace FrameSyncMoba.Unit
                 BuffSource.Create(
                     runtime.CasterUnitUid,
                     BuffSourceType.Ability,
-                    0));
+                    runtime.Definition?.AbilityId ?? 0));
             return StageResult.Completed;
         }
     }

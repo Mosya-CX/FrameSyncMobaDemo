@@ -32,6 +32,27 @@ namespace FrameSyncMoba.Unit
         public void OnUnitKill(Unit victim) => _effectDispatch?.OnUnitKill(victim);
         public void OnHitDealt(in OnHitEventData data) => _effectDispatch?.OnHitDealt(data);
 
+        /// <summary>
+        /// Resolves an empowered-strike damage recipe that is currently ready
+        /// for <paramref name="target"/> (e.g. an equipped Sundered Sky whose
+        /// per-target cooldown has expired). Returns false when the attack
+        /// should keep the normal basic-attack recipe.
+        /// </summary>
+        public bool TryResolveEmpoweredAttackRecipe(
+            Unit target,
+            out int recipeId)
+        {
+            if (_effectDispatch != null)
+            {
+                return _effectDispatch
+                    .TryResolveEmpoweredAttackRecipe(
+                        target,
+                        out recipeId);
+            }
+            recipeId = 0;
+            return false;
+        }
+
         public override void InitializeForNewRuntime()
         {
             Array.Clear(_slots, 0, SlotCount);
@@ -150,10 +171,22 @@ namespace FrameSyncMoba.Unit
                     handles.Add(handle);
                 }
                 instance._fixedStatHandles = handles.ToArray();
+
+                // Items that raise Max Health also raise the current health
+                // by the same amount (clamped to the new maximum).
+                fp maxHealthDelta =
+                    SumMaxHealthDelta(definition);
+                if (maxHealthDelta != fp.zero)
+                {
+                    _owner.StatHandler.SetCurrentHealth(
+                        _owner.StatHandler.CurrentHealth +
+                        maxHealthDelta);
+                }
             }
 
             _slots[slot] = instance;
             _runtimeRevision++;
+            LogReplayMutation("Add", slot, instance);
 
             // Create EquipmentEffectRuntime instances
             if (definition.Effects != null && definition.Effects.Length > 0)
@@ -167,7 +200,6 @@ namespace FrameSyncMoba.Unit
 
             // Fire OnEquipped effect modules
             DispatchOnEquipped(instance);
-            TrackAppliedBuffs(instance);
             return true;
         }
 
@@ -179,10 +211,11 @@ namespace FrameSyncMoba.Unit
 
             RemoveAppliedBuffs(instance);
             ReleaseFixedStats(instance);
-            ReleaseEffectRuntimes(instance);
             DispatchOnUnequipped(instance);
+            ReleaseEffectRuntimes(instance);
             _slots[slot] = null;
             _runtimeRevision++;
+            LogReplayMutation("Remove", slot, instance);
             return true;
         }
 
@@ -286,6 +319,10 @@ namespace FrameSyncMoba.Unit
         private void ReleaseFixedStats(EquipmentInstance instance)
         {
             if (_owner.StatHandler == null || instance._fixedStatHandles == null) return;
+            // Removing a Max-Health bonus must also lower current health by
+            // the same amount (clamped to the new maximum).
+            fp maxHealthDelta = SumMaxHealthDelta(
+                instance.Definition);
             for (int i = 0; i < instance._fixedStatHandles.Length; i++)
             {
                 var handle = instance._fixedStatHandles[i];
@@ -293,6 +330,38 @@ namespace FrameSyncMoba.Unit
                     _owner.StatHandler.RemoveModifier(handle);
             }
             instance._fixedStatHandles = null;
+            if (maxHealthDelta != fp.zero)
+            {
+                _owner.StatHandler.SetCurrentHealth(
+                    _owner.StatHandler.CurrentHealth -
+                    maxHealthDelta);
+            }
+        }
+
+        /// <summary>
+        /// Sum of the fixed Max-Health bonuses of an equipment definition.
+        /// Equip/unequip keep CurrentHealth in sync by this delta.
+        /// </summary>
+        private static fp SumMaxHealthDelta(
+            EquipmentDefinition definition)
+        {
+            fp delta = fp.zero;
+            EquipmentFixedStat[] stats =
+                definition?.BakedFixedStats;
+            if (stats == null)
+            {
+                return delta;
+            }
+            for (int i = 0;
+                 i < stats.Length;
+                 i++)
+            {
+                if (stats[i].Stat == StatId.MaxHealth)
+                {
+                    delta += stats[i].Value;
+                }
+            }
+            return delta;
         }
 
         private void ReleaseEffectRuntimes(EquipmentInstance instance)
@@ -305,38 +374,28 @@ namespace FrameSyncMoba.Unit
             instance.EffectRuntimes = null;
         }
 
-        private void TrackAppliedBuffs(EquipmentInstance instance)
-        {
-            // BuffEquipmentModules are dispatched via OnEquipped timing.
-            // After dispatch, find which buffs were applied and track them.
-            if (instance.Definition?.Effects == null || _owner.BuffHandler == null)
-                return;
-            for (int fxIdx = 0; fxIdx < instance.Definition.Effects.Length; fxIdx++)
-            {
-                var fxDef = instance.Definition.Effects[fxIdx];
-                if (fxDef?.Modules == null) continue;
-                for (int modIdx = 0; modIdx < fxDef.Modules.Length; modIdx++)
-                {
-                    if (fxDef.Modules[modIdx] is BuffEquipmentModule buffMod &&
-                        buffMod.BuffConfigId.IsValid)
-                    {
-                        if (instance._appliedBuffConfigIds == null)
-                            instance._appliedBuffConfigIds = new System.Collections.Generic.List<int>();
-                        instance._appliedBuffConfigIds.Add(buffMod.BuffConfigId.Value);
-                    }
-                }
-            }
-        }
-
         private void RemoveAppliedBuffs(EquipmentInstance instance)
         {
-            if (instance._appliedBuffConfigIds == null || _owner.BuffHandler == null)
+            EquipmentEffectDef[] effects = instance?.Definition?.Effects;
+            if (effects == null || _owner.BuffHandler == null)
                 return;
-            for (int i = 0; i < instance._appliedBuffConfigIds.Count; i++)
+            for (int effectIndex = 0;
+                 effectIndex < effects.Length;
+                 effectIndex++)
             {
-                _owner.BuffHandler.Remove(new BuffConfigId(instance._appliedBuffConfigIds[i]));
+                EquipmentEffectModule[] modules =
+                    effects[effectIndex]?.Modules;
+                if (modules == null)
+                    continue;
+                for (int moduleIndex = 0;
+                     moduleIndex < modules.Length;
+                     moduleIndex++)
+                {
+                    if (modules[moduleIndex] is BuffEquipmentModule buffModule &&
+                        buffModule.BuffConfigId.IsValid)
+                        _owner.BuffHandler.Remove(buffModule.BuffConfigId);
+                }
             }
-            instance._appliedBuffConfigIds = null;
         }
 
         public override void ClearForDeath()
@@ -345,11 +404,8 @@ namespace FrameSyncMoba.Unit
             {
                 var inst = _slots[i];
                 if (inst == null) continue;
-                RemoveAppliedBuffs(inst);
                 ReleaseFixedStats(inst);
-                ReleaseEffectRuntimes(inst);
             }
-            _sharedCooldowns.Clear();
         }
 
         public override void ClearForRespawn()
@@ -370,8 +426,22 @@ namespace FrameSyncMoba.Unit
                 }
                 inst._fixedStatHandles = handles.ToArray();
 
-                // Rebuild EffectRuntimes for current life stage
-                if (def.Effects != null && def.Effects.Length > 0)
+                // Reapplying the Max-Health bonus on respawn must also raise
+                // current health, otherwise the unit respawns short of its
+                // item-boosted maximum (CompleteRespawn refills before this
+                // handler rebuilds the item stats).
+                fp maxHealthDelta =
+                    SumMaxHealthDelta(def);
+                if (maxHealthDelta != fp.zero)
+                {
+                    _owner.StatHandler.SetCurrentHealth(
+                        _owner.StatHandler.CurrentHealth +
+                        maxHealthDelta);
+                }
+
+                // Equipment module state is cross-life deterministic state.
+                if (inst.EffectRuntimes == null &&
+                    def.Effects != null && def.Effects.Length > 0)
                 {
                     inst.EffectRuntimes = new EquipmentEffectRuntime[def.Effects.Length];
                     for (int j = 0; j < def.Effects.Length; j++)
@@ -391,9 +461,30 @@ namespace FrameSyncMoba.Unit
                 RemoveAppliedBuffs(inst);
                 ReleaseFixedStats(inst);
                 ReleaseEffectRuntimes(inst);
+                LogReplayMutation("ClearForDespawn", i, inst);
             }
             Array.Clear(_slots, 0, SlotCount);
             _sharedCooldowns.Clear();
+        }
+
+        private void LogReplayMutation(
+            string action,
+            int slot,
+            EquipmentInstance instance)
+        {
+            FrameSyncDiagnostics.Log(
+                $"[Equip] {action} slot={slot} " +
+                $"id={instance?.Definition?.Id ?? 0} " +
+                $"tick={SimulationTickContext.Current.Tick} " +
+                $"rev={_runtimeRevision} " +
+                $"mode={SimulationTickContext.Current.ExecutionMode}");
+            if (SimulationTickContext.Current.ExecutionMode ==
+                ExecutionMode.ClientReplay)
+            {
+                FrameSyncDiagnostics.Log(
+                    $"[Equip] {action} stack:\n" +
+                    Environment.StackTrace);
+            }
         }
 
         public void AdvanceEffects()
@@ -411,7 +502,8 @@ namespace FrameSyncMoba.Unit
             if (instance == null ||
                 !TryGetActiveEffect(
                     instance,
-                    out EquipmentEffectDef effect))
+                    out EquipmentEffectDef effect,
+                    out int effectIndex))
                 return EquipmentUseCheckResult.Rejected;
             if (_owner.LifeState != LifeState.Alive ||
                 !_owner.CapabilityState.CanCast ||
@@ -442,14 +534,30 @@ namespace FrameSyncMoba.Unit
                 effect.Modules ?? Array.Empty<EquipmentEffectModule>();
             if (modules.Length == 0)
                 return EquipmentUseCheckResult.Rejected;
+            EquipmentEffectRuntime runtime =
+                instance.EffectRuntimes?[effectIndex];
+            if (runtime?.ModuleStates == null ||
+                runtime.ModuleStates.Length != modules.Length)
+                throw new DeterministicSimulationException(
+                    $"Equipment {instance.Definition.Id} active module-state count mismatch.");
             for (int i = 0; i < modules.Length; i++)
             {
                 EquipmentEffectModule module = modules[i];
+                ref EquipmentEffectModuleRuntimeState state =
+                    ref runtime.ModuleStates[i];
+                var context = new EquipmentEffectExecutionContext
+                {
+                    Owner = _owner,
+                    Instance = instance,
+                    Dispatch = _effectDispatch,
+                    Timing = EquipmentEffectInvokeTiming.ActiveUse,
+                    Target = target,
+                };
                 if (module == null ||
                     !HasTiming(
                         module,
                         EquipmentEffectInvokeTiming.ActiveUse) ||
-                    !module.CanExecute())
+                    !module.CanExecute(ref context, ref state))
                     return EquipmentUseCheckResult.Rejected;
             }
             return EquipmentUseCheckResult.Ready;
@@ -463,13 +571,28 @@ namespace FrameSyncMoba.Unit
             EquipmentInstance instance = _slots[slot];
             if (!TryGetActiveEffect(
                     instance,
-                    out EquipmentEffectDef effect))
+                    out EquipmentEffectDef effect,
+                    out int effectIndex))
                 throw new DeterministicSimulationException(
                     "Active equipment disappeared between CheckUse and Use.");
             EquipmentEffectModule[] modules =
                 effect.Modules;
+            EquipmentEffectRuntime runtime =
+                instance.EffectRuntimes[effectIndex];
             for (int i = 0; i < modules.Length; i++)
-                modules[i].Execute(_owner, instance);
+            {
+                ref EquipmentEffectModuleRuntimeState state =
+                    ref runtime.ModuleStates[i];
+                var context = new EquipmentEffectExecutionContext
+                {
+                    Owner = _owner,
+                    Instance = instance,
+                    Dispatch = _effectDispatch,
+                    Timing = EquipmentEffectInvokeTiming.ActiveUse,
+                    Target = target,
+                };
+                modules[i].Execute(ref context, ref state);
+            }
 
             EquipmentActiveSettings settings =
                 effect.ActiveSettings;
@@ -495,9 +618,11 @@ namespace FrameSyncMoba.Unit
 
         private static bool TryGetActiveEffect(
             EquipmentInstance instance,
-            out EquipmentEffectDef activeEffect)
+            out EquipmentEffectDef activeEffect,
+            out int activeEffectIndex)
         {
             activeEffect = null;
+            activeEffectIndex = -1;
             EquipmentEffectDef[] effects =
                 instance?.Definition?.Effects;
             if (effects == null) return false;
@@ -510,6 +635,7 @@ namespace FrameSyncMoba.Unit
                     throw new DeterministicSimulationException(
                         $"Equipment {instance.Definition.Id} has multiple active effects.");
                 activeEffect = effect;
+                activeEffectIndex = i;
             }
             return activeEffect != null;
         }
@@ -542,24 +668,11 @@ namespace FrameSyncMoba.Unit
             DispatchEffectByTiming(instance, EquipmentEffectInvokeTiming.OnUnequipped);
         }
 
-        private void DispatchEffectByTiming(EquipmentInstance instance, EquipmentEffectInvokeTiming timing)
+        internal void DispatchEffectByTiming(
+            EquipmentInstance instance,
+            EquipmentEffectInvokeTiming timing)
         {
-            if (instance?.Definition?.Effects == null) return;
-            for (int fxIdx = 0; fxIdx < instance.Definition.Effects.Length; fxIdx++)
-            {
-                var fxDef = instance.Definition.Effects[fxIdx];
-                if (fxDef?.Modules == null) continue;
-                for (int modIdx = 0; modIdx < fxDef.Modules.Length; modIdx++)
-                {
-                    var mod = fxDef.Modules[modIdx];
-                    if (mod?.InvokeTimings == null) continue;
-                    for (int t = 0; t < mod.InvokeTimings.Length; t++)
-                    {
-                        if (mod.InvokeTimings[t] == timing && mod.CanExecute())
-                            mod.Execute(_owner, instance);
-                    }
-                }
-            }
+            _effectDispatch?.DispatchInstanceForTiming(instance, timing);
         }
 
         // ---- IRollback<EquipmentHandlerSnapshot> ----
@@ -568,8 +681,8 @@ namespace FrameSyncMoba.Unit
         {
             if (state.Slots == null)
                 state.Slots = new System.Collections.Generic.List<EquipmentSlotSnapshot>(SlotCount);
-            else if (state.Slots.Count != SlotCount)
-                state.Slots = new System.Collections.Generic.List<EquipmentSlotSnapshot>(SlotCount);
+            else
+                state.Slots.Clear();
 
             for (int i = 0; i < SlotCount; i++)
             {
@@ -584,7 +697,10 @@ namespace FrameSyncMoba.Unit
                         StackCount = inst.StackCount,
                         ChargeCount = inst.ChargeCount,
                         ReadyTick = inst.ReadyTick,
-                        FixedStatHandles = CloneHandles(new System.Collections.Generic.List<StatModifierHandle>(inst._fixedStatHandles)),
+                        FixedStatHandles = inst._fixedStatHandles == null
+                            ? new System.Collections.Generic.List<StatModifierHandle>()
+                            : new System.Collections.Generic.List<StatModifierHandle>(
+                                inst._fixedStatHandles),
                         EffectStates = CaptureEffectStates(inst.EffectRuntimes),
                     }
                     : EquipmentSlotSnapshot.Empty);
@@ -677,6 +793,7 @@ namespace FrameSyncMoba.Unit
             Array.Clear(_slots, 0, SlotCount);
             _sharedCooldowns.Clear();
             _runtimeRevision = 0;
+            LogReplayMutation("ResetForPool", -1, null);
             _effectDispatch = null;
         }
 
@@ -749,7 +866,6 @@ namespace FrameSyncMoba.Unit
         public int ReadyTick;
         public EquipmentEffectRuntime[] EffectRuntimes;
         internal StatModifierHandle[] _fixedStatHandles;
-        internal System.Collections.Generic.List<int> _appliedBuffConfigIds;
     }
 
     public enum EquipmentUseCheckResult : byte
@@ -839,7 +955,7 @@ namespace FrameSyncMoba.Unit
                         a.InternalCooldownReadyTick !=
                         b.InternalCooldownReadyTick ||
                         a.StackCount != b.StackCount ||
-                        a.TimerTicks != b.TimerTicks)
+                        a.TriggerCount != b.TriggerCount)
                         return false;
                 }
             }
@@ -882,10 +998,6 @@ namespace FrameSyncMoba.Unit
         public System.Collections.Generic.List<EquipmentSlotSnapshot> Slots;
         public System.Collections.Generic.List<EquipmentSharedCooldownSnapshot> SharedCooldowns;
         public int RuntimeRevision;
-        public static readonly EquipmentHandlerSnapshot Empty = new EquipmentHandlerSnapshot
-        {
-            Slots = new System.Collections.Generic.List<EquipmentSlotSnapshot>(EquipmentHandler.SlotCount),
-            SharedCooldowns = new System.Collections.Generic.List<EquipmentSharedCooldownSnapshot>(),
-        };
+        public static readonly EquipmentHandlerSnapshot Empty = default;
     }
 }

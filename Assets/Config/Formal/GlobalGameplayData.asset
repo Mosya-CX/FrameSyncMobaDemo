@@ -25,7 +25,7 @@ MonoBehaviour:
     MaxAuthorityRecoveryAttemptsBeforeDisconnect: 4
     StartLeadTicks: 3
   versions:
-    GameplayDataVersion: 1
+    GameplayDataVersion: 2
     MapDataVersion: 1
     GlobalPrefabTableVersion: 1
     CommandSchemaVersion: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
     CountdownSeconds: 3
     LaunchDelaySeconds: 5
     EndingSeconds: 6
-    InitialEarnedGold: 500
+    InitialEarnedGold: 1500
     HeroRespawnBaseSeconds: 5
     HeroRespawnPerMinuteSeconds: 0.5
     MinionWaveIntervalSeconds: 30
@@ -54,3 +54,4 @@ MonoBehaviour:
     StatGrowthD: 0.0175
     MoveSpeedToLogicVelocityScale: 0.01
     AttackSequenceResetIntervalTicks: 90
+    RangedAttackRangeThreshold: 275

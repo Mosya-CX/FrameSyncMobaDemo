@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10968a781afdb4648aab6bb16996728c, type: 3}
+  m_Name: GuinsoosRageblade
+  m_EditorClassIdentifier: 
+  Id: 31005
+  Name: Guinsoo's Rageblade
+  Description: "Grants 30 Attack Damage, 30 Ability Power, and 25% Attack Speed.\nRage: Basic attacks deal 30 bonus magic damage on hit.\nSeething Strike: Basic attacks grant 8% Attack Speed for 3 seconds, stacking up to 4 times. At maximum stacks, every third basic attack repeats eligible on-hit effects once."
+  Icon: {fileID: 21300000, guid: 86d765fa57452364f9577c5014480763, type: 3}
+  Tier: 3
+  Value: 3000
+  MaxStack: 1
+  FixedStats:
+  - Stat: 5
+    Value: 30
+  - Stat: 6
+    Value: 30
+  - Stat: 9
+    Value: 0.25
+  Effects:
+  - Name: Rage
+    Description: Basic attacks deal 30 bonus magic damage on hit.
+    IsActive: 0
+    ActiveSettings:
+      CooldownTicks: 0
+      ChargeCost: 0
+    Modules:
+    - rid: 2586996066344501250
+  - Name: Seething Strike
+    Description: Basic attacks grant stacking Attack Speed. At maximum stacks, every third basic attack repeats eligible on-hit effects once.
+    IsActive: 0
+    ActiveSettings:
+      CooldownTicks: 0
+      ChargeCost: 0
+    Modules:
+    - rid: 2586996066344501251
+    - rid: 2586996066344501252
+  Tags: []
+  Recipe:
+    Components:
+    - Item: {fileID: 11400000, guid: bbaf1346bcaac9c42b657264179d6795, type: 2}
+      Count: 1
+    - Item: {fileID: 11400000, guid: 5f05c4f5673081f4e8727f18899fa5de, type: 2}
+      Count: 1
+    - Item: {fileID: 11400000, guid: 062bb1f9189f94c47ad269521bff814f, type: 2}
+      Count: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586996066344501250
+      type: {class: OnHitBonusDamageModule, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        InvokeTimings: 0e
+        BonusDamage:
+          m_rawValue: 128849018880
+        DamageType: 1
+        InternalCooldownTicks: 0
+    - rid: 2586996066344501251
+      type: {class: BuffEquipmentModule, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        InvokeTimings: 0e
+        BuffConfigId:
+          Value: 31901
+        IgnoreRepeatedOnHit: 1
+    - rid: 2586996066344501252
+      type: {class: OnHitRepeatModule, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        InvokeTimings: 0e
+        RequiredBuffConfigId:
+          Value: 31901
+        RequiredStacks: 4
+        TriggerEvery: 3

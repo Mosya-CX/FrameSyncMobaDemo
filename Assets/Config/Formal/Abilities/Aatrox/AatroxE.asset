@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1ffb938a26d10b46b88354c8e8aeb8a, type: 3}
+  m_Name: AatroxE
+  m_EditorClassIdentifier: 
+  abilityId: 10023
+  abilityName: Umbral Dash
+  icon: {fileID: 21300000, guid: 237800e8fddf3e54bb1bf43e3e96ff5b, type: 3}
+  isUltimate: 0
+  castModel:
+    rid: 2586996089610567741
+  castRange: 3
+  aimKind: 4
+  cooldownTicksByLevel:
+  - 270
+  - 240
+  - 210
+  - 180
+  - 150
+  costTiming: 0
+  castResourceCostByLevel: []
+  healthCostByLevel: []
+  castConditions: []
+  passiveEffect:
+    rid: 2586996089610567742
+  stageDefs:
+  - rid: 2586996089610567743
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586996089610567741
+      type: {class: CommitCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        castStageKey: 1
+        durationTicks: 15
+        notifyAbilityCastOnEnter: 1
+        interruptible: 0
+        lockMovement: 0
+        iconOverride: {fileID: 0}
+    - rid: 2586996089610567742
+      type: {class: AbilityRankStatModifierPassiveEffectAuthoring, ns: FrameSyncMoba.Unit,
+        asm: FrameSyncMoba.Unit}
+      data:
+        statId: 21
+        operation: 0
+        valueByAbilityLevel:
+        - 0.2
+        - 0.225
+        - 0.25
+        - 0.275
+        - 0.3
+    - rid: 2586996089610567743
+      type: {class: DashStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 1
+        debugName: Umbral Dash
+        speedPerTick: 0.2
+        totalDistance: 3
+        wallPolicy: 1
+        resetAttackTimerOnStart: 1
+        maxTerrainCrossingDistance: 5
+        extendThroughTerrain: 1

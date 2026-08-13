@@ -457,6 +457,95 @@ namespace FrameSyncMoba.Unit
         }
     }
 
+    [Serializable]
+    public sealed class SequentialRecastCastModelAuthoring :
+        CastModelAuthoring
+    {
+        public override CastModelKind Kind =>
+            CastModelKind.SequentialRecast;
+
+        [SerializeField] internal byte firstImpactStageKey;
+        [SerializeField] internal int firstImpactDurationTicks;
+        [SerializeField] internal byte firstRecastWindowStageKey;
+        [SerializeField] internal int firstRecastWindowDurationTicks;
+        [SerializeField] internal int firstMinimumRecastDelayTicks;
+        [SerializeField] internal byte secondImpactStageKey;
+        [SerializeField] internal int secondImpactDurationTicks;
+        [SerializeField] internal byte secondRecastWindowStageKey;
+        [SerializeField] internal int secondRecastWindowDurationTicks;
+        [SerializeField] internal int secondMinimumRecastDelayTicks;
+        [SerializeField] internal byte finalImpactStageKey;
+        [SerializeField] internal int finalImpactDurationTicks;
+        [SerializeField] internal bool impactInterruptible;
+        [SerializeField] internal bool windowInterruptible = true;
+        [SerializeField] internal bool impactLockMovement = true;
+        [SerializeField] internal Sprite firstImpactIconOverride;
+        [SerializeField] internal Sprite secondImpactIconOverride;
+        [SerializeField] internal Sprite finalImpactIconOverride;
+
+        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        {
+            if (firstRecastWindowDurationTicks <= 0 ||
+                secondRecastWindowDurationTicks <= 0 ||
+                firstMinimumRecastDelayTicks < 0 ||
+                secondMinimumRecastDelayTicks < 0 ||
+                firstMinimumRecastDelayTicks >= firstRecastWindowDurationTicks ||
+                secondMinimumRecastDelayTicks >= secondRecastWindowDurationTicks)
+            {
+                throw new InvalidOperationException(
+                    "Sequential recast windows require positive durations.");
+            }
+
+            return new SequentialRecastCastModelDef
+            {
+                FirstMinimumRecastDelayTicks =
+                    firstMinimumRecastDelayTicks,
+                SecondMinimumRecastDelayTicks =
+                    secondMinimumRecastDelayTicks,
+                FirstImpact = BakeHelpers.BakeStage(
+                    firstImpactStageKey,
+                    firstImpactDurationTicks,
+                    true,
+                    impactInterruptible,
+                    impactLockMovement,
+                    stages,
+                    firstImpactIconOverride),
+                FirstRecastWindow = BakeHelpers.BakeStage(
+                    firstRecastWindowStageKey,
+                    firstRecastWindowDurationTicks,
+                    false,
+                    windowInterruptible,
+                    false,
+                    stages,
+                    secondImpactIconOverride),
+                SecondImpact = BakeHelpers.BakeStage(
+                    secondImpactStageKey,
+                    secondImpactDurationTicks,
+                    true,
+                    impactInterruptible,
+                    impactLockMovement,
+                    stages,
+                    secondImpactIconOverride),
+                SecondRecastWindow = BakeHelpers.BakeStage(
+                    secondRecastWindowStageKey,
+                    secondRecastWindowDurationTicks,
+                    false,
+                    windowInterruptible,
+                    false,
+                    stages,
+                    finalImpactIconOverride),
+                FinalImpact = BakeHelpers.BakeStage(
+                    finalImpactStageKey,
+                    finalImpactDurationTicks,
+                    true,
+                    impactInterruptible,
+                    impactLockMovement,
+                    stages,
+                    finalImpactIconOverride),
+            };
+        }
+    }
+
     // ---- Stage Authoring ----
 
     [Serializable]
@@ -583,6 +672,45 @@ namespace FrameSyncMoba.Unit
                         values[i];
             }
             return new AbilityLevelValue(converted);
+        }
+    }
+
+    [Serializable]
+    public sealed class AbilityRankStatModifierPassiveEffectAuthoring :
+        AbilityPassiveEffectAuthoring
+    {
+        [SerializeField] private StatId statId;
+        [SerializeField] private StatModifierOperation operation =
+            StatModifierOperation.FinalRatioAdd;
+        [SerializeField] private float[] valueByAbilityLevel =
+            Array.Empty<float>();
+
+        public override ActiveAbilityPassiveEffectDef Bake()
+        {
+            if (valueByAbilityLevel == null ||
+                valueByAbilityLevel.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "Ability-rank stat passive requires rank values.");
+            }
+            var values = new Unity.Mathematics.FixedPoint.fp[
+                valueByAbilityLevel.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                float value = valueByAbilityLevel[i];
+                if (float.IsNaN(value) || float.IsInfinity(value))
+                    throw new InvalidOperationException(
+                        $"Ability-rank stat value {i} must be finite.");
+                values[i] =
+                    (Unity.Mathematics.FixedPoint.fp)value;
+            }
+            return new AbilityRankStatModifierPassiveEffectDef
+            {
+                ListenerMask = AbilityPassiveListenerMask.None,
+                StatId = statId,
+                Operation = operation,
+                ValueByAbilityLevel = new AbilityLevelValue(values),
+            };
         }
     }
 }

@@ -3,6 +3,7 @@ using FrameSyncMoba.Physics;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using UnityEditor;
 using GameplayUnit = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.FrameSync.Tests
@@ -198,6 +199,40 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void EnemyFilter_IncludesStructureTarget()
+        {
+            GameplayUnit structure = unitWorld.SpawnUnit(
+                CreatePrototype(UnitKind.Structure, 2, 1002),
+                new TeamId(2),
+                10,
+                fp.zero,
+                fp.zero);
+            UnitTestFactory.AddProjectilePrefab(
+                unitWorld,
+                2001);
+            SetTargetPose(structure, (fp)1);
+            RegisterDefinition(
+                maxHits: 4,
+                endOnFirst: false);
+            SpawnAndAdvance();
+            physicsWorld.BuildUnitFinalGrid();
+
+            resolver.ResolveAllHits(projectileWorld);
+
+            bool found = false;
+            for (int i = 0; i < resolver.PendingHits.Count; i++)
+            {
+                if (resolver.PendingHits[i].TargetUnitUid ==
+                    structure.UnitUid)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            Assert.That(found, Is.True);
+        }
+
+        [Test]
         public void
             RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget()
         {
@@ -363,6 +398,115 @@ namespace FrameSyncMoba.FrameSync.Tests
                 "Speed * (1/TickRate), not Speed per Tick.");
         }
 
+        [Test]
+        public void InfernalChainsHit_SpawnsStationaryContainmentProjectile()
+        {
+            BuffDefinition tether =
+                AssetDatabase.LoadAssetAtPath<BuffDefinition>(
+                    "Assets/Config/Formal/Buffs/Aatrox/AatroxWTether.asset");
+            Assert.That(tether, Is.Not.Null);
+            unitWorld.BuffDefinitions = new BuffDefinitionRegistry();
+            unitWorld.BuffDefinitions.Register(tether);
+
+            projectileWorld.DefRegistry.Register(
+                new ProjectileDef
+                {
+                    DefId = 110,
+                    RuntimeEntityPrefabId = 2001,
+                    Speed = fp.zero,
+                    MaxLifetimeTicks = 45,
+                    HitRadius = fp.zero,
+                    TargetFilter =
+                        ProjectileTargetFilter.DefaultEnemy,
+                    HitPolicy =
+                        new ProjectileHitPolicy { Enabled = false },
+                    ContainmentZone =
+                        new ProjectileContainmentZone(
+                            (fp)(-1.5f),
+                            (fp)6f,
+                            fp.one,
+                            (fp)3f),
+                });
+            projectileWorld.DefRegistry.Register(
+                new ProjectileDef
+                {
+                    DefId = 109,
+                    RuntimeEntityPrefabId = 2001,
+                    Speed = (fp)1,
+                    MaxLifetimeTicks = 10,
+                    HitRadius = (fp)0.1f,
+                    TargetFilter =
+                        ProjectileTargetFilter.DefaultEnemy,
+                    HitPolicy =
+                        ProjectileHitPolicy.DefaultSingleHit,
+                    OnHitEffects =
+                        new ProjectileOnHitEffects
+                        {
+                            BuffEffects =
+                                new[]
+                                {
+                                    new ProjectileOnHitBuff
+                                    {
+                                        BuffId =
+                                            new BuffConfigId(12022),
+                                        DurationTicks = 45,
+                                        TargetKinds =
+                                            UnitKindMask.Hero,
+                                    },
+                                },
+                        },
+                });
+
+            ProjectileUid missile = projectileWorld.RequestSpawn(
+                new ProjectileSpawnRequest(
+                    109,
+                    owner.UnitUid,
+                    owner.TeamId,
+                    new SourceDescriptor
+                    {
+                        SourceType = CombatSourceType.Ability,
+                        SourceId = 10022,
+                        OwnerUnitUid = owner.UnitUid,
+                        EmitterUnitUid = owner.UnitUid,
+                    },
+                    fp2.zero,
+                    new fp2(fp.one, fp.zero)));
+            Assert.That(missile.IsValid, Is.True);
+            projectileWorld.CommitSpawns();
+            projectileWorld.AdvanceMotion();
+            projectileWorld.UpdateLifecycle();
+            physicsWorld.BuildUnitFinalGrid();
+
+            resolver.ResolveAllHits(projectileWorld);
+            resolver.EmitEffects(projectileWorld);
+
+            Assert.That(
+                firstTarget.BuffHandler.HasBuff(
+                    new BuffConfigId(12022)),
+                Is.True);
+            Assert.That(
+                projectileWorld.PendingCount,
+                Is.EqualTo(1),
+                "The W hit must queue its stationary containment projectile.");
+            ProjectileWorldSnapshot snapshot =
+                ProjectileWorldSnapshot.Empty;
+            projectileWorld.Capture(ref snapshot);
+            Assert.That(snapshot.PendingSpawns, Has.Length.EqualTo(1));
+            Assert.That(snapshot.PendingSpawns[0].DefId, Is.EqualTo(110));
+
+            SetTargetPose(firstTarget, (fp)20);
+            firstTarget.BuffHandler.Advance();
+            Assert.That(
+                firstTarget.BuffHandler.HasBuff(
+                    new BuffConfigId(12022)),
+                Is.False,
+                "Leaving the authored zone must remove the tether.");
+            Assert.That(
+                projectileWorld.PendingCount,
+                Is.Zero,
+                "Removing the tether must cancel its area projectile even before spawn commit.");
+        }
+
         private void RegisterDefinition(
             int maxHits,
             bool endOnFirst,
@@ -453,7 +597,10 @@ namespace FrameSyncMoba.FrameSync.Tests
                 new fp2(fp.one, fp.zero));
         }
 
-        private static UnitPrototype CreatePrototype()
+        private static UnitPrototype CreatePrototype(
+            UnitKind kind = UnitKind.Hero,
+            int prototypeId = 1,
+            int prefabId = 1001)
         {
             var preset = new StatPreset();
             preset.Stats.Add(new StatPresetEntry
@@ -468,9 +615,9 @@ namespace FrameSyncMoba.FrameSync.Tests
             });
             return new UnitPrototype
             {
-                UnitPrototypeId = 1,
-                RuntimeEntityPrefabId = 1001,
-                UnitKind = UnitKind.Hero,
+                UnitPrototypeId = prototypeId,
+                RuntimeEntityPrefabId = prefabId,
+                UnitKind = kind,
                 BaseStats = preset,
                 Loadout = HandlerLoadout.DefaultHero,
             };

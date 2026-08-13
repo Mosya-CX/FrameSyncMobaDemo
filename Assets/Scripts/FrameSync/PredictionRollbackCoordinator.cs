@@ -95,6 +95,7 @@ namespace FrameSyncMoba.FrameSync
             Array.Empty<MissingAuthorityFrameRange>();
         private bool replaying;
         private readonly int maxPredictionLeadTicks;
+        private int mismatchStuckTick = -1;
 
         public int LatestAuthorityFrameTick { get; private set; } = -1;
         public int LocalSimulationTick => pipeline.LocalSimulationTick;
@@ -102,6 +103,7 @@ namespace FrameSyncMoba.FrameSync
         public int PredictedMatchEndCandidateTick { get; private set; } = -1;
         public int PredictedTickCount =>
             pipeline.LocalSimulationTick - (LatestAuthorityFrameTick + 1);
+        public int MaxPredictionLeadTicks => maxPredictionLeadTicks;
         public bool HasMissingAuthorityFrames =>
             (PauseReasons & PredictionPauseReason.MissingAuthorityFrame) != 0;
         public PredictionPauseReason PauseReasons { get; private set; }
@@ -142,6 +144,22 @@ namespace FrameSyncMoba.FrameSync
         {
             GameplaySnapshot snapshot = pipeline.CaptureAggregateSnapshot();
             for (int i = 0; i < captureRegistrations.Count; i++) captureRegistrations[i](snapshot);
+            int shopOps = 0;
+            var traders = snapshot.EquipmentShopState.CreatedTraders;
+            if (traders != null)
+            {
+                for (int t = 0; t < traders.Count; t++)
+                    shopOps += traders[t].OperationLog?.Count ?? 0;
+            }
+            if (SharedGameplayChecksum.DetailedLoggingEnabled ||
+                completedTick <= 5 ||
+                completedTick % 30 == 0)
+            {
+                FrameSyncMoba.Unit.FrameSyncDiagnostics.LogTrace(
+                    $"[Capture] key={completedTick} shopOps={shopOps} " +
+                    $"tick={SimulationTickContext.Current.Tick} " +
+                    $"mode={SimulationTickContext.Current.ExecutionMode}");
+            }
             store.Store(completedTick, snapshot);
             SnapshotTick = completedTick + 1;
         }
@@ -273,6 +291,14 @@ namespace FrameSyncMoba.FrameSync
                 if (frame.Tick >=
                     pipeline.LocalSimulationTick)
                     break;
+                if (frame.Tick == mismatchStuckTick)
+                {
+                    // Hard desync already dumped and reported for this Tick.
+                    // Re-replaying the same frame on every incoming message
+                    // previously burned CPU and flooded the log with
+                    // rollback lines and stack traces; stay paused instead.
+                    break;
+                }
                 if (hasAcceptedFrameSequence && frame.FrameSequence <= latestFrameSequence)
                     throw new DeterministicSimulationException(
                         $"AuthorityFrame sequence {frame.FrameSequence} is not newer than {latestFrameSequence}.");
@@ -291,6 +317,7 @@ namespace FrameSyncMoba.FrameSync
                 if (!verificationByTick.TryGetValue(frame.Tick, out verification) ||
                     verification.SharedGameplayChecksum != frame.SharedGameplayChecksum)
                 {
+                    mismatchStuckTick = frame.Tick;
                     UnityEngine.Debug.LogError(
                         $"[Checksum] Tick {frame.Tick} " +
                         $"local={pipeline.LocalSimulationTick} " +
@@ -300,13 +327,41 @@ namespace FrameSyncMoba.FrameSync
                         $"{(verificationByTick.TryGetValue(frame.Tick, out var v) ? v.SharedGameplayChecksum : 0u)} " +
                         $"commandsMatch={commandsMatch} " +
                         $"commands={frame.CanonicalCommandBytes?.Length ?? 0}");
-                    PrintDetailedChecksumDiagnostics(
-                        frame.Tick,
-                        pipeline);
+                    // Full world dump formatting and IO are queued to the
+                    // diagnostic worker so the client main thread only
+                    // captures the immutable snapshot.
+                    GameplaySnapshot world =
+                        pipeline.CaptureAggregateSnapshot();
+                    GoldIncomeBatchDigest mismatchGoldDigest =
+                        pipeline.GoldIncome?.GetBatchDigest(frame.Tick) ??
+                        new GoldIncomeBatchDigest(0);
+                    SharedGameplayChecksum.ChecksumSegment[] segments =
+                        SharedGameplayChecksum.ComputeSegmentHashes(
+                            world,
+                            mismatchGoldDigest);
+                    for (int segmentIndex = 0;
+                         segmentIndex < segments.Length;
+                         segmentIndex++)
+                    {
+                        UnityEngine.Debug.LogError(
+                            $"[ChecksumSegment] tick={frame.Tick} " +
+                            "mode=ClientMismatch " +
+                            $"segment={segments[segmentIndex].Label} " +
+                            $"hash={segments[segmentIndex].Hash}");
+                    }
+                    FrameSyncMoba.Unit.FrameSyncDiagnostics.LogCritical(
+                        $"[Checksum] Tick {frame.Tick} " +
+                        $"server={frame.SharedGameplayChecksum} " +
+                        $"local={pipeline.LastChecksum} " +
+                        $"commands={frame.CanonicalCommandBytes?.Length ?? 0}");
+                    FrameSyncMoba.Unit.FrameSyncDiagnostics.WriteArtifact(
+                        GetDiagnosticsFilePath(),
+                        () => WorldDumpBuilder.BuildWorldDump(world));
                     throw new DeterministicSimulationException(
                         $"Authority replay checksum mismatch remains at Tick {frame.Tick}.");
                 }
 
+                mismatchStuckTick = -1;
                 pipeline.GoldIncome?.ConfirmThroughTick(frame.Tick);
                 LatestAuthorityFrameTick = frame.Tick;
                 latestFrameSequence = frame.FrameSequence;
@@ -334,6 +389,20 @@ namespace FrameSyncMoba.FrameSync
             }
             RefreshMissingFramePause();
             RefreshPredictionLeadPause();
+        }
+
+        private static string GetDiagnosticsFilePath()
+        {
+            string asynchronousLogPath =
+                FrameSyncMoba.Unit.FrameSyncDiagnostics.OutputPath;
+            if (!string.IsNullOrEmpty(asynchronousLogPath))
+                return asynchronousLogPath +
+                    ".worlddump.txt";
+            string logPath =
+                UnityEngine.Application.consoleLogPath;
+            return string.IsNullOrEmpty(logPath)
+                ? "frame_sync_diagnostics.worlddump.txt"
+                : logPath + ".worlddump.txt";
         }
 
         private void CorrectAndReplay(in AuthorityFrame frame)
@@ -401,9 +470,7 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < restoreRegistrations.Count; i++) restoreRegistrations[i](anchor.Gameplay);
             var context = new RollbackContext(frame.Tick, ExecutionMode.ClientReplay);
             for (int i = 0; i < resolveRegistrations.Count; i++) resolveRegistrations[i](context);
-            NonHeroHelper?.ResolveNonHero(context);
             for (int i = 0; i < rebuildRegistrations.Count; i++) rebuildRegistrations[i](context);
-            NonHeroHelper?.RebuildNonHero(context);
 
             GameplayCommand[] authoritativeCommands = frame.DecodeCommands();
             commandHistory[frame.Tick] = new CommandHistoryRecord(
@@ -420,55 +487,6 @@ namespace FrameSyncMoba.FrameSync
                     IReadOnlyList<GameplayCommand> commands = GetReplayCommands(tick, frame);
                     pipeline.ReplaceCommandsForNextTick(commands);
                     pipeline.ExecuteTick(tickController, ExecutionMode.ClientReplay);
-                    if (tick == frame.Tick)
-                    {
-                        // The verification compares the state AT frame.Tick,
-                        // not the post-replay end state. Log positions at the
-                        // first replayed tick so they are comparable to the
-                        // server's frame.Tick detail.
-                        var firstTickSnapshot =
-                            pipeline.CaptureAggregateSnapshot();
-                        var firstDigest =
-                            pipeline.GoldIncome?.GetBatchDigest(
-                                frame.Tick) ??
-                            new GoldIncomeBatchDigest(0);
-                        var firstSegments =
-                            SharedGameplayChecksum
-                                .ComputeSegmentHashes(
-                                    firstTickSnapshot,
-                                    firstDigest);
-                        var firstLines =
-                            new System.Collections.Generic.List<string>
-                            {
-                                $"[ReplaySegs] tick={frame.Tick} " +
-                                $"server={frame.SharedGameplayChecksum} " +
-                                $"local={pipeline.LastChecksum}",
-                            };
-                        for (int si = 0;
-                             si < firstSegments.Length;
-                             si++)
-                        {
-                            firstLines.Add(
-                                $"  {firstSegments[si].Label}=" +
-                                $"{firstSegments[si].Hash}");
-                        }
-                        UnityEngine.Debug.Log(
-                            string.Join(
-                                System.Environment.NewLine,
-                                firstLines));
-                        var firstUnits =
-                            firstTickSnapshot.UnitWorldState.Units;
-                        for (int ui = 0;
-                             ui < firstUnits.Length;
-                             ui++)
-                        {
-                            var pu = firstUnits[ui].PhysicsTransform.Position;
-                            UnityEngine.Debug.Log(
-                                $"[ReplayFirst] tick={frame.Tick} " +
-                                $"unit={firstUnits[ui].UnitUid} " +
-                                $"pos=({pu.x},{pu.y})");
-                        }
-                    }
                 }
             }
             finally
@@ -548,6 +566,9 @@ namespace FrameSyncMoba.FrameSync
                         $"    {handlers[h].Label}=" +
                         $"{handlers[h].Hash}");
                 }
+                ChecksumDiagnosticFormatter.AppendEquipmentSlots(
+                    lines,
+                    units[u]);
                 var ccInstances =
                     units[u].CCState.Instances;
                 lines.Add(
@@ -570,6 +591,9 @@ namespace FrameSyncMoba.FrameSync
                     }
                 }
             }
+            ChecksumDiagnosticFormatter.AppendShopState(
+                lines,
+                predicted.EquipmentShopState);
             UnityEngine.Debug.LogError(
                 string.Join(
                     System.Environment.NewLine,
@@ -597,10 +621,8 @@ namespace FrameSyncMoba.FrameSync
             IReadOnlyList<GameplayCommand> commands,
             uint checksum)
         {
-            if (tick <= 5)
-                UnityEngine.Debug.Log(
-                    $"[Checksum] Client local Tick {tick} " +
-                    $"checksum={checksum} commands={commands.Count}");
+            // Startup checksum baseline is only logged on mismatch now
+            // (less noise during healthy runs).
             if (!commandHistory.TryGetValue(tick, out CommandHistoryRecord record) || replaying)
             {
                 GameplayCommand[] copy = CopyAndValidateCommands(tick, commands);

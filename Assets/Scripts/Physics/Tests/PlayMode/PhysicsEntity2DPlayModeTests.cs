@@ -204,7 +204,7 @@ namespace FrameSyncMoba.Physics.PlayModeTests
         }
 
         [UnityTest]
-        public IEnumerator LogicalWrites_DoNotReadOrWriteUnityTransform()
+        public IEnumerator LogicalWrites_DoNotSynchronouslyWriteUnityTransform()
         {
             gameObject.transform.SetPositionAndRotation(
                 new Vector3(101.5f, -7.25f, 33f),
@@ -215,11 +215,51 @@ namespace FrameSyncMoba.Physics.PlayModeTests
             entity.SetLogicPose(Vector(-100, 200), Vector(3, 4));
             entity.SetLogicShape(PhysicsShape2D.CreateRect(Vector(2, -3), Vector(6, 4), true));
             entity.ApplyLogicPositionDelta(Vector(7, 9));
-            yield return null;
 
             Assert.That(gameObject.transform.position, Is.EqualTo(unityPosition));
             Assert.That(gameObject.transform.rotation, Is.EqualTo(unityRotation));
             Assert.That(entity.Transform2D.Position.x.RawValue, Is.Not.EqualTo(fp.zero.RawValue));
+
+            // The presentation projection remains the sole LateUpdate write
+            // point; the logical APIs above never touch Transform directly.
+            yield return null;
+            Assert.That(gameObject.transform.position,
+                Is.EqualTo(new Vector3(-93f, 0f, 209f)));
+        }
+
+        [UnityTest]
+        public IEnumerator PresentationSmoothing_InterpolatesWithoutChangingLogicPose()
+        {
+            PhysicsPresentationSettings.Configure(true, 0.2f, 100f);
+            try
+            {
+                entity.TeleportLogicPosition(Vector(0, 0));
+                yield return null;
+                entity.SetLogicPosition(Vector(10, 0));
+                fp2 logicPosition = entity.Transform2D.Position;
+
+                yield return null;
+
+                Assert.That(gameObject.transform.position.x,
+                    Is.GreaterThan(0f));
+                Assert.That(gameObject.transform.position.x,
+                    Is.LessThan(10f));
+                AssertVector(entity.Transform2D.Position, logicPosition);
+
+                float deadline = Time.realtimeSinceStartup + 1f;
+                while (gameObject.transform.position.x < 9.99f &&
+                       Time.realtimeSinceStartup < deadline)
+                {
+                    yield return null;
+                }
+                Assert.That(gameObject.transform.position.x,
+                    Is.EqualTo(10f).Within(.01f));
+                AssertVector(entity.Transform2D.Position, logicPosition);
+            }
+            finally
+            {
+                PhysicsPresentationSettings.Configure(false, 0.033333f, 6f);
+            }
         }
 
         private static fp Whole(int value)

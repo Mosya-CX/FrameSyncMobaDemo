@@ -4,8 +4,10 @@
     /// Bitmask filter for Unit.LifeState in RangeQueryService
     /// (Physics v13.1 section 9.5).
     /// </summary>
+    [System.Serializable]
     public struct UnitLifeStateMask
     {
+        [UnityEngine.SerializeField]
         private byte mask;
 
         public static readonly UnitLifeStateMask None = default;
@@ -14,6 +16,8 @@
         public static readonly UnitLifeStateMask DeadOnly = new UnitLifeStateMask { mask = 1 << 2 };
         public static readonly UnitLifeStateMask RespawningOnly = new UnitLifeStateMask { mask = 1 << 3 };
         public static readonly UnitLifeStateMask All = new UnitLifeStateMask { mask = 0xFF };
+
+        public bool IsEmpty => mask == 0;
 
         public bool Contains(LifeState state)
         {

@@ -689,7 +689,7 @@ namespace FrameSyncMoba.FrameSync
                         writer.WriteInt32(modules[moduleIndex].NextExecuteTick);
                         writer.WriteInt32(modules[moduleIndex].InternalCooldownReadyTick);
                         writer.WriteInt32(modules[moduleIndex].StackCount);
-                        writer.WriteInt32(modules[moduleIndex].TimerTicks);
+                        writer.WriteInt32(modules[moduleIndex].TriggerCount);
                     }
                 }
             }
@@ -935,7 +935,7 @@ namespace FrameSyncMoba.FrameSync
                     writer.WriteInt32(
                         module.InternalCooldownReadyTick);
                     writer.WriteInt32(module.StackCount);
-                    writer.WriteInt32(module.TimerTicks);
+                    writer.WriteInt32(module.TriggerCount);
                 }
             }
         }

@@ -273,7 +273,9 @@ namespace FrameSyncMoba.Unit
             if (trg.LifeState != LifeState.Alive && trg.LifeState != LifeState.Dying) return;
             fp amt = r.BaseValue; StatHandler ss = null;
             if (_unitWorld.TryGetUnit(r.SourceUnitUid, out Unit src)) ss = src.StatHandler;
-            if (ss != null) { fp sp = ss.GetStat(StatId.ShieldPower); amt *= (fp.one + sp); }
+            // 护盾和治疗强度 is one stat (HealPower): both the shield and
+            // heal pipelines scale by (1 + value), value starts at 0.
+            if (ss != null) { fp sp = ss.GetStat(StatId.HealPower); amt *= (fp.one + sp); }
             if (amt <= fp.zero) return;
             fp applied = trg.StatHandler?.AddShield(
                 r.ShieldType, amt, r.DurationTicks, r.SourceUnitUid) ?? fp.zero;
@@ -423,8 +425,22 @@ namespace FrameSyncMoba.Unit
                 CombatContributionKind.Damage,
                 shieldAbs + actualLifeDamage,
                 req.Header.SequenceInTick);
-            var evt = new DamageEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, Source = req.Header.SourceDescriptor, RawDamage = raw, MitigatedDamage = mitigated, ActualDamage = actualLifeDamage + shieldAbs, DamageType = req.DamageType, IsCritical = isCrit };
+            var evt = new DamageEventData
+            {
+                SourceUid = req.SourceUnitUid,
+                TargetUid = req.TargetUnitUid,
+                Source = req.Header.SourceDescriptor,
+                RecipeId = req.Header.RecipeId,
+                RawDamage = raw,
+                MitigatedDamage = mitigated,
+                ActualDamage = actualLifeDamage + shieldAbs,
+                DamageType = req.DamageType,
+                IsCritical = isCrit,
+            };
             CombatEvents.RaiseDamageTaken(evt); CombatEvents.RaiseDamageDealt(evt);
+            ApplyStatDrainHeal(
+                req,
+                evt.ActualDamage);
             // Fire on-hit event for attack damage
             if (req.Header.SourceDescriptor.SourceType == CombatSourceType.Attack)
             {
@@ -445,6 +461,56 @@ namespace FrameSyncMoba.Unit
                 target.EventBus?.PublishUnitDying(target);
             }
             ApplyHitReaction(target, mitigated);
+        }
+
+        /// <summary>
+        /// Omnivamp heals the source for a fraction of the settled actual
+        /// damage from any source; Life Steal additionally applies to basic
+        /// attacks (Unit v27.3 stat semantics). Both stats are decimals
+        /// (0.2 = 20%) and are surfaced as modifiers on the source.
+        /// </summary>
+        private void ApplyStatDrainHeal(
+            in DamageRequest req,
+            fp actualDamage)
+        {
+            if (actualDamage <= fp.zero ||
+                _unitWorld == null ||
+                !_unitWorld.TryGetUnit(
+                    req.SourceUnitUid,
+                    out Unit source) ||
+                source.StatHandler == null ||
+                source.LifeState != LifeState.Alive)
+            {
+                return;
+            }
+            fp ratio =
+                source.StatHandler.GetStat(StatId.Omnivamp);
+            if (req.Header.SourceDescriptor.SourceType ==
+                CombatSourceType.Attack)
+            {
+                ratio +=
+                    source.StatHandler.GetStat(StatId.LifeSteal);
+            }
+            fp healAmount = actualDamage * ratio;
+            if (healAmount <= fp.zero)
+            {
+                return;
+            }
+            SubmitHeal(
+                new HealRequest
+                {
+                    Header = CombatRequestHeader.Create(
+                        req.SourceUnitUid,
+                        req.SourceUnitUid,
+                        req.Header.SourceDescriptor.SourceType,
+                        req.Header.SourceDescriptor.SourceId,
+                        req.Header.RecipeId,
+                        req.Header.SourceDescriptor
+                            .OwnerUnitUid),
+                    SourceUnitUid = req.SourceUnitUid,
+                    TargetUnitUid = req.SourceUnitUid,
+                    BaseValue = healAmount,
+                });
         }
 
         private void SubmitHitVfx(
@@ -721,6 +787,25 @@ namespace FrameSyncMoba.Unit
                     victim.UnitUid);
                 _eventLogs.Add(victim.UnitUid, log);
             }
+            // Settlement audit: print every effective Damage / Shield / Heal
+            // event attributed to a source hero. ResolveContributorHero is
+            // kill/assist-oriented (it drops self-heals and friendly
+            // shields), so the audit falls back to the raw source-owner hero
+            // for those events.
+            UnitUid auditHero =
+                contributorHeroUid.IsValid()
+                    ? contributorHeroUid
+                    : ResolveSourceHero(sourceUid);
+            if (auditHero.IsValid())
+            {
+                UnityEngine.Debug.Log(
+                    $"[CombatContribution] " +
+                    $"tick={SimulationTickContext.Current.Tick} " +
+                    $"hero={auditHero} " +
+                    $"victim={victim.UnitUid} " +
+                    $"kind={kind} amount={amount} " +
+                    $"seq={sequenceInTick}");
+            }
             if (!contributorHeroUid.IsValid() &&
                 kind != CombatContributionKind.Damage)
             {
@@ -741,6 +826,35 @@ namespace FrameSyncMoba.Unit
                             .Current.Tick,
                     SequenceInTick = sequenceInTick,
                 });
+        }
+
+        /// <summary>
+        /// Walks the source owner chain up to the controlling hero without
+        /// the kill/assist victim/team filters (used by the settlement audit
+        /// log so self-heals and friendly shields are still attributed).
+        /// </summary>
+        private UnitUid ResolveSourceHero(
+            UnitUid sourceUid)
+        {
+            UnitUid currentUid = sourceUid;
+            for (int depth = 0;
+                 depth < 16;
+                 depth++)
+            {
+                if (!currentUid.IsValid() ||
+                    !_unitWorld.TryGetUnit(
+                        currentUid,
+                        out Unit source))
+                {
+                    return default;
+                }
+                if (source.UnitKind == UnitKind.Hero)
+                {
+                    return source.UnitUid;
+                }
+                currentUid = source.OwnerUid;
+            }
+            return default;
         }
 
         private UnitUid ResolveContributorHero(UnitUid sourceUid, Unit victim)

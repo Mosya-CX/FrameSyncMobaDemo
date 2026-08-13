@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd190d0d50aa5847a974015e823714e, type: 3}
+  m_Name: AatroxWorldEnder
+  m_EditorClassIdentifier: 
+  ConfigId:
+    Value: 12024
+  Display:
+    Name: World Ender
+    Description: Gain total attack damage, amplified self-healing, decaying move
+      speed and ghosting.
+    Icon: {fileID: 21300000, guid: 530bdb7b178dc224e98d3a27461805f2, type: 3}
+  Life:
+    DurationSeconds: 10
+    Infinite: 0
+    RefreshMode: 1
+    ExtendSeconds: 0
+  Stack:
+    MaxStacks: 1
+    AddMode: 0
+    ReduceMode: 0
+    ReduceAmount: 1
+  Tags:
+    TagIds: fa
+  Effects:
+  - Effect:
+      rid: 2586996089610567751
+  - Effect:
+      rid: 2586996089610567752
+  - Effect:
+      rid: 2586996089610567753
+  - Effect:
+      rid: 2586996089610567754
+  BlackboardLayout:
+    Slots: []
+  LifecycleReactions:
+    Added: []
+    Reapplied: []
+    Removed: []
+    StackChanged: []
+    Periodic: []
+  EventReactions:
+    DamageTaken: []
+    DamageDealt: []
+    HealTaken: []
+    HealDealt: []
+    ShieldApplied: []
+    AbilityCast: []
+    LevelUp: []
+    UnitDying: []
+    UnitDeath: []
+    UnitKill: []
+    OnHitDealt: []
+    CollisionEnter: []
+    CollisionExit: []
+  Priority: 100
+  PeriodicIntervalTicks: 0
+  ApplyVfxDefId: 0
+  ApplyVfxDurationSeconds: 0
+  InitialStacks: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586996089610567751
+      type: {class: AbilityRankStatModifierBuffEffect, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        StatId: 5
+        Operation: 2
+        ValueByAbilityLevel:
+          values:
+          - m_rawValue: 858993472
+          - m_rawValue: 1288490240
+          - m_rawValue: 1717986944
+        NegateValue: 0
+        HandleSlot:
+          Value: 1
+    - rid: 2586996089610567752
+      type: {class: AbilityRankStatModifierBuffEffect, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        StatId: 25
+        Operation: 2
+        ValueByAbilityLevel:
+          values:
+          - m_rawValue: 2147483648
+          - m_rawValue: 3221225472
+          - m_rawValue: 4294967296
+        NegateValue: 0
+        HandleSlot:
+          Value: 2
+    - rid: 2586996089610567753
+      type: {class: DecayingAbilityRankStatModifierBuffEffect, ns: FrameSyncMoba.Unit,
+        asm: FrameSyncMoba.Unit}
+      data:
+        StatId: 11
+        Operation: 2
+        PeakValueByAbilityLevel:
+          values:
+          - m_rawValue: 2576980480
+          - m_rawValue: 3435973888
+          - m_rawValue: 4294967296
+        DecayTicks: 60
+        HandleSlot:
+          Value: 3
+        BurstRemainingTicksSlot:
+          Value: 4
+    - rid: 2586996089610567754
+      type: {class: RefreshDurationOnKillParticipationBuffEffect, ns: FrameSyncMoba.Unit,
+        asm: FrameSyncMoba.Unit}
+      data:
+        ExtendTicks: 150
+        MaximumRemainingTicks: 300
+        RestartBurstTicks: 60
+        BurstRemainingTicksSlot:
+          Value: 4

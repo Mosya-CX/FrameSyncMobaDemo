@@ -1,0 +1,289 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1ffb938a26d10b46b88354c8e8aeb8a, type: 3}
+  m_Name: AatroxQ
+  m_EditorClassIdentifier: 
+  abilityId: 10021
+  abilityName: The Darkin Blade
+  icon: {fileID: 21300000, guid: e894b675c21081c48870a9a7933c7439, type: 3}
+  isUltimate: 0
+  castModel:
+    rid: 2586996089610567745
+  castRange: 6.25
+  aimKind: 4
+  cooldownTicksByLevel:
+  - 420
+  - 360
+  - 300
+  - 240
+  - 180
+  costTiming: 0
+  castResourceCostByLevel: []
+  healthCostByLevel: []
+  castConditions: []
+  passiveEffect:
+    rid: -2
+  stageDefs:
+  - rid: 2586996089610567746
+  - rid: 2586996089610567747
+  - rid: 2586996089610567748
+  - rid: 2586996089610567749
+  - rid: 2586996089610567750
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 2586996089610567745
+      type: {class: SequentialRecastCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        firstImpactStageKey: 1
+        firstImpactDurationTicks: 30
+        firstRecastWindowStageKey: 2
+        firstRecastWindowDurationTicks: 120
+        firstMinimumRecastDelayTicks: 30
+        secondImpactStageKey: 3
+        secondImpactDurationTicks: 30
+        secondRecastWindowStageKey: 4
+        secondRecastWindowDurationTicks: 120
+        secondMinimumRecastDelayTicks: 30
+        finalImpactStageKey: 5
+        finalImpactDurationTicks: 30
+        impactInterruptible: 0
+        windowInterruptible: 1
+        impactLockMovement: 1
+        firstImpactIconOverride: {fileID: 21300000, guid: e894b675c21081c48870a9a7933c7439,
+          type: 3}
+        secondImpactIconOverride: {fileID: 21300000, guid: 00e9e3466d875504dacc31d33410c22a,
+          type: 3}
+        finalImpactIconOverride: {fileID: 21300000, guid: 6b760e2beac14724da8a55d9ff3ecd64,
+          type: 3}
+    - rid: 2586996089610567746
+      type: {class: DirectionalMultiZoneDamageStageDefAuthoring, ns: FrameSyncMoba.Unit,
+        asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 1
+        debugName: Q1 Impact
+        shape: 0
+        forwardStart: 0
+        forwardLength: 5.5
+        nearHalfWidth: 0.575
+        farHalfWidth: 0.9
+        circleForwardOffset: 0
+        circleRadius: 0
+        sweetForwardStart: 3.75
+        sweetForwardEnd: 5.5
+        sweetCircleRadius: 0
+        baseDamageByAbilityLevel:
+        - 10
+        - 25
+        - 40
+        - 55
+        - 70
+        attackDamageRatioByAbilityLevel:
+        - 0.6
+        - 0.675
+        - 0.75
+        - 0.825
+        - 0.9
+        stageDamageMultiplier: 1
+        sweetSpotDamageMultiplier: 1.75
+        monsterBaseDamageBonus: 25
+        minionDamageMultiplierByUnitLevel:
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.7
+        - 0.7
+        - 0.7
+        damageType: 0
+        targetFilter:
+          TeamRule: 1
+          UnitKindMask:
+            mask: 7
+          RequireSubKind: 0
+          UnitSubKindId: 0
+          RequirePrototype: 0
+          UnitPrototypeId: 0
+          LifeStateMask:
+            mask: 1
+          RequireTargetable: 1
+        sweetSpotControlId: 113
+        sweetSpotControlDurationTicks: 8
+        fixedPassiveHitReductionTicks: 60
+        fixedPassiveSweetHitReductionTicks: 120
+        recipeId: 100211
+        sweetSpotRecipeId: 100212
+        vfxDefId: 3101
+        impactDelayTicks: 30
+    - rid: 2586996089610567747
+      type: {class: DelayStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 2
+        debugName: Q2 Recast Window
+    - rid: 2586996089610567748
+      type: {class: DirectionalMultiZoneDamageStageDefAuthoring, ns: FrameSyncMoba.Unit,
+        asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 3
+        debugName: Q2 Impact
+        shape: 1
+        forwardStart: -1
+        forwardLength: 4.25
+        nearHalfWidth: 1
+        farHalfWidth: 3
+        circleForwardOffset: 0
+        circleRadius: 0
+        sweetForwardStart: 2
+        sweetForwardEnd: 3.25
+        sweetCircleRadius: 0
+        baseDamageByAbilityLevel:
+        - 10
+        - 25
+        - 40
+        - 55
+        - 70
+        attackDamageRatioByAbilityLevel:
+        - 0.6
+        - 0.675
+        - 0.75
+        - 0.825
+        - 0.9
+        stageDamageMultiplier: 1.25
+        sweetSpotDamageMultiplier: 1.75
+        monsterBaseDamageBonus: 25
+        minionDamageMultiplierByUnitLevel:
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.7
+        - 0.7
+        - 0.7
+        damageType: 0
+        targetFilter:
+          TeamRule: 1
+          UnitKindMask:
+            mask: 7
+          RequireSubKind: 0
+          UnitSubKindId: 0
+          RequirePrototype: 0
+          UnitPrototypeId: 0
+          LifeStateMask:
+            mask: 1
+          RequireTargetable: 1
+        sweetSpotControlId: 113
+        sweetSpotControlDurationTicks: 8
+        fixedPassiveHitReductionTicks: 60
+        fixedPassiveSweetHitReductionTicks: 120
+        recipeId: 100213
+        sweetSpotRecipeId: 100214
+        vfxDefId: 3102
+        impactDelayTicks: 30
+    - rid: 2586996089610567749
+      type: {class: DelayStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 4
+        debugName: Q3 Recast Window
+    - rid: 2586996089610567750
+      type: {class: DirectionalMultiZoneDamageStageDefAuthoring, ns: FrameSyncMoba.Unit,
+        asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 5
+        debugName: Q3 Impact
+        shape: 2
+        forwardStart: 0
+        forwardLength: 0
+        nearHalfWidth: 0
+        farHalfWidth: 0
+        circleForwardOffset: 2
+        circleRadius: 3
+        sweetForwardStart: 0
+        sweetForwardEnd: 0
+        sweetCircleRadius: 1.8
+        baseDamageByAbilityLevel:
+        - 10
+        - 25
+        - 40
+        - 55
+        - 70
+        attackDamageRatioByAbilityLevel:
+        - 0.6
+        - 0.675
+        - 0.75
+        - 0.825
+        - 0.9
+        stageDamageMultiplier: 1.5
+        sweetSpotDamageMultiplier: 1.75
+        monsterBaseDamageBonus: 25
+        minionDamageMultiplierByUnitLevel:
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.55
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.6
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.65
+        - 0.7
+        - 0.7
+        - 0.7
+        damageType: 0
+        targetFilter:
+          TeamRule: 1
+          UnitKindMask:
+            mask: 7
+          RequireSubKind: 0
+          UnitSubKindId: 0
+          RequirePrototype: 0
+          UnitPrototypeId: 0
+          LifeStateMask:
+            mask: 1
+          RequireTargetable: 1
+        sweetSpotControlId: 113
+        sweetSpotControlDurationTicks: 8
+        fixedPassiveHitReductionTicks: 60
+        fixedPassiveSweetHitReductionTicks: 120
+        recipeId: 100215
+        sweetSpotRecipeId: 100216
+        vfxDefId: 3103
+        impactDelayTicks: 30

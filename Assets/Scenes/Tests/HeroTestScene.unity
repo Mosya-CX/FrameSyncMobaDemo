@@ -844,7 +844,7 @@ MonoBehaviour:
   mapHeight: 40
   mapCenter: {x: 0, y: 0}
   cellSize: 0.5
-  heroPrototypeId: 1001
+  heroPrototypeId: 1002
   heroSpawn: {x: -15, y: -15}
   dummyPrototypeId: 1001
   dummySpawn: {x: -10, y: -10}

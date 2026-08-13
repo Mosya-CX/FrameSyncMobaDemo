@@ -34,6 +34,8 @@ namespace FrameSyncMoba.Bootstrap
             GameSessionContext.ResetSession();
             GameSessionContext.IsDedicatedServer =
                 true;
+            FrameSyncDiagnosticsUnityHost.EnsureInitialized(
+                true);
             GameSessionContext.FlowManagedExternally =
                 true;
             enableOnlineApplicationFlow =

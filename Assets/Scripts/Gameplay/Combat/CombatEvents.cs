@@ -148,6 +148,12 @@ namespace FrameSyncMoba.Unit
         /// AttackEffect/...). Enables effects to distinguish skill damage
         /// from basic-attack damage without guessing.</summary>
         public SourceDescriptor Source;
+        /// <summary>
+        /// Recipe id of the settled damage request (e.g. BasicAttackDamage
+        /// vs EmpoweredAttackDamage). Lets reactions (equipment passives,
+        /// buffs) key off the exact damage recipe without guessing.
+        /// </summary>
+        public int RecipeId;
         public fp RawDamage;
         public fp MitigatedDamage;
         public fp ActualDamage;
@@ -180,5 +186,10 @@ namespace FrameSyncMoba.Unit
         public UnitUid TargetUid;
         public DamageType DamageType;
         public bool IsCritical;
+        /// <summary>
+        /// True when this event is an equipment-requested repeat of eligible
+        /// On-Hit effects rather than a second attack impact.
+        /// </summary>
+        public bool IsRepeated;
     }
 }

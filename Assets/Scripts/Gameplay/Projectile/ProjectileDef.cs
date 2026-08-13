@@ -23,6 +23,7 @@ namespace FrameSyncMoba.Unit
             ProjectileHitPolicy.DefaultSingleHit;
         public ProjectileOnHitEffects OnHitEffects = ProjectileOnHitEffects.Empty;
         public ProjectileAoEConfig AoE = ProjectileAoEConfig.None;
+        public ProjectileContainmentZone ContainmentZone;
         public bool IsValid =>
             DefId > 0 &&
             RuntimeEntityPrefabId > 0 &&

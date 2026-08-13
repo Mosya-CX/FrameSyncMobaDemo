@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -13,6 +14,7 @@ namespace FrameSyncMoba.Unit
         public string Description;
         public bool IsActive;
         public EquipmentActiveSettings ActiveSettings;
+        [SerializeReference]
         public EquipmentEffectModule[] Modules;
 
         public bool IsValid => Modules != null && Modules.Length > 0;
@@ -60,8 +62,47 @@ namespace FrameSyncMoba.Unit
     {
         public EquipmentEffectInvokeTiming[] InvokeTimings;
 
-        public virtual bool CanExecute() => true;
-        public abstract void Execute(Unit owner, EquipmentInstance instance);
+        public virtual bool CanExecute(
+            ref EquipmentEffectExecutionContext context,
+            ref EquipmentEffectModuleRuntimeState state) => true;
+
+        public abstract void Execute(
+            ref EquipmentEffectExecutionContext context,
+            ref EquipmentEffectModuleRuntimeState state);
+    }
+
+    /// <summary>
+    /// Optional capability implemented by an equipment module that upgrades
+    /// the basic-attack damage recipe into an empowered strike for a specific
+    /// target (e.g. Sundered Sky's Lightshield Strike). The AttackHandler
+    /// consults this through EquipmentHandler; the module decides readiness
+    /// deterministically (per-target cooldown tags, target kind/team).
+    /// </summary>
+    public interface IEmpoweredAttackProvider
+    {
+        /// <summary>The damage recipe used by the empowered strike.</summary>
+        int EmpoweredRecipeId { get; }
+
+        /// <summary>
+        /// Whether the next basic attack against <paramref name="target"/>
+        /// should be upgraded to the empowered recipe right now.
+        /// </summary>
+        bool IsReadyForTarget(Unit owner, Unit target);
+    }
+
+    /// <summary>
+    /// Tick-local execution data for an equipment module. This context is not
+    /// snapshot state; modules may only persist deterministic state through
+    /// the supplied runtime-state reference.
+    /// </summary>
+    public struct EquipmentEffectExecutionContext
+    {
+        public Unit Owner;
+        public EquipmentInstance Instance;
+        public EquipmentEffectDispatch Dispatch;
+        public EquipmentEffectInvokeTiming Timing;
+        public AimSnapshot Target;
+        public OnHitEventData OnHit;
     }
 
     /// <summary>
@@ -94,6 +135,6 @@ namespace FrameSyncMoba.Unit
         public int NextExecuteTick;
         public int InternalCooldownReadyTick;
         public int StackCount;
-        public int TimerTicks;
+        public int TriggerCount;
     }
 }

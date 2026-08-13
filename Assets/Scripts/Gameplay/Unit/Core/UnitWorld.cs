@@ -37,6 +37,11 @@ namespace FrameSyncMoba.Unit
         public fp StatDistanceToLogicDistanceScale { get; set; } = (fp)0.01m;
         public int TickRate { get; set; }
         public int AttackSequenceResetIntervalTicks { get; set; } = 90;
+        /// <summary>
+        /// Units with AttackRange strictly above this value are treated as
+        /// ranged. Baked from GlobalGameplayData.UnitSettings.
+        /// </summary>
+        public int RangedAttackRangeThreshold { get; set; } = 275;
         public RespawnTimer RespawnTimer { get; set; }
         public DeathEffectDispatcher DeathEffectDispatcher { get; set; }
         public PathGridMap2D PathGrid { get; set; }

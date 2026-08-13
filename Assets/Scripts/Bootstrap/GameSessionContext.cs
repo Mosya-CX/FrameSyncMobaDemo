@@ -87,6 +87,12 @@ namespace FrameSyncMoba.Bootstrap
         public static GameBootstrapPayload? ReceivedClientPayload;
 
         /// <summary>
+        /// Client-side LaunchCommit that arrived before GameScene registered
+        /// its GameBootstrap. It is applied after the bootstrap snapshot.
+        /// </summary>
+        public static MatchLaunchCommit? ReceivedClientLaunchCommit;
+
+        /// <summary>
         /// Server-side allocation slots. Local mode uses the driver's frozen
         /// local slots; UOS mode uses the allocation-derived slots.
         /// </summary>
@@ -115,6 +121,7 @@ namespace FrameSyncMoba.Bootstrap
             HeroDisplayTable = null;
             PendingServerStart = null;
             ReceivedClientPayload = null;
+            ReceivedClientLaunchCommit = null;
             ServerSlots = null;
             ClientFlow = null;
             ServerFlow = null;

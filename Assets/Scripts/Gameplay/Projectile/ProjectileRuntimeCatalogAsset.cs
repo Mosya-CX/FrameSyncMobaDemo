@@ -21,6 +21,7 @@ namespace FrameSyncMoba.Unit
     {
         [Min(1)] public int BuffConfigId;
         [Min(1)] public int DurationTicks;
+        public UnitKindMask TargetKinds;
     }
 
     [Serializable]
@@ -66,6 +67,8 @@ namespace FrameSyncMoba.Unit
                 throw new InvalidOperationException(
                     $"Projectile prefab {RuntimeEntityPrefabId} has no PhysicsEntity2DShapeAuthoring.");
             shapeAuthoring.BakeOrThrow();
+            ProjectileContainmentZoneAuthoring containmentAuthoring =
+                prefab.GetComponent<ProjectileContainmentZoneAuthoring>();
 
             var definition = new ProjectileDef
             {
@@ -84,6 +87,9 @@ namespace FrameSyncMoba.Unit
                     BuffEffects = BakeBuffEffects(),
                     CCEffects = BakeCrowdControlEffects(),
                 },
+                ContainmentZone = containmentAuthoring != null
+                    ? containmentAuthoring.BakeOrThrow()
+                    : default,
             };
             definition.ValidateOrThrow();
             return definition;
@@ -122,6 +128,7 @@ namespace FrameSyncMoba.Unit
                         BuffEffects[i].BuffConfigId),
                     DurationTicks =
                         BuffEffects[i].DurationTicks,
+                    TargetKinds = BuffEffects[i].TargetKinds,
                 };
             }
             return baked;

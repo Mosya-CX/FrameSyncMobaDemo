@@ -1,7 +1,7 @@
 # FrameSyncMobaDemo -- Repository Map
 
-> Last verified: 2026-08-10 after real UOS two-client Gameplay validation and
-> a final source audit of the incomplete UOS/LocalDirect lifecycle-owner fix.
+> Last verified: 2026-08-14 after the formal unit-prefab migration, Aatrox and
+> equipment vertical slices, two-phase UOS launch work and repository cleanup.
 
 ## Unity baseline
 
@@ -15,7 +15,7 @@
 | Global config | `Assets/Config/Formal/GlobalGameplayData.asset`, `GlobalPrefabTable.asset` |
 | Smoke scenes | `Assets/Scenes/Tests/FrameworkSmoke.unity`, `Assets/Scenes/Tests/ClientFrameworkSmoke.unity` |
 | Endpoint scenes | `Assets/Scenes/ClientBootstrap.unity`, `Assets/Scenes/ServerBootstrap.unity` |
-| Runtime unit prefabs | `Assets/Config/Formal/Prefabs/` (C/S single source) |
+| Runtime unit prefabs | `Assets/Resources/Prefab/Unit/` (C/S single source) |
 | Formal animation assets | `Assets/Resources/Animation/` |
 | Page-prefab UI | `Assets/Resources/Prefab/UI/UIManager.prefab` and page prefabs in the same folder |
 | Map pathfinding authoring | `Assets/Resources/Prefab/Map.prefab` (map grid, oriented obstacles, three lanes, six field references and read-only visualizer) |

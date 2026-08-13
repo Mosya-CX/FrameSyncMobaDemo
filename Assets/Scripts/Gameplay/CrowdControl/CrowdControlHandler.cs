@@ -706,12 +706,23 @@ namespace FrameSyncMoba.Unit
                 unstoppables.AddRange(
                     state.Unstoppables);
             }
-            ValidateCanonicalState();
+            FrameSyncDiagnostics.Log(
+                $"[CC] RestoreIn instances={state.Instances?.Count ?? 0} " +
+                $"handleValid={state.ActiveForcedMoveHandle.IsValid} " +
+                $"handleInst={state.ActiveForcedMoveHandle.InstanceId} " +
+                $"tick={SimulationTickContext.Current.Tick} " +
+                $"mode={SimulationTickContext.Current.ExecutionMode}");
             nextInstanceId = state.NextInstanceId;
             nextImmunityId = state.NextImmunityId;
             nextUnstoppableId = state.NextUnstoppableId;
             activeForcedMoveHandle =
                 state.ActiveForcedMoveHandle;
+            // Validate the RESTORED handle against the RESTORED instance
+            // list. Validating the pre-restore runtime handle here would
+            // spuriously fail whenever the previous tick owned a forced move
+            // that the snapshot no longer contains (e.g. the pull expired or
+            // was replaced between the snapshot Tick and the rollback).
+            ValidateCanonicalState();
             pendingSignals = state.PendingSignals;
             ClearAllSignalTicks();
             if (state.SignalEffectiveTicks != null)

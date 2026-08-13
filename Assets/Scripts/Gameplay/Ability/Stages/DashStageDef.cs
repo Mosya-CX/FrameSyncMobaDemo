@@ -9,6 +9,11 @@ namespace FrameSyncMoba.Unit
     {
         public fp SpeedPerTick;
         public fp TotalDistance;
+        public fp MaxTerrainCrossingDistance;
+        public bool ExtendThroughTerrain;
+        public ForceMoveWallPolicy WallPolicy =
+            ForceMoveWallPolicy.StopAtWall;
+        public bool ResetAttackTimerOnStart;
 
         public override StageResult OnEnter(AbilitySession session, AbilityRuntime runtime)
         {
@@ -23,17 +28,64 @@ namespace FrameSyncMoba.Unit
                 return StageResult.Failed;
             }
 
+            fp resolvedDistance = ResolveDistance(caster, session.Aim.Direction);
+            if (resolvedDistance <= fp.zero)
+                return StageResult.Failed;
             int durationTicks = (int)fpmath.ceil(
-                TotalDistance / SpeedPerTick);
+                resolvedDistance / SpeedPerTick);
             bool started = caster.MovementHandler.StartDash(
                 new DashRequest(
                     runtime.Definition.AbilityId,
                     session.Aim.Direction,
-                    TotalDistance,
-                    durationTicks));
+                    resolvedDistance,
+                    durationTicks,
+                    WallPolicy));
+            if (started && ResetAttackTimerOnStart)
+            {
+                caster.AttackHandler?.ResetAttackTimer(
+                    AttackTimerResetReason.AbilityEffect);
+            }
             return started
                 ? StageResult.Running
                 : StageResult.Failed;
+        }
+
+        private fp ResolveDistance(Unit caster, fp2 direction)
+        {
+            if (!ExtendThroughTerrain ||
+                MaxTerrainCrossingDistance <= TotalDistance ||
+                caster?.World?.PathGrid == null ||
+                !Physics.PhysicsGeometry2D.TryCreateFacing(
+                    direction,
+                    out fp2 forward,
+                    out _))
+            {
+                return TotalDistance;
+            }
+
+            PathGridMap2D grid = caster.World.PathGrid;
+            fp2 start = caster.PhysicsEntity.Transform2D.Position;
+            fp2 baseEnd = start + forward * TotalDistance;
+            (int baseX, int baseY) = grid.WorldToCell(baseEnd);
+            RadiusClass radiusClass =
+                RadiusClassHelper.FromRadius(
+                    caster.PhysicsEntity.Shape.Radius);
+            if (grid.IsPassable(baseX, baseY, radiusClass))
+                return TotalDistance;
+
+            fp step = grid.CellSize / (fp)2;
+            if (step <= fp.zero)
+                step = (fp)0.05m;
+            for (fp distance = TotalDistance + step;
+                 distance <= MaxTerrainCrossingDistance;
+                 distance += step)
+            {
+                fp2 landing = start + forward * distance;
+                (int x, int y) = grid.WorldToCell(landing);
+                if (grid.IsPassable(x, y, radiusClass))
+                    return distance;
+            }
+            return fp.zero;
         }
 
         public override StageResult OnTick(AbilitySession session, AbilityRuntime runtime)

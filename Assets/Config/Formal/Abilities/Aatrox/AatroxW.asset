@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1ffb938a26d10b46b88354c8e8aeb8a, type: 3}
+  m_Name: AatroxW
+  m_EditorClassIdentifier: 
+  abilityId: 10022
+  abilityName: Infernal Chains
+  icon: {fileID: 21300000, guid: 804f3e1b015d3c445af822036f4058ba, type: 3}
+  isUltimate: 0
+  castModel:
+    rid: 2586996089610567738
+  castRange: 8.25
+  aimKind: 4
+  cooldownTicksByLevel:
+  - 600
+  - 540
+  - 480
+  - 420
+  - 360
+  costTiming: 0
+  castResourceCostByLevel: []
+  healthCostByLevel: []
+  castConditions: []
+  passiveEffect:
+    rid: -2
+  stageDefs:
+  - rid: 2586996089610567739
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 2586996089610567738
+      type: {class: CommitCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        castStageKey: 1
+        durationTicks: 14
+        notifyAbilityCastOnEnter: 1
+        interruptible: 0
+        lockMovement: 1
+        iconOverride: {fileID: 0}
+    - rid: 2586996089610567739
+      type: {class: ScaledProjectileStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        stageKey: 1
+        debugName: Infernal Chains Cast
+        projectileDefId: 109
+        spawnOffsetDistance: 0.75
+        baseDamageByLevel:
+        - 30
+        - 40
+        - 50
+        - 60
+        - 70
+        attackDamageRatioByLevel:
+        - 0.4
+        - 0.4
+        - 0.4
+        - 0.4
+        - 0.4
+        damageType: 0
+        minionDamageMultiplier: 2
+        recipeId: 100221
+        spawnDelayTicks: 14

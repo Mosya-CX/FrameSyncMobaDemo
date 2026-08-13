@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10968a781afdb4648aab6bb16996728c, type: 3}
+  m_Name: SunderedSky
+  m_EditorClassIdentifier: 
+  Id: 31011
+  Name: Sundered Sky
+  Description: "Grants 45 Attack Damage, 450 Max Health and 10 Ability Haste.\nLightshield Strike: the next basic attack against an enemy hero deals 160% damage and is a guaranteed critical strike, heals the owner and starts an independent 10s cooldown per enemy hero. Overheal becomes temporary bonus Max Health for 8 seconds."
+  Icon: {fileID: 21300000, guid: 22ee2f49eb0f53c4f9007811dd4883cc, type: 3}
+  Tier: 3
+  Value: 3100
+  MaxStack: 1
+  FixedStats:
+  - Stat: 5
+    Value: 45
+  - Stat: 0
+    Value: 450
+  - Stat: 13
+    Value: 10
+  Effects:
+  - Name: Lightshield Strike
+    Description: "The next basic attack against an enemy hero deals 160% damage and is a guaranteed critical strike, heals the owner and starts an independent 10s cooldown per enemy hero. Overheal becomes temporary bonus Max Health for 8 seconds."
+    IsActive: 0
+    ActiveSettings:
+      CooldownTicks: 0
+      ChargeCost: 0
+    Modules:
+    - rid: 2586996089610567751
+  Tags: []
+  Recipe:
+    Components:
+    - Item: {fileID: 11400000, guid: aaaaaaaa000000000000000000000004, type: 2}
+      Count: 1
+    - Item: {fileID: 11400000, guid: aaaaaaaa000000000000000000000005, type: 2}
+      Count: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2586996089610567751
+      type: {class: LightshieldStrikeEquipmentModule, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
+      data:
+        InvokeTimings: 000104
+        EmpoweredRecipeId: 2
+        EmpoweredDamageMultiplier:
+          m_rawValue: 6871947674
+        CooldownTicks: 300
+        MeleeBaseAttackDamageHealRatio:
+          m_rawValue: 3865470566
+        RangedBaseAttackDamageHealRatio:
+          m_rawValue: 1932735283
+        MissingHealthHealRatio:
+          m_rawValue: 171798692
+        OverhealBuffConfigId:
+          Value: 31911
+        OverhealValueSlot:
+          Value: 1
+        OverhealHandleSlot:
+          Value: 2
+        CooldownTagKeyPrefix: SunderedSky.Cooldown

@@ -153,6 +153,255 @@ namespace FrameSyncMoba.Unit.Tests
                 context.Shop.ComputeEffectiveShopGoldDelta(0));
         }
 
+        [Test]
+        public void DuplicateRule_AllowsSmallItemsAndRejectsFinishedItems()
+        {
+            EquipmentDefinition small =
+                Definition(20, 100, EquipmentTier.Basic);
+            TestContext smallContext =
+                CreateContext(small);
+            Assert.IsTrue(
+                smallContext.Handler.Add(small, 0));
+            Assert.IsTrue(
+                smallContext.Shop.TryBuildPurchasePlan(
+                    0,
+                    small.Id,
+                    100,
+                    smallContext.Handler,
+                    out EquipmentPurchasePlan smallPlan,
+                    out EquipmentShopFailureReason smallFailure),
+                smallFailure.ToString());
+            Assert.IsTrue(
+                smallContext.Shop.ProcessPurchase(
+                    0,
+                    smallPlan,
+                    smallContext.Handler,
+                    out _));
+            Assert.AreSame(
+                small,
+                smallContext.Handler.GetSlotDef(0));
+            Assert.AreSame(
+                small,
+                smallContext.Handler.GetSlotDef(1));
+
+            EquipmentDefinition finished =
+                Definition(21, 1000, EquipmentTier.Finished);
+            TestContext finishedContext =
+                CreateContext(finished);
+            Assert.IsTrue(
+                finishedContext.Handler.Add(finished, 0));
+            Assert.IsFalse(
+                finishedContext.Shop.TryBuildPurchasePlan(
+                    0,
+                    finished.Id,
+                    1000,
+                    finishedContext.Handler,
+                    out _,
+                    out EquipmentShopFailureReason finishedFailure));
+            Assert.AreEqual(
+                EquipmentShopFailureReason.DuplicateFinishedItem,
+                finishedFailure);
+        }
+
+        [Test]
+        public void SequentialPurchases_AfterSnapshotRestore_MatchContinuousState()
+        {
+            EquipmentDefinition first = Definition(
+                31009,
+                1150,
+                EquipmentTier.Basic,
+                new EquipmentFixedStatAuthoring
+                {
+                    Stat = StatId.AttackDamage,
+                    Value = 15f,
+                },
+                new EquipmentFixedStatAuthoring
+                {
+                    Stat = StatId.MaxHealth,
+                    Value = 250f,
+                });
+            EquipmentDefinition second = Definition(
+                31010,
+                1050,
+                EquipmentTier.Basic,
+                new EquipmentFixedStatAuthoring
+                {
+                    Stat = StatId.AttackDamage,
+                    Value = 20f,
+                },
+                new EquipmentFixedStatAuthoring
+                {
+                    Stat = StatId.CooldownReduction,
+                    Value = 10f,
+                });
+            TestContext context = CreateContext(first, second);
+
+            Assert.IsTrue(context.Shop.TryBuildPurchasePlan(
+                0,
+                first.Id,
+                10000,
+                context.Handler,
+                out EquipmentPurchasePlan firstPlan,
+                out EquipmentShopFailureReason firstFailure),
+                firstFailure.ToString());
+            Assert.IsTrue(context.Shop.ProcessPurchase(
+                0,
+                firstPlan,
+                context.Handler,
+                out _));
+            context.Handler.Owner.StatHandler.FinalizeTick();
+
+            StatHandlerSnapshot anchorStats = default;
+            EquipmentHandlerSnapshot anchorEquipment = default;
+            EquipmentShopRuntimeSnapshot anchorShop = default;
+            context.Handler.Owner.StatHandler.Capture(ref anchorStats);
+            context.Handler.Capture(ref anchorEquipment);
+            context.Shop.Capture(ref anchorShop);
+
+            tickController.EndTick();
+            tickController.BeginTick(11, ExecutionMode.ServerAuthority);
+            PurchaseSecond(context, second.Id);
+            context.Handler.Owner.StatHandler.FinalizeTick();
+            StatHandlerSnapshot continuousStats = default;
+            EquipmentHandlerSnapshot continuousEquipment = default;
+            EquipmentShopRuntimeSnapshot continuousShop = default;
+            context.Handler.Owner.StatHandler.Capture(ref continuousStats);
+            context.Handler.Capture(ref continuousEquipment);
+            context.Shop.Capture(ref continuousShop);
+
+            context.Handler.Owner.StatHandler.Restore(anchorStats);
+            context.Handler.Restore(anchorEquipment);
+            context.Shop.Restore(anchorShop);
+            var rollback = new RollbackContext(
+                11,
+                ExecutionMode.ClientReplay);
+            context.Handler.Owner.StatHandler.Resolve(rollback);
+            context.Handler.Resolve(rollback);
+            context.Shop.Resolve(rollback);
+            context.Handler.Owner.StatHandler.Rebuild(rollback);
+            context.Handler.Rebuild(rollback);
+            context.Shop.Rebuild(rollback);
+
+            PurchaseSecond(context, second.Id);
+            context.Handler.Owner.StatHandler.FinalizeTick();
+            StatHandlerSnapshot replayStats = default;
+            EquipmentHandlerSnapshot replayEquipment = default;
+            EquipmentShopRuntimeSnapshot replayShop = default;
+            context.Handler.Owner.StatHandler.Capture(ref replayStats);
+            context.Handler.Capture(ref replayEquipment);
+            context.Shop.Capture(ref replayShop);
+
+            AssertStatSnapshotsEqual(continuousStats, replayStats);
+            AssertEquipmentSnapshotsEqual(
+                continuousEquipment,
+                replayEquipment);
+            AssertShopSnapshotsEqual(continuousShop, replayShop);
+        }
+
+        private static void PurchaseSecond(
+            TestContext context,
+            int equipmentId)
+        {
+            Assert.IsTrue(context.Shop.TryBuildPurchasePlan(
+                0,
+                equipmentId,
+                10000,
+                context.Handler,
+                out EquipmentPurchasePlan plan,
+                out EquipmentShopFailureReason failure),
+                failure.ToString());
+            Assert.IsTrue(context.Shop.ProcessPurchase(
+                0,
+                plan,
+                context.Handler,
+                out _));
+        }
+
+        private static void AssertStatSnapshotsEqual(
+            in StatHandlerSnapshot expected,
+            in StatHandlerSnapshot actual)
+        {
+            Assert.AreEqual(expected.Level, actual.Level);
+            Assert.AreEqual(expected.CurrentHealth, actual.CurrentHealth);
+            Assert.AreEqual(expected.CurrentCastResource, actual.CurrentCastResource);
+            Assert.AreEqual(expected.CurrentExperience, actual.CurrentExperience);
+            Assert.AreEqual(expected.NextStatSeq, actual.NextStatSeq);
+            Assert.AreEqual(expected.Entries.Length, actual.Entries.Length);
+            for (int i = 0; i < expected.Entries.Length; i++)
+            {
+                StatRuntimeEntrySnapshot left = expected.Entries[i];
+                StatRuntimeEntrySnapshot right = actual.Entries[i];
+                Assert.AreEqual(left.StatId, right.StatId, $"entry {i} stat");
+                Assert.AreEqual(left.LevelBaseValue, right.LevelBaseValue, $"entry {i} base");
+                Assert.AreEqual(left.FinalValue, right.FinalValue, $"entry {i} final");
+                Assert.AreEqual(
+                    left.PreviousLogicTickFinalValue,
+                    right.PreviousLogicTickFinalValue,
+                    $"entry {i} previous");
+                Assert.AreEqual(left.Dirty, right.Dirty, $"entry {i} dirty");
+                CollectionAssert.AreEqual(
+                    left.Modifiers,
+                    right.Modifiers,
+                    $"entry {i} modifiers");
+            }
+        }
+
+        private static void AssertEquipmentSnapshotsEqual(
+            in EquipmentHandlerSnapshot expected,
+            in EquipmentHandlerSnapshot actual)
+        {
+            Assert.AreEqual(expected.RuntimeRevision, actual.RuntimeRevision);
+            Assert.AreEqual(expected.Slots.Count, actual.Slots.Count);
+            for (int i = 0; i < expected.Slots.Count; i++)
+            {
+                EquipmentSlotSnapshot left = expected.Slots[i];
+                EquipmentSlotSnapshot right = actual.Slots[i];
+                Assert.AreEqual(left.Occupied, right.Occupied, $"slot {i} occupied");
+                Assert.AreEqual(left.EquipmentId, right.EquipmentId, $"slot {i} item");
+                Assert.AreEqual(left.StackCount, right.StackCount, $"slot {i} stack");
+                Assert.AreEqual(left.ChargeCount, right.ChargeCount, $"slot {i} charge");
+                Assert.AreEqual(left.ReadyTick, right.ReadyTick, $"slot {i} ready");
+                CollectionAssert.AreEqual(
+                    left.FixedStatHandles,
+                    right.FixedStatHandles,
+                    $"slot {i} handles");
+            }
+        }
+
+        private static void AssertShopSnapshotsEqual(
+            in EquipmentShopRuntimeSnapshot expected,
+            in EquipmentShopRuntimeSnapshot actual)
+        {
+            Assert.AreEqual(
+                expected.CreatedTraders.Count,
+                actual.CreatedTraders.Count);
+            for (int i = 0; i < expected.CreatedTraders.Count; i++)
+            {
+                ShopTraderRuntimeSnapshot left = expected.CreatedTraders[i];
+                ShopTraderRuntimeSnapshot right = actual.CreatedTraders[i];
+                Assert.AreEqual(left.Player, right.Player);
+                Assert.AreEqual(left.ControlledUnitUid, right.ControlledUnitUid);
+                Assert.AreEqual(left.NextOperationSequence, right.NextOperationSequence);
+                Assert.AreEqual(left.OperationLog.Count, right.OperationLog.Count);
+                CollectionAssert.AreEqual(
+                    left.UndoableOperationStack,
+                    right.UndoableOperationStack);
+                for (int operation = 0;
+                     operation < left.OperationLog.Count;
+                     operation++)
+                {
+                    ShopOperationRecord a = left.OperationLog[operation];
+                    ShopOperationRecord b = right.OperationLog[operation];
+                    Assert.AreEqual(a.OperationSequence, b.OperationSequence);
+                    Assert.AreEqual(a.OperationType, b.OperationType);
+                    Assert.AreEqual(a.LogicTick, b.LogicTick);
+                    Assert.AreEqual(a.GoldDelta, b.GoldDelta);
+                    Assert.AreEqual(a.EquipmentRevisionBefore, b.EquipmentRevisionBefore);
+                    Assert.AreEqual(a.EquipmentRevisionAfter, b.EquipmentRevisionAfter);
+                }
+            }
+        }
+
         private static TestContext CreateContext(
             params EquipmentDefinition[] definitions)
         {
@@ -187,7 +436,8 @@ namespace FrameSyncMoba.Unit.Tests
         private static EquipmentDefinition Definition(
             int id,
             int value,
-            EquipmentTier tier)
+            EquipmentTier tier,
+            params EquipmentFixedStatAuthoring[] fixedStats)
         {
             var def =
                 ScriptableObject
@@ -201,6 +451,7 @@ namespace FrameSyncMoba.Unit.Tests
                 tier == EquipmentTier.Consumable
                     ? 3
                     : 1;
+            def.FixedStats = fixedStats;
             return def;
         }
 

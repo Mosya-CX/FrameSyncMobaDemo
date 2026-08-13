@@ -18,15 +18,38 @@ namespace FrameSyncMoba.Bootstrap
         private TeamId localTeam = TeamId.Neutral;
         private UnitUid currentHovered;
         private ClientUnitOutline currentOutline;
+        private Color friendlyColor = Color.green;
+        private Color enemyColor = Color.red;
+        private float outlineWidth = 0.05f;
 
         public void Initialize(
             MouseWorldResolver mouseResolver,
             UnitWorld world,
             TeamId team)
         {
+            Initialize(
+                mouseResolver,
+                world,
+                team,
+                Color.green,
+                Color.red,
+                0.05f);
+        }
+
+        public void Initialize(
+            MouseWorldResolver mouseResolver,
+            UnitWorld world,
+            TeamId team,
+            Color friendlyOutlineColor,
+            Color enemyOutlineColor,
+            float width)
+        {
             resolver = mouseResolver;
             unitWorld = world;
             localTeam = team;
+            friendlyColor = friendlyOutlineColor;
+            enemyColor = enemyOutlineColor;
+            outlineWidth = Mathf.Max(0.001f, width);
             currentHovered = default;
             currentOutline = null;
         }
@@ -79,11 +102,12 @@ namespace FrameSyncMoba.Bootstrap
 
             bool friendly =
                 unit.TeamId == localTeam;
+            outline.SetOutlineWidth(outlineWidth);
             outline.SetHighlighted(
                 true,
                 friendly
-                    ? Color.green
-                    : Color.red);
+                    ? friendlyColor
+                    : enemyColor);
             currentOutline = outline;
             currentHovered = hovered.Value;
         }
