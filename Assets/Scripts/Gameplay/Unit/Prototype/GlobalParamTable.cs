@@ -1,5 +1,6 @@
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -17,6 +18,8 @@ namespace FrameSyncMoba.Unit
         public fp ArriveDistanceNormal = (fp)0.1;
         public fp ArriveDistanceAttack = (fp)0.5;
         [Header("Attack")]
+        public DurationAuthoring AttackSequenceResetInterval;
+        [HideInInspector]
         [Min(0)] public int AttackSequenceResetIntervalTicks = 300;
 
         public static GlobalParamTable CreateDefault()
@@ -29,6 +32,8 @@ namespace FrameSyncMoba.Unit
             table.MoveSpeedToLogicVelocityScale = (fp)0.01;
             table.ArriveDistanceNormal = (fp)0.1;
             table.ArriveDistanceAttack = (fp)0.5;
+            table.AttackSequenceResetInterval =
+                DurationAuthoring.FromLegacyTicks(300);
             table.AttackSequenceResetIntervalTicks = 300;
             return table;
         }
@@ -37,7 +42,9 @@ namespace FrameSyncMoba.Unit
         {
             if (ArmorConstant <= fp.zero) Debug.LogError("ArmorConstant must be > 0.");
             if (MagicResistConstant <= fp.zero) Debug.LogError("MagicResistConstant must be > 0.");
-            if (AttackSequenceResetIntervalTicks <= 0) Debug.LogError("AttackSequenceResetIntervalTicks must be > 0.");
+            if (AttackSequenceResetInterval.IsAuthored &&
+                !AttackSequenceResetInterval.IsPositive)
+                Debug.LogError("AttackSequenceResetInterval must be > 0 ms.");
         }
 #endif
     }

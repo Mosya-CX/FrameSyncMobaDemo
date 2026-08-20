@@ -11,7 +11,7 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private float baseHeal = 50f;
         [SerializeField] private BuffTargetRule targetRule = BuffTargetRule.Self;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             return new HealStageDef
             {

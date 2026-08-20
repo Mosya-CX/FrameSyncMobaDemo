@@ -57,7 +57,7 @@ namespace FrameSyncMoba.Unit
                 RemainingTicks -= deltaTicks;
             }
 
-            if (Definition.PeriodicIntervalTicks > 0)
+            if (Definition.BakedPeriodicIntervalTicks > 0)
             {
                 _periodicTimer += deltaTicks;
             }
@@ -65,8 +65,8 @@ namespace FrameSyncMoba.Unit
 
         public bool ShouldExecutePeriodic()
         {
-            if (Definition.PeriodicIntervalTicks <= 0) return false;
-            if (_periodicTimer < Definition.PeriodicIntervalTicks) return false;
+            if (Definition.BakedPeriodicIntervalTicks <= 0) return false;
+            if (_periodicTimer < Definition.BakedPeriodicIntervalTicks) return false;
             _periodicTimer = 0;
             return true;
         }

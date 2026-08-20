@@ -1,4 +1,6 @@
 using System;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -173,8 +175,12 @@ namespace FrameSyncMoba.Unit
     public struct ProjectileHitPolicy
     {
         public bool Enabled;
+        public DurationAuthoring QueryInterval;
+        [HideInInspector]
         public int QueryIntervalTicks;
         public HitSameTargetPolicy SameTargetPolicy;
+        public DurationAuthoring SameTargetCooldown;
+        [HideInInspector]
         public int SameTargetCooldownTicks;
         public int MaxTotalHitCount;
         public int InitialPierceCount;

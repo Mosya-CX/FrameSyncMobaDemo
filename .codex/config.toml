@@ -1,3 +1,4 @@
+sandbox_mode = "workspace-write"
 [mcp_servers.ai-game-developer]
 enabled = true
 startup_timeout_sec = 30
@@ -6,3 +7,6 @@ url = "http://localhost:26400/p/e007afae"
 
 [mcp_servers.ai-game-developer.tools.gameobject-create]
 approval_mode = "approve"
+
+[sandbox_workspace_write]
+network_access = true

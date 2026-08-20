@@ -1,4 +1,6 @@
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -13,8 +15,19 @@ namespace FrameSyncMoba.Unit
         /// <summary>Heal amount on kill (absolute HP).</summary>
         public fp HealAmount;
 
-        /// <summary>Minimum ticks between activations (0 = every kill).</summary>
+        public DurationAuthoring InternalCooldown;
+        [HideInInspector]
         public int InternalCooldownTicks;
+
+        public override void BakeTime(int tickRate)
+        {
+            InternalCooldownTicks = InternalCooldown.IsAuthored
+                ? InternalCooldown.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        InternalCooldownTicks,
+                        tickRate);
+        }
 
         public override void Execute(
             ref EquipmentEffectExecutionContext context,

@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 
 namespace FrameSyncMoba.Bootstrap.Tests
@@ -11,74 +10,69 @@ namespace FrameSyncMoba.Bootstrap.Tests
         {
             const int tickRate = 30;
             const int leadTicks = 5;
-            long sentUtcTicks = new DateTime(
-                2026,
-                8,
-                14,
-                0,
-                0,
-                0,
-                DateTimeKind.Utc).Ticks;
-            long serverLaunchUtcTicks = sentUtcTicks +
-                5L * TimeSpan.TicksPerSecond;
-            long receivedUtcTicks = sentUtcTicks +
-                1200L * TimeSpan.TicksPerMillisecond;
+            const long sentServerMs = 10_000L;
+            const long serverLaunchMs =
+                sentServerMs + 5_000L;
+            const long receivedServerMs =
+                sentServerMs + 1_200L;
 
-            long clientLaunchUtcTicks =
-                FrameSyncLaunchSchedule
-                    .GetClientPredictionLaunchUtcTicks(
-                        serverLaunchUtcTicks,
-                        tickRate,
-                        leadTicks);
-            long remainingUtcTicks =
-                clientLaunchUtcTicks - receivedUtcTicks;
+            long clientLaunchMs = FrameSyncLaunchSchedule
+                .GetClientPredictionLaunchServerTimeMilliseconds(
+                    serverLaunchMs,
+                    tickRate,
+                    leadTicks);
 
-            long expectedLeadUtcTicks =
-                leadTicks * TimeSpan.TicksPerSecond /
-                tickRate;
             Assert.That(
-                remainingUtcTicks,
+                clientLaunchMs - receivedServerMs,
                 Is.EqualTo(
-                    5L * TimeSpan.TicksPerSecond -
-                    1200L * TimeSpan.TicksPerMillisecond -
-                    expectedLeadUtcTicks));
+                    5_000L -
+                    1_200L -
+                    leadTicks * 1_000L /
+                    tickRate));
         }
 
         [Test]
-        public void WallClockLimit_NeverAllowsRunawayPrediction()
+        public void MonotonicPacing_DoesNotInferBacklogFromLaunchTimestamp()
         {
             const int startTick = 3;
             const int tickRate = 30;
             const int leadTicks = 5;
-            long launchUtcTicks = new DateTime(
-                2026,
-                8,
-                14,
-                0,
-                0,
-                5,
-                DateTimeKind.Utc).Ticks;
 
             Assert.That(
                 FrameSyncLaunchSchedule
                     .GetMaximumClientSimulationTickExclusive(
                         startTick,
-                        launchUtcTicks,
-                        launchUtcTicks -
-                        TimeSpan.TicksPerSecond,
+                        100_000L,
+                        100_000L,
                         tickRate,
-                        leadTicks),
+                        leadTicks,
+                        -1),
                 Is.EqualTo(startTick + leadTicks));
             Assert.That(
                 FrameSyncLaunchSchedule
                     .GetMaximumClientSimulationTickExclusive(
                         startTick,
-                        launchUtcTicks,
-                        launchUtcTicks +
-                        2L * TimeSpan.TicksPerSecond,
+                        100_000L,
+                        102_000L,
                         tickRate,
-                        leadTicks),
+                        leadTicks,
+                        -1),
                 Is.EqualTo(startTick + 60 + leadTicks));
+        }
+
+        [Test]
+        public void AuthorityBacklog_AloneMayRaiseCatchUpLimit()
+        {
+            Assert.That(
+                FrameSyncLaunchSchedule
+                    .GetMaximumClientSimulationTickExclusive(
+                        3,
+                        100_000L,
+                        100_000L,
+                        30,
+                        5,
+                        42),
+                Is.EqualTo(43));
         }
 
         [Test]
@@ -86,32 +80,37 @@ namespace FrameSyncMoba.Bootstrap.Tests
         {
             const int tickRate = 30;
             const int leadTicks = 5;
-            long serverLaunchUtcTicks =
-                DateTime.UtcNow.Ticks +
-                5L * TimeSpan.TicksPerSecond;
-            long clientLaunchUtcTicks =
-                FrameSyncLaunchSchedule
-                    .GetClientPredictionLaunchUtcTicks(
-                        serverLaunchUtcTicks,
-                        tickRate,
-                        leadTicks);
+            const long serverLaunchMs = 15_000L;
+            long clientLaunchMs = FrameSyncLaunchSchedule
+                .GetClientPredictionLaunchServerTimeMilliseconds(
+                    serverLaunchMs,
+                    tickRate,
+                    leadTicks);
 
             Assert.That(
-                FrameSyncLaunchSchedule
-                    .IsClientPredictionLaunchReached(
-                        clientLaunchUtcTicks - 1,
-                        serverLaunchUtcTicks,
-                        tickRate,
-                        leadTicks),
+                FrameSyncLaunchSchedule.IsEndpointLaunchReached(
+                    clientLaunchMs - 1,
+                    serverLaunchMs,
+                    tickRate,
+                    leadTicks,
+                    false),
                 Is.False);
             Assert.That(
-                FrameSyncLaunchSchedule
-                    .IsClientPredictionLaunchReached(
-                        clientLaunchUtcTicks,
-                        serverLaunchUtcTicks,
-                        tickRate,
-                        leadTicks),
+                FrameSyncLaunchSchedule.IsEndpointLaunchReached(
+                    clientLaunchMs,
+                    serverLaunchMs,
+                    tickRate,
+                    leadTicks,
+                    false),
                 Is.True);
+            Assert.That(
+                FrameSyncLaunchSchedule.IsEndpointLaunchReached(
+                    serverLaunchMs - 1,
+                    serverLaunchMs,
+                    tickRate,
+                    leadTicks,
+                    true),
+                Is.False);
         }
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -6,10 +8,35 @@ namespace FrameSyncMoba.Unit
     public sealed class RefreshDurationOnKillParticipationBuffEffect :
         BuffEffect
     {
-        public int ExtendTicks;
-        public int MaximumRemainingTicks;
-        public int RestartBurstTicks;
+        public DurationAuthoring ExtendDuration;
+        public DurationAuthoring MaximumRemainingDuration;
+        public DurationAuthoring RestartBurstDuration;
+        [HideInInspector] public int ExtendTicks;
+        [HideInInspector] public int MaximumRemainingTicks;
+        [HideInInspector] public int RestartBurstTicks;
         public BuffStateSlotId BurstRemainingTicksSlot;
+
+        public override void BakeTime(int tickRate)
+        {
+            ExtendTicks = Bake(ExtendDuration, ExtendTicks, tickRate);
+            MaximumRemainingTicks = Bake(
+                MaximumRemainingDuration,
+                MaximumRemainingTicks,
+                tickRate);
+            RestartBurstTicks = Bake(
+                RestartBurstDuration,
+                RestartBurstTicks,
+                tickRate);
+        }
+
+        private static int Bake(
+            in DurationAuthoring duration,
+            int legacyTicks,
+            int tickRate) =>
+            duration.IsAuthored
+                ? duration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(legacyTicks, tickRate);
 
         public override void OnAdded(BuffRuntime runtime, Unit owner)
         {

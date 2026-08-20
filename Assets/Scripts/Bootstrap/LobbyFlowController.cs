@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
 
 namespace FrameSyncMoba.Bootstrap
@@ -24,18 +25,24 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField] private LobbyNetworkBridge lobbyBridge;
         [SerializeField] private ClientUiActionRouter uiActions;
         [SerializeField] private LocalNgoEndpointDriver localNgoDriver;
-        [SerializeField] private float assignmentPollIntervalSeconds =
-            2f;
-        [SerializeField, Min(0.05f)]
-        private float presentationRefreshIntervalSeconds = 0.2f;
+        [SerializeField, Min(1)]
+        private int assignmentPollIntervalMilliseconds;
+        [FormerlySerializedAs("assignmentPollIntervalSeconds")]
+        [SerializeField, HideInInspector]
+        private float legacyAssignmentPollIntervalSeconds;
+        [SerializeField, Min(1)]
+        private int presentationRefreshIntervalMilliseconds;
+        [FormerlySerializedAs("presentationRefreshIntervalSeconds")]
+        [SerializeField, HideInInspector]
+        private float legacyPresentationRefreshIntervalSeconds;
 
         private bool matchmakingRunning;
         private bool connectionPollRunning;
-        private float matchStartRealtime;
+        private long matchStartRealtimeMilliseconds;
         private int selectedHeroConfigId = -1;
         private bool sceneLoadTriggered;
         private bool matchPresentationActive;
-        private float nextPresentationRefreshRealtime;
+        private long nextPresentationRefreshRealtimeMilliseconds;
         private float localLoadProgress;
         private string matchStatus = "Idle";
         private string loadingStatus = "Preparing battle";
@@ -120,8 +127,8 @@ namespace FrameSyncMoba.Bootstrap
             GameFlowLuaBridge.MatchElapsedSeconds =
                 () =>
                     matchPresentationActive
-                        ? Time.realtimeSinceStartup -
-                          matchStartRealtime
+                        ? (NowMilliseconds() -
+                          matchStartRealtimeMilliseconds) / 1000f
                         : 0f;
             GameFlowLuaBridge.GetMatchStatus =
                 () => matchStatus;
@@ -177,8 +184,8 @@ namespace FrameSyncMoba.Bootstrap
             matchmakingRunning = true;
             matchPresentationActive = true;
             matchStatus = "Searching";
-            matchStartRealtime =
-                Time.realtimeSinceStartup;
+            matchStartRealtimeMilliseconds =
+                NowMilliseconds();
             if (GameSessionContext.FlowMode !=
                 FrameFlowMode.UosOnline)
             {
@@ -258,7 +265,8 @@ namespace FrameSyncMoba.Bootstrap
                     if (pollTask.Result)
                         break;
                     yield return new WaitForSeconds(
-                        assignmentPollIntervalSeconds);
+                        ResolveAssignmentPollMilliseconds() /
+                        1000f);
                 }
             }
             if (failure != null ||
@@ -314,7 +322,8 @@ namespace FrameSyncMoba.Bootstrap
                     break;
                 }
                 yield return new WaitForSeconds(
-                    assignmentPollIntervalSeconds);
+                    ResolveAssignmentPollMilliseconds() /
+                    1000f);
             }
             if (failure == null &&
                 connectionPollRunning)
@@ -419,16 +428,43 @@ namespace FrameSyncMoba.Bootstrap
         private void Update()
         {
             if (uiManager == null ||
-                Time.realtimeSinceStartup <
-                nextPresentationRefreshRealtime)
+                NowMilliseconds() <
+                nextPresentationRefreshRealtimeMilliseconds)
                 return;
-            nextPresentationRefreshRealtime =
-                Time.realtimeSinceStartup +
-                presentationRefreshIntervalSeconds;
+            nextPresentationRefreshRealtimeMilliseconds =
+                checked(
+                    NowMilliseconds() +
+                    ResolvePresentationRefreshMilliseconds());
             if (uiManager.IsOpen(UIPageId.Match))
                 uiManager.RefreshLuaHost(UIPageId.Match);
             if (uiManager.IsOpen(UIPageId.Load))
                 uiManager.RefreshLuaHost(UIPageId.Load);
+        }
+
+        private static long NowMilliseconds()
+        {
+            return FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                Time.realtimeSinceStartupAsDouble);
+        }
+
+        private int ResolveAssignmentPollMilliseconds()
+        {
+            return assignmentPollIntervalMilliseconds > 0
+                ? assignmentPollIntervalMilliseconds
+                : legacyAssignmentPollIntervalSeconds > 0f
+                    ? (int)Math.Round(
+                        legacyAssignmentPollIntervalSeconds * 1000f)
+                    : 2000;
+        }
+
+        private int ResolvePresentationRefreshMilliseconds()
+        {
+            return presentationRefreshIntervalMilliseconds > 0
+                ? presentationRefreshIntervalMilliseconds
+                : legacyPresentationRefreshIntervalSeconds > 0f
+                    ? (int)Math.Round(
+                        legacyPresentationRefreshIntervalSeconds * 1000f)
+                    : 200;
         }
 
         private void ReturnToMainMenu()

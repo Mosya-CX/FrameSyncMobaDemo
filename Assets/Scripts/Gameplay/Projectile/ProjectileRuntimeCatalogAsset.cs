@@ -20,6 +20,8 @@ namespace FrameSyncMoba.Unit
     public struct ProjectileBuffAuthoring
     {
         [Min(1)] public int BuffConfigId;
+        public DurationAuthoring Duration;
+        [HideInInspector]
         [Min(1)] public int DurationTicks;
         public UnitKindMask TargetKinds;
     }
@@ -28,6 +30,8 @@ namespace FrameSyncMoba.Unit
     public struct ProjectileCrowdControlAuthoring
     {
         [Min(1)] public int ControlId;
+        public DurationAuthoring Duration;
+        [HideInInspector]
         [Min(1)] public int DurationTicks;
     }
 
@@ -37,8 +41,12 @@ namespace FrameSyncMoba.Unit
         [Min(1)] public int DefId;
         [Min(1)] public int RuntimeEntityPrefabId;
         [Min(0f)] public float Speed;
+        [Min(0f)] public float AccelerationPerSecond;
+        [HideInInspector]
         public float Acceleration;
         public bool Homing;
+        public DurationAuthoring MaxLifetime;
+        [HideInInspector]
         [Min(1)] public int MaxLifetimeTicks = 30;
         [Min(0f)] public float HitRadius = 0.1f;
         public ProjectileTargetFilter TargetFilter =
@@ -50,7 +58,8 @@ namespace FrameSyncMoba.Unit
         public ProjectileCrowdControlAuthoring[] CrowdControlEffects;
 
         public ProjectileDef BakeOrThrow(
-            GlobalPrefabTable prefabTable)
+            GlobalPrefabTable prefabTable,
+            int tickRate = 30)
         {
             if (prefabTable == null)
                 throw new InvalidOperationException(
@@ -75,17 +84,25 @@ namespace FrameSyncMoba.Unit
                 DefId = DefId,
                 RuntimeEntityPrefabId = RuntimeEntityPrefabId,
                 Speed = (fp)Speed,
-                Acceleration = (fp)Acceleration,
+                Acceleration = (fp)(
+                    AccelerationPerSecond != 0f
+                        ? AccelerationPerSecond
+                        : Acceleration * 30f),
                 Homing = Homing,
-                MaxLifetimeTicks = MaxLifetimeTicks,
+                MaxLifetimeTicks = BakeDuration(
+                    MaxLifetime,
+                    MaxLifetimeTicks,
+                    tickRate),
                 HitRadius = (fp)HitRadius,
                 TargetFilter = TargetFilter,
-                HitPolicy = HitPolicy,
+                HitPolicy = BakeHitPolicy(
+                    HitPolicy,
+                    tickRate),
                 OnHitEffects = new ProjectileOnHitEffects
                 {
                     DamageEffects = BakeDamageEffects(),
-                    BuffEffects = BakeBuffEffects(),
-                    CCEffects = BakeCrowdControlEffects(),
+                    BuffEffects = BakeBuffEffects(tickRate),
+                    CCEffects = BakeCrowdControlEffects(tickRate),
                 },
                 ContainmentZone = containmentAuthoring != null
                     ? containmentAuthoring.BakeOrThrow()
@@ -114,7 +131,7 @@ namespace FrameSyncMoba.Unit
             return baked;
         }
 
-        private ProjectileOnHitBuff[] BakeBuffEffects()
+        private ProjectileOnHitBuff[] BakeBuffEffects(int tickRate)
         {
             if (BuffEffects == null)
                 return Array.Empty<ProjectileOnHitBuff>();
@@ -127,7 +144,10 @@ namespace FrameSyncMoba.Unit
                     BuffId = new BuffConfigId(
                         BuffEffects[i].BuffConfigId),
                     DurationTicks =
-                        BuffEffects[i].DurationTicks,
+                        BakeDuration(
+                            BuffEffects[i].Duration,
+                            BuffEffects[i].DurationTicks,
+                            tickRate),
                     TargetKinds = BuffEffects[i].TargetKinds,
                 };
             }
@@ -135,7 +155,7 @@ namespace FrameSyncMoba.Unit
         }
 
         private ProjectileOnHitCC[]
-            BakeCrowdControlEffects()
+            BakeCrowdControlEffects(int tickRate)
         {
             if (CrowdControlEffects == null)
                 return Array.Empty<ProjectileOnHitCC>();
@@ -149,10 +169,47 @@ namespace FrameSyncMoba.Unit
                     ControlId = new CrowdControlId(
                         CrowdControlEffects[i].ControlId),
                     DurationTicks =
-                        CrowdControlEffects[i].DurationTicks,
+                        BakeDuration(
+                            CrowdControlEffects[i].Duration,
+                            CrowdControlEffects[i].DurationTicks,
+                            tickRate),
                 };
             }
             return baked;
+        }
+
+        private static int BakeDuration(
+            in DurationAuthoring duration,
+            int legacyTicks,
+            int tickRate)
+        {
+            return duration.IsAuthored
+                ? duration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        legacyTicks,
+                        tickRate);
+        }
+
+        private static ProjectileHitPolicy BakeHitPolicy(
+            ProjectileHitPolicy policy,
+            int tickRate)
+        {
+            policy.QueryIntervalTicks =
+                policy.QueryInterval.IsAuthored
+                    ? policy.QueryInterval.BakeTicks(tickRate)
+                    : DeterministicTimeConversion
+                        .Legacy30HzTicksToTicks(
+                            policy.QueryIntervalTicks,
+                            tickRate);
+            policy.SameTargetCooldownTicks =
+                policy.SameTargetCooldown.IsAuthored
+                    ? policy.SameTargetCooldown.BakeTicks(tickRate)
+                    : DeterministicTimeConversion
+                        .Legacy30HzTicksToTicks(
+                            policy.SameTargetCooldownTicks,
+                            tickRate);
+            return policy;
         }
     }
 
@@ -169,7 +226,8 @@ namespace FrameSyncMoba.Unit
                 new List<ProjectileDefinitionAuthoring>();
 
         public ProjectileDefRegistry BakeOrThrow(
-            GlobalPrefabTable prefabTable)
+            GlobalPrefabTable prefabTable,
+            int tickRate = 30)
         {
             var registry = new ProjectileDefRegistry();
             for (int i = 0; i < definitions.Count; i++)
@@ -180,7 +238,9 @@ namespace FrameSyncMoba.Unit
                     throw new InvalidOperationException(
                         $"Projectile definition {i} is null.");
                 registry.Register(
-                    authoring.BakeOrThrow(prefabTable));
+                    authoring.BakeOrThrow(
+                        prefabTable,
+                        tickRate));
             }
             return registry;
         }

@@ -16,8 +16,13 @@ MonoBehaviour:
   - DefId: 101
     RuntimeEntityPrefabId: 2101
     Speed: 12
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 1
+    MaxLifetime:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 180
     HitRadius: 0.15
     TargetFilter:
@@ -31,8 +36,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 1
       InitialPierceCount: 0
@@ -50,8 +63,13 @@ MonoBehaviour:
   - DefId: 102
     RuntimeEntityPrefabId: 2201
     Speed: 10
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 1
+    MaxLifetime:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 180
     HitRadius: 0.15
     TargetFilter:
@@ -65,8 +83,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 1
       InitialPierceCount: 0
@@ -84,8 +110,13 @@ MonoBehaviour:
   - DefId: 103
     RuntimeEntityPrefabId: 2202
     Speed: 10
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 1
+    MaxLifetime:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 180
     HitRadius: 0.15
     TargetFilter:
@@ -99,8 +130,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 1
       InitialPierceCount: 0
@@ -118,8 +157,13 @@ MonoBehaviour:
   - DefId: 104
     RuntimeEntityPrefabId: 2201
     Speed: 14
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 1
+    MaxLifetime:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 180
     HitRadius: 0.15
     TargetFilter:
@@ -133,8 +177,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 1
       InitialPierceCount: 0
@@ -152,8 +204,13 @@ MonoBehaviour:
   - DefId: 105
     RuntimeEntityPrefabId: 2202
     Speed: 14
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 1
+    MaxLifetime:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 180
     HitRadius: 0.15
     TargetFilter:
@@ -167,8 +224,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 1
       InitialPierceCount: 0
@@ -186,8 +251,13 @@ MonoBehaviour:
   - DefId: 106
     RuntimeEntityPrefabId: 2102
     Speed: 18
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 0
+    MaxLifetime:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 180
     HitRadius: 0.15
     TargetFilter:
@@ -201,8 +271,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 5
       InitialPierceCount: 4
@@ -220,8 +298,13 @@ MonoBehaviour:
   - DefId: 107
     RuntimeEntityPrefabId: 2103
     Speed: 10
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 0
+    MaxLifetime:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 180
     HitRadius: 0.15
     TargetFilter:
@@ -235,8 +318,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 1
       InitialPierceCount: 0
@@ -251,17 +342,30 @@ MonoBehaviour:
       RecipeId: 1
     BuffEffects:
     - BuffConfigId: 9113
+      Duration:
+        milliseconds: 2000
+        roundingPolicy: 0
+        authored: 1
       DurationTicks: 60
       TargetKinds:
         mask: 0
     CrowdControlEffects:
     - ControlId: 102
+      Duration:
+        milliseconds: 2000
+        roundingPolicy: 0
+        authored: 1
       DurationTicks: 60
   - DefId: 108
     RuntimeEntityPrefabId: 2104
     Speed: 0
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 0
+    MaxLifetime:
+      milliseconds: 4000
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 120
     HitRadius: 2.75
     TargetFilter:
@@ -275,8 +379,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 166
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 5
       SameTargetPolicy: 1
+      SameTargetCooldown:
+        milliseconds: 166
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 5
       MaxTotalHitCount: 999
       InitialPierceCount: 0
@@ -287,10 +399,18 @@ MonoBehaviour:
     DamageEffects: []
     BuffEffects:
     - BuffConfigId: 9111
+      Duration:
+        milliseconds: 266
+        roundingPolicy: 0
+        authored: 1
       DurationTicks: 8
       TargetKinds:
         mask: 0
     - BuffConfigId: 9112
+      Duration:
+        milliseconds: 266
+        roundingPolicy: 0
+        authored: 1
       DurationTicks: 8
       TargetKinds:
         mask: 0
@@ -298,8 +418,13 @@ MonoBehaviour:
   - DefId: 109
     RuntimeEntityPrefabId: 2105
     Speed: 18
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 0
+    MaxLifetime:
+      milliseconds: 500
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 15
     HitRadius: 0.2
     TargetFilter:
@@ -313,8 +438,16 @@ MonoBehaviour:
       RequireTargetable: 1
     HitPolicy:
       Enabled: 1
+      QueryInterval:
+        milliseconds: 33
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 1
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 1
       InitialPierceCount: 0
@@ -325,10 +458,18 @@ MonoBehaviour:
     DamageEffects: []
     BuffEffects:
     - BuffConfigId: 12021
+      Duration:
+        milliseconds: 1500
+        roundingPolicy: 0
+        authored: 1
       DurationTicks: 45
       TargetKinds:
         mask: 0
     - BuffConfigId: 12022
+      Duration:
+        milliseconds: 1500
+        roundingPolicy: 0
+        authored: 1
       DurationTicks: 45
       TargetKinds:
         mask: 1
@@ -336,8 +477,13 @@ MonoBehaviour:
   - DefId: 110
     RuntimeEntityPrefabId: 2106
     Speed: 0
+    AccelerationPerSecond: 0
     Acceleration: 0
     Homing: 0
+    MaxLifetime:
+      milliseconds: 1500
+      roundingPolicy: 0
+      authored: 1
     MaxLifetimeTicks: 45
     HitRadius: 0
     TargetFilter:
@@ -351,8 +497,16 @@ MonoBehaviour:
       RequireTargetable: 0
     HitPolicy:
       Enabled: 0
+      QueryInterval:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       QueryIntervalTicks: 0
       SameTargetPolicy: 0
+      SameTargetCooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       SameTargetCooldownTicks: 0
       MaxTotalHitCount: 0
       InitialPierceCount: 0

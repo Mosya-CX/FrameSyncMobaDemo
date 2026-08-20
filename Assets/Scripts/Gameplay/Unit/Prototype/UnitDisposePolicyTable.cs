@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -19,6 +20,23 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < Entries.Count; i++)
                 if (Entries[i].Id == id) return true;
             return false;
+        }
+
+        public void BakeTime(int tickRate)
+        {
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                UnitDisposePolicyEntry entry = Entries[i];
+                entry.DeathPresentationTicks =
+                    entry.DeathPresentationDuration.IsAuthored
+                        ? entry.DeathPresentationDuration
+                            .BakeTicks(tickRate)
+                        : DeterministicTimeConversion
+                            .Legacy30HzTicksToTicks(
+                                entry.DeathPresentationTicks,
+                                tickRate);
+                Entries[i] = entry;
+            }
         }
 #if UNITY_EDITOR
         private void OnValidate()
@@ -39,6 +57,8 @@ namespace FrameSyncMoba.Unit
     {
         [Min(0)] public ushort Id;
         public UnitDisposePolicyKind Kind;
+        public DurationAuthoring DeathPresentationDuration;
+        [HideInInspector]
         [Min(0)] public int DeathPresentationTicks;
         [Min(0)] public int RuinUnitPrototypeId;
     }

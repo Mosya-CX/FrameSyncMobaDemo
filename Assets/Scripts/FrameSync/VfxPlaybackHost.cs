@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FrameSyncMoba.FrameSync
 {
@@ -19,7 +20,11 @@ namespace FrameSyncMoba.FrameSync
     {
         [SerializeField] private VfxPlaybackMode playbackMode =
             VfxPlaybackMode.TimedGameObject;
-        [SerializeField, Min(0.01f)] private float durationSeconds = 1f;
+        [SerializeField, Min(1)]
+        private int durationMilliseconds;
+        [FormerlySerializedAs("durationSeconds")]
+        [SerializeField, HideInInspector]
+        private float legacyDurationSeconds;
         [SerializeField] private Transform animatedModel;
         [SerializeField, Min(0f)] private float arcHeight = 3f;
         [SerializeField] private Vector3 modelRotationDegrees =
@@ -29,8 +34,8 @@ namespace FrameSyncMoba.FrameSync
         private Vector3 targetPosition;
         private Vector3 initialModelLocalPosition;
         private Quaternion initialModelLocalRotation;
-        private float startedAt;
-        private float activeDuration;
+        private long startedAtMilliseconds;
+        private int activeDurationMilliseconds;
         private bool playing;
 
         public float BeginPlayback(
@@ -47,17 +52,24 @@ namespace FrameSyncMoba.FrameSync
                 animatedModel.localPosition;
             initialModelLocalRotation =
                 animatedModel.localRotation;
-            activeDuration = Mathf.Max(
-                0.01f,
-                durationSeconds *
-                Mathf.Max(0.01f, durationScale));
+            activeDurationMilliseconds = Mathf.Max(
+                10,
+                Mathf.RoundToInt(
+                (durationMilliseconds > 0
+                    ? durationMilliseconds
+                    : legacyDurationSeconds > 0f
+                        ? (int)System.Math.Round(
+                            legacyDurationSeconds * 1000f)
+                        : 1000) *
+                Mathf.Max(0.01f, durationScale)));
             startPosition = playbackMode ==
                 VfxPlaybackMode.SourceToTargetArc
                     ? sourcePosition
                     : eventPosition;
             targetPosition = eventPosition;
             transform.position = startPosition;
-            startedAt = Time.unscaledTime;
+            startedAtMilliseconds =
+                GetMonotonicMilliseconds();
             playing = true;
 
             ParticleSystem[] particles =
@@ -73,7 +85,7 @@ namespace FrameSyncMoba.FrameSync
                 animators[i].Update(0f);
             }
 
-            return activeDuration;
+            return activeDurationMilliseconds / 1000f;
         }
 
         public void ResetForPool()
@@ -109,8 +121,9 @@ namespace FrameSyncMoba.FrameSync
                 return;
 
             float progress = Mathf.Clamp01(
-                (Time.unscaledTime - startedAt) /
-                activeDuration);
+                (GetMonotonicMilliseconds() -
+                 startedAtMilliseconds) /
+                (float)activeDurationMilliseconds);
             transform.position = Vector3.LerpUnclamped(
                 startPosition,
                 targetPosition,
@@ -131,6 +144,13 @@ namespace FrameSyncMoba.FrameSync
                         modelRotationDegrees *
                         progress);
             }
+        }
+
+        private static long GetMonotonicMilliseconds()
+        {
+            return (long)System.Math.Round(
+                Time.realtimeSinceStartupAsDouble * 1000d,
+                System.MidpointRounding.AwayFromZero);
         }
     }
 }

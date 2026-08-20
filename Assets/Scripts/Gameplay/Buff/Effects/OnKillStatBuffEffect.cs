@@ -1,4 +1,6 @@
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -13,7 +15,16 @@ namespace FrameSyncMoba.Unit
             StatModifierOperation.FlatAdd;
         public fp ValuePerStack = (fp)5;
         public int MaxStacks = 5;
-        public int DurationTicks = 300;
+        public DurationAuthoring Duration;
+        [HideInInspector] public int DurationTicks = 300;
+
+        public override void BakeTime(int tickRate)
+        {
+            DurationTicks = Duration.IsAuthored
+                ? Duration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(DurationTicks, tickRate);
+        }
         public BuffStateSlotId StackCountSlot;
         public BuffStateSlotId HandleSlot;
 

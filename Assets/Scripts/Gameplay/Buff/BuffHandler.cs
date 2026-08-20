@@ -152,9 +152,12 @@ namespace FrameSyncMoba.Unit
                 int tick =
                     SimulationTickContext.Current.Tick;
                 float durationSeconds =
-                    definition.ApplyVfxDurationSeconds > 0f
-                        ? definition.ApplyVfxDurationSeconds
-                        : 1f;
+                    definition.ApplyVfxDurationMilliseconds > 0
+                        ? definition.ApplyVfxDurationMilliseconds /
+                            1000f
+                        : definition.ApplyVfxDurationSeconds > 0f
+                            ? definition.ApplyVfxDurationSeconds
+                            : 1f;
                 VisualEventOutput.SubmitVfx(
                     new VfxEvent
                     {
@@ -759,8 +762,12 @@ namespace FrameSyncMoba.Unit
                     !group.NextTriggerTickSlot.IsValid)
                     continue;
                 int intervalTicks =
-                    BuffTickConverter.SecondsToTicks(
-                        group.IntervalSeconds);
+                    group.Interval.IsAuthored
+                        ? group.Interval.BakeTicks(
+                            runtime.Definition.BakedTickRate)
+                        : BuffTickConverter.SecondsToTicks(
+                            group.IntervalSeconds,
+                            runtime.Definition.BakedTickRate);
                 if (intervalTicks <= 0)
                     continue;
                 int next = runtime.Blackboard

@@ -24,7 +24,8 @@ namespace FrameSyncMoba.Unit
         public IReadOnlyList<AbilityAsset> Abilities =>
             abilities;
 
-        public AbilityDefinitionRegistry BakeOrThrow()
+        public AbilityDefinitionRegistry BakeOrThrow(
+            int tickRate = 30)
         {
             var registry =
                 new AbilityDefinitionRegistry();
@@ -36,7 +37,9 @@ namespace FrameSyncMoba.Unit
                 if (abilities[i] == null)
                     throw new InvalidOperationException(
                         $"Ability catalog entry {i} is null.");
-                registry.TryRegisterFromAsset(abilities[i]);
+                registry.TryRegisterFromAsset(
+                    abilities[i],
+                    tickRate);
             }
 
             if (slots == null)

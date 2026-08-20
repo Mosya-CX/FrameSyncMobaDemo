@@ -151,7 +151,8 @@ namespace FrameSyncMoba.Unit
                 Velocity * LogicSecondsPerTick);
             if (Def.Acceleration == fp.zero) return;
 
-            fp speed = fpmath.length(Velocity) + Def.Acceleration;
+            fp speed = fpmath.length(Velocity) +
+                Def.Acceleration * LogicSecondsPerTick;
             if (speed <= fp.zero)
             {
                 Velocity = fp2.zero;

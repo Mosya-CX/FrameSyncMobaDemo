@@ -14,7 +14,8 @@ namespace FrameSyncMoba.Unit
         public BuffDefinition[] Definitions;
 
         public void RegisterAll(
-            BuffDefinitionRegistry registry)
+            BuffDefinitionRegistry registry,
+            int tickRate = 30)
         {
             if (registry == null) return;
             if (Definitions == null) return;
@@ -26,6 +27,7 @@ namespace FrameSyncMoba.Unit
                     Definitions[i];
                 if (definition == null)
                     continue;
+                definition.BakeOrThrow(tickRate);
                 registry.Register(definition);
             }
         }

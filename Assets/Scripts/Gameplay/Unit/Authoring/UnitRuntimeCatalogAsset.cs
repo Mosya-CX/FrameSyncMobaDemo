@@ -168,7 +168,8 @@ namespace FrameSyncMoba.Unit
         public List<StatPresetEntryAuthoring> BaseStats =
             new List<StatPresetEntryAuthoring>();
 
-        internal UnitPrototype BakeOrThrow()
+        internal UnitPrototype BakeOrThrow(
+            int tickRate = 30)
         {
             if (UnitPrototypeId <= 0)
                 throw new InvalidOperationException("UnitPrototypeId must be positive.");
@@ -226,7 +227,7 @@ namespace FrameSyncMoba.Unit
                 InitialBuffConfigIds =
                     BakeInitialBuffConfigs(),
                 UnitDisposePolicyId = UnitDisposePolicyId,
-                RespawnConfig = RespawnConfig,
+                RespawnConfig = RespawnConfig.BakeTime(tickRate),
                 PoolConfig = PoolConfig,
                 Loadout = Loadout,
                 LocomotionProfile = locomotion,
@@ -346,11 +347,16 @@ namespace FrameSyncMoba.Unit
         }
 #endif
 
-        public BakedUnitRuntimeCatalog BakeOrThrow(GlobalPrefabTable prefabTable)
+        public BakedUnitRuntimeCatalog BakeOrThrow(
+            GlobalPrefabTable prefabTable,
+            int tickRate = 30)
         {
             if (prefabTable == null)
                 throw new ArgumentNullException(nameof(prefabTable));
             prefabTable.ValidateOrThrow();
+            DeterministicTimeConversion.ValidateSupportedTickRate(
+                tickRate);
+            disposePolicyTable?.BakeTime(tickRate);
 
             var sortedDefinitions = new List<StatDefinitionAuthoring>(
                 statDefinitions ?? new List<StatDefinitionAuthoring>());
@@ -378,7 +384,8 @@ namespace FrameSyncMoba.Unit
                 UnitPrototypeAuthoring authoring = sortedPrototypes[i];
                 if (authoring == null)
                     throw new InvalidOperationException($"Unit prototype {i} is null.");
-                UnitPrototype prototype = authoring.BakeOrThrow();
+                UnitPrototype prototype = authoring.BakeOrThrow(
+                    tickRate);
                 if (disposePolicyTable != null)
                 {
                     if (!disposePolicyTable.TryGet(

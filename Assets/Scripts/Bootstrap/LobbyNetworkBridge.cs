@@ -47,7 +47,7 @@ namespace FrameSyncMoba.Bootstrap
         private const string BootstrapAppliedMessage =
             "FrameSyncMoba.BootstrapApplied.v1";
         private const string LaunchCommitMessage =
-            "FrameSyncMoba.LaunchCommit.v1";
+            "FrameSyncMoba.LaunchCommit.v2";
 
         [SerializeField] private NetworkManager
             networkManager;
@@ -578,9 +578,6 @@ namespace FrameSyncMoba.Bootstrap
             in GameBootstrapPayload payload)
         {
             RequireServerOwner();
-            if (payload.LaunchUtcTicks != 0)
-                throw new DeterministicSimulationException(
-                    "Bootstrap must not authorize simulation launch.");
             bootstrapAppliedBarrier.Initialize(
                 payload.GameStartConfig);
             byte[] bytes =
@@ -611,7 +608,8 @@ namespace FrameSyncMoba.Bootstrap
             Debug.Log(
                 $"[LaunchCommit] Server broadcast match " +
                 $"'{commit.MatchId}' StartTick {commit.StartTick} " +
-                $"LaunchUtcTicks {commit.LaunchUtcTicks}.");
+                $"LaunchServerTimeMs " +
+                $"{commit.LaunchServerTimeMilliseconds}.");
         }
 
         private void ReceiveBootstrap(
@@ -626,9 +624,6 @@ namespace FrameSyncMoba.Bootstrap
             GameBootstrapPayload payload =
                 BootstrapPayloadWireCodec.Read(
                     ReadPayload(reader));
-            if (payload.LaunchUtcTicks != 0)
-                throw new DeterministicSimulationException(
-                    "Bootstrap must not contain a launch authorization.");
             if (GameSessionContext.Bootstrap == null ||
                 GameSessionContext.Bootstrap.IsMatchReady)
             {

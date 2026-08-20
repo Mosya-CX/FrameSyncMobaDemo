@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -148,8 +149,12 @@ namespace FrameSyncMoba.Unit
         private static readonly fp AcquireRangePadding = (fp)1.5m;
         private static readonly fp ChaseMaxDistance = (fp)12m;
         private static readonly fp LaneReturnThreshold = (fp)15m;
-        private const int TargetLockTicks = 30;
-        private const int DecisionIntervalTicks = 5;
+        private int TargetLockTicks =>
+            DeterministicTimeConversion.Legacy30HzTicksToTicks(
+                30, OwnerUnit.World.TickRate);
+        private int DecisionIntervalTicks =>
+            DeterministicTimeConversion.Legacy30HzTicksToTicks(
+                5, OwnerUnit.World.TickRate);
 
         // ---- Threat model (integer scale 0..1000, configurable) ----
         // 新索敌目标的初始仇恨（80%，不满，避免新目标立即覆盖正在攻击的目标）。
@@ -834,7 +839,9 @@ namespace FrameSyncMoba.Unit
 
     public sealed class MonsterAIController : UnitAIController
     {
-        private const int DecisionIntervalTicks = 5;
+        private int DecisionIntervalTicks =>
+            DeterministicTimeConversion.Legacy30HzTicksToTicks(
+                5, OwnerUnit.World.TickRate);
 
         public MonsterAIState AIState { get; private set; }
         public int CampId { get; private set; }

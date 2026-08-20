@@ -96,8 +96,18 @@ namespace FrameSyncMoba.FrameSync
         private bool replaying;
         private readonly int maxPredictionLeadTicks;
         private int mismatchStuckTick = -1;
+        private int latestContiguousReceivedAuthorityFrameTick = -1;
 
         public int LatestAuthorityFrameTick { get; private set; } = -1;
+        /// <summary>
+        /// Highest continuously received AuthorityFrame Tick, including
+        /// frames buffered ahead of local simulation. Application scheduling
+        /// may use this only to authorize real backlog catch-up.
+        /// </summary>
+        public int LatestContiguousReceivedAuthorityFrameTick =>
+            Math.Max(
+                LatestAuthorityFrameTick,
+                latestContiguousReceivedAuthorityFrameTick);
         public int LocalSimulationTick => pipeline.LocalSimulationTick;
         public int SnapshotTick { get; private set; } = -1;
         public int PredictedMatchEndCandidateTick { get; private set; } = -1;
@@ -213,6 +223,7 @@ namespace FrameSyncMoba.FrameSync
             }
 
             authorityBuffer.Add(frame.Tick, frame);
+            RefreshLatestContiguousReceivedAuthorityFrameTick();
             RefreshMissingFramePause();
             ProcessAuthorityFramesSequentially();
         }
@@ -272,6 +283,8 @@ namespace FrameSyncMoba.FrameSync
 
             LatestAuthorityFrameTick =
                 snapshotTick - 1;
+            latestContiguousReceivedAuthorityFrameTick =
+                LatestAuthorityFrameTick;
             SnapshotTick = snapshotTick;
             RefreshMissingFramePause();
             RefreshPredictionLeadPause();
@@ -671,6 +684,16 @@ namespace FrameSyncMoba.FrameSync
                 PauseReasons |= PredictionPauseReason.MissingAuthorityFrame;
             else
                 PauseReasons &= ~PredictionPauseReason.MissingAuthorityFrame;
+        }
+
+        private void RefreshLatestContiguousReceivedAuthorityFrameTick()
+        {
+            int candidate = Math.Max(
+                LatestAuthorityFrameTick,
+                latestContiguousReceivedAuthorityFrameTick);
+            while (authorityBuffer.ContainsKey(candidate + 1))
+                candidate++;
+            latestContiguousReceivedAuthorityFrameTick = candidate;
         }
 
         private void RefreshPredictionLeadPause()

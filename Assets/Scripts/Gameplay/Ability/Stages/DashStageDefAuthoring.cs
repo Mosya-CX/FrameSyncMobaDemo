@@ -7,7 +7,10 @@ namespace FrameSyncMoba.Unit
     [Serializable]
     public sealed class DashStageDefAuthoring : StageDefAuthoring
     {
+        [Tooltip("Movement speed in logic distance units per second.")]
         [Min(0f)]
+        [SerializeField] private float speedPerSecond;
+        [HideInInspector, Min(0f)]
         [SerializeField] private float speedPerTick = 1f;
         [Min(0f)]
         [SerializeField] private float totalDistance = 8f;
@@ -20,7 +23,7 @@ namespace FrameSyncMoba.Unit
         public float SpeedPerTick => speedPerTick;
         public float TotalDistance => totalDistance;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             if (StageKey <= 0 ||
                 speedPerTick <= 0f ||
@@ -33,7 +36,10 @@ namespace FrameSyncMoba.Unit
             {
                 StageDefId = StageKey,
                 DebugName = DebugName,
-                SpeedPerTick = (fp)speedPerTick,
+                SpeedPerTick = (fp)(
+                    speedPerSecond > 0f
+                        ? speedPerSecond / tickRate
+                        : speedPerTick * 30f / tickRate),
                 TotalDistance = (fp)totalDistance,
                 WallPolicy = wallPolicy,
                 ResetAttackTimerOnStart = resetAttackTimerOnStart,

@@ -1,4 +1,6 @@
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -17,8 +19,19 @@ namespace FrameSyncMoba.Unit
         /// <summary>Damage type of the bonus damage.</summary>
         public DamageType DamageType = DamageType.Physical;
 
-        /// <summary>Minimum ticks between activations (0 = every hit).</summary>
+        public DurationAuthoring InternalCooldown;
+        [HideInInspector]
         public int InternalCooldownTicks;
+
+        public override void BakeTime(int tickRate)
+        {
+            InternalCooldownTicks = InternalCooldown.IsAuthored
+                ? InternalCooldown.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        InternalCooldownTicks,
+                        tickRate);
+        }
 
         public override void Execute(
             ref EquipmentEffectExecutionContext context,

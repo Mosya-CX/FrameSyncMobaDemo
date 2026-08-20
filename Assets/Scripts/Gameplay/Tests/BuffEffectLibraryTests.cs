@@ -258,7 +258,7 @@ namespace FrameSyncMoba.Unit.Tests
                     lifeRule == BuffLifeRule.Infinite,
                 DurationSeconds =
                     durationTicks /
-                    (float)BuffTickConverter.TickRate,
+                    30f,
                 RefreshMode =
                     BuffRefreshMode.RefreshToFull,
             };

@@ -14,7 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 31005
   Name: Guinsoo's Rageblade
-  Description: "Grants 30 Attack Damage, 30 Ability Power, and 25% Attack Speed.\nRage: Basic attacks deal 30 bonus magic damage on hit.\nSeething Strike: Basic attacks grant 8% Attack Speed for 3 seconds, stacking up to 4 times. At maximum stacks, every third basic attack repeats eligible on-hit effects once."
+  Description: 'Grants 30 Attack Damage, 30 Ability Power, and 25% Attack Speed.
+
+    Rage:
+    Basic attacks deal 30 bonus magic damage on hit.
+
+    Seething Strike: Basic
+    attacks grant 8% Attack Speed for 3 seconds, stacking up to 4 times. At maximum
+    stacks, every third basic attack repeats eligible on-hit effects once.'
   Icon: {fileID: 21300000, guid: 86d765fa57452364f9577c5014480763, type: 3}
   Tier: 3
   Value: 3000
@@ -31,14 +38,23 @@ MonoBehaviour:
     Description: Basic attacks deal 30 bonus magic damage on hit.
     IsActive: 0
     ActiveSettings:
+      Cooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       CooldownTicks: 0
       ChargeCost: 0
     Modules:
     - rid: 2586996066344501250
   - Name: Seething Strike
-    Description: Basic attacks grant stacking Attack Speed. At maximum stacks, every third basic attack repeats eligible on-hit effects once.
+    Description: Basic attacks grant stacking Attack Speed. At maximum stacks, every
+      third basic attack repeats eligible on-hit effects once.
     IsActive: 0
     ActiveSettings:
+      Cooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       CooldownTicks: 0
       ChargeCost: 0
     Modules:
@@ -63,6 +79,10 @@ MonoBehaviour:
         BonusDamage:
           m_rawValue: 128849018880
         DamageType: 1
+        InternalCooldown:
+          milliseconds: 0
+          roundingPolicy: 0
+          authored: 1
         InternalCooldownTicks: 0
     - rid: 2586996066344501251
       type: {class: BuffEquipmentModule, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}

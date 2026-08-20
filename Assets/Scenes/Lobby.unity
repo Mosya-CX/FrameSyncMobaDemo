@@ -505,7 +505,10 @@ MonoBehaviour:
   lobbyBridge: {fileID: 0}
   uiActions: {fileID: 0}
   localNgoDriver: {fileID: 0}
-  assignmentPollIntervalSeconds: 2
+  assignmentPollIntervalMilliseconds: 2000
+  legacyAssignmentPollIntervalSeconds: 2
+  presentationRefreshIntervalMilliseconds: 0
+  legacyPresentationRefreshIntervalSeconds: 0
 --- !u!114 &992233347
 MonoBehaviour:
   m_ObjectHideFlags: 0

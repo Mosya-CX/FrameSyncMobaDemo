@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -18,7 +19,10 @@ namespace FrameSyncMoba.Unit
         // Flow-field registry for runtime lookup
         private FlowFieldRegistry _flowFieldRegistry;
 
-        private const int RepathCooldownTicks = 10;
+        private int RepathCooldownTicks =>
+            DeterministicTimeConversion.Legacy30HzTicksToTicks(
+                10,
+                _owner.World?.TickRate ?? 30);
         private static readonly fp RepathThresholdSq =
             (fp)0.25m;
         private static readonly fp DirectMaxDistanceSq =

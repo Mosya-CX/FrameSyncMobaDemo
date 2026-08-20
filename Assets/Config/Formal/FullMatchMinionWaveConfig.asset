@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3103a25258ae554ba208d97aa4b4204, type: 3}
   m_Name: FullMatchMinionWaveConfig
   m_EditorClassIdentifier: 
+  waveInterval:
+    milliseconds: 30000
+    roundingPolicy: 0
+    authored: 1
   waveIntervalTicks: 900
+  firstWaveDelay:
+    milliseconds: 30000
+    roundingPolicy: 0
+    authored: 1
   firstWaveTick: 900
   phases:
   - StartWaveIndex: 0
@@ -25,7 +33,15 @@ MonoBehaviour:
         - TeamId: 2
           UnitPrototypeId: 2002
         Count: 2
+        FirstSpawnOffset:
+          milliseconds: 0
+          roundingPolicy: 0
+          authored: 1
         FirstSpawnOffsetTicks: 0
+        SpawnStep:
+          milliseconds: 800
+          roundingPolicy: 0
+          authored: 1
         SpawnStepTicks: 24
         FormationGroup: 0
       - UnitPrototypeId: 2101
@@ -35,6 +51,14 @@ MonoBehaviour:
         - TeamId: 2
           UnitPrototypeId: 2102
         Count: 1
+        FirstSpawnOffset:
+          milliseconds: 1600
+          roundingPolicy: 0
+          authored: 1
         FirstSpawnOffsetTicks: 48
+        SpawnStep:
+          milliseconds: 800
+          roundingPolicy: 0
+          authored: 1
         SpawnStepTicks: 24
         FormationGroup: 1

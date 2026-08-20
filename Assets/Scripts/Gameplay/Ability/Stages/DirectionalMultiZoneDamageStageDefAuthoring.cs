@@ -1,6 +1,7 @@
 using System;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -31,13 +32,17 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private UnitTargetFilter targetFilter =
             UnitTargetFilter.Default;
         [Min(0)] [SerializeField] private int sweetSpotControlId;
-        [Min(0)] [SerializeField] private int sweetSpotControlDurationTicks;
-        [Min(0)] [SerializeField] private int fixedPassiveHitReductionTicks;
-        [Min(0)] [SerializeField] private int fixedPassiveSweetHitReductionTicks;
+        [SerializeField] private DurationAuthoring sweetSpotControlDuration;
+        [HideInInspector, Min(0)] [SerializeField] private int sweetSpotControlDurationTicks;
+        [SerializeField] private DurationAuthoring fixedPassiveHitReduction;
+        [HideInInspector, Min(0)] [SerializeField] private int fixedPassiveHitReductionTicks;
+        [SerializeField] private DurationAuthoring fixedPassiveSweetHitReduction;
+        [HideInInspector, Min(0)] [SerializeField] private int fixedPassiveSweetHitReductionTicks;
         [Min(1)] [SerializeField] private int recipeId = 1;
         [Min(1)] [SerializeField] private int sweetSpotRecipeId = 2;
         [Min(0)] [SerializeField] private int vfxDefId;
-        [Min(0)] [SerializeField] private int impactDelayTicks;
+        [SerializeField] private DurationAuthoring impactDelay;
+        [HideInInspector, Min(0)] [SerializeField] private int impactDelayTicks;
 
         public DirectionalZoneShape Shape => shape;
         public float ForwardStart => forwardStart;
@@ -50,7 +55,7 @@ namespace FrameSyncMoba.Unit
         public float SweetForwardEnd => sweetForwardEnd;
         public float SweetCircleRadius => sweetCircleRadius;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             if (!Enum.IsDefined(typeof(DirectionalZoneShape), shape) ||
                 forwardLength < 0f ||
@@ -92,14 +97,24 @@ namespace FrameSyncMoba.Unit
                 TargetFilter = targetFilter,
                 SweetSpotControlId = new CrowdControlId(
                     sweetSpotControlId),
-                SweetSpotControlDurationTicks = sweetSpotControlDurationTicks,
-                FixedPassiveHitReductionTicks = fixedPassiveHitReductionTicks,
+                SweetSpotControlDurationTicks = BakeHelpers.BakeDuration(
+                    sweetSpotControlDuration,
+                    sweetSpotControlDurationTicks,
+                    tickRate),
+                FixedPassiveHitReductionTicks = BakeHelpers.BakeDuration(
+                    fixedPassiveHitReduction,
+                    fixedPassiveHitReductionTicks,
+                    tickRate),
                 FixedPassiveSweetHitReductionTicks =
-                    fixedPassiveSweetHitReductionTicks,
+                    BakeHelpers.BakeDuration(
+                        fixedPassiveSweetHitReduction,
+                        fixedPassiveSweetHitReductionTicks,
+                        tickRate),
                 RecipeId = recipeId,
                 SweetSpotRecipeId = sweetSpotRecipeId,
                 VfxDefId = vfxDefId,
-                ImpactDelayTicks = impactDelayTicks,
+                ImpactDelayTicks = BakeHelpers.BakeDuration(
+                    impactDelay, impactDelayTicks, tickRate),
             };
         }
 

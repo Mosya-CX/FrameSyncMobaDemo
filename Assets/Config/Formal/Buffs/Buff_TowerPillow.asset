@@ -19,9 +19,17 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
   Life:
+    Duration:
+      milliseconds: 60000
+      roundingPolicy: 0
+      authored: 1
     DurationSeconds: 60
     Infinite: 1
     RefreshMode: 1
+    ExtendDuration:
+      milliseconds: 0
+      roundingPolicy: 0
+      authored: 1
     ExtendSeconds: 0
   Stack:
     MaxStacks: 1
@@ -56,7 +64,14 @@ MonoBehaviour:
     CollisionEnter: []
     CollisionExit: []
   Priority: 0
+  PeriodicInterval:
+    milliseconds: 0
+    roundingPolicy: 0
+    authored: 1
   PeriodicIntervalTicks: 0
+  ApplyVfxDefId: 0
+  ApplyVfxDurationMilliseconds: 0
+  ApplyVfxDurationSeconds: 0
   InitialStacks: 1
   references:
     version: 2

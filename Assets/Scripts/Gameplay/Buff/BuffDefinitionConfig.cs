@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -28,10 +29,14 @@ namespace FrameSyncMoba.Unit
     [Serializable]
     public sealed class BuffLifeRuleConfig
     {
+        public DurationAuthoring Duration;
+        [HideInInspector]
         public float DurationSeconds = 60f;
         public bool Infinite;
         public BuffRefreshMode RefreshMode =
             BuffRefreshMode.RefreshToFull;
+        public DurationAuthoring ExtendDuration;
+        [HideInInspector]
         public float ExtendSeconds;
     }
 
@@ -159,28 +164,27 @@ namespace FrameSyncMoba.Unit
     }
 
     /// <summary>
-    /// Fixed logic-frequency seconds-to-tick conversion used at Apply and
-    /// runtime initialization (design v14.2 1.5, 3.4).
+    /// Explicit seconds-to-Tick conversion used during static Bake or from a
+    /// definition's already validated TickRate.
     /// </summary>
     public static class BuffTickConverter
     {
-        public static int TickRate = 30;
-
         public static int SecondsToTicks(
-            float seconds)
+            float seconds,
+            int tickRate)
         {
-            return Mathf.Max(
-                0,
-                Mathf.RoundToInt(
-                    seconds * TickRate));
+            return DeterministicTimeConversion.SecondsToTicks(
+                seconds,
+                tickRate);
         }
 
         public static float TicksToSeconds(
-            int ticks)
+            int ticks,
+            int tickRate)
         {
-            if (TickRate <= 0)
+            if (tickRate <= 0)
                 return 0f;
-            return ticks / (float)TickRate;
+            return ticks / (float)tickRate;
         }
     }
 }

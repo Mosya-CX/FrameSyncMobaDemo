@@ -597,7 +597,8 @@ Implementation consequences:
 
 ## D-031 — Varus passive P, charge slow/refund, per-level cooldown (2026-08-06)
 
-**Status:** Partially superseded by D-044. The absolute UTC barrier and stat
+**Status:** Partially superseded by D-044 and D-045. The synchronized network
+time launch barrier and stat
 Dirty finalization remain frozen; carrying launch authorization inside
 `GameBootstrapPayload` no longer applies.
 
@@ -1030,7 +1031,8 @@ balance behavior are frozen here.
 
 ## D-044 -- Two-phase bootstrap acknowledgement and launch commit (2026-08-14)
 
-**Status:** Implemented in source; rebuilt two-client UOS acceptance pending.
+**Status:** Partially superseded by D-045. The two-phase acknowledgement
+barrier remains; its UTC clock domain and wire-v2 compatibility slot do not.
 
 - `GameBootstrapPayload` restores the authoritative initial snapshot and frozen
   player mapping but never authorizes simulation. Its legacy wire-v2
@@ -1055,3 +1057,35 @@ balance behavior are frozen here.
   launch threshold.
 - `GameplayDataVersion` advances from 1 to 2 so mixed old/new client and server
   packages are rejected during the lobby version handshake.
+
+## D-045 -- Monotonic launch scheduling and millisecond authoring (2026-08-20)
+
+**Status:** Implemented in source; 20/30/60 Hz and rebuilt two-client UOS
+acceptance pending.
+
+- `GameBootstrapPayload` contains no launch timestamp. Bootstrap wire version
+  advances from 2 to 3 and old payloads are rejected rather than retaining a
+  zero-valued `LaunchUtcTicks` compatibility slot.
+- `MatchLaunchCommit` carries `LaunchServerTimeMilliseconds` in NGO's
+  synchronized `NetworkManager.ServerTime` domain. The server and clients use
+  that same clock only to cross the launch threshold; local calendar UTC never
+  authorizes or paces simulation.
+- Once an endpoint crosses its threshold, launch pacing is anchored to a local
+  monotonic millisecond clock. A client may execute only the greater of its
+  monotonic launch allowance and the real continuously received AuthorityFrame
+  backlog; timestamp lateness alone never fabricates a backlog.
+- Loading progress, matchmaking presentation, Ping scheduling and render-loop
+  simulation accumulation use integer milliseconds. Calendar UTC remains
+  diagnostic metadata only (asynchronous log timestamps/file names).
+- Offline Inspector content time is integer milliseconds with an explicit
+  `Ceil`, `Nearest` or `Floor` Bake policy. At Bake, the selected fixed
+  `TickRate` converts milliseconds to runtime Tick state using integer
+  arithmetic. Runtime snapshots, Commands, cooldown state and checksums remain
+  Tick-based.
+- Supported offline rates are 10 through 120 Hz in multiples of 5. Formal
+  migration preserves the old 30 Hz content duration by mapping positive
+  `legacyTicks` to `floor(legacyTicks * 1000 / 30)` milliseconds. The old values
+  and exact 30 Hz durations are retained in
+  `Docs/Implementation/LEGACY_30HZ_TIME_AUTHORING_INVENTORY.md`.
+- Gameplay protocol data version advances from 2 to 3, and launch/bootstrap
+  wire versions advance independently, so mixed packages fail visibly.

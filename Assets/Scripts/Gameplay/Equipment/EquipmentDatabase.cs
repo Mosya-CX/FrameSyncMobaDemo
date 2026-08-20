@@ -58,13 +58,13 @@ namespace FrameSyncMoba.Unit
             }
         }
 
-        public void Seal()
+        public void Seal(int tickRate = 30)
         {
             _allDefinitions = new EquipmentDefinition[_byId.Count];
             int idx = 0;
             foreach (var kv in _byId)
             {
-                kv.Value.Bake();
+                kv.Value.Bake(tickRate);
                 _allDefinitions[idx++] = kv.Value;
             }
             Array.Sort(_allDefinitions, (a, b) => a.Id.CompareTo(b.Id));

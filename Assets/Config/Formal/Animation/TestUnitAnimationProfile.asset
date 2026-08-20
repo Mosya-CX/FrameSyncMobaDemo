@@ -22,6 +22,7 @@ MonoBehaviour:
   MoveSpeedHash: 526065662
   IsAttackingHash: -1130678506
   IsAttackRecoveringHash: -1196666925
+  IsEmpoweredAttackHash: 0
   AttackSequenceIndexHash: 252578310
   AttackMotionTimeHash: 66767629
   AttackStartHash: 1914324138
@@ -30,11 +31,32 @@ MonoBehaviour:
   IsChargingHash: -559571433
   LifeStateHash: 86291193
   IsControlledHash: -1523660911
+  IsPassiveReadyHash: 0
+  IsAnimationVariantActiveHash: 0
+  AnimationVariantExitHash: 0
+  PassiveReadyAbilityId: 0
+  AnimationVariantBuffConfigId: 0
   IdleStateHash: 1432961145
   MoveStateHash: 1718862356
   DeathStateHash: -1546996312
   RespawnStateHash: 1432961145
   NormalAttackPlan:
+    StartDuration:
+      milliseconds: 66
+      roundingPolicy: 0
+      authored: 1
+    WindupDuration:
+      milliseconds: 166
+      roundingPolicy: 0
+      authored: 1
+    ImpactDuration:
+      milliseconds: 66
+      roundingPolicy: 0
+      authored: 1
+    RecoveryDuration:
+      milliseconds: 266
+      roundingPolicy: 0
+      authored: 1
     StartDurationTicks: 2
     WindupDurationTicks: 5
     ImpactDurationTicks: 2
@@ -44,24 +66,32 @@ MonoBehaviour:
   - AbilityId: 10011
     StageIndex: 1
     StateNameHash: 1159097051
+    PassiveReadyStateNameHash: 0
+    AnimationVariantStateNameHash: 0
     StartNormalizedTime: 0
     EndNormalizedTime: 1
     OverlayLayer: 0
   - AbilityId: 10011
     StageIndex: 2
     StateNameHash: -2044417779
+    PassiveReadyStateNameHash: 0
+    AnimationVariantStateNameHash: 0
     StartNormalizedTime: 0
     EndNormalizedTime: 1
     OverlayLayer: 0
   - AbilityId: 10013
     StageIndex: 1
     StateNameHash: 1102682630
+    PassiveReadyStateNameHash: 0
+    AnimationVariantStateNameHash: 0
     StartNormalizedTime: 0
     EndNormalizedTime: 1
     OverlayLayer: 0
   - AbilityId: 10014
     StageIndex: 1
     StateNameHash: -1033232447
+    PassiveReadyStateNameHash: 0
+    AnimationVariantStateNameHash: 0
     StartNormalizedTime: 0
     EndNormalizedTime: 1
     OverlayLayer: 0

@@ -10,7 +10,7 @@ namespace FrameSyncMoba.Bootstrap
     {
         private const uint BootstrapAppliedMagic = 0x41504D46;
         private const uint LaunchCommitMagic = 0x4C434D46;
-        private const ushort WireVersion = 1;
+        private const ushort WireVersion = 2;
         private const int MaximumBytes = 4096;
 
         public static byte[] WriteBootstrapApplied(
@@ -53,7 +53,8 @@ namespace FrameSyncMoba.Bootstrap
                         writer,
                         value.MatchId);
                     writer.Write(value.StartTick);
-                    writer.Write(value.LaunchUtcTicks);
+                    writer.Write(
+                        value.LaunchServerTimeMilliseconds);
                 });
         }
 

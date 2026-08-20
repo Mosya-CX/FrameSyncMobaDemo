@@ -111,17 +111,21 @@ namespace FrameSyncMoba.Bootstrap
         public int LocalPlayerSlot { get; private set; } = -1;
         public UnitUid LocalControlledUnitUid { get; private set; }
 
-        private double logicAccumulatorSeconds;
+        private long logicAccumulatorMillisecondRateUnits;
         private double logicDeltaSeconds;
-        private double recoveryAccumulatorSeconds;
+        private long recoveryAccumulatorMillisecondRateUnits;
+        private long lastUnityUpdateMonotonicMilliseconds = -1L;
         private IEquipmentShopView localShopView;
         private GameStartConfig? activeGameStartConfig;
         private int recoveryControlTick;
         private bool hudLaunchPending;
         private float gameLoadProgress = 0.7f;
         private string gameLoadStatus = "Waiting for match data";
-        private long loadWaitStartUtcTicks;
-        private long loadWaitDurationTicks = 1;
+        private long loadWaitStartMonotonicMilliseconds;
+        private long loadWaitDurationMilliseconds = 1;
+        private long launchServerTimeMilliseconds;
+        private long launchPacingOriginMonotonicMilliseconds = -1;
+        private IFrameSyncLaunchClock launchClock;
         private int matchStartTick;
         private bool launchScheduleLogged;
         private BakedGlobalGameplayData bakedConfig;
@@ -169,7 +173,7 @@ namespace FrameSyncMoba.Bootstrap
                 $"[FrameSyncConfig] tickRate={config.TickRate} " +
                 $"maxPredictionLead={config.MaxPredictionLeadTicks} " +
                 $"maxTicksPerFrame={config.MaxLogicTicksPerUnityFrame} " +
-                $"launchDelay={config.LaunchDelaySeconds:F3}s " +
+                $"launchDelay={config.LaunchDelayMilliseconds}ms " +
                 $"flow={GameSessionContext.FlowMode} " +
                 $"online={enableOnlineApplicationFlow} " +
                 $"localDirect={localDevelopmentNetworkFlow}");
@@ -184,7 +188,9 @@ namespace FrameSyncMoba.Bootstrap
                 throw new InvalidOperationException(
                     $"{nameof(GameBootstrap)} requires UnitRuntimeCatalogAsset.");
             BakedUnitRuntimeCatalog unitCatalog =
-                unitRuntimeCatalog.BakeOrThrow(config.PrefabTable);
+                unitRuntimeCatalog.BakeOrThrow(
+                    config.PrefabTable,
+                    config.TickRate);
             if (unitCatalog.DisposePolicies == null)
                 throw new InvalidOperationException(
                     $"{nameof(UnitRuntimeCatalogAsset)} requires a UnitDisposePolicyTable.");
@@ -192,10 +198,14 @@ namespace FrameSyncMoba.Bootstrap
                 throw new InvalidOperationException(
                     $"{nameof(GameBootstrap)} requires AbilityRuntimeCatalogAsset.");
             AbilityDefinitionRegistry abilityDefinitions =
-                abilityRuntimeCatalog.BakeOrThrow();
+                abilityRuntimeCatalog.BakeOrThrow(
+                    config.TickRate);
             MaxLogicTicksPerUnityFrame = config.MaxLogicTicksPerUnityFrame;
             logicDeltaSeconds = 1d / config.TickRate;
-            logicAccumulatorSeconds = 0d;
+            logicAccumulatorMillisecondRateUnits = 0L;
+            recoveryAccumulatorMillisecondRateUnits = 0L;
+            lastUnityUpdateMonotonicMilliseconds =
+                GetUnityMonotonicMilliseconds();
 
             PhysicsWorld = new PhysicsWorld
             {
@@ -213,7 +223,8 @@ namespace FrameSyncMoba.Bootstrap
                 StatDefinitionTable = unitCatalog.StatDefinitions,
                 EquipmentDatabase =
                     equipmentCatalog != null
-                        ? equipmentCatalog.BakeOrThrow()
+                        ? equipmentCatalog.BakeOrThrow(
+                            config.TickRate)
                         : new EquipmentDatabase(),
                 AbilityDefinitions = abilityDefinitions,
                 BuffDefinitions = new BuffDefinitionRegistry(),
@@ -234,7 +245,8 @@ namespace FrameSyncMoba.Bootstrap
             if (buffCatalog != null)
             {
                 buffCatalog.RegisterAll(
-                    UnitWorld.BuffDefinitions);
+                    UnitWorld.BuffDefinitions,
+                    config.TickRate);
             }
             if (crowdControlCatalog != null)
             {
@@ -266,7 +278,8 @@ namespace FrameSyncMoba.Bootstrap
             {
                 Runtime.TickPipeline.ProjectileWorld.DefRegistry =
                     projectileRuntimeCatalog.BakeOrThrow(
-                        config.PrefabTable);
+                        config.PrefabTable,
+                        config.TickRate);
             }
             QueueInitialUnitSpawns();
 
@@ -516,7 +529,8 @@ namespace FrameSyncMoba.Bootstrap
                 minionWaveConfig != null
                     ? BakedMinionWaveConfig
                         .FromConfig(
-                            minionWaveConfig)
+                            minionWaveConfig,
+                            config.TickRate)
                     : config.MinionWaveConfig;
             Runtime.ConfigureNonHeroTopology(
                 schedule,
@@ -685,6 +699,17 @@ namespace FrameSyncMoba.Bootstrap
 
         private void Update()
         {
+            long nowMilliseconds =
+                GetUnityMonotonicMilliseconds();
+            long elapsedMilliseconds =
+                lastUnityUpdateMonotonicMilliseconds < 0L
+                    ? 0L
+                    : Math.Max(
+                        0L,
+                        nowMilliseconds -
+                        lastUnityUpdateMonotonicMilliseconds);
+            lastUnityUpdateMonotonicMilliseconds =
+                nowMilliseconds;
             if (UsesNetworkSimulation &&
                 !dedicatedServer &&
                 IsClientGameplayActive() &&
@@ -694,21 +719,26 @@ namespace FrameSyncMoba.Bootstrap
             {
                 frameSyncNetworkBridge.SendLocalCommands();
                 frameSyncNetworkBridge.TickPresentationPing(
-                    Time.realtimeSinceStartupAsDouble);
-                recoveryAccumulatorSeconds +=
-                    Time.unscaledDeltaTime;
-                while (recoveryAccumulatorSeconds >=
-                       logicDeltaSeconds)
+                    nowMilliseconds);
+                recoveryAccumulatorMillisecondRateUnits =
+                    checked(
+                        recoveryAccumulatorMillisecondRateUnits +
+                        elapsedMilliseconds * bakedConfig.TickRate);
+                while (recoveryAccumulatorMillisecondRateUnits >=
+                       DeterministicTimeConversion
+                           .MillisecondsPerSecond)
                 {
-                    recoveryAccumulatorSeconds -=
-                        logicDeltaSeconds;
+                    recoveryAccumulatorMillisecondRateUnits -=
+                        DeterministicTimeConversion
+                            .MillisecondsPerSecond;
                     recoveryControlTick++;
                 }
                 frameSyncNetworkBridge.TickRecovery(
                     recoveryControlTick);
             }
             if (driveSimulationFromUnityUpdate)
-                AdvanceSimulationByElapsedSeconds(Time.unscaledDeltaTime);
+                AdvanceSimulationByElapsedMilliseconds(
+                    elapsedMilliseconds);
             if (hudLaunchPending &&
                 Runtime != null &&
                 !IsEndpointLaunchTimeReached())
@@ -721,13 +751,14 @@ namespace FrameSyncMoba.Bootstrap
                 }
                 else
                 {
-                    long elapsedTicks = Math.Max(
+                    long loadElapsedMilliseconds = Math.Max(
                         0L,
-                        DateTime.UtcNow.Ticks -
-                        loadWaitStartUtcTicks);
+                        RequireLaunchClock()
+                            .MonotonicTimeMilliseconds -
+                        loadWaitStartMonotonicMilliseconds);
                     float waitProgress = Mathf.Clamp01(
-                        (float)((double)elapsedTicks /
-                        loadWaitDurationTicks));
+                        (float)((double)loadElapsedMilliseconds /
+                        loadWaitDurationMilliseconds));
                     gameLoadProgress =
                         Mathf.Lerp(0.9f, 0.99f, waitProgress);
                     gameLoadStatus =
@@ -906,9 +937,10 @@ namespace FrameSyncMoba.Bootstrap
             var commit = new MatchLaunchCommit(
                 config.MatchId,
                 config.StartTick,
-                DateTime.UtcNow.AddSeconds(
-                    bakedConfig.LaunchDelaySeconds)
-                    .Ticks);
+                checked(
+                    RequireLaunchClock()
+                        .SynchronizedServerTimeMilliseconds +
+                    bakedConfig.LaunchDelayMilliseconds));
             ApplyMatchLaunchCommit(commit);
             GameSessionContext.LobbyBridge?
                 .BroadcastLaunchCommit(commit);
@@ -948,6 +980,11 @@ namespace FrameSyncMoba.Bootstrap
             if (frameSyncNetworkBridge == null)
                 throw new InvalidOperationException(
                     "Network simulation requires FrameSyncNetworkBridge.");
+            if (networkManager == null)
+                throw new InvalidOperationException(
+                    "Network simulation requires NetworkManager for synchronized launch time.");
+            launchClock ??=
+                new NgoFrameSyncLaunchClock(networkManager);
             frameSyncNetworkBridge.MatchResultReady +=
                 OnMatchResultReady;
 
@@ -1069,8 +1106,7 @@ namespace FrameSyncMoba.Bootstrap
                 config.StartTick,
                 config.StartTick,
                 config.InitialRandomSeed,
-                mappings,
-                0);
+                mappings);
         }
 
         public void ApplyGameBootstrapPayload(
@@ -1082,10 +1118,6 @@ namespace FrameSyncMoba.Bootstrap
             if (matchBootstrapApplied)
                 throw new InvalidOperationException(
                     "The match bootstrap payload was already applied.");
-            if (payload.LaunchUtcTicks != 0)
-                throw new DeterministicSimulationException(
-                    "GameBootstrapPayload must not authorize simulation launch.");
-
             LocalVersions.RequireExactMatch(
                 payload.Versions);
             payload.GameStartConfig.ValidateOrThrow();
@@ -1094,9 +1126,10 @@ namespace FrameSyncMoba.Bootstrap
                 payload.InitialRandomSeed,
                 payload.GameStartConfig.GameStartPlayerCount,
                 bakedConfig.InitialEarnedGold);
-            Runtime.SetLaunchUtcTicks(0);
             matchStartTick = payload.StartTick;
             launchScheduleLogged = false;
+            launchServerTimeMilliseconds = 0;
+            launchPacingOriginMonotonicMilliseconds = -1;
             launchCommitApplied =
                 !UsesNetworkSimulation;
             gameLoadProgress = 0.9f;
@@ -1170,34 +1203,39 @@ namespace FrameSyncMoba.Bootstrap
                     "LaunchCommit does not match the applied bootstrap.");
             if (launchCommitApplied)
             {
-                if (Runtime.LaunchUtcTicks ==
-                    commit.LaunchUtcTicks)
+                if (launchServerTimeMilliseconds ==
+                    commit.LaunchServerTimeMilliseconds)
                     return;
                 throw new DeterministicSimulationException(
                     "A conflicting LaunchCommit was received.");
             }
 
-            Runtime.SetLaunchUtcTicks(
-                commit.LaunchUtcTicks);
+            launchServerTimeMilliseconds =
+                commit.LaunchServerTimeMilliseconds;
             launchCommitApplied = true;
             launchScheduleLogged = false;
+            launchPacingOriginMonotonicMilliseconds = -1;
             int clientLeadTicks =
                 GetClientLaunchLeadTicks();
-            long clientLaunchUtcTicks =
+            long clientLaunchServerTimeMilliseconds =
                 FrameSyncLaunchSchedule
-                    .GetClientPredictionLaunchUtcTicks(
-                        commit.LaunchUtcTicks,
+                    .GetClientPredictionLaunchServerTimeMilliseconds(
+                        commit.LaunchServerTimeMilliseconds,
                         bakedConfig.TickRate,
                         clientLeadTicks);
-            long endpointLaunchUtcTicks = dedicatedServer
-                ? commit.LaunchUtcTicks
-                : clientLaunchUtcTicks;
-            loadWaitStartUtcTicks =
-                DateTime.UtcNow.Ticks;
-            loadWaitDurationTicks = Math.Max(
+            long endpointLaunchServerTimeMilliseconds =
+                dedicatedServer
+                    ? commit.LaunchServerTimeMilliseconds
+                    : clientLaunchServerTimeMilliseconds;
+            IFrameSyncLaunchClock clock = RequireLaunchClock();
+            long receivedServerTimeMilliseconds =
+                clock.SynchronizedServerTimeMilliseconds;
+            loadWaitStartMonotonicMilliseconds =
+                clock.MonotonicTimeMilliseconds;
+            loadWaitDurationMilliseconds = Math.Max(
                 1L,
-                endpointLaunchUtcTicks -
-                loadWaitStartUtcTicks);
+                endpointLaunchServerTimeMilliseconds -
+                receivedServerTimeMilliseconds);
             gameLoadStatus = "Synchronizing players";
 
             if (dedicatedServer)
@@ -1234,11 +1272,11 @@ namespace FrameSyncMoba.Bootstrap
             Debug.Log(
                 $"[LaunchCommit] role=" +
                 $"{(dedicatedServer ? "server" : "client")} " +
-                $"receivedUtc={loadWaitStartUtcTicks} " +
-                $"serverLaunchUtc={commit.LaunchUtcTicks} " +
-                $"clientLaunchUtc={clientLaunchUtcTicks} " +
+                $"receivedServerMs={receivedServerTimeMilliseconds} " +
+                $"serverLaunchMs={commit.LaunchServerTimeMilliseconds} " +
+                $"clientLaunchMs={clientLaunchServerTimeMilliseconds} " +
                 $"remainingMs=" +
-                $"{Math.Max(0d, (endpointLaunchUtcTicks - loadWaitStartUtcTicks) / (double)TimeSpan.TicksPerMillisecond):F1} " +
+                $"{Math.Max(0L, endpointLaunchServerTimeMilliseconds - receivedServerTimeMilliseconds)} " +
                 $"leadTicks={clientLeadTicks} " +
                 $"startTick={commit.StartTick}");
         }
@@ -2736,33 +2774,37 @@ namespace FrameSyncMoba.Bootstrap
 
         /// <summary>
         /// Application scheduling boundary from FrameSync v10.2 section 8.9.
-        /// Elapsed wall time selects only how many deterministic Logic Ticks run;
+        /// Elapsed monotonic time selects only how many deterministic Logic Ticks run;
         /// it is never passed into Gameplay calculations.
         /// </summary>
-        public int AdvanceSimulationByElapsedSeconds(double elapsedSeconds)
+        public int AdvanceSimulationByElapsedMilliseconds(
+            long elapsedMilliseconds)
         {
             if (!IsInitialized)
                 throw new InvalidOperationException(
                     "GameBootstrap must initialize before advancing simulation.");
-            if (double.IsNaN(elapsedSeconds) ||
-                double.IsInfinity(elapsedSeconds) ||
-                elapsedSeconds < 0d)
+            if (elapsedMilliseconds < 0L)
                 throw new ArgumentOutOfRangeException(
-                    nameof(elapsedSeconds), "Elapsed time must be finite and nonnegative.");
+                    nameof(elapsedMilliseconds),
+                    "Elapsed milliseconds must be nonnegative.");
             if (!matchBootstrapApplied)
                 return 0;
 
-            logicAccumulatorSeconds += elapsedSeconds;
-            long utcNowTicks = DateTime.UtcNow.Ticks;
-            // The server starts at the authoritative instant. The client may
-            // begin only its small prediction lead before that instant.
+            logicAccumulatorMillisecondRateUnits = checked(
+                logicAccumulatorMillisecondRateUnits +
+                elapsedMilliseconds * bakedConfig.TickRate);
             if (UsesNetworkSimulation &&
                 Runtime != null &&
-                !IsEndpointLaunchTimeReached(utcNowTicks))
+                !IsEndpointLaunchTimeReached())
             {
-                logicAccumulatorSeconds = 0d;
+                logicAccumulatorMillisecondRateUnits = 0L;
                 return 0;
             }
+            long monotonicNowMilliseconds =
+                UsesNetworkSimulation
+                    ? RequireLaunchClock()
+                        .MonotonicTimeMilliseconds
+                    : 0L;
             int executed = 0;
             if (UsesNetworkSimulation &&
                 !dedicatedServer &&
@@ -2779,9 +2821,9 @@ namespace FrameSyncMoba.Bootstrap
                 while (executed <
                            MaxLogicTicksPerUnityFrame &&
                        Runtime.Prediction.PredictedTickCount <
-                           targetLead &&
+                       targetLead &&
                        CanExecuteClientPredictionTick(
-                           utcNowTicks,
+                           monotonicNowMilliseconds,
                            targetLead))
                 {
                     if (!Runtime.ExecutePredictionTick())
@@ -2791,7 +2833,9 @@ namespace FrameSyncMoba.Bootstrap
                     executed++;
                 }
             }
-            while (logicAccumulatorSeconds >= logicDeltaSeconds &&
+            while (logicAccumulatorMillisecondRateUnits >=
+                       DeterministicTimeConversion
+                           .MillisecondsPerSecond &&
                    executed < MaxLogicTicksPerUnityFrame)
             {
                 if (UsesNetworkSimulation)
@@ -2806,7 +2850,7 @@ namespace FrameSyncMoba.Bootstrap
                     {
                         if (!IsClientGameplayActive() ||
                             !CanExecuteClientPredictionTick(
-                                utcNowTicks,
+                                monotonicNowMilliseconds,
                                 GetClientLaunchLeadTicks()) ||
                             !Runtime.ExecutePredictionTick())
                             break;
@@ -2816,10 +2860,18 @@ namespace FrameSyncMoba.Bootstrap
                 {
                     Runtime.ExecuteOneTick();
                 }
-                logicAccumulatorSeconds -= logicDeltaSeconds;
+                logicAccumulatorMillisecondRateUnits -=
+                    DeterministicTimeConversion
+                        .MillisecondsPerSecond;
                 executed++;
             }
             return executed;
+        }
+
+        private static long GetUnityMonotonicMilliseconds()
+        {
+            return FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                Time.realtimeSinceStartupAsDouble);
         }
 
         private int GetClientLaunchLeadTicks()
@@ -2831,41 +2883,39 @@ namespace FrameSyncMoba.Bootstrap
 
         private bool IsEndpointLaunchTimeReached()
         {
-            return IsEndpointLaunchTimeReached(
-                DateTime.UtcNow.Ticks);
-        }
-
-        private bool IsEndpointLaunchTimeReached(
-            long utcNowTicks)
-        {
-            if (UsesNetworkSimulation &&
-                !launchCommitApplied)
+            if (!UsesNetworkSimulation)
+                return true;
+            if (!launchCommitApplied)
                 return false;
-            if (Runtime == null ||
-                Runtime.LaunchUtcTicks <= 0)
-                return !UsesNetworkSimulation;
-            if (dedicatedServer)
-                return utcNowTicks >= Runtime.LaunchUtcTicks;
-            return FrameSyncLaunchSchedule
-                .IsClientPredictionLaunchReached(
-                    utcNowTicks,
-                    Runtime.LaunchUtcTicks,
+            if (launchPacingOriginMonotonicMilliseconds >= 0)
+                return true;
+            IFrameSyncLaunchClock clock = RequireLaunchClock();
+            if (!FrameSyncLaunchSchedule.IsEndpointLaunchReached(
+                    clock.SynchronizedServerTimeMilliseconds,
+                    launchServerTimeMilliseconds,
                     bakedConfig.TickRate,
-                    GetClientLaunchLeadTicks());
+                    GetClientLaunchLeadTicks(),
+                    dedicatedServer))
+                return false;
+            launchPacingOriginMonotonicMilliseconds =
+                clock.MonotonicTimeMilliseconds;
+            return true;
         }
 
         private bool CanExecuteClientPredictionTick(
-            long utcNowTicks,
+            long monotonicNowMilliseconds,
             int predictionLeadTicks)
         {
             int maximumTickExclusive =
                 FrameSyncLaunchSchedule
                     .GetMaximumClientSimulationTickExclusive(
                         matchStartTick,
-                        Runtime.LaunchUtcTicks,
-                        utcNowTicks,
+                        launchPacingOriginMonotonicMilliseconds,
+                        monotonicNowMilliseconds,
                         bakedConfig.TickRate,
-                        predictionLeadTicks);
+                        predictionLeadTicks,
+                        Runtime.Prediction
+                            .LatestContiguousReceivedAuthorityFrameTick);
             bool allowed = Runtime.CurrentTick < maximumTickExclusive;
             if (!launchScheduleLogged &&
                 (!allowed || Runtime.CurrentTick > matchStartTick))
@@ -2878,10 +2928,17 @@ namespace FrameSyncMoba.Bootstrap
                     $"predicted={Runtime.Prediction.PredictedTickCount} " +
                     $"coordinatorLimit=" +
                     $"{Runtime.Prediction.MaxPredictionLeadTicks} " +
-                    $"wallClockLimitExclusive={maximumTickExclusive} " +
+                    $"scheduleLimitExclusive={maximumTickExclusive} " +
                     $"allowed={allowed}");
             }
             return allowed;
+        }
+
+        private IFrameSyncLaunchClock RequireLaunchClock()
+        {
+            return launchClock ??
+                throw new InvalidOperationException(
+                    "Network launch scheduling requires an initialized launch clock.");
         }
 
         private bool IsServerGameplayActive()

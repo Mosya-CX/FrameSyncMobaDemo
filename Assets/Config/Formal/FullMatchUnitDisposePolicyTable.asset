@@ -15,13 +15,25 @@ MonoBehaviour:
   Entries:
   - Id: 1
     Kind: 0
+    DeathPresentationDuration:
+      milliseconds: 0
+      roundingPolicy: 0
+      authored: 1
     DeathPresentationTicks: 0
     RuinUnitPrototypeId: 0
   - Id: 2
     Kind: 1
+    DeathPresentationDuration:
+      milliseconds: 2000
+      roundingPolicy: 0
+      authored: 1
     DeathPresentationTicks: 60
     RuinUnitPrototypeId: 0
   - Id: 3
     Kind: 2
+    DeathPresentationDuration:
+      milliseconds: 3000
+      roundingPolicy: 0
+      authored: 1
     DeathPresentationTicks: 90
     RuinUnitPrototypeId: 0

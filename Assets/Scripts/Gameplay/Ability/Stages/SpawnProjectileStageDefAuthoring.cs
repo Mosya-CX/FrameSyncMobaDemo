@@ -15,7 +15,7 @@ namespace FrameSyncMoba.Unit
         public int ProjectileDefId => projectileDefId;
         public float SpawnOffsetDistance => spawnOffsetDistance;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             return new SpawnProjectileStageDef
             {

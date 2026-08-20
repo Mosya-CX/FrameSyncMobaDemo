@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -54,8 +55,21 @@ namespace FrameSyncMoba.Unit
         /// Number of logic ticks between Dead state confirmation and the start
         /// of the Respawning→Alive transition.
         /// </summary>
-        [Min(0)]
+        public DurationAuthoring RespawnDelay;
+        [HideInInspector]
         public int RespawnDelayTicks;
+
+        public UnitRespawnConfig BakeTime(int tickRate)
+        {
+            UnitRespawnConfig result = this;
+            result.RespawnDelayTicks = RespawnDelay.IsAuthored
+                ? RespawnDelay.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        RespawnDelayTicks,
+                        tickRate);
+            return result;
+        }
 
         /// <summary>How health is restored on respawn.</summary>
         public RespawnHealthRule HealthRule;

@@ -33,7 +33,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 new MatchLaunchCommit(
                     "match-two-phase",
                     3,
-                    638000000000000000L);
+                    15_000L);
             byte[] commitBytes =
                 MatchLaunchWireCodec
                     .WriteLaunchCommit(commit);
@@ -44,12 +44,22 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 Is.EqualTo(commit.MatchId));
             Assert.That(restoredCommit.StartTick,
                 Is.EqualTo(commit.StartTick));
-            Assert.That(restoredCommit.LaunchUtcTicks,
-                Is.EqualTo(commit.LaunchUtcTicks));
+            Assert.That(
+                restoredCommit.LaunchServerTimeMilliseconds,
+                Is.EqualTo(
+                    commit.LaunchServerTimeMilliseconds));
             Assert.That(
                 MatchLaunchWireCodec.WriteLaunchCommit(
                     restoredCommit),
                 Is.EqualTo(commitBytes));
+
+            byte[] legacyVersionBytes =
+                (byte[])commitBytes.Clone();
+            legacyVersionBytes[4] = 1;
+            legacyVersionBytes[5] = 0;
+            Assert.Throws<DeterministicSimulationException>(
+                () => MatchLaunchWireCodec.ReadLaunchCommit(
+                    legacyVersionBytes));
         }
 
         [Test]

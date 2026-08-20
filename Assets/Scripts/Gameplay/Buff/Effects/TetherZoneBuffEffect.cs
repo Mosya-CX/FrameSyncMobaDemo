@@ -1,6 +1,8 @@
 using System;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -16,7 +18,8 @@ namespace FrameSyncMoba.Unit
         public AbilityLevelValue BaseDamageByAbilityLevel;
         public AbilityLevelValue AttackDamageRatioByAbilityLevel;
         public AbilityLevelValue SlowRatioByAbilityLevel;
-        public int PullDurationTicks;
+        public DurationAuthoring PullDuration;
+        [HideInInspector] public int PullDurationTicks;
         public byte PullPriority;
         public int RecipeId;
         public BuffStateSlotId AnchorSlot;
@@ -26,6 +29,16 @@ namespace FrameSyncMoba.Unit
         public BuffStateSlotId ProjectileSpawnTickSlot;
         public BuffStateSlotId ProjectilePrefabIdSlot;
         public BuffStateSlotId ProjectileSequenceSlot;
+
+        public override void BakeTime(int tickRate)
+        {
+            PullDurationTicks = PullDuration.IsAuthored
+                ? PullDuration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        PullDurationTicks,
+                        tickRate);
+        }
 
         public override BuffStateSlotDefinition[] RequiredSlotDefinitions =>
             new[]

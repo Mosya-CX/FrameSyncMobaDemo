@@ -1,6 +1,7 @@
 using System;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -41,14 +42,43 @@ namespace FrameSyncMoba.Unit
 
         public bool IsValid => Id != 0;
 
-        public void Bake()
+        public void Bake(int tickRate = 30)
         {
+            DeterministicTimeConversion.ValidateSupportedTickRate(
+                tickRate);
             EquipmentFixedStatAuthoring[] source =
                 FixedStats ?? Array.Empty<EquipmentFixedStatAuthoring>();
             var baked = new EquipmentFixedStat[source.Length];
             for (int i = 0; i < source.Length; i++)
                 baked[i] = new EquipmentFixedStat(source[i].Stat, (fp)source[i].Value);
             BakedFixedStats = baked;
+            EquipmentEffectDef[] effects =
+                Effects ?? Array.Empty<EquipmentEffectDef>();
+            for (int effectIndex = 0;
+                 effectIndex < effects.Length;
+                 effectIndex++)
+            {
+                EquipmentEffectDef effect = effects[effectIndex];
+                if (effect == null)
+                    continue;
+                EquipmentActiveSettings settings =
+                    effect.ActiveSettings;
+                settings.CooldownTicks =
+                    settings.Cooldown.IsAuthored
+                        ? settings.Cooldown.BakeTicks(tickRate)
+                        : DeterministicTimeConversion
+                            .Legacy30HzTicksToTicks(
+                                settings.CooldownTicks,
+                                tickRate);
+                effect.ActiveSettings = settings;
+                EquipmentEffectModule[] modules =
+                    effect.Modules ??
+                    Array.Empty<EquipmentEffectModule>();
+                for (int moduleIndex = 0;
+                     moduleIndex < modules.Length;
+                     moduleIndex++)
+                    modules[moduleIndex]?.BakeTime(tickRate);
+            }
             IsBaked = true;
         }
     }

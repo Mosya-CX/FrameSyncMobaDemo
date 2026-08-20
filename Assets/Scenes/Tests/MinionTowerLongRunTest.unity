@@ -720,6 +720,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkManager: {fileID: 2128996688}
+  pingRefreshIntervalMilliseconds: 0
+  legacyPingRefreshIntervalSeconds: 0
 --- !u!1001 &5050731792826515928
 PrefabInstance:
   m_ObjectHideFlags: 0

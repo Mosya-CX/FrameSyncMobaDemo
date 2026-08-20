@@ -7,6 +7,7 @@ using FrameSyncMoba.Unit;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FrameSyncMoba.Bootstrap
 {
@@ -31,8 +32,11 @@ namespace FrameSyncMoba.Bootstrap
             "FrameSyncMoba.PresentationPingResponse.v1";
 
         [SerializeField] private NetworkManager networkManager;
-        [SerializeField, Min(0.1f)]
-        private float pingRefreshIntervalSeconds = 0.5f;
+        [SerializeField, Min(1)]
+        private int pingRefreshIntervalMilliseconds;
+        [FormerlySerializedAs("pingRefreshIntervalSeconds")]
+        [SerializeField, HideInInspector]
+        private float legacyPingRefreshIntervalSeconds;
 
         private FrameSyncGameRuntime runtime;
         private Func<ulong, GameplayCommand, bool>
@@ -78,7 +82,12 @@ namespace FrameSyncMoba.Bootstrap
                     "FrameSyncNetworkBridge requires NetworkManager.");
             this.authorizeCommand = authorizeCommand;
             pingTracker = new PresentationPingTracker(
-                pingRefreshIntervalSeconds);
+                pingRefreshIntervalMilliseconds > 0
+                    ? pingRefreshIntervalMilliseconds
+                    : legacyPingRefreshIntervalSeconds > 0f
+                        ? (int)Math.Round(
+                            legacyPingRefreshIntervalSeconds * 1000f)
+                        : 500);
             TryRegisterHandlers();
             runtime.AuthorityFrames.AuthorityFrameBuilt +=
                 OnAuthorityFrameBuilt;
@@ -147,12 +156,12 @@ namespace FrameSyncMoba.Bootstrap
                     request));
         }
 
-        public void TickPresentationPing(double realtimeSeconds)
+        public void TickPresentationPing(long realtimeMilliseconds)
         {
             if (!IsConnectedClient ||
                 pingTracker == null ||
                 !pingTracker.TryBegin(
-                    realtimeSeconds,
+                    realtimeMilliseconds,
                     out uint sequence))
                 return;
             using (var writer = new FastBufferWriter(
@@ -284,7 +293,8 @@ namespace FrameSyncMoba.Bootstrap
             reader.ReadValueSafe(out uint sequence);
             pingTracker?.TryComplete(
                 sequence,
-                Time.realtimeSinceStartupAsDouble);
+                FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                    Time.realtimeSinceStartupAsDouble));
         }
 
         private void ReceiveRelay(
@@ -499,55 +509,58 @@ namespace FrameSyncMoba.Bootstrap
     /// </summary>
     public sealed class PresentationPingTracker
     {
-        private readonly double intervalSeconds;
-        private double nextSendRealtime;
-        private double pendingSendRealtime;
+        private readonly int intervalMilliseconds;
+        private long nextSendRealtimeMilliseconds;
+        private long pendingSendRealtimeMilliseconds;
         private uint nextSequence = 1;
         private uint pendingSequence;
 
         public int LatestRoundTripMilliseconds { get; private set; } = -1;
 
-        public PresentationPingTracker(double intervalSeconds)
+        public PresentationPingTracker(int intervalMilliseconds)
         {
-            if (intervalSeconds <= 0d ||
-                double.IsNaN(intervalSeconds) ||
-                double.IsInfinity(intervalSeconds))
+            if (intervalMilliseconds <= 0)
                 throw new ArgumentOutOfRangeException(
-                    nameof(intervalSeconds));
-            this.intervalSeconds = intervalSeconds;
+                    nameof(intervalMilliseconds));
+            this.intervalMilliseconds = intervalMilliseconds;
         }
 
         public bool TryBegin(
-            double realtimeSeconds,
+            long realtimeMilliseconds,
             out uint sequence)
         {
             sequence = 0;
-            if (realtimeSeconds < nextSendRealtime)
+            if (realtimeMilliseconds <
+                nextSendRealtimeMilliseconds)
                 return false;
             sequence = nextSequence;
             nextSequence = nextSequence == uint.MaxValue
                 ? 1u
                 : nextSequence + 1u;
             pendingSequence = sequence;
-            pendingSendRealtime = realtimeSeconds;
-            nextSendRealtime = realtimeSeconds + intervalSeconds;
+            pendingSendRealtimeMilliseconds =
+                realtimeMilliseconds;
+            nextSendRealtimeMilliseconds = checked(
+                realtimeMilliseconds + intervalMilliseconds);
             return true;
         }
 
         public bool TryComplete(
             uint sequence,
-            double realtimeSeconds)
+            long realtimeMilliseconds)
         {
             if (sequence == 0 ||
                 sequence != pendingSequence ||
-                realtimeSeconds < pendingSendRealtime)
+                realtimeMilliseconds <
+                    pendingSendRealtimeMilliseconds)
                 return false;
-            double milliseconds =
-                (realtimeSeconds - pendingSendRealtime) * 1000d;
+            long milliseconds =
+                realtimeMilliseconds -
+                pendingSendRealtimeMilliseconds;
             LatestRoundTripMilliseconds =
                 milliseconds >= int.MaxValue
                     ? int.MaxValue
-                    : (int)Math.Round(milliseconds);
+                    : (int)milliseconds;
             pendingSequence = 0;
             return true;
         }

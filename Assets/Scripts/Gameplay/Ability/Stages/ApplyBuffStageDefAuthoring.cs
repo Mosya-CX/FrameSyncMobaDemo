@@ -13,7 +13,7 @@ namespace FrameSyncMoba.Unit
         public int BuffConfigId => buffConfigId;
         public BuffTargetRule TargetRule => targetRule;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             return new ApplyBuffStageDef
             {

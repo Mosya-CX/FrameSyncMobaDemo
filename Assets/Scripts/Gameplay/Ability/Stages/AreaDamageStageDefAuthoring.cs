@@ -26,7 +26,7 @@ namespace FrameSyncMoba.Unit
         public int GroundProjectileDefId =>
             groundProjectileDefId;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             if (targetFilter.UnitKindMask.IsEmpty)
             {

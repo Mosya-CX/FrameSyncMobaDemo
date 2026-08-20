@@ -169,8 +169,6 @@ MonoBehaviour:
   enableOnlineApplicationFlow: 0
   globalGameplayData: {fileID: 11400000, guid: 8b0cdcd39dbb2964baebdd8475f1e60e, type: 2}
   networkManager: {fileID: 2128996688}
-  uosMatchmakingConfigId: 
-  uosRegionId: 
 --- !u!4 &2031355687
 Transform:
   m_ObjectHideFlags: 0
@@ -312,6 +310,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkManager: {fileID: 2128996688}
+  pingRefreshIntervalMilliseconds: 0
+  legacyPingRefreshIntervalSeconds: 0
 --- !u!114 &2128996692
 MonoBehaviour:
   m_ObjectHideFlags: 0

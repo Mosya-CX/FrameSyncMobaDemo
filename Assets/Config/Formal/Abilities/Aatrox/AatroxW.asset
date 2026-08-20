@@ -20,6 +20,7 @@ MonoBehaviour:
     rid: 2586996089610567738
   castRange: 8.25
   aimKind: 4
+  cooldownMillisecondsByLevel: 204e000050460000803e0000b0360000e02e0000
   cooldownTicksByLevel:
   - 600
   - 540
@@ -43,6 +44,10 @@ MonoBehaviour:
       type: {class: CommitCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
       data:
         castStageKey: 1
+        duration:
+          milliseconds: 466
+          roundingPolicy: 0
+          authored: 1
         durationTicks: 14
         notifyAbilityCastOnEnter: 1
         interruptible: 0
@@ -70,4 +75,8 @@ MonoBehaviour:
         damageType: 0
         minionDamageMultiplier: 2
         recipeId: 100221
+        spawnDelay:
+          milliseconds: 466
+          roundingPolicy: 0
+          authored: 1
         spawnDelayTicks: 14

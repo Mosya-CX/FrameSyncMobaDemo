@@ -55,7 +55,7 @@ namespace FrameSyncMoba.Unit
         public float[] MaxMissingHpRatioByLevel =>
             maxMissingHpRatioByLevel;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             return new ChargeProjectileStageDef
             {

@@ -17,7 +17,11 @@ namespace FrameSyncMoba.RuntimeConfig
         [Tooltip("Optional team-specific runtime prototypes. Entries must be sorted by TeamId.")]
         public MinionTeamPrototypeOverride[] TeamPrototypeOverrides;
         [Min(1)] public int Count;
+        public DurationAuthoring FirstSpawnOffset;
+        [HideInInspector]
         [Min(0)] public int FirstSpawnOffsetTicks;
+        public DurationAuthoring SpawnStep;
+        [HideInInspector]
         [Min(0)] public int SpawnStepTicks;
         [Min(0)] public int FormationGroup;
 
@@ -69,21 +73,31 @@ namespace FrameSyncMoba.RuntimeConfig
         }
 
         public static BakedMinionWaveConfig FromConfig(
-            MinionWaveConfig config)
+            MinionWaveConfig config,
+            int tickRate = 30)
         {
             if (config == null)
                 return new BakedMinionWaveConfig(
-                    1800,
-                    90,
+                    DeterministicTimeConversion
+                        .Legacy30HzTicksToTicks(1800, tickRate),
+                    DeterministicTimeConversion
+                        .Legacy30HzTicksToTicks(90, tickRate),
                     Array.Empty<MinionWavePhase>());
             return new BakedMinionWaveConfig(
-                config.WaveIntervalTicks,
-                config.FirstWaveTick,
-                config.Phases);
+                config.BakeWaveIntervalTicks(tickRate),
+                config.BakeFirstWaveTick(tickRate),
+                ClonePhases(config.Phases, tickRate));
         }
 
         private static MinionWavePhase[] ClonePhases(
             MinionWavePhase[] source)
+        {
+            return ClonePhases(source, 0);
+        }
+
+        private static MinionWavePhase[] ClonePhases(
+            MinionWavePhase[] source,
+            int tickRate)
         {
             if (source == null || source.Length == 0)
                 return Array.Empty<MinionWavePhase>();
@@ -114,6 +128,27 @@ namespace FrameSyncMoba.RuntimeConfig
                     {
                         memberCopy[memberIndex] =
                             members[memberIndex];
+                        if (tickRate > 0)
+                        {
+                            MinionWaveMember member =
+                                memberCopy[memberIndex];
+                            member.FirstSpawnOffsetTicks =
+                                member.FirstSpawnOffset.IsAuthored
+                                    ? member.FirstSpawnOffset
+                                        .BakeTicks(tickRate)
+                                    : DeterministicTimeConversion
+                                        .Legacy30HzTicksToTicks(
+                                            member.FirstSpawnOffsetTicks,
+                                            tickRate);
+                            member.SpawnStepTicks =
+                                member.SpawnStep.IsAuthored
+                                    ? member.SpawnStep.BakeTicks(tickRate)
+                                    : DeterministicTimeConversion
+                                        .Legacy30HzTicksToTicks(
+                                            member.SpawnStepTicks,
+                                            tickRate);
+                            memberCopy[memberIndex] = member;
+                        }
                         MinionTeamPrototypeOverride[] overrides =
                             members[memberIndex]
                                 .TeamPrototypeOverrides;
@@ -144,8 +179,12 @@ namespace FrameSyncMoba.RuntimeConfig
     public sealed class MinionWaveConfig : ScriptableObject
     {
         [Header("Timing")]
+        [SerializeField] private DurationAuthoring waveInterval;
+        [HideInInspector]
         [Min(1)]
         [SerializeField] private int waveIntervalTicks = 1800;
+        [SerializeField] private DurationAuthoring firstWaveDelay;
+        [HideInInspector]
         [Min(0)]
         [SerializeField] private int firstWaveTick = 90;
 
@@ -156,6 +195,26 @@ namespace FrameSyncMoba.RuntimeConfig
         public int WaveIntervalTicks => waveIntervalTicks;
         public int FirstWaveTick => firstWaveTick;
         public MinionWavePhase[] Phases => phases;
+
+        internal int BakeWaveIntervalTicks(int tickRate)
+        {
+            return waveInterval.IsAuthored
+                ? waveInterval.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        waveIntervalTicks,
+                        tickRate);
+        }
+
+        internal int BakeFirstWaveTick(int tickRate)
+        {
+            return firstWaveDelay.IsAuthored
+                ? firstWaveDelay.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        firstWaveTick,
+                        tickRate);
+        }
 
         private void OnValidate()
         {

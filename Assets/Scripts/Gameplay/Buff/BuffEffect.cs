@@ -10,6 +10,10 @@ namespace FrameSyncMoba.Unit
     /// </summary>
     public abstract class BuffEffect
     {
+        public virtual void BakeTime(int tickRate)
+        {
+        }
+
         public abstract void OnAdded(
             BuffRuntime runtime,
             Unit owner);

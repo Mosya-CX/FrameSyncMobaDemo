@@ -340,8 +340,9 @@ GameBootstrapPayload
     PlayerSlotMappings
 ```
 
-`GameBootstrapPayload` 只负责冻结开局配置、初始快照和控制权映射。为保持 wire v2
-布局兼容，现有 `LaunchUtcTicks` 字段保留但必须为 `0`；它不再具有启动授权语义。
+`GameBootstrapPayload` 只负责冻结开局配置、初始快照和控制权映射，不携带任何开局
+时间戳。Bootstrap wire version 为 3，旧 wire v2 包必须拒绝，禁止通过保留的 UTC
+字段形成第二个启动授权入口。
 
 客户端恢复快照并完成本地受控单位绑定后发送：
 
@@ -361,13 +362,15 @@ BootstrapAppliedConfirmation
 MatchLaunchCommit
     MatchId
     StartTick
-    LaunchUtcTicks = ServerUtcNow + LaunchDelaySeconds
+    LaunchServerTimeMilliseconds =
+        SynchronizedServerTimeMilliseconds + LaunchDelayMilliseconds
 ```
 
-服务端在绝对 `LaunchUtcTicks` 到达时执行首 Tick。客户端可在该时刻前
+服务端和客户端都在 NGO 同步服务端时间域到达阈值时获得启动资格。客户端可在该时刻前
 `MaxPredictionLeadTicks - 1` 个 Tick 开始预测，因此其实际等待时间自然等于
-`LaunchDelaySeconds - 消息传输耗时 - 提前预测时长`。客户端同时受权威预测窗口和
-绝对墙钟 Tick 上限约束，禁止因启动追赶在数秒内执行数十秒的逻辑 Tick。
+`LaunchDelayMilliseconds - 消息传输耗时 - 提前预测时长`。端点越过阈值后以本机
+单调毫秒时钟建立 pacing 原点；客户端同时受权威预测窗口、单调启动上限和连续收到的
+AuthorityFrame 积压约束。消息晚到本身不得推导历史积压，也不得依赖本机日历 UTC。
 
 语义：
 
@@ -2445,7 +2448,7 @@ ID 唯一性和范围校验
 Required Component 校验
 稳定数组生成
 float -> fp
-秒 -> Tick
+Inspector 整数毫秒 -> Tick（整数运算与显式舍入策略）
 生成 IdToIndexMap
 生成版本号与内容摘要
 ```

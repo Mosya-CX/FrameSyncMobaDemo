@@ -1,5 +1,6 @@
 using FrameSyncMoba.Unit;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnitType = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.FrameSync
@@ -18,7 +19,11 @@ namespace FrameSyncMoba.FrameSync
         [SerializeField] private Material lineMaterial;
         [SerializeField] private int vineBuffConfigId = 9113;
         [SerializeField] private float lineWidth = 0.12f;
-        [SerializeField] private float lineLifetimeSeconds = 0.8f;
+        [SerializeField, Min(1)]
+        private int lineLifetimeMilliseconds;
+        [FormerlySerializedAs("lineLifetimeSeconds")]
+        [SerializeField, HideInInspector]
+        private float legacyLineLifetimeSeconds;
 
         private void OnEnable()
         {
@@ -99,31 +104,39 @@ namespace FrameSyncMoba.FrameSync
             lineGo.AddComponent<SpreadLineFade>()
                 .Initialize(
                     line,
-                    lineLifetimeSeconds);
+                    (lineLifetimeMilliseconds > 0
+                        ? lineLifetimeMilliseconds
+                        : legacyLineLifetimeSeconds > 0f
+                            ? (int)System.Math.Round(
+                                legacyLineLifetimeSeconds * 1000f)
+                            : 800));
         }
 
         private sealed class SpreadLineFade :
             MonoBehaviour
         {
             private LineRenderer line;
-            private float lifetime = 1f;
-            private float elapsed;
+            private int lifetimeMilliseconds = 1000;
+            private long startedAtMilliseconds;
 
             public void Initialize(
                 LineRenderer renderer,
-                float seconds)
+                int milliseconds)
             {
                 line = renderer;
-                lifetime = Mathf.Max(
-                    0.05f,
-                    seconds);
+                lifetimeMilliseconds = Mathf.Max(
+                    50,
+                    milliseconds);
+                startedAtMilliseconds =
+                    GetMonotonicMilliseconds();
             }
 
             private void Update()
             {
-                elapsed += Time.deltaTime;
                 float ratio = Mathf.Clamp01(
-                    elapsed / lifetime);
+                    (GetMonotonicMilliseconds() -
+                     startedAtMilliseconds) /
+                    (float)lifetimeMilliseconds);
                 if (line != null)
                 {
                     Color c = Color.white;
@@ -135,6 +148,13 @@ namespace FrameSyncMoba.FrameSync
                 {
                     Destroy(gameObject);
                 }
+            }
+
+            private static long GetMonotonicMilliseconds()
+            {
+                return (long)System.Math.Round(
+                    Time.realtimeSinceStartupAsDouble * 1000d,
+                    System.MidpointRounding.AwayFromZero);
             }
         }
     }

@@ -226,4 +226,5 @@ MonoBehaviour:
   lineMaterial: {fileID: 2100000, guid: a22de958bf0c8ff47a18ee82d573f017, type: 2}
   vineBuffConfigId: 9113
   lineWidth: 0.12
-  lineLifetimeSeconds: 0.8
+  lineLifetimeMilliseconds: 800
+  legacyLineLifetimeSeconds: 0.8

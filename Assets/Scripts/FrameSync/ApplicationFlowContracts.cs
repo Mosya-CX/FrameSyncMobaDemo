@@ -208,11 +208,6 @@ namespace FrameSyncMoba.FrameSync
         public readonly int InitialSnapshotTick;
         public readonly int StartTick;
         public readonly uint InitialRandomSeed;
-        /// <summary>
-        /// Legacy wire-layout field. The two-phase startup contract requires
-        /// this to be 0; MatchLaunchCommit exclusively authorizes simulation.
-        /// </summary>
-        public readonly long LaunchUtcTicks;
 
         public PlayerSlotUnitMapping[] PlayerSlotMappings =>
             playerSlotMappings == null
@@ -226,8 +221,7 @@ namespace FrameSyncMoba.FrameSync
             int initialSnapshotTick,
             int startTick,
             uint initialRandomSeed,
-            PlayerSlotUnitMapping[] playerSlotMappings,
-            long launchUtcTicks = 0)
+            PlayerSlotUnitMapping[] playerSlotMappings)
         {
             gameStartConfig.ValidateOrThrow();
             if (!initialGameplaySnapshot.IsValid ||
@@ -240,10 +234,6 @@ namespace FrameSyncMoba.FrameSync
                 initialRandomSeed != gameStartConfig.InitialRandomSeed)
                 throw new DeterministicSimulationException(
                     "Bootstrap Tick or random seed disagrees with GameStartConfig.");
-            if (launchUtcTicks != 0)
-                throw new DeterministicSimulationException(
-                    "GameBootstrapPayload cannot authorize simulation launch.");
-
             PlayerSlotConfig[] slots = gameStartConfig.PlayerSlots;
             if (playerSlotMappings == null ||
                 playerSlotMappings.Length != slots.Length)
@@ -277,7 +267,6 @@ namespace FrameSyncMoba.FrameSync
             InitialSnapshotTick = initialSnapshotTick;
             StartTick = startTick;
             InitialRandomSeed = initialRandomSeed;
-            LaunchUtcTicks = launchUtcTicks;
             this.playerSlotMappings =
                 (PlayerSlotUnitMapping[])playerSlotMappings.Clone();
         }

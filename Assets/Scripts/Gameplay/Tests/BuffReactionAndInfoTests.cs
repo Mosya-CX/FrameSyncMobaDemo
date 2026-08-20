@@ -555,7 +555,7 @@ namespace FrameSyncMoba.Unit.Tests
                 Infinite = false,
                 DurationSeconds =
                     durationTicks /
-                    (float)BuffTickConverter.TickRate,
+                    30f,
                 RefreshMode =
                     BuffRefreshMode.RefreshToFull,
             };

@@ -1,6 +1,7 @@
 using System;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -17,9 +18,10 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private DamageType damageType = DamageType.Physical;
         [Min(0f)] [SerializeField] private float minionDamageMultiplier;
         [Min(1)] [SerializeField] private int recipeId = 1;
-        [Min(0)] [SerializeField] private int spawnDelayTicks;
+        [SerializeField] private DurationAuthoring spawnDelay;
+        [HideInInspector, Min(0)] [SerializeField] private int spawnDelayTicks;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             if (projectileDefId <= 0 || recipeId <= 0)
                 throw new InvalidOperationException(
@@ -36,7 +38,8 @@ namespace FrameSyncMoba.Unit
                 DamageType = damageType,
                 MinionDamageMultiplier = (fp)minionDamageMultiplier,
                 RecipeId = recipeId,
-                SpawnDelayTicks = spawnDelayTicks,
+                SpawnDelayTicks = BakeHelpers.BakeDuration(
+                    spawnDelay, spawnDelayTicks, tickRate),
             };
         }
 

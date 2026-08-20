@@ -19,9 +19,17 @@ MonoBehaviour:
     Description: "\u6C61\u67D3\u91CD\u4F24"
     Icon: {fileID: 0}
   Life:
+    Duration:
+      milliseconds: 250
+      roundingPolicy: 0
+      authored: 1
     DurationSeconds: 0.25
     Infinite: 0
     RefreshMode: 1
+    ExtendDuration:
+      milliseconds: 0
+      roundingPolicy: 0
+      authored: 1
     ExtendSeconds: 0
   Stack:
     MaxStacks: 1
@@ -56,8 +64,13 @@ MonoBehaviour:
     CollisionEnter: []
     CollisionExit: []
   Priority: 0
+  PeriodicInterval:
+    milliseconds: 0
+    roundingPolicy: 0
+    authored: 1
   PeriodicIntervalTicks: 0
   ApplyVfxDefId: 0
+  ApplyVfxDurationMilliseconds: 0
   ApplyVfxDurationSeconds: 0
   InitialStacks: 1
   references:

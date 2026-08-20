@@ -19,9 +19,17 @@ MonoBehaviour:
     Description: Leave the marked zone before the chain pulls you back.
     Icon: {fileID: 21300000, guid: 804f3e1b015d3c445af822036f4058ba, type: 3}
   Life:
+    Duration:
+      milliseconds: 1500
+      roundingPolicy: 0
+      authored: 1
     DurationSeconds: 1.5
     Infinite: 0
     RefreshMode: 1
+    ExtendDuration:
+      milliseconds: 0
+      roundingPolicy: 0
+      authored: 1
     ExtendSeconds: 0
   Stack:
     MaxStacks: 1
@@ -56,8 +64,13 @@ MonoBehaviour:
     CollisionEnter: []
     CollisionExit: []
   Priority: 100
+  PeriodicInterval:
+    milliseconds: 0
+    roundingPolicy: 0
+    authored: 1
   PeriodicIntervalTicks: 0
   ApplyVfxDefId: 0
+  ApplyVfxDurationMilliseconds: 0
   ApplyVfxDurationSeconds: 0
   InitialStacks: 1
   references:
@@ -88,6 +101,10 @@ MonoBehaviour:
           - m_rawValue: 1288490240
           - m_rawValue: 1395864320
           - m_rawValue: 1503238528
+        PullDuration:
+          milliseconds: 300
+          roundingPolicy: 0
+          authored: 1
         PullDurationTicks: 9
         PullPriority: 120
         RecipeId: 100222

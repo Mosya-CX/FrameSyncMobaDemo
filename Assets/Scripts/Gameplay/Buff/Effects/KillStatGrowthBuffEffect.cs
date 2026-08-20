@@ -1,5 +1,7 @@
 using System;
+using FrameSyncMoba.RuntimeConfig;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -24,8 +26,10 @@ namespace FrameSyncMoba.Unit
         /// <summary>Multiplier applied to all bonuses when the victim is a
         /// hero (3x).</summary>
         public fp HeroVictimMultiplier = fp.one;
-        /// <summary>Buff duration in seconds by hero level (5/7/9/11 at
-        /// levels 1/6/11/16).</summary>
+        /// <summary>Buff duration in milliseconds by hero level.</summary>
+        public int[] DurationMillisecondsByUnitLevel =
+            Array.Empty<int>();
+        [HideInInspector]
         public float[] DurationSecondsByUnitLevel =
             Array.Empty<float>();
 
@@ -248,12 +252,12 @@ namespace FrameSyncMoba.Unit
             BuffRuntime runtime,
             Unit owner)
         {
-            float seconds = ResolveSeconds(
-                DurationSecondsByUnitLevel,
-                owner.Level);
+            int milliseconds = ResolveMilliseconds(owner.Level);
             int durationTicks =
-                BuffTickConverter.SecondsToTicks(
-                    seconds);
+                DeterministicTimeConversion.MillisecondsToTicks(
+                    milliseconds,
+                    runtime.Definition.BakedTickRate,
+                    DurationRoundingPolicy.Ceil);
             if (durationTicks > 0)
                 runtime.SetRemainingTicks(
                     durationTicks);
@@ -374,17 +378,28 @@ namespace FrameSyncMoba.Unit
                 : value;
         }
 
-        private static float ResolveSeconds(
-            float[] byLevel,
-            int heroLevel)
+        private int ResolveMilliseconds(int heroLevel)
         {
-            if (byLevel == null ||
-                byLevel.Length == 0)
-                return 0f;
-            return byLevel[LevelIndex(
-                heroLevel,
-                byLevel.Length,
-                5)];
+            if (DurationMillisecondsByUnitLevel != null &&
+                DurationMillisecondsByUnitLevel.Length > 0)
+            {
+                return DurationMillisecondsByUnitLevel[
+                    LevelIndex(
+                        heroLevel,
+                        DurationMillisecondsByUnitLevel.Length,
+                        5)];
+            }
+            if (DurationSecondsByUnitLevel == null ||
+                DurationSecondsByUnitLevel.Length == 0)
+                return 0;
+            float seconds = DurationSecondsByUnitLevel[
+                LevelIndex(
+                    heroLevel,
+                    DurationSecondsByUnitLevel.Length,
+                    5)];
+            return checked((int)Math.Round(
+                seconds * 1000f,
+                MidpointRounding.AwayFromZero));
         }
 
         private static int LevelIndex(

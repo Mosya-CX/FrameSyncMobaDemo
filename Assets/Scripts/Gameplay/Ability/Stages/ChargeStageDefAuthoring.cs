@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -9,10 +10,12 @@ namespace FrameSyncMoba.Unit
     {
         [Min(1)]
         [SerializeField] private int chargeRatioBlackboardKeyId = 1;
-        [Min(1)]
+        [SerializeField] private DurationAuthoring maxChargeDuration;
+        [HideInInspector, Min(1)]
         [SerializeField] private int maxChargeTicks = 45;
         [SerializeField] private byte consumeToggleSlot = byte.MaxValue;
-        [Min(0)]
+        [SerializeField] private DurationAuthoring consumeToggleCooldown;
+        [HideInInspector, Min(0)]
         [SerializeField] private int consumeToggleCooldownTicks;
         [SerializeField] private int empoweredBlackboardKeyId;
         [Min(0f)]
@@ -32,7 +35,7 @@ namespace FrameSyncMoba.Unit
         public int SlowModifierBlackboardKeyId =>
             slowModifierBlackboardKeyId;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             return new ChargeStageDef
             {
@@ -40,10 +43,14 @@ namespace FrameSyncMoba.Unit
                 DebugName = DebugName,
                 ChargeRatioBlackboardKeyId =
                     chargeRatioBlackboardKeyId,
-                MaxChargeTicks = maxChargeTicks,
+                MaxChargeTicks = BakeHelpers.BakeDuration(
+                    maxChargeDuration, maxChargeTicks, tickRate),
                 ConsumeToggleSlot = consumeToggleSlot,
                 ConsumeToggleCooldownTicks =
-                    consumeToggleCooldownTicks,
+                    BakeHelpers.BakeDuration(
+                        consumeToggleCooldown,
+                        consumeToggleCooldownTicks,
+                        tickRate),
                 EmpoweredBlackboardKeyId =
                     empoweredBlackboardKeyId,
                 SelfSlowModifierPercent =

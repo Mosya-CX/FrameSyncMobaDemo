@@ -19,9 +19,17 @@ MonoBehaviour:
     Description: "\u8150\u8D25\u85E4\u8513\uFF1A\u9010\u6B65\u65BD\u52A0\u67AF\u840E\u5C42\u6570\u5E76\u4F20\u64AD\u3002"
     Icon: {fileID: 0}
   Life:
+    Duration:
+      milliseconds: 2000
+      roundingPolicy: 0
+      authored: 1
     DurationSeconds: 2
     Infinite: 0
     RefreshMode: 1
+    ExtendDuration:
+      milliseconds: 0
+      roundingPolicy: 0
+      authored: 1
     ExtendSeconds: 0
   Stack:
     MaxStacks: 1
@@ -56,8 +64,13 @@ MonoBehaviour:
     CollisionEnter: []
     CollisionExit: []
   Priority: 0
+  PeriodicInterval:
+    milliseconds: 33
+    roundingPolicy: 0
+    authored: 1
   PeriodicIntervalTicks: 1
   ApplyVfxDefId: 4104
+  ApplyVfxDurationMilliseconds: 2000
   ApplyVfxDurationSeconds: 2
   InitialStacks: 1
   references:
@@ -69,11 +82,31 @@ MonoBehaviour:
         BlightBuffConfigId: 9001
         VineBuffConfigId: 9113
         SpreadTagKey: VarusR.Vine
+        SpreadTagDuration:
+          milliseconds: 6000
+          roundingPolicy: 0
+          authored: 1
         SpreadTagTicks: 180
         TimerBuffConfigId: 9115
+        ContactDuration:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         ContactTicks: 30
         SpreadRadius:
           m_rawValue: 23622320128
+        BlightStackDelay1:
+          milliseconds: 0
+          roundingPolicy: 0
+          authored: 0
+        BlightStackDelay2:
+          milliseconds: 0
+          roundingPolicy: 0
+          authored: 0
+        BlightStackDelay3:
+          milliseconds: 0
+          roundingPolicy: 0
+          authored: 0
         BlightStackAtTick1: 6
         BlightStackAtTick2: 24
         BlightStackAtTick3: 42
@@ -88,4 +121,8 @@ MonoBehaviour:
         SpreadRecipeId: 1
         SpreadSourceAbilityId: 10014
         SpreadCrowdControlId: 102
+        SpreadCrowdControlDuration:
+          milliseconds: 2000
+          roundingPolicy: 0
+          authored: 1
         SpreadCrowdControlTicks: 60

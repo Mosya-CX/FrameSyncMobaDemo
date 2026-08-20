@@ -20,6 +20,7 @@ MonoBehaviour:
     rid: 2586996089610567745
   castRange: 6.25
   aimKind: 4
+  cooldownMillisecondsByLevel: b0360000e02e000010270000401f000070170000
   cooldownTicksByLevel:
   - 420
   - 360
@@ -47,16 +48,44 @@ MonoBehaviour:
       type: {class: SequentialRecastCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
       data:
         firstImpactStageKey: 1
+        firstImpactDuration:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         firstImpactDurationTicks: 30
         firstRecastWindowStageKey: 2
+        firstRecastWindowDuration:
+          milliseconds: 4000
+          roundingPolicy: 0
+          authored: 1
         firstRecastWindowDurationTicks: 120
+        firstMinimumRecastDelay:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         firstMinimumRecastDelayTicks: 30
         secondImpactStageKey: 3
+        secondImpactDuration:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         secondImpactDurationTicks: 30
         secondRecastWindowStageKey: 4
+        secondRecastWindowDuration:
+          milliseconds: 4000
+          roundingPolicy: 0
+          authored: 1
         secondRecastWindowDurationTicks: 120
+        secondMinimumRecastDelay:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         secondMinimumRecastDelayTicks: 30
         finalImpactStageKey: 5
+        finalImpactDuration:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         finalImpactDurationTicks: 30
         impactInterruptible: 0
         windowInterruptible: 1
@@ -130,12 +159,28 @@ MonoBehaviour:
             mask: 1
           RequireTargetable: 1
         sweetSpotControlId: 113
+        sweetSpotControlDuration:
+          milliseconds: 266
+          roundingPolicy: 0
+          authored: 1
         sweetSpotControlDurationTicks: 8
+        fixedPassiveHitReduction:
+          milliseconds: 2000
+          roundingPolicy: 0
+          authored: 1
         fixedPassiveHitReductionTicks: 60
+        fixedPassiveSweetHitReduction:
+          milliseconds: 4000
+          roundingPolicy: 0
+          authored: 1
         fixedPassiveSweetHitReductionTicks: 120
         recipeId: 100211
         sweetSpotRecipeId: 100212
         vfxDefId: 3101
+        impactDelay:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         impactDelayTicks: 30
     - rid: 2586996089610567747
       type: {class: DelayStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
@@ -205,12 +250,28 @@ MonoBehaviour:
             mask: 1
           RequireTargetable: 1
         sweetSpotControlId: 113
+        sweetSpotControlDuration:
+          milliseconds: 266
+          roundingPolicy: 0
+          authored: 1
         sweetSpotControlDurationTicks: 8
+        fixedPassiveHitReduction:
+          milliseconds: 2000
+          roundingPolicy: 0
+          authored: 1
         fixedPassiveHitReductionTicks: 60
+        fixedPassiveSweetHitReduction:
+          milliseconds: 4000
+          roundingPolicy: 0
+          authored: 1
         fixedPassiveSweetHitReductionTicks: 120
         recipeId: 100213
         sweetSpotRecipeId: 100214
         vfxDefId: 3102
+        impactDelay:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         impactDelayTicks: 30
     - rid: 2586996089610567749
       type: {class: DelayStageDefAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
@@ -280,10 +341,26 @@ MonoBehaviour:
             mask: 1
           RequireTargetable: 1
         sweetSpotControlId: 113
+        sweetSpotControlDuration:
+          milliseconds: 266
+          roundingPolicy: 0
+          authored: 1
         sweetSpotControlDurationTicks: 8
+        fixedPassiveHitReduction:
+          milliseconds: 2000
+          roundingPolicy: 0
+          authored: 1
         fixedPassiveHitReductionTicks: 60
+        fixedPassiveSweetHitReduction:
+          milliseconds: 4000
+          roundingPolicy: 0
+          authored: 1
         fixedPassiveSweetHitReductionTicks: 120
         recipeId: 100215
         sweetSpotRecipeId: 100216
         vfxDefId: 3103
+        impactDelay:
+          milliseconds: 1000
+          roundingPolicy: 0
+          authored: 1
         impactDelayTicks: 30

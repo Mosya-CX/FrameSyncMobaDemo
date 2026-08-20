@@ -3,79 +3,112 @@ using System;
 namespace FrameSyncMoba.Bootstrap
 {
     /// <summary>
-    /// Application scheduling for the wall-clock match launch. It only selects
-    /// when deterministic ticks may run and never enters Gameplay state.
+    /// Pure application-layer launch scheduling. Network time is used only
+    /// to reach the common launch boundary. After that boundary, pacing uses
+    /// a local monotonic clock and real authority backlog may independently
+    /// authorize bounded catch-up.
     /// </summary>
     public static class FrameSyncLaunchSchedule
     {
-        public static long GetClientPredictionLaunchUtcTicks(
-            long serverLaunchUtcTicks,
+        public const long MillisecondsPerSecond = 1_000L;
+
+        public static long GetClientPredictionLaunchServerTimeMilliseconds(
+            long serverLaunchTimeMilliseconds,
             int tickRate,
             int predictionLeadTicks)
         {
             Validate(tickRate, predictionLeadTicks);
-            if (serverLaunchUtcTicks <= 0)
-                return 0;
+            if (serverLaunchTimeMilliseconds <= 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(serverLaunchTimeMilliseconds));
             return checked(
-                serverLaunchUtcTicks -
-                GetDurationUtcTicks(tickRate, predictionLeadTicks));
+                serverLaunchTimeMilliseconds -
+                GetDurationMilliseconds(tickRate, predictionLeadTicks));
         }
 
-        public static bool IsClientPredictionLaunchReached(
-            long utcNowTicks,
-            long serverLaunchUtcTicks,
+        public static bool IsEndpointLaunchReached(
+            long synchronizedServerTimeMilliseconds,
+            long serverLaunchTimeMilliseconds,
             int tickRate,
-            int predictionLeadTicks)
+            int predictionLeadTicks,
+            bool isServer)
         {
-            return serverLaunchUtcTicks <= 0 ||
-                   utcNowTicks >= GetClientPredictionLaunchUtcTicks(
-                       serverLaunchUtcTicks,
-                       tickRate,
-                       predictionLeadTicks);
+            if (synchronizedServerTimeMilliseconds < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(synchronizedServerTimeMilliseconds));
+            long endpointLaunch = isServer
+                ? serverLaunchTimeMilliseconds
+                : GetClientPredictionLaunchServerTimeMilliseconds(
+                    serverLaunchTimeMilliseconds,
+                    tickRate,
+                    predictionLeadTicks);
+            return synchronizedServerTimeMilliseconds >= endpointLaunch;
         }
 
         /// <summary>
-        /// Exclusive upper bound for LocalSimulationTick. Before the server
-        /// launch the client may only pre-run its lead. Afterwards the bound
-        /// advances at exactly TickRate.
+        /// Exclusive upper bound for LocalSimulationTick after launch. A late
+        /// timestamp never creates backlog. Only locally elapsed monotonic
+        /// time or a genuinely received contiguous AuthorityFrame can raise
+        /// the bound.
         /// </summary>
         public static int GetMaximumClientSimulationTickExclusive(
             int startTick,
-            long serverLaunchUtcTicks,
-            long utcNowTicks,
+            long launchMonotonicTimeMilliseconds,
+            long monotonicNowMilliseconds,
             int tickRate,
-            int predictionLeadTicks)
+            int predictionLeadTicks,
+            int latestContiguousReceivedAuthorityFrameTick)
         {
             if (startTick < 0)
                 throw new ArgumentOutOfRangeException(nameof(startTick));
+            if (launchMonotonicTimeMilliseconds < 0 ||
+                monotonicNowMilliseconds < launchMonotonicTimeMilliseconds)
+                throw new ArgumentOutOfRangeException(
+                    nameof(monotonicNowMilliseconds));
             Validate(tickRate, predictionLeadTicks);
 
-            long elapsedUtcTicks = serverLaunchUtcTicks <= 0
-                ? 0L
-                : Math.Max(0L, utcNowTicks - serverLaunchUtcTicks);
-            long elapsedSeconds =
-                elapsedUtcTicks / TimeSpan.TicksPerSecond;
-            long elapsedRemainder =
-                elapsedUtcTicks % TimeSpan.TicksPerSecond;
+            long elapsedMilliseconds =
+                monotonicNowMilliseconds -
+                launchMonotonicTimeMilliseconds;
             long elapsedLogicTicks = checked(
-                elapsedSeconds * tickRate +
-                elapsedRemainder * tickRate /
-                TimeSpan.TicksPerSecond);
-            return checked(
+                elapsedMilliseconds * tickRate /
+                MillisecondsPerSecond);
+            int locallyPacedLimit = checked(
                 startTick +
                 (int)elapsedLogicTicks +
                 predictionLeadTicks);
+            int authorityBacklogLimit =
+                latestContiguousReceivedAuthorityFrameTick < startTick
+                    ? startTick
+                    : checked(
+                        latestContiguousReceivedAuthorityFrameTick + 1);
+            return Math.Max(
+                locallyPacedLimit,
+                authorityBacklogLimit);
         }
 
-        private static long GetDurationUtcTicks(
+        public static long SecondsToMilliseconds(double seconds)
+        {
+            if (double.IsNaN(seconds) ||
+                double.IsInfinity(seconds) ||
+                seconds < 0d ||
+                seconds > long.MaxValue /
+                    (double)MillisecondsPerSecond)
+                throw new ArgumentOutOfRangeException(nameof(seconds));
+            return checked((long)Math.Round(
+                seconds * MillisecondsPerSecond,
+                MidpointRounding.AwayFromZero));
+        }
+
+        private static long GetDurationMilliseconds(
             int tickRate,
             int logicTicks)
         {
             long seconds = logicTicks / tickRate;
             long remainder = logicTicks % tickRate;
             return checked(
-                seconds * TimeSpan.TicksPerSecond +
-                remainder * TimeSpan.TicksPerSecond /
+                seconds * MillisecondsPerSecond +
+                remainder * MillisecondsPerSecond /
                 tickRate);
         }
 

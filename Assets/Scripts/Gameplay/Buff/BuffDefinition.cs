@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -30,9 +31,9 @@ namespace FrameSyncMoba.Unit
         /// </summary>
         public byte Priority;
 
-        /// <summary>
-        /// Transitional until the PeriodicReaction slice (design v14.2 7).
-        /// </summary>
+        [Tooltip("Periodic cadence in milliseconds. Bake converts it to Ticks.")]
+        public DurationAuthoring PeriodicInterval;
+        [HideInInspector]
         public int PeriodicIntervalTicks;
 
         /// <summary>
@@ -45,6 +46,8 @@ namespace FrameSyncMoba.Unit
         /// Seconds the apply VFX should stay visible. 0 = use the VFX
         /// prefab's own default duration.
         /// </summary>
+        public int ApplyVfxDurationMilliseconds;
+        [HideInInspector]
         public float ApplyVfxDurationSeconds;
 
         /// <summary>
@@ -52,6 +55,12 @@ namespace FrameSyncMoba.Unit
         /// initial StackChanged 0 -> InitialStacks event.
         /// </summary>
         public int InitialStacks = 1;
+
+        [NonSerialized] private int bakedTickRate = 30;
+        [NonSerialized] private int bakedPeriodicIntervalTicks;
+        [NonSerialized] private bool hasBakedPeriodicInterval;
+
+        public int BakedTickRate => bakedTickRate;
 
         public bool IsValid => ConfigId.IsValid;
 
@@ -61,12 +70,101 @@ namespace FrameSyncMoba.Unit
         public int DurationTicks =>
             IsInfinite
                 ? 0
-                : BuffTickConverter.SecondsToTicks(
+                : BakeLifeDuration(
+                    Life?.Duration ?? default,
                     Life?.DurationSeconds ?? 0f);
 
         public int ExtendTicks =>
-            BuffTickConverter.SecondsToTicks(
+            BakeLifeDuration(
+                Life?.ExtendDuration ?? default,
                 Life?.ExtendSeconds ?? 0f);
+
+        public int BakedPeriodicIntervalTicks =>
+            hasBakedPeriodicInterval
+                ? bakedPeriodicIntervalTicks
+                : PeriodicIntervalTicks;
+
+        public void BakeOrThrow(int tickRate)
+        {
+            DeterministicTimeConversion.ValidateSupportedTickRate(
+                tickRate);
+            bakedTickRate = tickRate;
+            bakedPeriodicIntervalTicks =
+                PeriodicInterval.IsAuthored
+                    ? PeriodicInterval.BakeTicks(tickRate)
+                    : DeterministicTimeConversion
+                        .Legacy30HzTicksToTicks(
+                            PeriodicIntervalTicks,
+                            tickRate);
+            hasBakedPeriodicInterval = true;
+            BuffEffect[] effects = GetEffects();
+            for (int i = 0; i < effects.Length; i++)
+                effects[i]?.BakeTime(tickRate);
+            BakeReactionTimes(tickRate);
+        }
+
+        private int BakeLifeDuration(
+            in DurationAuthoring duration,
+            float legacySeconds)
+        {
+            return duration.IsAuthored
+                ? duration.BakeTicks(bakedTickRate)
+                : BuffTickConverter.SecondsToTicks(
+                    legacySeconds,
+                    bakedTickRate);
+        }
+
+        private void BakeReactionTimes(int tickRate)
+        {
+            BuffLifecycleReactions lifecycle = LifecycleReactions;
+            if (lifecycle != null)
+            {
+                BakeGroups(lifecycle.Added, tickRate);
+                BakeGroups(lifecycle.Reapplied, tickRate);
+                BakeGroups(lifecycle.Removed, tickRate);
+                BakeGroups(lifecycle.StackChanged, tickRate);
+                BakeGroups(lifecycle.Periodic, tickRate);
+            }
+
+            BuffEventReactions events = EventReactions;
+            if (events == null) return;
+            BakeGroups(events.DamageTaken, tickRate);
+            BakeGroups(events.DamageDealt, tickRate);
+            BakeGroups(events.HealTaken, tickRate);
+            BakeGroups(events.HealDealt, tickRate);
+            BakeGroups(events.ShieldApplied, tickRate);
+            BakeGroups(events.AbilityCast, tickRate);
+            BakeGroups(events.LevelUp, tickRate);
+            BakeGroups(events.UnitDying, tickRate);
+            BakeGroups(events.UnitDeath, tickRate);
+            BakeGroups(events.UnitKill, tickRate);
+            BakeGroups(events.OnHitDealt, tickRate);
+            BakeGroups(events.CollisionEnter, tickRate);
+            BakeGroups(events.CollisionExit, tickRate);
+        }
+
+        private static void BakeGroups(
+            BuffReactionGroup[] groups,
+            int tickRate)
+        {
+            if (groups == null) return;
+            for (int groupIndex = 0;
+                 groupIndex < groups.Length;
+                 groupIndex++)
+            {
+                BuffReactionActionConfig[] actions =
+                    groups[groupIndex]?.Actions;
+                if (actions == null) continue;
+                for (int actionIndex = 0;
+                     actionIndex < actions.Length;
+                     actionIndex++)
+                {
+                    if (actions[actionIndex] is
+                        IBuffTimeAuthoring timedAction)
+                        timedAction.BakeTime(tickRate);
+                }
+            }
+        }
 
         public int MaxStacks =>
             Mathf.Max(1, Stack?.MaxStacks ?? 1);

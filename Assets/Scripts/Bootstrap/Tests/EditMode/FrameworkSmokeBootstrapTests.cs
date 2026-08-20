@@ -93,7 +93,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 });
 
                 InvokeAwake(bootstrap);
-                int executed = bootstrap.AdvanceSimulationByElapsedSeconds(1d);
+            int executed = bootstrap.AdvanceSimulationByElapsedMilliseconds(1000L);
 
                 Assert.That(executed, Is.EqualTo(bootstrap.MaxLogicTicksPerUnityFrame));
                 Assert.That(bootstrap.IsMatchReady, Is.True);
@@ -195,7 +195,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     Is.EqualTo(firstWire));
 
                 for (int i = 0; i < 30; i++)
-                    bootstrap.AdvanceSimulationByElapsedSeconds(1d);
+                bootstrap.AdvanceSimulationByElapsedMilliseconds(1000L);
                 Assert.That(
                     bootstrap.Runtime.MatchRule.CurrentPhase,
                     Is.EqualTo(
@@ -210,8 +210,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     redBase);
                 bootstrap.UnitWorld.ConfirmUnitDeath(
                     redBase);
-                bootstrap.AdvanceSimulationByElapsedSeconds(
-                    1d);
+                bootstrap.AdvanceSimulationByElapsedMilliseconds(
+                    1000L);
                 Assert.That(
                     bootstrap.Runtime.MatchRule.CurrentPhase,
                     Is.EqualTo(

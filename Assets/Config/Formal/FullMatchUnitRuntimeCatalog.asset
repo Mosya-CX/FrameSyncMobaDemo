@@ -217,6 +217,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 1
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -303,6 +307,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 1
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -389,6 +397,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 2
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -457,6 +469,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 2
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -525,6 +541,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 2
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -593,6 +613,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 2
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -661,6 +685,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 3
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -729,6 +757,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 3
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -797,6 +829,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 3
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0
@@ -865,6 +901,10 @@ MonoBehaviour:
     UnitDisposePolicyId: 3
     RespawnConfig:
       CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       RespawnDelayTicks: 0
       HealthRule: 0
       ResourceRule: 0

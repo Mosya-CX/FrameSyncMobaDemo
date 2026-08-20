@@ -1,5 +1,6 @@
 using System;
 using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.RuntimeConfig;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 
@@ -28,15 +29,18 @@ namespace FrameSyncMoba.Unit
             Array.Empty<JungleCampSpawnSlot>();
 
         [Header("Inspector timing and leash")]
-        [Min(0f)]
+        [SerializeField] private DurationAuthoring initialSpawnDelay;
+        [HideInInspector, Min(0f)]
         [SerializeField] private float initialSpawnSeconds;
-        [Min(0f)]
+        [SerializeField] private DurationAuthoring respawnDelay;
+        [HideInInspector, Min(0f)]
         [SerializeField] private float respawnDelaySeconds = 60f;
         [Min(0f)]
         [SerializeField] private float softLeashRadius = 6f;
         [Min(0f)]
         [SerializeField] private float hardLeashRadius = 10f;
-        [Min(0f)]
+        [SerializeField] private DurationAuthoring disengageDelay;
+        [HideInInspector, Min(0f)]
         [SerializeField] private float disengageDelaySeconds = 3f;
 
         private UnitWorld unitWorld;
@@ -524,15 +528,18 @@ namespace FrameSyncMoba.Unit
                     (fp)anchor.x,
                     (fp)anchor.z);
             initialSpawnLogicTick =
-                SecondsToTicks(
+                BakeDurationTicks(
+                    initialSpawnDelay,
                     initialSpawnSeconds,
                     tickRate);
             respawnDelayTicks =
-                SecondsToTicks(
+                BakeDurationTicks(
+                    respawnDelay,
                     respawnDelaySeconds,
                     tickRate);
             disengageDelayTicks =
-                SecondsToTicks(
+                BakeDurationTicks(
+                    disengageDelay,
                     disengageDelaySeconds,
                     tickRate);
             fp soft = (fp)softLeashRadius;
@@ -556,11 +563,17 @@ namespace FrameSyncMoba.Unit
                     nameof(slotIndex));
         }
 
-        private static int SecondsToTicks(
-            float seconds,
-            int tickRate) =>
-            checked((int)Math.Ceiling(
-                seconds * tickRate));
+        private static int BakeDurationTicks(
+            in DurationAuthoring duration,
+            float legacySeconds,
+            int tickRate)
+        {
+            return duration.IsAuthored
+                ? duration.BakeTicks(tickRate)
+                : DeterministicTimeConversion.SecondsToTicks(
+                    legacySeconds,
+                    tickRate);
+        }
 
         private static void ValidateFiniteNonnegative(
             float value,

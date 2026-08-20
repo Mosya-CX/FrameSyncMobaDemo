@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Unit;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -61,7 +62,7 @@ namespace FrameSyncMoba.Unit
         private readonly Dictionary<int, int> _killStreaks = new Dictionary<int, int>();
 
         // Multikill tracking: recent kills within the window
-        private const int MultikillWindowTicks = 300; // 10 seconds at 30 tick/sec
+        private readonly int multikillWindowTicks;
         private readonly List<(int PlayerSlot, int KillTick)> _recentKills = new List<(int, int)>();
 
         // Death recap: per-unit damage log
@@ -75,6 +76,13 @@ namespace FrameSyncMoba.Unit
         // Events to be consumed by presentation
         public readonly List<KillStreakEvent> PendingKillStreakEvents = new List<KillStreakEvent>();
         public readonly List<MultikillEvent> PendingMultikillEvents = new List<MultikillEvent>();
+
+        public MatchEventTracker(int tickRate = 30)
+        {
+            multikillWindowTicks =
+                DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(300, tickRate);
+        }
 
         /// <summary>Get the current kill streak for a player slot.</summary>
         public int GetKillStreak(int playerSlot)
@@ -193,7 +201,7 @@ namespace FrameSyncMoba.Unit
 
         private void PruneRecentKills(int currentTick)
         {
-            int cutoff = currentTick - MultikillWindowTicks;
+            int cutoff = currentTick - multikillWindowTicks;
             _recentKills.RemoveAll(k => k.KillTick < cutoff);
         }
 

@@ -10,7 +10,7 @@ namespace FrameSyncMoba.Unit
         [Min(0f)]
         [SerializeField] private float distance = 8f;
 
-        public override StageDef Bake()
+        public override StageDef Bake(int tickRate = 30)
         {
             return new TeleportStageDef
             {

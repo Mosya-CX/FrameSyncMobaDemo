@@ -64,30 +64,6 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
-        public void Payload_NonzeroLegacyLaunchField_FailsDeterministically()
-        {
-            UnitUid uid = new UnitUid(0, 1001, 0);
-
-            Assert.Throws<DeterministicSimulationException>(
-                () => new GameBootstrapPayload(
-                    CreateConfig(),
-                    CreateVersions(),
-                    CreateSnapshot(
-                        uid,
-                        new TeamId(1)),
-                    3,
-                    3,
-                    123u,
-                    new[]
-                    {
-                        new PlayerSlotUnitMapping(
-                            0,
-                            uid),
-                    },
-                    638000000000000000L));
-        }
-
-        [Test]
         public void VersionHandshake_AnyCriticalMismatch_Fails()
         {
             FrameSyncVersionHandshake local =

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -26,6 +27,8 @@ namespace FrameSyncMoba.Unit
     [Serializable]
     public struct EquipmentActiveSettings
     {
+        public DurationAuthoring Cooldown;
+        [HideInInspector]
         public int CooldownTicks;
         public int ChargeCost;
         public EquipmentCooldownGroupId SharedCooldownGroup;
@@ -65,6 +68,10 @@ namespace FrameSyncMoba.Unit
         public virtual bool CanExecute(
             ref EquipmentEffectExecutionContext context,
             ref EquipmentEffectModuleRuntimeState state) => true;
+
+        public virtual void BakeTime(int tickRate)
+        {
+        }
 
         public abstract void Execute(
             ref EquipmentEffectExecutionContext context,

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -40,9 +41,8 @@ namespace FrameSyncMoba.Unit
         /// 5: natural regen, LoL-style per-5s values). Configured from
         /// GlobalGameplayData; defaults to 5.
         /// </summary>
-        public Unity.Mathematics.FixedPoint.fp
-            NaturalRegenIntervalSeconds { get; set; } =
-            (Unity.Mathematics.FixedPoint.fp)5;
+        public int NaturalRegenIntervalMilliseconds { get; set; } =
+            5000;
 
         public CombatSystem(
             UnitWorld unitWorld,
@@ -217,14 +217,14 @@ namespace FrameSyncMoba.Unit
             {
                 return;
             }
-            fp secondsPerTick =
-                fp.one / (fp)tickRate;
+            fp millisecondsPerTick =
+                (fp)1000 / (fp)tickRate;
             fp interval =
-                NaturalRegenIntervalSeconds > fp.zero
-                    ? NaturalRegenIntervalSeconds
-                    : (fp)5;
+                NaturalRegenIntervalMilliseconds > 0
+                    ? (fp)NaturalRegenIntervalMilliseconds
+                    : (fp)5000;
             fp perTickScale =
-                secondsPerTick / interval;
+                millisecondsPerTick / interval;
             var all = _unitWorld.GetAllUnits();
             for (int i = 0; i < all.Count; i++)
             {
@@ -784,7 +784,8 @@ namespace FrameSyncMoba.Unit
                     out CombatContributionEventLog log))
             {
                 log = new CombatContributionEventLog(
-                    victim.UnitUid);
+                    victim.UnitUid,
+                    GetAssistContributionDurationTicks());
                 _eventLogs.Add(victim.UnitUid, log);
             }
             // Settlement audit: print every effective Damage / Shield / Heal
@@ -963,13 +964,23 @@ namespace FrameSyncMoba.Unit
                             "Combat event logs are not in canonical VictimUnitUid order.");
                     previousVictim = logState.VictimUnitUid;
                     var log = new CombatContributionEventLog(
-                        logState.VictimUnitUid);
+                        logState.VictimUnitUid,
+                        GetAssistContributionDurationTicks());
                     log.Restore(logState);
                     _eventLogs.Add(
                         logState.VictimUnitUid,
                         log);
                 }
             }
+        }
+
+        private int GetAssistContributionDurationTicks()
+        {
+            return DeterministicTimeConversion
+                .Legacy30HzTicksToTicks(
+                    CombatContributionEventLog
+                        .DefaultAssistContributionDurationTicks,
+                    _unitWorld.TickRate);
         }
 
         public void Resolve(in RollbackContext context)

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 31004
   Name: Recurve Bow
-  Description: Grants 15% Attack Speed. Basic attacks deal 15 bonus physical damage on hit.
+  Description: Grants 15% Attack Speed. Basic attacks deal 15 bonus physical damage
+    on hit.
   Icon: {fileID: 21300000, guid: 6b7a039792e48b5468c197a77371f7d1, type: 3}
   Tier: 2
   Value: 700
@@ -27,6 +28,10 @@ MonoBehaviour:
     Description: Basic attacks deal 15 bonus physical damage on hit.
     IsActive: 0
     ActiveSettings:
+      Cooldown:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
       CooldownTicks: 0
       ChargeCost: 0
     Modules:
@@ -46,4 +51,8 @@ MonoBehaviour:
         BonusDamage:
           m_rawValue: 64424509440
         DamageType: 0
+        InternalCooldown:
+          milliseconds: 0
+          roundingPolicy: 0
+          authored: 1
         InternalCooldownTicks: 0

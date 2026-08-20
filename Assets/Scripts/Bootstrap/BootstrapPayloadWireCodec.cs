@@ -14,7 +14,7 @@ namespace FrameSyncMoba.Bootstrap
     internal static class BootstrapPayloadWireCodec
     {
         private const uint Magic = 0x42534D46;
-        private const ushort WireVersion = 2;
+        private const ushort WireVersion = 3;
 
         public static byte[] Write(
             in GameBootstrapPayload payload)
@@ -38,8 +38,6 @@ namespace FrameSyncMoba.Bootstrap
                 writer.Write(payload.StartTick);
                 writer.Write(
                     payload.InitialRandomSeed);
-                writer.Write(
-                    payload.LaunchUtcTicks);
                 PlayerSlotUnitMapping[] mappings =
                     payload.PlayerSlotMappings;
                 writer.Write(mappings.Length);
@@ -106,8 +104,6 @@ namespace FrameSyncMoba.Bootstrap
                         reader.ReadInt32();
                     uint randomSeed =
                         reader.ReadUInt32();
-                    long launchUtcTicks =
-                        reader.ReadInt64();
                     int count = ReadCount(
                         reader,
                         10,
@@ -145,8 +141,7 @@ namespace FrameSyncMoba.Bootstrap
                         snapshotTick,
                         startTick,
                         randomSeed,
-                        mappings,
-                        launchUtcTicks);
+                        mappings);
                 }
             }
             catch (EndOfStreamException exception)

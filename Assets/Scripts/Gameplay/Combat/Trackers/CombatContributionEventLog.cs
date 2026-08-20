@@ -56,18 +56,28 @@ namespace FrameSyncMoba.Unit
     public sealed class CombatContributionEventLog
     {
         /// <summary>Ticks before an event expires from the log (~5s @ 30).</summary>
-        public const int AssistContributionDurationTicks = 150;
+        public const int DefaultAssistContributionDurationTicks = 150;
+        public const int AssistContributionDurationTicks =
+            DefaultAssistContributionDurationTicks;
         /// <summary>Defensive per-victim capacity; oldest events are dropped
         /// beyond this (equivalent to expiry).</summary>
         public const int MaxContributionEventsPerVictim = 256;
 
         private readonly UnitUid _victimUid;
+        private readonly int assistContributionDurationTicks;
         private readonly List<CombatContributionEvent> _events =
             new List<CombatContributionEvent>();
 
-        public CombatContributionEventLog(UnitUid victimUid)
+        public CombatContributionEventLog(
+            UnitUid victimUid,
+            int assistDurationTicks =
+                DefaultAssistContributionDurationTicks)
         {
+            if (assistDurationTicks <= 0)
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(assistDurationTicks));
             _victimUid = victimUid;
+            assistContributionDurationTicks = assistDurationTicks;
         }
 
         public UnitUid VictimUid => _victimUid;
@@ -120,7 +130,7 @@ namespace FrameSyncMoba.Unit
         public void PruneExpired(int currentTick)
         {
             int expiredBeforeTick =
-                currentTick - AssistContributionDurationTicks;
+                currentTick - assistContributionDurationTicks;
             int remove = 0;
             while (remove < _events.Count &&
                    _events[remove].LogicTick <

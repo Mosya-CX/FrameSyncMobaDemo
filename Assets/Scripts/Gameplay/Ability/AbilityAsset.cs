@@ -1,4 +1,5 @@
 using System;
+using FrameSyncMoba.RuntimeConfig;
 using UnityEngine;
 
 namespace FrameSyncMoba.Unit
@@ -31,6 +32,10 @@ namespace FrameSyncMoba.Unit
         [SerializeField] private AimKind aimKind;
 
         [Header("Timing")]
+        [Tooltip("Cooldown by level in milliseconds. Bake converts it to integer Ticks.")]
+        [SerializeField] private int[] cooldownMillisecondsByLevel =
+            Array.Empty<int>();
+        [HideInInspector]
         [SerializeField] private float[] cooldownTicksByLevel =
             Array.Empty<float>();
 
@@ -73,8 +78,10 @@ namespace FrameSyncMoba.Unit
         public AbilityPassiveEffectAuthoring PassiveEffect =>
             passiveEffect;
 
-        public AbilityDef Bake()
+        public AbilityDef Bake(int tickRate = 30)
         {
+            DeterministicTimeConversion.ValidateSupportedTickRate(
+                tickRate);
             if (abilityId <= 0)
                 throw new InvalidOperationException(
                     $"AbilityAsset '{name}' has invalid AbilityId {abilityId}.");
@@ -96,7 +103,7 @@ namespace FrameSyncMoba.Unit
                 throw new InvalidOperationException(
                     $"AbilityAsset '{name}' contains an undefined enum value.");
             }
-            ValidateStageAuthoring(stageDefs);
+            ValidateStageAuthoring(stageDefs, tickRate);
 
             var def = new AbilityDef
             {
@@ -104,12 +111,15 @@ namespace FrameSyncMoba.Unit
                 Name = abilityName,
                 Icon = icon,
                 IsUltimate = isUltimate,
-                CooldownByLevel = BakeLevelValues(
+                CooldownByLevel = BakeCooldownLevelValues(
+                    cooldownMillisecondsByLevel,
                     cooldownTicksByLevel,
-                    nameof(cooldownTicksByLevel)),
+                    tickRate),
                 AimKind = aimKind,
                 CastRange = (Unity.Mathematics.FixedPoint.fp)castRange,
-                CastModel = castModel?.Bake(stageDefs),
+                CastModel = castModel?.Bake(
+                    stageDefs,
+                    tickRate),
                 CostPlan = new AbilityCostPlan(
                     BakeLevelValues(
                         castResourceCostByLevel,
@@ -129,7 +139,8 @@ namespace FrameSyncMoba.Unit
         }
 
         private void ValidateStageAuthoring(
-            StageDefAuthoring[] stages)
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             if (stages == null || stages.Length == 0)
                 throw new InvalidOperationException(
@@ -147,7 +158,7 @@ namespace FrameSyncMoba.Unit
                 if (string.IsNullOrWhiteSpace(stage.DebugName))
                     throw new InvalidOperationException(
                         $"AbilityAsset '{name}' stage {i} requires a debug name.");
-                StageDef baked = stage.Bake() ??
+                StageDef baked = stage.Bake(tickRate) ??
                     throw new InvalidOperationException(
                         $"AbilityAsset '{name}' stage {i} baked null.");
                 if (baked.StageDefId != stage.StageKey)
@@ -199,6 +210,38 @@ namespace FrameSyncMoba.Unit
             return baked;
         }
 
+        private static AbilityLevelValue BakeCooldownLevelValues(
+            int[] milliseconds,
+            float[] legacyTicks,
+            int tickRate)
+        {
+            bool authoredInMilliseconds =
+                milliseconds != null && milliseconds.Length > 0;
+            int count = authoredInMilliseconds
+                ? milliseconds.Length
+                : legacyTicks?.Length ?? 0;
+            if (count == 0)
+                return default;
+            var baked =
+                new Unity.Mathematics.FixedPoint.fp[count];
+            for (int i = 0; i < count; i++)
+            {
+                int ticks = authoredInMilliseconds
+                    ? DeterministicTimeConversion.MillisecondsToTicks(
+                        milliseconds[i],
+                        tickRate,
+                        DurationRoundingPolicy.Ceil)
+                    : DeterministicTimeConversion
+                        .Legacy30HzTicksToTicks(
+                            checked((int)Math.Ceiling(
+                                legacyTicks[i])),
+                            tickRate);
+                baked[i] =
+                    (Unity.Mathematics.FixedPoint.fp)ticks;
+            }
+            return new AbilityLevelValue(baked);
+        }
+
         private void OnValidate()
         {
             if (abilityId <= 0) abilityId = 1;
@@ -213,7 +256,9 @@ namespace FrameSyncMoba.Unit
     public abstract class CastModelAuthoring
     {
         public abstract CastModelKind Kind { get; }
-        public abstract CastModelDef Bake(StageDefAuthoring[] stages);
+        public abstract CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate);
     }
 
     [Serializable]
@@ -222,6 +267,8 @@ namespace FrameSyncMoba.Unit
         public override CastModelKind Kind => CastModelKind.Commit;
 
         [SerializeField] internal byte castStageKey;
+        [SerializeField] internal DurationAuthoring duration;
+        [HideInInspector]
         [SerializeField] internal int durationTicks;
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible = true;
@@ -231,13 +278,17 @@ namespace FrameSyncMoba.Unit
         public byte CastStageKey => castStageKey;
         public int DurationTicks => durationTicks;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             return new CommitCastModelDef
             {
-                Cast = BakeHelpers.BakeStage(castStageKey, durationTicks,
+                Cast = BakeHelpers.BakeStage(castStageKey,
+                    BakeHelpers.BakeDuration(
+                        duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement, stages,
-                    iconOverride),
+                    tickRate, iconOverride),
             };
         }
     }
@@ -248,10 +299,14 @@ namespace FrameSyncMoba.Unit
         public override CastModelKind Kind => CastModelKind.HoldRelease;
 
         [SerializeField] internal byte holdStageKey;
+        [SerializeField] internal DurationAuthoring holdDuration;
+        [HideInInspector]
         [SerializeField] internal int holdDurationTicks;
         [SerializeField] internal bool holdInterruptible = true;
         [SerializeField] internal bool holdLockMovement;
         [SerializeField] internal byte releaseStageKey;
+        [SerializeField] internal DurationAuthoring releaseDuration;
+        [HideInInspector]
         [SerializeField] internal int releaseDurationTicks;
         [SerializeField] internal bool releaseNotifyAbilityCastOnEnter;
         [SerializeField] internal bool releaseInterruptible;
@@ -271,16 +326,22 @@ namespace FrameSyncMoba.Unit
         public float RefundCostPercentOnTimeout =>
             refundCostPercentOnTimeout;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             return new HoldReleaseCastModelDef
             {
-                Hold = BakeHelpers.BakeStage(holdStageKey, holdDurationTicks,
+                Hold = BakeHelpers.BakeStage(holdStageKey,
+                    BakeHelpers.BakeDuration(
+                        holdDuration, holdDurationTicks, tickRate),
                     true, holdInterruptible, holdLockMovement, stages,
-                    holdIconOverride),
-                Release = BakeHelpers.BakeStage(releaseStageKey, releaseDurationTicks,
+                    tickRate, holdIconOverride),
+                Release = BakeHelpers.BakeStage(releaseStageKey,
+                    BakeHelpers.BakeDuration(
+                        releaseDuration, releaseDurationTicks, tickRate),
                     releaseNotifyAbilityCastOnEnter, releaseInterruptible,
-                    releaseLockMovement, stages, releaseIconOverride),
+                    releaseLockMovement, stages, tickRate, releaseIconOverride),
                 HoldTimeoutPolicy = holdTimeoutPolicy,
                 RefundCostPercentOnTimeout =
                     (Unity.Mathematics.FixedPoint.fp)
@@ -295,6 +356,8 @@ namespace FrameSyncMoba.Unit
         public override CastModelKind Kind => CastModelKind.Channel;
 
         [SerializeField] internal byte channelStageKey;
+        [SerializeField] internal DurationAuthoring duration;
+        [HideInInspector]
         [SerializeField] internal int durationTicks;
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible = true;
@@ -304,13 +367,17 @@ namespace FrameSyncMoba.Unit
         public byte ChannelStageKey => channelStageKey;
         public int DurationTicks => durationTicks;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             return new ChannelCastModelDef
             {
-                Channel = BakeHelpers.BakeStage(channelStageKey, durationTicks,
+                Channel = BakeHelpers.BakeStage(channelStageKey,
+                    BakeHelpers.BakeDuration(
+                        duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement,
-                    stages, iconOverride),
+                    stages, tickRate, iconOverride),
             };
         }
     }
@@ -321,6 +388,8 @@ namespace FrameSyncMoba.Unit
         public override CastModelKind Kind => CastModelKind.ActiveSignal;
 
         [SerializeField] internal byte activeStageKey;
+        [SerializeField] internal DurationAuthoring duration;
+        [HideInInspector]
         [SerializeField] internal int durationTicks;
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible;
@@ -330,13 +399,17 @@ namespace FrameSyncMoba.Unit
         public byte ActiveStageKey => activeStageKey;
         public int DurationTicks => durationTicks;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             return new ActiveSignalCastModelDef
             {
-                Active = BakeHelpers.BakeStage(activeStageKey, durationTicks,
+                Active = BakeHelpers.BakeStage(activeStageKey,
+                    BakeHelpers.BakeDuration(
+                        duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement,
-                    stages, iconOverride),
+                    stages, tickRate, iconOverride),
             };
         }
     }
@@ -347,10 +420,14 @@ namespace FrameSyncMoba.Unit
         public override CastModelKind Kind => CastModelKind.GroundTarget;
 
         [SerializeField] internal byte aimStageKey;
+        [SerializeField] internal DurationAuthoring aimDuration;
+        [HideInInspector]
         [SerializeField] internal int aimDurationTicks;
         [SerializeField] internal bool aimInterruptible = true;
         [SerializeField] internal bool aimLockMovement;
         [SerializeField] internal byte executeStageKey;
+        [SerializeField] internal DurationAuthoring executeDuration;
+        [HideInInspector]
         [SerializeField] internal int executeDurationTicks;
         [SerializeField] internal bool executeNotifyAbilityCastOnEnter = true;
         [SerializeField] internal bool executeInterruptible;
@@ -367,16 +444,22 @@ namespace FrameSyncMoba.Unit
         public float MaxRange => maxRange;
         public float Radius => radius;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             return new GroundTargetCastModelDef
             {
-                Aim = BakeHelpers.BakeStage(aimStageKey, aimDurationTicks,
+                Aim = BakeHelpers.BakeStage(aimStageKey,
+                    BakeHelpers.BakeDuration(
+                        aimDuration, aimDurationTicks, tickRate),
                     false, aimInterruptible, aimLockMovement, stages,
-                    aimIconOverride),
-                Execute = BakeHelpers.BakeStage(executeStageKey, executeDurationTicks,
+                    tickRate, aimIconOverride),
+                Execute = BakeHelpers.BakeStage(executeStageKey,
+                    BakeHelpers.BakeDuration(
+                        executeDuration, executeDurationTicks, tickRate),
                     executeNotifyAbilityCastOnEnter, executeInterruptible,
-                    executeLockMovement, stages, executeIconOverride),
+                    executeLockMovement, stages, tickRate, executeIconOverride),
                 MaxRange = (Unity.Mathematics.FixedPoint.fp)maxRange,
                 Radius = (Unity.Mathematics.FixedPoint.fp)radius,
             };
@@ -389,10 +472,14 @@ namespace FrameSyncMoba.Unit
         public override CastModelKind Kind => CastModelKind.VectorTarget;
 
         [SerializeField] internal byte aimStageKey;
+        [SerializeField] internal DurationAuthoring aimDuration;
+        [HideInInspector]
         [SerializeField] internal int aimDurationTicks;
         [SerializeField] internal bool aimInterruptible = true;
         [SerializeField] internal bool aimLockMovement;
         [SerializeField] internal byte executeStageKey;
+        [SerializeField] internal DurationAuthoring executeDuration;
+        [HideInInspector]
         [SerializeField] internal int executeDurationTicks;
         [SerializeField] internal bool executeNotifyAbilityCastOnEnter = true;
         [SerializeField] internal bool executeInterruptible;
@@ -409,16 +496,22 @@ namespace FrameSyncMoba.Unit
         public float MaxRange => maxRange;
         public float MinRange => minRange;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             return new VectorTargetCastModelDef
             {
-                Aim = BakeHelpers.BakeStage(aimStageKey, aimDurationTicks,
+                Aim = BakeHelpers.BakeStage(aimStageKey,
+                    BakeHelpers.BakeDuration(
+                        aimDuration, aimDurationTicks, tickRate),
                     false, aimInterruptible, aimLockMovement, stages,
-                    aimIconOverride),
-                Execute = BakeHelpers.BakeStage(executeStageKey, executeDurationTicks,
+                    tickRate, aimIconOverride),
+                Execute = BakeHelpers.BakeStage(executeStageKey,
+                    BakeHelpers.BakeDuration(
+                        executeDuration, executeDurationTicks, tickRate),
                     executeNotifyAbilityCastOnEnter, executeInterruptible,
-                    executeLockMovement, stages, executeIconOverride),
+                    executeLockMovement, stages, tickRate, executeIconOverride),
                 MaxRange = (Unity.Mathematics.FixedPoint.fp)maxRange,
                 MinRange = (Unity.Mathematics.FixedPoint.fp)minRange,
             };
@@ -431,6 +524,8 @@ namespace FrameSyncMoba.Unit
         public override CastModelKind Kind => CastModelKind.Toggle;
 
         [SerializeField] internal byte activeStageKey;
+        [SerializeField] internal DurationAuthoring duration;
+        [HideInInspector]
         [SerializeField] internal int durationTicks;
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible;
@@ -445,13 +540,17 @@ namespace FrameSyncMoba.Unit
         public bool Interruptible => interruptible;
         public float ResourcePerTick => resourcePerTick;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
             return new ToggleCastModelDef
             {
-                Active = BakeHelpers.BakeStage(activeStageKey, durationTicks,
+                Active = BakeHelpers.BakeStage(activeStageKey,
+                    BakeHelpers.BakeDuration(
+                        duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement,
-                    stages, iconOverride),
+                    stages, tickRate, iconOverride),
                 ResourcePerTick = (Unity.Mathematics.FixedPoint.fp)resourcePerTick,
             };
         }
@@ -465,16 +564,30 @@ namespace FrameSyncMoba.Unit
             CastModelKind.SequentialRecast;
 
         [SerializeField] internal byte firstImpactStageKey;
+        [SerializeField] internal DurationAuthoring firstImpactDuration;
+        [HideInInspector]
         [SerializeField] internal int firstImpactDurationTicks;
         [SerializeField] internal byte firstRecastWindowStageKey;
+        [SerializeField] internal DurationAuthoring firstRecastWindowDuration;
+        [HideInInspector]
         [SerializeField] internal int firstRecastWindowDurationTicks;
+        [SerializeField] internal DurationAuthoring firstMinimumRecastDelay;
+        [HideInInspector]
         [SerializeField] internal int firstMinimumRecastDelayTicks;
         [SerializeField] internal byte secondImpactStageKey;
+        [SerializeField] internal DurationAuthoring secondImpactDuration;
+        [HideInInspector]
         [SerializeField] internal int secondImpactDurationTicks;
         [SerializeField] internal byte secondRecastWindowStageKey;
+        [SerializeField] internal DurationAuthoring secondRecastWindowDuration;
+        [HideInInspector]
         [SerializeField] internal int secondRecastWindowDurationTicks;
+        [SerializeField] internal DurationAuthoring secondMinimumRecastDelay;
+        [HideInInspector]
         [SerializeField] internal int secondMinimumRecastDelayTicks;
         [SerializeField] internal byte finalImpactStageKey;
+        [SerializeField] internal DurationAuthoring finalImpactDuration;
+        [HideInInspector]
         [SerializeField] internal int finalImpactDurationTicks;
         [SerializeField] internal bool impactInterruptible;
         [SerializeField] internal bool windowInterruptible = true;
@@ -483,65 +596,63 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal Sprite secondImpactIconOverride;
         [SerializeField] internal Sprite finalImpactIconOverride;
 
-        public override CastModelDef Bake(StageDefAuthoring[] stages)
+        public override CastModelDef Bake(
+            StageDefAuthoring[] stages,
+            int tickRate)
         {
-            if (firstRecastWindowDurationTicks <= 0 ||
-                secondRecastWindowDurationTicks <= 0 ||
-                firstMinimumRecastDelayTicks < 0 ||
-                secondMinimumRecastDelayTicks < 0 ||
-                firstMinimumRecastDelayTicks >= firstRecastWindowDurationTicks ||
-                secondMinimumRecastDelayTicks >= secondRecastWindowDurationTicks)
-            {
+            int firstImpact = BakeHelpers.BakeDuration(
+                firstImpactDuration, firstImpactDurationTicks, tickRate);
+            int firstWindow = BakeHelpers.BakeDuration(
+                firstRecastWindowDuration,
+                firstRecastWindowDurationTicks,
+                tickRate);
+            int firstDelay = BakeHelpers.BakeDuration(
+                firstMinimumRecastDelay,
+                firstMinimumRecastDelayTicks,
+                tickRate);
+            int secondImpact = BakeHelpers.BakeDuration(
+                secondImpactDuration, secondImpactDurationTicks, tickRate);
+            int secondWindow = BakeHelpers.BakeDuration(
+                secondRecastWindowDuration,
+                secondRecastWindowDurationTicks,
+                tickRate);
+            int secondDelay = BakeHelpers.BakeDuration(
+                secondMinimumRecastDelay,
+                secondMinimumRecastDelayTicks,
+                tickRate);
+            int finalImpact = BakeHelpers.BakeDuration(
+                finalImpactDuration, finalImpactDurationTicks, tickRate);
+            if (firstWindow <= 0 || secondWindow <= 0 ||
+                firstDelay < 0 || secondDelay < 0 ||
+                firstDelay >= firstWindow ||
+                secondDelay >= secondWindow)
                 throw new InvalidOperationException(
                     "Sequential recast windows require positive durations.");
-            }
 
             return new SequentialRecastCastModelDef
             {
-                FirstMinimumRecastDelayTicks =
-                    firstMinimumRecastDelayTicks,
-                SecondMinimumRecastDelayTicks =
-                    secondMinimumRecastDelayTicks,
+                FirstMinimumRecastDelayTicks = firstDelay,
+                SecondMinimumRecastDelayTicks = secondDelay,
                 FirstImpact = BakeHelpers.BakeStage(
-                    firstImpactStageKey,
-                    firstImpactDurationTicks,
-                    true,
-                    impactInterruptible,
-                    impactLockMovement,
-                    stages,
-                    firstImpactIconOverride),
+                    firstImpactStageKey, firstImpact, true,
+                    impactInterruptible, impactLockMovement, stages,
+                    tickRate, firstImpactIconOverride),
                 FirstRecastWindow = BakeHelpers.BakeStage(
-                    firstRecastWindowStageKey,
-                    firstRecastWindowDurationTicks,
-                    false,
-                    windowInterruptible,
-                    false,
-                    stages,
-                    secondImpactIconOverride),
+                    firstRecastWindowStageKey, firstWindow, false,
+                    windowInterruptible, false, stages,
+                    tickRate, secondImpactIconOverride),
                 SecondImpact = BakeHelpers.BakeStage(
-                    secondImpactStageKey,
-                    secondImpactDurationTicks,
-                    true,
-                    impactInterruptible,
-                    impactLockMovement,
-                    stages,
-                    secondImpactIconOverride),
+                    secondImpactStageKey, secondImpact, true,
+                    impactInterruptible, impactLockMovement, stages,
+                    tickRate, secondImpactIconOverride),
                 SecondRecastWindow = BakeHelpers.BakeStage(
-                    secondRecastWindowStageKey,
-                    secondRecastWindowDurationTicks,
-                    false,
-                    windowInterruptible,
-                    false,
-                    stages,
-                    finalImpactIconOverride),
+                    secondRecastWindowStageKey, secondWindow, false,
+                    windowInterruptible, false, stages,
+                    tickRate, finalImpactIconOverride),
                 FinalImpact = BakeHelpers.BakeStage(
-                    finalImpactStageKey,
-                    finalImpactDurationTicks,
-                    true,
-                    impactInterruptible,
-                    impactLockMovement,
-                    stages,
-                    finalImpactIconOverride),
+                    finalImpactStageKey, finalImpact, true,
+                    impactInterruptible, impactLockMovement, stages,
+                    tickRate, finalImpactIconOverride),
             };
         }
     }
@@ -557,7 +668,7 @@ namespace FrameSyncMoba.Unit
         public byte StageKey => stageKey;
         public string DebugName => debugName;
 
-        public abstract StageDef Bake();
+        public abstract StageDef Bake(int tickRate = 30);
     }
 
     [Serializable]
@@ -575,6 +686,7 @@ namespace FrameSyncMoba.Unit
             bool interruptible,
             bool lockMovement,
             StageDefAuthoring[] stages,
+            int tickRate,
             Sprite iconOverride = null)
         {
             StageDef def = null;
@@ -584,7 +696,7 @@ namespace FrameSyncMoba.Unit
                 {
                     if (stages[i] != null && stages[i].StageKey == stageKey)
                     {
-                        def = stages[i].Bake();
+                        def = stages[i].Bake(tickRate);
                         break;
                     }
                 }
@@ -604,6 +716,19 @@ namespace FrameSyncMoba.Unit
                 LockMovement = lockMovement,
                 IconOverride = iconOverride,
             };
+        }
+
+        public static int BakeDuration(
+            in DurationAuthoring duration,
+            int legacy30HzTicks,
+            int tickRate)
+        {
+            return duration.IsAuthored
+                ? duration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        legacy30HzTicks,
+                        tickRate);
         }
     }
 

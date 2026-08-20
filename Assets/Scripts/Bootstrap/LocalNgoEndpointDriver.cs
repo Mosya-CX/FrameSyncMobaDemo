@@ -100,7 +100,7 @@ namespace FrameSyncMoba.Bootstrap
         private bool bridgeBound;
         private bool localClientStartRequested;
         private bool localStartWaitLogged;
-        private double connectionStartedRealtime;
+        private long connectionStartedRealtimeMilliseconds;
 
         private void Awake()
         {
@@ -201,8 +201,9 @@ namespace FrameSyncMoba.Bootstrap
             if (!networkManager.StartClient())
                 throw new InvalidOperationException(
                     "NGO local Client failed to start.");
-            connectionStartedRealtime =
-                Time.realtimeSinceStartupAsDouble;
+            connectionStartedRealtimeMilliseconds =
+                FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                    Time.realtimeSinceStartupAsDouble);
             BindClientBridge(
                 localPlayerSlot,
                 accountId);
@@ -479,16 +480,18 @@ namespace FrameSyncMoba.Bootstrap
                 networkManager.IsConnectedClient)
                 return;
 
-            double waitSeconds =
-                Time.realtimeSinceStartupAsDouble -
-                connectionStartedRealtime;
-            if (waitSeconds < 10d)
+            long waitMilliseconds =
+                FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                    Time.realtimeSinceStartupAsDouble) -
+                connectionStartedRealtimeMilliseconds;
+            if (waitMilliseconds < 10000L)
                 return;
 
             connectionWaitLogged = true;
             Debug.LogWarning(
                 $"[LocalNGO] Client slot {localPlayerSlot} is still waiting " +
-                $"for NGO transport connection after {waitSeconds:F1} " +
+                $"for NGO transport connection after " +
+                $"{waitMilliseconds / 1000.0:F1} seconds; " +
                 $"seconds; address={address}, port={port}, " +
                 $"isListening={networkManager.IsListening}, " +
                 $"disconnectReason='{networkManager.DisconnectReason}'.");

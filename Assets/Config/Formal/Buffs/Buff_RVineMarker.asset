@@ -19,9 +19,17 @@ MonoBehaviour:
     Description: "\u5DF2\u88AB\u8150\u8D25\u85E4\u8513\u611F\u67D3\uFF0C\u4E0D\u4F1A\u88AB\u518D\u6B21\u8513\u5EF6\u3002\uFF08\u6C38\u4E45\u6807\u8BB0\uFF09"
     Icon: {fileID: 0}
   Life:
+    Duration:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     DurationSeconds: 6
     Infinite: 0
     RefreshMode: 0
+    ExtendDuration:
+      milliseconds: 0
+      roundingPolicy: 0
+      authored: 1
     ExtendSeconds: 0
   Stack:
     MaxStacks: 1
@@ -54,8 +62,13 @@ MonoBehaviour:
     CollisionEnter: []
     CollisionExit: []
   Priority: 0
+  PeriodicInterval:
+    milliseconds: 0
+    roundingPolicy: 0
+    authored: 1
   PeriodicIntervalTicks: 0
   ApplyVfxDefId: 4104
+  ApplyVfxDurationMilliseconds: 0
   ApplyVfxDurationSeconds: 0
   InitialStacks: 1
   references:

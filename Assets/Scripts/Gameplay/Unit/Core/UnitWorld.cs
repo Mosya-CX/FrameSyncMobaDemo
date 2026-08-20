@@ -35,7 +35,7 @@ namespace FrameSyncMoba.Unit
         public fp StatGrowthD { get; set; }
         public fp MoveSpeedToLogicVelocityScale { get; set; } = (fp)0.01m;
         public fp StatDistanceToLogicDistanceScale { get; set; } = (fp)0.01m;
-        public int TickRate { get; set; }
+        public int TickRate { get; set; } = 30;
         public int AttackSequenceResetIntervalTicks { get; set; } = 90;
         /// <summary>
         /// Units with AttackRange strictly above this value are treated as

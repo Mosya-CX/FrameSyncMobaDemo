@@ -18,7 +18,8 @@ namespace FrameSyncMoba.Unit
         public EquipmentDefinition[] Definitions;
         public UniqueEquipmentTagTable UniqueTags;
 
-        public EquipmentDatabase BakeOrThrow()
+        public EquipmentDatabase BakeOrThrow(
+            int tickRate = 30)
         {
             var database = new EquipmentDatabase();
             if (UniqueTags != null)
@@ -38,7 +39,7 @@ namespace FrameSyncMoba.Unit
                     database.Register(definition);
                 }
             }
-            database.Seal();
+            database.Seal(tickRate);
 
             List<string> errors =
                 database.Validate();

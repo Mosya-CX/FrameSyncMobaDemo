@@ -3,6 +3,7 @@ using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using FrameSyncMoba.RuntimeConfig;
 
 namespace FrameSyncMoba.Unit
 {
@@ -32,7 +33,8 @@ namespace FrameSyncMoba.Unit
         public string SpreadTagKey = "VarusR.Vine";
         /// <summary>Tag lifetime in Ticks (6s window covers the whole spread
         /// chain; R cooldown is far longer).</summary>
-        public int SpreadTagTicks = 180;
+        public DurationAuthoring SpreadTagDuration;
+        [HideInInspector] public int SpreadTagTicks = 180;
         /// <summary>
         /// Internal per-candidate "inside spread radius" contact timer buff.
         /// Hidden from the HUD; its ElapsedTicks drives the 1s requirement.
@@ -40,11 +42,15 @@ namespace FrameSyncMoba.Unit
         public int TimerBuffConfigId = 9115;
         /// <summary>How many consecutive Ticks a hero must stay in range
         /// before it is infected (30 Ticks = 1s at 30 tps).</summary>
-        public int ContactTicks = 30;
+        public DurationAuthoring ContactDuration;
+        [HideInInspector] public int ContactTicks = 30;
         public fp SpreadRadius = (fp)5.5m;
-        public int BlightStackAtTick1 = 6;
-        public int BlightStackAtTick2 = 24;
-        public int BlightStackAtTick3 = 42;
+        public DurationAuthoring BlightStackDelay1;
+        public DurationAuthoring BlightStackDelay2;
+        public DurationAuthoring BlightStackDelay3;
+        [HideInInspector] public int BlightStackAtTick1 = 6;
+        [HideInInspector] public int BlightStackAtTick2 = 24;
+        [HideInInspector] public int BlightStackAtTick3 = 42;
         public BuffStateSlotId ElapsedTicksSlot;
         public BuffStateSlotId CasterUnitUidSlot =
             new BuffStateSlotId(2);
@@ -61,7 +67,35 @@ namespace FrameSyncMoba.Unit
         /// and is attributed to the original R caster).</summary>
         public int SpreadSourceAbilityId = 10014;
         public int SpreadCrowdControlId = 102;
-        public int SpreadCrowdControlTicks = 60;
+        public DurationAuthoring SpreadCrowdControlDuration;
+        [HideInInspector] public int SpreadCrowdControlTicks = 60;
+
+        public override void BakeTime(int tickRate)
+        {
+            SpreadTagTicks = Bake(
+                SpreadTagDuration, SpreadTagTicks, tickRate);
+            ContactTicks = Bake(
+                ContactDuration, ContactTicks, tickRate);
+            BlightStackAtTick1 = Bake(
+                BlightStackDelay1, BlightStackAtTick1, tickRate);
+            BlightStackAtTick2 = Bake(
+                BlightStackDelay2, BlightStackAtTick2, tickRate);
+            BlightStackAtTick3 = Bake(
+                BlightStackDelay3, BlightStackAtTick3, tickRate);
+            SpreadCrowdControlTicks = Bake(
+                SpreadCrowdControlDuration,
+                SpreadCrowdControlTicks,
+                tickRate);
+        }
+
+        private static int Bake(
+            in DurationAuthoring duration,
+            int legacyTicks,
+            int tickRate) =>
+            duration.IsAuthored
+                ? duration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(legacyTicks, tickRate);
 
         private readonly List<Unit> _resultScratch =
             new List<Unit>();

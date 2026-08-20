@@ -20,6 +20,7 @@ MonoBehaviour:
     rid: 2586996089610567741
   castRange: 3
   aimKind: 4
+  cooldownMillisecondsByLevel: 28230000401f0000581b00007017000088130000
   cooldownTicksByLevel:
   - 270
   - 240
@@ -41,6 +42,10 @@ MonoBehaviour:
       type: {class: CommitCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
       data:
         castStageKey: 1
+        duration:
+          milliseconds: 500
+          roundingPolicy: 0
+          authored: 1
         durationTicks: 15
         notifyAbilityCastOnEnter: 1
         interruptible: 0
@@ -63,6 +68,7 @@ MonoBehaviour:
       data:
         stageKey: 1
         debugName: Umbral Dash
+        speedPerSecond: 0
         speedPerTick: 0.2
         totalDistance: 3
         wallPolicy: 1

@@ -46,7 +46,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playbackMode: 2
-  durationSeconds: 0.25
+  durationMilliseconds: 250
+  legacyDurationSeconds: 0.25
   animatedModel: {fileID: 4742914654790168828}
   arcHeight: 4
   modelRotationDegrees: {x: 90, y: 0, z: 0}

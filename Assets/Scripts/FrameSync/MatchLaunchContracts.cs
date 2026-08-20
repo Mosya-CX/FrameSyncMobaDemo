@@ -32,23 +32,24 @@ namespace FrameSyncMoba.FrameSync
     }
 
     /// <summary>
-    /// Server-authoritative wall-clock launch decision broadcast only after
+    /// Server-authoritative network-time launch decision broadcast only after
     /// every assigned client confirms that bootstrap application completed.
     /// </summary>
     public readonly struct MatchLaunchCommit
     {
         public readonly string MatchId;
         public readonly int StartTick;
-        public readonly long LaunchUtcTicks;
+        public readonly long LaunchServerTimeMilliseconds;
 
         public MatchLaunchCommit(
             string matchId,
             int startTick,
-            long launchUtcTicks)
+            long launchServerTimeMilliseconds)
         {
             MatchId = matchId;
             StartTick = startTick;
-            LaunchUtcTicks = launchUtcTicks;
+            LaunchServerTimeMilliseconds =
+                launchServerTimeMilliseconds;
             ValidateOrThrow();
         }
 
@@ -56,9 +57,9 @@ namespace FrameSyncMoba.FrameSync
         {
             if (string.IsNullOrWhiteSpace(MatchId) ||
                 StartTick < 0 ||
-                LaunchUtcTicks <= 0)
+                LaunchServerTimeMilliseconds <= 0)
                 throw new DeterministicSimulationException(
-                    "MatchLaunchCommit requires a valid MatchId, StartTick and LaunchUtcTicks.");
+                    "MatchLaunchCommit requires a valid MatchId, StartTick and LaunchServerTimeMilliseconds.");
         }
     }
 }

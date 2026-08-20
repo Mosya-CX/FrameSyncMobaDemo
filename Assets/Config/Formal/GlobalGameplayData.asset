@@ -25,26 +25,70 @@ MonoBehaviour:
     MaxAuthorityRecoveryAttemptsBeforeDisconnect: 4
     StartLeadTicks: 3
   versions:
-    GameplayDataVersion: 2
+    GameplayDataVersion: 3
     MapDataVersion: 1
     GlobalPrefabTableVersion: 1
     CommandSchemaVersion: 1
   gameMode:
     GameModeId: 1
     MaxPlayers: 10
+    Countdown:
+      milliseconds: 3000
+      roundingPolicy: 0
+      authored: 1
     CountdownSeconds: 3
+    LaunchDelay:
+      milliseconds: 5000
+      roundingPolicy: 0
+      authored: 1
     LaunchDelaySeconds: 5
+    EndingDuration:
+      milliseconds: 6000
+      roundingPolicy: 0
+      authored: 1
     EndingSeconds: 6
     InitialEarnedGold: 1500
+    HeroRespawnBase:
+      milliseconds: 5000
+      roundingPolicy: 0
+      authored: 1
     HeroRespawnBaseSeconds: 5
+    HeroRespawnPerMinute:
+      milliseconds: 500
+      roundingPolicy: 0
+      authored: 1
     HeroRespawnPerMinuteSeconds: 0.5
+    MinionWaveInterval:
+      milliseconds: 30000
+      roundingPolicy: 0
+      authored: 1
     MinionWaveIntervalSeconds: 30
+    JungleResetTimeout:
+      milliseconds: 5000
+      roundingPolicy: 0
+      authored: 1
     JungleResetTimeoutSeconds: 5
+    JungleResetDuration:
+      milliseconds: 3000
+      roundingPolicy: 0
+      authored: 1
     JungleResetDurationSeconds: 3
+    JungleRespawnDelay:
+      milliseconds: 60000
+      roundingPolicy: 0
+      authored: 1
     JungleRespawnDelaySeconds: 60
     EquipmentSellRate: 0.7
+    NaturalRegenInterval:
+      milliseconds: 5000
+      roundingPolicy: 0
+      authored: 1
     NaturalRegenIntervalSeconds: 5
     RandomSeed: 12345
+    PeriodicGoldInterval:
+      milliseconds: 500
+      roundingPolicy: 0
+      authored: 1
     PeriodicGoldIntervalTicks: 15
     PeriodicGoldAmount: 2
   physics:
@@ -53,5 +97,9 @@ MonoBehaviour:
     StatGrowthC: 0.7025
     StatGrowthD: 0.0175
     MoveSpeedToLogicVelocityScale: 0.01
+    AttackSequenceResetInterval:
+      milliseconds: 3000
+      roundingPolicy: 0
+      authored: 1
     AttackSequenceResetIntervalTicks: 90
     RangedAttackRangeThreshold: 275

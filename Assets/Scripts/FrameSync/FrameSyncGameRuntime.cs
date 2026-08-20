@@ -42,20 +42,6 @@ namespace FrameSyncMoba.FrameSync
         public int MaxFutureCommandTicks => _pipeline.MaxFutureCommandTicks;
         public uint LastChecksum => _pipeline.LastChecksum;
         public SimulationTickPipeline TickPipeline => _pipeline;
-        /// <summary>Absolute UTC ticks when the match may start simulating
-        /// (0 = start immediately). Set from the authoritative bootstrap
-        /// payload.</summary>
-        public long LaunchUtcTicks { get; private set; }
-
-        public bool IsLaunchTimeReached =>
-            LaunchUtcTicks <= 0 ||
-            System.DateTime.UtcNow.Ticks >=
-            LaunchUtcTicks;
-
-        public void SetLaunchUtcTicks(long utcTicks)
-        {
-            LaunchUtcTicks = utcTicks;
-        }
         public PredictionRollbackCoordinator Prediction =>
             _rollbackCoordinator;
         public AuthorityFrameReplicator AuthorityFrames =>
@@ -168,9 +154,8 @@ namespace FrameSyncMoba.FrameSync
                 unitWorld, minionSystem);
             _pipeline.MaxFutureCommandTicks = config.MaxFutureCommandTicks;
             MinCommandLeadTicks = config.MinCommandLeadTicks;
-            _pipeline.CombatSystem.NaturalRegenIntervalSeconds =
-                (Unity.Mathematics.FixedPoint.fp)
-                    config.NaturalRegenIntervalSeconds;
+            _pipeline.CombatSystem.NaturalRegenIntervalMilliseconds =
+                config.NaturalRegenIntervalMilliseconds;
             _pipeline.NaturalGoldIncome = new NaturalGoldIncomeSystem(
                 GoldIncome,
                 MatchRule,

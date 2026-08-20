@@ -1,5 +1,6 @@
 using System;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
 using UnityEngine;
 
 namespace FrameSyncMoba.Unit
@@ -69,6 +70,11 @@ namespace FrameSyncMoba.Unit
     /// Config-driven reaction action (design v14.2 7.1). Concrete actions are
     /// deterministic primitives submitted through the owning systems.
     /// </summary>
+    public interface IBuffTimeAuthoring
+    {
+        void BakeTime(int tickRate);
+    }
+
     [Serializable]
     public abstract class BuffReactionActionConfig
     {
@@ -159,10 +165,23 @@ namespace FrameSyncMoba.Unit
 
     [Serializable]
     public sealed class BuffGrantShieldActionConfig :
-        BuffReactionActionConfig
+        BuffReactionActionConfig,
+        IBuffTimeAuthoring
     {
         public fp ShieldAmount;
+        public DurationAuthoring Duration;
+        [HideInInspector]
         public int DurationTicks;
+
+        public void BakeTime(int tickRate)
+        {
+            DurationTicks = Duration.IsAuthored
+                ? Duration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        DurationTicks,
+                        tickRate);
+        }
 
         public override void Execute(
             BuffRuntime runtime,
@@ -202,6 +221,8 @@ namespace FrameSyncMoba.Unit
     public sealed class BuffPeriodicReactionGroup :
         BuffReactionGroup
     {
+        public DurationAuthoring Interval;
+        [HideInInspector]
         public float IntervalSeconds;
         public bool TriggerImmediately;
         public BuffStateSlotId NextTriggerTickSlot;

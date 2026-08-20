@@ -20,6 +20,7 @@ MonoBehaviour:
     rid: 2586996089610567735
   castRange: 2
   aimKind: 0
+  cooldownMillisecondsByLevel: c0d40100a086010080380100
   cooldownTicksByLevel:
   - 3600
   - 3000
@@ -41,6 +42,10 @@ MonoBehaviour:
       type: {class: CommitCastModelAuthoring, ns: FrameSyncMoba.Unit, asm: FrameSyncMoba.Unit}
       data:
         castStageKey: 1
+        duration:
+          milliseconds: 200
+          roundingPolicy: 0
+          authored: 1
         durationTicks: 6
         notifyAbilityCastOnEnter: 1
         interruptible: 0
@@ -67,5 +72,13 @@ MonoBehaviour:
             mask: 1
           RequireTargetable: 1
         controlId: 112
+        controlDuration:
+          milliseconds: 1500
+          roundingPolicy: 0
+          authored: 1
         controlDurationTicks: 45
+        applyDelay:
+          milliseconds: 200
+          roundingPolicy: 0
+          authored: 1
         applyDelayTicks: 6

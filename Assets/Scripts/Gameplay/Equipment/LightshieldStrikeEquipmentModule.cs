@@ -1,5 +1,7 @@
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -37,7 +39,8 @@ namespace FrameSyncMoba.Unit
         public fp EmpoweredDamageMultiplier =
             (fp)1.6m;
 
-        /// <summary>Per-target cooldown in Ticks (300 = 10s at 30tps).</summary>
+        public DurationAuthoring Cooldown;
+        [HideInInspector]
         public int CooldownTicks = 300;
 
         /// <summary>Heal base-AD ratio for melee strikes.</summary>
@@ -78,6 +81,16 @@ namespace FrameSyncMoba.Unit
                 EquipmentEffectInvokeTiming.OnUnequipped,
                 EquipmentEffectInvokeTiming.DamageDealt,
             };
+        }
+
+        public override void BakeTime(int tickRate)
+        {
+            CooldownTicks = Cooldown.IsAuthored
+                ? Cooldown.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        CooldownTicks,
+                        tickRate);
         }
 
         int IEmpoweredAttackProvider.EmpoweredRecipeId =>

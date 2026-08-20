@@ -1,4 +1,6 @@
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -6,7 +8,18 @@ namespace FrameSyncMoba.Unit
     {
         public fp ShieldPerTick;
         public ShieldType ShieldType;
-        public int ShieldDurationTicks = 60;
+        public DurationAuthoring ShieldDuration;
+        [HideInInspector] public int ShieldDurationTicks = 60;
+
+        public override void BakeTime(int tickRate)
+        {
+            ShieldDurationTicks = ShieldDuration.IsAuthored
+                ? ShieldDuration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(
+                        ShieldDurationTicks,
+                        tickRate);
+        }
 
         public override void OnAdded(BuffRuntime runtime, Unit owner) { }
         public override void OnRemoved(BuffRuntime runtime, Unit owner) { }

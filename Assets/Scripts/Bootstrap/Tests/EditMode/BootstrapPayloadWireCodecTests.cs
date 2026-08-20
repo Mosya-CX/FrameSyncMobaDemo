@@ -89,6 +89,14 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 restored.InitialGameplaySnapshot
                     .RandomState.State,
                 Is.EqualTo(123u));
+
+            byte[] legacyVersionBytes =
+                (byte[])first.Clone();
+            legacyVersionBytes[4] = 2;
+            legacyVersionBytes[5] = 0;
+            Assert.Throws<DeterministicSimulationException>(
+                () => BootstrapPayloadWireCodec.Read(
+                    legacyVersionBytes));
         }
 
         [Test]

@@ -20,9 +20,17 @@ MonoBehaviour:
       speed and ghosting.
     Icon: {fileID: 21300000, guid: 530bdb7b178dc224e98d3a27461805f2, type: 3}
   Life:
+    Duration:
+      milliseconds: 10000
+      roundingPolicy: 0
+      authored: 1
     DurationSeconds: 10
     Infinite: 0
     RefreshMode: 1
+    ExtendDuration:
+      milliseconds: 0
+      roundingPolicy: 0
+      authored: 1
     ExtendSeconds: 0
   Stack:
     MaxStacks: 1
@@ -63,8 +71,13 @@ MonoBehaviour:
     CollisionEnter: []
     CollisionExit: []
   Priority: 100
+  PeriodicInterval:
+    milliseconds: 0
+    roundingPolicy: 0
+    authored: 1
   PeriodicIntervalTicks: 0
   ApplyVfxDefId: 0
+  ApplyVfxDurationMilliseconds: 0
   ApplyVfxDurationSeconds: 0
   InitialStacks: 1
   references:
@@ -107,6 +120,10 @@ MonoBehaviour:
           - m_rawValue: 2576980480
           - m_rawValue: 3435973888
           - m_rawValue: 4294967296
+        DecayDuration:
+          milliseconds: 2000
+          roundingPolicy: 0
+          authored: 1
         DecayTicks: 60
         HandleSlot:
           Value: 3
@@ -116,6 +133,18 @@ MonoBehaviour:
       type: {class: RefreshDurationOnKillParticipationBuffEffect, ns: FrameSyncMoba.Unit,
         asm: FrameSyncMoba.Unit}
       data:
+        ExtendDuration:
+          milliseconds: 5000
+          roundingPolicy: 0
+          authored: 1
+        MaximumRemainingDuration:
+          milliseconds: 10000
+          roundingPolicy: 0
+          authored: 1
+        RestartBurstDuration:
+          milliseconds: 2000
+          roundingPolicy: 0
+          authored: 1
         ExtendTicks: 150
         MaximumRemainingTicks: 300
         RestartBurstTicks: 60

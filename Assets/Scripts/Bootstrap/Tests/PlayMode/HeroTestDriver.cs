@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FrameSyncMoba.Bootstrap.Tests;
@@ -45,8 +46,8 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField] private Vector2 heroSpawn = new Vector2(-15f, -15f);
         [SerializeField] private int dummyPrototypeId = 1001;
         [SerializeField] private Vector2 dummySpawn = new Vector2(-10f, -10f);
-        [Tooltip("Seconds after the dummy dies before it respawns at its spawn point.")]
-        [SerializeField] private float dummyRespawnSeconds = 3f;
+        [Tooltip("Milliseconds after the dummy dies before it respawns at its spawn point.")]
+        [SerializeField] private int dummyRespawnMilliseconds = 3000;
 
         [Header("Simulation")]
         [SerializeField] private float ticksPerSecond = 30f;
@@ -63,7 +64,8 @@ namespace FrameSyncMoba.Bootstrap
         private UnitType hero;
         private readonly List<UnitType> dummies =
             new List<UnitType>();
-        private float accumulator;
+        private long simulationAccumulatorMillisecondRateUnits;
+        private long lastSimulationMonotonicMilliseconds = -1L;
         private uint commandSeq = 1;
         private UnitUid attackTarget;
         private int aimingAbilitySlot = -1;
@@ -81,7 +83,7 @@ namespace FrameSyncMoba.Bootstrap
         private EquipmentShopRuntime equipmentShop;
         private string shopStatus = "";
         private LineRenderer attackRangeRing;
-        private float dummyRespawnTimer = -1f;
+        private long dummyRespawnDeadlineMilliseconds = -1L;
         private Material outlineRimMaterial;
         private readonly Dictionary<UnitUid, LineRenderer>
             radiusCircles =
@@ -628,19 +630,35 @@ namespace FrameSyncMoba.Bootstrap
 
             if (paused)
             {
+                lastSimulationMonotonicMilliseconds =
+                    FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                        Time.realtimeSinceStartupAsDouble);
                 return;
             }
-            double step =
-                1.0 / Mathf.Max(
-                    1f,
-                    Mathf.RoundToInt(
-                        ticksPerSecond));
-            accumulator += Time.deltaTime;
+            long nowMilliseconds =
+                FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                    Time.realtimeSinceStartupAsDouble);
+            if (lastSimulationMonotonicMilliseconds < 0L)
+                lastSimulationMonotonicMilliseconds =
+                    nowMilliseconds;
+            long elapsedMilliseconds = Math.Max(
+                0L,
+                nowMilliseconds -
+                lastSimulationMonotonicMilliseconds);
+            lastSimulationMonotonicMilliseconds =
+                nowMilliseconds;
+            int effectiveTickRate = Mathf.Max(
+                1,
+                Mathf.RoundToInt(ticksPerSecond));
+            simulationAccumulatorMillisecondRateUnits =
+                checked(
+                    simulationAccumulatorMillisecondRateUnits +
+                    elapsedMilliseconds * effectiveTickRate);
             int guard = 0;
-            while (accumulator >= step &&
+            while (simulationAccumulatorMillisecondRateUnits >= 1000L &&
                    guard++ < 8)
             {
-                accumulator -= (float)step;
+                simulationAccumulatorMillisecondRateUnits -= 1000L;
                 pipeline.ExecuteTick(
                     tickController,
                     ExecutionMode.ServerAuthority);
@@ -814,7 +832,8 @@ namespace FrameSyncMoba.Bootstrap
 
         /// <summary>
         /// Auto-respawns the dummy at its spawn point after
-        /// dummyRespawnSeconds. Local test convenience, not frame-synced.
+        /// configured millisecond delay. Local test convenience, not
+        /// frame-synced.
         /// </summary>
         private void UpdateDummyRespawn()
         {
@@ -843,22 +862,23 @@ namespace FrameSyncMoba.Bootstrap
             }
             if (deadDummy == null)
             {
-                dummyRespawnTimer = -1f;
+                dummyRespawnDeadlineMilliseconds = -1L;
                 return;
             }
-            if (dummyRespawnTimer < 0f)
+            long nowMilliseconds =
+                FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                    Time.realtimeSinceStartupAsDouble);
+            if (dummyRespawnDeadlineMilliseconds < 0L)
             {
-                dummyRespawnTimer =
-                    Mathf.Max(
-                        0f,
-                        dummyRespawnSeconds);
+                dummyRespawnDeadlineMilliseconds = checked(
+                    nowMilliseconds +
+                    Math.Max(0, dummyRespawnMilliseconds));
             }
-            dummyRespawnTimer -=
-                Time.deltaTime;
-            if (dummyRespawnTimer <= 0f)
+            if (nowMilliseconds >=
+                dummyRespawnDeadlineMilliseconds)
             {
                 RespawnDummy(deadDummy);
-                dummyRespawnTimer = -1f;
+                dummyRespawnDeadlineMilliseconds = -1L;
             }
         }
 

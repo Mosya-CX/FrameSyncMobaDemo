@@ -20,7 +20,7 @@ A document not listed as **Current** here is not an implementation authority.
 
 | Domain | Current design | Status | Notes |
 |---|---|---|---|
-| FrameSync / flow / match runtime | `Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md` | Current | Also owns application flow, AuthorityFrame, recovery, prediction and match result boundaries |
+| FrameSync / flow / match runtime | `Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md` | Current + D-045 amendment | Also owns application flow, synchronized-server-time launch, monotonic pacing, AuthorityFrame, recovery, prediction and match result boundaries |
 | Snapshot / rollback schema | `Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md` | Current | Exact snapshot membership and restore phases |
 | Unit behavior framework | `Docs/Design/unit_behavior_framework_design_v27_3.md` | Current | UnitWorld, Handler ownership, AI controller lifecycle, action framework |
 | Combat | `Docs/Design/moba_combat_system_design_v13_2.md` | Current | Settlement, formal death, contribution tracking, deferred death/kill reaction requests |

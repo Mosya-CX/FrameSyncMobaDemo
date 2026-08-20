@@ -1,5 +1,7 @@
 using System;
 using Unity.Mathematics.FixedPoint;
+using FrameSyncMoba.RuntimeConfig;
+using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -9,7 +11,16 @@ namespace FrameSyncMoba.Unit
         public StatId StatId;
         public StatModifierOperation Operation;
         public AbilityLevelValue PeakValueByAbilityLevel;
-        public int DecayTicks;
+        public DurationAuthoring DecayDuration;
+        [HideInInspector] public int DecayTicks;
+
+        public override void BakeTime(int tickRate)
+        {
+            DecayTicks = DecayDuration.IsAuthored
+                ? DecayDuration.BakeTicks(tickRate)
+                : DeterministicTimeConversion
+                    .Legacy30HzTicksToTicks(DecayTicks, tickRate);
+        }
         public BuffStateSlotId HandleSlot;
         public BuffStateSlotId BurstRemainingTicksSlot;
 

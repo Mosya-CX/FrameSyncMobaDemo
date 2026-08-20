@@ -164,7 +164,7 @@ namespace FrameSyncMoba.Unit.Tests
                 BaseStats = CreateRegenPreset(),
             };
             var combat = new CombatSystem(world, 300, 60);
-            combat.NaturalRegenIntervalSeconds = (fp)5;
+            combat.NaturalRegenIntervalMilliseconds = 5000;
             Unit unit = world.SpawnUnit(
                 prototype,
                 TeamId.Neutral,

@@ -41,6 +41,22 @@ MonoBehaviour:
   DeathStateHash: -997005685
   RespawnStateHash: -797921310
   NormalAttackPlan:
+    StartDuration:
+      milliseconds: 66
+      roundingPolicy: 0
+      authored: 1
+    WindupDuration:
+      milliseconds: 166
+      roundingPolicy: 0
+      authored: 1
+    ImpactDuration:
+      milliseconds: 66
+      roundingPolicy: 0
+      authored: 1
+    RecoveryDuration:
+      milliseconds: 266
+      roundingPolicy: 0
+      authored: 1
     StartDurationTicks: 2
     WindupDurationTicks: 5
     ImpactDurationTicks: 2
