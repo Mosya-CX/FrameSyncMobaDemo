@@ -246,19 +246,26 @@ namespace FrameSyncMoba.Unit
                 return UnitActionStateView.Dead;
 
             ActionKind mainKind = ActionRuntimes?.MainKind ?? ActionKind.None;
-            bool isActing = mainKind != ActionKind.None;
+            ActionKind baseKind = ActionRuntimes?.BaseKind ?? ActionKind.None;
+            bool isActing = mainKind != ActionKind.None ||
+                baseKind != ActionKind.None;
 
             ActionMainKind animMain = mainKind switch
             {
                 ActionKind.Attack => ActionMainKind.Attack,
                 ActionKind.Cast => ActionMainKind.Cast,
                 ActionKind.Move => ActionMainKind.Move,
+                _ when baseKind == ActionKind.Move => ActionMainKind.Move,
                 _ => ActionMainKind.Idle,
             };
 
             ActionBaseKind animBase = CrowdControl is not null && CrowdControl.ActiveForcedMoveHandle.IsValid
                 ? ActionBaseKind.ForcedMove
-                : mainKind == ActionKind.Move ? ActionBaseKind.Move : ActionBaseKind.Idle;
+                : baseKind == ActionKind.Move
+                    ? ActionBaseKind.Move
+                    : baseKind == ActionKind.Cast
+                        ? ActionBaseKind.Dash
+                        : ActionBaseKind.Idle;
 
             return new UnitActionStateView(animMain, animBase, isActing);
         }
@@ -295,6 +302,16 @@ namespace FrameSyncMoba.Unit
                     throw new DeterministicSimulationException(
                         $"Unit {UnitUid} cannot resolve JungleCamp {order.ReturnToCamp_CampId}.");
             }
+            ReplaceIntent(intent);
+        }
+
+        public void ReplaceIntent(in UnitIntent intent)
+        {
+            if (Planner == null)
+                throw new InvalidOperationException(
+                    $"Unit {UnitUid} has no BehaviorPlanner.");
+            UnitIntent previous = Planner.CurrentIntent;
+            Arbiter?.OnIntentReplaced(previous, intent);
             Planner.ReplaceIntent(intent);
         }
         public HitReactionState HitReaction;
@@ -371,7 +388,7 @@ namespace FrameSyncMoba.Unit
 
             Planner = new BehaviorPlanner(this);
             Arbiter = new ActionArbiter(this);
-            ActionRuntimes = new ActionRuntimeSet();
+            ActionRuntimes = new ActionRuntimeSet(this);
             Intent = UnitIntent.None;
             tags.Clear();
 
@@ -509,13 +526,21 @@ namespace FrameSyncMoba.Unit
             RespawnPosition = restoredRespawnPosition;
         }
 
-        internal void ValidateActionRuntimeSnapshotBoundary()
+        internal void CaptureActionRuntimeState(
+            ref ActionRuntimeSetSnapshot snapshot)
         {
-            if (ActionRuntimes != null && ActionRuntimes.Count != 0)
-            {
-                throw new DeterministicSimulationException(
-                    $"Unit {UnitUid} has live IActionRuntime state, but no restorable IActionRuntime snapshot contract exists.");
-            }
+            ActionRuntimes?.Capture(ref snapshot);
+        }
+
+        internal void RestoreActionRuntimeState(
+            in ActionRuntimeSetSnapshot snapshot)
+        {
+            ActionRuntimes?.Restore(snapshot);
+        }
+
+        internal void ResolveActionRuntimeState()
+        {
+            ActionRuntimes?.Resolve();
         }
 
         internal void RestoreBehaviorState(in UnitIntent restoredIntent)

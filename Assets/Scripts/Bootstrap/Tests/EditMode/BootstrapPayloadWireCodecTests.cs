@@ -92,7 +92,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
 
             byte[] legacyVersionBytes =
                 (byte[])first.Clone();
-            legacyVersionBytes[4] = 2;
+            legacyVersionBytes[4] = 3;
             legacyVersionBytes[5] = 0;
             Assert.Throws<DeterministicSimulationException>(
                 () => BootstrapPayloadWireCodec.Read(

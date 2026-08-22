@@ -200,6 +200,8 @@ namespace FrameSyncMoba.FrameSync
                     if (unit == null) continue;
                     unit.CrowdControl?.Advance();
                     unit.RefreshCapabilityState();
+                    unit.Arbiter?.RefreshRuntimeStateFromHandlers();
+                    unit.Arbiter?.EvaluateCurrentRuntimes();
                 }
 
                 // Phase 0: BehaviorPlanner + ActionArbiter (Unit Framework v27.3 §3)
@@ -208,9 +210,7 @@ namespace FrameSyncMoba.FrameSync
                     if (unit?.Planner == null || unit.Arbiter == null) continue;
                     unit.Planner.Tick(out ActionRequest request);
                     if (request == null) continue;
-                    var result = unit.Arbiter.Evaluate(request);
-                    if (result == ArbitrationResult.Rejected) continue;
-                    ExecuteActionRequest(unit, request, result == ArbitrationResult.Interrupt);
+                    unit.Arbiter.Submit(request);
                 }
 
                 // Phase 1: Locomotion evaluation
@@ -255,13 +255,12 @@ namespace FrameSyncMoba.FrameSync
                     unit.AttackHandler?.TickUpdate();
                 }
 
-                // Fixed-phase check: interrupt runtimes whose action is now
-                // blocked by the latest control state (Unit Framework v27.3
-                // 3.4 EvaluateCurrentRuntimes).
+                // Reconcile fixed Runtime slots with Handler state after all
+                // local state machines have advanced.
                 for (int i = 0; i < units.Count; i++)
                 {
                     if (units[i] == null) continue;
-                    units[i].Arbiter?.EvaluateCurrentRuntimes();
+                    units[i].Arbiter?.RefreshRuntimeStateFromHandlers();
                 }
 
                 // Phase 3.5: Wall penetration detection and correction
@@ -429,7 +428,6 @@ namespace FrameSyncMoba.FrameSync
             _unitStateBuffer.Clear();
             foreach (var unit in units)
             {
-                unit.ValidateActionRuntimeSnapshotBoundary();
                 var us = new UnitSnapshot
                 {
                     UnitUid = unit.UnitUid,
@@ -455,6 +453,8 @@ namespace FrameSyncMoba.FrameSync
                 unit.CrowdControl?.Capture(ref us.CCState);
                 unit.Locomotion?.Capture(ref us.LocomotionState);
                 unit.EquipmentHandler?.Capture(ref us.EquipmentState);
+                unit.CaptureActionRuntimeState(
+                    ref us.ActionRuntimeState);
                 us.Tags = unit.CaptureTags();
                 _unitStateBuffer.Add(us);
             }
@@ -566,6 +566,8 @@ namespace FrameSyncMoba.FrameSync
                 unit.CrowdControl?.Restore(us.CCState);
                 unit.Locomotion?.Restore(us.LocomotionState);
                 unit.EquipmentHandler?.Restore(us.EquipmentState);
+                unit.RestoreActionRuntimeState(
+                    us.ActionRuntimeState);
                 unit.RestoreTags(us.Tags);
                 unit.PhysicsEntity.RestoreLogicSpatialState(us.PhysicsTransform, us.PhysicsShape);
             }
@@ -726,6 +728,7 @@ namespace FrameSyncMoba.FrameSync
                 unit.CrowdControl?.Resolve(context);
                 unit.Locomotion?.Resolve(context);
                 unit.EquipmentHandler?.Resolve(context);
+                unit.ResolveActionRuntimeState();
                 var tags = unit.Tags;
                 for (int t = 0;
                      t < tags.Count;
@@ -830,110 +833,49 @@ namespace FrameSyncMoba.FrameSync
                 return;
             }
 
-            // Units with a Planner: set Intent and let the behavior chain handle routing.
-            // Units without: use the legacy direct-handler path.
-            if (unit.Planner != null)
-            {
-                if (command.Kind == GameplayCommandKind.Move)
-                {
-                    unit.Planner.ReplaceIntent(new UnitIntent
-                    {
-                        Kind = IntentKind.MoveToPosition,
-                        TargetPosition = command.MoveTargetPoint,
-                        AllowChase = false,
-                        AllowReplan = true,
-                    });
-                }
-                else if (command.Kind == GameplayCommandKind.Attack)
-                {
-                    unit.Planner.ReplaceIntent(new UnitIntent
-                    {
-                        Kind = IntentKind.AttackTarget,
-                        TargetUnit = command.AttackTargetUid,
-                        AllowChase = true,
-                        AllowReplan = false,
-                    });
-                }
-                else if (command.Kind == GameplayCommandKind.CastAbility)
-                {
-                    unit.Planner.ReplaceIntent(new UnitIntent
-                    {
-                        Kind = IntentKind.CastAbility,
-                        AbilityId = command.AbilitySlot,
-                        AbilityVerb = command.AbilityVerb,
-                        AbilityAim = command.Aim,
-                        TargetPosition = command.Aim.TargetPoint,
-                        TargetUnit = command.Aim.TargetUnitUid,
-                        AllowChase = true,
-                        AllowReplan = false,
-                    });
-                }
-                else if (command.Kind == GameplayCommandKind.CancelAbility)
-                {
-                    unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = AbilitySignalVerb.Cancel, Aim = AimSnapshot.None });
-                }
-                return;
-            }
+            if (unit.Planner == null || unit.Arbiter == null)
+                throw new DeterministicSimulationException(
+                    $"Unit {unit.UnitUid} received an action Command without " +
+                    "Planner/Arbiter composition.");
 
-            // Legacy path for units without Planner
             if (command.Kind == GameplayCommandKind.Move)
             {
-                CancelWindupForNewOrder(unit);
-                if (unit.Locomotion != null)
+                unit.ReplaceIntent(new UnitIntent
                 {
-                    var request = RouteMoveRequest.ToPosition(command.MoveTargetPoint);
-                    request.AllowRVO = true;
-                    unit.Locomotion.AcceptRouteRequest(request);
-                }
-                else
-                {
-                    fp2 currentPosition = unit.MovementHandler?.Position ?? fp2.zero;
-                    unit.MovementHandler?.ApplyMoveInput(
-                        new MoveIntent(command.MoveTargetPoint - currentPosition));
-                }
+                    Kind = IntentKind.MoveToPosition,
+                    TargetPosition = command.MoveTargetPoint,
+                    AllowChase = false,
+                    AllowReplan = true,
+                });
             }
             else if (command.Kind == GameplayCommandKind.Attack)
             {
-                CancelWindupForNewOrder(
-                    unit,
-                    command.AttackTargetUid,
-                    isAttack: true);
-                unit.AttackHandler?.ApplyAttackInput(command.AttackTargetUid);
+                unit.ReplaceIntent(new UnitIntent
+                {
+                    Kind = IntentKind.AttackTarget,
+                    TargetUnit = command.AttackTargetUid,
+                    AllowChase = true,
+                    AllowReplan = false,
+                });
             }
             else if (command.Kind == GameplayCommandKind.CastAbility)
             {
-                CancelWindupForNewOrder(unit);
-                unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = command.AbilityVerb, Aim = command.Aim });
+                unit.ReplaceIntent(new UnitIntent
+                {
+                    Kind = IntentKind.CastAbility,
+                    AbilityId = command.AbilitySlot,
+                    AbilityVerb = command.AbilityVerb,
+                    AbilityAim = command.Aim,
+                    TargetPosition = command.Aim.TargetPoint,
+                    TargetUnit = command.Aim.TargetUnitUid,
+                    AllowChase = true,
+                    AllowReplan = false,
+                });
             }
-            else if (command.Kind == GameplayCommandKind.CancelAbility) unit.AbilityHandler?.HandleSignal(new AbilitySignal { Slot = command.AbilitySlot, Verb = AbilitySignalVerb.Cancel, Aim = AimSnapshot.None });
-        }
-
-        /// <summary>
-        /// A new Order/Command replaces the previous behavior (Unit Framework
-        /// v27.3 4.x): terminate an uncommitted attack windup so it does not
-        /// keep committing after the goal changed. Same-target attack
-        /// repeats keep the in-flight windup (no restart).
-        /// </summary>
-        private static void CancelWindupForNewOrder(
-            UnitType unit,
-            UnitUid newAttackTarget = default,
-            bool isAttack = false)
-        {
-            AttackHandler attack =
-                unit?.AttackHandler;
-            if (attack == null ||
-                !attack.IsAttackCycleActive ||
-                attack.ImpactCommitted)
+            else if (command.Kind == GameplayCommandKind.CancelAbility)
             {
-                return;
+                unit.Arbiter.CancelAbility(command.AbilitySlot);
             }
-            if (isAttack &&
-                attack.CurrentTargetUid ==
-                    newAttackTarget)
-            {
-                return;
-            }
-            attack.CancelBeforeCommit();
         }
 
         private void DispatchDebugCommand(
@@ -1110,73 +1052,6 @@ namespace FrameSyncMoba.FrameSync
                 throw new DeterministicSimulationException(
                     $"Registered base {uid} is missing.");
             return unit.LifeState == LifeState.Dead;
-        }
-
-        private void ExecuteActionRequest(UnitType unit, ActionRequest request, bool interrupt)
-        {
-            unit.CrowdControl?.OnOwnerActionStarted();
-            if (interrupt && unit.ActionRuntimes != null)
-            {
-                // Cancel lower-priority actions before starting this one
-                unit.ActionRuntimes.CancelByKind(
-                    request.Kind == ActionKind.Cast ? ActionKind.Attack :
-                    request.Kind == ActionKind.Attack ? ActionKind.Move :
-                    ActionKind.None);
-            }
-
-            switch (request)
-            {
-                case MoveActionRequest moveReq:
-                    if (unit.Locomotion != null)
-                    {
-                        var routeReq = moveReq.ChaseTarget.IsValid()
-                            ? RouteMoveRequest.FollowUnit(
-                                moveReq.ChaseTarget,
-                                moveReq.StopRange,
-                                moveReq.Purpose)
-                            : RouteMoveRequest.ToPosition(moveReq.TargetPosition, moveReq.StopRange);
-                        routeReq.Purpose =
-                            moveReq.Purpose;
-                        routeReq.AllowRVO = true;
-                        unit.Locomotion.AcceptRouteRequest(routeReq);
-
-                        // Attack-move cancel: a new movement request during
-                        // the attack recovery window ends the recovery
-                        // immediately so the next attack can start sooner
-                        // (MoveCancelRecovery, attack design v6.2).
-                        if (unit.AttackHandler != null &&
-                            unit.AttackHandler
-                                .IsAttackCycleActive &&
-                            unit.AttackHandler
-                                .ImpactCommitted)
-                        {
-                            unit.AttackHandler
-                                .ResetAttackTimer(
-                                    AttackTimerResetReason
-                                        .MoveCancelRecovery);
-                        }
-                    }
-                    else if (unit.MovementHandler != null)
-                    {
-                        fp2 currentPos = unit.MovementHandler.Position;
-                        unit.MovementHandler.ApplyMoveInput(
-                            new MoveIntent(moveReq.TargetPosition - currentPos));
-                    }
-                    break;
-
-                case AttackActionRequest attackReq:
-                    unit.AttackHandler?.ApplyAttackInput(attackReq.TargetUnit);
-                    break;
-
-                case CastActionRequest castReq:
-                    unit.AbilityHandler?.HandleSignal(new AbilitySignal
-                    {
-                        Slot = (byte)castReq.AbilityId,
-                        Verb = castReq.Verb,
-                        Aim = castReq.Aim,
-                    });
-                    break;
-            }
         }
 
         private readonly struct InitialSpawnEntry

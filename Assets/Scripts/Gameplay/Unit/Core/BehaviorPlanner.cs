@@ -19,65 +19,12 @@ namespace FrameSyncMoba.Unit
         public void SetIntent(in UnitIntent intent) { _currentIntent = intent; }
 
         /// <summary>
-        /// Replace the long-term goal with a new order's intent. When the
-        /// intent actually changes, the previous behavior terminates: an
-        /// uncommitted attack windup is cancelled so it does not keep
-        /// committing after the goal switched (Attack Design v6.2 4.5 --
-        /// windup interruption is decided by the unit framework). Rollback
-        /// restore still uses SetIntent directly and never cancels.
+        /// Replace only the long-term goal. Runtime cancellation belongs to
+        /// Unit/Arbiter composition and is intentionally absent here.
         /// </summary>
         public void ReplaceIntent(in UnitIntent intent)
         {
-            CancelPreviousBehaviorIfReplaced(
-                in intent);
             _currentIntent = intent;
-        }
-
-        private void CancelPreviousBehaviorIfReplaced(
-            in UnitIntent intent)
-        {
-            if (SameBehavior(
-                    in _currentIntent,
-                    in intent))
-            {
-                return;
-            }
-            AttackHandler attack =
-                _owner?.AttackHandler;
-            if (attack != null &&
-                attack.IsAttackCycleActive &&
-                !attack.ImpactCommitted)
-            {
-                attack.CancelBeforeCommit();
-            }
-        }
-
-        private static bool SameBehavior(
-            in UnitIntent left,
-            in UnitIntent right)
-        {
-            if (left.Kind != right.Kind)
-            {
-                return false;
-            }
-            switch (left.Kind)
-            {
-                case IntentKind.AttackTarget:
-                    return left.TargetUnit ==
-                        right.TargetUnit;
-                case IntentKind.CastAbility:
-                    return left.AbilityId ==
-                            right.AbilityId &&
-                        left.AbilityVerb ==
-                            right.AbilityVerb &&
-                        left.AbilityAim ==
-                            right.AbilityAim;
-                case IntentKind.MoveToPosition:
-                    return left.TargetPosition
-                        .Equals(right.TargetPosition);
-                default:
-                    return true;
-            }
         }
 
         public void ClearIntent() { _currentIntent = UnitIntent.None; }
@@ -98,6 +45,7 @@ namespace FrameSyncMoba.Unit
             {
                 primaryRequest =
                     PlanForcedBehavior(behavior);
+                SuppressSatisfiedAction(ref primaryRequest);
                 return;
             }
             if (!_currentIntent.IsActive) return;
@@ -110,6 +58,18 @@ namespace FrameSyncMoba.Unit
                 case IntentKind.LaneAdvance: primaryRequest = PlanLaneAdvance(); break;
                 case IntentKind.ReturnToCamp: primaryRequest = PlanReturnToCamp(); break;
             }
+            SuppressSatisfiedAction(ref primaryRequest);
+        }
+
+        private void SuppressSatisfiedAction(ref ActionRequest request)
+        {
+            if (_owner.ActionRuntimes == null)
+                return;
+            if ((request is MoveActionRequest move &&
+                 _owner.ActionRuntimes.IsEquivalentMoveActive(move)) ||
+                (request is AttackActionRequest attack &&
+                 _owner.ActionRuntimes.IsEquivalentAttackActive(attack)))
+                request = null;
         }
 
         private ActionRequest PlanForcedBehavior(
@@ -161,7 +121,7 @@ namespace FrameSyncMoba.Unit
             // (Unit Framework v27.3 cast rule). The ability session owns the
             // unit's action window.
             if (_owner.AbilityHandler != null &&
-                _owner.AbilityHandler.HasActiveCastSession())
+                _owner.AbilityHandler.HasActiveActionStage())
             {
                 return null;
             }

@@ -490,6 +490,91 @@ namespace FrameSyncMoba.Unit.Tests
                 () => attacker.AttackHandler.Resolve(default));
         }
 
+        [Test]
+        public void Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock()
+        {
+            Unit voluntaryTarget = world.SpawnUnit(
+                prototype,
+                new TeamId(2),
+                10,
+                fp.zero,
+                fp.zero);
+            world.CrowdControlDefinitions =
+                new CrowdControlDefinitionRegistry();
+            var definition = UnityEngine.ScriptableObject.CreateInstance<
+                CrowdControlDefinition>();
+            try
+            {
+                var id = new CrowdControlId(9903);
+                definition.Configure(
+                    id,
+                    CrowdControlIntensity.Medium,
+                    CrowdControlDefinition.ControlTagBits.Control |
+                        CrowdControlDefinition.ControlTagBits.ForcedBehavior |
+                        CrowdControlDefinition.ControlTagBits.Taunt,
+                    CrowdControlDurationRule.DefaultTenacity,
+                    new[]
+                    {
+                        new CrowdControlParamAuthoring { Key = "BehaviorId", Type = CrowdControlParamType.Int, Required = true },
+                        new CrowdControlParamAuthoring { Key = "Priority", Type = CrowdControlParamType.Short, Required = true },
+                        new CrowdControlParamAuthoring { Key = "TargetUnit", Type = CrowdControlParamType.UnitUid, Required = true },
+                    },
+                    new[]
+                    {
+                        new CrowdControlModuleAuthoring
+                        {
+                            ModuleId = CrowdControlModuleId.BlockActions,
+                            StaticData = (int)UnitActionBlockMask.VoluntaryAttack,
+                        },
+                        new CrowdControlModuleAuthoring
+                        {
+                            ModuleId = CrowdControlModuleId.ForcedBehavior,
+                            ParamKey0 = "BehaviorId",
+                            ParamKey1 = "Priority",
+                            ParamKey2 = "TargetUnit",
+                        },
+                    });
+                world.CrowdControlDefinitions.Register(definition);
+                var parameters = new CrowdControlParamWriter();
+                parameters.SetInt(
+                    ControlParamKeys.BehaviorId,
+                    (int)CrowdControlBehaviorKind.AttackTarget);
+                parameters.SetShort(ControlParamKeys.Priority, 10);
+                parameters.SetUnitUid(
+                    ControlParamKeys.TargetUnit,
+                    target.UnitUid);
+                Assert.That(attacker.CrowdControl.Add(
+                    id,
+                    30,
+                    parameters).Added, Is.True);
+                attacker.RefreshCapabilityState();
+                Assert.That(attacker.CapabilityState.CanAttack, Is.False);
+
+                ActionSubmitResult voluntary = attacker.Arbiter.Submit(
+                    new AttackActionRequest(voluntaryTarget.UnitUid));
+                Assert.That(attacker.CrowdControl.TryGetBehaviorOverride(
+                    out CrowdControlBehaviorOverride behavior), Is.True);
+                Assert.That(behavior.Kind,
+                    Is.EqualTo(CrowdControlBehaviorKind.AttackTarget));
+                Assert.That(behavior.TargetUnitUid, Is.EqualTo(target.UnitUid));
+                ActionSubmitResult forced = attacker.Arbiter.Submit(
+                    new AttackActionRequest(target.UnitUid));
+
+                Assert.That(voluntary.IsGranted, Is.False);
+                Assert.That(
+                    forced.IsGranted,
+                    Is.True,
+                    forced.RejectReason.ToString());
+                Assert.That(attacker.ActionRuntimes.Main.IsControlAction, Is.True);
+                attacker.AttackHandler.TickUpdate();
+                Assert.That(attacker.AttackHandler.IsAttackCycleActive, Is.True);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(definition);
+            }
+        }
+
         private void AdvanceTo(int tick)
         {
             controller.EndTick();

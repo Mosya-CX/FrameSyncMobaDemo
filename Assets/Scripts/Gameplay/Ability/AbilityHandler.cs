@@ -694,6 +694,17 @@ namespace FrameSyncMoba.Unit
             return false;
         }
 
+        public bool HasActiveActionStage()
+        {
+            IReadOnlyList<AbilitySlotRuntime> slots = _book.Slots;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (IsActionStageActive(slots[i].SlotIndex))
+                    return true;
+            }
+            return false;
+        }
+
         private void CaptureActiveCasts()
         {
             _activeCasts.Clear();
@@ -795,6 +806,122 @@ namespace FrameSyncMoba.Unit
             AbilityRuntime runtime =
                 _book.GetSlot(slot)?.GetActiveAbility();
             return runtime?.ActiveSession != null;
+        }
+
+        /// <summary>
+        /// Resolves the authored stage that a signal would enter without
+        /// mutating the ability session. The Arbiter consumes only this
+        /// structural description; ability legality remains Handler-owned.
+        /// </summary>
+        public bool TryDescribeRequestedStage(
+            byte slot,
+            AbilitySignalVerb verb,
+            in AimSnapshot aim,
+            out CastStage stage,
+            out bool isDash)
+        {
+            return TryDescribeRequestedStageForArbitration(
+                slot,
+                verb,
+                in aim,
+                out stage,
+                out isDash,
+                out _);
+        }
+
+        internal bool TryDescribeRequestedStageForArbitration(
+            byte slot,
+            AbilitySignalVerb verb,
+            in AimSnapshot aim,
+            out CastStage stage,
+            out bool isDash,
+            out bool ownsActionRuntime)
+        {
+            stage = default;
+            isDash = false;
+            ownsActionRuntime = false;
+            AbilityRuntime runtime =
+                _book.GetSlot(slot)?.GetActiveAbility();
+            CastModelDef model = runtime?.Definition?.CastModel;
+            if (runtime == null || model == null)
+                return false;
+
+            byte currentStageKey = runtime.ActiveSession == null
+                ? byte.MaxValue
+                : runtime.ActiveSession.CurrentStageKey;
+            var signal = new AbilitySignal
+            {
+                Slot = slot,
+                Verb = verb,
+                Aim = aim,
+            };
+            if (runtime.ActiveSession != null &&
+                !model.CanHandleSignal(
+                    signal,
+                    currentStageKey,
+                    runtime.ActiveSession.StageElapsedTicks))
+                return false;
+
+            int? nextKey = model.HandleSignal(signal, currentStageKey);
+            if (!nextKey.HasValue &&
+                runtime.ActiveSession != null &&
+                model is ToggleCastModelDef toggle &&
+                verb == AbilitySignalVerb.Commit &&
+                currentStageKey == toggle.Active.StageKey)
+                nextKey = currentStageKey;
+            if (!nextKey.HasValue)
+                return false;
+            stage = GetCastStage(model, (byte)nextKey.Value);
+            isDash = stage.Def is DashStageDef;
+            // A pure Toggle changes persistent ability state but is not an
+            // active cast (D-029). Turning it on or off must not reserve or
+            // preempt a Main/Base ActionRuntime.
+            ownsActionRuntime = !(model is ToggleCastModelDef);
+            return stage.Def != null;
+        }
+
+        /// <summary>
+        /// Recast waiting windows and pure Toggles retain their AbilitySession
+        /// without owning Main/Base ActionRuntime resources.
+        /// </summary>
+        public bool IsActionStageActive(byte slot)
+        {
+            AbilityRuntime runtime =
+                _book.GetSlot(slot)?.GetActiveAbility();
+            AbilitySession session = runtime?.ActiveSession;
+            if (session == null || runtime.Definition?.CastModel == null)
+                return false;
+            if (runtime.Definition.CastModel is ToggleCastModelDef)
+                return false;
+            if (runtime.Definition.CastModel is
+                    SequentialRecastCastModelDef recast &&
+                (session.CurrentStageKey == recast.FirstRecastWindow.StageKey ||
+                 session.CurrentStageKey == recast.SecondRecastWindow.StageKey))
+                return false;
+            return GetCastStage(
+                runtime.Definition.CastModel,
+                session.CurrentStageKey).Def != null;
+        }
+
+        public bool TryDescribeActiveStage(
+            byte slot,
+            out CastStage stage,
+            out bool isDash)
+        {
+            stage = default;
+            isDash = false;
+            AbilityRuntime runtime =
+                _book.GetSlot(slot)?.GetActiveAbility();
+            AbilitySession session = runtime?.ActiveSession;
+            if (session == null ||
+                runtime.Definition?.CastModel == null ||
+                !IsActionStageActive(slot))
+                return false;
+            stage = GetCastStage(
+                runtime.Definition.CastModel,
+                session.CurrentStageKey);
+            isDash = stage.Def is DashStageDef;
+            return stage.Def != null;
         }
 
         public bool IsWaitingForCommit(byte slot)

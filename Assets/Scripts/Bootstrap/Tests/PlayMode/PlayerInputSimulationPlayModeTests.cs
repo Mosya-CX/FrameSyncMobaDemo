@@ -479,6 +479,43 @@ namespace FrameSyncMoba.Bootstrap.Tests
             yield return null;
         }
 
+        [UnityTest]
+        public IEnumerator
+            ToggleNoAim_SimulatedWPressCommitsImmediately()
+        {
+            BuildController(
+                new ToggleTestProvider());
+            Set(
+                Mouse.current.position,
+                new Vector2(960f, 540f));
+            yield return null;
+            yield return null;
+
+            Press(Keyboard.current.wKey);
+            InputSystem.Update();
+            requester.ProcessFrame(buffer, resolver);
+            yield return null;
+            yield return null;
+
+            IReadOnlyList<GameplayCommand> commands =
+                collector.GetCanonicalCommands();
+            Assert.That(commands, Has.Count.EqualTo(1));
+            Assert.That(commands[0].AbilitySlot, Is.EqualTo(1));
+            Assert.That(
+                commands[0].AbilityVerb,
+                Is.EqualTo(AbilitySignalVerb.Commit));
+            Assert.That(
+                requester.GetAbilityState(1).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind.CommitRequested),
+                "A no-aim Toggle must not enter LocalAiming or wait for a click.");
+
+            Release(Keyboard.current.wKey);
+            InputSystem.Update();
+            yield return null;
+            yield return null;
+        }
+
         private sealed class HoldReleaseTestProvider :
             IPlayerAbilityInputProfileProvider
         {
@@ -519,6 +556,28 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 out AimKind aimKind)
             {
                 aimKind = AimKind.Point;
+                return true;
+            }
+        }
+
+        private sealed class ToggleTestProvider :
+            IPlayerAbilityInputProfileProvider
+        {
+            public bool TryGetTemplate(
+                byte slot,
+                out InputMappingTemplate template)
+            {
+                template = AbilityInputMapping.BuildDefault(
+                    new ToggleCastModelDef(),
+                    AimKind.None);
+                return true;
+            }
+
+            public bool TryGetAimKind(
+                byte slot,
+                out AimKind aimKind)
+            {
+                aimKind = AimKind.None;
                 return true;
             }
         }

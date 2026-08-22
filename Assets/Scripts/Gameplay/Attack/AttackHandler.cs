@@ -114,9 +114,16 @@ namespace FrameSyncMoba.Unit
         public virtual AttackPlanStatus GetAttackPlanStatus(
             UnitUid targetUid)
         {
+            return GetAttackPlanStatus(targetUid, false);
+        }
+
+        public virtual AttackPlanStatus GetAttackPlanStatus(
+            UnitUid targetUid,
+            bool isControlAction)
+        {
             if (Owner == null ||
                 !Owner.AbilityMask.HasAttack ||
-                !Owner.CapabilityState.CanAttack ||
+                (!isControlAction && !Owner.CapabilityState.CanAttack) ||
                 GetAttackSpeed() <= fp.zero)
             {
                 return AttackPlanStatus.Unavailable;
@@ -135,13 +142,29 @@ namespace FrameSyncMoba.Unit
 
         public void ApplyAttackInput(UnitUid targetUid)
         {
-            if (GetAttackPlanStatus(targetUid) == AttackPlanStatus.Ready)
-                BeginAttack(targetUid);
+            ApplyAttackInput(targetUid, false);
+        }
+
+        public void ApplyAttackInput(
+            UnitUid targetUid,
+            bool isControlAction)
+        {
+            if (GetAttackPlanStatus(targetUid, isControlAction) ==
+                AttackPlanStatus.Ready)
+                BeginAttack(targetUid, isControlAction);
         }
 
         public virtual void BeginAttack(UnitUid targetUid)
         {
-            if (GetAttackPlanStatus(targetUid) != AttackPlanStatus.Ready)
+            BeginAttack(targetUid, false);
+        }
+
+        public virtual void BeginAttack(
+            UnitUid targetUid,
+            bool isControlAction)
+        {
+            if (GetAttackPlanStatus(targetUid, isControlAction) !=
+                AttackPlanStatus.Ready)
                 return;
 
             int currentTick = SimulationTickContext.Current.Tick;
@@ -192,8 +215,14 @@ namespace FrameSyncMoba.Unit
             // A crowd-control block (knock-up / knock-back / stun ...) that
             // landed mid-windup must cancel the in-progress attack, not just
             // prevent new attacks.
+            bool controlAttackActive =
+                Owner?.ActionRuntimes != null &&
+                Owner.ActionRuntimes.Main.IsOccupied &&
+                Owner.ActionRuntimes.Main.Kind == ActionKind.Attack &&
+                Owner.ActionRuntimes.Main.IsControlAction;
             if (Owner != null &&
-                !Owner.CapabilityState.CanAttack)
+                !Owner.CapabilityState.CanAttack &&
+                !controlAttackActive)
             {
                 CancelBeforeCommit();
                 return;

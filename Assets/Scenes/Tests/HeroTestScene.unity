@@ -821,6 +821,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1233645475}
   - component: {fileID: 1233645474}
+  - component: {fileID: 1233645476}
   m_Layer: 0
   m_Name: HeroTestDriver
   m_TagString: Untagged
@@ -844,14 +845,15 @@ MonoBehaviour:
   mapHeight: 40
   mapCenter: {x: 0, y: 0}
   cellSize: 0.5
-  heroPrototypeId: 1002
+  heroPrototypeId: 1001
   heroSpawn: {x: -15, y: -15}
   dummyPrototypeId: 1001
   dummySpawn: {x: -10, y: -10}
-  dummyRespawnSeconds: 3
+  dummyRespawnMilliseconds: 3000
   ticksPerSecond: 30
   paused: 0
   followCamera: {fileID: 1752722476}
+  playerInputController: {fileID: 1233645476}
 --- !u!4 &1233645475
 Transform:
   m_ObjectHideFlags: 0
@@ -867,6 +869,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1233645476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233645473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3879c5fa40958574e96d5dfffacff08e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActions: {fileID: -944628639613478452, guid: d6e31e9846ced6441a31f8048ed616b1,
+    type: 3}
 --- !u!21 &1570894572
 Material:
   serializedVersion: 8
@@ -1210,6 +1226,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugTarget: {fileID: 0}
+  presentationConfig: {fileID: 0}
+  previewTeamId: 1
   followSpeed: 8
   panSpeed: 40
   edgeSize: 24

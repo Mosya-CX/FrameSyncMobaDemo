@@ -1094,3 +1094,45 @@ endpoint because the authoritative payload carries the resulting snapshot.
 Adding a hero therefore only requires the prefab table, unit catalog and hero
 display table — never a scene edit. The authored `UnitPrototypeId` on a
 player-controlled spawn is now only a placeholder/fallback.
+
+## D-047 — Structured unit arbitration and fixed Main/Base Runtime ownership (2026-08-22)
+
+**Status:** Frozen and implemented by ExecPlan 0137.
+
+- The ordinary action chain remains
+  `Intent -> Planner -> ActionRequest -> Arbiter -> ActionRuntime -> Handler`.
+  Planner may replace/clear Intent and propose one request, but never starts,
+  cancels or resets Handler state.
+- Arbiter policy is structural: capability, aggregated control blocks,
+  `ActionStartSpec`, resource conflicts and interruptibility. Numeric
+  `ActionKind` priority and named hero/ability branches are not policy.
+- `ActionRuntimeSet` has exactly one Main and one Base slot. Ordinary casts and
+  attack windup use Main; route movement and ability Dash use Base. Handlers
+  retain timing and mechanism authority.
+- A movement-locking ordinary cast owns Facing and blocks voluntary Move, but
+  does not reserve Movement against an authored ability Dash. Thus Aatrox Q
+  impact can coexist with E Dash while retaining Q facing. A movable Hold cast
+  does not own Facing or Movement, so Varus Q Hold can coexist with route Move;
+  Release preempts that Move when its Stage locks movement/facing.
+- Sequential-recast waiting windows retain AbilitySession but release
+  MainRuntime. Only a real legal Commit entering the next impact reacquires it.
+- Pure Toggles retain their AbilitySession/state without owning Main/Base
+  ActionRuntime resources. Toggle activation/deactivation never preempts or is
+  blocked by another Runtime; the existing AbilityCast control block and
+  Handler legality still gate the signal (D-029).
+- Handler-owned automatic or signal-driven Stage transitions are reconciled in
+  the same Tick. Arbiter re-describes the active Stage, updates resources and
+  migrates the same AbilitySession between Main/Base without self-cancel;
+  illegal conflicts with an uninterruptible Runtime fail visibly.
+- Forced-behavior Move/Attack bypass only the voluntary Capability veto. Their
+  AbilityMask, target/mechanism checks and fine `ControlMove`/`ControlAttack`
+  blocks remain authoritative; control Attack windup is not canceled by a
+  `VoluntaryAttack` block alone. Both forced behaviors use the `Forced`
+  interrupt level and bypass an ordinary cast's voluntary movement lock.
+- Unit Snapshot contains fixed Main/Base ActionRuntime slot state exactly as
+  listed in Unit Framework v27.4 amendment section 6. Restore never replays
+  start callbacks, Resolve fails visibly on missing Handler/target/ability
+  authority, and checksum includes every member. GameplaySnapshot schema
+  advances from 22 to 23 and bootstrap payload wire version advances from 3
+  to 4; mixed packages must fail at the header/handshake and be rebuilt as a
+  matching pair.

@@ -128,6 +128,29 @@ namespace FrameSyncMoba.PlayerInput.Tests
         }
 
         [Test]
+        public void ToggleNoAim_ReturnsImmediatePressCommit()
+        {
+            InputMappingTemplate template =
+                AbilityInputMapping.BuildDefault(
+                    new ToggleCastModelDef(),
+                    AimKind.None);
+
+            InputBinding pressed = Expect(
+                template,
+                InputTrigger.AbilityKeyPressed);
+            Assert.That(
+                pressed.Translation,
+                Is.EqualTo(InputTranslation.Commit));
+            Assert.That(pressed.CaptureAim, Is.False);
+            Assert.That(
+                template.TryGet(
+                    InputTrigger.PrimaryClick,
+                    out _),
+                Is.False,
+                "A no-aim Toggle must not wait for a mouse click.");
+        }
+
+        [Test]
         public void CommitWithAim_ReturnsLocalAim()
         {
             InputMappingTemplate template =

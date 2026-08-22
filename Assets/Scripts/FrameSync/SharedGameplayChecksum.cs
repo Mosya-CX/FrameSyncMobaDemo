@@ -210,12 +210,37 @@ namespace FrameSyncMoba.FrameSync
             writer.WriteByte((byte)state.HitReactionState.ActiveReaction);
             writer.WriteInt32(state.HitReactionState.RemainingTicks); writer.WriteInt32(state.HitReactionState.TotalTicks);
             WriteIntent(writer, state.IntentState);
+            WriteActionRuntimeSet(writer, state.ActionRuntimeState);
             WriteFp2(writer, state.PhysicsTransform.Position); WriteFp2(writer, state.PhysicsTransform.PrevPosition);
             WriteFp2(writer, state.PhysicsTransform.Forward); WriteFp2(writer, state.PhysicsTransform.Right);
             writer.WriteByte((byte)state.PhysicsShape.Kind); WriteFp2(writer, state.PhysicsShape.LocalOffset);
             writer.WriteFp(state.PhysicsShape.Radius); writer.WriteFp(state.PhysicsShape.Length);
             writer.WriteFp(state.PhysicsShape.Width); WriteFp2(writer, state.PhysicsShape.HalfExtents);
             writer.WriteBoolean(state.PhysicsShape.SweepFromPrev);
+        }
+
+        private static void WriteActionRuntimeSet(
+            CanonicalByteWriter writer,
+            in ActionRuntimeSetSnapshot state)
+        {
+            WriteActionRuntimeSlot(writer, state.Main);
+            WriteActionRuntimeSlot(writer, state.Base);
+        }
+
+        private static void WriteActionRuntimeSlot(
+            CanonicalByteWriter writer,
+            in ActionRuntimeSlotSnapshot state)
+        {
+            writer.WriteBoolean(state.IsOccupied);
+            writer.WriteByte((byte)state.Slot);
+            writer.WriteByte((byte)state.Kind);
+            writer.WriteByte((byte)state.Phase);
+            writer.WriteUInt32((ushort)state.OccupiedResources);
+            writer.WriteBoolean(state.Interruptible);
+            writer.WriteBoolean(state.BlocksVoluntaryMove);
+            writer.WriteBoolean(state.IsControlAction);
+            WriteUnitUid(writer, state.TargetUnitUid);
+            writer.WriteByte(state.AbilitySlot);
         }
 
         private static void WriteStats(CanonicalByteWriter writer, in StatHandlerSnapshot state)

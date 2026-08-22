@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using FrameSyncMoba.FrameSync;
+using FrameSyncMoba.PlayerInput;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
 using UnityEngine;
@@ -88,6 +89,17 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 Invoke(driver, "ConfigureTestShop");
                 Invoke(driver, "BindTestHudBridge");
 
+                PlayerCommandRequester requester =
+                    GetField<PlayerCommandRequester>(
+                        driver,
+                        "playerCommandRequester");
+                Assert.That(requester, Is.Not.Null);
+                Assert.That(
+                    requester.ControlledUnit,
+                    Is.SameAs(driver.Hero),
+                    "HeroTest commands must share the formal player requester.");
+                Assert.That(requester.NextCommandSeq, Is.EqualTo(1));
+
                 Assert.That(
                     driver.Hero.UnitPrototypeId,
                     Is.EqualTo(1002),
@@ -143,6 +155,10 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     purchase.Allowed,
                     Is.True,
                     purchase.FailureReason.ToString());
+                Assert.That(
+                    requester.NextCommandSeq,
+                    Is.EqualTo(2),
+                    "Shop and QWER must advance one shared local command sequence.");
                 ExecuteSubmittedCommand(driver);
 
                 Assert.That(

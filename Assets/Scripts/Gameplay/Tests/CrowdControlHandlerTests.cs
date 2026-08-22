@@ -418,6 +418,62 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void ForcedMoveBehavior_BypassesVoluntaryCapabilityBlock()
+        {
+            var id = new CrowdControlId(9902);
+            var definition = ScriptableObject.CreateInstance<
+                CrowdControlDefinition>();
+            try
+            {
+                definition.Configure(
+                    id,
+                    CrowdControlIntensity.Medium,
+                    CrowdControlDefinition.ControlTagBits.Control |
+                    CrowdControlDefinition.ControlTagBits.ForcedBehavior,
+                    CrowdControlDurationRule.DefaultTenacity,
+                    new[]
+                    {
+                        new CrowdControlParamAuthoring { Key = "BehaviorId", Type = CrowdControlParamType.Int, Required = true },
+                        new CrowdControlParamAuthoring { Key = "Priority", Type = CrowdControlParamType.Short, Required = true },
+                        new CrowdControlParamAuthoring { Key = "Direction", Type = CrowdControlParamType.Fp2, Required = true },
+                    },
+                    new[]
+                    {
+                        new CrowdControlModuleAuthoring
+                        {
+                            ModuleId = CrowdControlModuleId.BlockActions,
+                            StaticData = (int)UnitActionBlockMask.VoluntaryMove,
+                        },
+                        new CrowdControlModuleAuthoring
+                        {
+                            ModuleId = CrowdControlModuleId.ForcedBehavior,
+                            ParamKey0 = "BehaviorId",
+                            ParamKey1 = "Priority",
+                            ParamKey3 = "Direction",
+                        },
+                    });
+                world.CrowdControlDefinitions.Register(definition);
+                Assert.That(unit.CrowdControl.Add(
+                    id,
+                    30,
+                    FearParams(new fp2(fp.one, fp.zero), 10)).Added,
+                    Is.True);
+                unit.RefreshCapabilityState();
+                Assert.That(unit.CapabilityState.CanMove, Is.False);
+                unit.Planner.Tick(out ActionRequest request);
+                Assert.That(request, Is.TypeOf<MoveActionRequest>());
+
+                ActionSubmitResult result = unit.Arbiter.Submit(request);
+
+                Assert.That(result.IsGranted, Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
         public void Snapshot_RoundTrip_PreservesInstancesAndState()
         {
             unit.CrowdControl.Add(

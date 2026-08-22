@@ -16,6 +16,10 @@ ExecPlan 0136 completed its declared source/formal-asset and focused-test scope.
 Matching rebuilt Local C/S and UOS live acceptance was explicitly outside that
 plan. Create a new plan if the user requests that external acceptance.
 
+ExecPlan 0137 completed the D-047 structured Unit arbitration, fixed Main/Base
+Runtime, schema-23 Snapshot/checksum and bootstrap-wire-4 migration. A matching
+Local C/S or UOS live rebuild remains outside that plan.
+
 ## Completed / historical
 
 Existing numbered Markdown files in this directory are engineering history and

@@ -20,12 +20,9 @@ namespace FrameSyncMoba.Unit
     public abstract class ActionRequest
     {
         public ActionKind Kind { get; protected set; }
-        public int Priority { get; protected set; }
-
-        protected ActionRequest(ActionKind kind, int priority)
+        protected ActionRequest(ActionKind kind)
         {
             Kind = kind;
-            Priority = priority;
         }
     }
 
@@ -54,7 +51,7 @@ namespace FrameSyncMoba.Unit
             fp stopRange = default,
             MovePurpose purpose =
                 MovePurpose.PointMove)
-            : base(ActionKind.Move, priority: 0)
+            : base(ActionKind.Move)
         {
             TargetPosition = targetPosition;
             StopRange = stopRange;
@@ -66,7 +63,7 @@ namespace FrameSyncMoba.Unit
             fp stopRange,
             MovePurpose purpose =
                 MovePurpose.ChaseForAttack)
-            : base(ActionKind.Move, priority: 0)
+            : base(ActionKind.Move)
         {
             ChaseTarget = chaseTarget;
             StopRange = stopRange;
@@ -84,7 +81,7 @@ namespace FrameSyncMoba.Unit
         public UnitUid TargetUnit;
 
         public AttackActionRequest(UnitUid targetUnit)
-            : base(ActionKind.Attack, priority: 1)
+            : base(ActionKind.Attack)
         {
             TargetUnit = targetUnit;
         }
@@ -106,7 +103,7 @@ namespace FrameSyncMoba.Unit
             int abilityId,
             AbilitySignalVerb verb,
             in AimSnapshot aim)
-            : base(ActionKind.Cast, priority: 2)
+            : base(ActionKind.Cast)
         {
             AbilityId = abilityId;
             Verb = verb;

@@ -14,7 +14,7 @@ namespace FrameSyncMoba.Bootstrap
     internal static class BootstrapPayloadWireCodec
     {
         private const uint Magic = 0x42534D46;
-        private const ushort WireVersion = 3;
+        private const ushort WireVersion = 4;
 
         public static byte[] Write(
             in GameBootstrapPayload payload)

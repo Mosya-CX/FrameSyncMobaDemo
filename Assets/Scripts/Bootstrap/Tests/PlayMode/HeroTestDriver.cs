@@ -30,8 +30,7 @@ namespace FrameSyncMoba.Bootstrap
     /// directly (editor play only, not packaged).
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class HeroTestDriver : MonoBehaviour,
-        IEquipmentShopCommandSubmitter
+    public sealed class HeroTestDriver : MonoBehaviour
     {
         private const int InitialShopGold = 10000;
 
@@ -55,6 +54,10 @@ namespace FrameSyncMoba.Bootstrap
         [Tooltip("Optional camera that should follow the hero.")]
         [SerializeField] private CameraController followCamera;
 
+        [Header("Player input composition")]
+        [Tooltip("Scene-authored generic input component. Ability mappings are derived from the spawned hero's CastModelDef and AimKind.")]
+        [SerializeField] private PlayerInputController playerInputController;
+
         private UnitWorld world;
         private PhysicsWorld physicsWorld;
         private SimulationTickPipeline pipeline;
@@ -66,9 +69,7 @@ namespace FrameSyncMoba.Bootstrap
             new List<UnitType>();
         private long simulationAccumulatorMillisecondRateUnits;
         private long lastSimulationMonotonicMilliseconds = -1L;
-        private uint commandSeq = 1;
-        private UnitUid attackTarget;
-        private int aimingAbilitySlot = -1;
+        private PlayerCommandRequester playerCommandRequester;
         private SkillIndicatorDriver indicatorDriver;
         private PresentationEventDispatcher vfxDispatcher;
 
@@ -101,6 +102,8 @@ namespace FrameSyncMoba.Bootstrap
         public UnitType Hero => hero;
         public IReadOnlyList<UnitType> Dummies => dummies;
         public UnitWorld World => world;
+        public PlayerInputController PlayerInputController =>
+            playerInputController;
         public int CurrentTick => pipeline != null
             ? pipeline.LocalSimulationTick
             : 0;
@@ -135,9 +138,10 @@ namespace FrameSyncMoba.Bootstrap
             BuildWorld();
             BuildMap();
             SpawnHero();
-            ConfigureTestShop();
             SpawnDummiesAtScenePoints();
             EnsureIndicatorDriver();
+            ConfigurePlayerInput();
+            ConfigureTestShop();
             var verticalMotion = gameObject.AddComponent<
                 CrowdControlVerticalMotionPresenter>();
             verticalMotion.Initialize(
@@ -419,7 +423,79 @@ namespace FrameSyncMoba.Bootstrap
             equipmentShop.GetOrCreateTrader(
                 0,
                 hero.UnitUid);
-            equipmentShop.SetCommandSubmitter(this);
+            equipmentShop.SetCommandSubmitter(
+                GetOrCreatePlayerCommandRequester());
+        }
+
+        private void ConfigurePlayerInput()
+        {
+            if (playerInputController == null)
+            {
+                throw new InvalidOperationException(
+                    "HeroTestScene must configure a PlayerInputController " +
+                    "reference in the scene.");
+            }
+            Camera gameplayCamera = followCamera != null
+                ? followCamera.GetComponent<Camera>()
+                : null;
+            if (gameplayCamera == null)
+            {
+                throw new InvalidOperationException(
+                    "HeroTestScene must configure a CameraController on " +
+                    "the gameplay Camera.");
+            }
+
+            MobaCameraPresentationConfig cameraConfig =
+                followCamera.PresentationConfig;
+            fp pointerGroundY = cameraConfig != null
+                ? (fp)cameraConfig.PointerGroundY
+                : fp.zero;
+            fp pointerPickRadius = cameraConfig != null
+                ? (fp)cameraConfig.PointerPickRadius
+                : (fp)4;
+            var resolver = new MouseWorldResolver(
+                gameplayCamera,
+                pointerGroundY,
+                world,
+                pointerPickRadius);
+            playerInputController.Initialize(
+                new LocalInputEventBuffer(),
+                resolver,
+                GetOrCreatePlayerCommandRequester());
+            playerInputController.SetIndicatorDriver(indicatorDriver);
+        }
+
+        private PlayerCommandRequester
+            GetOrCreatePlayerCommandRequester()
+        {
+            if (playerCommandRequester != null)
+            {
+                return playerCommandRequester;
+            }
+            if (hero == null || pipeline == null)
+            {
+                throw new InvalidOperationException(
+                    "HeroTestScene must build its world and spawn its hero " +
+                    "before composing player commands.");
+            }
+
+            hero.ControlledByPlayerSlot = 0;
+            playerCommandRequester = new PlayerCommandRequester(
+                hero,
+                new GameplayInputGate(),
+                pipeline.CommandCollector,
+                0,
+                0,
+                new CommandTargetTickResolver(
+                    () => pipeline.LocalSimulationTick,
+                    () => pipeline.LocalSimulationTick,
+                    minCommandLeadTicks: 1,
+                    maxFutureCommandTicks:
+                        pipeline.MaxFutureCommandTicks),
+                AbilityInputMappingProvider.CreateFromAbilityHandler(
+                    hero.AbilityHandler),
+                new UnitWorldAbilityRuntimeView(world));
+            return playerCommandRequester;
         }
 
         private void BuildMap()
@@ -618,9 +694,6 @@ namespace FrameSyncMoba.Bootstrap
                 return;
             }
             HandleDebugInput();
-            HandleHeroInput();
-            LogAttackDiagnostics();
-            UpdateIndicators();
             UpdateUnitRadiusCircles();
             UpdateAttackRangeRing();
             UpdateDummyRespawn();
@@ -1827,163 +1900,9 @@ namespace FrameSyncMoba.Bootstrap
             return outline;
         }
 
-        private void HandleHeroInput()
-        {
-            if (hero == null ||
-                hero.LifeState != LifeState.Alive)
-            {
-                return;
-            }
-
-            // Right click: attack the hovered unit, otherwise move/A* to the
-            // ground point (MOBA convention).
-            if (Input.GetMouseButtonDown(1))
-            {
-                // Right click cancels local aim (SecondaryClick ->
-                // CancelLocalAim in the current default aim profile).
-                aimingAbilitySlot = -1;
-                if (hoveredUnit.HasValue)
-                {
-                    SubmitAttack(
-                        hoveredUnit.Value);
-                }
-                else
-                {
-                    fp2? point =
-                        ScreenToGround(
-                            Input.mousePosition);
-                    if (point.HasValue)
-                    {
-                        SubmitMove(point.Value);
-                    }
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                if (dummies.Count > 0)
-                {
-                    SubmitAttack(
-                        dummies[0].UnitUid);
-                }
-            }
-
-            // Debug: L grants one level (and the skill point it carries),
-            // useful for testing skill point allocation in the hero scene.
-            if (Input.GetKeyDown(KeyCode.L))
-            {
-                GrantDebugLevel();
-            }
-
-            fp2? ground = ScreenToGround(
-                Input.mousePosition);
-            fp2 aimPoint =
-                ground ?? hero.PhysicsEntity
-                    .Transform2D.Position;
-            fp2 heroPos =
-                hero.PhysicsEntity
-                    .Transform2D.Position;
-            fp2 direction =
-                aimPoint - heroPos;
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                if (!IsAbilityLearned(0) ||
-                    !CanOpenHeroTestAim(0))
-                {
-                    return;
-                }
-                aimingAbilitySlot = 0;
-            }
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                if (!IsAbilityLearned(1) ||
-                    !CanOpenHeroTestAim(1))
-                {
-                    return;
-                }
-                aimingAbilitySlot = 1;
-            }
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                if (!IsAbilityLearned(2))
-                {
-                    return;
-                }
-                SubmitCast(
-                    2,
-                    AbilitySignalVerb.Commit,
-                    AimSnapshot.ForDirection(
-                        direction));
-            }
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                if (!IsAbilityLearned(3))
-                {
-                    return;
-                }
-                SubmitCast(
-                    3,
-                    AbilitySignalVerb.Commit,
-                    AimSnapshot.None);
-            }
-
-            // Q/W use the formal local-aim flow: the ability key only opens
-            // the indicator and primary click emits the deterministic Commit.
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (aimingAbilitySlot >= 0)
-                {
-                    SubmitCast(
-                        (byte)aimingAbilitySlot,
-                        AbilitySignalVerb.Commit,
-                        AimSnapshot.ForDirection(
-                            direction));
-                    aimingAbilitySlot = -1;
-                }
-            }
-        }
-
-        private bool IsAbilityLearned(byte slot)
-        {
-            int level =
-                hero?.AbilityHandler
-                    ?.GetAbilityLevel(slot) ?? 0;
-            if (level > 0)
-            {
-                return true;
-            }
-            Debug.Log(
-                $"[HeroTest] Slot {slot} is not learned " +
-                $"(level 0); input ignored.");
-            return false;
-        }
-
         /// <summary>
-        /// Mirrors the C/S input gate: a local-aim indicator must not open
-        /// while the ability is on cooldown or while the active session is
-        /// inside a stage that cannot accept the next Commit (e.g. the
-        /// minimum recast-delay lockout of Aatrox Q).
-        /// </summary>
-        private bool CanOpenHeroTestAim(byte slot)
-        {
-            bool allowed =
-                hero?.AbilityHandler
-                    ?.CanOpenLocalAim(slot) ??
-                false;
-            if (!allowed)
-            {
-                Debug.Log(
-                    $"[HeroTest] Slot {slot} local aim blocked " +
-                    "(cooldown or current session cannot accept the " +
-                    "next Commit).");
-            }
-            return allowed;
-        }
-
-        /// <summary>
-        /// Finds or builds the 2D skill indicator driver used by the hero
-        /// test scene. Aatrox Q/W use local directional aim, E commits toward
-        /// the cursor immediately, and R is self-cast.
+        /// Finds or builds the generic 2D skill indicator driver used by the
+        /// formal PlayerInputController.
         /// </summary>
         private void EnsureIndicatorDriver()
         {
@@ -2010,92 +1929,6 @@ namespace FrameSyncMoba.Bootstrap
                     Resources.Load<GameObject>(
                         "Prefab/Indicators/GroundTargetIndicator"));
             }
-        }
-
-        /// <summary>
-        /// Drives the current Aatrox Q/W local directional indicator.
-        /// </summary>
-        private void UpdateIndicators()
-        {
-            if (indicatorDriver == null ||
-                hero == null ||
-                hero.MovementHandler == null)
-            {
-                return;
-            }
-
-            fp2 heroPos =
-                hero.PhysicsEntity
-                    .Transform2D.Position;
-            fp2 forward =
-                hero.MovementHandler.Facing;
-            fp2? ground =
-                ScreenToGround(
-                    Input.mousePosition);
-            fp2 aimPoint =
-                ground ?? heroPos;
-
-            if (aimingAbilitySlot >= 0)
-            {
-                UpdateAbilityIndicator(
-                    (byte)aimingAbilitySlot,
-                    heroPos,
-                    forward,
-                    aimPoint);
-                return;
-            }
-            if (indicatorDriver.IsVisible)
-            {
-                indicatorDriver.Hide();
-            }
-        }
-
-        private void UpdateAbilityIndicator(
-            byte slot,
-            fp2 heroPos,
-            fp2 forward,
-            fp2 aimPoint)
-        {
-            fp castRange = (fp)3m;
-            AbilityDef abilityDef =
-                hero.AbilityHandler?
-                    .GetAbilityDef(slot);
-            if (abilityDef != null &&
-                abilityDef.IsValid)
-            {
-                castRange =
-                    abilityDef.CastRange;
-            }
-
-            DirectionalMultiZoneDamageStageDef zone = null;
-            AbilityIndicatorGeometryResolver
-                .TryResolveDirectionalZone(
-                    hero.AbilityHandler,
-                    slot,
-                    out zone);
-
-            if (!indicatorDriver.IsVisible ||
-                indicatorDriver.ActiveKind !=
-                    AimKind.Direction ||
-                !object.ReferenceEquals(
-                    indicatorDriver.ActiveDirectionalZone,
-                    zone))
-            {
-                indicatorDriver.Show(
-                    AimKind.Direction,
-                    castRange,
-                    heroPos,
-                    forward,
-                    zone == null,
-                    default,
-                    zone);
-            }
-            indicatorDriver.UpdateCursor(
-                aimPoint,
-                heroPos,
-                forward);
-            indicatorDriver.UpdateDirectionLength(
-                castRange);
         }
 
         /// <summary>
@@ -2250,6 +2083,16 @@ namespace FrameSyncMoba.Bootstrap
                     Mathf.Max(1f,
                         ticksPerSecond * 0.5f);
             }
+            if (Input.GetKeyDown(KeyCode.T) &&
+                dummies.Count > 0)
+            {
+                GetOrCreatePlayerCommandRequester()
+                    .RequestAttack(dummies[0].UnitUid);
+            }
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                GrantDebugLevel();
+            }
         }
 
         private void DamageHero100()
@@ -2343,146 +2186,11 @@ namespace FrameSyncMoba.Bootstrap
             }
         }
 
-        private void SubmitMove(fp2 target)
-        {
-            if (hero == null)
-            {
-                return;
-            }
-            if (hero.AbilityHandler != null &&
-                hero.AbilityHandler.IsCastMovementLocked())
-            {
-                return;
-            }
-            pipeline.SubmitCommand(
-                GameplayCommand.CreateMove(
-                    MakeHeader(
-                        GameplayCommandKind.Move),
-                    target));
-        }
-
-        private void SubmitAttack(UnitUid target)
-        {
-            if (hero == null || !target.IsValid())
-            {
-                return;
-            }
-            if (hero.AbilityHandler != null &&
-                hero.AbilityHandler.IsCastMovementLocked())
-            {
-                return;
-            }
-            attackTarget = target;
-            Debug.Log(
-                $"[HeroTest][RMB] tick={CurrentTick} " +
-                $"attackTarget={target}");
-            pipeline.SubmitCommand(
-                GameplayCommand.CreateAttack(
-                    MakeHeader(
-                        GameplayCommandKind.Attack),
-                    target));
-        }
-
-        private int lastAttackDiagTick = -1;
-
-        /// <summary>
-        /// Periodic diagnostics while an attack target is active: prints the
-        /// hero's Intent, attack plan status, attack-cycle state, center
-        /// distance vs range, and the locomotion task, so a "chased but not
-        /// attacking" stall can be pinpointed.
-        /// </summary>
-        private void LogAttackDiagnostics()
-        {
-            if (hero == null ||
-                !attackTarget.IsValid())
-            {
-                return;
-            }
-            int tick = CurrentTick;
-            if (tick - lastAttackDiagTick < 5)
-            {
-                return;
-            }
-            lastAttackDiagTick = tick;
-
-            AttackHandler attack =
-                hero.AttackHandler;
-            UnitIntent intent = default;
-            if (hero.Planner != null)
-            {
-                intent = hero.Planner.CurrentIntent;
-            }
-            string taskInfo = "none";
-            if (hero.Locomotion != null)
-            {
-                MovementTask task =
-                    hero.Locomotion.CurrentTask;
-                taskInfo =
-                    $"{task.Purpose}/{task.State}";
-            }
-            fp2 heroPos =
-                hero.PhysicsEntity
-                    ?.Transform2D.Position ??
-                fp2.zero;
-            fp2 targetPos = heroPos;
-            if (world != null &&
-                world.TryGetUnit(
-                    attackTarget,
-                    out UnitType target) &&
-                target?.PhysicsEntity != null)
-            {
-                targetPos =
-                    target.PhysicsEntity
-                        .Transform2D.Position;
-            }
-            fp distance =
-                fpmath.length(
-                    targetPos - heroPos);
-            Debug.Log(
-                $"[HeroTest][AttackDiag] tick={tick} " +
-                $"intent={intent.Kind} " +
-                $"target={attackTarget} " +
-                $"plan={attack?.GetAttackPlanStatus(attackTarget)} " +
-                $"cycle={attack?.IsAttackCycleActive} " +
-                $"atkTarget={attack?.CurrentTargetUid} " +
-                $"ready={attack?.IsAttackReady()} " +
-                $"range={attack?.CurrentAttackRange} " +
-                $"dist={distance} " +
-                $"task={taskInfo}");
-        }
-
-        private void SubmitCast(
-            byte slot,
-            AbilitySignalVerb verb,
-            AimSnapshot aim)
-        {
-            if (hero == null)
-            {
-                return;
-            }
-            pipeline.SubmitCommand(
-                GameplayCommand.CreateCastAbility(
-                    MakeHeader(
-                        GameplayCommandKind.CastAbility),
-                    slot,
-                    verb,
-                    aim));
-        }
-
         private void SubmitAllocateSkillPoint(
             byte slot)
         {
-            if (hero == null)
-            {
-                return;
-            }
-            pipeline.SubmitCommand(
-                GameplayCommand
-                    .CreateAllocateAbilitySkillPoint(
-                        MakeHeader(
-                            GameplayCommandKind
-                                .AllocateAbilitySkillPoint),
-                        slot));
+            GetOrCreatePlayerCommandRequester()
+                .RequestAllocateAbilitySkillPoint(slot);
         }
 
         private void GrantDebugLevel()
@@ -2503,72 +2211,6 @@ namespace FrameSyncMoba.Bootstrap
                     $"{hero.StatHandler.Level} " +
                     $"pendingPoints=" +
                     $"{hero.AbilityHandler?.PendingSkillPoints}");
-            }
-        }
-
-        private CommandHeader MakeHeader(
-            GameplayCommandKind kind)
-        {
-            int tick =
-                pipeline.LocalSimulationTick;
-            return new CommandHeader(
-                commandSeq++,
-                clientId: 0,
-                playerSlot: 0,
-                hero.UnitUid,
-                tick + 1,
-                kind,
-                tick,
-                0);
-        }
-
-        void IEquipmentShopCommandSubmitter.SubmitPurchase(
-            int playerSlot,
-            int targetEquipmentId)
-        {
-            ValidateTestShopPlayer(playerSlot);
-            pipeline.SubmitCommand(
-                GameplayCommand.CreateEquipmentPurchase(
-                    MakeHeader(
-                        GameplayCommandKind.EquipmentShop),
-                    targetEquipmentId));
-        }
-
-        void IEquipmentShopCommandSubmitter.SubmitSell(
-            int playerSlot,
-            int sourceSlot)
-        {
-            ValidateTestShopPlayer(playerSlot);
-            if ((uint)sourceSlot >= EquipmentHandler.SlotCount)
-            {
-                throw new System.ArgumentOutOfRangeException(
-                    nameof(sourceSlot));
-            }
-            pipeline.SubmitCommand(
-                GameplayCommand.CreateEquipmentSell(
-                    MakeHeader(
-                        GameplayCommandKind.EquipmentShop),
-                    (byte)sourceSlot));
-        }
-
-        void IEquipmentShopCommandSubmitter.SubmitUndo(
-            int playerSlot)
-        {
-            ValidateTestShopPlayer(playerSlot);
-            pipeline.SubmitCommand(
-                GameplayCommand.CreateEquipmentUndo(
-                    MakeHeader(
-                        GameplayCommandKind.EquipmentShop)));
-        }
-
-        private static void ValidateTestShopPlayer(
-            int playerSlot)
-        {
-            if (playerSlot != 0)
-            {
-                throw new System.ArgumentOutOfRangeException(
-                    nameof(playerSlot),
-                    "HeroTestScene has exactly one local player.");
             }
         }
 
