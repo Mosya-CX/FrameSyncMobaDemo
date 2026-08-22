@@ -1,5 +1,8 @@
 # 时间配置与 TickRate 使用说明
 
+> Document class: Operational Configuration Guide
+> Default read: only when TickRate or authored Gameplay timing is in scope
+
 > 当前契约：D-045，2026-08-20。
 
 ## 1. 配置边界
@@ -83,4 +86,3 @@ SceneLoaded
 3. 连续执行与 Snapshot/Restore/Replay 结果一致；
 4. 启动、加载和 Ping 不受操作系统时钟前后跳变影响；
 5. 客户端追赶始终受连续 AuthorityFrame 与每帧最大执行 Tick 数限制。
-

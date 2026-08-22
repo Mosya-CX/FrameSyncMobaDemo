@@ -1,5 +1,8 @@
 # 打包 / 构建指南（Local NGO C/S 与 UOS）
 
+> Document class: Operational Guide
+> Default read: only when packaging or build output is in scope
+
 本文档记录本项目打包的入口、方式与必须遵守的操作纪律。
 
 ## 1. 入口

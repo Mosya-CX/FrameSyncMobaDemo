@@ -1,3 +1,10 @@
+# HISTORICAL IMPLEMENTATION ROADMAP — NOT CURRENT TASK ORDER
+
+> Document class: Historical Planning Snapshot
+> Archived: 2026-08-22
+> The framework has progressed beyond these phases. Current work is driven by
+> direct user requests, Current formal designs and live repository state.
+
 # FrameSyncMobaDemo — Implementation Roadmap
 
 > This roadmap defines implementation order, not task completion status.  

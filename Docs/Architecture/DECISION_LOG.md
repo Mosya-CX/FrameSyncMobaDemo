@@ -1,6 +1,6 @@
 # FrameSyncMobaDemo — Frozen Architecture Decision Log
 
-> This log records decisions that override older examples or superseded design text.  
+> This log records decisions that override older examples or superseded design text.
 > Entries are normative unless their status changes.
 
 ## D-001 — Tick semantics
@@ -891,19 +891,6 @@ Assets/Resources/       C/S-used UI / missiles / indicators / VFX / materials
   `AttackSequenceIndex`, exit on `IsAttacking == false`). Note Unity
   2022.3.62 `AnimatorConditionMode`: Equals=6, NotEqual=7.
 
-## D-039 — Hero spawn slots are bound from lobby selection (2026-08-12)
-
-Player-controlled initial spawns no longer hardcode the hero prototype in the
-scene composition (`initialUnitSpawns`). The spawn slot (spawn point + team)
-is the deterministic topology; the hero prototype is taken from
-`PlayerSlotConfig.HeroConfigId` at payload build time
-(`GameBootstrap.BindSelectedHeroesToPlayerSpawns` +
-`SimulationTickPipeline.OverrideInitialSpawnPrototype`), identical on every
-endpoint because the authoritative payload carries the resulting snapshot.
-Adding a hero therefore only requires the prefab table, unit catalog and hero
-display table — never a scene edit. The authored `UnitPrototypeId` on a
-player-controlled spawn is now only a placeholder/fallback.
-
 ## D-039 — First formal equipment catalog and repeat-safe On-Hit (2026-08-10)
 
 **Status:** Implemented and focused-tested by ExecPlan 0132.
@@ -1089,3 +1076,21 @@ acceptance pending.
   `Docs/Implementation/LEGACY_30HZ_TIME_AUTHORING_INVENTORY.md`.
 - Gameplay protocol data version advances from 2 to 3, and launch/bootstrap
   wire versions advance independently, so mixed packages fail visibly.
+
+## D-046 — Hero spawn slots are bound from lobby selection (original decision 2026-08-12; ID corrected 2026-08-22)
+
+**Status:** Frozen. This decision was originally recorded under a duplicate
+`D-039` heading. It was renumbered to `D-046` without changing semantics.
+Existing `D-039` references continue to mean the formal equipment/On-Hit
+decision.
+
+Player-controlled initial spawns no longer hardcode the hero prototype in the
+scene composition (`initialUnitSpawns`). The spawn slot (spawn point + team)
+is the deterministic topology; the hero prototype is taken from
+`PlayerSlotConfig.HeroConfigId` at payload build time
+(`GameBootstrap.BindSelectedHeroesToPlayerSpawns` +
+`SimulationTickPipeline.OverrideInitialSpawnPrototype`), identical on every
+endpoint because the authoritative payload carries the resulting snapshot.
+Adding a hero therefore only requires the prefab table, unit catalog and hero
+display table — never a scene edit. The authored `UnitPrototypeId` on a
+player-controlled spawn is now only a placeholder/fallback.

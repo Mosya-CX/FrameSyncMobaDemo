@@ -1,3 +1,10 @@
+# HISTORICAL PROMPT SNAPSHOT — DO NOT USE AS CURRENT WORKFLOW
+
+> Document class: Historical Prompt
+> Archived: 2026-08-22
+> Replacement: `Docs/Implementation/AI_WORKFLOW.md` version 4
+> Default read: no
+
 # Codex Task Prompts for FrameSyncMobaDemo
 
 ## 1. First repository scan

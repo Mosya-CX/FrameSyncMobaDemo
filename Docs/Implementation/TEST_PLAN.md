@@ -1,5 +1,8 @@
 # 完整对局测试计划
 
+> Document class: Operational Test Guide
+> Default read: only when full-match acceptance is in scope
+
 > 更新日期：2026-08-10（执行状态同步）
 > 前置条件：`Docs/Implementation/TEST_PREPARATION.md` 第 8 节门禁全部通过。  
 > 测试内容均为中立夹具，不代表正式英雄、技能、装备或平衡内容。

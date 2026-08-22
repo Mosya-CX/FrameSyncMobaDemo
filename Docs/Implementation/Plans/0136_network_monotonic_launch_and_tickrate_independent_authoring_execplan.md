@@ -1,7 +1,8 @@
 # ExecPlan 0136 - Network-monotonic launch and TickRate-independent authoring
 
-> Status: Implemented and focused-tested (2026-08-20); rebuilt Local C/S and
-> UOS process acceptance remains pending.
+> Status: Completed — declared source/formal-asset scope implemented and
+> focused-tested (2026-08-20). Matching rebuilt Local C/S and UOS process
+> acceptance was outside this plan and requires a separate plan when requested.
 
 ## Goal
 

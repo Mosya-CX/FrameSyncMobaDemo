@@ -1,5 +1,8 @@
 # UOS 客户端 GUI 启动器
 
+> Document class: Operational Guide
+> Default read: only when launching packaged UOS clients is in scope
+
 ## 用途
 
 `UosClientLauncher` 是一个独立的 Windows GUI 工具，用于启动一个或多个

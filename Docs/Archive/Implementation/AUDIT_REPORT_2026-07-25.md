@@ -1,3 +1,11 @@
+# HISTORICAL AUDIT SNAPSHOT — NOT CURRENT PROJECT STATUS
+
+> Document class: Historical Audit
+> Snapshot date: 2026-07-25
+> Current status authority: live code, `MODULE_STATUS.md` and
+> `CURRENT_HANDOFF.md`
+> Default read: no
+
 # Project Audit Report -- 2026-07-25 (Full Refresh)
 
 > Scope: 16 design docs x 372 C# files x 24 asmdefs
@@ -21,7 +29,7 @@
 
 ---
 
-## P1: CombatSnapshot List<T> → T[] 
+## P1: CombatSnapshot List<T> → T[]
 
 | File | Current | Required |
 |------|---------|----------|
@@ -40,7 +48,7 @@ Per Snapshot Appendix v7.2 §7.1: all snapshot collections shall use T[] arrays.
 Design requires:
 - `UnitDespawnRequest` struct (UnitUid, Reason, Mode)
 - `UnitDespawnReason` enum (SummonExpired, OwnerRemoved, ScriptCleanup, MatchCleanup)
-- `UnitDespawnMode` enum  
+- `UnitDespawnMode` enum
 - `UnitWorld.DespawnUnit(in UnitDespawnRequest)` returning bool
 - `UnitHandler.ClearForDespawn(reason)` — already referenced in BuffHandler design
 - `BuffHandler.ClearForDespawn(reason, context)` — design mandates this

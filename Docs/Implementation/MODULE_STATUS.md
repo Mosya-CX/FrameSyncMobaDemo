@@ -1,9 +1,10 @@
 # FrameSyncMobaDemo -- Module Status
 
-> Corrected through 2026-08-20 against baseline commit `ef080c9`, the current source,
-> ExecPlan 0132-0135 work and retained Local C/S/UOS logs. The repository owner
-> confirms that local C/S and the complete UOS flow run end to end. A clean
-> compile alone is not treated as behavior verification.
+> Document class: Current Module State
+> Updated: 2026-08-22 against current source at base HEAD `60c84fd`, ExecPlan
+> 0132-0136 evidence and retained Local C/S/UOS logs. Replace affected current
+> rows; do not append a dated implementation history. A clean compile alone is
+> not treated as behavior verification.
 
 ## Validation baseline
 
@@ -62,59 +63,14 @@ Detailed continuation evidence is in `CURRENT_HANDOFF.md`.
 - The UTP startup send-queue saturation and the client Loading/HUD timing
   observation are open reliability/diagnostic work, not proven deterministic
   Gameplay corruption.
-- ExecPlan 0125 P0/P1 findings (duplicate tower composition, non-persistent
-  flow fields, and premature clearing of the shared Tick context) are fixed
-  and focused-tested.
-- Remaining full-match work includes locked-target tower-projectile/red-line
-  conformance, jungle content, final Lua behavior and
-  operator visual acceptance.
-- All code-side P1 items tracked by ExecPlan 0109 were repaired and focused-tested where the Unity Test Runner returned a result.
-- P2 cleanup was limited to touched correctness paths; duplicate/dead shop planning code was removed.
+- D-045 source/formal-asset work is complete and focused-tested. Matching rebuilt
+  Local C/S and UOS live acceptance is a separate pending request.
+- The retained full-suite baseline has 10 EditMode and 4 PlayMode failures;
+  these remain visible until their fixtures/expectations are repaired.
+- Remaining product work includes jungle content, production presentation/UI
+  assets, result/return/remote settlement acceptance and operator visual
+  acceptance.
 - The incomplete `EquipmentTargetPolicy` design contract is an accepted non-blocking design underspecification, not a guessed production API.
-
-## 2026-08-13 rollback/client-feedback follow-up
-
-- **Snapshot / rollback:** correction replay no longer repeats non-hero
-  `Resolve/Rebuild` after the pipeline's complete three-phase restore. Sequential
-  shop purchases after snapshot restore match continuous equipment, stat and
-  shop state in focused coverage.
-- **Attack:** formal reach is center distance minus the target collision radius;
-  Aatrox attack presentation uses the snapshotted start Tick and a finite
-  authored animation-variant mapping.
-- **UOS diagnostics:** every shop-command Tick emits formal checksum segment
-  hashes on authority and replay endpoints; persistent mismatches retain local
-  segment hashes plus a world dump.
-- **UI / networking presentation:** Match shows current state and elapsed time,
-  Load shows staged progress/status, and HUD ping is measured independently of
-  Gameplay Commands by a configurable 0.5-second unreliable echo.
-- **Acceptance:** source compilation and focused EditMode/PlayMode tests pass.
-  A fresh two-client UOS reproduction is still required; no package was built.
-
-## 2026-08-13 asynchronous diagnostic transport
-
-- **Diagnostics:** enabled Player packages use a bounded normal/priority queue
-  and one below-normal worker for batched file/stdout output. Unity logs,
-  FrameSync event diagnostics, queue-drop counts, writer failures and async
-  mismatch artifacts are covered. Gameplay never waits for diagnostic IO.
-- **Build exclusion:** the Editor menu option controls the per-build
-  `FRAME_SYNC_MOBA_DIAGNOSTICS` define for Local C/S and both UOS endpoints.
-  Disabled packages compile out Conditional calls and start no logger.
-- **Verification:** diagnostics EditMode 4/4, build options 1/1, client/server
-  bootstrap PlayMode 2/2, GameBootstrap PlayMode 1/1. No package was built.
-
-## 2026-08-13 UOS server upload packaging
-
-- A successful `BuildServerLinux()` creates a timestamped upload ZIP and
-  SHA-256 sidecar under `Builds/UosUpload`; failed Player builds never package.
-- The archive keeps the executable at ZIP root, validates required runtime/data
-  entries, excludes Burst `DoNotShip` output, uses a temporary file, and never
-  overwrites an older upload package.
-- `Tools/PackageLatestUosServer.cmd` provides a manual repackage workflow
-  without invoking Unity or uploading anything.
-- `BuildUosClientAndServerOnce()` is the one-click Editor entry for the UOS
-  Windows client plus Linux server. A 120-second composite/substep guard
-  prevents bridge retries or partial-retry recovery from rebuilding an endpoint
-  that just completed.
 
 ## Permanent constraints
 

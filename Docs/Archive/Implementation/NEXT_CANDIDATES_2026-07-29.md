@@ -1,7 +1,15 @@
+# HISTORICAL CANDIDATE SNAPSHOT — DO NOT USE FOR CURRENT TASK SELECTION
+
+> Document class: Historical Candidate Snapshot
+> Original update: 2026-07-29
+> Archived: 2026-08-22
+> The project now uses direct user requests; no replacement candidate file is
+> maintained.
+
 # 完整对局前的修正候选
 
-> 更新日期：2026-07-29  
-> 这些候选来自当前代码、Unity MCP 场景/资产检查和正式设计，不是按展示效果排序。  
+> 更新日期：2026-07-29
+> 这些候选来自当前代码、Unity MCP 场景/资产检查和正式设计，不是按展示效果排序。
 > 这里只制定候选，不在本轮执行或占用正式 ExecPlan 编号。
 
 ## 真实阻断摘要

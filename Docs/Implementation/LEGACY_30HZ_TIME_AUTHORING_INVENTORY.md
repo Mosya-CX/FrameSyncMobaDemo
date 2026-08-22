@@ -1,5 +1,8 @@
 # 旧 30 Hz Gameplay 时间配置清单
 
+> Document class: Historical Migration Reference
+> Default read: only when auditing D-045 time-authoring migration
+
 > 审计基线：2026-08-20，迁移资产之前。旧项目固定 `TickRate = 30`，因此精确现实时间为 `Tick / 30` 秒。迁移到整数毫秒时，为确保重新 Bake 到 30 Hz 后 Tick 数不增加，正 Tick 使用 `floor(Tick × 1000 / 30)` 毫秒；运行时仍使用整数 Tick。
 
 ## 分类原则

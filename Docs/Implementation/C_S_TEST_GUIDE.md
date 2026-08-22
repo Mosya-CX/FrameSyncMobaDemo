@@ -1,8 +1,11 @@
 # 本地 C/S 测试指南（Local NGO）
 
+> Document class: Operational Guide
+> Default read: only when local C/S build or test operation is in scope
+
 本文档描述本地 C/S 测试的完整流程：测试目的、打包入口、启动方式、日志信息与常见问题排查。
-资源布局与打包纪律分别见 `Docs/Architecture/REPOSITORY_MAP.md` 与
-`Docs/Implementation/BUILD_GUIDE.md`。
+正式资源布局决策与打包纪律分别见 `Docs/Architecture/DECISION_LOG.md`
+的 D-038 与 `Docs/Implementation/BUILD_GUIDE.md`。
 异步诊断日志路径、UOS stdout 行为和完全裁除的打包开关见
 `Docs/Implementation/ASYNC_DIAGNOSTICS_GUIDE.md`。
 

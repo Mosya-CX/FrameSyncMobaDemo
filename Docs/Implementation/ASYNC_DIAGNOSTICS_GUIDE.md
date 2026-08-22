@@ -1,5 +1,8 @@
 # Asynchronous diagnostics guide
 
+> Document class: Operational Guide
+> Default read: only when diagnostics or diagnostic build switches are in scope
+
 ## Build-time switch
 
 Use the checked Unity menu item:

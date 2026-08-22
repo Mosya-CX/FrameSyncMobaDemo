@@ -1,5 +1,8 @@
 # 完整对局测试准备
 
+> Document class: Operational Test Guide
+> Default read: only when preparing full-match acceptance fixtures
+
 > 更新日期：2026-08-10（交接状态同步）
 > 目标：用中立测试内容跑通一场“一条兵线、双方英雄与防御塔、一个普通野怪营地、基地胜负、UI 与本地双客户端”的完整对局。  
 > 本文只规定测试资源、绑定责任和开始门禁，不把测试内容视为正式英雄或正式平衡内容。
