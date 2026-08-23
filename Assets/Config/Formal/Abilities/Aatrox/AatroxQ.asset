@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityId: 10021
   abilityName: The Darkin Blade
-  icon: {fileID: 21300000, guid: e894b675c21081c48870a9a7933c7439, type: 3}
+  icon: {fileID: 0}
+  iconAddress: ui/icon/e894b675c21081c48870a9a7933c7439
   isUltimate: 0
   castModel:
     rid: 2586996089610567745
@@ -90,12 +91,12 @@ MonoBehaviour:
         impactInterruptible: 0
         windowInterruptible: 1
         impactLockMovement: 1
-        firstImpactIconOverride: {fileID: 21300000, guid: e894b675c21081c48870a9a7933c7439,
-          type: 3}
-        secondImpactIconOverride: {fileID: 21300000, guid: 00e9e3466d875504dacc31d33410c22a,
-          type: 3}
-        finalImpactIconOverride: {fileID: 21300000, guid: 6b760e2beac14724da8a55d9ff3ecd64,
-          type: 3}
+        firstImpactIconOverride: {fileID: 0}
+        firstImpactIconAddressOverride: ui/icon/e894b675c21081c48870a9a7933c7439
+        secondImpactIconOverride: {fileID: 0}
+        secondImpactIconAddressOverride: ui/icon/00e9e3466d875504dacc31d33410c22a
+        finalImpactIconOverride: {fileID: 0}
+        finalImpactIconAddressOverride: ui/icon/6b760e2beac14724da8a55d9ff3ecd64
     - rid: 2586996089610567746
       type: {class: DirectionalMultiZoneDamageStageDefAuthoring, ns: FrameSyncMoba.Unit,
         asm: FrameSyncMoba.Unit}

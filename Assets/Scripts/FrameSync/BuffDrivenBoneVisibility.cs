@@ -38,14 +38,14 @@ namespace FrameSyncMoba.FrameSync
 
         private void Awake()
         {
-            owner = GetComponent<UnitType>();
+            owner = GetComponentInParent<UnitType>();
             CaptureVisibleScales();
         }
 
         private void LateUpdate()
         {
             if (owner == null)
-                owner = GetComponent<UnitType>();
+                owner = GetComponentInParent<UnitType>();
             bool visible =
                 owner?.BuffHandler != null &&
                 visibleBuffConfigId > 0 &&

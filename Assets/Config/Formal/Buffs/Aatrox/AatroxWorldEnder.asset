@@ -18,7 +18,8 @@ MonoBehaviour:
     Name: World Ender
     Description: Gain total attack damage, amplified self-healing, decaying move
       speed and ghosting.
-    Icon: {fileID: 21300000, guid: 530bdb7b178dc224e98d3a27461805f2, type: 3}
+    Icon: {fileID: 0}
+    IconAddress: ui/icon/530bdb7b178dc224e98d3a27461805f2
   Life:
     Duration:
       milliseconds: 10000

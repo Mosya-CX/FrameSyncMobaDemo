@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace FrameSyncMoba.FrameSync
@@ -11,9 +14,18 @@ namespace FrameSyncMoba.FrameSync
 
         private readonly List<AudioSource> _pool = new List<AudioSource>();
         private readonly Dictionary<int, int> _activeCounts = new Dictionary<int, int>();
+        private readonly Dictionary<int, IPresentationAssetLease<AudioClip>>
+            _clipLeases =
+                new Dictionary<int, IPresentationAssetLease<AudioClip>>();
+        private readonly Dictionary<int, Task<IPresentationAssetLease<AudioClip>>>
+            _pendingLoads =
+                new Dictionary<int, Task<IPresentationAssetLease<AudioClip>>>();
+        private IClientPresentationAssetLoader _assetLoader;
+        private CancellationTokenSource _lifetimeCancellation;
 
         private void Awake()
         {
+            _lifetimeCancellation = new CancellationTokenSource();
             for (int i = 0; i < _defaultPoolSize; i++)
             {
                 var go = new GameObject("AudioSource_" + i.ToString());
@@ -30,7 +42,12 @@ namespace FrameSyncMoba.FrameSync
             _library = library;
         }
 
-        public void PlayOrReconcile(in Unit.SfxEvent evt)
+        public void SetAssetLoader(IClientPresentationAssetLoader assetLoader)
+        {
+            _assetLoader = assetLoader;
+        }
+
+        public async void PlayOrReconcile(Unit.SfxEvent evt)
         {
             Debug.Log(
                 $"[AudioManager] enter id={evt.SfxDefId} " +
@@ -41,7 +58,21 @@ namespace FrameSyncMoba.FrameSync
                 return;
             }
 
-            AudioClip clip = _library.GetClip(evt.SfxDefId);
+            AudioClip clip;
+            try
+            {
+                clip = await GetClipAsync(evt.SfxDefId);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                    $"[AudioManager] SFX {evt.SfxDefId} load failed: {exception}");
+                return;
+            }
             string clipName =
                 clip != null
                     ? clip.name
@@ -70,6 +101,53 @@ namespace FrameSyncMoba.FrameSync
 
             _activeCounts[evt.SfxDefId] = active + 1;
             StartCoroutine(ReleaseAfterPlay(source, evt.SfxDefId, clip.length));
+        }
+
+        private async Task<AudioClip> GetClipAsync(int sfxDefId)
+        {
+            if (_clipLeases.TryGetValue(
+                    sfxDefId,
+                    out IPresentationAssetLease<AudioClip> cached))
+                return cached.Asset;
+            if (_assetLoader == null)
+                return null;
+            string address = _library.GetAddress(sfxDefId);
+            if (string.IsNullOrEmpty(address))
+                return null;
+            if (!_pendingLoads.TryGetValue(
+                    sfxDefId,
+                    out Task<IPresentationAssetLease<AudioClip>> pending))
+            {
+                pending = _assetLoader.AcquireAudioClipAsync(
+                    address,
+                    _lifetimeCancellation.Token);
+                _pendingLoads.Add(sfxDefId, pending);
+            }
+            IPresentationAssetLease<AudioClip> lease;
+            try
+            {
+                lease = await pending;
+            }
+            finally
+            {
+                _pendingLoads.Remove(sfxDefId);
+            }
+            if (!_clipLeases.ContainsKey(sfxDefId))
+                _clipLeases.Add(sfxDefId, lease);
+            else if (!ReferenceEquals(_clipLeases[sfxDefId], lease))
+                lease.Dispose();
+            return _clipLeases[sfxDefId].Asset;
+        }
+
+        private void OnDestroy()
+        {
+            _lifetimeCancellation?.Cancel();
+            foreach (IPresentationAssetLease<AudioClip> lease in
+                     _clipLeases.Values)
+                lease.Dispose();
+            _clipLeases.Clear();
+            _pendingLoads.Clear();
+            _lifetimeCancellation?.Dispose();
         }
 
         /// <summary>

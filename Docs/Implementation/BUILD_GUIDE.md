@@ -42,6 +42,33 @@ FrameSyncMoba/Build Local NGO/
 
 本地 C/S 测试包 = `BuildBoth()`：先 Server 后 Client。
 
+### 2.1 本地 Addressables 与 Dedicated Server
+
+普通 Windows 客户端构建会随 Player 构建当前平台的本地 Addressables
+catalog/bundle；没有远程 catalog、下载或热更新步骤。正式根资产位于六个
+`Client-*` 组，安装包内由本地 catalog 解析。
+
+构建入口会在 Addressables 开始前显式切换活动目标：Windows 客户端必须是
+`StandaloneWindows64/Player`，UOS 服务端必须是
+`StandaloneLinux64/Server`。客户端构建前只清理上次生成的
+`<Client>_Data/StreamingAssets/aa`，保留 Lua 等其他 StreamingAssets；构建后
+检查 `settings.json` 的 `m_buildTarget`、平台目录和 Bundle。Windows 包中若出现
+`StandaloneLinux64` 内容会直接使构建失败，不能交付一个流程可运行但 Shader
+全部变紫的包。
+
+Dedicated Server 构建进入专用资源作用域：
+
+- 不构建 Addressables 客户端内容；
+- 即使磁盘上已有上一次客户端构建的 Addressables 输出，也不会将其复制进
+  Server 的 `StreamingAssets`；
+- 构建前剥离 Server 场景中的客户端表现对象/组件；
+- 构建后审计 catalog、bundle、模型、动画、材质、VFX、音频和 UI 依赖，
+  发现禁用资源则使构建失败。
+
+因此不要在打 Server 前手动删除客户端 Addressables 输出，也不要把
+`Assets/ClientContent/` 添加到 Server 场景或 Resources。完整边界和新增资源流程见
+`Docs/Implementation/Addressables/RESOURCE_ARCHITECTURE.md`。
+
 ## 3. 调用方式
 
 ### 3.1 Unity 菜单手动打包
@@ -86,11 +113,13 @@ FrameSyncMoba.EditorTools.LocalNgoBuildMenu.BuildUosClientAndServerOnce();
 自定义环境变量：无（UOS 注入 allocation/match/Agones 运行变量）
 ```
 
-资源规格的已知证据：`1 CPU / 1536 MB` 可在约 10 秒内进入 Ready；
+历史资源规格证据：`1 CPU / 1536 MB` 可在约 10 秒内进入 Ready；
 更小的 CPU/内存联动档位曾在 Ready 超时前失败。相同镜像提高规格后成功，
-因此小规格失败不能直接归因于 Ready SDK 调用错误。当前 Linux 包启动资产较大
-（审计时 `resources.assets` 约 330 MB），后续若要降低规格，应先测量启动峰值
-内存和 Ready 时间，而不是删除 Ready 调用或盲目延长超时。
+因此小规格失败不能直接归因于 Ready SDK 调用错误。D-048 已在源代码中排除
+客户端 Addressables 与表现资源，但新的 Linux Player 包大小、启动峰值内存和
+Ready 时间必须以 ExecPlan 0138 的最终 BuildReport/UOS 实测为准，不能沿用旧包
+约 330 MB `resources.assets` 的数值，也不要通过删除 Ready 调用或盲目延长超时
+掩盖资源问题。
 
 UOS 标识不能混用：
 

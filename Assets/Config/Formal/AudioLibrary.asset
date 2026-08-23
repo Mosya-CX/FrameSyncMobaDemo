@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _entries:
   - SfxDefId: 1
-    Clip: {fileID: 8300000, guid: cacda20d948fd6a4cafaf8ff19b1e0f0, type: 3}
+    Clip: {fileID: 0}
+    Address: audio/1

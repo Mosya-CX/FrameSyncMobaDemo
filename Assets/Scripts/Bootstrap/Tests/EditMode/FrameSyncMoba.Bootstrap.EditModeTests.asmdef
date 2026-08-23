@@ -3,6 +3,7 @@
     "rootNamespace": "FrameSyncMoba.Bootstrap.Tests",
     "references": [
         "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.ClientContent",
         "FrameSyncMoba.Bootstrap.Editor",
         "FrameSyncMoba.LuaBridge",
         "FrameSyncMoba.RuntimeConfig",
@@ -11,7 +12,8 @@
         "FrameSyncMoba.Physics",
         "FrameSyncMoba.Deterministic",
         "Unity.Mathematics",
-        "Unity.Mathematics.FixedPoint"
+        "Unity.Mathematics.FixedPoint",
+        "Unity.Addressables.Editor"
     ],
     "includePlatforms": [
         "Editor"

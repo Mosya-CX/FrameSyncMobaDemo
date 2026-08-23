@@ -15,7 +15,9 @@ namespace FrameSyncMoba.RuntimeConfig
         [Min(1)] public int UnitPrototypeId;
         [Min(1)] public int HeroPrefabId;
         public string DisplayName;
+        [HideInInspector]
         public Sprite Avatar;
+        public string AvatarAddress;
     }
 
     /// <summary>

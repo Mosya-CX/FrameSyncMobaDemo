@@ -114,12 +114,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
             HeroDisplayTableSync.Sync(table, prototypes);
             table.GetEntry(0).DisplayName =
                 "Manual Name";
-            var avatar = Sprite.Create(
-                Texture2D.blackTexture,
-                new Rect(0, 0, 2, 2),
-                new Vector2(0.5f, 0.5f));
-            createdObjects.Add(avatar);
-            table.GetEntry(0).Avatar = avatar;
+            table.GetEntry(0).AvatarAddress = "ui/icon/hero/test";
 
             bool changed =
                 HeroDisplayTableSync.Sync(table, prototypes);
@@ -129,8 +124,8 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
                 table.GetEntry(0).DisplayName,
                 Is.EqualTo("Manual Name"));
             Assert.That(
-                table.GetEntry(0).Avatar,
-                Is.Not.Null);
+                table.GetEntry(0).AvatarAddress,
+                Is.EqualTo("ui/icon/hero/test"));
         }
 
         [Test]

@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityId: 10012
   abilityName: Blight Quiver
-  icon: {fileID: 21300000, guid: dbf61c3eedeecfa41adf5571348e67a1, type: 3}
+  icon: {fileID: 0}
+  iconAddress: ui/icon/dbf61c3eedeecfa41adf5571348e67a1
   isUltimate: 0
   castModel:
     rid: 2586995953099079730
   castRange: 0
   aimKind: 0
-  cooldownMillisecondsByLevel:
+  cooldownMillisecondsByLevel: 
   cooldownTicksByLevel: []
   costTiming: 0
   castResourceCostByLevel: []
@@ -51,7 +52,8 @@ MonoBehaviour:
         interruptible: 0
         lockMovement: 0
         resourcePerTick: 0
-        iconOverride: {fileID: 21300000, guid: b7596755b9731874abd6b653cbfdec07, type: 3}
+        iconOverride: {fileID: 0}
+        iconAddressOverride: ui/icon/b7596755b9731874abd6b653cbfdec07
     - rid: 2586995953099079740
       type: {class: OnHitBonusDamagePassiveEffectAuthoring, ns: FrameSyncMoba.Unit,
         asm: FrameSyncMoba.Unit}

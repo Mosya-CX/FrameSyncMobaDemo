@@ -20,22 +20,26 @@ namespace FrameSyncMoba.RuntimeConfig
         [SerializeField] private GameObject unityPrefab;
         [SerializeField] private int gameplayConfigId;
         [SerializeField, HideInInspector] private string editorAssetGuid;
+        [SerializeField] private string clientViewAddress;
 
         public int PrefabId => prefabId;
         public GameObject UnityPrefab => unityPrefab;
         public int GameplayConfigId => gameplayConfigId;
         public string EditorAssetGuid => editorAssetGuid;
+        public string ClientViewAddress => clientViewAddress ?? string.Empty;
 
         public PrefabEntry(
             int prefabId,
             GameObject unityPrefab,
             int gameplayConfigId = 0,
-            string editorAssetGuid = null)
+            string editorAssetGuid = null,
+            string clientViewAddress = null)
         {
             this.prefabId = prefabId;
             this.unityPrefab = unityPrefab;
             this.gameplayConfigId = gameplayConfigId;
             this.editorAssetGuid = editorAssetGuid ?? string.Empty;
+            this.clientViewAddress = clientViewAddress ?? string.Empty;
         }
     }
 
@@ -90,8 +94,8 @@ namespace FrameSyncMoba.RuntimeConfig
         [SerializeField] private List<PrefabKindRangeConfig> kindRanges =
             new List<PrefabKindRangeConfig>();
 
-        private readonly Dictionary<long, GameObject> runtimeLookup =
-            new Dictionary<long, GameObject>();
+        private readonly Dictionary<long, PrefabEntry> runtimeLookup =
+            new Dictionary<long, PrefabEntry>();
         private bool isLookupBuilt;
 
         public IReadOnlyList<PrefabGroup> PrefabGroups => prefabGroups;
@@ -101,7 +105,27 @@ namespace FrameSyncMoba.RuntimeConfig
         public bool TryGetPrefab(PrefabKind kind, int prefabId, out GameObject prefab)
         {
             EnsureLookup();
-            return runtimeLookup.TryGetValue(BuildKey(kind, prefabId), out prefab);
+            if (runtimeLookup.TryGetValue(
+                    BuildKey(kind, prefabId),
+                    out PrefabEntry entry))
+            {
+                prefab = entry.UnityPrefab;
+                return prefab != null;
+            }
+
+            prefab = null;
+            return false;
+        }
+
+        public bool TryGetEntry(
+            PrefabKind kind,
+            int prefabId,
+            out PrefabEntry entry)
+        {
+            EnsureLookup();
+            return runtimeLookup.TryGetValue(
+                BuildKey(kind, prefabId),
+                out entry);
         }
 
         public GameObject GetRequiredPrefab(PrefabKind kind, int prefabId)
@@ -197,10 +221,25 @@ namespace FrameSyncMoba.RuntimeConfig
                             $"{group.Kind} PrefabId must be positive, got {entry.PrefabId}.");
                     }
 
-                    if (entry.UnityPrefab == null)
+                    bool requiresLogicPrefab =
+                        group.Kind == PrefabKind.Unit ||
+                        group.Kind == PrefabKind.Projectile;
+                    if (entry.UnityPrefab == null &&
+                        (requiresLogicPrefab ||
+                         string.IsNullOrEmpty(entry.ClientViewAddress)))
                     {
                         throw new InvalidOperationException(
-                            $"{group.Kind} prefab {entry.PrefabId} has no Unity prefab assigned.");
+                            $"{group.Kind} prefab {entry.PrefabId} requires " +
+                            (requiresLogicPrefab
+                                ? "a synchronous logic prefab."
+                                : "a direct prefab or client Addressables address."));
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.ClientViewAddress) &&
+                        entry.ClientViewAddress.Trim() != entry.ClientViewAddress)
+                    {
+                        throw new InvalidOperationException(
+                            $"{group.Kind} prefab {entry.PrefabId} client view address must not contain leading or trailing whitespace.");
                     }
 
                     (int start, int end) range =
@@ -221,7 +260,7 @@ namespace FrameSyncMoba.RuntimeConfig
                             $"Duplicate {group.Kind} PrefabId {entry.PrefabId}.");
                     }
 
-                    runtimeLookup.Add(key, entry.UnityPrefab);
+                    runtimeLookup.Add(key, entry);
                 }
             }
 

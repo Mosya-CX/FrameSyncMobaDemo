@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using UnityEditor;
 using UnityEngine;
 
 namespace FrameSyncMoba.Unit.Tests
@@ -18,13 +19,12 @@ namespace FrameSyncMoba.Unit.Tests
         [SetUp]
         public void SetUp()
         {
-            mapPrefab =
-                Resources.Load<GameObject>(
-                    "Prefab/Map");
+            mapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/Archive/LegacyMonolithicMapPrefab/Map.prefab");
             Assert.That(
                 mapPrefab,
                 Is.Not.Null,
-                "Resources/Prefab/Map is required.");
+                "The retained monolithic map bake/audit source is required.");
             source =
                 mapPrefab.GetComponent<
                     FlowFieldSceneAuthoring>();

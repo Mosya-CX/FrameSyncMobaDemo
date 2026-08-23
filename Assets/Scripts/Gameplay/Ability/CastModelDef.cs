@@ -28,9 +28,8 @@ namespace FrameSyncMoba.Unit
         /// (e.g. a charge Hold) set this to false.
         /// </summary>
         public bool LockMovement;
-        /// <summary>Per-cast-stage UI icon override (design v15.2).
-        /// Serialized asset reference; never created at runtime.</summary>
-        public Sprite IconOverride;
+        /// <summary>Per-cast-stage client Addressables icon address.</summary>
+        public string IconAddressOverride;
         public bool IsValid => Def != null && DurationTicks >= 0;
     }
 

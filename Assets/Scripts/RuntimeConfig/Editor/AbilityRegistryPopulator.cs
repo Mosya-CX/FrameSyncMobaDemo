@@ -41,7 +41,9 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                 {
                     try
                     {
-                        asset.Bake();
+                        asset.Bake(
+                            RuntimeConfigBakeContext
+                                .CurrentTickRate);
                         successCount++;
                     }
                     catch (Exception ex)
@@ -95,7 +97,9 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
 
                 try
                 {
-                    var def = asset.Bake();
+                    var def = asset.Bake(
+                        RuntimeConfigBakeContext
+                            .CurrentTickRate);
                     registry.Register(def);
                     count++;
                 }

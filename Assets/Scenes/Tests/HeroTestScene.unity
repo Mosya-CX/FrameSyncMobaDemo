@@ -850,7 +850,7 @@ MonoBehaviour:
   dummyPrototypeId: 1001
   dummySpawn: {x: -10, y: -10}
   dummyRespawnMilliseconds: 3000
-  ticksPerSecond: 30
+  ticksPerSecond: 50
   paused: 0
   followCamera: {fileID: 1752722476}
   playerInputController: {fileID: 1233645476}

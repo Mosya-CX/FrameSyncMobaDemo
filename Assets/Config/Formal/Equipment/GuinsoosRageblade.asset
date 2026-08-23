@@ -22,7 +22,8 @@ MonoBehaviour:
     Seething Strike: Basic
     attacks grant 8% Attack Speed for 3 seconds, stacking up to 4 times. At maximum
     stacks, every third basic attack repeats eligible on-hit effects once.'
-  Icon: {fileID: 21300000, guid: 86d765fa57452364f9577c5014480763, type: 3}
+  Icon: {fileID: 0}
+  IconAddress: ui/icon/86d765fa57452364f9577c5014480763
   Tier: 3
   Value: 3000
   MaxStack: 1

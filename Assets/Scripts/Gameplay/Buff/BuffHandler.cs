@@ -553,7 +553,7 @@ namespace FrameSyncMoba.Unit
                 runtime.ConfigId,
                 display?.Name,
                 display?.Description,
-                display?.Icon,
+                display?.IconAddress,
                 runtime.CurrentStacks,
                 definition.MaxStacks,
                 definition.IsInfinite,

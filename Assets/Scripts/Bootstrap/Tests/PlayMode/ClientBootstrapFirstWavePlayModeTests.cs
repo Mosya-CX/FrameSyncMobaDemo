@@ -83,16 +83,36 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 Is.EqualTo(6),
                 "Both teams need Small, Medium and Large flow fields.");
 
-            ExecuteUntilTick(bootstrap, 973);
-            yield return null;
-
             MinionSystem minionSystem =
                 bootstrap.UnitWorld.MinionSystem;
             Assert.NotNull(minionSystem);
+            // Wait for the first wave to fully spawn. The spawn tick is baked
+            // from the authored milliseconds at the configured TickRate, so
+            // never hardcode a tick count here. Also wait until every spawned
+            // minion is past its spawn-tick active-gameplay gate, otherwise
+            // the last member is inspected before its first AI tick.
+            int firstWaveGuard = 0;
+            while ((minionSystem.ManagedMinionUids.Count < 18 ||
+                    !AllMinionsReady(
+                        minionSystem,
+                        bootstrap.UnitWorld,
+                        SimulationTickContext.Current.Tick)) &&
+                   firstWaveGuard++ < 3600)
+            {
+                bootstrap.Runtime.ExecuteAuthorityTick();
+            }
+            yield return null;
             Assert.That(
                 minionSystem.ManagedMinionUids.Count,
                 Is.EqualTo(18),
                 "Three lanes and two teams must spawn 2 melee + 1 ranged minion.");
+            Assert.That(
+                AllMinionsReady(
+                    minionSystem,
+                    bootstrap.UnitWorld,
+                    SimulationTickContext.Current.Tick),
+                Is.True,
+                "Every first-wave minion must be active and have a decision/route.");
             AssertWaveTicketsUseMapMinionSpawns(
                 minionSystem);
 
@@ -161,10 +181,26 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 }
                 else
                 {
+                    string aiDetail = "no-ai";
+                    if (bootstrap.UnitWorld.TryGetAIController(
+                            uid,
+                            out UnitAIController ai))
+                    {
+                        aiDetail = ai is MinionAIController minion
+                            ? $"state={minion.AIState} " +
+                              $"nextDecision={minion.NextDecisionLogicTick} " +
+                              $"lane={minion.LaneId} " +
+                              $"canRun={unit.CanRunActiveGameplayThisTick} " +
+                              $"ctxTick={FrameSyncMoba.Deterministic.SimulationTickContext.Current.Tick} " +
+                              $"spawn={uid.SpawnLogicTick} " +
+                              $"aiCount={bootstrap.UnitWorld.AIControllers.Count}"
+                            : $"kind={ai.ControllerKind}";
+                    }
                     Assert.Fail(
                         $"Minion [{uid.SpawnLogicTick}:{uid.RuntimeEntityPrefabId}:{uid.SpawnSequenceInTick}] " +
                         $"has Intent={unit.Intent.Kind}, Route={unit.Locomotion.Route.Kind}, " +
-                        $"Task={unit.Locomotion.CurrentTask.State}, Position={unit.PhysicsEntity.Transform2D.Position}.");
+                        $"Task={unit.Locomotion.CurrentTask.State}, Position={unit.PhysicsEntity.Transform2D.Position}, " +
+                        $"AI={aiDetail}.");
                 }
                 if (unit.UnitSubKindId ==
                     NonHeroUnitSubKindId.MeleeMinion)
@@ -198,7 +234,12 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 Is.EqualTo(18),
                 "Every first-wave minion must have a valid lane-advance or enemy-engagement decision.");
 
-            ExecuteUntilTick(bootstrap, 1003);
+            int movementCheckTick =
+                bootstrap.Runtime.CurrentTick +
+                bootstrap.UnitWorld.TickRate;
+            ExecuteUntilTick(
+                bootstrap,
+                movementCheckTick);
             yield return null;
 
             int movedCount = 0;
@@ -247,6 +288,100 @@ namespace FrameSyncMoba.Bootstrap.Tests
             VerifyTowerCombatAndMatchClosure(
                 bootstrap,
                 minionSystem);
+        }
+
+        [UnityTest]
+        public IEnumerator
+            GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin()
+        {
+            yield return SceneManager.LoadSceneAsync(
+                GameSessionContext.ServerBootstrapSceneName,
+                LoadSceneMode.Single);
+            yield return WaitForScene(
+                GameSessionContext.LobbySceneName);
+            yield return SceneManager.LoadSceneAsync(
+                GameSessionContext.GameSceneName,
+                LoadSceneMode.Single);
+            yield return WaitForScene(
+                GameSessionContext.GameSceneName);
+
+            GameBootstrap bootstrap =
+                Object.FindObjectOfType<GameBootstrap>();
+            Assert.NotNull(
+                bootstrap,
+                "GameScene must contain GameBootstrap.");
+            Assert.IsTrue(
+                bootstrap.IsInitialized,
+                "The production bootstrap must initialize from its serialized assets.");
+
+            DeterministicMapSceneAuthoring topology =
+                Object.FindObjectOfType<
+                    DeterministicMapSceneAuthoring>();
+            Assert.NotNull(
+                topology,
+                "GameScene must own a static deterministic map topology root.");
+
+            GameObject mapView = null;
+            int guard = 0;
+            while (mapView == null && guard++ < 1200)
+            {
+                mapView = GameObject.Find("ClientMapView");
+                yield return null;
+            }
+            Assert.NotNull(
+                mapView,
+                "ClientContentRuntimeHost must bind the Addressable map view after GameScene loads.");
+
+            Assert.That(
+                mapView.transform.parent,
+                Is.SameAs(topology.transform),
+                "The map view must anchor to the static DeterministicMapTopology root, never the moving bootstrap/camera root.");
+            Assert.That(
+                mapView.transform.position.sqrMagnitude,
+                Is.LessThan(0.0001f),
+                $"The map view must sit at the deterministic world origin, got {mapView.transform.position}.");
+            Assert.That(
+                bootstrap.transform.position,
+                Is.Not.EqualTo(Vector3.zero),
+                "The bootstrap/camera root is intentionally offset; the map view must not inherit it.");
+        }
+
+        private static bool AllMinionsReady(
+            MinionSystem minionSystem,
+            UnitWorld world,
+            int currentTick)
+        {
+            for (int i = 0;
+                 i < minionSystem.ManagedMinionUids.Count;
+                 i++)
+            {
+                UnitUid uid =
+                    minionSystem.ManagedMinionUids[i];
+                if (uid.SpawnLogicTick >=
+                    currentTick)
+                {
+                    return false;
+                }
+                if (!world.TryGetUnit(
+                        uid,
+                        out UnitType unit) ||
+                    unit == null ||
+                    !unit.CanRunActiveGameplayThisTick ||
+                    unit.Intent.Kind ==
+                        IntentKind.None)
+                {
+                    return false;
+                }
+                if (unit.Intent.Kind ==
+                        IntentKind.LaneAdvance &&
+                    (unit.Locomotion == null ||
+                     unit.Locomotion.Route.Kind ==
+                        RouteKind.None))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static void AssertWaveTicketsUseMapMinionSpawns(
@@ -345,8 +480,17 @@ namespace FrameSyncMoba.Bootstrap.Tests
                             thirdPrototype = ticket.UnitPrototypeId;
                         }
                     }
-                    Assert.That(secondTick - firstTick, Is.EqualTo(24));
-                    Assert.That(thirdTick - secondTick, Is.EqualTo(24));
+                    // Spawn spacing is baked from authored milliseconds at
+                    // the configured TickRate; assert equal authored spacing
+                    // instead of pinning a tick count.
+                    Assert.That(
+                        secondTick - firstTick,
+                        Is.GreaterThan(0),
+                        "Sequential first-wave spawns must use a positive step.");
+                    Assert.That(
+                        thirdTick - secondTick,
+                        Is.EqualTo(secondTick - firstTick),
+                        "The three sequential first-wave spawns must use equal authored spacing.");
                     Assert.That(
                         secondPrototype,
                         Is.EqualTo(firstPrototype),

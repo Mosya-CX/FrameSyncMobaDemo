@@ -21,7 +21,9 @@ namespace FrameSyncMoba.Unit
         [Header("Identity")]
         [SerializeField] private int abilityId = 1;
         [SerializeField] private string abilityName = "New Ability";
+        [HideInInspector]
         [SerializeField] private Sprite icon;
+        [SerializeField] private string iconAddress;
         [Tooltip("Whether this ability is the unit's ultimate (usually R).")]
         [SerializeField] private bool isUltimate;
 
@@ -63,7 +65,7 @@ namespace FrameSyncMoba.Unit
 
         public int AbilityId => abilityId;
         public string AbilityName => abilityName;
-        public Sprite Icon => icon;
+        public string IconAddress => iconAddress;
         public bool IsUltimate => isUltimate;
         public CastModelAuthoring CastModel => castModel;
         public float AuthoringCastRange => castRange;
@@ -109,7 +111,7 @@ namespace FrameSyncMoba.Unit
             {
                 AbilityId = abilityId,
                 Name = abilityName,
-                Icon = icon,
+                IconAddress = iconAddress,
                 IsUltimate = isUltimate,
                 CooldownByLevel = BakeCooldownLevelValues(
                     cooldownMillisecondsByLevel,
@@ -273,7 +275,9 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible = true;
         [SerializeField] internal bool lockMovement = true;
+        [HideInInspector]
         [SerializeField] internal Sprite iconOverride;
+        [SerializeField] internal string iconAddressOverride;
 
         public byte CastStageKey => castStageKey;
         public int DurationTicks => durationTicks;
@@ -288,7 +292,7 @@ namespace FrameSyncMoba.Unit
                     BakeHelpers.BakeDuration(
                         duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement, stages,
-                    tickRate, iconOverride),
+                    tickRate, iconAddressOverride),
             };
         }
     }
@@ -311,8 +315,12 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool releaseNotifyAbilityCastOnEnter;
         [SerializeField] internal bool releaseInterruptible;
         [SerializeField] internal bool releaseLockMovement = true;
+        [HideInInspector]
         [SerializeField] internal Sprite holdIconOverride;
+        [SerializeField] internal string holdIconAddressOverride;
+        [HideInInspector]
         [SerializeField] internal Sprite releaseIconOverride;
+        [SerializeField] internal string releaseIconAddressOverride;
         [SerializeField] internal HoldTimeoutPolicy holdTimeoutPolicy =
             HoldTimeoutPolicy.AutoRelease;
         [SerializeField] internal float refundCostPercentOnTimeout;
@@ -336,12 +344,13 @@ namespace FrameSyncMoba.Unit
                     BakeHelpers.BakeDuration(
                         holdDuration, holdDurationTicks, tickRate),
                     true, holdInterruptible, holdLockMovement, stages,
-                    tickRate, holdIconOverride),
+                    tickRate, holdIconAddressOverride),
                 Release = BakeHelpers.BakeStage(releaseStageKey,
                     BakeHelpers.BakeDuration(
                         releaseDuration, releaseDurationTicks, tickRate),
                     releaseNotifyAbilityCastOnEnter, releaseInterruptible,
-                    releaseLockMovement, stages, tickRate, releaseIconOverride),
+                    releaseLockMovement, stages, tickRate,
+                    releaseIconAddressOverride),
                 HoldTimeoutPolicy = holdTimeoutPolicy,
                 RefundCostPercentOnTimeout =
                     (Unity.Mathematics.FixedPoint.fp)
@@ -362,7 +371,9 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible = true;
         [SerializeField] internal bool lockMovement = true;
+        [HideInInspector]
         [SerializeField] internal Sprite iconOverride;
+        [SerializeField] internal string iconAddressOverride;
 
         public byte ChannelStageKey => channelStageKey;
         public int DurationTicks => durationTicks;
@@ -377,7 +388,7 @@ namespace FrameSyncMoba.Unit
                     BakeHelpers.BakeDuration(
                         duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement,
-                    stages, tickRate, iconOverride),
+                    stages, tickRate, iconAddressOverride),
             };
         }
     }
@@ -394,7 +405,9 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool notifyAbilityCastOnEnter = true;
         [SerializeField] internal bool interruptible;
         [SerializeField] internal bool lockMovement = true;
+        [HideInInspector]
         [SerializeField] internal Sprite iconOverride;
+        [SerializeField] internal string iconAddressOverride;
 
         public byte ActiveStageKey => activeStageKey;
         public int DurationTicks => durationTicks;
@@ -409,7 +422,7 @@ namespace FrameSyncMoba.Unit
                     BakeHelpers.BakeDuration(
                         duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement,
-                    stages, tickRate, iconOverride),
+                    stages, tickRate, iconAddressOverride),
             };
         }
     }
@@ -434,8 +447,12 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool executeLockMovement = true;
         [SerializeField] internal float maxRange = 10f;
         [SerializeField] internal float radius = 3f;
+        [HideInInspector]
         [SerializeField] internal Sprite aimIconOverride;
+        [SerializeField] internal string aimIconAddressOverride;
+        [HideInInspector]
         [SerializeField] internal Sprite executeIconOverride;
+        [SerializeField] internal string executeIconAddressOverride;
 
         public byte AimStageKey => aimStageKey;
         public int AimDurationTicks => aimDurationTicks;
@@ -454,12 +471,13 @@ namespace FrameSyncMoba.Unit
                     BakeHelpers.BakeDuration(
                         aimDuration, aimDurationTicks, tickRate),
                     false, aimInterruptible, aimLockMovement, stages,
-                    tickRate, aimIconOverride),
+                    tickRate, aimIconAddressOverride),
                 Execute = BakeHelpers.BakeStage(executeStageKey,
                     BakeHelpers.BakeDuration(
                         executeDuration, executeDurationTicks, tickRate),
                     executeNotifyAbilityCastOnEnter, executeInterruptible,
-                    executeLockMovement, stages, tickRate, executeIconOverride),
+                    executeLockMovement, stages, tickRate,
+                    executeIconAddressOverride),
                 MaxRange = (Unity.Mathematics.FixedPoint.fp)maxRange,
                 Radius = (Unity.Mathematics.FixedPoint.fp)radius,
             };
@@ -486,8 +504,12 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool executeLockMovement = true;
         [SerializeField] internal float maxRange = 10f;
         [SerializeField] internal float minRange;
+        [HideInInspector]
         [SerializeField] internal Sprite aimIconOverride;
+        [SerializeField] internal string aimIconAddressOverride;
+        [HideInInspector]
         [SerializeField] internal Sprite executeIconOverride;
+        [SerializeField] internal string executeIconAddressOverride;
 
         public byte AimStageKey => aimStageKey;
         public int AimDurationTicks => aimDurationTicks;
@@ -506,12 +528,13 @@ namespace FrameSyncMoba.Unit
                     BakeHelpers.BakeDuration(
                         aimDuration, aimDurationTicks, tickRate),
                     false, aimInterruptible, aimLockMovement, stages,
-                    tickRate, aimIconOverride),
+                    tickRate, aimIconAddressOverride),
                 Execute = BakeHelpers.BakeStage(executeStageKey,
                     BakeHelpers.BakeDuration(
                         executeDuration, executeDurationTicks, tickRate),
                     executeNotifyAbilityCastOnEnter, executeInterruptible,
-                    executeLockMovement, stages, tickRate, executeIconOverride),
+                    executeLockMovement, stages, tickRate,
+                    executeIconAddressOverride),
                 MaxRange = (Unity.Mathematics.FixedPoint.fp)maxRange,
                 MinRange = (Unity.Mathematics.FixedPoint.fp)minRange,
             };
@@ -531,7 +554,9 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool interruptible;
         [SerializeField] internal bool lockMovement;
         [SerializeField] internal float resourcePerTick;
+        [HideInInspector]
         [SerializeField] internal Sprite iconOverride;
+        [SerializeField] internal string iconAddressOverride;
 
         public byte ActiveStageKey => activeStageKey;
         public int DurationTicks => durationTicks;
@@ -550,7 +575,7 @@ namespace FrameSyncMoba.Unit
                     BakeHelpers.BakeDuration(
                         duration, durationTicks, tickRate),
                     notifyAbilityCastOnEnter, interruptible, lockMovement,
-                    stages, tickRate, iconOverride),
+                    stages, tickRate, iconAddressOverride),
                 ResourcePerTick = (Unity.Mathematics.FixedPoint.fp)resourcePerTick,
             };
         }
@@ -592,9 +617,15 @@ namespace FrameSyncMoba.Unit
         [SerializeField] internal bool impactInterruptible;
         [SerializeField] internal bool windowInterruptible = true;
         [SerializeField] internal bool impactLockMovement = true;
+        [HideInInspector]
         [SerializeField] internal Sprite firstImpactIconOverride;
+        [SerializeField] internal string firstImpactIconAddressOverride;
+        [HideInInspector]
         [SerializeField] internal Sprite secondImpactIconOverride;
+        [SerializeField] internal string secondImpactIconAddressOverride;
+        [HideInInspector]
         [SerializeField] internal Sprite finalImpactIconOverride;
+        [SerializeField] internal string finalImpactIconAddressOverride;
 
         public override CastModelDef Bake(
             StageDefAuthoring[] stages,
@@ -636,23 +667,23 @@ namespace FrameSyncMoba.Unit
                 FirstImpact = BakeHelpers.BakeStage(
                     firstImpactStageKey, firstImpact, true,
                     impactInterruptible, impactLockMovement, stages,
-                    tickRate, firstImpactIconOverride),
+                    tickRate, firstImpactIconAddressOverride),
                 FirstRecastWindow = BakeHelpers.BakeStage(
                     firstRecastWindowStageKey, firstWindow, false,
                     windowInterruptible, false, stages,
-                    tickRate, secondImpactIconOverride),
+                    tickRate, secondImpactIconAddressOverride),
                 SecondImpact = BakeHelpers.BakeStage(
                     secondImpactStageKey, secondImpact, true,
                     impactInterruptible, impactLockMovement, stages,
-                    tickRate, secondImpactIconOverride),
+                    tickRate, secondImpactIconAddressOverride),
                 SecondRecastWindow = BakeHelpers.BakeStage(
                     secondRecastWindowStageKey, secondWindow, false,
                     windowInterruptible, false, stages,
-                    tickRate, finalImpactIconOverride),
+                    tickRate, finalImpactIconAddressOverride),
                 FinalImpact = BakeHelpers.BakeStage(
                     finalImpactStageKey, finalImpact, true,
                     impactInterruptible, impactLockMovement, stages,
-                    tickRate, finalImpactIconOverride),
+                    tickRate, finalImpactIconAddressOverride),
             };
         }
     }
@@ -687,7 +718,7 @@ namespace FrameSyncMoba.Unit
             bool lockMovement,
             StageDefAuthoring[] stages,
             int tickRate,
-            Sprite iconOverride = null)
+            string iconAddressOverride = null)
         {
             StageDef def = null;
             if (stages != null)
@@ -714,7 +745,7 @@ namespace FrameSyncMoba.Unit
                 NotifyAbilityCastOnEnter = notifyAbilityCastOnEnter,
                 Interruptible = interruptible,
                 LockMovement = lockMovement,
-                IconOverride = iconOverride,
+                IconAddressOverride = iconAddressOverride,
             };
         }
 

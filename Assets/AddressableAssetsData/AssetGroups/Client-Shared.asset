@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Client-Shared
+  m_EditorClassIdentifier: 
+  m_GroupName: Client-Shared
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 8a390cbe562218f40b0a468cb786df1e
+  m_SerializeEntries:
+  - m_GUID: 2008ae73edcc9e643996a12d647c88b3
+    m_Address: ui/indicator/range-circle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 27e85fb6395596e40be0a8067ec883e6
+    m_Address: ui/indicator/direction
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 41bee1419c26ef0409d2e68c858bc7b6
+    m_Address: ui/indicator/ground-target
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bfcdd1322397e0c4ebd038a109bfb64f
+    m_Address: view/map/main
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3ff6355b606cac54eb86fb806f6f509b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 3c909ef2022f3cf4eb91cc48041fbe6f, type: 2}
+    - {fileID: 11400000, guid: e9763e2cbd4516649933eec4aacd27a6, type: 2}

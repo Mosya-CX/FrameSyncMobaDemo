@@ -18,10 +18,12 @@ namespace FrameSyncMoba.FrameSync
         public struct VfxPrefabEntry
         {
             public int VfxDefId;
+            [HideInInspector]
             public GameObject Prefab;
+            public string Address;
         }
 
-        public GameObject GetPrefab(int vfxDefId)
+        public string GetAddress(int vfxDefId)
         {
             if (_entries == null)
             {
@@ -34,10 +36,10 @@ namespace FrameSyncMoba.FrameSync
                 if (_entries[i].VfxDefId ==
                     vfxDefId)
                 {
-                    return _entries[i].Prefab;
+                    return _entries[i].Address ?? string.Empty;
                 }
             }
-            return null;
+            return string.Empty;
         }
     }
 }

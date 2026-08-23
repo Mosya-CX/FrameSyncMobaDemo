@@ -107,7 +107,7 @@ namespace FrameSyncMoba.EditorTools
         private const string ConfigPath =
             ConfigFolder + "/MobaCameraPresentationConfig.asset";
         private const string OutlineMaterialPath =
-            "Assets/Config/Formal/UnitOutlineRim.mat";
+                "Assets/ClientContent/Materials/UnitOutlineRim.mat";
 
         [MenuItem("FrameSyncMoba/Camera Debug/Setup Simplified Formal Scene")]
         public static void SetupSimplifiedFormalScene()

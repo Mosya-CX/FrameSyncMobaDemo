@@ -284,13 +284,49 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 "Map/LandPath/RedTeamFundation",
             };
 
+            // D-048 moved the map out of the scene into an Addressable client
+            // view, so the scene no longer owns a "Map" root. The formal lane
+            // key points still live on the deterministic logic map prefab,
+            // whose transform hierarchy is unchanged.
+            Transform mapRoot = null;
+            GameObject sceneMap = GameObject.Find("Map");
+            if (sceneMap != null)
+            {
+                mapRoot = sceneMap.transform;
+            }
+            else
+            {
+                GameObject mapPrefab =
+                    UnityEditor.AssetDatabase
+                        .LoadAssetAtPath<GameObject>(
+                            "Assets/Config/Formal/Prefabs/Logic/Map/Map.prefab");
+                if (mapPrefab != null)
+                {
+                    mapRoot = mapPrefab.transform;
+                }
+            }
+            if (mapRoot == null)
+            {
+                throw new InvalidOperationException(
+                    "Diagnostic key points require the scene Map root or the logic Map prefab.");
+            }
+
             for (int i = 0; i < paths.Length; i++)
             {
-                GameObject point = GameObject.Find(paths[i]);
+                // The authored paths carry a scene-root "Map/" prefix that
+                // Transform.Find cannot use when mapRoot is already the map
+                // root (scene object or logic prefab). Strip it.
+                string relativePath =
+                    paths[i].StartsWith("Map/",
+                        StringComparison.Ordinal)
+                        ? paths[i].Substring(4)
+                        : paths[i];
+                Transform point =
+                    mapRoot.Find(relativePath);
                 if (point == null)
                     throw new InvalidOperationException(
                         $"Diagnostic key point '{paths[i]}' was not found.");
-                keyPoints.Add(point.transform);
+                keyPoints.Add(point);
             }
         }
 

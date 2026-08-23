@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityId: 10020
   abilityName: Deathbringer Stance
-  icon: {fileID: 21300000, guid: 35a40a65df8df004eb47015ccda2a0c2, type: 3}
+  icon: {fileID: 0}
+  iconAddress: ui/icon/35a40a65df8df004eb47015ccda2a0c2
   passiveEffect:
     rid: 2586996089610567737
   cooldownByUnitLevel: d0020000bb020000a6020000900200007b02000066020000510200003c0200002702000011020000fc010000e7010000d2010000bd010000a8010000920100007d01000068010000

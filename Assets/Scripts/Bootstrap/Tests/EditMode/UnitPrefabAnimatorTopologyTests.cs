@@ -31,7 +31,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     .ResolveAttackAnimationVariant(255, 2));
         }
         private const string UnitPrefabRoot =
-            "Assets/Resources/Prefab/Unit";
+            "Assets/ClientContent/Views/Unit";
 
         [Test]
         public void UnitPrefabs_DoNotEnterLoopingMovementFromAnyState()

@@ -92,9 +92,12 @@ namespace FrameSyncMoba.Bootstrap
                 return;
             }
 
+            // D-048 moved the render/outline tree into the asynchronous
+            // client view, which is parented under the deterministic unit
+            // root. Search the view subtree instead of the logic root only.
             ClientUnitOutline outline =
-                unit.GetComponent<
-                    ClientUnitOutline>();
+                unit.GetComponentInChildren<
+                    ClientUnitOutline>(true);
             if (outline == null)
             {
                 return;

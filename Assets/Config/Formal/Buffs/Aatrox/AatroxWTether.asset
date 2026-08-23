@@ -17,7 +17,8 @@ MonoBehaviour:
   Display:
     Name: Infernal Chains Tether
     Description: Leave the marked zone before the chain pulls you back.
-    Icon: {fileID: 21300000, guid: 804f3e1b015d3c445af822036f4058ba, type: 3}
+    Icon: {fileID: 0}
+    IconAddress: ui/icon/804f3e1b015d3c445af822036f4058ba
   Life:
     Duration:
       milliseconds: 1500

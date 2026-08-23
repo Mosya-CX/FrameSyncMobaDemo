@@ -49,13 +49,13 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.That(model.FirstImpact.DurationTicks, Is.EqualTo(30));
             Assert.That(model.SecondImpact.DurationTicks, Is.EqualTo(30));
             Assert.That(model.FinalImpact.DurationTicks, Is.EqualTo(30));
-            Assert.That(model.SecondImpact.IconOverride, Is.Not.Null);
-            Assert.That(model.FinalImpact.IconOverride, Is.Not.Null);
-            Assert.That(model.FirstRecastWindow.IconOverride,
-                Is.SameAs(model.SecondImpact.IconOverride),
+            Assert.That(model.SecondImpact.IconAddressOverride, Is.Not.Empty);
+            Assert.That(model.FinalImpact.IconAddressOverride, Is.Not.Empty);
+            Assert.That(model.FirstRecastWindow.IconAddressOverride,
+                Is.EqualTo(model.SecondImpact.IconAddressOverride),
                 "After Q1, the current recast-window Stage must show Q2.");
-            Assert.That(model.SecondRecastWindow.IconOverride,
-                Is.SameAs(model.FinalImpact.IconOverride),
+            Assert.That(model.SecondRecastWindow.IconAddressOverride,
+                Is.EqualTo(model.FinalImpact.IconAddressOverride),
                 "After Q2, the current recast-window Stage must show Q3.");
 
             DirectionalMultiZoneDamageStageDefAuthoring[] zones = asset.Stages
@@ -444,7 +444,16 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.That(prefabs.GetRequiredPrefab(PrefabKind.Projectile, 2105), Is.Not.Null);
             Assert.That(prefabs.GetRequiredPrefab(PrefabKind.Projectile, 2106), Is.Not.Null);
             for (int id = 3101; id <= 3103; id++)
-                Assert.That(prefabs.GetRequiredPrefab(PrefabKind.ParticleVfx, id), Is.Not.Null);
+            {
+                Assert.That(
+                    prefabs.TryGetEntry(
+                        PrefabKind.ParticleVfx,
+                        id,
+                        out PrefabEntry entry),
+                    Is.True);
+                Assert.That(entry.UnityPrefab, Is.Null);
+                Assert.That(entry.ClientViewAddress, Is.Not.Empty);
+            }
 
             UnitRuntimeCatalogAsset units = Load<UnitRuntimeCatalogAsset>(
                 Root + "FullMatchUnitRuntimeCatalog.asset");
@@ -523,15 +532,15 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void AatroxPrefab_ComposesGameplayPresentationAndEditorGizmo()
+        public void AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo()
         {
-            GameObject prefab = Load<GameObject>(
-                "Assets/Resources/Prefab/Unit/" +
+            GameObject logicPrefab = Load<GameObject>(
+                "Assets/Config/Formal/Prefabs/Logic/Unit/" +
                 "AatroxHeroRuntime.prefab");
-            Assert.That(prefab.GetComponent<Unit>(), Is.Not.Null);
-            Assert.That(prefab.GetComponent<AbilityHandler>(), Is.Not.Null);
+            Assert.That(logicPrefab.GetComponent<Unit>(), Is.Not.Null);
+            Assert.That(logicPrefab.GetComponent<AbilityHandler>(), Is.Not.Null);
             AatroxAbilityZoneAuthoringGizmo gizmo =
-                prefab.GetComponent<AatroxAbilityZoneAuthoringGizmo>();
+                logicPrefab.GetComponent<AatroxAbilityZoneAuthoringGizmo>();
             Assert.That(gizmo, Is.Not.Null);
             SerializedObject serializedGizmo = new SerializedObject(gizmo);
             Assert.That(serializedGizmo.FindProperty("qAbility")
@@ -540,7 +549,18 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.That(serializedGizmo.FindProperty("wTetherZone")
                     .objectReferenceValue,
                 Is.Not.Null);
-            Animator animator = prefab.GetComponentInChildren<Animator>(true);
+            Assert.That(
+                logicPrefab.GetComponentInChildren<Animator>(true),
+                Is.Null,
+                "The deterministic logic prefab must not retain an Animator.");
+            Assert.That(logicPrefab.transform.Find("Model"), Is.Null);
+
+            GameObject viewPrefab = Load<GameObject>(
+                "Assets/ClientContent/Views/Unit/" +
+                "AatroxHeroRuntimeView.prefab");
+            Assert.That(viewPrefab.GetComponent<Unit>(), Is.Null);
+            Assert.That(viewPrefab.GetComponent<AbilityHandler>(), Is.Null);
+            Animator animator = viewPrefab.GetComponentInChildren<Animator>(true);
             Assert.That(animator, Is.Not.Null);
             Assert.That(animator.runtimeAnimatorController, Is.Not.Null);
             AnimatorController controller =
@@ -658,8 +678,8 @@ namespace FrameSyncMoba.Unit.Tests
 
             FrameSyncMoba.Presentation.UnitAnimationProfile profile =
                 Load<FrameSyncMoba.Presentation.UnitAnimationProfile>(
-                    Root +
-                    "Animation/AatroxAnimationProfile.asset");
+                    "Assets/ClientContent/Animation/Profiles/" +
+                    "AatroxAnimationProfile.asset");
             Assert.That(profile.PassiveReadyAbilityId,
                 Is.EqualTo(10020));
             Assert.That(profile.AnimationVariantBuffConfigId,
@@ -685,7 +705,7 @@ namespace FrameSyncMoba.Unit.Tests
                     .All(item =>
                         item.AnimationVariantStateNameHash != 0),
                 Is.True);
-            Assert.That(prefab.transform.Find("Model"), Is.Not.Null);
+            Assert.That(viewPrefab.transform.Find("Model"), Is.Not.Null);
 
             foreach (string clipName in new[]
                 {
@@ -694,7 +714,7 @@ namespace FrameSyncMoba.Unit.Tests
                 })
             {
                 AnimationClip clip = Load<AnimationClip>(
-                    "Assets/Resources/Animation/Aatrox/" +
+                    "Assets/ClientContent/Animation/Aatrox/" +
                     clipName + ".anim");
                 Assert.That(clip.length,
                     Is.EqualTo(1f).Within(.001f),
@@ -707,7 +727,7 @@ namespace FrameSyncMoba.Unit.Tests
                 })
             {
                 AnimationClip clip = Load<AnimationClip>(
-                    "Assets/Resources/Animation/Aatrox/" +
+                    "Assets/ClientContent/Animation/Aatrox/" +
                     clipName + ".anim");
                 Assert.That(clip.length,
                     Is.EqualTo(14f / 30f).Within(.001f),
@@ -735,22 +755,26 @@ namespace FrameSyncMoba.Unit.Tests
             }
 
             GameObject wMissile = Load<GameObject>(
-                "Assets/Resources/Prefab/Missle/AatroxSpellWMissle.prefab");
+                "Assets/Config/Formal/Prefabs/Logic/Projectile/AatroxSpellWMissle.prefab");
             Assert.That(wMissile.GetComponent<Physics.PhysicsEntity2D>(),
                 Is.Not.Null);
             Assert.That(wMissile.GetComponent<Physics.PhysicsEntity2DShapeAuthoring>(),
                 Is.Not.Null);
 
             GameObject tetherArea = Load<GameObject>(
-                "Assets/Resources/Prefab/Missle/InfernalChainsArea.prefab");
+                "Assets/Config/Formal/Prefabs/Logic/Projectile/InfernalChainsArea.prefab");
             Assert.That(tetherArea.GetComponent<Physics.PhysicsEntity2D>(),
                 Is.Not.Null);
             Assert.That(tetherArea.GetComponent<Physics.PhysicsEntity2DShapeAuthoring>(),
                 Is.Not.Null);
             Assert.That(tetherArea.GetComponent<ProjectileContainmentZoneAuthoring>(),
                 Is.Not.Null);
-            Assert.That(tetherArea.GetComponent<LineRenderer>(), Is.Not.Null);
-            Assert.That(prefab.GetComponent<AatroxAbilityZoneAuthoringGizmo>(),
+            Assert.That(tetherArea.GetComponent<LineRenderer>(), Is.Null);
+            GameObject tetherAreaView = Load<GameObject>(
+                "Assets/ClientContent/Views/Projectile/" +
+                "InfernalChainsAreaView.prefab");
+            Assert.That(tetherAreaView.GetComponent<LineRenderer>(), Is.Not.Null);
+            Assert.That(logicPrefab.GetComponent<AatroxAbilityZoneAuthoringGizmo>(),
                 Is.Not.Null);
         }
 
@@ -758,7 +782,7 @@ namespace FrameSyncMoba.Unit.Tests
         public void InfernalChainsArea_ContainmentUsesAuthoredTrapezoid()
         {
             GameObject prefab = Load<GameObject>(
-                "Assets/Resources/Prefab/Missle/InfernalChainsArea.prefab");
+                "Assets/Config/Formal/Prefabs/Logic/Projectile/InfernalChainsArea.prefab");
             ProjectileContainmentZone zone = prefab
                 .GetComponent<ProjectileContainmentZoneAuthoring>()
                 .BakeOrThrow();

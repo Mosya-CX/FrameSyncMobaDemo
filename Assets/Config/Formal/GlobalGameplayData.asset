@@ -15,7 +15,7 @@ MonoBehaviour:
   globalPrefabTable: {fileID: 11400000, guid: 0afb3a04101933e4db188d9d13aa30ea, type: 2}
   heroDisplayTable: {fileID: 11400000, guid: c5958d1073b594545aa68c722dd4feb1, type: 2}
   frameSync:
-    TickRate: 30
+    TickRate: 50
     MinCommandLeadTicks: 1
     MaxFutureCommandTicks: 12
     SnapshotWindowTicks: 180

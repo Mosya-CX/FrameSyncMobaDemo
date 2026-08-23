@@ -3,6 +3,7 @@
     "rootNamespace": "FrameSyncMoba.Bootstrap.Tests",
     "references": [
         "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.ClientContent",
         "FrameSyncMoba.LuaBridge",
         "FrameSyncMoba.RuntimeConfig",
         "FrameSyncMoba.PlayerInput",

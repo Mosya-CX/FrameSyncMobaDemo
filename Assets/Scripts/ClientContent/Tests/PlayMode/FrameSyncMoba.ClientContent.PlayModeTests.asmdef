@@ -1,0 +1,30 @@
+{
+    "name": "FrameSyncMoba.ClientContent.PlayModeTests",
+    "rootNamespace": "FrameSyncMoba.ClientContent.Tests",
+    "references": [
+        "FrameSyncMoba.ClientContent",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "Unity.Addressables",
+        "Unity.Mathematics.FixedPoint",
+        "Unity.ResourceManager",
+        "UnityEditor"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "!UNITY_SERVER"
+    ],
+    "versionDefines": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "noEngineReferences": false
+}

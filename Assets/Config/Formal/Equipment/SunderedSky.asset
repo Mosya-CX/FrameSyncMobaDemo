@@ -20,7 +20,8 @@ MonoBehaviour:
     Strike: the next basic attack against an enemy hero deals 160% damage and is
     a guaranteed critical strike, heals the owner and starts an independent 10s cooldown
     per enemy hero. Overheal becomes temporary bonus Max Health for 8 seconds.'
-  Icon: {fileID: 21300000, guid: 22ee2f49eb0f53c4f9007811dd4883cc, type: 3}
+  Icon: {fileID: 0}
+  IconAddress: ui/icon/22ee2f49eb0f53c4f9007811dd4883cc
   Tier: 3
   Value: 3100
   MaxStack: 1

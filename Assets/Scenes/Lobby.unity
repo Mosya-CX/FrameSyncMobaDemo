@@ -332,44 +332,44 @@ MonoBehaviour:
   overlayLayer: {fileID: 2114859902}
   pages:
   - PageId: 1
-    Prefab: {fileID: 8857868045401810774, guid: 1319619673170934ab3268ef9a7a05f0,
-      type: 3}
+    Prefab: {fileID: 0}
+    Address: ui/page/main
     Layer: 0
     Preload: 1
     OpenOnStart: 1
   - PageId: 2
-    Prefab: {fileID: 8134075394256813692, guid: bb54c64933efdf945bfe559b3d3cc274,
-      type: 3}
+    Prefab: {fileID: 0}
+    Address: ui/page/match
     Layer: 0
     Preload: 1
     OpenOnStart: 0
   - PageId: 3
-    Prefab: {fileID: 5112221971575720155, guid: f136c6eca688bbb47b2352f8cd9aa46c,
-      type: 3}
+    Prefab: {fileID: 0}
+    Address: ui/page/select
     Layer: 0
     Preload: 1
     OpenOnStart: 0
   - PageId: 4
-    Prefab: {fileID: 5238736655609465153, guid: 1287340434f773848bf6401e52eec82a,
-      type: 3}
+    Prefab: {fileID: 0}
+    Address: ui/page/load
     Layer: 0
     Preload: 1
     OpenOnStart: 0
   - PageId: 5
-    Prefab: {fileID: 8513933102934286001, guid: b637d479f68badc489446b271d694dfa,
-      type: 3}
+    Prefab: {fileID: 0}
+    Address: ui/page/hud
     Layer: 0
     Preload: 1
     OpenOnStart: 0
   - PageId: 6
-    Prefab: {fileID: 7962991757111223115, guid: f6326b3c5517d044482898ab237f94e4,
-      type: 3}
+    Prefab: {fileID: 0}
+    Address: ui/page/shop
     Layer: 1
     Preload: 1
     OpenOnStart: 0
   - PageId: 7
-    Prefab: {fileID: 5031822139431748686, guid: 6000fd8d8ec9a4b4ea1604e4a30254ec,
-      type: 3}
+    Prefab: {fileID: 0}
+    Address: ui/page/result
     Layer: 0
     Preload: 1
     OpenOnStart: 0

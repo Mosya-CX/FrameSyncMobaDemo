@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
-using UnityEngine;
 
 namespace FrameSyncMoba.Unit
 {
@@ -41,12 +40,12 @@ namespace FrameSyncMoba.Unit
 
         /// <summary>
         /// Current UI icon for this ability instance (design v15.2): the
-        /// current cast stage's IconOverride when in a session, otherwise the
-        /// AbilityDef.Icon. Presentation-only; never affects Gameplay.
+        /// current cast stage's address override when in a session, otherwise
+        /// the AbilityDef address. Presentation-only; never affects Gameplay.
         /// </summary>
-        public Sprite GetCurrentIcon()
+        public string GetCurrentIconAddress()
         {
-            Sprite icon = Definition?.Icon;
+            string address = Definition?.IconAddress;
             if (ActiveSession != null &&
                 Definition?.CastModel != null)
             {
@@ -54,10 +53,11 @@ namespace FrameSyncMoba.Unit
                     Definition.CastModel.GetStage(
                         ActiveSession.CurrentStageKey);
                 if (stage.HasValue &&
-                    stage.Value.IconOverride != null)
-                    icon = stage.Value.IconOverride;
+                    !string.IsNullOrWhiteSpace(
+                        stage.Value.IconAddressOverride))
+                    address = stage.Value.IconAddressOverride;
             }
-            return icon;
+            return address;
         }
 
         public void StartCooldown(int currentTick, int cooldownTicks)

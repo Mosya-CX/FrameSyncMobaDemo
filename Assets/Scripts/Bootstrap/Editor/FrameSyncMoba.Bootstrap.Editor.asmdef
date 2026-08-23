@@ -3,7 +3,11 @@
     "rootNamespace": "FrameSyncMoba.EditorTools",
     "references": [
         "FrameSyncMoba.Unit",
-        "FrameSyncMoba.Bootstrap"
+        "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.PlayerInput",
+        "Unity.Addressables.Editor",
+        "Unity.UGUI"
     ],
     "includePlatforms": [
         "Editor"

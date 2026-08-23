@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityId: 10023
   abilityName: Umbral Dash
-  icon: {fileID: 21300000, guid: 237800e8fddf3e54bb1bf43e3e96ff5b, type: 3}
+  icon: {fileID: 0}
+  iconAddress: ui/icon/237800e8fddf3e54bb1bf43e3e96ff5b
   isUltimate: 0
   castModel:
     rid: 2586996089610567741
@@ -51,6 +52,7 @@ MonoBehaviour:
         interruptible: 0
         lockMovement: 0
         iconOverride: {fileID: 0}
+        iconAddressOverride: 
     - rid: 2586996089610567742
       type: {class: AbilityRankStatModifierPassiveEffectAuthoring, ns: FrameSyncMoba.Unit,
         asm: FrameSyncMoba.Unit}

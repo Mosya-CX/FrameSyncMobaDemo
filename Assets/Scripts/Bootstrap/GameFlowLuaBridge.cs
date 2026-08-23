@@ -1,4 +1,5 @@
 using System;
+using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.RuntimeConfig;
 using UnityEngine;
 using XLua;
@@ -257,8 +258,9 @@ namespace FrameSyncMoba.Bootstrap
                         index < 1 ||
                         index > table.Count)
                         return null;
-                    return table.GetEntry(index - 1)
-                        .Avatar;
+                    return ClientSpriteRegistry.Resolve(
+                        table.GetEntry(index - 1)
+                            .AvatarAddress);
                 };
         }
 

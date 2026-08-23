@@ -83,9 +83,8 @@ namespace FrameSyncMoba.Unit
     {
         public int AbilityId;
         public string Name;
-        /// <summary>Passive UI icon. Serialized asset reference; never
-        /// created at runtime, never read by Gameplay.</summary>
-        public Sprite Icon;
+        /// <summary>Stable client Addressables icon address.</summary>
+        public string IconAddress;
         public PassiveAbilityEffectDef PassiveEffect;
         public int[] CooldownByUnitLevel;
         public bool IsValid => AbilityId > 0 && PassiveEffect != null;
@@ -161,8 +160,8 @@ namespace FrameSyncMoba.Unit
         public readonly PassiveAbilityDef Definition;
         public readonly AbilityPassiveEffectRuntime EffectRuntime;
 
-        public Sprite GetCurrentIcon() =>
-            Definition?.Icon;
+        public string GetCurrentIconAddress() =>
+            Definition?.IconAddress;
 
         public PassiveAbilityRuntime(PassiveAbilityDef definition)
         {

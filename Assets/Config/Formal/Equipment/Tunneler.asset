@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 31009
   Name: Tunneler
-  Description: "Grants 15 Attack Damage and 250 Max Health."
-  Icon: {fileID: 21300000, guid: 5e44ca630b8853b4eac51877ef530e61, type: 3}
+  Description: Grants 15 Attack Damage and 250 Max Health.
+  Icon: {fileID: 0}
+  IconAddress: ui/icon/5e44ca630b8853b4eac51877ef530e61
   Tier: 2
   Value: 1150
   MaxStack: 1

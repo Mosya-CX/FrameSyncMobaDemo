@@ -17,18 +17,21 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public IEnumerator RuntimePrefab_InstantiatesWithModelAndEditorGizmo()
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                    "Assets/Resources/Prefab/Unit/AatroxHeroRuntime.prefab");
+                    "Assets/Config/Formal/Prefabs/Logic/Unit/AatroxHeroRuntime.prefab");
             Assert.That(prefab, Is.Not.Null);
             GameObject instance = Object.Instantiate(prefab);
             try
             {
+                GameObject view = AssetDatabase.LoadAssetAtPath<GameObject>(
+                    "Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab");
+                Object.Instantiate(view, instance.transform, false);
                 yield return null;
                 Assert.That(instance.GetComponent<GameplayUnit>(), Is.Not.Null);
                 Assert.That(instance.GetComponent<AbilityHandler>(), Is.Not.Null);
                 Assert.That(instance.GetComponent<AatroxAbilityZoneAuthoringGizmo>(), Is.Not.Null);
                 Assert.That(instance.GetComponentInChildren<Animator>(true), Is.Not.Null);
                 BuffDrivenBoneVisibility wings =
-                    instance.GetComponent<
+                    instance.GetComponentInChildren<
                         BuffDrivenBoneVisibility>();
                 Assert.That(wings, Is.Not.Null);
                 Assert.That(wings.VisibleBuffConfigId,
@@ -47,7 +50,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public IEnumerator ClientUnitOutline_CoversEveryAatroxSubMesh()
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                    "Assets/Resources/Prefab/Unit/AatroxHeroRuntime.prefab");
+                    "Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab");
             Assert.That(prefab, Is.Not.Null);
             GameObject instance = Object.Instantiate(prefab);
             try
@@ -88,11 +91,14 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public IEnumerator TetherArea_InstantiatesAsStationaryProjectile()
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/Resources/Prefab/Missle/InfernalChainsArea.prefab");
+                "Assets/Config/Formal/Prefabs/Logic/Projectile/InfernalChainsArea.prefab");
             Assert.That(prefab, Is.Not.Null);
             GameObject instance = Object.Instantiate(prefab);
             try
             {
+                GameObject view = AssetDatabase.LoadAssetAtPath<GameObject>(
+                    "Assets/ClientContent/Views/Projectile/InfernalChainsAreaView.prefab");
+                Object.Instantiate(view, instance.transform, false);
                 yield return null;
                 Assert.That(
                     instance.GetComponent<PhysicsEntity2D>(),
@@ -104,7 +110,9 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     instance.GetComponent<ProjectileContainmentZoneAuthoring>();
                 Assert.That(zone, Is.Not.Null);
                 Assert.That(zone.BakeOrThrow().IsValid, Is.True);
-                Assert.That(instance.GetComponent<LineRenderer>(), Is.Not.Null);
+                Assert.That(
+                    instance.GetComponentInChildren<LineRenderer>(),
+                    Is.Not.Null);
             }
             finally
             {
@@ -117,7 +125,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public IEnumerator AnimatorController_RoutesPassiveUltimateAndEmpoweredAttack()
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                    "Assets/Resources/Prefab/Unit/AatroxHeroRuntime.prefab");
+                    "Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab");
             GameObject instance = Object.Instantiate(prefab);
             try
             {
@@ -165,7 +173,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public IEnumerator AnimatorController_LocomotionVariantsAdvanceWithoutSelfReentry()
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/Resources/Prefab/Unit/AatroxHeroRuntime.prefab");
+                "Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab");
             GameObject instance = Object.Instantiate(prefab);
             try
             {
@@ -237,7 +245,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public IEnumerator AnimatorController_UltimateEndPlaysExitClip()
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/Resources/Prefab/Unit/AatroxHeroRuntime.prefab");
+                "Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab");
             GameObject instance = Object.Instantiate(prefab);
             try
             {

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using FrameSyncMoba.Bootstrap.Tests;
+using FrameSyncMoba.ClientContent;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.LuaBridge;
@@ -72,6 +74,13 @@ namespace FrameSyncMoba.Bootstrap
         private PlayerCommandRequester playerCommandRequester;
         private SkillIndicatorDriver indicatorDriver;
         private PresentationEventDispatcher vfxDispatcher;
+        private ClientProjectileViewBinder projectileViewBinder;
+        private readonly List<IPresentationAssetLease<GameObject>>
+            presentationLeases =
+                new List<IPresentationAssetLease<GameObject>>();
+        private readonly List<GameObject>
+            presentationViewInstances =
+                new List<GameObject>();
 
         private readonly Dictionary<UnitUid, ClientUnitOutline>
             outlines =
@@ -133,21 +142,34 @@ namespace FrameSyncMoba.Bootstrap
             }
         }
 
-        private void Start()
+        private async void Start()
         {
             BuildWorld();
             BuildMap();
             SpawnHero();
             SpawnDummiesAtScenePoints();
-            EnsureIndicatorDriver();
+            await EnsureIndicatorDriverAsync();
+            await BindPresentationViewsAsync();
             ConfigurePlayerInput();
             ConfigureTestShop();
+            var blightMarks =
+                GetComponent<
+                    BlightStackMarkPresenter>();
+            if (blightMarks == null)
+            {
+                blightMarks =
+                    gameObject.AddComponent<
+                        BlightStackMarkPresenter>();
+            }
+            blightMarks.InitializeAddressable(
+                "vfx/4102",
+                () => world.GetAllUnits());
             var verticalMotion = gameObject.AddComponent<
                 CrowdControlVerticalMotionPresenter>();
             verticalMotion.Initialize(
                 () => world.GetAllUnits(),
                 () => CurrentTick,
-                30f);
+                ticksPerSecond);
             if (followCamera != null && hero != null)
             {
                 followCamera.SetDebugTarget(hero.transform);
@@ -158,14 +180,10 @@ namespace FrameSyncMoba.Bootstrap
                 FindObjectOfType<UIManager>();
             if (uiManager == null)
             {
-                GameObject prefab =
-                    Resources.Load<GameObject>(
-                        "Prefab/UI/UIManager");
-                if (prefab != null)
-                {
-                    uiManager = Instantiate(prefab)
-                        .GetComponent<UIManager>();
-                }
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                    "Assets/ClientContent/UI/UIManager.prefab");
+                uiManager = Instantiate(prefab)
+                    .GetComponent<UIManager>();
             }
             if (uiManager != null)
             {
@@ -219,6 +237,8 @@ namespace FrameSyncMoba.Bootstrap
                     "HeroTestVfxManager");
             var vfxManager =
                 vfxManagerGO.AddComponent<VfxManager>();
+            vfxManager.SetAssetLoader(
+                ClientPresentationServices.Loader);
             vfxManager.SetLibrary(
                 AssetDatabase
                     .LoadAssetAtPath<VfxLibrary>(
@@ -240,6 +260,8 @@ namespace FrameSyncMoba.Bootstrap
             var audioManager =
                 audioManagerGO.AddComponent<
                     AudioManager>();
+            audioManager.SetAssetLoader(
+                ClientPresentationServices.Loader);
             audioManager.SetLibrary(
                 AssetDatabase
                     .LoadAssetAtPath<AudioLibrary>(
@@ -269,7 +291,7 @@ namespace FrameSyncMoba.Bootstrap
             outlineRimMaterial =
                 AssetDatabase
                     .LoadAssetAtPath<Material>(
-                        "Assets/Config/Formal/UnitOutlineRim.mat");
+                        "Assets/ClientContent/Materials/UnitOutlineRim.mat");
             heroDisplayTable =
                 AssetDatabase
                     .LoadAssetAtPath<GlobalGameplayData>(
@@ -740,6 +762,7 @@ namespace FrameSyncMoba.Bootstrap
                 // (VisualEventOutput is cleared at the next Tick start).
                 vfxDispatcher?.DispatchCurrentFrame();
             }
+            projectileViewBinder?.Reconcile();
         }
 
         /// <summary>
@@ -1100,7 +1123,9 @@ namespace FrameSyncMoba.Bootstrap
                     UnitType unit = Local();
                     return unit?.AbilityHandler
                         ?.GetActiveRuntime((byte)slot)
-                        ?.GetCurrentIcon();
+                        ?.GetCurrentIconAddress() is string address
+                            ? ClientSpriteRegistry.Resolve(address)
+                            : null;
                 };
             GameFlowLuaBridge.GetPassiveAbilityIcon =
                 () =>
@@ -1108,7 +1133,9 @@ namespace FrameSyncMoba.Bootstrap
                     UnitType unit = Local();
                     return unit?.AbilityHandler
                         ?.FixedPassive
-                        ?.GetCurrentIcon();
+                        ?.GetCurrentIconAddress() is string address
+                            ? ClientSpriteRegistry.Resolve(address)
+                            : null;
                 };
             GameFlowLuaBridge.GetLocalHeroAvatar =
                 () =>
@@ -1120,7 +1147,8 @@ namespace FrameSyncMoba.Bootstrap
                     {
                         return null;
                     }
-                    return entry.Avatar;
+                    return ClientSpriteRegistry.Resolve(
+                        entry.AvatarAddress);
                 };
             GameFlowLuaBridge.GetHudGold =
                 () => equipmentShop
@@ -1206,8 +1234,9 @@ namespace FrameSyncMoba.Bootstrap
                     ?.GetSlot(slot)?.StackCount ?? 0;
             GameFlowLuaBridge
                 .GetLocalEquipmentSlotIcon =
-                slot => hero?.EquipmentHandler
-                    ?.GetSlotDef(slot)?.Icon;
+                slot => ClientSpriteRegistry.Resolve(
+                    hero?.EquipmentHandler
+                        ?.GetSlotDef(slot)?.IconAddress);
             GameFlowLuaBridge.FocusShopEquipment =
                 (_, __) =>
                 {
@@ -1264,8 +1293,9 @@ namespace FrameSyncMoba.Bootstrap
                     ?.GetAllOrdered()?.Count ?? 0;
             GameFlowLuaBridge.GetLocalBuffIcon =
                 index =>
-                    BuffAt(index)
-                        ?.Definition?.Display?.Icon;
+                    ClientSpriteRegistry.Resolve(
+                        BuffAt(index)
+                            ?.Definition?.Display?.IconAddress);
             GameFlowLuaBridge.GetLocalBuffName =
                 index =>
                     BuffAt(index)
@@ -1350,7 +1380,8 @@ namespace FrameSyncMoba.Bootstrap
                     return defs != null &&
                         index >= 0 &&
                         index < defs.Count
-                            ? defs[index].Icon
+                            ? ClientSpriteRegistry.Resolve(
+                                defs[index].IconAddress)
                             : null;
                 };
             GameFlowLuaBridge.GetShopItemPrice =
@@ -1880,7 +1911,7 @@ namespace FrameSyncMoba.Bootstrap
                 return existing;
             }
             ClientUnitOutline outline =
-                unit.GetComponent<
+                unit.GetComponentInChildren<
                     ClientUnitOutline>();
             if (outline == null)
             {
@@ -1904,7 +1935,7 @@ namespace FrameSyncMoba.Bootstrap
         /// Finds or builds the generic 2D skill indicator driver used by the
         /// formal PlayerInputController.
         /// </summary>
-        private void EnsureIndicatorDriver()
+        private async Task EnsureIndicatorDriverAsync()
         {
             if (indicatorDriver != null)
             {
@@ -1921,14 +1952,151 @@ namespace FrameSyncMoba.Bootstrap
                 indicatorDriver =
                     holder.AddComponent<
                         SkillIndicatorDriver>();
+                IClientPresentationAssetLoader loader =
+                    await ClientPresentationServices.GetLoaderAsync();
+                IPresentationAssetLease<GameObject> direction =
+                    await loader.AcquirePrefabAsync(
+                        "ui/indicator/direction",
+                        CancellationToken.None);
+                IPresentationAssetLease<GameObject> range =
+                    await loader.AcquirePrefabAsync(
+                        "ui/indicator/range-circle",
+                        CancellationToken.None);
+                IPresentationAssetLease<GameObject> ground =
+                    await loader.AcquirePrefabAsync(
+                        "ui/indicator/ground-target",
+                        CancellationToken.None);
+                presentationLeases.Add(direction);
+                presentationLeases.Add(range);
+                presentationLeases.Add(ground);
                 indicatorDriver.Configure(
-                    Resources.Load<GameObject>(
-                        "Prefab/Indicators/DirectionIndicator"),
-                    Resources.Load<GameObject>(
-                        "Prefab/Indicators/RangeCircleIndicator"),
-                    Resources.Load<GameObject>(
-                        "Prefab/Indicators/GroundTargetIndicator"));
+                    direction.Asset,
+                    range.Asset,
+                    ground.Asset);
             }
+        }
+
+        /// <summary>
+        /// D-048 split the render/Animator/outline tree into Addressable
+        /// client views. Bind the spawned hero and dummies to their views so
+        /// the scene still renders models, animates them and supports hover
+        /// outlines, mirroring ClientUnitViewBinder.
+        /// </summary>
+        private async Task BindPresentationViewsAsync()
+        {
+            IClientPresentationAssetLoader loader =
+                await ClientPresentationServices.GetLoaderAsync();
+            await BindViewForUnitAsync(
+                hero,
+                loader);
+            for (int i = 0;
+                 i < dummies.Count;
+                 i++)
+            {
+                await BindViewForUnitAsync(
+                    dummies[i],
+                    loader);
+            }
+            projectileViewBinder?.Dispose();
+            projectileViewBinder =
+                new ClientProjectileViewBinder(
+                    world.ProjectileWorld,
+                    world.GlobalPrefabTable,
+                    loader);
+        }
+
+        private async Task BindViewForUnitAsync(
+            UnitType unit,
+            IClientPresentationAssetLoader loader)
+        {
+            if (unit == null ||
+                !unit.UnitUid.IsValid())
+            {
+                return;
+            }
+            if (!world.GlobalPrefabTable.TryGetEntry(
+                    PrefabKind.Unit,
+                    unit.UnitUid.RuntimeEntityPrefabId,
+                    out PrefabEntry entry) ||
+                string.IsNullOrEmpty(entry.ClientViewAddress))
+            {
+                return;
+            }
+
+            IPresentationAssetLease<GameObject> lease = null;
+            GameObject instance = null;
+            try
+            {
+                lease = await loader.AcquirePrefabAsync(
+                    entry.ClientViewAddress,
+                    CancellationToken.None);
+                if (unit == null)
+                {
+                    lease.Dispose();
+                    return;
+                }
+                instance = Instantiate(
+                    lease.Asset,
+                    unit.transform,
+                    false);
+                instance.name =
+                    $"HeroTestView_{unit.UnitUid}";
+                UnitPresentationHost host =
+                    instance.GetComponent<
+                        UnitPresentationHost>();
+                if (host == null)
+                {
+                    Destroy(instance);
+                    instance = null;
+                    lease.Dispose();
+                    lease = null;
+                    return;
+                }
+                host.Bind(unit);
+                presentationViewInstances.Add(
+                    instance);
+                presentationLeases.Add(lease);
+                instance = null;
+                lease = null;
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                    $"[HeroTest] View bind failed for " +
+                    $"uid={unit?.UnitUid}: {exception}");
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    Destroy(instance);
+                }
+                lease?.Dispose();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            projectileViewBinder?.Dispose();
+            projectileViewBinder = null;
+            for (int i = 0;
+                 i < presentationViewInstances.Count;
+                 i++)
+            {
+                if (presentationViewInstances[i] !=
+                    null)
+                {
+                    Destroy(
+                        presentationViewInstances[i]);
+                }
+            }
+            presentationViewInstances.Clear();
+            for (int i = 0; i < presentationLeases.Count; i++)
+                presentationLeases[i].Dispose();
+            presentationLeases.Clear();
         }
 
         /// <summary>

@@ -54,9 +54,9 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     EquipmentDefinition definition =
                         database.AllDefinitions[i];
                     Assert.That(
-                        definition.Icon,
-                        Is.Not.Null,
-                        definition.Name + " must have an icon.");
+                        definition.IconAddress,
+                        Is.Not.Empty,
+                        definition.Name + " must have an icon address.");
                     Assert.That(
                         ContainsCjk(definition.Name),
                         Is.False,

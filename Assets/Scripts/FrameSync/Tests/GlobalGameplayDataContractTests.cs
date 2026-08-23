@@ -13,7 +13,16 @@ namespace FrameSyncMoba.FrameSync.Tests
                 "Assets/Config/Formal/GlobalGameplayData.asset");
             Assert.NotNull(asset);
             BakedGlobalGameplayData baked = asset.BakeOrThrow();
-            Assert.AreEqual(30, baked.TickRate);
+            // The bake must follow the authored TickRate instead of any
+            // hardcoded editor constant.
+            var serialized = new UnityEditor.SerializedObject(asset);
+            int authoredTickRate =
+                serialized.FindProperty("frameSync.TickRate").intValue;
+            Assert.AreEqual(authoredTickRate, baked.TickRate);
+            Assert.That(
+                baked.TickRate,
+                Is.InRange(10, 120),
+                "TickRate must stay inside the supported contract range.");
             Assert.Greater(baked.MinionWaveConfig.WaveIntervalTicks, 0);
             Assert.Greater(baked.UnitGridCellSize, Unity.Mathematics.FixedPoint.fp.zero);
             Assert.AreEqual(

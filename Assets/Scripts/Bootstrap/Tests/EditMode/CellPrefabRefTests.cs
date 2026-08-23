@@ -19,7 +19,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public void HeroSelectCell_ButtonRefIsButtonAndSelectTipBound()
         {
             Validate(
-                "Assets/Resources/Prefab/UI/HeroSelectCell.prefab",
+                "Assets/ClientContent/UI/HeroSelectCell.prefab",
                 "UI.HeroCell",
                 "SelectTip");
         }
@@ -28,7 +28,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
         public void EquipmentShopCell_ButtonRefIsButtonAndStateRefsBound()
         {
             const string path =
-                "Assets/Resources/Prefab/UI/EquipmentShopCell.prefab";
+                "Assets/ClientContent/UI/EquipmentShopCell.prefab";
             Validate(
                 path,
                 "UI.ShopCell",

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityId: 10010
   abilityName: "\u590D\u4EC7\u4E4B\u6B32"
-  icon: {fileID: 21300000, guid: f6b922f5d10cb3741a50fbfd1dc7bddf, type: 3}
+  icon: {fileID: 0}
+  iconAddress: ui/icon/f6b922f5d10cb3741a50fbfd1dc7bddf
   passiveEffect:
     rid: 2586995957889499147
   cooldownByUnitLevel: 

@@ -21,10 +21,12 @@ namespace FrameSyncMoba.FrameSync
         public struct AudioClipEntry
         {
             public int SfxDefId;
+            [HideInInspector]
             public AudioClip Clip;
+            public string Address;
         }
 
-        public AudioClip GetClip(
+        public string GetAddress(
             int sfxDefId)
         {
             for (int i = 0;
@@ -34,10 +36,10 @@ namespace FrameSyncMoba.FrameSync
                 if (_entries[i].SfxDefId ==
                     sfxDefId)
                 {
-                    return _entries[i].Clip;
+                    return _entries[i].Address ?? string.Empty;
                 }
             }
-            return null;
+            return string.Empty;
         }
     }
 }

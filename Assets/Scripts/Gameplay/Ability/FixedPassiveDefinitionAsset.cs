@@ -16,7 +16,9 @@ namespace FrameSyncMoba.Unit
     {
         [SerializeField] private int abilityId;
         [SerializeField] private string abilityName = "Passive";
+        [HideInInspector]
         [SerializeField] private Sprite icon;
+        [SerializeField] private string iconAddress;
         [SerializeReference]
         [SerializeField] private PassiveAbilityEffectDef passiveEffect;
         [SerializeField] private int[] cooldownByUnitLevel =
@@ -24,7 +26,7 @@ namespace FrameSyncMoba.Unit
 
         public int AbilityId => abilityId;
         public string AbilityName => abilityName;
-        public Sprite Icon => icon;
+        public string IconAddress => iconAddress;
         public PassiveAbilityEffectDef PassiveEffect =>
             passiveEffect;
 
@@ -43,7 +45,7 @@ namespace FrameSyncMoba.Unit
             {
                 AbilityId = abilityId,
                 Name = abilityName,
-                Icon = icon,
+                IconAddress = iconAddress,
                 PassiveEffect = passiveEffect,
                 CooldownByUnitLevel =
                     cooldownByUnitLevel != null

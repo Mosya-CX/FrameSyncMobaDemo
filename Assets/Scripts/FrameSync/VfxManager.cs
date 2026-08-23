@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace FrameSyncMoba.FrameSync
@@ -10,17 +13,36 @@ namespace FrameSyncMoba.FrameSync
 
         private readonly Dictionary<int, Queue<GameObject>> _poolByDefId =
             new Dictionary<int, Queue<GameObject>>();
-        private readonly Dictionary<int, GameObject> _prefabCache =
-            new Dictionary<int, GameObject>();
+        private readonly Dictionary<int, IPresentationAssetLease<GameObject>>
+            _prefabLeases =
+                new Dictionary<int, IPresentationAssetLease<GameObject>>();
+        private readonly Dictionary<int, Task<IPresentationAssetLease<GameObject>>>
+            _pendingLoads =
+                new Dictionary<int, Task<IPresentationAssetLease<GameObject>>>();
+        private IClientPresentationAssetLoader _assetLoader;
+        private CancellationTokenSource _lifetimeCancellation;
+
+        private void Awake()
+        {
+            _lifetimeCancellation = new CancellationTokenSource();
+        }
+
+        public void SetAssetLoader(IClientPresentationAssetLoader assetLoader)
+        {
+            _assetLoader = assetLoader;
+        }
 
         public void SetLibrary(VfxLibrary library)
         {
             _library = library;
-            _prefabCache.Clear();
+            foreach (Queue<GameObject> queue in _poolByDefId.Values)
+                while (queue.Count > 0)
+                    Destroy(queue.Dequeue());
+            ReleasePrefabLeases();
             _poolByDefId.Clear();
         }
 
-        public void PlayOrReconcile(in Unit.VfxEvent evt)
+        public async void PlayOrReconcile(Unit.VfxEvent evt)
         {
             if (_library == null)
             {
@@ -28,7 +50,21 @@ namespace FrameSyncMoba.FrameSync
                 return;
             }
 
-            GameObject prefab = GetPrefab(evt.VfxDefId);
+            GameObject prefab;
+            try
+            {
+                prefab = await GetPrefabAsync(evt.VfxDefId);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                    $"[VfxManager] VFX {evt.VfxDefId} load failed: {exception}");
+                return;
+            }
             if (prefab == null)
             {
                 Debug.LogWarning(string.Format("[VfxManager] VFX {0}: prefab not found", evt.VfxDefId));
@@ -137,15 +173,59 @@ namespace FrameSyncMoba.FrameSync
                 duration));
         }
 
-        private GameObject GetPrefab(int vfxDefId)
+        private async Task<GameObject> GetPrefabAsync(int vfxDefId)
         {
-            if (_prefabCache.TryGetValue(vfxDefId, out GameObject cached))
-                return cached;
+            if (_prefabLeases.TryGetValue(
+                    vfxDefId,
+                    out IPresentationAssetLease<GameObject> cached))
+                return cached.Asset;
+            if (_assetLoader == null)
+                return null;
+            string address = _library.GetAddress(vfxDefId);
+            if (string.IsNullOrEmpty(address))
+                return null;
+            if (!_pendingLoads.TryGetValue(
+                    vfxDefId,
+                    out Task<IPresentationAssetLease<GameObject>> pending))
+            {
+                pending = _assetLoader.AcquirePrefabAsync(
+                    address,
+                    _lifetimeCancellation.Token);
+                _pendingLoads.Add(vfxDefId, pending);
+            }
+            IPresentationAssetLease<GameObject> lease;
+            try
+            {
+                lease = await pending;
+            }
+            finally
+            {
+                _pendingLoads.Remove(vfxDefId);
+            }
+            if (!_prefabLeases.ContainsKey(vfxDefId))
+                _prefabLeases.Add(vfxDefId, lease);
+            else if (!ReferenceEquals(_prefabLeases[vfxDefId], lease))
+                lease.Dispose();
+            return _prefabLeases[vfxDefId].Asset;
+        }
 
-            GameObject prefab = _library.GetPrefab(vfxDefId);
-            if (prefab != null)
-                _prefabCache[vfxDefId] = prefab;
-            return prefab;
+        private void OnDestroy()
+        {
+            _lifetimeCancellation?.Cancel();
+            foreach (Queue<GameObject> queue in _poolByDefId.Values)
+                while (queue.Count > 0)
+                    Destroy(queue.Dequeue());
+            ReleasePrefabLeases();
+            _lifetimeCancellation?.Dispose();
+        }
+
+        private void ReleasePrefabLeases()
+        {
+            foreach (IPresentationAssetLease<GameObject> lease in
+                     _prefabLeases.Values)
+                lease.Dispose();
+            _prefabLeases.Clear();
+            _pendingLoads.Clear();
         }
 
         private GameObject GetFromPool(int vfxDefId, GameObject prefab)
@@ -159,7 +239,7 @@ namespace FrameSyncMoba.FrameSync
             if (queue.Count > 0)
                 return queue.Dequeue();
 
-            GameObject instance = Object.Instantiate(prefab, transform);
+            GameObject instance = UnityEngine.Object.Instantiate(prefab, transform);
             instance.name = string.Format("VFX_{0}_{1}", vfxDefId, _poolByDefId.Count);
             return instance;
         }

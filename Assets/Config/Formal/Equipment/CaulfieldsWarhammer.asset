@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: CaulfieldsWarhammer
   m_EditorClassIdentifier: 
   Id: 31010
-  Name: "Caulfield's Warhammer"
-  Description: "Grants 20 Attack Damage and 10 Ability Haste."
-  Icon: {fileID: 21300000, guid: a7271a60e0865f940a12ad9f97d92d7e, type: 3}
+  Name: Caulfield's Warhammer
+  Description: Grants 20 Attack Damage and 10 Ability Haste.
+  Icon: {fileID: 0}
+  IconAddress: ui/icon/a7271a60e0865f940a12ad9f97d92d7e
   Tier: 2
   Value: 1050
   MaxStack: 1

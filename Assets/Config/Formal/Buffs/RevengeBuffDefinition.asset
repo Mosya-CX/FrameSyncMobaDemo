@@ -17,7 +17,8 @@ MonoBehaviour:
   Display:
     Name: "\u590D\u4EC7\u4E4B\u6B32"
     Description: "\u51FB\u6740\u83B7\u5F97\u653B\u901F\u3001\u653B\u51FB\u529B\u548C\u6CD5\u672F\u5F3A\u5EA6\u3002"
-    Icon: {fileID: 21300000, guid: f6b922f5d10cb3741a50fbfd1dc7bddf, type: 3}
+    Icon: {fileID: 0}
+    IconAddress: ui/icon/f6b922f5d10cb3741a50fbfd1dc7bddf
   Life:
     Duration:
       milliseconds: 5000
@@ -89,7 +90,7 @@ MonoBehaviour:
           m_rawValue: 47244640256
         HeroVictimMultiplier:
           m_rawValue: 12884901888
-        DurationMillisecondsByUnitLevel:
+        DurationMillisecondsByUnitLevel: 
         DurationSecondsByUnitLevel:
         - 5
         - 7

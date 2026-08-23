@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityId: 10011
   abilityName: Piercing Arrow
-  icon: {fileID: 21300000, guid: 6118bc6bfec0b614594d040f5541d5bd, type: 3}
+  icon: {fileID: 0}
+  iconAddress: ui/icon/6118bc6bfec0b614594d040f5541d5bd
   isUltimate: 0
   castModel:
     rid: 2586995953099079698
@@ -66,9 +67,10 @@ MonoBehaviour:
         releaseNotifyAbilityCastOnEnter: 0
         releaseInterruptible: 0
         releaseLockMovement: 1
-        holdIconOverride: {fileID: 21300000, guid: 4fadc3515107f0e4e979a26aeaa8e7b7,
-          type: 3}
+        holdIconOverride: {fileID: 0}
+        holdIconAddressOverride: ui/icon/4fadc3515107f0e4e979a26aeaa8e7b7
         releaseIconOverride: {fileID: 0}
+        releaseIconAddressOverride: 
         holdTimeoutPolicy: 1
         refundCostPercentOnTimeout: 0.5
     - rid: 2586995953099079738

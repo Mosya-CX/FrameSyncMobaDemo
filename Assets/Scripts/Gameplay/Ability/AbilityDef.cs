@@ -15,9 +15,9 @@ namespace FrameSyncMoba.Unit
         /// actual level gates/max ranks live on the AbilitySlotDef.
         /// </summary>
         public bool IsUltimate;
-        /// <summary>Default UI icon (design v15.2). Serialized asset
-        /// reference; never created at runtime, never read by Gameplay.</summary>
-        public Sprite Icon;
+        /// <summary>Stable client Addressables address for the default UI
+        /// icon. Gameplay never loads or reads the Sprite asset.</summary>
+        public string IconAddress;
         /// <summary>Base cooldown by ability level (design v15.2 5.5).</summary>
         public AbilityLevelValue CooldownByLevel;
         public AbilityCostPlan CostPlan;

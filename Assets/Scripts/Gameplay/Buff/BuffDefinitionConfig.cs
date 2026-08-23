@@ -13,7 +13,9 @@ namespace FrameSyncMoba.Unit
         public string Name;
         [TextArea]
         public string Description;
+        [HideInInspector]
         public Sprite Icon;
+        public string IconAddress;
     }
 
     /// <summary>

@@ -1,0 +1,25 @@
+{
+    "name": "FrameSyncMoba.ClientContent",
+    "rootNamespace": "FrameSyncMoba.ClientContent",
+    "references": [
+        "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.PlayerInput",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "!UNITY_SERVER"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

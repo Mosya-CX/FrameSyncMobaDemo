@@ -9,9 +9,9 @@ namespace FrameSyncMoba.EditorTools
     public static class AatroxAnimatorPresentationSetup
     {
         private const string ControllerPath =
-            "Assets/Resources/Animation/Aatrox/AatroxAnimator.controller";
+            "Assets/ClientContent/Animation/Aatrox/AatroxAnimator.controller";
         private const string UltimateOutClipPath =
-            "Assets/Resources/Animation/Aatrox/AatroxULTOut.anim";
+            "Assets/ClientContent/Animation/Aatrox/AatroxULTOut.anim";
 
         [MenuItem("FrameSyncMoba/Aatrox/Refresh Presentation Transitions")]
         public static void Refresh()
@@ -109,7 +109,7 @@ namespace FrameSyncMoba.EditorTools
 
             UnitAnimationProfile profile =
                 AssetDatabase.LoadAssetAtPath<UnitAnimationProfile>(
-                    "Assets/Config/Formal/Animation/" +
+                    "Assets/ClientContent/Animation/Profiles/" +
                     "AatroxAnimationProfile.asset");
             if (profile != null)
             {

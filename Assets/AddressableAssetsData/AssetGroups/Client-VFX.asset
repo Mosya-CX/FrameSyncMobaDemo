@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Client-VFX
+  m_EditorClassIdentifier: 
+  m_GroupName: Client-VFX
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 6c47b4b66493e8d429dc2e648a4f37d8
+  m_SerializeEntries:
+  - m_GUID: 188f953b9c8e8bb45aae4dad667fff10
+    m_Address: vfx/4103
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 37b5e78e750a585489efc9dc73bc60d2
+    m_Address: vfx/4104
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4c4378ba777eca9439d5d0e74413316d
+    m_Address: vfx/3103
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b8afe4b8f34ff6e489e0893500558ddc
+    m_Address: vfx/4102
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bfe65ff0689be0f4bb52ef5cd63cccbc
+    m_Address: vfx/4001
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c104df327fc900e459d8d8d88080e74c
+    m_Address: vfx/3101
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e548ee90e7b95e74fa2b03d68ec88b7a
+    m_Address: vfx/3102
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3ff6355b606cac54eb86fb806f6f509b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: fd16274c0e4413d4fae28666ba35c7e8, type: 2}
+    - {fileID: 11400000, guid: dd142c3ec81439c49a54d8fb9aad5232, type: 2}

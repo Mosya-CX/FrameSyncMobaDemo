@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.LuaBridge;
 using UnityEngine;
 
@@ -12,7 +15,9 @@ namespace FrameSyncMoba.Bootstrap
         private struct PageRegistration
         {
             public UIPageId PageId;
+            [HideInInspector]
             public GameObject Prefab;
+            public string Address;
             public UIPageLayer Layer;
             public bool Preload;
             public bool OpenOnStart;
@@ -28,6 +33,13 @@ namespace FrameSyncMoba.Bootstrap
             new Dictionary<UIPageId, UIPanel>();
         private LuaManager luaManager;
         private bool initialized;
+        private Task initializationTask;
+        private CancellationTokenSource lifetimeCancellation;
+        private readonly List<IPresentationAssetLease<GameObject>> pageLeases =
+            new List<IPresentationAssetLease<GameObject>>();
+        private UIPageId pendingMainPage = UIPageId.None;
+        private UIPageId pendingOverlay = UIPageId.None;
+        private bool pendingCloseAll;
         private UIPageId _currentMainPage =
             UIPageId.None;
         private UIPageId _currentOverlay =
@@ -36,6 +48,8 @@ namespace FrameSyncMoba.Bootstrap
         public bool IsInitialized => initialized;
         public LuaManager Lua => luaManager;
         public static UIManager Instance { get; private set; }
+        public Task Ready => initializationTask ?? Task.CompletedTask;
+        public event Action Initialized;
 
         /// <summary>
         /// HUD owned-equipment focus event (UI design v9.1 2.5): slot +
@@ -49,6 +63,8 @@ namespace FrameSyncMoba.Bootstrap
             if (luaManager == null)
                 luaManager =
                     LuaManager.CreateDefault();
+            lifetimeCancellation ??= new CancellationTokenSource();
+            ClientSpriteRegistry.SpriteLoaded += RefreshLoadedPages;
             Initialize();
         }
 
@@ -65,17 +81,23 @@ namespace FrameSyncMoba.Bootstrap
                     GameFlowLuaBridge.UiManager,
                     this))
                 GameFlowLuaBridge.UiManager = null;
+            ClientSpriteRegistry.SpriteLoaded -= RefreshLoadedPages;
             foreach (UIPanel panel in
                      instances.Values)
                 panel.DisposeLuaHost();
             instances.Clear();
+            lifetimeCancellation?.Cancel();
+            for (int i = 0; i < pageLeases.Count; i++)
+                pageLeases[i].Dispose();
+            pageLeases.Clear();
+            lifetimeCancellation?.Dispose();
             luaManager?.Dispose();
             luaManager = null;
         }
 
         public void Initialize()
         {
-            if (initialized)
+            if (initializationTask != null)
                 return;
             // GameBootstrap can reach Initialize() before this component's
             // Awake runs (component Awake order is not guaranteed). Create the
@@ -83,6 +105,30 @@ namespace FrameSyncMoba.Bootstrap
             if (luaManager == null)
                 luaManager =
                     LuaManager.CreateDefault();
+            lifetimeCancellation ??= new CancellationTokenSource();
+            initializationTask = InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            ValidateRegistrationAddresses();
+            IClientPresentationAssetLoader loader =
+                await ClientPresentationServices.GetLoaderAsync();
+            CancellationToken cancellationToken =
+                lifetimeCancellation.Token;
+            for (int i = 0; i < pages.Length; i++)
+            {
+                IPresentationAssetLease<GameObject> lease =
+                    await loader.AcquirePrefabAsync(
+                        pages[i].Address,
+                        cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                pageLeases.Add(lease);
+                PageRegistration entry = pages[i];
+                entry.Prefab = lease.Asset;
+                pages[i] = entry;
+            }
+
             ValidateRegistrations();
             EnsureLayers();
             initialized = true;
@@ -110,11 +156,29 @@ namespace FrameSyncMoba.Bootstrap
                 else
                     panel.Close();
             }
+            if (pendingCloseAll)
+                CloseAllImmediate();
+            else if (pendingMainPage != UIPageId.None)
+                ShowPageImmediate(pendingMainPage);
+            if (pendingOverlay != UIPageId.None)
+                ShowOverlayImmediate(pendingOverlay);
+            Initialized?.Invoke();
         }
 
         public void ShowPage(UIPageId pageId)
         {
             Initialize();
+            if (!initialized)
+            {
+                pendingCloseAll = false;
+                pendingMainPage = pageId;
+                return;
+            }
+            ShowPageImmediate(pageId);
+        }
+
+        private void ShowPageImmediate(UIPageId pageId)
+        {
             PageRegistration registration =
                 GetRegistration(pageId);
             if (registration.Layer !=
@@ -147,6 +211,16 @@ namespace FrameSyncMoba.Bootstrap
         public void ShowOverlay(UIPageId pageId)
         {
             Initialize();
+            if (!initialized)
+            {
+                pendingOverlay = pageId;
+                return;
+            }
+            ShowOverlayImmediate(pageId);
+        }
+
+        private void ShowOverlayImmediate(UIPageId pageId)
+        {
             PageRegistration registration =
                 GetRegistration(pageId);
             if (registration.Layer !=
@@ -169,6 +243,12 @@ namespace FrameSyncMoba.Bootstrap
 
         public void HideOverlay(UIPageId pageId)
         {
+            if (!initialized)
+            {
+                if (pendingOverlay == pageId)
+                    pendingOverlay = UIPageId.None;
+                return;
+            }
             if (_currentOverlay != pageId)
                 return;
             if (instances.TryGetValue(
@@ -187,6 +267,19 @@ namespace FrameSyncMoba.Bootstrap
         }
 
         public void CloseAll()
+        {
+            Initialize();
+            if (!initialized)
+            {
+                pendingCloseAll = true;
+                pendingMainPage = UIPageId.None;
+                pendingOverlay = UIPageId.None;
+                return;
+            }
+            CloseAllImmediate();
+        }
+
+        private void CloseAllImmediate()
         {
             if (_currentOverlay != UIPageId.None)
                 HideOverlay(_currentOverlay);
@@ -212,6 +305,11 @@ namespace FrameSyncMoba.Bootstrap
         public UIPanel OpenPage(UIPageId pageId)
         {
             Initialize();
+            if (!initialized)
+            {
+                ShowPage(pageId);
+                return null;
+            }
             if (GetRegistration(pageId).Layer ==
                 UIPageLayer.BattleOverlay)
             {
@@ -253,6 +351,11 @@ namespace FrameSyncMoba.Bootstrap
             out UIPanel panel)
         {
             Initialize();
+            if (!initialized)
+            {
+                panel = null;
+                return false;
+            }
             if (instances.TryGetValue(pageId, out panel))
                 return true;
             if (!HasRegistration(pageId))
@@ -324,6 +427,12 @@ namespace FrameSyncMoba.Bootstrap
                 panel.RefreshLuaHost();
         }
 
+        private void RefreshLoadedPages()
+        {
+            foreach (UIPanel panel in instances.Values)
+                panel.Refresh();
+        }
+
         private void ValidateRegistrations()
         {
             var ids = new HashSet<UIPageId>();
@@ -336,6 +445,24 @@ namespace FrameSyncMoba.Bootstrap
                 if (entry.Prefab == null)
                     throw new InvalidOperationException(
                         $"UI registration {entry.PageId} has no prefab.");
+                if (!ids.Add(entry.PageId))
+                    throw new InvalidOperationException(
+                        $"Duplicate UI registration {entry.PageId}.");
+            }
+        }
+
+        private void ValidateRegistrationAddresses()
+        {
+            var ids = new HashSet<UIPageId>();
+            for (int i = 0; i < pages.Length; i++)
+            {
+                PageRegistration entry = pages[i];
+                if (entry.PageId == UIPageId.None)
+                    throw new InvalidOperationException(
+                        $"UI registration {i} has no PageId.");
+                if (string.IsNullOrWhiteSpace(entry.Address))
+                    throw new InvalidOperationException(
+                        $"UI registration {entry.PageId} has no Addressables address.");
                 if (!ids.Add(entry.PageId))
                     throw new InvalidOperationException(
                         $"Duplicate UI registration {entry.PageId}.");

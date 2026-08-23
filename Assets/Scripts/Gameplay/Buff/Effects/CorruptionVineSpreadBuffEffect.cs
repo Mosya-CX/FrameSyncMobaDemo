@@ -190,11 +190,27 @@ namespace FrameSyncMoba.Unit
             {
                 return;
             }
+            // Chain spread infects new heroes through the immediate
+            // spreader, whose vine buff SourceUnitUid is not the original R
+            // caster. Blight must always be attributed to the original
+            // caster, otherwise its Ability damage can never detonate it
+            // (AbilityHitStackDetonationBuffEffect compares SourceUid).
+            UnitUid casterUid =
+                runtime.Blackboard.ReadUnitUidOrDefault(
+                    CasterUnitUidSlot);
+            if (!casterUid.IsValid())
+            {
+                casterUid = runtime.SourceUnitUid;
+            }
+            if (!casterUid.IsValid())
+            {
+                return;
+            }
             owner.BuffHandler.Apply(
                 configId,
                 definition,
                 BuffSource.Create(
-                    runtime.SourceUnitUid,
+                    casterUid,
                     BuffSourceType.Ability,
                     0));
         }

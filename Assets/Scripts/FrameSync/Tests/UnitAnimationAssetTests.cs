@@ -30,23 +30,23 @@ namespace FrameSyncMoba.FrameSync.Tests
 
         private static readonly string[] FixturePrefabs =
         {
-            "Assets/Resources/Prefab/Unit/VarusRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestMeleeMinionBlueRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestMeleeMinionRedRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestCasterMinionBlueRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestCasterMinionRedRuntime.prefab",
+            "Assets/ClientContent/Views/Unit/VarusRuntimeView.prefab",
+            "Assets/ClientContent/Views/Unit/TestMeleeMinionBlueRuntimeView.prefab",
+            "Assets/ClientContent/Views/Unit/TestMeleeMinionRedRuntimeView.prefab",
+            "Assets/ClientContent/Views/Unit/TestCasterMinionBlueRuntimeView.prefab",
+            "Assets/ClientContent/Views/Unit/TestCasterMinionRedRuntimeView.prefab",
         };
 
         private static readonly string[]
             RuntimeUnitPrefabs =
         {
-            "Assets/Resources/Prefab/Unit/VarusRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestMeleeMinionBlueRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestMeleeMinionRedRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestCasterMinionBlueRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestCasterMinionRedRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestTowerBlueRuntime.prefab",
-            "Assets/Resources/Prefab/Unit/TestTowerRedRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/Logic/Unit/VarusRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionRedRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionRedRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerBlueRuntime.prefab",
+            "Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerRedRuntime.prefab",
         };
 
         [Test]
@@ -117,16 +117,6 @@ namespace FrameSyncMoba.FrameSync.Tests
                             Is.Not.Null,
                             path);
                     }
-                    PresentationSocketSet sockets =
-                        root.GetComponent<
-                            PresentationSocketSet>();
-                    Assert.That(sockets, Is.Not.Null, path);
-                    Assert.That(sockets.Root, Is.Not.Null, path);
-                    Assert.That(sockets.Chest, Is.Not.Null, path);
-                    Assert.That(
-                        sockets.ProjectileOrigin,
-                        Is.Not.Null,
-                        path);
                 }
                 finally
                 {
@@ -137,7 +127,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [TestCase(
-            "Assets/Config/Formal/Animation/Varus.controller")]
+            "Assets/ClientContent/Animation/Profiles/Varus.controller")]
         public void HeroController_ContainsEveryAvailableHeroClip(
             string controllerPath)
         {
@@ -175,7 +165,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [TestCase(
-            "Assets/Config/Formal/Animation/TestUnitAnimationProfile.asset")]
+            "Assets/ClientContent/Animation/Profiles/TestUnitAnimationProfile.asset")]
         public void HeroAnimationProfile_MapsAttackAndNeutralAbilityStages(
             string profilePath)
         {
@@ -264,7 +254,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         {
             AnimationClip clip =
                 AssetDatabase.LoadAssetAtPath<AnimationClip>(
-                    $"Assets/Resources/Animation/Varus/{name}.anim");
+                    $"Assets/ClientContent/Animation/Varus/{name}.anim");
             Assert.That(clip, Is.Not.Null, name);
             return clip;
         }

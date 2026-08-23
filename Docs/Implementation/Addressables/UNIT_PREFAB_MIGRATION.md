@@ -1,0 +1,14 @@
+# Unit prefab Addressables migration
+
+| PrefabId | Legacy backup | Synchronous logic prefab | Local Addressable view | Address | Logic GUID | View GUID |
+|---:|---|---|---|---|---|---|
+| 1101 | `Assets/Archive/LegacyMonolithicUnitPrefabs/VarusRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/VarusRuntime.prefab` | `Assets/ClientContent/Views/Unit/VarusRuntimeView.prefab` | `view/unit/1101` | `8386d2da6f6754946a202d33532daffd` | `e423ccdfdb3c2f74b826321b6336973d` |
+| 1102 | `Assets/Archive/LegacyMonolithicUnitPrefabs/AatroxHeroRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/AatroxHeroRuntime.prefab` | `Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab` | `view/unit/1102` | `e7b912ff51273d94aa44a93069b84017` | `660b37e1b2a4ac443a59bf8c72966b74` |
+| 1201 | `Assets/Archive/LegacyMonolithicUnitPrefabs/TestMeleeMinionBlueRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionBlueRuntime.prefab` | `Assets/ClientContent/Views/Unit/TestMeleeMinionBlueRuntimeView.prefab` | `view/unit/1201` | `3ccd4e1aedf4eec4e858f61a124b015d` | `3ece7a859903d7144becb4da0ed42535` |
+| 1202 | `Assets/Archive/LegacyMonolithicUnitPrefabs/TestMeleeMinionRedRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionRedRuntime.prefab` | `Assets/ClientContent/Views/Unit/TestMeleeMinionRedRuntimeView.prefab` | `view/unit/1202` | `b400545b29699e841a9e7eca456ad6ac` | `384fa4e1342c2e442835f39407c43ae0` |
+| 1211 | `Assets/Archive/LegacyMonolithicUnitPrefabs/TestCasterMinionBlueRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionBlueRuntime.prefab` | `Assets/ClientContent/Views/Unit/TestCasterMinionBlueRuntimeView.prefab` | `view/unit/1211` | `b1683136fbeb0ec43bb2651cb3c096cf` | `92c307453d1f61f4887fbe9b5915bc0e` |
+| 1212 | `Assets/Archive/LegacyMonolithicUnitPrefabs/TestCasterMinionRedRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionRedRuntime.prefab` | `Assets/ClientContent/Views/Unit/TestCasterMinionRedRuntimeView.prefab` | `view/unit/1212` | `2c0dd4221aa4d3445ad5e29b609bc03b` | `cbef1bacd3759c7488bd6903c6a64808` |
+| 1301 | `Assets/Archive/LegacyMonolithicUnitPrefabs/TestTowerBlueRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerBlueRuntime.prefab` | `Assets/ClientContent/Views/Unit/TestTowerBlueRuntimeView.prefab` | `view/unit/1301` | `86effef21215481438a7d1f6fb7ee429` | `daa48bd107c247d4d89edb548bf25f2c` |
+| 1302 | `Assets/Archive/LegacyMonolithicUnitPrefabs/TestTowerRedRuntime.prefab` | `Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerRedRuntime.prefab` | `Assets/ClientContent/Views/Unit/TestTowerRedRuntimeView.prefab` | `view/unit/1302` | `8117cac3f6c07ae418a92479ffd9b25c` | `55c3d0e06de560f469849c42c435e438` |
+
+The archive prefabs are not under `Resources`, are not Addressable, and exist only as a reversible migration reference. They must not be reachable from formal scenes/configuration or a player build.

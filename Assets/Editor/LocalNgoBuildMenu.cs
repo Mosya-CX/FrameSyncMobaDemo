@@ -156,6 +156,9 @@ namespace FrameSyncMoba.EditorTools
 
         private static void BuildLinuxServer(string output)
         {
+            EnsureStandaloneBuildTarget(
+                BuildTarget.StandaloneLinux64,
+                StandaloneBuildSubtarget.Server);
             string directory =
                 Path.GetDirectoryName(output);
             if (string.IsNullOrEmpty(directory))
@@ -193,8 +196,9 @@ namespace FrameSyncMoba.EditorTools
                     extraScriptingDefines =
                         scriptingDefines,
                 };
-            BuildReport report =
-                BuildPipeline.BuildPlayer(options);
+            BuildReport report;
+            using (new AddressablesPlayerBuildScope(true))
+                report = BuildPipeline.BuildPlayer(options);
             if (report.summary.result !=
                 BuildResult.Succeeded)
                 throw new InvalidOperationException(
@@ -254,8 +258,22 @@ namespace FrameSyncMoba.EditorTools
 
             isBuilding = true;
             bool completed = false;
+            BuildTarget? previousTarget = null;
+            StandaloneBuildSubtarget? previousSubtarget = null;
             try
             {
+                // Remember the editor's build target before the menu build
+                // switches it (e.g. to a Server subtarget). After the build,
+                // restore it so the editor never stays in the server target,
+                // which excludes client-only assemblies such as
+                // FrameSyncMoba.ClientContent (UNITY_SERVER) and breaks the
+                // next script compilation.
+                previousTarget =
+                    EditorUserBuildSettings
+                        .activeBuildTarget;
+                previousSubtarget =
+                    EditorUserBuildSettings
+                        .standaloneBuildSubtarget;
                 buildAction();
                 completed = true;
             }
@@ -266,6 +284,59 @@ namespace FrameSyncMoba.EditorTools
                     SessionState.SetString(
                         BuildCompletedGuardKeyPrefix + buildKey,
                         DateTime.UtcNow.Ticks.ToString());
+                RestoreEditorBuildTarget(
+                    previousTarget,
+                    previousSubtarget);
+            }
+        }
+
+        /// <summary>
+        /// Returns the active build target to the state captured before a
+        /// menu build. Failing to restore only logs a warning: the build
+        /// itself already succeeded and the editor target is secondary.
+        /// </summary>
+        private static void RestoreEditorBuildTarget(
+            BuildTarget? target,
+            StandaloneBuildSubtarget? subtarget)
+        {
+            if (!target.HasValue ||
+                !subtarget.HasValue)
+            {
+                return;
+            }
+            if (EditorUserBuildSettings.activeBuildTarget ==
+                    target.Value &&
+                EditorUserBuildSettings.standaloneBuildSubtarget ==
+                    subtarget.Value)
+            {
+                return;
+            }
+            try
+            {
+                if (EditorUserBuildSettings.activeBuildTarget !=
+                    target.Value)
+                {
+                    if (!EditorUserBuildSettings
+                            .SwitchActiveBuildTarget(
+                                BuildTargetGroup.Standalone,
+                                target.Value))
+                    {
+                        UnityEngine.Debug.LogWarning(
+                            $"[BuildTarget] Failed to restore active " +
+                            $"build target {target.Value}/{subtarget.Value}.");
+                        return;
+                    }
+                }
+                EditorUserBuildSettings.standaloneBuildSubtarget =
+                    subtarget.Value;
+                UnityEngine.Debug.Log(
+                    $"[BuildTarget] Restored active target: " +
+                    $"{target.Value}/{subtarget.Value}.");
+            }
+            catch (Exception exception)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[BuildTarget] Restore failed: {exception}");
             }
         }
 
@@ -299,6 +370,11 @@ namespace FrameSyncMoba.EditorTools
             bool dedicatedServer,
             bool uosOnline = false)
         {
+            EnsureStandaloneBuildTarget(
+                BuildTarget.StandaloneWindows64,
+                dedicatedServer
+                    ? StandaloneBuildSubtarget.Server
+                    : StandaloneBuildSubtarget.Player);
             string directory =
                 Path.GetDirectoryName(output);
             if (string.IsNullOrEmpty(directory))
@@ -343,12 +419,49 @@ namespace FrameSyncMoba.EditorTools
                     extraScriptingDefines =
                         scriptingDefines,
                 };
-            BuildReport report =
-                BuildPipeline.BuildPlayer(options);
+            BuildReport report;
+            if (!dedicatedServer)
+                AddressablesClientBuildAudit.PrepareOutput(output);
+            using (new AddressablesPlayerBuildScope(dedicatedServer))
+                report = BuildPipeline.BuildPlayer(options);
             if (report.summary.result !=
                 BuildResult.Succeeded)
                 throw new InvalidOperationException(
                     $"{(dedicatedServer ? "Server" : "Client")} build failed: {report.summary.result}.");
+            if (!dedicatedServer)
+            {
+                AddressablesClientBuildAudit.ValidateOutput(
+                    output,
+                    BuildTarget.StandaloneWindows64);
+            }
+        }
+
+        private static void EnsureStandaloneBuildTarget(
+            BuildTarget target,
+            StandaloneBuildSubtarget subtarget)
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != target &&
+                !EditorUserBuildSettings.SwitchActiveBuildTarget(
+                    BuildTargetGroup.Standalone,
+                    target))
+            {
+                throw new InvalidOperationException(
+                    $"Unable to switch the active build target to {target} before building Addressables content.");
+            }
+
+            EditorUserBuildSettings.standaloneBuildSubtarget = subtarget;
+            if (EditorUserBuildSettings.activeBuildTarget != target ||
+                EditorUserBuildSettings.standaloneBuildSubtarget != subtarget)
+            {
+                throw new InvalidOperationException(
+                    $"Active build target mismatch before Player build. " +
+                    $"Expected {target}/{subtarget}, actual " +
+                    $"{EditorUserBuildSettings.activeBuildTarget}/" +
+                    $"{EditorUserBuildSettings.standaloneBuildSubtarget}.");
+            }
+
+            UnityEngine.Debug.Log(
+                $"[BuildTarget] Active target confirmed: {target}/{subtarget}.");
         }
 
         private static void LogDiagnosticBuildMode(

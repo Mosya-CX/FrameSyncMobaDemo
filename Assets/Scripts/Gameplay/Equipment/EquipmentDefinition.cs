@@ -19,7 +19,9 @@ namespace FrameSyncMoba.Unit
         public string Name;
         [TextArea]
         public string Description;
+        [HideInInspector]
         public Sprite Icon;
+        public string IconAddress;
         public EquipmentTier Tier;
         public int Value;
         public int MaxStack = 1;

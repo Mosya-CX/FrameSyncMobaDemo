@@ -1,12 +1,14 @@
 # ExecPlan Index
 
 > Document class: Current Plan Locator
-> Updated: 2026-08-22
+> Updated: 2026-08-23
 > Default read: yes, when `.agents/PLANS.md` says an ExecPlan is required
 
 ## Active
 
-None.
+- `Docs/Implementation/Plans/0138_local_addressables_and_dedicated_server_presentation_split.md`
+  — local-only Addressables migration, logic/view prefab split and Dedicated
+  Server presentation exclusion.
 
 ## Verification Pending
 

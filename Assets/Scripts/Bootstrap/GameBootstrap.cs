@@ -355,16 +355,9 @@ namespace FrameSyncMoba.Bootstrap
                             FrameSyncMoba.FrameSync
                                 .BlightStackMarkPresenter>();
                 }
-                var markPrefab =
-                    Resources.Load<GameObject>(
-                        "Prefab/VFX/RevengeMarkVFX");
-                if (markPrefab != null)
-                {
-                    blightMarks.Initialize(
-                        markPrefab,
-                        () => UnitWorld
-                            .GetAllUnits());
-                }
+                blightMarks.InitializeAddressable(
+                    "vfx/4102",
+                    () => UnitWorld.GetAllUnits());
 
                 var verticalMotion =
                     GetComponent<
@@ -612,9 +605,12 @@ namespace FrameSyncMoba.Bootstrap
                 flowFieldAuthoring != null;
             if (flowFieldAuthoring == null)
             {
-                GameObject mapPrefab =
-                    Resources.Load<GameObject>(
-                        "Prefab/Map");
+                GameObject mapPrefab = null;
+                globalGameplayData?.GlobalPrefabTable
+                    ?.TryGetPrefab(
+                        PrefabKind.Misc,
+                        5001,
+                        out mapPrefab);
                 if (mapPrefab != null)
                     flowFieldAuthoring =
                         mapPrefab.GetComponent<
@@ -1288,6 +1284,8 @@ namespace FrameSyncMoba.Bootstrap
                     FindObjectOfType<UIManager>(true);
             if (uiManager != null)
             {
+                uiManager.Initialized -= OnUiManagerInitialized;
+                uiManager.Initialized += OnUiManagerInitialized;
                 uiManager.Initialize();
                 uiManager.CloseAll();
                 minimapController ??=
@@ -1305,6 +1303,16 @@ namespace FrameSyncMoba.Bootstrap
                 out _);
             uiManager?.RefreshLuaHost(
                 UIPageId.Select);
+        }
+
+        private void OnUiManagerInitialized()
+        {
+            if (uiManager == null)
+                return;
+            minimapController ??=
+                uiManager.GetPageComponent<MinimapController>(UIPageId.HUD);
+            uiManager.TryGetPage(UIPageId.Select, out _);
+            uiManager.RefreshLuaHost(UIPageId.Select);
         }
 
         private void BindGameFlowLuaBridge()
@@ -1476,7 +1484,8 @@ namespace FrameSyncMoba.Bootstrap
                     return defs != null &&
                         index >= 0 &&
                         index < defs.Count
-                            ? defs[index].Icon
+                            ? ClientSpriteRegistry.Resolve(
+                                defs[index].IconAddress)
                             : null;
                 };
             GameFlowLuaBridge.GetShopItemPrice =
@@ -1783,7 +1792,9 @@ namespace FrameSyncMoba.Bootstrap
                         Runtime.GetLocalControlledUnit();
                     return unit?.AbilityHandler
                         ?.GetActiveRuntime((byte)slot)
-                        ?.GetCurrentIcon();
+                        ?.GetCurrentIconAddress() is string address
+                            ? ClientSpriteRegistry.Resolve(address)
+                            : null;
                 };
             GameFlowLuaBridge.GetLocalPendingSkillPoints =
                 () =>
@@ -1844,7 +1855,9 @@ namespace FrameSyncMoba.Bootstrap
                         Runtime.GetLocalControlledUnit();
                     return unit?.AbilityHandler
                         ?.FixedPassive
-                        ?.GetCurrentIcon();
+                        ?.GetCurrentIconAddress() is string address
+                            ? ClientSpriteRegistry.Resolve(address)
+                            : null;
                 };
             GameFlowLuaBridge.GetLocalHeroAvatar =
                 () =>
@@ -1871,7 +1884,8 @@ namespace FrameSyncMoba.Bootstrap
                             entry = table.GetEntry(i);
                         if (entry.UnitPrototypeId ==
                             heroConfigId)
-                            return entry.Avatar;
+                            return ClientSpriteRegistry.Resolve(
+                                entry.AvatarAddress);
                     }
                     return null;
                 };
@@ -2061,7 +2075,8 @@ namespace FrameSyncMoba.Bootstrap
                 };
             GameFlowLuaBridge.GetLocalEquipmentSlotIcon =
                 slot =>
-                    FindEquipmentSlotDef(slot)?.Icon;
+                    ClientSpriteRegistry.Resolve(
+                        FindEquipmentSlotDef(slot)?.IconAddress);
             GameFlowLuaBridge.FocusShopEquipment =
                 (slot, equipmentId) =>
                     uiManager?.FocusShopOwnedEquipment(
@@ -2136,8 +2151,9 @@ namespace FrameSyncMoba.Bootstrap
                         ?.BuffHandler?.Count ?? 0;
             GameFlowLuaBridge.GetLocalBuffIcon =
                 index =>
-                    BuffAt(index)
-                        ?.Definition?.Display?.Icon;
+                    ClientSpriteRegistry.Resolve(
+                        BuffAt(index)
+                            ?.Definition?.Display?.IconAddress);
             GameFlowLuaBridge.GetLocalBuffName =
                 index =>
                     BuffAt(index)
@@ -2504,6 +2520,15 @@ namespace FrameSyncMoba.Bootstrap
                         spawn.PlayerControlled = true;
                         spawn.PlayerSlot = 0;
                         players.Add(spawn);
+                        // The frozen composition must agree with the fixture
+                        // slot so BindSelectedHeroesToPlayerSpawns and
+                        // BuildPlayerSlotMappings can resolve this spawn for
+                        // the fabricated player slot.
+                        InitialUnitSpawnAuthoring authored =
+                            frozenInitialSpawns[i];
+                        authored.PlayerControlled = true;
+                        authored.PlayerSlot = 0;
+                        frozenInitialSpawns[i] = authored;
                         break;
                     }
                 }
@@ -3266,6 +3291,8 @@ namespace FrameSyncMoba.Bootstrap
 
         private void OnDestroy()
         {
+            if (uiManager != null)
+                uiManager.Initialized -= OnUiManagerInitialized;
             FrameSyncGameRuntime.UnregisterActiveInstance(
                 Runtime);
             if (frameSyncNetworkBridge != null)

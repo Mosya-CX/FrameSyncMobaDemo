@@ -1,5 +1,6 @@
 using System.Collections;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -12,9 +13,8 @@ namespace FrameSyncMoba.Unit.PlayModeTests
         public IEnumerator
             MapPrefab_InstantiatesWithBoundReadOnlyPathfindingView()
         {
-            GameObject prefab =
-                Resources.Load<GameObject>(
-                    "Prefab/Map");
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/Config/Formal/Prefabs/Logic/Map/Map.prefab");
             Assert.That(prefab, Is.Not.Null);
             GameObject instance =
                 Object.Instantiate(prefab);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
@@ -29,6 +30,8 @@ namespace FrameSyncMoba.FrameSync
         private readonly Dictionary<UnitUid, int>
             lastStacksByUnit =
                 new Dictionary<UnitUid, int>();
+        private IPresentationAssetLease<GameObject> markPrefabLease;
+        private CancellationTokenSource lifetimeCancellation;
 
         public void Initialize(
             GameObject prefab,
@@ -36,6 +39,36 @@ namespace FrameSyncMoba.FrameSync
         {
             markPrefab = prefab;
             unitsProvider = provider;
+        }
+
+        public async void InitializeAddressable(
+            string address,
+            Func<IReadOnlyList<UnitType>> provider)
+        {
+            unitsProvider = provider;
+            lifetimeCancellation?.Cancel();
+            lifetimeCancellation?.Dispose();
+            lifetimeCancellation = new CancellationTokenSource();
+            markPrefabLease?.Dispose();
+            markPrefabLease = null;
+            markPrefab = null;
+            try
+            {
+                IClientPresentationAssetLoader loader =
+                    await ClientPresentationServices.GetLoaderAsync();
+                markPrefabLease = await loader.AcquirePrefabAsync(
+                    address,
+                    lifetimeCancellation.Token);
+                markPrefab = markPrefabLease.Asset;
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                    $"[BlightMarks] Addressable load failed: {exception}");
+            }
         }
 
         private void LateUpdate()
@@ -110,6 +143,8 @@ namespace FrameSyncMoba.FrameSync
             UnitType unit,
             int stacks)
         {
+            if (markPrefab == null)
+                return;
             List<GameObject> marks;
             if (!marksByUnit.TryGetValue(
                     unit.UnitUid,
@@ -223,6 +258,15 @@ namespace FrameSyncMoba.FrameSync
                     Destroy(marks[i]);
                 }
             }
+        }
+
+        private void OnDestroy()
+        {
+            lifetimeCancellation?.Cancel();
+            foreach (UnitUid uid in new List<UnitUid>(marksByUnit.Keys))
+                DestroyMarks(uid);
+            markPrefabLease?.Dispose();
+            lifetimeCancellation?.Dispose();
         }
     }
 }

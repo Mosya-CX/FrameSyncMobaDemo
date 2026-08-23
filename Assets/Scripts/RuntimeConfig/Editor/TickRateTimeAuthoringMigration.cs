@@ -133,7 +133,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                 "Assets/Config/Formal/Abilities");
             AddFoundPaths(
                 paths,
-                "Assets/Config/Formal/Animation");
+                "Assets/ClientContent/Animation/Profiles");
             AddFoundPaths(
                 paths,
                 "Assets/Config/Formal/Buffs");
@@ -142,7 +142,7 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
                 "Assets/Config/Formal/Equipment");
             AddFoundPaths(
                 paths,
-                "Assets/Resources/Animation");
+                "Assets/ClientContent/Animation");
             AddExactPath(paths,
                 "Assets/Config/Formal/FullMatchMinionWaveConfig.asset");
             AddExactPath(paths,
@@ -204,8 +204,8 @@ namespace FrameSyncMoba.RuntimeConfig.Editor
         {
             string[] paths =
             {
-                "Assets/Resources/Prefab/VFX/VarusRBuffVFX.prefab",
-                "Assets/Resources/Prefab/VFX/VarusSpellEVFX.prefab",
+                "Assets/ClientContent/VFX/VarusRBuffVFX.prefab",
+                "Assets/ClientContent/VFX/VarusSpellEVFX.prefab",
             };
             for (int i = 0; i < paths.Length; i++)
             {

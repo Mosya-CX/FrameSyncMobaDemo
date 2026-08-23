@@ -11,7 +11,7 @@ namespace FrameSyncMoba.Unit
         public readonly BuffConfigId Id;
         public readonly string Name;
         public readonly string Description;
-        public readonly Sprite Icon;
+        public readonly string IconAddress;
         public readonly int StackCount;
         public readonly int MaxStacks;
         public readonly bool Infinite;
@@ -25,7 +25,7 @@ namespace FrameSyncMoba.Unit
             BuffConfigId id,
             string name,
             string description,
-            Sprite icon,
+            string iconAddress,
             int stackCount,
             int maxStacks,
             bool infinite,
@@ -37,7 +37,7 @@ namespace FrameSyncMoba.Unit
             Id = id;
             Name = name;
             Description = description;
-            Icon = icon;
+            IconAddress = iconAddress;
             StackCount = stackCount;
             MaxStacks = maxStacks;
             Infinite = infinite;
