@@ -30,7 +30,8 @@ namespace FrameSyncMoba.Unit
             int unitPrototypeId = 0,
             int baseGoldValue = 0,
             int baseExperienceValue = 0,
-            bool learnTestAbilities = true)
+            bool learnTestAbilities = true,
+            GameplayParticipantId gameplayParticipantId = default)
         {
             GameObject root = CreateComposedUnitObject("TestUnit");
             Unit unit = root.GetComponent<Unit>();
@@ -51,6 +52,14 @@ namespace FrameSyncMoba.Unit
 
             unit.InitializeForNewRuntime(
                 uid,
+                gameplayParticipantId.IsValid
+                    ? gameplayParticipantId
+                    : GameplayParticipantId.Explicit(
+                        uid.RuntimeEntityPrefabId,
+                        uid.SpawnLogicTick < 0
+                            ? 0
+                            : uid.SpawnLogicTick,
+                        uid.SpawnSequenceInTick),
                 default,
                 prototype,
                 teamId,
@@ -191,7 +200,9 @@ namespace FrameSyncMoba.Unit
             DamageType damageType = DamageType.Physical,
             CombatSourceType sourceType = CombatSourceType.System,
             int sourceId = 1,
-            int recipeId = 1)
+            int recipeId = 1,
+            OriginActionId originActionId = default,
+            int effectOrdinal = 0)
         {
             return new DamageRequest
             {
@@ -201,7 +212,9 @@ namespace FrameSyncMoba.Unit
                     sourceType,
                     sourceId,
                     recipeId,
-                    sourceUid),
+                    sourceUid,
+                    originActionId,
+                    effectOrdinal),
                 DamageType = damageType,
                 BaseDamage = baseDamage,
             };
@@ -268,8 +281,25 @@ namespace FrameSyncMoba.Unit
 
             try
             {
+                int participantScope = 1;
+                IReadOnlyList<Unit> existingUnits =
+                    world.GetAllUnits();
+                for (int i = 0; i < existingUnits.Count; i++)
+                {
+                    if (existingUnits[i].GameplayParticipantId.Domain ==
+                            GameplayParticipantDomain.Explicit &&
+                        existingUnits[i].GameplayParticipantId.Scope >=
+                            participantScope)
+                    {
+                        participantScope = checked(
+                            existingUnits[i]
+                                .GameplayParticipantId.Scope + 1);
+                    }
+                }
                 UnitUid uid = world.SpawnUnit(new UnitSpawnRequest(
                     prototype.UnitPrototypeId,
+                    GameplayParticipantId.Explicit(
+                        participantScope),
                     teamId,
                     fp2.zero,
                     new fp2(fp.one, fp.zero)));

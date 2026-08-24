@@ -117,6 +117,7 @@ namespace FrameSyncMoba.Unit
             UnitKind targetKind,
             StatHandler sourceStats,
             StatHandler targetStats,
+            fp targetBatchStartHealth,
             ref CombatFormulaAccumulator accumulator,
             ref CombatPolicyResolution policies)
         {
@@ -148,7 +149,8 @@ namespace FrameSyncMoba.Unit
                         baseValue,
                         slotInput,
                         sourceStats,
-                        targetStats);
+                        targetStats,
+                        targetBatchStartHealth);
                     accumulator.Accumulate(
                         patch.Operation,
                         operand);

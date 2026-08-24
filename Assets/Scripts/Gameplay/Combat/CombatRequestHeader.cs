@@ -44,15 +44,15 @@ namespace FrameSyncMoba.Unit
     /// (Combat v13.2 section 2.2).
     ///
     /// All active requests (Shield/Damage/Heal) share a unified
-    /// SequenceInTick: the order in which requests were accepted by CombatSystem.
-    /// This guarantees deterministic execution regardless of submission order
-    /// from different Gameplay modules.
+    /// SequenceInTick assigned after the current causal wave is sealed into
+    /// its canonical gameplay order. Submission call order is not settlement
+    /// authority (Combat fairness D-049).
     /// </summary>
     public struct CombatRequestHeader
     {
         /// <summary>
         /// Stable ordering identity within the current LogicTick.
-        /// Assigned by CombatSystem when the request enters an active queue.
+        /// Assigned by CombatSystem when the request's settlement wave seals.
         /// Smaller values execute first.
         /// </summary>
         public ushort SequenceInTick;
@@ -68,13 +68,24 @@ namespace FrameSyncMoba.Unit
 
         public int RecipeId;
 
+        /// <summary>
+        /// Stable gameplay action provenance for keyed random/tie mechanics.
+        /// It is independent of SourceUnitUid technical labeling (D-050).
+        /// </summary>
+        public OriginActionId OriginActionId;
+
+        /// <summary>Stable index of this effect inside the origin action.</summary>
+        public int EffectOrdinal;
+
         public static CombatRequestHeader Create(
             UnitUid sourceUnitUid,
             UnitUid targetUnitUid,
             CombatSourceType sourceType,
             int sourceId,
             int recipeId,
-            UnitUid ownerUnitUid = default)
+            UnitUid ownerUnitUid = default,
+            OriginActionId originActionId = default,
+            int effectOrdinal = 0)
         {
             UnitUid owner = ownerUnitUid.IsValid()
                 ? ownerUnitUid
@@ -91,6 +102,8 @@ namespace FrameSyncMoba.Unit
                     EmitterUnitUid = sourceUnitUid,
                 },
                 RecipeId = recipeId,
+                OriginActionId = originActionId,
+                EffectOrdinal = effectOrdinal,
             };
         }
 

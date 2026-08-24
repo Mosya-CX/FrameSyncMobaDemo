@@ -1,4 +1,5 @@
 using System;
+using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
 using FrameSyncMoba.RuntimeConfig;
 using UnityEngine;
@@ -130,7 +131,21 @@ namespace FrameSyncMoba.Unit
                     owner.UnitUid,
                     CombatSourceType.Buff,
                     runtime.ConfigId.Value,
-                    runtime.ConfigId.Value),
+                    runtime.ConfigId.Value,
+                    originActionId:
+                        CombatActionIdentityFactory.CreateFromSource(
+                            owner.World,
+                            runtime.SourceUnitUid,
+                            CombatSourceType.Buff,
+                            runtime.ConfigId.Value,
+                            SimulationTickContext.Current.Tick -
+                                runtime.ElapsedTicks,
+                            owner.GameplayParticipantId,
+                            runtime.ConfigId.Value),
+                    effectOrdinal:
+                        CombatFairnessKey.ComposeEffectOrdinal(
+                            runtime.ConfigId.Value,
+                            runtime.ElapsedTicks)),
                 BaseDamage = DamageAmount,
                 DamageType = DamageType,
             };

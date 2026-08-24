@@ -37,6 +37,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             pipeline.QueueInitialSpawn(
                 new UnitSpawnRequest(
                     101,
+                    GameplayParticipantId.InitialSpawn(101),
                     new TeamId(1),
                     new fp2(-10, 0),
                     new fp2(1, 0)),
@@ -44,6 +45,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             pipeline.QueueInitialSpawn(
                 new UnitSpawnRequest(
                     102,
+                    GameplayParticipantId.InitialSpawn(102),
                     new TeamId(2),
                     new fp2(10, 0),
                     new fp2(-1, 0)),
@@ -85,6 +87,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             const int prototypeId = 151;
             UnitSpawnRequest request = new UnitSpawnRequest(
                 prototypeId,
+                GameplayParticipantId.InitialSpawn(prototypeId),
                 new TeamId(1),
                 fp2.zero,
                 new fp2(fp.one, fp.zero));
@@ -140,6 +143,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             pipeline.QueueInitialSpawn(
                 new UnitSpawnRequest(
                     201,
+                    GameplayParticipantId.InitialSpawn(201),
                     new TeamId(1),
                     new fp2(-10, 0),
                     new fp2(1, 0)),
@@ -147,6 +151,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             pipeline.QueueInitialSpawn(
                 new UnitSpawnRequest(
                     202,
+                    GameplayParticipantId.InitialSpawn(202),
                     new TeamId(1),
                     new fp2(10, 0),
                     new fp2(-1, 0)),

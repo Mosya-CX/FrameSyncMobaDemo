@@ -132,7 +132,7 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void Crit_NoRandomService_NoCrit()
+        public void Crit_OneHundredPercent_DoesNotRequireRandomService()
         {
             BeginTick(1);
             Unit attacker = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
@@ -142,7 +142,7 @@ namespace FrameSyncMoba.Unit.Tests
                 StatId.CriticalStrikeChance, StatModifierOperation.FlatAdd, fp.one);
 
             fp initialHp = target.StatHandler.CurrentHealth;
-            fp baseDamage = 100m;
+            fp baseDamage = 25m;
 
             _combat.BeginTick();
             _combat.SubmitDamage(UnitTestFactory.CreateDamageRequest(
@@ -151,8 +151,54 @@ namespace FrameSyncMoba.Unit.Tests
             _combat.EndTick();
 
             fp actualDamage = initialHp - target.StatHandler.CurrentHealth;
-            Assert.AreEqual(baseDamage, actualDamage,
-                "Without RandomService, no crit should apply");
+            Assert.Greater(actualDamage, baseDamage,
+                "A guaranteed Crit is action-keyed and does not require the global random stream.");
+        }
+
+        [Test]
+        public void ProbabilisticCrit_DoesNotConsumeGlobalRandomState()
+        {
+            BeginTick(1);
+            Unit attacker = _world.SpawnUnit(
+                _prototype,
+                TeamId.Neutral,
+                1,
+                0m,
+                0m);
+            Unit target = _world.SpawnUnit(
+                _prototype,
+                TeamId.Neutral,
+                1,
+                0m,
+                0m);
+            attacker.StatHandler.AddModifier(
+                StatId.CriticalStrikeChance,
+                StatModifierOperation.FlatAdd,
+                fp.one / (fp)2);
+            _world.RandomService =
+                new DeterministicRandomService(42u);
+            DeterministicRandomSnapshot before =
+                _world.RandomService.Capture();
+            var action = new OriginActionId(
+                attacker.GameplayParticipantId,
+                CombatSourceType.Attack,
+                CombatBuiltinSourceId.BasicAttack,
+                1,
+                0);
+
+            _combat.BeginTick();
+            _combat.SubmitDamage(
+                UnitTestFactory.CreateDamageRequest(
+                    attacker.UnitUid,
+                    target.UnitUid,
+                    (fp)10,
+                    originActionId: action));
+            _combat.SettleActiveRequests();
+            _combat.EndTick();
+
+            Assert.AreEqual(
+                before,
+                _world.RandomService.Capture());
         }
 
         // ---- Attack Speed ----

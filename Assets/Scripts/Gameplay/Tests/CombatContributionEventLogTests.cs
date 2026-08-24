@@ -131,7 +131,8 @@ namespace FrameSyncMoba.Unit.Tests
                 5,
                 3));
 
-            UnitUid killerUid = log.ResolveKiller(5);
+            UnitUid killerUid =
+                log.ResolveLastDamageContributor(5);
             Assert.AreEqual(
                 killer.UnitUid,
                 killerUid);

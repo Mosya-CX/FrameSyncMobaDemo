@@ -23,7 +23,7 @@ A document not listed as **Current** here is not an implementation authority.
 | FrameSync / flow / match runtime | `Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md` | Current + D-045 amendment | Also owns application flow, synchronized-server-time launch, monotonic pacing, AuthorityFrame, recovery, prediction and match result boundaries |
 | Snapshot / rollback schema | `Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md` + `Docs/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md` section 6 | Current + D-047 amendment | Exact snapshot membership and restore phases; ActionRuntime schema 23 membership is frozen by the amendment |
 | Unit behavior framework | `Docs/Design/unit_behavior_framework_design_v27_3.md` + `Docs/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md` | Current v27.4 amendment | UnitWorld, Handler ownership, AI controller lifecycle, structured arbitration and fixed Main/Base Runtime slots |
-| Combat | `Docs/Design/moba_combat_system_design_v13_2.md` | Current | Settlement, formal death, contribution tracking, deferred death/kill reaction requests |
+| Combat | `Docs/Design/moba_combat_system_design_v13_2.md` + `Docs/Design/moba_combat_system_design_v13_3_same_tick_fairness_amendment.md` + `Docs/Design/moba_combat_system_design_v13_4_action_identity_fairness_amendment.md` | Current + D-049/D-050 amendments | Traversal-neutral sealed settlement waves, action-keyed Crit, neutral Projectile ties, formal death and fair lethal-batch killer attribution |
 | Projectile | `Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md` | Current | Projectile UID, world lifecycle, snapshot and hit pipeline |
 | Ability | `Docs/Design/moba_ability_system_design_v15_2.md` | Current | Ability Runtime, Session, Stage, signal language and indicator-stage source |
 | Attack | `Docs/Design/moba_attack_module_design_v6_2.md` | Current | Attack action/session/commit and presentation audio integration |
@@ -46,7 +46,7 @@ Where a topic appears in multiple documents, use this ownership table:
 | Tick meanings, AuthorityFrame, recovery and rollback boundary | FrameSync v10.2 |
 | Exact GameplaySnapshot membership | Snapshot Appendix v7.2 + Unit Framework v27.4 amendment section 6 |
 | Unit lifecycle API and Handler ownership | Unit Framework v27.3 + v27.4 amendment |
-| Damage/heal/shield settlement and death/kill deferred requests | Combat v13.2 |
+| Damage/heal/shield settlement, action-keyed Crit, Projectile equal-distance arbitration, killer attribution and death/kill deferred requests | Combat v13.2 + v13.3/v13.4 fairness amendments |
 | Projectile UID and ProjectileWorld snapshot | Projectile v19 |
 | Ability signals, sessions, stages and Gameplay timing | Ability v15.2 |
 | Physical player input mapping | Player Input v1.1 |

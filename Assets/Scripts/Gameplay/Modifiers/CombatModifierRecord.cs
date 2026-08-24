@@ -115,7 +115,8 @@ namespace FrameSyncMoba.Unit
             fp baseValue,
             fp currentSlotValue,
             StatHandler sourceStats,
-            StatHandler targetStats)
+            StatHandler targetStats,
+            fp targetBatchStartHealth)
         {
             fp value = Constant;
             CombatOperandTerm[] terms =
@@ -143,9 +144,7 @@ namespace FrameSyncMoba.Unit
                             term.Value.ValueId);
                         break;
                     case CombatValueRefKind.TargetCurrentHealth:
-                        referenced = targetStats != null
-                            ? targetStats.CurrentHealth
-                            : fp.zero;
+                        referenced = targetBatchStartHealth;
                         break;
                     default:
                         throw new DeterministicSimulationException(

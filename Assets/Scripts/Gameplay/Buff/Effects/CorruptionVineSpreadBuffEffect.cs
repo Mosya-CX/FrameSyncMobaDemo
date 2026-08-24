@@ -577,28 +577,26 @@ namespace FrameSyncMoba.Unit
                 new DamageRequest
                 {
                     Header =
-                        new CombatRequestHeader
-                        {
-                            SourceUnitUid =
-                                casterUid,
-                            TargetUnitUid =
-                                target.UnitUid,
-                            SourceDescriptor =
-                                new SourceDescriptor
-                                {
-                                    SourceType =
-                                        CombatSourceType
-                                            .Ability,
-                                    SourceId =
-                                        SpreadSourceAbilityId,
-                                    OwnerUnitUid =
-                                        casterUid,
-                                    EmitterUnitUid =
-                                        casterUid,
-                                },
-                            RecipeId =
-                                SpreadRecipeId,
-                        },
+                        CombatRequestHeader.Create(
+                            casterUid,
+                            target.UnitUid,
+                            CombatSourceType.Ability,
+                            SpreadSourceAbilityId,
+                            SpreadRecipeId,
+                            originActionId:
+                                new OriginActionId(
+                                    caster.GameplayParticipantId,
+                                    CombatSourceType.Ability,
+                                    SpreadSourceAbilityId,
+                                    SimulationTickContext.Current.Tick,
+                                    CombatFairnessKey
+                                        .ParticipantLocalSequence(
+                                            target.GameplayParticipantId,
+                                            SpreadRecipeId)),
+                            effectOrdinal:
+                                CombatFairnessKey.ComposeEffectOrdinal(
+                                    SpreadRecipeId,
+                                    0)),
                     DamageType =
                         (DamageType)
                         SpreadDamageType,

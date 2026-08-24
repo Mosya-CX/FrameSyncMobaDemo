@@ -91,7 +91,14 @@ namespace FrameSyncMoba.Unit
                     target.UnitUid,
                     CombatSourceType.AttackEffect,
                     SourceAbilityId,
-                    RecipeId),
+                    RecipeId,
+                    originActionId:
+                        data.OriginActionId,
+                    effectOrdinal:
+                        CombatFairnessKey.ComposeChildEffectOrdinal(
+                            data.EffectOrdinal,
+                            RecipeId,
+                            0)),
                 BaseDamage = damage,
                 DamageType = DamageType.Magic,
             };

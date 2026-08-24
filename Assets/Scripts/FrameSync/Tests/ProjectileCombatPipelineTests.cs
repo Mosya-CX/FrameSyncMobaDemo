@@ -1,3 +1,4 @@
+using System;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Physics;
 using FrameSyncMoba.Unit;
@@ -82,7 +83,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
-        public void EqualDistanceHits_AreUidOrderedAndUseCombat()
+        public void EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat()
         {
             RegisterDefinition(
                 maxHits: 2,
@@ -94,18 +95,25 @@ namespace FrameSyncMoba.FrameSync.Tests
 
             Assert.AreEqual(2, resolver.PendingHits.Count);
             Assert.Less(
-                resolver.PendingHits[0].TargetUnitUid.CompareTo(
-                    resolver.PendingHits[1].TargetUnitUid),
-                0);
+                resolver.PendingHits[0].EqualDistanceTieScore,
+                resolver.PendingHits[1].EqualDistanceTieScore);
 
             int onHitCount = 0;
-            CombatEvents.OnHitDealt += _ => onHitCount++;
+            int observedParentEffectOrdinal = -1;
+            CombatEvents.OnHitDealt += data =>
+            {
+                onHitCount++;
+                observedParentEffectOrdinal = data.EffectOrdinal;
+            };
             resolver.EmitEffects(projectileWorld);
             projectileWorld.FlushDestroy();
             combat.SettleActiveRequests();
 
             Assert.AreEqual(2, combat.DamageProcessed);
             Assert.AreEqual(2, onHitCount);
+            Assert.AreEqual(
+                CombatFairnessKey.ComposeEffectOrdinal(1, 0),
+                observedParentEffectOrdinal);
             Assert.AreEqual(0, projectileWorld.Count);
         }
 
@@ -120,12 +128,77 @@ namespace FrameSyncMoba.FrameSync.Tests
 
             resolver.ResolveAllHits(projectileWorld);
             Assert.AreEqual(2, resolver.PendingHits.Count);
+            UnitUid expectedWinner =
+                resolver.PendingHits[0].TargetUnitUid;
             resolver.EmitEffects(projectileWorld);
             projectileWorld.FlushDestroy();
             combat.SettleActiveRequests();
 
             Assert.AreEqual(1, combat.DamageProcessed);
+            Assert.AreEqual(
+                (fp)75,
+                expectedWinner == firstTarget.UnitUid
+                    ? firstTarget.StatHandler.CurrentHealth
+                    : secondTarget.StatHandler.CurrentHealth);
             Assert.AreEqual(0, projectileWorld.Count);
+        }
+
+        [Test]
+        public void EqualDistanceArbitration_UidRelabelKeepsParticipantWinner()
+        {
+            var action = new OriginActionId(
+                GameplayParticipantId.Explicit(10),
+                CombatSourceType.Ability,
+                1001,
+                20,
+                3);
+            GameplayParticipantId firstParticipant =
+                GameplayParticipantId.Explicit(20);
+            GameplayParticipantId secondParticipant =
+                GameplayParticipantId.Explicit(30);
+            ulong firstScore = CombatFairnessKey.ProjectileTieScore(
+                991u,
+                action,
+                firstParticipant);
+            ulong secondScore = CombatFairnessKey.ProjectileTieScore(
+                991u,
+                action,
+                secondParticipant);
+            Assert.AreNotEqual(firstScore, secondScore);
+
+            ProjectileHitResult[] original =
+            {
+                CreateEqualDistanceHit(
+                    new UnitUid(20, 1001, 0),
+                    firstParticipant,
+                    firstScore),
+                CreateEqualDistanceHit(
+                    new UnitUid(20, 1001, 1),
+                    secondParticipant,
+                    secondScore),
+            };
+            ProjectileHitResult[] relabeled =
+            {
+                CreateEqualDistanceHit(
+                    new UnitUid(20, 9001, 1),
+                    firstParticipant,
+                    firstScore),
+                CreateEqualDistanceHit(
+                    new UnitUid(20, 9001, 0),
+                    secondParticipant,
+                    secondScore),
+            };
+
+            Array.Sort(
+                original,
+                ProjectileHitResolver.CompareHitResults);
+            Array.Sort(
+                relabeled,
+                ProjectileHitResolver.CompareHitResults);
+
+            Assert.AreEqual(
+                original[0].TargetParticipantId,
+                relabeled[0].TargetParticipantId);
         }
 
         [Test]
@@ -275,6 +348,57 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void PendingTrackedTarget_SnapshotRoundTripPreservesLock()
+        {
+            RegisterDefinition(
+                maxHits: 1,
+                endOnFirst: true,
+                restrictToTracked: true);
+            var source = new SourceDescriptor
+            {
+                SourceType = CombatSourceType.Attack,
+                SourceId = CombatBuiltinSourceId.BasicAttack,
+                OwnerUnitUid = owner.UnitUid,
+                EmitterUnitUid = owner.UnitUid,
+            };
+            ProjectileUid uid = projectileWorld.RequestSpawn(
+                new ProjectileSpawnRequest(
+                    1,
+                    owner.UnitUid,
+                    owner.TeamId,
+                    source,
+                    new OriginActionId(
+                        owner.GameplayParticipantId,
+                        source.SourceType,
+                        source.SourceId,
+                        10,
+                        1),
+                    fp2.zero,
+                    new fp2(fp.one, fp.zero),
+                    targetUnitUid: secondTarget.UnitUid));
+
+            ProjectileWorldSnapshot captured =
+                ProjectileWorldSnapshot.Empty;
+            projectileWorld.Capture(ref captured);
+            projectileWorld.Restore(captured);
+            ProjectileWorldSnapshot roundTrip =
+                ProjectileWorldSnapshot.Empty;
+            projectileWorld.Capture(ref roundTrip);
+
+            Assert.AreEqual(
+                secondTarget.UnitUid,
+                roundTrip.PendingSpawns[0].TargetUnitUid);
+            projectileWorld.CommitSpawns();
+            Assert.IsTrue(
+                projectileWorld.TryGet(
+                    uid,
+                    out ProjectileRuntime runtime));
+            Assert.AreEqual(
+                secondTarget.UnitUid,
+                runtime.TargetUnitUid);
+        }
+
+        [Test]
         public void SnapshotRoundTrip_PreservesSourceAndHitMemory()
         {
             RegisterDefinition(
@@ -303,6 +427,11 @@ namespace FrameSyncMoba.FrameSync.Tests
                 CombatSourceType.Attack,
                 roundTrip.ActiveProjectiles[0]
                     .Source.SourceType);
+            Assert.AreEqual(
+                captured.ActiveProjectiles[0]
+                    .OriginActionId,
+                roundTrip.ActiveProjectiles[0]
+                    .OriginActionId);
             Assert.AreEqual(
                 firstTarget.UnitUid,
                 roundTrip.ActiveProjectiles[0]
@@ -469,6 +598,12 @@ namespace FrameSyncMoba.FrameSync.Tests
                         OwnerUnitUid = owner.UnitUid,
                         EmitterUnitUid = owner.UnitUid,
                     },
+                    new OriginActionId(
+                        owner.GameplayParticipantId,
+                        CombatSourceType.Ability,
+                        10022,
+                        10,
+                        0),
                     fp2.zero,
                     new fp2(fp.one, fp.zero)));
             Assert.That(missile.IsValid, Is.True);
@@ -478,10 +613,16 @@ namespace FrameSyncMoba.FrameSync.Tests
             physicsWorld.BuildUnitFinalGrid();
 
             resolver.ResolveAllHits(projectileWorld);
+            Assert.That(resolver.PendingHits, Is.Not.Empty);
+            GameplayUnit impactedTarget =
+                resolver.PendingHits[0].TargetUnitUid ==
+                    firstTarget.UnitUid
+                    ? firstTarget
+                    : secondTarget;
             resolver.EmitEffects(projectileWorld);
 
             Assert.That(
-                firstTarget.BuffHandler.HasBuff(
+                impactedTarget.BuffHandler.HasBuff(
                     new BuffConfigId(12022)),
                 Is.True);
             Assert.That(
@@ -494,10 +635,10 @@ namespace FrameSyncMoba.FrameSync.Tests
             Assert.That(snapshot.PendingSpawns, Has.Length.EqualTo(1));
             Assert.That(snapshot.PendingSpawns[0].DefId, Is.EqualTo(110));
 
-            SetTargetPose(firstTarget, (fp)20);
-            firstTarget.BuffHandler.Advance();
+            SetTargetPose(impactedTarget, (fp)20);
+            impactedTarget.BuffHandler.Advance();
             Assert.That(
-                firstTarget.BuffHandler.HasBuff(
+                impactedTarget.BuffHandler.HasBuff(
                     new BuffConfigId(12022)),
                 Is.False,
                 "Leaving the authored zone must remove the tether.");
@@ -570,9 +711,15 @@ namespace FrameSyncMoba.FrameSync.Tests
                     new ProjectileSpawnRequest(
                         1,
                         owner.UnitUid,
-                        owner.TeamId,
-                        source,
-                        fp2.zero,
+                    owner.TeamId,
+                    source,
+                    new OriginActionId(
+                        owner.GameplayParticipantId,
+                        source.SourceType,
+                        source.SourceId,
+                        10,
+                        0),
+                    fp2.zero,
                         new fp2(fp.one, fp.zero),
                         targetUnitUid:
                             lockSecondTarget
@@ -596,6 +743,18 @@ namespace FrameSyncMoba.FrameSync.Tests
                 new fp2(x, fp.zero),
                 new fp2(fp.one, fp.zero));
         }
+
+        private static ProjectileHitResult CreateEqualDistanceHit(
+            UnitUid unitUid,
+            GameplayParticipantId participantId,
+            ulong score) =>
+            new ProjectileHitResult
+            {
+                TargetUnitUid = unitUid,
+                TargetParticipantId = participantId,
+                HitDistance = fp.one,
+                EqualDistanceTieScore = score,
+            };
 
         private static UnitPrototype CreatePrototype(
             UnitKind kind = UnitKind.Hero,

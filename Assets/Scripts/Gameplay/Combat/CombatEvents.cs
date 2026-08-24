@@ -148,6 +148,8 @@ namespace FrameSyncMoba.Unit
         /// AttackEffect/...). Enables effects to distinguish skill damage
         /// from basic-attack damage without guessing.</summary>
         public SourceDescriptor Source;
+        public OriginActionId OriginActionId;
+        public int EffectOrdinal;
         /// <summary>
         /// Recipe id of the settled damage request (e.g. BasicAttackDamage
         /// vs EmpoweredAttackDamage). Lets reactions (equipment passives,
@@ -184,6 +186,13 @@ namespace FrameSyncMoba.Unit
     {
         public UnitUid SourceUid;
         public UnitUid TargetUid;
+        public OriginActionId OriginActionId;
+        /// <summary>
+        /// Ordinal of the settled parent damage inside OriginActionId. Event
+        /// reactions must fold this into their child ordinal so different
+        /// parent effects cannot reuse the same keyed-random sample.
+        /// </summary>
+        public int EffectOrdinal;
         public DamageType DamageType;
         public bool IsCritical;
         /// <summary>

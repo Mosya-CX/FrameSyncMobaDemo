@@ -34,6 +34,7 @@ namespace FrameSyncMoba.Unit
         [ReadOnly]
         [PropertyOrder(-120)]
         public UnitUid UnitUid { get; private set; }
+        public GameplayParticipantId GameplayParticipantId { get; private set; }
         public UnitWorld World { get; internal set; }
         public UnitUid OwnerUid { get; private set; }
         public UnitKind UnitKind { get; private set; }
@@ -354,6 +355,7 @@ namespace FrameSyncMoba.Unit
 
         internal void InitializeForNewRuntime(
             UnitUid unitUid,
+            GameplayParticipantId gameplayParticipantId,
             UnitUid ownerUid,
             UnitPrototype prototype,
             TeamId teamId,
@@ -366,12 +368,16 @@ namespace FrameSyncMoba.Unit
         {
             if (prototype == null) throw new ArgumentNullException(nameof(prototype));
             if (statDefinitions == null) throw new ArgumentNullException(nameof(statDefinitions));
+            if (!gameplayParticipantId.IsValid)
+                throw new DeterministicSimulationException(
+                    "Unit runtime requires a valid GameplayParticipantId.");
 
             ResolveComponentReferences();
             abilityMask = prototype.Loadout.BuildAbilityMask();
             ValidateCompositionOrThrow();
 
             UnitUid = unitUid;
+            GameplayParticipantId = gameplayParticipantId;
             OwnerUid = ownerUid;
             UnitKind = prototype.UnitKind;
             UnitSubKindId = prototype.UnitSubKindId;
@@ -499,6 +505,7 @@ namespace FrameSyncMoba.Unit
 
         internal void RestoreCoreState(
             UnitUid expectedUnitUid,
+            GameplayParticipantId expectedGameplayParticipantId,
             UnitUid ownerUid,
             UnitKind unitKind,
             ushort unitSubKindId,
@@ -510,6 +517,7 @@ namespace FrameSyncMoba.Unit
             fp2 restoredRespawnPosition)
         {
             if (UnitUid != expectedUnitUid ||
+                GameplayParticipantId != expectedGameplayParticipantId ||
                 OwnerUid != ownerUid ||
                 UnitKind != unitKind ||
                 UnitSubKindId != unitSubKindId ||
@@ -645,6 +653,7 @@ namespace FrameSyncMoba.Unit
             Locomotion = null;
             EventBus = null;
             UnitUid = default;
+            GameplayParticipantId = default;
             World = null;
             OwnerUid = default;
             Planner = null;

@@ -136,6 +136,7 @@ namespace FrameSyncMoba.FrameSync
                 new InitialSpawnEntry(
                     new UnitSpawnRequest(
                         unitPrototypeId,
+                        entry.Request.GameplayParticipantId,
                         entry.Request.TeamId,
                         entry.Request.Position,
                         entry.Request.Forward,
@@ -242,16 +243,51 @@ namespace FrameSyncMoba.FrameSync
                     unit.MovementHandler?.ApplyRouteMovement(loco);
                 }
 
-                // Phase 3: Handler Tick
-                foreach (var unit in units)
+                // Phase 3: global Handler subphases. UnitUid remains the
+                // deterministic iteration key inside one subsystem, but one
+                // unit's later Handler must not run before another unit's
+                // earlier Handler merely because that unit sorts first.
+                // (Combat fairness D-049.)
+                for (int i = 0; i < units.Count; i++)
                 {
+                    var unit = units[i];
                     if (unit == null) continue;
                     unit.TickTags();
+                }
+                for (int i = 0; i < units.Count; i++)
+                {
+                    var unit = units[i];
+                    if (unit == null) continue;
                     unit.BuffHandler?.Advance();
+                }
+                for (int i = 0; i < units.Count; i++)
+                {
+                    var unit = units[i];
+                    if (unit == null) continue;
                     unit.EquipmentHandler?.AdvanceEffects();
+                }
+                for (int i = 0; i < units.Count; i++)
+                {
+                    var unit = units[i];
+                    if (unit == null) continue;
                     unit.HitReaction.TickUpdate();
+                }
+                for (int i = 0; i < units.Count; i++)
+                {
+                    var unit = units[i];
+                    if (unit == null) continue;
                     unit.AbilityHandler?.TickUpdate();
+                }
+                for (int i = 0; i < units.Count; i++)
+                {
+                    var unit = units[i];
+                    if (unit == null) continue;
                     unit.MovementHandler?.TickUpdate();
+                }
+                for (int i = 0; i < units.Count; i++)
+                {
+                    var unit = units[i];
+                    if (unit == null) continue;
                     unit.AttackHandler?.TickUpdate();
                 }
 
@@ -431,6 +467,8 @@ namespace FrameSyncMoba.FrameSync
                 var us = new UnitSnapshot
                 {
                     UnitUid = unit.UnitUid,
+                    GameplayParticipantId =
+                        unit.GameplayParticipantId,
                     OwnerUid = unit.OwnerUid,
                     UnitKind = unit.UnitKind,
                     UnitSubKindId = unit.UnitSubKindId,
@@ -523,6 +561,8 @@ namespace FrameSyncMoba.FrameSync
             }
 
             UnitUid previousUid = default;
+            var participantIds =
+                new HashSet<GameplayParticipantId>();
             for (int i = 0; i < states.Length; i++)
             {
                 UnitSnapshot us = states[i];
@@ -533,6 +573,13 @@ namespace FrameSyncMoba.FrameSync
                 }
 
                 previousUid = us.UnitUid;
+                if (!us.GameplayParticipantId.IsValid ||
+                    !participantIds.Add(
+                        us.GameplayParticipantId))
+                {
+                    throw new DeterministicSimulationException(
+                        "Unit snapshots must contain valid, unique GameplayParticipantId values.");
+                }
             }
 
             ReconcileUnitTopology(states);
@@ -547,6 +594,7 @@ namespace FrameSyncMoba.FrameSync
                         $"Unit topology reconciliation did not create {us.UnitUid}.");
                 unit.RestoreCoreState(
                     us.UnitUid,
+                    us.GameplayParticipantId,
                     us.OwnerUid,
                     us.UnitKind,
                     us.UnitSubKindId,
@@ -674,13 +722,12 @@ namespace FrameSyncMoba.FrameSync
             var runtimeUnits = new List<UnitType>(_unitWorld.GetAllUnits());
             int runtimeIndex = 0;
             int snapshotIndex = 0;
-            while (runtimeIndex < runtimeUnits.Count || snapshotIndex < states.Length)
+            // Remove absent technical UIDs before creating replacements. A
+            // relabeled snapshot may preserve GameplayParticipantId while
+            // changing UnitUid; creating first would transiently violate the
+            // participant uniqueness contract.
+            while (runtimeIndex < runtimeUnits.Count)
             {
-                if (runtimeIndex >= runtimeUnits.Count)
-                {
-                    CreateUnitForRestore(states[snapshotIndex++]);
-                    continue;
-                }
                 if (snapshotIndex >= states.Length)
                 {
                     _unitWorld.RemoveUnitForRollbackRestore(runtimeUnits[runtimeIndex++]);
@@ -692,12 +739,18 @@ namespace FrameSyncMoba.FrameSync
                 if (comparison < 0)
                     _unitWorld.RemoveUnitForRollbackRestore(runtimeUnits[runtimeIndex++]);
                 else if (comparison > 0)
-                    CreateUnitForRestore(states[snapshotIndex++]);
+                    snapshotIndex++;
                 else
                 {
                     runtimeIndex++;
                     snapshotIndex++;
                 }
+            }
+
+            for (int i = 0; i < states.Length; i++)
+            {
+                if (!_unitWorld.TryGetUnit(states[i].UnitUid, out _))
+                    CreateUnitForRestore(states[i]);
             }
         }
 
@@ -705,6 +758,7 @@ namespace FrameSyncMoba.FrameSync
         {
             _unitWorld.CreateUnitForRollbackRestore(
                 state.UnitUid,
+                state.GameplayParticipantId,
                 state.OwnerUid,
                 state.UnitPrototypeId,
                 state.TeamId,
@@ -966,6 +1020,18 @@ namespace FrameSyncMoba.FrameSync
                                     RecipeId =
                                         CombatBuiltinRecipeId
                                             .BasicAttackDamage,
+                                    OriginActionId =
+                                        new OriginActionId(
+                                            unit.GameplayParticipantId,
+                                            CombatSourceType.Attack,
+                                            CombatBuiltinSourceId
+                                                .BasicAttack,
+                                            SimulationTickContext
+                                                .Current.Tick,
+                                            unchecked((int)(
+                                                command.Header.CommandSeq &
+                                                0x7FFFFFFFu))),
+                                    EffectOrdinal = 0,
                                 },
                             DamageType =
                                 DamageType.True,

@@ -62,6 +62,44 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void Restore_RejectsDuplicateGameplayParticipantIdentity()
+        {
+            UnitWorld world = CreateWorld();
+            Spawn(world, 10, 0);
+            Spawn(world, 11, 1);
+            var pipeline = new SimulationTickPipeline(
+                world,
+                world.PhysicsWorld);
+            GameplaySnapshot snapshot =
+                pipeline.CaptureAggregateSnapshot();
+            snapshot.UnitWorldState.Units[1]
+                .GameplayParticipantId =
+                snapshot.UnitWorldState.Units[0]
+                    .GameplayParticipantId;
+
+            Assert.Throws<DeterministicSimulationException>(
+                () => pipeline.RestoreFromSnapshot(snapshot));
+        }
+
+        [Test]
+        public void Restore_RejectsMissingGameplayParticipantIdentity()
+        {
+            UnitWorld world = CreateWorld();
+            Spawn(world, 10, 0);
+            var pipeline = new SimulationTickPipeline(
+                world,
+                world.PhysicsWorld);
+            GameplaySnapshot snapshot =
+                pipeline.CaptureAggregateSnapshot();
+            snapshot.UnitWorldState.Units[0]
+                .GameplayParticipantId =
+                GameplayParticipantId.Invalid;
+
+            Assert.Throws<DeterministicSimulationException>(
+                () => pipeline.RestoreFromSnapshot(snapshot));
+        }
+
+        [Test]
         public void SnapshotStore_WritesExplicitOuterSchemaAndNextTick()
         {
             var store = new SnapshotStore(4);

@@ -148,7 +148,16 @@ namespace FrameSyncMoba.Unit
                     owner.UnitUid,
                     CombatSourceType.Ability,
                     runtime.Source.SourceConfigId,
-                    RecipeId),
+                    RecipeId,
+                    originActionId:
+                        BuildOriginActionId(
+                            runtime,
+                            source,
+                            owner),
+                    effectOrdinal:
+                        CombatFairnessKey.ComposeEffectOrdinal(
+                            runtime.ConfigId.Value,
+                            1)),
                 BaseDamage = damage,
                 DamageType = DamageType.Physical,
             };
@@ -227,6 +236,7 @@ namespace FrameSyncMoba.Unit
                     OwnerUnitUid = source.UnitUid,
                     EmitterUnitUid = source.UnitUid,
                 },
+                BuildOriginActionId(runtime, source, owner),
                 anchor,
                 forward);
             ProjectileUid uid =
@@ -236,6 +246,20 @@ namespace FrameSyncMoba.Unit
                     $"Tether Buff {runtime.ConfigId.Value} failed to spawn area projectile {AreaProjectileDefId}.");
             WriteProjectileUid(runtime, uid);
         }
+
+        private static OriginActionId BuildOriginActionId(
+            BuffRuntime runtime,
+            Unit source,
+            Unit owner) =>
+            new OriginActionId(
+                source.GameplayParticipantId,
+                CombatSourceType.Ability,
+                runtime.Source.SourceConfigId,
+                SimulationTickContext.Current.Tick -
+                    runtime.ElapsedTicks,
+                CombatFairnessKey.ParticipantLocalSequence(
+                    owner.GameplayParticipantId,
+                    runtime.ConfigId.Value));
 
         private bool TryGetZone(
             BuffRuntime runtime,

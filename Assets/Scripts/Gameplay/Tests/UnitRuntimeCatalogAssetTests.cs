@@ -129,6 +129,7 @@ namespace FrameSyncMoba.Unit.Tests
                 controller.BeginTick(0, ExecutionMode.ServerAuthority);
                 uid = unitWorld.SpawnUnit(new UnitSpawnRequest(
                     1001,
+                    GameplayParticipantId.Explicit(1001),
                     new TeamId(1),
                     new fp2((fp)2, (fp)3),
                     new fp2(fp.zero, fp.one)));

@@ -702,6 +702,8 @@ namespace FrameSyncMoba.Bootstrap
             UnitUid uid = world.SpawnUnit(
                 new UnitSpawnRequest(
                     prototypeId,
+                    GameplayParticipantId.Explicit(
+                        world.GetAllUnits().Count + 1),
                     teamId,
                     position,
                     new fp2(fp.one, fp.zero)));

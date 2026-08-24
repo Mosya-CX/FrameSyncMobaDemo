@@ -143,6 +143,12 @@ namespace FrameSyncMoba.ClientContent.Tests
                             ownerUid,
                             new TeamId(1),
                             source,
+                            new OriginActionId(
+                                GameplayParticipantId.Explicit(1),
+                                CombatSourceType.Attack,
+                                CombatBuiltinSourceId.BasicAttack,
+                                100,
+                                0),
                             fp2.zero,
                             new fp2(
                                 fp.one,

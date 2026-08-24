@@ -58,7 +58,14 @@ namespace FrameSyncMoba.Unit
                     targetUid,
                     CombatSourceType.AttackEffect,
                     instance.Definition?.Id ?? 0,
-                    instance.Definition?.Id ?? 0),
+                    instance.Definition?.Id ?? 0,
+                    originActionId:
+                        context.OnHit.OriginActionId,
+                    effectOrdinal:
+                        CombatFairnessKey.ComposeChildEffectOrdinal(
+                            context.OnHit.EffectOrdinal,
+                            instance.Definition?.Id ?? 0,
+                            0)),
                 BaseDamage = BonusDamage,
                 DamageType = DamageType,
             };

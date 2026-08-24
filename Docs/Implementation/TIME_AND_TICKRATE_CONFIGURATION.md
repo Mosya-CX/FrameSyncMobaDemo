@@ -60,8 +60,8 @@ SceneLoaded
 协议版本：
 
 - `MatchLaunchWireCodec`：v2；
-- `BootstrapPayloadWireCodec`：v3；
-- `GameplayDataVersion`：3。
+- `BootstrapPayloadWireCodec`：v4；
+- `GameplayDataVersion`：4。
 
 不同版本客户端/服务端会在入口被明确拒绝，不能混连。
 

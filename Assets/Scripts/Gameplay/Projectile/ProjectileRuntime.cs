@@ -22,6 +22,7 @@ namespace FrameSyncMoba.Unit
         public UnitUid OwnerUnitUid { get; }
         public TeamId TeamSnapshot { get; }
         public SourceDescriptor Source { get; }
+        public OriginActionId OriginActionId { get; }
         public PhysicsEntity2D PhysicsEntity { get; }
         public fp2 Position => PhysicsEntity.Transform2D.Position;
         public fp2 PrevPosition => PhysicsEntity.Transform2D.PrevPosition;
@@ -62,6 +63,7 @@ namespace FrameSyncMoba.Unit
             UnitUid ownerUnitUid,
             TeamId teamSnapshot,
             SourceDescriptor source,
+            OriginActionId originActionId,
             PhysicsEntity2D physicsEntity,
             fp2 startPosition,
             fp2 direction,
@@ -76,12 +78,16 @@ namespace FrameSyncMoba.Unit
             if (!source.IsValid)
                 throw new DeterministicSimulationException(
                     "Projectile source descriptor is invalid.");
+            if (!originActionId.IsValid)
+                throw new DeterministicSimulationException(
+                    "Projectile OriginActionId is invalid.");
 
             Uid = uid;
             Def = def;
             OwnerUnitUid = ownerUnitUid;
             TeamSnapshot = teamSnapshot;
             Source = source;
+            OriginActionId = originActionId;
             PhysicsEntity = physicsEntity;
             PhysicsEntity.SetLogicPose(startPosition, direction);
             Velocity = direction * def.Speed;

@@ -36,6 +36,10 @@ namespace FrameSyncMoba.Unit
                     OwnerUnitUid = runtime.CasterUnitUid,
                     EmitterUnitUid = runtime.CasterUnitUid,
                 },
+                BuildOriginActionId(
+                    session,
+                    runtime,
+                    caster),
                 spawnPos,
                 facing);
 

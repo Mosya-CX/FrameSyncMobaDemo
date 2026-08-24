@@ -111,6 +111,7 @@ namespace FrameSyncMoba.Unit.Tests
             UnitUid uid = _world.SpawnUnit(
                 new UnitSpawnRequest(
                     _prototype.UnitPrototypeId,
+                    GameplayParticipantId.Explicit(2),
                     new TeamId(1),
                     spawnPos,
                     new fp2(
@@ -143,6 +144,7 @@ namespace FrameSyncMoba.Unit.Tests
             UnitUid uid = _world.SpawnUnit(
                 new UnitSpawnRequest(
                     _prototype.UnitPrototypeId,
+                    GameplayParticipantId.Explicit(2),
                     new TeamId(1),
                     spawnPos,
                     new fp2(

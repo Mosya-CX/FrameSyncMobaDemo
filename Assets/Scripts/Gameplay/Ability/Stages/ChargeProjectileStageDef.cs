@@ -139,6 +139,10 @@ namespace FrameSyncMoba.Unit
                 runtime.CasterUnitUid,
                 caster.TeamId,
                 source,
+                BuildOriginActionId(
+                    session,
+                    runtime,
+                    caster),
                 spawnPos,
                 direction,
                 empowered

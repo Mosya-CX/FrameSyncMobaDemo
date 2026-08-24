@@ -837,6 +837,12 @@ namespace FrameSyncMoba.Unit.Tests
                             OwnerUnitUid = owner,
                             EmitterUnitUid = owner,
                         },
+                        new OriginActionId(
+                            GameplayParticipantId.Explicit(1),
+                            CombatSourceType.Ability,
+                            10022,
+                            42,
+                            0),
                         fp2.zero,
                         new fp2(fp.zero, fp.one)));
 

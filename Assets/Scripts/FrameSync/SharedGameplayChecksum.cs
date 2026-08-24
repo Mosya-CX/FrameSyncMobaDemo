@@ -199,7 +199,11 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteUnitBase(CanonicalByteWriter writer, in UnitSnapshot state)
         {
-            WriteUnitUid(writer, state.UnitUid); WriteUnitUid(writer, state.OwnerUid);
+            WriteUnitUid(writer, state.UnitUid);
+            WriteGameplayParticipantId(
+                writer,
+                state.GameplayParticipantId);
+            WriteUnitUid(writer, state.OwnerUid);
             writer.WriteByte((byte)state.UnitKind); writer.WriteUInt32(state.UnitSubKindId);
             writer.WriteByte(state.TeamId.Value); writer.WriteInt32(state.UnitPrototypeId);
             WriteFp2(writer, state.RespawnPosition);
@@ -778,6 +782,8 @@ namespace FrameSyncMoba.FrameSync
             WriteUnitUid(writer, header.SourceDescriptor.OwnerUnitUid);
             WriteUnitUid(writer, header.SourceDescriptor.EmitterUnitUid);
             writer.WriteInt32(header.RecipeId);
+            WriteOriginActionId(writer, header.OriginActionId);
+            writer.WriteInt32(header.EffectOrdinal);
         }
 
         private static void WriteProjectiles(CanonicalByteWriter writer, in ProjectileWorldSnapshot state)
@@ -791,8 +797,12 @@ namespace FrameSyncMoba.FrameSync
                 WriteUnitUid(writer, pending[i].OwnerUnitUid);
                 writer.WriteByte(pending[i].TeamSnapshot.Value);
                 WriteSourceDescriptor(writer, pending[i].Source);
+                WriteOriginActionId(
+                    writer,
+                    pending[i].OriginActionId);
                 WriteFp2(writer, pending[i].StartPosition);
                 WriteFp2(writer, pending[i].Direction);
+                WriteUnitUid(writer, pending[i].TargetUnitUid);
                 writer.WriteInt32(
                     pending[i].MaxLifetimeTicksOverride);
                 WriteOnHitDamageOverride(
@@ -808,6 +818,9 @@ namespace FrameSyncMoba.FrameSync
                 WriteUnitUid(writer, active[i].OwnerUnitUid);
                 writer.WriteByte(active[i].TeamSnapshot.Value);
                 WriteSourceDescriptor(writer, active[i].Source);
+                WriteOriginActionId(
+                    writer,
+                    active[i].OriginActionId);
                 WriteFp2(writer, active[i].PreviousPosition);
                 WriteFp2(writer, active[i].Position);
                 WriteFp2(writer, active[i].Velocity);
@@ -819,6 +832,7 @@ namespace FrameSyncMoba.FrameSync
                 writer.WriteInt32(active[i].RemainingPierceCount);
                 writer.WriteInt32(active[i].RemainingBounceCount);
                 writer.WriteInt32(active[i].NextQueryLogicTick);
+                WriteUnitUid(writer, active[i].TargetUnitUid);
                 ProjectileHitRecord[] records =
                     active[i].HitRecords ?? Array.Empty<ProjectileHitRecord>();
                 writer.WriteInt32(records.Length);
@@ -974,6 +988,29 @@ namespace FrameSyncMoba.FrameSync
 
         private static void WriteAim(CanonicalByteWriter writer, in AimSnapshot aim) { writer.WriteByte((byte)aim.Kind); WriteUnitUid(writer, aim.TargetUnitUid); WriteFp2(writer, aim.TargetPoint); WriteFp2(writer, aim.Direction); }
         private static void WriteFp2(CanonicalByteWriter writer, fp2 value) { writer.WriteFp(value.x); writer.WriteFp(value.y); }
+        private static void WriteGameplayParticipantId(
+            CanonicalByteWriter writer,
+            GameplayParticipantId participantId)
+        {
+            writer.WriteByte((byte)participantId.Domain);
+            writer.WriteInt32(participantId.Scope);
+            writer.WriteInt32(participantId.Generation);
+            writer.WriteInt32(participantId.Ordinal);
+        }
+
+        private static void WriteOriginActionId(
+            CanonicalByteWriter writer,
+            OriginActionId actionId)
+        {
+            WriteGameplayParticipantId(
+                writer,
+                actionId.SourceParticipantId);
+            writer.WriteByte((byte)actionId.SourceType);
+            writer.WriteInt32(actionId.SourceId);
+            writer.WriteInt32(actionId.OriginLogicTick);
+            writer.WriteInt32(actionId.SourceLocalSequence);
+        }
+
         private static void WriteUnitUid(CanonicalByteWriter writer, UnitUid uid) { writer.WriteInt32(uid.SpawnLogicTick); writer.WriteInt32(uid.RuntimeEntityPrefabId); writer.WriteByte(uid.SpawnSequenceInTick); }
         private static void WriteRuntimeUid(CanonicalByteWriter writer, RuntimeUidQueryValue uid) { writer.WriteInt32(uid.SpawnLogicTick); writer.WriteInt32(uid.RuntimeEntityPrefabId); writer.WriteByte(uid.SpawnSequenceInTick); }
         private static void WriteProjectileUid(CanonicalByteWriter writer, ProjectileUid uid) { writer.WriteInt32(uid.SpawnLogicTick); writer.WriteInt32(uid.RuntimeEntityPrefabId); writer.WriteByte(uid.SpawnSequenceInTick); }

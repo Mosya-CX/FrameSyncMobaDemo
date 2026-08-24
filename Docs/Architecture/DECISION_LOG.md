@@ -1168,3 +1168,90 @@ player-controlled spawn is now only a placeholder/fallback.
   path-sorted `AssetDatabase` dependency traversal. They record source asset,
   dependency path, GUID, direct/transitive relationship and ownership class;
   runtime reflection scanning is not part of this contract.
+
+## D-049 — Traversal-neutral same-Tick Combat settlement and fair killer attribution (2026-08-24)
+
+**Status:** Frozen (implementation complete 2026-08-24). Approved by the current
+user request. This decision partially supersedes D-035 and amends D-041.
+
+- `SimulationTickPipeline` advances tags, Buff, Equipment, HitReaction,
+  Ability, Movement and Attack as global per-Handler subphases. A UnitUid may
+  provide deterministic iteration inside a subphase but cannot create a hidden
+  cross-Handler gameplay priority.
+- Ordinary active Shield, Damage and Heal requests are collected, sealed into
+  causal settlement waves and assigned final `SequenceInTick` only after the
+  wave has a canonical gameplay order. Submit call order is not settlement
+  authority.
+- Requests for the same target and wave evaluate against a frozen batch-start
+  state. Effective healing is capped at MaxHealth, eligible same-batch shields
+  participate in absorption, aggregate life damage commits once, and reactions
+  produced by the completed batch enter the next wave. Formal multi-stage
+  mechanics use explicit effect ordinals/waves instead of incidental traversal.
+- When candidate life damage exceeds the target's available life, actual life
+  damage is allocated proportionally by fixed-point weight. Allocation is
+  conservative and insertion-order independent; representational remainders use
+  the neutral tie score.
+- The killer is the valid enemy Hero with the greatest summed
+  `ActualLifeDamage` in the lethal settlement batch. Shield-only damage,
+  immune/zero results, pure overkill and non-Hero-unowned damage do not win the
+  killer comparison. This replaces D-035's last-Damage-event killer clause;
+  the contribution event log and assist-window membership remain authoritative
+  facts.
+- An exact highest-damage tie uses a pure 64-bit score over immutable
+  `InitialMatchSeed`, death Tick, the victim/candidate Spawn identities
+  (`SpawnLogicTick + SpawnSequenceInTick`, explicitly excluding
+  `RuntimeEntityPrefabId`) and a fixed Combat domain. It does not consume
+  `DeterministicRandomService`, and it does not include Submit sequence,
+  PrefabId, team side, Handler traversal position or a request count that
+  players can spam. A full hash collision alone falls back to complete HeroUid
+  ordering.
+- D-041's preferential killer reward consumes the D-049-selected
+  `KillerHeroUid`; integer allocation, GoldIncomeRuntime ownership and assistant
+  remainder rules are unchanged.
+- Active envelopes, target batches, waves and lethal-batch candidates are
+  transient and must be empty before Snapshot Capture. Any new cross-Tick
+  deferred semantics must be represented explicitly in the deferred Snapshot
+  and checksum with a schema/version bump; restore never guesses missing data.
+- The fairness boundary applies after an accepted, non-random Combat request
+  multiset exists: UID order cannot become an implicit first-writer advantage
+  through intermediate health, shield, death or killer state. UID remains the
+  authoritative entity identity, canonical record/serialization order and an
+  allowed explicit complete-tie key. Random Crit only requires deterministic
+  equivalence for the same match seed, UID state and random-stream state; an
+  artificial UID relabel need not preserve which action receives each sample.
+  Projectile v19 §13.18.1 likewise retains TargetUnitUid as its formal
+  equal-distance target tie-breaker. Once those mechanics submit Combat
+  requests, the sealed-wave and batch-settlement rules above apply normally.
+
+## D-050 — Action-keyed Crit and neutral equal-distance Projectile arbitration (2026-08-24)
+
+**Status:** Frozen; implemented and verified by ExecPlan 0140. Approved by the
+current user request. This decision supersedes D-049's final allowance for Crit sample
+assignment and Projectile equal-distance ordering to remain UID-coupled.
+
+- Every authoritative Unit owns an immutable `GameplayParticipantId` derived
+  from stable gameplay spawn provenance rather than `UnitUid`, PrefabId,
+  registration order or Unity object identity. Initial spawns use
+  `StableSpawnOrder`; minions use their wave ticket; jungle members use
+  Camp/respawn/slot identity; derived spawns use an explicit stable parent
+  provenance. Duplicate or missing participant identities fail visibly.
+- A probabilistic Crit request owns an `OriginActionId` plus
+  `EffectOrdinal`. The action identity contains the source participant,
+  source kind/id, origin LogicTick and source-local action sequence. The Crit
+  sample is a pure 64-bit hash over `InitialMatchSeed`, action identity,
+  target participant identity, effect ordinal and a fixed Crit domain. It does
+  not consume or depend on global `DeterministicRandomService` position.
+- Projectile spawn/runtime state carries the originating action identity.
+  Equal-distance hit candidates sort by a pure seeded score over the
+  projectile action and candidate participant identity, then by complete
+  participant identity, and only on a complete identity/score collision by
+  `TargetUnitUid`. Distance remains the primary gameplay key.
+- Replacing technical Unit/Projectile UIDs while preserving participant and
+  action identities must not reassign Crit samples or change equal-distance
+  selected participants. Across a fixed seed corpus the tie rule must not be
+  permanently biased toward one team, PrefabId or UID order.
+- Participant/action identity is authoritative Snapshot/checksum state.
+  Deferred Damage preserves its header identity verbatim. Projectile pending
+  and active snapshots preserve origin action identity. GameplaySnapshot
+  schema and GameplayDataVersion advance; command and bootstrap wire shapes do
+  not change unless implementation proves a new serialized field is required.

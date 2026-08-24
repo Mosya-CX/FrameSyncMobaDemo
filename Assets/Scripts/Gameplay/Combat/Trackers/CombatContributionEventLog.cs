@@ -6,8 +6,9 @@ namespace FrameSyncMoba.Unit
 {
     /// <summary>
     /// Kind of a combat contribution event (Combat v13.2 §7.14).
-    /// Only <see cref="Damage"/> events participate in killer/assistant
-    /// resolution; Shield/Heal events are recorded for audit and future use.
+    /// Only <see cref="Damage"/> events participate in assistant resolution;
+    /// Shield/Heal events are recorded for audit and future use. Killer
+    /// authority belongs to CombatSystem's lethal-batch resolver (D-049).
     /// </summary>
     public enum CombatContributionKind : byte
     {
@@ -49,9 +50,9 @@ namespace FrameSyncMoba.Unit
     /// <summary>
     /// Cross-Tick per-victim event log (Combat v13.2 §7.14). Replaces the old
     /// aggregated DamageContributionTracker: every effective damage/shield/heal
-    /// interaction is stored as an event, so the killer is the last Damage
-    /// event's contributor (last hit) and assistants are the remaining
-    /// distinct Damage contributors inside the assist window.
+    /// interaction is stored as an event. The most recent Damage contributor
+    /// remains a snapshotted audit fact; assistants are the distinct Damage
+    /// contributors inside the assist window. It no longer selects the killer.
     /// </summary>
     public sealed class CombatContributionEventLog
     {
@@ -82,8 +83,8 @@ namespace FrameSyncMoba.Unit
 
         public UnitUid VictimUid => _victimUid;
 
-        /// <summary>Contributor of the most recent Damage event (the killer
-        /// when the victim dies). Snapshot member.</summary>
+        /// <summary>Contributor of the most recent Damage event. Snapshot
+        /// audit member; not killer authority under D-049.</summary>
         public UnitUid LastHitContributorUid { get; private set; }
 
         public int EventCount => _events.Count;
@@ -100,12 +101,9 @@ namespace FrameSyncMoba.Unit
             }
             if (evt.Kind == CombatContributionKind.Damage)
             {
-                // The killer is the contributor of the last *effective*
-                // damage. When the latest damage comes from a non-hero
-                // source (invalid hero contributor, e.g. a minion or tower
-                // finishing the target), the hero killer credit is cleared
-                // so a hero that merely poked the target does not receive a
-                // kill/creep/passive trigger.
+                // Preserve the most recent effective Damage contributor as
+                // an audit fact. CombatSystem's lethal-batch resolver owns
+                // killer selection.
                 LastHitContributorUid =
                     evt.ContributorHeroUid.IsValid()
                         ? evt.ContributorHeroUid
@@ -144,8 +142,9 @@ namespace FrameSyncMoba.Unit
                 LastHitContributorUid = default;
         }
 
-        /// <summary>Killer = contributor of the last Damage event.</summary>
-        public UnitUid ResolveKiller(int currentTick)
+        /// <summary>Returns the most recent Damage contributor for audit and
+        /// death-recap consumers. This does not select the killer.</summary>
+        public UnitUid ResolveLastDamageContributor(int currentTick)
         {
             PruneExpired(currentTick);
             return LastHitContributorUid;

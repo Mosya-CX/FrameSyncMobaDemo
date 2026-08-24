@@ -10,6 +10,7 @@ namespace FrameSyncMoba.Unit
         public UnitUid OwnerUnitUid;
         public TeamId TeamSnapshot;
         public SourceDescriptor Source;
+        public OriginActionId OriginActionId;
         public fp2 PreviousPosition;
         public fp2 Position;
         public fp2 Velocity;
@@ -33,6 +34,7 @@ namespace FrameSyncMoba.Unit
         public UnitUid OwnerUnitUid;
         public TeamId TeamSnapshot;
         public SourceDescriptor Source;
+        public OriginActionId OriginActionId;
         public fp2 StartPosition;
         public fp2 Direction;
         public ProjectileOnHitDamage[] OnHitDamageOverride;

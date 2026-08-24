@@ -207,6 +207,10 @@ namespace FrameSyncMoba.Unit
         {
             RequireSpawnDependencies();
 
+            if (!request.GameplayParticipantId.IsValid)
+                throw new DeterministicSimulationException(
+                    "UnitSpawnRequest requires a valid GameplayParticipantId.");
+
             if (!UnitPrototypeTable.TryGet(request.UnitPrototypeId, out UnitPrototype prototype))
             {
                 throw new InvalidOperationException(
@@ -229,6 +233,7 @@ namespace FrameSyncMoba.Unit
 
                 unit.InitializeForNewRuntime(
                     unitUid,
+                    request.GameplayParticipantId,
                     request.OwnerUid,
                     prototype,
                     request.TeamId,
@@ -450,6 +455,7 @@ namespace FrameSyncMoba.Unit
 
         internal Unit CreateUnitForRollbackRestore(
             UnitUid unitUid,
+            GameplayParticipantId gameplayParticipantId,
             UnitUid ownerUid,
             int unitPrototypeId,
             TeamId teamId,
@@ -459,6 +465,9 @@ namespace FrameSyncMoba.Unit
             RequireSpawnDependencies();
             if (!unitUid.IsValid())
                 throw new DeterministicSimulationException("Cannot restore an invalid UnitUid.");
+            if (!gameplayParticipantId.IsValid)
+                throw new DeterministicSimulationException(
+                    "Cannot restore an invalid GameplayParticipantId.");
             if (!UnitPrototypeTable.TryGet(unitPrototypeId, out UnitPrototype prototype))
                 throw new DeterministicSimulationException(
                     $"Unit snapshot references missing prototype {unitPrototypeId}.");
@@ -474,7 +483,7 @@ namespace FrameSyncMoba.Unit
             {
                 Unit unit = RentOrInstantiate(prototype, out instance);
                 unit.InitializeForNewRuntime(
-                    unitUid, ownerUid, prototype, teamId, StatDefinitionTable,
+                    unitUid, gameplayParticipantId, ownerUid, prototype, teamId, StatDefinitionTable,
                     StatGrowthC, StatGrowthD, TickRate,
                     AttackSequenceResetIntervalTicks, position);
                 unit.MovementHandler?.SetMoveSpeedToLogicVelocityScale(
@@ -898,6 +907,10 @@ namespace FrameSyncMoba.Unit
             fp2 position = originalTower.PhysicsEntity?.Transform2D.Position ?? fp2.zero;
             var request = new UnitSpawnRequest(
                 ruinPrototypeId,
+                GameplayParticipantId.DerivedSpawn(
+                    originalTower.GameplayParticipantId,
+                    SimulationTickContext.Current.Tick,
+                    0),
                 originalTower.TeamId,
                 position,
                 new fp2(fp.zero, fp.one),
@@ -931,6 +944,19 @@ private static void ApplyRespawnResource(Unit unit, in UnitRespawnConfig config)
 
         internal void RegisterUnit(Unit unit)
         {
+            if (unit == null || !unit.GameplayParticipantId.IsValid)
+                throw new DeterministicSimulationException(
+                    "Cannot register a Unit without GameplayParticipantId.");
+            IReadOnlyList<Unit> existing = registry.GetAll();
+            for (int i = 0; i < existing.Count; i++)
+            {
+                if (existing[i].GameplayParticipantId ==
+                    unit.GameplayParticipantId)
+                {
+                    throw new DeterministicSimulationException(
+                        $"Duplicate GameplayParticipantId {unit.GameplayParticipantId}.");
+                }
+            }
             registry.Register(unit);
             if (CombatEvents.TryResolveUnit == null)
             {

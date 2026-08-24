@@ -1,7 +1,7 @@
 # Current Handoff — FrameSyncMobaDemo
 
 > Document class: Current State / New-task SaveGame
-> Replaced: 2026-08-23
+> Replaced: 2026-08-24
 > Update policy: replace current state; never append a dated development log
 
 ## 1. Repository state
@@ -9,9 +9,9 @@
 - Branch: `master`.
 - Base HEAD before the workflow migration: `60c84fd`.
 - The current worktree contains the approved D-048 local Addressables and
-  Dedicated Server presentation split. It is a large asset migration with
-  GUID-preserving moves, logic/view prefab splits, generated inventories and
-  focused tests; preserve it and inspect `git status` before editing.
+  Dedicated Server presentation split, D-049 same-Tick Combat fairness, and
+  D-050 action-keyed Crit / neutral Projectile tie implementation. Preserve
+  all three scopes and inspect `git status` before editing.
 - Unity version: `2022.3.62f1c1`.
 - Current formal designs are only those listed in
   `Docs/Architecture/DESIGN_INDEX.md`.
@@ -42,6 +42,20 @@
 - Current Addressables EditMode evidence: FrameSync `91/91`, Bootstrap
   `106/106`, local group/root validation `5/5`, and Dedicated Server stale
   StreamingAssets exclusion `1/1`.
+- Current D-049 evidence: UnityMCP compilation has no Console errors;
+  Deterministic `53/53`, FrameSync `91/91`, same-Tick fairness `15/15`,
+  CombatSystem `14/14`, contribution log `5/5`, assist integration `2/2` and
+  gold reward `5/5` pass. The focused GameScene first-wave/tower-combat/
+  match-closure and map-root PlayMode class passes `2/2`. Its Dedicated Server
+  input-ignore and missing presentation-fixture VFX/SFX warnings are retained
+  fixture warnings, not Gameplay failures.
+- Current D-050 evidence: final UnityMCP compilation and one-minute Console
+  query are clean; Deterministic is `53/53`, FrameSync is `98/98`, RuntimeConfig
+  Editor is `47/47`, and the full Unit suite is `545 passed / 10 retained
+  failures`. Focused action identity, global-random isolation, UID relabel,
+  capped equal-distance hit, Deferred/Projectile round-trip and checksum
+  coverage pass. ClientContent Projectile PlayMode is `2/2`; the four recorded
+  unrelated PlayMode fixture failures were reproduced unchanged.
 - Current Addressables PlayMode evidence: representative real root loading and
   release `1/1`; UI page lifecycle and async-clear race `3/3`; Aatrox prefab
   `8/8`; map prefab `1/1`; GameScene map-view anchor placement `1/1`;
@@ -50,7 +64,8 @@
   wave; `HeroTestScene` binds unit and projectile Addressable views.
 - The full Unit suite still has exactly 10 retained failures in the recorded
   Buff, charge, combat enhancement, authored lane, movement, active-Tick guard
-  and assembly-boundary categories. No Addressables regression was added.
+  and assembly-boundary categories; the current result is `542 passed / 10
+  retained failures`. No D-050 regression was added to that baseline.
 - Last full PlayMode run (2026-08-14): `56/60` passed, 4 retained failures.
 - PlayerInput mapping is `17/17`; focused PlayMode input simulation is `4/4`
   and HeroTest shop/requester integration is `2/2`.
@@ -74,6 +89,33 @@
   Snapshot/checksum, Combat, Attack, Projectile, Buff/CC, ability/player input,
   presentation, Lua UI and the current minion/tower fixture are implemented to
   the evidence levels recorded in `MODULE_STATUS.md`.
+- D-049 replaces submission/Unit traversal order as same-Tick Combat authority.
+  The pipeline now advances each Handler class globally; Combat requests are
+  collected, canonically sealed and settled in bounded causal waves. Same-target
+  damage/heal and typed shields use fixed-point conserving batch allocation.
+  Formal death stays synchronous through UnitWorld after active waves finish.
+- Kill credit is scheme A: aggregate each enemy owner Hero's proportional
+  `ActualLifeDamage` in the lethal batch and select the maximum. Shield-only,
+  zero and pure-overkill contributions cannot win. Exact ties use scheme C's
+  pure `DeterministicHash64` over immutable match facts and do not consume the
+  deterministic random stream. Assist windows remain event-log based; KDA and
+  gold continue to consume the unchanged `DeathResult.KillerHeroUid` contract.
+- The existing `LastHitContributorUid` Snapshot member is retained as an audit
+  fact only. New pending-wave, allocation and killer scratch state is transient,
+  is cleared on Restore/Tick end and is asserted empty before Capture.
+- D-050 adds immutable `GameplayParticipantId` to Unit runtime/Snapshot/checksum
+  state and carries `OriginActionId` plus stable `EffectOrdinal` through Combat
+  headers, Deferred Damage, event-derived damage, and pending/active Projectile
+  state. Probabilistic Crit is a pure match-seeded hash over action, target
+  participant and effect identity and never advances `DeterministicRandomService`.
+  Equal-distance moving and AoE Projectile candidates sort by seeded participant
+  score before using Participant/UnitUid only as complete-collision fallbacks, so
+  technical UID relabeling does not change the selected gameplay participant.
+  Restore rejects missing/duplicate participant identities instead of repairing
+  them. Gameplay Snapshot schema is 24 and bootstrap payload wire remains 4.
+- Event-derived Damage folds its parent `EffectOrdinal` into the child key;
+  invalid negative ordinals fail at Damage submission, Deferred and Restore
+  boundaries. Pending tracked Projectile restore also preserves `TargetUnitUid`.
 - D-048 is integrated in source and assets. The client has 63 local-only
   Addressable roots in six groups and no remote catalog. Eight Unit prefabs,
   eight Projectile prefabs and the map are split into formal synchronous logic
@@ -152,7 +194,7 @@
   generic PlayerInput composition as GameScene; slot mappings derive from
   `CastModelDef` and `AimKind`, and Shop/QWER/Move/Attack/skill allocation share
   one `PlayerCommandRequester` and CommandSeq owner.
-- GameplaySnapshot schema is 23. GameplayDataVersion is 3; launch wire v2 and
+- GameplaySnapshot schema is 24. GameplayDataVersion is 4; launch wire v2 and
   bootstrap payload wire v4 require
   matching rebuilt endpoints.
 - ExecPlan 0136's declared source/formal-asset scope is complete and focused
@@ -180,7 +222,8 @@
 - Full-suite retained failures remain visible and must not be described as a
   clean all-tests baseline.
 - A matching Local C/S or UOS live run has not yet been performed for the
-  schema-23/bootstrap-wire-4 package; source/EditMode acceptance is complete.
+  schema-24/GameplayDataVersion-4/bootstrap-wire-4 package; source/EditMode
+  acceptance is complete.
 - ExecPlan 0138 still requires one final Windows client plus Linux Dedicated
   Server Player rebuild/report inspection. The first combined build was not
   accepted: its Windows Player accidentally carried Linux Addressables and

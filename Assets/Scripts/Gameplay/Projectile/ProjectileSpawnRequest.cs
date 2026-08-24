@@ -8,6 +8,7 @@ namespace FrameSyncMoba.Unit
         public readonly UnitUid OwnerUnitUid;
         public readonly TeamId TeamSnapshot;
         public readonly SourceDescriptor Source;
+        public readonly OriginActionId OriginActionId;
         public readonly fp2 StartPosition;
         public readonly fp2 Direction;
         /// <summary>Per-instance on-hit damage override; null = use the
@@ -27,6 +28,7 @@ namespace FrameSyncMoba.Unit
             UnitUid ownerUnitUid,
             TeamId teamSnapshot,
             SourceDescriptor source,
+            OriginActionId originActionId,
             fp2 startPosition,
             fp2 direction,
             ProjectileOnHitDamage[] onHitDamageOverride = null,
@@ -37,6 +39,7 @@ namespace FrameSyncMoba.Unit
             OwnerUnitUid = ownerUnitUid;
             TeamSnapshot = teamSnapshot;
             Source = source;
+            OriginActionId = originActionId;
             StartPosition = startPosition;
             Direction = direction;
             OnHitDamageOverride = onHitDamageOverride;

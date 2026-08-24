@@ -7,8 +7,8 @@ namespace FrameSyncMoba.Unit
 {
     public static class ProjectileEffectDispatcher
     {
-        private static readonly List<Unit> sortedTargets =
-            new List<Unit>();
+        private static readonly List<ProjectileAoETarget> sortedTargets =
+            new List<ProjectileAoETarget>();
         private static readonly List<PhysicsEntity2D> candidates =
             new List<PhysicsEntity2D>();
 
@@ -105,25 +105,26 @@ namespace FrameSyncMoba.Unit
                         radius,
                         entity.Bounds))
                     continue;
-                sortedTargets.Add(target);
+                fp2 targetPosition =
+                    target.PhysicsEntity.Transform2D.Position;
+                sortedTargets.Add(
+                    new ProjectileAoETarget
+                    {
+                        Unit = target,
+                        DistanceSquared = fpmath.lengthsq(
+                            targetPosition - center),
+                        TieScore =
+                            CombatFairnessKey.ProjectileTieScore(
+                                unitWorld.CombatSystem?.InitialMatchSeed ??
+                                    throw new DeterministicSimulationException(
+                                        "Projectile AoE arbitration requires Combat match seed."),
+                                projectile.OriginActionId,
+                                target.GameplayParticipantId),
+                    });
             }
 
-            sortedTargets.Sort((a, b) =>
-            {
-                fp2 aPosition =
-                    a.PhysicsEntity.Transform2D.Position;
-                fp2 bPosition =
-                    b.PhysicsEntity.Transform2D.Position;
-                fp aDistance = fpmath.lengthsq(
-                    aPosition - center);
-                fp bDistance = fpmath.lengthsq(
-                    bPosition - center);
-                int comparison =
-                    aDistance.CompareTo(bDistance);
-                return comparison != 0
-                    ? comparison
-                    : a.UnitUid.CompareTo(b.UnitUid);
-            });
+            sortedTargets.Sort(
+                ProjectileAoETargetComparer.Instance);
 
             int maxTargets = config.MaxAoETargets > 0
                 ? config.MaxAoETargets
@@ -135,8 +136,38 @@ namespace FrameSyncMoba.Unit
             {
                 DispatchOnHit(
                     projectile,
-                    sortedTargets[i].UnitUid,
+                    sortedTargets[i].Unit.UnitUid,
                     unitWorld);
+            }
+        }
+
+        private struct ProjectileAoETarget
+        {
+            public Unit Unit;
+            public fp DistanceSquared;
+            public ulong TieScore;
+        }
+
+        private sealed class ProjectileAoETargetComparer :
+            IComparer<ProjectileAoETarget>
+        {
+            public static readonly ProjectileAoETargetComparer Instance =
+                new ProjectileAoETargetComparer();
+
+            public int Compare(
+                ProjectileAoETarget left,
+                ProjectileAoETarget right)
+            {
+                int comparison = left.DistanceSquared.CompareTo(
+                    right.DistanceSquared);
+                if (comparison != 0) return comparison;
+                comparison = left.TieScore.CompareTo(right.TieScore);
+                if (comparison != 0) return comparison;
+                comparison = left.Unit.GameplayParticipantId.CompareTo(
+                    right.Unit.GameplayParticipantId);
+                if (comparison != 0) return comparison;
+                return left.Unit.UnitUid.CompareTo(
+                    right.Unit.UnitUid);
             }
         }
 
@@ -225,9 +256,17 @@ namespace FrameSyncMoba.Unit
                         SourceDescriptor =
                             projectile.Source,
                         RecipeId = effect.RecipeId,
+                        OriginActionId =
+                            projectile.OriginActionId,
+                        EffectOrdinal =
+                            CombatFairnessKey.ComposeEffectOrdinal(
+                                projectile.Def.DefId,
+                                i),
                     },
                     DamageType = effect.DamageType,
                     BaseDamage = amount,
+                    ProjectileSourceUid =
+                        projectile.Uid,
                 };
                 if (!combat.SubmitDamage(request))
                     throw new DeterministicSimulationException(

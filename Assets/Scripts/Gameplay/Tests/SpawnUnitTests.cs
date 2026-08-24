@@ -166,6 +166,7 @@ namespace FrameSyncMoba.Unit.Tests
                 Assert.Throws<System.InvalidOperationException>(() =>
                     worldNoTable.SpawnUnit(new UnitSpawnRequest(
                         prototype.UnitPrototypeId,
+                        GameplayParticipantId.Explicit(1),
                         TeamId.Neutral,
                         fp2.zero,
                         new fp2(fp.one, fp.zero))));

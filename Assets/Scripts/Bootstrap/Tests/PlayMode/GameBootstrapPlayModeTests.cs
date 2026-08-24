@@ -82,6 +82,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     controlledUid = bootstrap.UnitWorld.SpawnUnit(
                         new UnitSpawnRequest(
                             1001,
+                            GameplayParticipantId.Explicit(1001),
                             new TeamId(1),
                             fp2.zero,
                             new fp2(fp.one, fp.zero)));

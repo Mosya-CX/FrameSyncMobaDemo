@@ -239,12 +239,14 @@ namespace FrameSyncMoba.FrameSync.Tests
             runtime.TickPipeline.QueueInitialSpawn(
                 new UnitSpawnRequest(
                     1001,
+                    GameplayParticipantId.InitialSpawn(1),
                     new TeamId(1),
                     fp2.zero,
                     new fp2(fp.zero, fp.one)));
             runtime.TickPipeline.QueueInitialSpawn(
                 new UnitSpawnRequest(
                     1001,
+                    GameplayParticipantId.InitialSpawn(2),
                     new TeamId(2),
                     new fp2((fp)5, fp.zero),
                     new fp2(fp.zero, fp.one)));

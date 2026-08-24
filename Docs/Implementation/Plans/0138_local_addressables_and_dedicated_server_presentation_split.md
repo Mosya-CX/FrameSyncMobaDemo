@@ -1,7 +1,7 @@
 # ExecPlan 0138 — Local Addressables and Dedicated Server presentation split
 
 Plan ID: 0138
-Status: Active
+Status: Verification Pending
 Created: 2026-08-23
 Completed:
 Risk: High

@@ -442,7 +442,7 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void FormalDeathResult_UsesFatalSourceAndUidSortedAssistants()
+        public void FormalDeathResult_UsesHighestLethalBatchDamageAndUidSortedAssistants()
         {
             BeginTick(1);
             TeamId attackers = new TeamId(1);
@@ -477,9 +477,11 @@ namespace FrameSyncMoba.Unit.Tests
 
             Assert.AreEqual(1, _combat.DeathResults.Count);
             DeathResult result = _combat.DeathResults[0];
-            Assert.AreEqual(killer.UnitUid, result.KillerHeroUid);
+            Assert.AreEqual(
+                smallerAssistant.UnitUid,
+                result.KillerHeroUid);
             CollectionAssert.AreEqual(
-                new[] { smallerAssistant.UnitUid, largerAssistant.UnitUid },
+                new[] { largerAssistant.UnitUid, killer.UnitUid },
                 result.AssistantHeroUids);
         }
 

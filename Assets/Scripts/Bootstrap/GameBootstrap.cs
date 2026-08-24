@@ -2483,6 +2483,8 @@ namespace FrameSyncMoba.Bootstrap
                 Runtime.TickPipeline.QueueInitialSpawn(
                     new UnitSpawnRequest(
                         entry.UnitPrototypeId,
+                        GameplayParticipantId.InitialSpawn(
+                            entry.StableSpawnOrder),
                         new TeamId((byte)entry.TeamId),
                         position,
                         forward),

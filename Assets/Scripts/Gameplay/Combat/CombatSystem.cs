@@ -29,12 +29,36 @@ namespace FrameSyncMoba.Unit
         private readonly List<UnitUid> _eventLogVictimScratch = new List<UnitUid>();
         private readonly List<UnitUid> _pendingDying = new List<UnitUid>();
         private readonly List<DeathResult> _deathResults = new List<DeathResult>();
+        private readonly List<EvaluatedDamage> _damageBatchScratch =
+            new List<EvaluatedDamage>();
+        private readonly List<EvaluatedHeal> _healBatchScratch =
+            new List<EvaluatedHeal>();
+        private readonly List<HeroDamageContribution> _heroDamageScratch =
+            new List<HeroDamageContribution>();
+        private readonly List<ShieldResultEmission> _shieldEmissionScratch =
+            new List<ShieldResultEmission>();
+        private readonly List<HealResultEmission> _healEmissionScratch =
+            new List<HealResultEmission>();
+        private readonly List<DamageResultEmission> _damageEmissionScratch =
+            new List<DamageResultEmission>();
+        private readonly List<UnitUid> _dyingEmissionScratch =
+            new List<UnitUid>();
+        private readonly Dictionary<UnitUid, UnitUid> _lethalBatchKillers =
+            new Dictionary<UnitUid, UnitUid>();
+        private readonly Dictionary<UnitUid, fp> _waveStartHealth =
+            new Dictionary<UnitUid, fp>();
         private ushort _nextDeathSeq;
         private bool _deathSeqExhausted;
+        private const int MaxSettlementWavesPerTick = 256;
+        private const ulong KillerTieDomain = 0x434F4D4241544B49UL;
+        private uint _initialMatchSeed;
+        private bool _hasConfiguredInitialMatchSeed;
+        private bool _isCombatTickActive;
 
         public int ShieldProcessed { get; private set; }
         public int DamageProcessed { get; private set; }
         public int HealProcessed { get; private set; }
+        public uint InitialMatchSeed => _initialMatchSeed;
         /// <summary>
         /// Wall-clock seconds over which the unit's HealthRegeneration /
         /// CastResourceRegeneration stats are fully restored (design v13.2
@@ -47,7 +71,8 @@ namespace FrameSyncMoba.Unit
         public CombatSystem(
             UnitWorld unitWorld,
             int heroRespawnBaseTicks,
-            int heroRespawnPerMinuteTicks)
+            int heroRespawnPerMinuteTicks,
+            uint initialMatchSeed = 1u)
         {
             if (unitWorld == null)
                 throw new System.ArgumentNullException(nameof(unitWorld));
@@ -55,22 +80,49 @@ namespace FrameSyncMoba.Unit
                 throw new System.ArgumentOutOfRangeException(nameof(heroRespawnBaseTicks));
             if (heroRespawnPerMinuteTicks < 0)
                 throw new System.ArgumentOutOfRangeException(nameof(heroRespawnPerMinuteTicks));
+            if (initialMatchSeed == 0u)
+                throw new System.ArgumentOutOfRangeException(nameof(initialMatchSeed));
             _unitWorld = unitWorld;
+            _initialMatchSeed = initialMatchSeed;
             HeroRespawnBaseTicks = heroRespawnBaseTicks;
             HeroRespawnPerMinuteTicks = heroRespawnPerMinuteTicks;
             _snapshot = CombatSnapshot.Default;
         }
+
+        public void ConfigureInitialMatchSeed(uint initialMatchSeed)
+        {
+            if (initialMatchSeed == 0u)
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(initialMatchSeed));
+            if (_hasConfiguredInitialMatchSeed)
+            {
+                if (_initialMatchSeed == initialMatchSeed) return;
+                throw new DeterministicSimulationException(
+                    "Combat InitialMatchSeed cannot change after bootstrap configuration.");
+            }
+            if (_isCombatTickActive ||
+                _shieldQueue.Count != 0 ||
+                _damageQueue.Count != 0 ||
+                _healQueue.Count != 0)
+            {
+                throw new DeterministicSimulationException(
+                    "Combat match seed must be configured outside an active Combat Tick with empty request queues.");
+            }
+            _initialMatchSeed = initialMatchSeed;
+            _hasConfiguredInitialMatchSeed = true;
+        }
         public void SubmitShield(ShieldRequest request)
         {
             if (!request.IsValid) return;
-            request.Header = AllocateActiveHeader();
+            ValidateActiveSubmission();
             _shieldQueue.Add(request);
         }
 
         public bool SubmitDamage(DamageRequest request)
         {
+            ValidateDamageEffectOrdinal(request, "submitted");
             if (!request.IsValid) return false;
-            request.Header = AllocateActiveHeader(request.Header);
+            ValidateActiveSubmission();
             _damageQueue.Add(request);
             return true;
         }
@@ -78,14 +130,24 @@ namespace FrameSyncMoba.Unit
         public void SubmitHeal(HealRequest request)
         {
             if (!request.IsValid) return;
-            request.Header = AllocateActiveHeader();
+            ValidateActiveSubmission();
             _healQueue.Add(request);
         }
 
         public void BeginTick()
         {
+            _isCombatTickActive = true;
             _shieldQueue.Clear(); _damageQueue.Clear(); _healQueue.Clear();
             _pendingDying.Clear(); _deathResults.Clear();
+            _damageBatchScratch.Clear();
+            _healBatchScratch.Clear();
+            _heroDamageScratch.Clear();
+            _shieldEmissionScratch.Clear();
+            _healEmissionScratch.Clear();
+            _damageEmissionScratch.Clear();
+            _dyingEmissionScratch.Clear();
+            _lethalBatchKillers.Clear();
+            _waveStartHealth.Clear();
             ShieldProcessed = 0; DamageProcessed = 0; HealProcessed = 0;
             _nextDeathSeq = 0; _deathSeqExhausted = false;
             _nextDeferredSeq = 0; _deferredSeqExhausted = false;
@@ -110,51 +172,60 @@ namespace FrameSyncMoba.Unit
         public void SettleActiveRequests()
         {
             ExecuteNaturalRegen();
-            int shieldIndex = 0;
-            int damageIndex = 0;
-            int healIndex = 0;
-            while (shieldIndex < _shieldQueue.Count ||
-                   damageIndex < _damageQueue.Count ||
-                   healIndex < _healQueue.Count)
+            int wave = 0;
+            while (_shieldQueue.Count != 0 ||
+                   _healQueue.Count != 0 ||
+                   _damageQueue.Count != 0)
             {
-                ushort shieldSequence = shieldIndex < _shieldQueue.Count
-                    ? _shieldQueue[shieldIndex].Header.SequenceInTick
-                    : ushort.MaxValue;
-                ushort damageSequence = damageIndex < _damageQueue.Count
-                    ? _damageQueue[damageIndex].Header.SequenceInTick
-                    : ushort.MaxValue;
-                ushort healSequence = healIndex < _healQueue.Count
-                    ? _healQueue[healIndex].Header.SequenceInTick
-                    : ushort.MaxValue;
-
-                if (shieldIndex < _shieldQueue.Count &&
-                    shieldSequence <= damageSequence && shieldSequence <= healSequence)
+                if (wave >= MaxSettlementWavesPerTick)
                 {
-                    ProcessShield(_shieldQueue[shieldIndex++]);
+                    throw new DeterministicSimulationException(
+                        "Combat settlement wave limit exceeded.");
+                }
+                wave++;
+
+                int shieldCount = _shieldQueue.Count;
+                int healCount = _healQueue.Count;
+                int damageCount = _damageQueue.Count;
+                CaptureWaveStartHealth(damageCount);
+                _shieldQueue.Sort(0, shieldCount, ShieldRequestComparer.Instance);
+                _healQueue.Sort(0, healCount, HealRequestComparer.Instance);
+                _damageQueue.Sort(0, damageCount, DamageRequestComparer.Instance);
+
+                SealShieldRequests(shieldCount);
+                SealHealRequests(healCount);
+                SealDamageRequests(damageCount);
+
+                for (int i = 0; i < shieldCount; i++)
+                {
+                    ProcessShield(_shieldQueue[i]);
                     ShieldProcessed++;
                 }
-                else if (damageIndex < _damageQueue.Count && damageSequence <= healSequence)
-                {
-                    ProcessDamage(_damageQueue[damageIndex++]);
-                    DamageProcessed++;
-                }
-                else
-                {
-                    ProcessHeal(_healQueue[healIndex++]);
-                    HealProcessed++;
-                }
+                ProcessHealBatch(healCount);
+                HealProcessed += healCount;
+                ProcessDamageBatch(damageCount);
+                DamageProcessed += damageCount;
+                EmitWaveResults();
+                _waveStartHealth.Clear();
+
+                _shieldQueue.RemoveRange(0, shieldCount);
+                _healQueue.RemoveRange(0, healCount);
+                _damageQueue.RemoveRange(0, damageCount);
             }
             ResolveDying();
             _shieldQueue.Clear();
             _damageQueue.Clear();
             _healQueue.Clear();
             _pendingDying.Clear();
+            _lethalBatchKillers.Clear();
+            _waveStartHealth.Clear();
         }
 
         public void EndTick()
         {
             ValidateCaptureState();
             FreezeSnapshot();
+            _isCombatTickActive = false;
         }
 
         /// <summary>
@@ -171,6 +242,21 @@ namespace FrameSyncMoba.Unit
                 throw new DeterministicSimulationException("Combat active HealQueue must be empty before Capture.");
             if (_pendingDying.Count != 0)
                 throw new DeterministicSimulationException("Combat PendingDying must be empty before Capture.");
+            if (_lethalBatchKillers.Count != 0)
+                throw new DeterministicSimulationException("Combat lethal-batch killer scratch must be empty before Capture.");
+            if (_waveStartHealth.Count != 0)
+                throw new DeterministicSimulationException("Combat wave-start health scratch must be empty before Capture.");
+            if (_damageBatchScratch.Count != 0 ||
+                _healBatchScratch.Count != 0 ||
+                _heroDamageScratch.Count != 0 ||
+                _shieldEmissionScratch.Count != 0 ||
+                _healEmissionScratch.Count != 0 ||
+                _damageEmissionScratch.Count != 0 ||
+                _dyingEmissionScratch.Count != 0)
+            {
+                throw new DeterministicSimulationException(
+                    "Combat settlement scratch must be empty before Capture.");
+            }
             // Verify all DeferredRequests target future ticks
             for (int i = 0; i < _deferredBuffer.Count; i++)
             {
@@ -203,6 +289,8 @@ namespace FrameSyncMoba.Unit
 
         public void DeferRequest(CombatRequestKind k, ShieldRequest? s, DamageRequest? d, HealRequest? h, int et, int st)
         {
+            if (d.HasValue)
+                ValidateDamageEffectOrdinal(d.Value, "deferred");
             if (_deferredSeqExhausted) throw new DeterministicSimulationException("Deferred seq exhausted.");
             ushort seq = _nextDeferredSeq; if (_nextDeferredSeq == ushort.MaxValue) _deferredSeqExhausted = true; else _nextDeferredSeq++;
             var req = new DeferredCombatRequest { ExecuteLogicTick = et, SourceLogicTick = st, DeferredSequenceInSourceTick = seq, RequestKind = k };
@@ -267,6 +355,53 @@ namespace FrameSyncMoba.Unit
             }
         }
 
+        private void SealShieldRequests(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                ShieldRequest request = _shieldQueue[i];
+                request.Header = AllocateActiveHeader(request.Header);
+                _shieldQueue[i] = request;
+            }
+        }
+
+        private void SealHealRequests(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                HealRequest request = _healQueue[i];
+                request.Header = AllocateActiveHeader(request.Header);
+                _healQueue[i] = request;
+            }
+        }
+
+        private void SealDamageRequests(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                DamageRequest request = _damageQueue[i];
+                request.Header = AllocateActiveHeader(request.Header);
+                _damageQueue[i] = request;
+            }
+        }
+
+        private void CaptureWaveStartHealth(int damageCount)
+        {
+            _waveStartHealth.Clear();
+            for (int i = 0; i < damageCount; i++)
+            {
+                UnitUid targetUid = _damageQueue[i].TargetUnitUid;
+                if (_waveStartHealth.ContainsKey(targetUid)) continue;
+                if (_unitWorld.TryGetUnit(targetUid, out Unit target) &&
+                    target.StatHandler != null)
+                {
+                    _waveStartHealth.Add(
+                        targetUid,
+                        target.StatHandler.CurrentHealth);
+                }
+            }
+        }
+
         private void ProcessShield(ShieldRequest r)
         {
             if (!_unitWorld.TryGetUnit(r.TargetUnitUid, out Unit trg)) return;
@@ -280,30 +415,78 @@ namespace FrameSyncMoba.Unit
             fp applied = trg.StatHandler?.AddShield(
                 r.ShieldType, amt, r.DurationTicks, r.SourceUnitUid) ?? fp.zero;
             if (applied <= fp.zero) return;
+            _shieldEmissionScratch.Add(new ShieldResultEmission
+            {
+                Request = r,
+                AppliedAmount = applied,
+                EventAmount = amt,
+            });
+        }
+
+        private void EmitShieldResult(in ShieldResultEmission result)
+        {
+            ShieldRequest r = result.Request;
+            if (!_unitWorld.TryGetUnit(r.TargetUnitUid, out Unit trg)) return;
             RecordEvent(
                 r.SourceUnitUid,
                 trg,
                 CombatContributionKind.Shield,
-                applied,
+                result.AppliedAmount,
                 r.Header.SequenceInTick);
-            CombatEvents.RaiseShieldApplied(new ShieldEventData { SourceUid = r.SourceUnitUid, TargetUid = r.TargetUnitUid, ShieldAmount = amt, ShieldType = r.ShieldType });
+            CombatEvents.RaiseShieldApplied(new ShieldEventData { SourceUid = r.SourceUnitUid, TargetUid = r.TargetUnitUid, ShieldAmount = result.EventAmount, ShieldType = r.ShieldType });
             CombatEvents.OnCombatParticipationUnit?.Invoke(r.SourceUnitUid, r.TargetUnitUid, CombatParticipationFlags.ShieldGranted | CombatParticipationFlags.ShieldReceived);
         }
 
-        private void ProcessDamage(DamageRequest req)
+        private void ProcessDamageBatch(int count)
         {
-            if (!_unitWorld.TryGetUnit(req.TargetUnitUid, out Unit target)) return;
-            if (target.LifeState != LifeState.Alive && target.LifeState != LifeState.Dying) return;
-            StatHandler stats = target.StatHandler; if (stats == null) return;
-            _unitWorld.TryGetUnit(
-                req.SourceUnitUid,
-                out Unit sourceUnit);
-            StatHandler sourceStats =
-                sourceUnit?.StatHandler;
-            CombatModifierSet sourceModifiers =
-                sourceUnit?.CombatModifiers;
-            CombatModifierSet targetModifiers =
-                target.CombatModifiers;
+            int index = 0;
+            while (index < count)
+            {
+                UnitUid targetUid = _damageQueue[index].TargetUnitUid;
+                int end = index + 1;
+                while (end < count &&
+                       _damageQueue[end].TargetUnitUid == targetUid)
+                    end++;
+
+                _damageBatchScratch.Clear();
+                if (_unitWorld.TryGetUnit(targetUid, out Unit target) &&
+                    (target.LifeState == LifeState.Alive ||
+                     target.LifeState == LifeState.Dying) &&
+                    target.StatHandler != null)
+                {
+                    for (int i = index; i < end; i++)
+                    {
+                        if (TryEvaluateDamage(
+                                _damageQueue[i],
+                                target,
+                                out EvaluatedDamage evaluated))
+                            _damageBatchScratch.Add(evaluated);
+                    }
+                    if (_damageBatchScratch.Count != 0)
+                        CommitDamageBatch(target);
+                }
+                index = end;
+            }
+            _damageBatchScratch.Clear();
+        }
+
+        private bool TryEvaluateDamage(
+            DamageRequest req,
+            Unit target,
+            out EvaluatedDamage evaluated)
+        {
+            evaluated = default;
+            StatHandler stats = target.StatHandler;
+            fp targetBatchStartHealth =
+                _waveStartHealth.TryGetValue(
+                    target.UnitUid,
+                    out fp capturedHealth)
+                    ? capturedHealth
+                    : stats.CurrentHealth;
+            _unitWorld.TryGetUnit(req.SourceUnitUid, out Unit sourceUnit);
+            StatHandler sourceStats = sourceUnit?.StatHandler;
+            CombatModifierSet sourceModifiers = sourceUnit?.CombatModifiers;
+            CombatModifierSet targetModifiers = target.CombatModifiers;
             var policies = new CombatPolicyResolution();
             fp raw = ApplyDamageModifierSlot(
                 sourceModifiers,
@@ -315,30 +498,30 @@ namespace FrameSyncMoba.Unit
                 target.UnitKind,
                 sourceStats,
                 stats,
+                targetBatchStartHealth,
                 ref policies);
             bool isCrit = false;
             if (!policies.ForbidCrit &&
-                sourceStats != null &&
-                _unitWorld.RandomService != null)
+                sourceStats != null)
             {
                 bool shouldCrit = policies.ForceCrit;
                 if (!shouldCrit)
                 {
-                    fp critChance =
-                        sourceStats.GetStat(
-                            StatId.CriticalStrikeChance);
-                    shouldCrit =
-                        critChance > fp.zero &&
-                        _unitWorld.RandomService.Chance01(
+                    fp critChance = sourceStats.GetStat(
+                        StatId.CriticalStrikeChance);
+                    shouldCrit = critChance > fp.zero &&
+                        CombatFairnessKey.RollCrit(
+                            _initialMatchSeed,
+                            req.Header.OriginActionId,
+                            target.GameplayParticipantId,
+                            req.Header.EffectOrdinal,
                             critChance);
                 }
                 if (shouldCrit)
                 {
-                    fp critDamage =
-                        sourceStats.GetStat(
-                            StatId.CriticalStrikeDamage);
-                    if (critDamage <= fp.zero)
-                        critDamage = (fp)2;
+                    fp critDamage = sourceStats.GetStat(
+                        StatId.CriticalStrikeDamage);
+                    if (critDamage <= fp.zero) critDamage = (fp)2;
                     raw *= critDamage;
                     isCrit = true;
                 }
@@ -353,23 +536,26 @@ namespace FrameSyncMoba.Unit
                 target.UnitKind,
                 sourceStats,
                 stats,
+                targetBatchStartHealth,
                 ref policies);
-            fp res = fp.zero;
-            if (req.DamageType == DamageType.Physical) res = stats.GetStat(StatId.Armor);
-            else if (req.DamageType == DamageType.Magic) res = stats.GetStat(StatId.MagicResistance);
-            res = ApplyDamageModifierSlot(
+            fp resistance = fp.zero;
+            if (req.DamageType == DamageType.Physical)
+                resistance = stats.GetStat(StatId.Armor);
+            else if (req.DamageType == DamageType.Magic)
+                resistance = stats.GetStat(StatId.MagicResistance);
+            resistance = ApplyDamageModifierSlot(
                 sourceModifiers,
                 targetModifiers,
                 req,
                 CombatFormulaSlot.DefenseInput,
                 req.BaseDamage,
-                res,
+                resistance,
                 target.UnitKind,
                 sourceStats,
                 stats,
+                targetBatchStartHealth,
                 ref policies);
-            fp mitigated =
-                CalculateResistedDamage(raw, res);
+            fp mitigated = CalculateResistedDamage(raw, resistance);
             mitigated = ApplyDamageModifierSlot(
                 sourceModifiers,
                 targetModifiers,
@@ -380,6 +566,7 @@ namespace FrameSyncMoba.Unit
                 target.UnitKind,
                 sourceStats,
                 stats,
+                targetBatchStartHealth,
                 ref policies);
             mitigated = ApplyDamageModifierSlot(
                 sourceModifiers,
@@ -391,29 +578,306 @@ namespace FrameSyncMoba.Unit
                 target.UnitKind,
                 sourceStats,
                 stats,
+                targetBatchStartHealth,
                 ref policies);
-            if (mitigated <= fp.zero) return;
-            fp afterShields = mitigated; fp shieldAbs = fp.zero;
-            if (!policies.IgnoreAllShield)
-                shieldAbs = stats.AbsorbShields(
-                    ref afterShields,
-                    req.DamageType,
-                    policies.IgnorePhysicalShield,
-                    policies.IgnoreMagicShield);
-            fp cur = stats.CurrentHealth;
-            fp actualLifeDamage = afterShields > cur ? cur : afterShields;
-            fp nw = cur - actualLifeDamage;
-            stats.SetCurrentHealth(nw);
-            // Death recap tracking (per Combat Design v13.2 section 8)
+            if (mitigated <= fp.zero) return false;
+
+            evaluated = new EvaluatedDamage
+            {
+                Request = req,
+                RawDamage = raw,
+                MitigatedDamage = mitigated,
+                RemainingDamage = mitigated,
+                Policies = policies,
+                IsCritical = isCrit,
+            };
+            return true;
+        }
+
+        private void CommitDamageBatch(Unit target)
+        {
+            StatHandler stats = target.StatHandler;
+            AllocateShieldGroup(
+                target,
+                DamageAllocationGroup.PhysicalSpecific,
+                stats.GetSpecificShieldTotal(DamageType.Physical));
+            AllocateShieldGroup(
+                target,
+                DamageAllocationGroup.MagicSpecific,
+                stats.GetSpecificShieldTotal(DamageType.Magic));
+            AllocateShieldGroup(
+                target,
+                DamageAllocationGroup.White,
+                stats.GetWhiteShieldTotal());
+
+            fp availableLife = stats.CurrentHealth;
+            AllocateLifeDamage(target, availableLife);
+            fp totalLifeDamage = fp.zero;
+            for (int i = 0; i < _damageBatchScratch.Count; i++)
+                totalLifeDamage += _damageBatchScratch[i].ActualLifeDamage;
+            fp finalHealth = availableLife - totalLifeDamage;
+            if (finalHealth < fp.zero) finalHealth = fp.zero;
+            stats.SetCurrentHealth(finalHealth);
+
+            if (finalHealth <= fp.zero &&
+                target.LifeState == LifeState.Alive)
+            {
+                _lethalBatchKillers[target.UnitUid] =
+                    ResolveLethalBatchKiller(target);
+            }
+            else if (finalHealth > fp.zero)
+            {
+                _lethalBatchKillers.Remove(target.UnitUid);
+            }
+
+            for (int i = 0; i < _damageBatchScratch.Count; i++)
+            {
+                _damageEmissionScratch.Add(new DamageResultEmission
+                {
+                    TargetUnitUid = target.UnitUid,
+                    Result = _damageBatchScratch[i],
+                });
+            }
+
+            if (finalHealth <= fp.zero &&
+                target.LifeState == LifeState.Alive &&
+                !_dyingEmissionScratch.Contains(target.UnitUid))
+                _dyingEmissionScratch.Add(target.UnitUid);
+        }
+
+        private void AllocateShieldGroup(
+            Unit target,
+            DamageAllocationGroup group,
+            fp availableShield)
+        {
+            fp allocated = AllocateDamageAmount(
+                group,
+                availableShield,
+                allocateLifeDamage: false,
+                target.UnitUid);
+            if (allocated <= fp.zero) return;
+
+            fp consumed = group == DamageAllocationGroup.White
+                ? target.StatHandler.ConsumeWhiteShields(allocated)
+                : target.StatHandler.ConsumeSpecificShields(
+                    group == DamageAllocationGroup.PhysicalSpecific
+                        ? DamageType.Physical
+                        : DamageType.Magic,
+                    allocated);
+            if (consumed != allocated)
+            {
+                throw new DeterministicSimulationException(
+                    "Combat batch shield allocation did not conserve shield value.");
+            }
+        }
+
+        private void AllocateLifeDamage(Unit target, fp availableLife)
+        {
+            AllocateDamageAmount(
+                DamageAllocationGroup.Life,
+                availableLife,
+                allocateLifeDamage: true,
+                target.UnitUid);
+        }
+
+        private fp AllocateDamageAmount(
+            DamageAllocationGroup group,
+            fp available,
+            bool allocateLifeDamage,
+            UnitUid targetUid)
+        {
+            if (available <= fp.zero) return fp.zero;
+            fp totalWeight = fp.zero;
+            for (int i = 0; i < _damageBatchScratch.Count; i++)
+            {
+                EvaluatedDamage result = _damageBatchScratch[i];
+                if (IsEligibleForAllocation(result, group))
+                    totalWeight += result.RemainingDamage;
+            }
+            if (totalWeight <= fp.zero) return fp.zero;
+
+            fp allocatable = available < totalWeight
+                ? available
+                : totalWeight;
+            fp allocated = fp.zero;
+            for (int i = 0; i < _damageBatchScratch.Count; i++)
+            {
+                EvaluatedDamage result = _damageBatchScratch[i];
+                if (!IsEligibleForAllocation(result, group)) continue;
+                fp share = allocatable * result.RemainingDamage /
+                           totalWeight;
+                ApplyDamageShare(
+                    ref result,
+                    share,
+                    allocateLifeDamage);
+                allocated += share;
+                _damageBatchScratch[i] = result;
+            }
+
+            fp remainder = allocatable - allocated;
+            while (remainder > fp.zero)
+            {
+                int bestRemainderIndex = -1;
+                ulong bestRemainderScore = ulong.MaxValue;
+                for (int i = 0; i < _damageBatchScratch.Count; i++)
+                {
+                    EvaluatedDamage candidate = _damageBatchScratch[i];
+                    if (!IsEligibleForAllocation(candidate, group) ||
+                        candidate.RemainingDamage <= fp.zero)
+                        continue;
+                    ulong score = ComputeRequestTieScore(
+                        candidate.Request,
+                        targetUid,
+                        (ulong)group);
+                    if (score < bestRemainderScore)
+                    {
+                        bestRemainderScore = score;
+                        bestRemainderIndex = i;
+                    }
+                }
+                if (bestRemainderIndex < 0)
+                {
+                    throw new DeterministicSimulationException(
+                        "Combat batch damage remainder could not be conserved.");
+                }
+                EvaluatedDamage result =
+                    _damageBatchScratch[bestRemainderIndex];
+                fp share = result.RemainingDamage < remainder
+                    ? result.RemainingDamage
+                    : remainder;
+                ApplyDamageShare(
+                    ref result,
+                    share,
+                    allocateLifeDamage);
+                _damageBatchScratch[bestRemainderIndex] = result;
+                allocated += share;
+                remainder -= share;
+            }
+            return allocated;
+        }
+
+        private static bool IsEligibleForAllocation(
+            in EvaluatedDamage result,
+            DamageAllocationGroup group)
+        {
+            if (result.RemainingDamage <= fp.zero) return false;
+            switch (group)
+            {
+                case DamageAllocationGroup.PhysicalSpecific:
+                    return result.Request.DamageType == DamageType.Physical &&
+                           !result.Policies.IgnoreAllShield &&
+                           !result.Policies.IgnorePhysicalShield;
+                case DamageAllocationGroup.MagicSpecific:
+                    return result.Request.DamageType == DamageType.Magic &&
+                           !result.Policies.IgnoreAllShield &&
+                           !result.Policies.IgnoreMagicShield;
+                case DamageAllocationGroup.White:
+                    return !result.Policies.IgnoreAllShield;
+                case DamageAllocationGroup.Life:
+                    return true;
+                default:
+                    throw new DeterministicSimulationException(
+                        $"Unsupported Combat allocation group {group}.");
+            }
+        }
+
+        private static void ApplyDamageShare(
+            ref EvaluatedDamage result,
+            fp share,
+            bool allocateLifeDamage)
+        {
+            if (share <= fp.zero) return;
+            if (allocateLifeDamage)
+                result.ActualLifeDamage += share;
+            else
+                result.ShieldAbsorbed += share;
+            result.RemainingDamage -= share;
+            if (result.RemainingDamage < fp.zero)
+                result.RemainingDamage = fp.zero;
+        }
+
+        private UnitUid ResolveLethalBatchKiller(Unit target)
+        {
+            _heroDamageScratch.Clear();
+            for (int i = 0; i < _damageBatchScratch.Count; i++)
+            {
+                EvaluatedDamage result = _damageBatchScratch[i];
+                if (result.ActualLifeDamage <= fp.zero) continue;
+                UnitUid heroUid = ResolveContributorHero(
+                    result.Request.SourceUnitUid,
+                    target);
+                if (!heroUid.IsValid()) continue;
+                int existingIndex = -1;
+                for (int h = 0; h < _heroDamageScratch.Count; h++)
+                {
+                    if (_heroDamageScratch[h].HeroUid == heroUid)
+                    {
+                        existingIndex = h;
+                        break;
+                    }
+                }
+                if (existingIndex < 0)
+                {
+                    _heroDamageScratch.Add(
+                        new HeroDamageContribution
+                        {
+                            HeroUid = heroUid,
+                            ActualLifeDamage = result.ActualLifeDamage,
+                        });
+                }
+                else
+                {
+                    HeroDamageContribution contribution =
+                        _heroDamageScratch[existingIndex];
+                    contribution.ActualLifeDamage +=
+                        result.ActualLifeDamage;
+                    _heroDamageScratch[existingIndex] = contribution;
+                }
+            }
+
+            UnitUid winner = default;
+            fp bestDamage = fp.zero;
+            ulong bestScore = ulong.MaxValue;
+            int tick = SimulationTickContext.Current.Tick;
+            for (int i = 0; i < _heroDamageScratch.Count; i++)
+            {
+                HeroDamageContribution candidate = _heroDamageScratch[i];
+                ulong score = ComputeKillerTieScore(
+                    tick,
+                    target.UnitUid,
+                    candidate.HeroUid);
+                if (candidate.ActualLifeDamage > bestDamage ||
+                    (candidate.ActualLifeDamage == bestDamage &&
+                     (score < bestScore ||
+                      (score == bestScore &&
+                       (!winner.IsValid() ||
+                        candidate.HeroUid.CompareTo(winner) < 0)))))
+                {
+                    bestDamage = candidate.ActualLifeDamage;
+                    bestScore = score;
+                    winner = candidate.HeroUid;
+                }
+            }
+            _heroDamageScratch.Clear();
+            return winner;
+        }
+
+        private void EmitDamageResult(
+            Unit target,
+            in EvaluatedDamage result)
+        {
+            DamageRequest req = result.Request;
+            fp actualDamage =
+                result.ShieldAbsorbed + result.ActualLifeDamage;
             if (MatchEventTracker != null)
             {
                 MatchEventTracker.RecordDamage(
                     req.TargetUnitUid,
                     req.SourceUnitUid,
-                    (int)(shieldAbs + actualLifeDamage),
-                    0 /* DamageRequest has no AbilityId */,
+                    (int)actualDamage,
+                    0,
                     SimulationTickContext.Current.Tick,
-                    0 /* DamageRequest has no AbilityId */ == 0);
+                    true);
             }
             SubmitHitVfx(
                 req.TargetUnitUid,
@@ -423,52 +887,87 @@ namespace FrameSyncMoba.Unit
                 req.SourceUnitUid,
                 target,
                 CombatContributionKind.Damage,
-                shieldAbs + actualLifeDamage,
+                actualDamage,
                 req.Header.SequenceInTick);
             var evt = new DamageEventData
             {
                 SourceUid = req.SourceUnitUid,
                 TargetUid = req.TargetUnitUid,
                 Source = req.Header.SourceDescriptor,
+                OriginActionId = req.Header.OriginActionId,
+                EffectOrdinal = req.Header.EffectOrdinal,
                 RecipeId = req.Header.RecipeId,
-                RawDamage = raw,
-                MitigatedDamage = mitigated,
-                ActualDamage = actualLifeDamage + shieldAbs,
+                RawDamage = result.RawDamage,
+                MitigatedDamage = result.MitigatedDamage,
+                ActualDamage = actualDamage,
                 DamageType = req.DamageType,
-                IsCritical = isCrit,
+                IsCritical = result.IsCritical,
             };
-            CombatEvents.RaiseDamageTaken(evt); CombatEvents.RaiseDamageDealt(evt);
-            ApplyStatDrainHeal(
-                req,
-                evt.ActualDamage);
-            // Fire on-hit event for attack damage
-            if (req.Header.SourceDescriptor.SourceType == CombatSourceType.Attack)
+            CombatEvents.RaiseDamageTaken(evt);
+            CombatEvents.RaiseDamageDealt(evt);
+            ApplyStatDrainHeal(req, result.ActualLifeDamage);
+            if (req.Header.SourceDescriptor.SourceType ==
+                CombatSourceType.Attack)
             {
                 CombatEvents.RaiseOnHit(new OnHitEventData
                 {
                     SourceUid = req.SourceUnitUid,
                     TargetUid = req.TargetUnitUid,
+                    OriginActionId = req.Header.OriginActionId,
+                    EffectOrdinal = req.Header.EffectOrdinal,
                     DamageType = req.DamageType,
-                    IsCritical = isCrit,
+                    IsCritical = result.IsCritical,
                 });
             }
-            CombatEvents.OnCombatParticipationUnit?.Invoke(req.SourceUnitUid, req.TargetUnitUid, CombatParticipationFlags.DamageDealt | CombatParticipationFlags.DamageTaken);
-            if (nw <= fp.zero && target.LifeState == LifeState.Alive)
-            {
-                _unitWorld.RequestEnterDying(target);
-                if (!_pendingDying.Contains(req.TargetUnitUid))
-                    _pendingDying.Add(req.TargetUnitUid);
-                target.EventBus?.PublishUnitDying(target);
-            }
-            ApplyHitReaction(target, mitigated);
+            CombatEvents.OnCombatParticipationUnit?.Invoke(
+                req.SourceUnitUid,
+                req.TargetUnitUid,
+                CombatParticipationFlags.DamageDealt |
+                CombatParticipationFlags.DamageTaken);
+            ApplyHitReaction(target, result.MitigatedDamage);
         }
 
-        /// <summary>
-        /// Omnivamp heals the source for a fraction of the settled actual
-        /// damage from any source; Life Steal additionally applies to basic
-        /// attacks (Unit v27.3 stat semantics). Both stats are decimals
-        /// (0.2 = 20%) and are surfaced as modifiers on the source.
-        /// </summary>
+        private ulong ComputeRequestTieScore(
+            in DamageRequest request,
+            UnitUid targetUid,
+            ulong domain)
+        {
+            return DeterministicHash64.Compute(
+                _initialMatchSeed,
+                unchecked((uint)SimulationTickContext.Current.Tick),
+                PackTraversalNeutralUid(targetUid),
+                PackTraversalNeutralUid(request.SourceUnitUid),
+                KillerTieDomain ^ domain ^
+                unchecked((uint)request.Header.RecipeId));
+        }
+
+        private ulong ComputeKillerTieScore(
+            int deathLogicTick,
+            UnitUid victimUid,
+            UnitUid candidateHeroUid)
+        {
+            return DeterministicHash64.Compute(
+                _initialMatchSeed,
+                unchecked((uint)deathLogicTick),
+                PackTraversalNeutralUid(victimUid),
+                PackTraversalNeutralUid(candidateHeroUid),
+                KillerTieDomain);
+        }
+
+        private static ulong PackTraversalNeutralUid(UnitUid uid)
+        {
+            unchecked
+            {
+                // RuntimeEntityPrefabId is intentionally excluded. It is an
+                // authored technical/content identity and can correlate with
+                // side-specific prefab numbering. Spawn Tick + globally
+                // allocated sequence identify the runtime entity for neutral
+                // scoring; a full-score collision still falls back to UnitUid.
+                ulong value = (uint)uid.SpawnLogicTick;
+                return (value * 0xC2B2AE3D27D4EB4FUL) ^
+                       uid.SpawnSequenceInTick;
+            }
+        }
         private void ApplyStatDrainHeal(
             in DamageRequest req,
             fp actualDamage)
@@ -479,7 +978,8 @@ namespace FrameSyncMoba.Unit
                     req.SourceUnitUid,
                     out Unit source) ||
                 source.StatHandler == null ||
-                source.LifeState != LifeState.Alive)
+                (source.LifeState != LifeState.Alive &&
+                 source.LifeState != LifeState.Dying))
             {
                 return;
             }
@@ -542,40 +1042,205 @@ namespace FrameSyncMoba.Unit
             });
         }
 
-        private void ProcessHeal(HealRequest req)
+        private void ProcessHealBatch(int count)
         {
-            if (!_unitWorld.TryGetUnit(req.TargetUnitUid, out Unit target)) return;
-            if (target.LifeState != LifeState.Alive && target.LifeState != LifeState.Dying) return;
-            StatHandler stats = target.StatHandler; if (stats == null) return;
-            fp amt = req.BaseValue;
-            if (_unitWorld.TryGetUnit(req.SourceUnitUid, out Unit src) && src.StatHandler != null) { fp hp = src.StatHandler.GetStat(StatId.HealPower); amt *= (fp.one + hp); }
-            // Grievous wounds: incoming heals are reduced by the target's
-            // HealingReceivedRatio (1 = normal, 0.6 = -40%).
-            amt *= stats.GetStat(
-                StatId.HealingReceivedRatio);
-            if (amt <= fp.zero) return;
-            fp cur = stats.CurrentHealth; fp max = stats.GetStat(StatId.MaxHealth);
-            fp nw = cur + amt; if (nw > max) nw = max; fp eff = nw - cur;
-            stats.SetCurrentHealth(nw);
-            if (nw > fp.zero && target.LifeState == LifeState.Dying)
+            int index = 0;
+            while (index < count)
             {
-                _unitWorld.RequestRecoverFromDying(target);
-                _pendingDying.Remove(req.TargetUnitUid);
+                UnitUid targetUid = _healQueue[index].TargetUnitUid;
+                int end = index + 1;
+                while (end < count &&
+                       _healQueue[end].TargetUnitUid == targetUid)
+                    end++;
+
+                _healBatchScratch.Clear();
+                if (_unitWorld.TryGetUnit(targetUid, out Unit target) &&
+                    (target.LifeState == LifeState.Alive ||
+                     target.LifeState == LifeState.Dying) &&
+                    target.StatHandler != null)
+                {
+                    for (int i = index; i < end; i++)
+                    {
+                        HealRequest request = _healQueue[i];
+                        fp amount = request.BaseValue;
+                        if (_unitWorld.TryGetUnit(
+                                request.SourceUnitUid,
+                                out Unit source) &&
+                            source.StatHandler != null)
+                        {
+                            amount *= fp.one +
+                                source.StatHandler.GetStat(
+                                    StatId.HealPower);
+                        }
+                        amount *= target.StatHandler.GetStat(
+                            StatId.HealingReceivedRatio);
+                        if (amount > fp.zero)
+                        {
+                            _healBatchScratch.Add(new EvaluatedHeal
+                            {
+                                Request = request,
+                                EvaluatedAmount = amount,
+                            });
+                        }
+                    }
+                    CommitHealBatch(target);
+                }
+                index = end;
             }
-            CombatEvents.RaiseHealTaken(new HealEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawHeal = req.BaseValue, EffectiveHeal = eff });
-            if (eff > fp.zero)
-            {
-                RecordEvent(
-                    req.SourceUnitUid,
-                    target,
-                    CombatContributionKind.Heal,
-                    eff,
-                    req.Header.SequenceInTick);
-            }
-            CombatEvents.OnCombatParticipationUnit?.Invoke(req.SourceUnitUid, req.TargetUnitUid, CombatParticipationFlags.HealDealt | CombatParticipationFlags.HealTaken);
-            CombatEvents.RaiseHealDealt(new HealEventData { SourceUid = req.SourceUnitUid, TargetUid = req.TargetUnitUid, RawHeal = req.BaseValue, EffectiveHeal = eff });
+            _healBatchScratch.Clear();
         }
 
+        private void CommitHealBatch(Unit target)
+        {
+            StatHandler stats = target.StatHandler;
+            fp current = stats.CurrentHealth;
+            fp maximum = stats.GetStat(StatId.MaxHealth);
+            fp capacity = maximum - current;
+            if (capacity < fp.zero) capacity = fp.zero;
+            fp totalRequested = fp.zero;
+            for (int i = 0; i < _healBatchScratch.Count; i++)
+                totalRequested += _healBatchScratch[i].EvaluatedAmount;
+            fp totalEffective = capacity < totalRequested
+                ? capacity
+                : totalRequested;
+            fp allocated = fp.zero;
+            for (int i = 0; i < _healBatchScratch.Count; i++)
+            {
+                EvaluatedHeal result = _healBatchScratch[i];
+                fp share = totalRequested > fp.zero
+                    ? totalEffective * result.EvaluatedAmount /
+                      totalRequested
+                    : fp.zero;
+                result.EffectiveAmount = share;
+                allocated += share;
+                _healBatchScratch[i] = result;
+            }
+            fp remainder = totalEffective - allocated;
+            while (remainder > fp.zero)
+            {
+                int remainderIndex = -1;
+                ulong remainderScore = ulong.MaxValue;
+                for (int i = 0; i < _healBatchScratch.Count; i++)
+                {
+                    EvaluatedHeal candidate = _healBatchScratch[i];
+                    fp candidateCapacity = candidate.EvaluatedAmount -
+                                           candidate.EffectiveAmount;
+                    if (candidateCapacity <= fp.zero) continue;
+                    ulong score = DeterministicHash64.Compute(
+                        _initialMatchSeed,
+                        unchecked((uint)SimulationTickContext.Current.Tick),
+                        PackTraversalNeutralUid(target.UnitUid),
+                        PackTraversalNeutralUid(candidate.Request.SourceUnitUid),
+                        KillerTieDomain ^ 0x4845414CUL);
+                    if (score < remainderScore)
+                    {
+                        remainderScore = score;
+                        remainderIndex = i;
+                    }
+                }
+                if (remainderIndex < 0)
+                {
+                    throw new DeterministicSimulationException(
+                        "Combat batch heal remainder could not be conserved.");
+                }
+                EvaluatedHeal result = _healBatchScratch[remainderIndex];
+                fp remainingCapacity = result.EvaluatedAmount -
+                                       result.EffectiveAmount;
+                fp share = remainingCapacity < remainder
+                    ? remainingCapacity
+                    : remainder;
+                result.EffectiveAmount += share;
+                _healBatchScratch[remainderIndex] = result;
+                remainder -= share;
+            }
+
+            fp newHealth = current + totalEffective;
+            if (newHealth > maximum) newHealth = maximum;
+            stats.SetCurrentHealth(newHealth);
+            if (newHealth > fp.zero &&
+                target.LifeState == LifeState.Dying)
+            {
+                _unitWorld.RequestRecoverFromDying(target);
+                _pendingDying.Remove(target.UnitUid);
+                _lethalBatchKillers.Remove(target.UnitUid);
+            }
+
+            for (int i = 0; i < _healBatchScratch.Count; i++)
+            {
+                EvaluatedHeal result = _healBatchScratch[i];
+                _healEmissionScratch.Add(new HealResultEmission
+                {
+                    TargetUnitUid = target.UnitUid,
+                    Result = result,
+                });
+            }
+        }
+
+        private void EmitWaveResults()
+        {
+            for (int i = 0; i < _shieldEmissionScratch.Count; i++)
+                EmitShieldResult(_shieldEmissionScratch[i]);
+            for (int i = 0; i < _healEmissionScratch.Count; i++)
+                EmitHealResult(_healEmissionScratch[i]);
+            for (int i = 0; i < _damageEmissionScratch.Count; i++)
+            {
+                DamageResultEmission emission = _damageEmissionScratch[i];
+                if (_unitWorld.TryGetUnit(
+                        emission.TargetUnitUid,
+                        out Unit target))
+                    EmitDamageResult(target, emission.Result);
+            }
+            for (int i = 0; i < _dyingEmissionScratch.Count; i++)
+            {
+                UnitUid targetUid = _dyingEmissionScratch[i];
+                if (!_unitWorld.TryGetUnit(targetUid, out Unit target) ||
+                    target.LifeState != LifeState.Alive ||
+                    target.StatHandler == null ||
+                    target.StatHandler.CurrentHealth > fp.zero)
+                    continue;
+                _unitWorld.RequestEnterDying(target);
+                if (!_pendingDying.Contains(targetUid))
+                    _pendingDying.Add(targetUid);
+                target.EventBus?.PublishUnitDying(target);
+            }
+            _shieldEmissionScratch.Clear();
+            _healEmissionScratch.Clear();
+            _damageEmissionScratch.Clear();
+            _dyingEmissionScratch.Clear();
+        }
+
+        private void EmitHealResult(in HealResultEmission emission)
+        {
+            if (!_unitWorld.TryGetUnit(
+                    emission.TargetUnitUid,
+                    out Unit target))
+                return;
+            EvaluatedHeal result = emission.Result;
+            HealRequest request = result.Request;
+            var eventData = new HealEventData
+            {
+                SourceUid = request.SourceUnitUid,
+                TargetUid = request.TargetUnitUid,
+                RawHeal = request.BaseValue,
+                EffectiveHeal = result.EffectiveAmount,
+            };
+            CombatEvents.RaiseHealTaken(eventData);
+            if (result.EffectiveAmount > fp.zero)
+            {
+                RecordEvent(
+                    request.SourceUnitUid,
+                    target,
+                    CombatContributionKind.Heal,
+                    result.EffectiveAmount,
+                    request.Header.SequenceInTick);
+            }
+            CombatEvents.OnCombatParticipationUnit?.Invoke(
+                request.SourceUnitUid,
+                request.TargetUnitUid,
+                CombatParticipationFlags.HealDealt |
+                CombatParticipationFlags.HealTaken);
+            CombatEvents.RaiseHealDealt(eventData);
+        }
         private void ResolveDying()
         {
             for (int i = 0; i < _pendingDying.Count; i++)
@@ -590,9 +1255,10 @@ namespace FrameSyncMoba.Unit
                     continue;
                 }
                 var log = _eventLogs.TryGetValue(duid, out var l) ? l : null;
-                UnitUid kid = log != null
-                    ? log.ResolveKiller(
-                        SimulationTickContext.Current.Tick)
+                UnitUid kid = _lethalBatchKillers.TryGetValue(
+                    duid,
+                    out UnitUid lethalBatchKiller)
+                    ? lethalBatchKiller
                     : default;
                 // Assists are a champion-only concept: only hero victims
                 // can have assistants, and assisting a minion/monster kill
@@ -709,6 +1375,7 @@ namespace FrameSyncMoba.Unit
             UnitKind targetKind,
             StatHandler sourceStats,
             StatHandler targetStats,
+            fp targetBatchStartHealth,
             ref CombatPolicyResolution policies)
         {
             CombatFormulaAccumulator accumulator =
@@ -723,6 +1390,7 @@ namespace FrameSyncMoba.Unit
                 targetKind,
                 sourceStats,
                 targetStats,
+                targetBatchStartHealth,
                 ref accumulator,
                 ref policies);
             targetModifiers?.AccumulateDamage(
@@ -735,6 +1403,7 @@ namespace FrameSyncMoba.Unit
                 targetKind,
                 sourceStats,
                 targetStats,
+                targetBatchStartHealth,
                 ref accumulator,
                 ref policies);
             return accumulator.Apply(slotInput);
@@ -945,8 +1614,45 @@ namespace FrameSyncMoba.Unit
         public void Restore(in CombatSnapshot snapshot)
         {
             _snapshot = snapshot;
+            _shieldQueue.Clear();
+            _damageQueue.Clear();
+            _healQueue.Clear();
+            _pendingDying.Clear();
+            _deathResults.Clear();
+            _damageBatchScratch.Clear();
+            _healBatchScratch.Clear();
+            _heroDamageScratch.Clear();
+            _shieldEmissionScratch.Clear();
+            _healEmissionScratch.Clear();
+            _damageEmissionScratch.Clear();
+            _dyingEmissionScratch.Clear();
+            _lethalBatchKillers.Clear();
+            _waveStartHealth.Clear();
+            ShieldProcessed = 0;
+            DamageProcessed = 0;
+            HealProcessed = 0;
+            _nextDeathSeq = 0;
+            _deathSeqExhausted = false;
+            _nextDeferredSeq = 0;
+            _deferredSeqExhausted = false;
+            _nextSequenceInTick = 0;
+            _sequenceExhausted = false;
+            _currentSequenceLogicTick = -1;
+            _isCombatTickActive = false;
             _deferredBuffer.Clear();
-            if (snapshot.DeferredRequests != null) _deferredBuffer.AddRange(snapshot.DeferredRequests);
+            if (snapshot.DeferredRequests != null)
+            {
+                for (int i = 0; i < snapshot.DeferredRequests.Length; i++)
+                {
+                    DeferredCombatRequest deferred =
+                        snapshot.DeferredRequests[i];
+                    if (deferred.RequestKind == CombatRequestKind.Damage)
+                        ValidateDamageEffectOrdinal(
+                            deferred.Damage,
+                            "restored deferred");
+                    _deferredBuffer.Add(deferred);
+                }
+            }
             _eventLogs.Clear();
             if (snapshot.ContributionEventLogs != null)
             {
@@ -981,6 +1687,16 @@ namespace FrameSyncMoba.Unit
                     CombatContributionEventLog
                         .DefaultAssistContributionDurationTicks,
                     _unitWorld.TickRate);
+        }
+
+        private static void ValidateDamageEffectOrdinal(
+            in DamageRequest request,
+            string boundary)
+        {
+            if (request.Header.EffectOrdinal < 0)
+                throw new DeterministicSimulationException(
+                    $"Combat {boundary} DamageRequest has negative EffectOrdinal " +
+                    $"{request.Header.EffectOrdinal}.");
         }
 
         public void Resolve(in RollbackContext context)
@@ -1036,6 +1752,154 @@ namespace FrameSyncMoba.Unit
             submittedHeader.SequenceInTick = sequence;
             submittedHeader.SourceLogicTick = tick;
             return submittedHeader;
+        }
+
+        private void ValidateActiveSubmission()
+        {
+            int tick = SimulationTickContext.Current.Tick;
+            if (_currentSequenceLogicTick != tick)
+            {
+                throw new DeterministicSimulationException(
+                    "Combat request submitted outside the active Combat Tick.");
+            }
+        }
+
+        private static int CompareUnitUid(UnitUid left, UnitUid right) =>
+            left.CompareTo(right);
+
+        private sealed class ShieldRequestComparer :
+            IComparer<ShieldRequest>
+        {
+            public static readonly ShieldRequestComparer Instance =
+                new ShieldRequestComparer();
+
+            public int Compare(ShieldRequest left, ShieldRequest right)
+            {
+                int comparison = CompareUnitUid(
+                    left.TargetUnitUid,
+                    right.TargetUnitUid);
+                if (comparison != 0) return comparison;
+                comparison = left.ShieldType.CompareTo(right.ShieldType);
+                if (comparison != 0) return comparison;
+                comparison = left.DurationTicks.CompareTo(right.DurationTicks);
+                if (comparison != 0) return comparison;
+                comparison = left.BaseValue.RawValue.CompareTo(
+                    right.BaseValue.RawValue);
+                if (comparison != 0) return comparison;
+                return CompareUnitUid(
+                    left.SourceUnitUid,
+                    right.SourceUnitUid);
+            }
+        }
+
+        private sealed class HealRequestComparer : IComparer<HealRequest>
+        {
+            public static readonly HealRequestComparer Instance =
+                new HealRequestComparer();
+
+            public int Compare(HealRequest left, HealRequest right)
+            {
+                int comparison = CompareUnitUid(
+                    left.TargetUnitUid,
+                    right.TargetUnitUid);
+                if (comparison != 0) return comparison;
+                comparison = left.BaseValue.RawValue.CompareTo(
+                    right.BaseValue.RawValue);
+                if (comparison != 0) return comparison;
+                return CompareUnitUid(
+                    left.SourceUnitUid,
+                    right.SourceUnitUid);
+            }
+        }
+
+        private sealed class DamageRequestComparer :
+            IComparer<DamageRequest>
+        {
+            public static readonly DamageRequestComparer Instance =
+                new DamageRequestComparer();
+
+            public int Compare(DamageRequest left, DamageRequest right)
+            {
+                int comparison = CompareUnitUid(
+                    left.TargetUnitUid,
+                    right.TargetUnitUid);
+                if (comparison != 0) return comparison;
+                comparison = left.Header.SourceDescriptor.SourceType.CompareTo(
+                    right.Header.SourceDescriptor.SourceType);
+                if (comparison != 0) return comparison;
+                comparison = left.Header.SourceDescriptor.SourceId.CompareTo(
+                    right.Header.SourceDescriptor.SourceId);
+                if (comparison != 0) return comparison;
+                comparison = left.Header.RecipeId.CompareTo(
+                    right.Header.RecipeId);
+                if (comparison != 0) return comparison;
+                comparison = left.DamageType.CompareTo(right.DamageType);
+                if (comparison != 0) return comparison;
+                comparison = left.BaseDamage.RawValue.CompareTo(
+                    right.BaseDamage.RawValue);
+                if (comparison != 0) return comparison;
+                comparison = left.Header.OriginActionId.CompareTo(
+                    right.Header.OriginActionId);
+                if (comparison != 0) return comparison;
+                comparison = left.Header.EffectOrdinal.CompareTo(
+                    right.Header.EffectOrdinal);
+                if (comparison != 0) return comparison;
+                return CompareUnitUid(
+                    left.SourceUnitUid,
+                    right.SourceUnitUid);
+            }
+        }
+
+        private enum DamageAllocationGroup : byte
+        {
+            PhysicalSpecific = 0,
+            MagicSpecific = 1,
+            White = 2,
+            Life = 3,
+        }
+
+        private struct EvaluatedDamage
+        {
+            public DamageRequest Request;
+            public CombatPolicyResolution Policies;
+            public fp RawDamage;
+            public fp MitigatedDamage;
+            public fp RemainingDamage;
+            public fp ShieldAbsorbed;
+            public fp ActualLifeDamage;
+            public bool IsCritical;
+        }
+
+        private struct HeroDamageContribution
+        {
+            public UnitUid HeroUid;
+            public fp ActualLifeDamage;
+        }
+
+        private struct EvaluatedHeal
+        {
+            public HealRequest Request;
+            public fp EvaluatedAmount;
+            public fp EffectiveAmount;
+        }
+
+        private struct ShieldResultEmission
+        {
+            public ShieldRequest Request;
+            public fp AppliedAmount;
+            public fp EventAmount;
+        }
+
+        private struct HealResultEmission
+        {
+            public UnitUid TargetUnitUid;
+            public EvaluatedHeal Result;
+        }
+
+        private struct DamageResultEmission
+        {
+            public UnitUid TargetUnitUid;
+            public EvaluatedDamage Result;
         }
 
         private static int CompareDeferredRequests(DeferredCombatRequest a, DeferredCombatRequest b)

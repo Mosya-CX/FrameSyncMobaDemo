@@ -125,6 +125,41 @@ namespace FrameSyncMoba.FrameSync.Tests
                 "Equipment module TriggerCount must participate in the checksum.");
         }
 
+        [Test]
+        public void Checksum_ChangesWhenGameplayParticipantIdDiffers()
+        {
+            GameplaySnapshot first = CreateMinimalSnapshot();
+            GameplaySnapshot second = CreateMinimalSnapshot();
+            first.UnitWorldState = CreateUnitWithParticipant(10);
+            second.UnitWorldState = CreateUnitWithParticipant(11);
+
+            Assert.AreNotEqual(Compute(first), Compute(second));
+        }
+
+        [Test]
+        public void Checksum_ChangesWhenProjectileOriginActionDiffers()
+        {
+            GameplaySnapshot first = CreateMinimalSnapshot();
+            GameplaySnapshot second = CreateMinimalSnapshot();
+            first.ProjectileState = CreateProjectileState((fp)100);
+            second.ProjectileState = CreateProjectileState((fp)100);
+            second.ProjectileState.ActiveProjectiles[0].OriginActionId =
+                CreateAction(99);
+
+            Assert.AreNotEqual(Compute(first), Compute(second));
+        }
+
+        [Test]
+        public void Checksum_ChangesWhenDeferredDamageEffectOrdinalDiffers()
+        {
+            GameplaySnapshot first = CreateMinimalSnapshot();
+            GameplaySnapshot second = CreateMinimalSnapshot();
+            first.CombatState = CreateDeferredCombatState(1);
+            second.CombatState = CreateDeferredCombatState(2);
+
+            Assert.AreNotEqual(Compute(first), Compute(second));
+        }
+
         private static GameplaySnapshot CreateMinimalSnapshot()
         {
             return new GameplaySnapshot
@@ -215,6 +250,8 @@ namespace FrameSyncMoba.FrameSync.Tests
                     new UnitSnapshot
                     {
                         UnitUid = new UnitUid(20, 1001, 0),
+                        GameplayParticipantId =
+                            GameplayParticipantId.Explicit(1),
                         UnitKind = UnitKind.Hero,
                         TeamId = new TeamId(1),
                         UnitPrototypeId = 1001,
@@ -246,6 +283,7 @@ namespace FrameSyncMoba.FrameSync.Tests
                             new UnitUid(20, 1001, 0),
                         TeamSnapshot = new TeamId(1),
                         Source = CreateSource(),
+                        OriginActionId = CreateAction(1),
                         Position = new fp2(
                             fp.one,
                             fp.zero),
@@ -283,6 +321,7 @@ namespace FrameSyncMoba.FrameSync.Tests
                             new UnitUid(20, 1001, 0),
                         TeamSnapshot = new TeamId(1),
                         Source = CreateSource(),
+                        OriginActionId = CreateAction(1),
                         StartPosition = new fp2(
                             fp.one,
                             fp.zero),
@@ -306,6 +345,8 @@ namespace FrameSyncMoba.FrameSync.Tests
                     {
                         UnitUid =
                             new UnitUid(20, 1001, 0),
+                        GameplayParticipantId =
+                            GameplayParticipantId.Explicit(1),
                         UnitKind = UnitKind.Hero,
                         TeamId = new TeamId(1),
                         UnitPrototypeId = 1001,
@@ -336,6 +377,62 @@ namespace FrameSyncMoba.FrameSync.Tests
                     new UnitUid(20, 1001, 0),
                 EmitterUnitUid =
                     new UnitUid(20, 1001, 0),
+            };
+        }
+
+        private static OriginActionId CreateAction(int sequence) =>
+            new OriginActionId(
+                GameplayParticipantId.Explicit(1),
+                CombatSourceType.Ability,
+                10011,
+                20,
+                sequence);
+
+        private static UnitWorldSnapshot CreateUnitWithParticipant(
+            int participantScope) =>
+            new UnitWorldSnapshot
+            {
+                Units = new[]
+                {
+                    new UnitSnapshot
+                    {
+                        UnitUid = new UnitUid(20, 1001, 0),
+                        GameplayParticipantId =
+                            GameplayParticipantId.Explicit(
+                                participantScope),
+                        UnitKind = UnitKind.Hero,
+                        TeamId = new TeamId(1),
+                        UnitPrototypeId = 1001,
+                    },
+                },
+            };
+
+        private static CombatSnapshot CreateDeferredCombatState(
+            int effectOrdinal)
+        {
+            DamageRequest damage = new DamageRequest
+            {
+                Header = CombatRequestHeader.Create(
+                    new UnitUid(20, 1001, 0),
+                    new UnitUid(20, 1002, 0),
+                    CombatSourceType.Ability,
+                    10011,
+                    1,
+                    originActionId: CreateAction(1),
+                    effectOrdinal: effectOrdinal),
+                DamageType = DamageType.Magic,
+                BaseDamage = (fp)10,
+            };
+            return new CombatSnapshot
+            {
+                DeferredRequests = new[]
+                {
+                    DeferredCombatRequest.CreateDamage(
+                        damage,
+                        21,
+                        20,
+                        0),
+                },
             };
         }
 

@@ -46,6 +46,7 @@ namespace FrameSyncMoba.Unit
                 baseRequest.OwnerUnitUid,
                 baseRequest.TeamSnapshot,
                 baseRequest.Source,
+                baseRequest.OriginActionId,
                 baseRequest.StartPosition,
                 baseRequest.Direction,
                 onHitDamageOverride: new[]

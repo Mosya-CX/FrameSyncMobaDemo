@@ -79,6 +79,10 @@ namespace FrameSyncMoba.Unit
                             EmitterUnitUid =
                                 runtime.CasterUnitUid,
                         },
+                        BuildOriginActionId(
+                            session,
+                            runtime,
+                            caster),
                         center,
                         new fp2(
                             fp.zero,
@@ -114,7 +118,15 @@ namespace FrameSyncMoba.Unit
                         target.UnitUid,
                         CombatSourceType.Ability,
                         runtime.Definition?.AbilityId ?? 0,
-                        runtime.Definition?.AbilityId ?? 0),
+                        runtime.Definition?.AbilityId ?? 0,
+                        originActionId: BuildOriginActionId(
+                            session,
+                            runtime,
+                            caster),
+                        effectOrdinal:
+                            CombatFairnessKey.ComposeEffectOrdinal(
+                                StageDefId,
+                                0)),
                     BaseDamage = BaseDamage,
                     DamageType = DamageType,
                 };

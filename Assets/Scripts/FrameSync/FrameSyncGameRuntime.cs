@@ -186,7 +186,10 @@ namespace FrameSyncMoba.FrameSync
             UnitWorld = unitWorld;
             PhysicsWorld = physicsWorld;
             CombatSystem = new Unit.CombatSystem(
-                unitWorld, heroRespawnBaseTicks, heroRespawnPerMinuteTicks);
+                unitWorld,
+                heroRespawnBaseTicks,
+                heroRespawnPerMinuteTicks,
+                randomSeed);
             MatchRule = new MatchRuleRuntime(endingDurationTicks);
             GoldIncome = new GoldIncomeRuntime();
             GoldIncome.Initialize(maxPlayers, initialEarnedGold);
@@ -286,6 +289,8 @@ namespace FrameSyncMoba.FrameSync
                 randomState);
             UnitWorld.RandomService.Restore(
                 randomState);
+            CombatSystem.ConfigureInitialMatchSeed(
+                initialRandomSeed);
             _pipeline.NaturalGoldIncome =
                 new NaturalGoldIncomeSystem(
                     GoldIncome,

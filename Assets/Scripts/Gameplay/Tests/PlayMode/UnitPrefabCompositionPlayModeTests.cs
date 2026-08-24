@@ -47,6 +47,7 @@ namespace FrameSyncMoba.Unit.PlayModeTests
             {
                 UnitUid uid = world.SpawnUnit(new UnitSpawnRequest(
                     4,
+                    GameplayParticipantId.Explicit(4),
                     new TeamId(6),
                     new fp2(3, 8),
                     new fp2(fp.one, fp.zero)));

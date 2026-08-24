@@ -289,6 +289,12 @@ namespace FrameSyncMoba.FrameSync.Tests
                         owner.UnitUid,
                         owner.TeamId,
                         source,
+                        new OriginActionId(
+                            owner.GameplayParticipantId,
+                            source.SourceType,
+                            source.SourceId,
+                            10,
+                            0),
                         fp2.zero,
                         new fp2(fp.one, fp.zero),
                         damageOverride,

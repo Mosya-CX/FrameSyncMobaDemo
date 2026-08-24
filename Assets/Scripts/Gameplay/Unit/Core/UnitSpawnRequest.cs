@@ -10,6 +10,7 @@ namespace FrameSyncMoba.Unit
     public readonly struct UnitSpawnRequest
     {
         public readonly int UnitPrototypeId;
+        public readonly GameplayParticipantId GameplayParticipantId;
         public readonly TeamId TeamId;
         public readonly fp2 Position;
         public readonly fp2 Forward;
@@ -18,6 +19,7 @@ namespace FrameSyncMoba.Unit
 
         public UnitSpawnRequest(
             int unitPrototypeId,
+            GameplayParticipantId gameplayParticipantId,
             TeamId teamId,
             fp2 position,
             fp2 forward,
@@ -25,6 +27,7 @@ namespace FrameSyncMoba.Unit
             UnitSpawnReason reason = UnitSpawnReason.Unspecified)
         {
             UnitPrototypeId = unitPrototypeId;
+            GameplayParticipantId = gameplayParticipantId;
             TeamId = teamId;
             Position = position;
             Forward = forward;

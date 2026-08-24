@@ -1,18 +1,18 @@
 # ExecPlan Index
 
 > Document class: Current Plan Locator
-> Updated: 2026-08-23
+> Updated: 2026-08-24
 > Default read: yes, when `.agents/PLANS.md` says an ExecPlan is required
 
 ## Active
 
-- `Docs/Implementation/Plans/0138_local_addressables_and_dedicated_server_presentation_split.md`
-  — local-only Addressables migration, logic/view prefab split and Dedicated
-  Server presentation exclusion.
+None.
 
 ## Verification Pending
 
-None.
+- `Docs/Implementation/Plans/0138_local_addressables_and_dedicated_server_presentation_split.md`
+  — implementation and focused verification are complete; matching rebuilt
+  client/Linux Dedicated Server inspection remains pending.
 
 ExecPlan 0136 completed its declared source/formal-asset and focused-test scope.
 Matching rebuilt Local C/S and UOS live acceptance was explicitly outside that
@@ -21,6 +21,15 @@ plan. Create a new plan if the user requests that external acceptance.
 ExecPlan 0137 completed the D-047 structured Unit arbitration, fixed Main/Base
 Runtime, schema-23 Snapshot/checksum and bootstrap-wire-4 migration. A matching
 Local C/S or UOS live rebuild remains outside that plan.
+
+ExecPlan 0139 completed traversal-neutral same-Tick Combat settlement, causal
+reaction waves, scheme A killer attribution and scheme C exact-tie fallback.
+UID remains the canonical identity/order and an allowed explicit complete-tie
+key, but no longer creates implicit first-writer priority inside a sealed batch.
+
+ExecPlan 0140 completed action-keyed deterministic Crit, immutable gameplay
+participant identity, parent-path effect ordinals, neutral equal-distance
+Projectile arbitration and schema-24/GameplayDataVersion-4 migration.
 
 ## Completed / historical
 

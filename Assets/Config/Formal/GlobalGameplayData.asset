@@ -25,7 +25,7 @@ MonoBehaviour:
     MaxAuthorityRecoveryAttemptsBeforeDisconnect: 4
     StartLeadTicks: 3
   versions:
-    GameplayDataVersion: 3
+    GameplayDataVersion: 4
     MapDataVersion: 1
     GlobalPrefabTableVersion: 1
     CommandSchemaVersion: 1

@@ -308,6 +308,10 @@ namespace FrameSyncMoba.Unit
             {
                 var request = new UnitSpawnRequest(
                     prototypeIdBySlot[slot],
+                    GameplayParticipantId.JungleCamp(
+                        campId,
+                        SimulationTickContext.Current.Tick,
+                        slot),
                     new TeamId((byte)campTeamId),
                     spawnPositionBySlot[slot],
                     spawnForwardBySlot[slot],

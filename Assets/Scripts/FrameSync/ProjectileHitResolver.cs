@@ -11,8 +11,10 @@ namespace FrameSyncMoba.FrameSync
     {
         public ProjectileUid ProjectileUid;
         public UnitUid TargetUnitUid;
+        public GameplayParticipantId TargetParticipantId;
         public fp2 HitPosition;
         public fp HitDistance;
+        public ulong EqualDistanceTieScore;
         public int CandidateOrder;
         public int HitLogicTick;
     }
@@ -196,9 +198,18 @@ namespace FrameSyncMoba.FrameSync
                     {
                         ProjectileUid = projectile.Uid,
                         TargetUnitUid = target.UnitUid,
+                        TargetParticipantId =
+                            target.GameplayParticipantId,
                         HitPosition = hitPosition,
                         HitDistance = fpmath.length(
                             hitPosition - previous),
+                        EqualDistanceTieScore =
+                            CombatFairnessKey.ProjectileTieScore(
+                                unitWorld.CombatSystem?.InitialMatchSeed ??
+                                    throw new DeterministicSimulationException(
+                                        "Projectile arbitration requires Combat match seed."),
+                                projectile.OriginActionId,
+                                target.GameplayParticipantId),
                         HitLogicTick = tick,
                     });
             }
@@ -213,13 +224,19 @@ namespace FrameSyncMoba.FrameSync
             }
         }
 
-        private static int CompareHitResults(
+        internal static int CompareHitResults(
             ProjectileHitResult left,
             ProjectileHitResult right)
         {
             int comparison =
                 left.HitDistance.CompareTo(
                     right.HitDistance);
+            if (comparison != 0) return comparison;
+            comparison = left.EqualDistanceTieScore.CompareTo(
+                right.EqualDistanceTieScore);
+            if (comparison != 0) return comparison;
+            comparison = left.TargetParticipantId.CompareTo(
+                right.TargetParticipantId);
             if (comparison != 0) return comparison;
             return left.TargetUnitUid.CompareTo(
                 right.TargetUnitUid);

@@ -185,7 +185,15 @@ namespace FrameSyncMoba.Unit
                         target.UnitUid,
                         CombatSourceType.Ability,
                         runtime.Definition.AbilityId,
-                        sweet ? SweetSpotRecipeId : RecipeId),
+                        sweet ? SweetSpotRecipeId : RecipeId,
+                        originActionId: BuildOriginActionId(
+                            session,
+                            runtime,
+                            caster),
+                        effectOrdinal:
+                            CombatFairnessKey.ComposeEffectOrdinal(
+                                StageDefId,
+                                sweet ? 1 : 0)),
                     BaseDamage = damage,
                     DamageType = DamageType,
                 };

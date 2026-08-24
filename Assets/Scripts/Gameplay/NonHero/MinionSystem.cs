@@ -298,6 +298,11 @@ namespace FrameSyncMoba.Unit
         {
             var request = new UnitSpawnRequest(
                 ticket.UnitPrototypeId,
+                GameplayParticipantId.MinionWave(
+                    ticket.TeamId,
+                    ticket.LaneId,
+                    ticket.SpawnLogicTick,
+                    ticket.StableEntryIndex),
                 ticket.TeamId,
                 ticket.SpawnPosition,
                 ticket.SpawnForward,

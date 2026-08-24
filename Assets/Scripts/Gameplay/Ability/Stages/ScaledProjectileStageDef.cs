@@ -69,6 +69,10 @@ namespace FrameSyncMoba.Unit
                     caster.UnitUid,
                     caster.TeamId,
                     source,
+                    BuildOriginActionId(
+                        session,
+                        runtime,
+                        caster),
                     origin,
                     facing,
                     new[] { damage }));

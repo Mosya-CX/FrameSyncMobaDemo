@@ -143,11 +143,14 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void Killer_IsLastDamageContributor_NotHighestTotal()
+        public void Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch()
         {
+            Caster.AbilityHandler.SetFixedPassive(
+                CreateFixedPassiveDefinition());
             combat.BeginTick();
-            // Assistant deals 700 (most total), caster lands the fatal 400
-            // last; the killer must be the caster, the assistant an assistant.
+            // Assistant contributes the greater share of effective life
+            // damage in the lethal batch. Submission order is not killer
+            // authority under D-049.
             combat.SubmitDamage(CreateDamage(
                 Assistant.UnitUid,
                 Victim.UnitUid,
@@ -167,9 +170,9 @@ namespace FrameSyncMoba.Unit.Tests
                 combat.DeathResults.Count,
                 "Exactly one DeathResult must be produced.");
             Assert.AreEqual(
-                Caster.UnitUid,
+                Assistant.UnitUid,
                 lastKillerUid,
-                "The killer must be the last hero that dealt effective damage.");
+                "The killer must have the greatest effective life damage in the lethal batch.");
             Assert.AreEqual(
                 1,
                 assistEventCount,
@@ -180,7 +183,7 @@ namespace FrameSyncMoba.Unit.Tests
                 " killer=" + Describe(lastKillerUid) +
                 " caster=" + Describe(Caster.UnitUid) +
                 " assistant=" + Describe(Assistant.UnitUid));
-            Assert.IsTrue(Assistant.BuffHandler.HasBuff(
+            Assert.IsTrue(Caster.BuffHandler.HasBuff(
                 new BuffConfigId(RevengeBuffConfigId)));
         }
 

@@ -427,6 +427,9 @@ namespace FrameSyncMoba.Unit
                     TargetUnitUid = target.UnitUid,
                     SourceDescriptor = source,
                     RecipeId = recipeId,
+                    OriginActionId =
+                        BuildAttackOriginActionId(),
+                    EffectOrdinal = 0,
                 },
                 DamageType = DamageType.Physical,
                 BaseDamage = damage,
@@ -472,12 +475,21 @@ namespace FrameSyncMoba.Unit
                     OwnerUnitUid = Owner.UnitUid,
                     EmitterUnitUid = Owner.UnitUid,
                 },
+                BuildAttackOriginActionId(),
                 sourcePosition,
                 direction,
                 onHitOverride,
                 0,
                 target.UnitUid);
         }
+
+        protected OriginActionId BuildAttackOriginActionId() =>
+            new OriginActionId(
+                Owner.GameplayParticipantId,
+                CombatSourceType.Attack,
+                CombatBuiltinSourceId.BasicAttack,
+                _state.AttackStartLogicTick,
+                _state.AttackSequenceIndex);
 
         private bool EmitProjectileAttack(Unit target)
         {

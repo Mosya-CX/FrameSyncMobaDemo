@@ -9,6 +9,7 @@ namespace FrameSyncMoba.FrameSync
     public struct UnitSnapshot
     {
         public UnitUid UnitUid;
+        public GameplayParticipantId GameplayParticipantId;
         public UnitUid OwnerUid;
         public UnitKind UnitKind;
         public ushort UnitSubKindId;
@@ -58,7 +59,7 @@ namespace FrameSyncMoba.FrameSync
 
     public struct GameplaySnapshot
     {
-        public const int CurrentSchemaVersion = 23;
+        public const int CurrentSchemaVersion = 24;
         public int SchemaVersion;
 
         public DeterministicRandomSnapshot RandomState;

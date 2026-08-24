@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FrameSyncMoba.Deterministic;
 using Unity.Mathematics.FixedPoint;
 
 namespace FrameSyncMoba.Unit
@@ -77,9 +78,23 @@ namespace FrameSyncMoba.Unit
                     Header = CombatRequestHeader.Create(
                         runtime.SourceUnitUid,
                         target.UnitUid,
-                        CombatSourceType.Buff,
-                        runtime.ConfigId.Value,
-                        runtime.ConfigId.Value),
+                    CombatSourceType.Buff,
+                    runtime.ConfigId.Value,
+                    runtime.ConfigId.Value,
+                    originActionId:
+                        CombatActionIdentityFactory.CreateFromSource(
+                            owner.World,
+                            runtime.SourceUnitUid,
+                            CombatSourceType.Buff,
+                            runtime.ConfigId.Value,
+                            SimulationTickContext.Current.Tick -
+                                runtime.ElapsedTicks,
+                            owner.GameplayParticipantId,
+                            runtime.ConfigId.Value),
+                    effectOrdinal:
+                        CombatFairnessKey.ComposeEffectOrdinal(
+                            runtime.ConfigId.Value,
+                            0)),
                     BaseDamage = ExplosionDamage,
                     DamageType = DamageType,
                 };

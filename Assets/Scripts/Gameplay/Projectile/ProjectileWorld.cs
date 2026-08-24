@@ -16,6 +16,7 @@ namespace FrameSyncMoba.Unit
         public UnitUid OwnerUnitUid;
         public TeamId TeamSnapshot;
         public SourceDescriptor Source;
+        public OriginActionId OriginActionId;
         public fp2 Position;
         public fp2 Direction;
         public ProjectileOnHitDamage[] OnHitDamageOverride;
@@ -56,6 +57,21 @@ namespace FrameSyncMoba.Unit
         public ProjectileUid RequestSpawn(
             in ProjectileSpawnRequest request)
         {
+            if (!request.OriginActionId.IsValid)
+            {
+                throw new DeterministicSimulationException(
+                    "Projectile spawn requires a valid OriginActionId.");
+            }
+            if (UnitWorld != null &&
+                UnitWorld.TryGetUnit(
+                    request.OwnerUnitUid,
+                    out Unit owner) &&
+                request.OriginActionId.SourceParticipantId !=
+                    owner.GameplayParticipantId)
+            {
+                throw new DeterministicSimulationException(
+                    "Projectile action participant does not match its owner Unit.");
+            }
             ProjectileDef def =
                 DefRegistry?.FindById(request.ProjectileDefId);
             if (def == null ||
@@ -101,6 +117,7 @@ namespace FrameSyncMoba.Unit
                     OwnerUnitUid = request.OwnerUnitUid,
                     TeamSnapshot = request.TeamSnapshot,
                     Source = request.Source,
+                    OriginActionId = request.OriginActionId,
                     Position = request.StartPosition,
                     Direction = direction,
                     TargetUnitUid =
@@ -141,6 +158,7 @@ namespace FrameSyncMoba.Unit
                     pending.OwnerUnitUid,
                     pending.TeamSnapshot,
                     pending.Source,
+                    pending.OriginActionId,
                     entity,
                     pending.Position,
                     pending.Direction,
@@ -319,6 +337,7 @@ namespace FrameSyncMoba.Unit
                     OwnerUnitUid = runtime.OwnerUnitUid,
                     TeamSnapshot = runtime.TeamSnapshot,
                     Source = runtime.Source,
+                    OriginActionId = runtime.OriginActionId,
                     PreviousPosition = runtime.PrevPosition,
                     Position = runtime.Position,
                     Velocity = runtime.Velocity,
@@ -363,6 +382,7 @@ namespace FrameSyncMoba.Unit
                         TeamSnapshot =
                             entry.TeamSnapshot,
                         Source = entry.Source,
+                        OriginActionId = entry.OriginActionId,
                         StartPosition = entry.Position,
                         Direction = entry.Direction,
                         OnHitDamageOverride =
@@ -395,7 +415,8 @@ namespace FrameSyncMoba.Unit
                         GetRequiredDef(snapshot.DefId);
                     ValidateSnapshotSource(
                         snapshot.OwnerUnitUid,
-                        snapshot.Source);
+                        snapshot.Source,
+                        snapshot.OriginActionId);
                     var pending = new PendingSpawnEntry
                     {
                         Uid = snapshot.Uid,
@@ -405,6 +426,7 @@ namespace FrameSyncMoba.Unit
                         TeamSnapshot =
                             snapshot.TeamSnapshot,
                         Source = snapshot.Source,
+                        OriginActionId = snapshot.OriginActionId,
                         Position = snapshot.StartPosition,
                         Direction = snapshot.Direction,
                         OnHitDamageOverride =
@@ -414,6 +436,8 @@ namespace FrameSyncMoba.Unit
                                 : null,
                         MaxLifetimeTicksOverride =
                             snapshot.MaxLifetimeTicksOverride,
+                        TargetUnitUid =
+                            snapshot.TargetUnitUid,
                     };
                     if (pendingByUid.ContainsKey(
                             snapshot.Uid))
@@ -438,7 +462,8 @@ namespace FrameSyncMoba.Unit
                         GetRequiredDef(snapshot.DefId);
                     ValidateSnapshotSource(
                         snapshot.OwnerUnitUid,
-                        snapshot.Source);
+                        snapshot.Source,
+                        snapshot.OriginActionId);
                     PhysicsEntity2D entity =
                         AcquireEntity(def);
                     fp2 restoreFacing =
@@ -452,6 +477,7 @@ namespace FrameSyncMoba.Unit
                         snapshot.OwnerUnitUid,
                         snapshot.TeamSnapshot,
                         snapshot.Source,
+                        snapshot.OriginActionId,
                         entity,
                         snapshot.Position,
                         restoreFacing,
@@ -498,10 +524,12 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < pendingSpawns.Count; i++)
                 ValidateUnitReferences(
                     pendingSpawns[i].OwnerUnitUid,
+                    pendingSpawns[i].OriginActionId,
                     null);
             for (int i = 0; i < ordered.Count; i++)
                 ValidateUnitReferences(
                     ordered[i].OwnerUnitUid,
+                    ordered[i].OriginActionId,
                     ordered[i].HitRecords);
         }
 
@@ -638,11 +666,17 @@ namespace FrameSyncMoba.Unit
 
         private void ValidateUnitReferences(
             UnitUid ownerUid,
+            OriginActionId originActionId,
             IReadOnlyList<ProjectileHitRecord> records)
         {
-            if (!UnitWorld.TryGetUnit(ownerUid, out _))
+            if (!UnitWorld.TryGetUnit(ownerUid, out Unit owner))
                 throw new DeterministicSimulationException(
                     $"Projectile snapshot references missing owner {ownerUid}.");
+            if (!originActionId.IsValid ||
+                originActionId.SourceParticipantId !=
+                    owner.GameplayParticipantId)
+                throw new DeterministicSimulationException(
+                    "Projectile snapshot action identity does not match its owner participant.");
             if (records == null) return;
             for (int i = 0; i < records.Count; i++)
                 if (!UnitWorld.TryGetUnit(
@@ -654,10 +688,12 @@ namespace FrameSyncMoba.Unit
 
         private static void ValidateSnapshotSource(
             UnitUid ownerUid,
-            in SourceDescriptor source)
+            in SourceDescriptor source,
+            in OriginActionId originActionId)
         {
             if (!source.IsValid ||
-                source.OwnerUnitUid != ownerUid)
+                source.OwnerUnitUid != ownerUid ||
+                !originActionId.IsValid)
                 throw new DeterministicSimulationException(
                     "Projectile snapshot source descriptor is invalid.");
         }

@@ -182,44 +182,136 @@ namespace FrameSyncMoba.Unit
             bool ignoreMagicShield)
         {
             fp absorbed = fp.zero;
-            for (int i = 0; i < shieldInstances.Count && remainingDamage > fp.zero;)
+            bool ignoreSpecific =
+                (damageType == DamageType.Physical &&
+                 ignorePhysicalShield) ||
+                (damageType == DamageType.Magic &&
+                 ignoreMagicShield);
+            if (!ignoreSpecific && remainingDamage > fp.zero)
             {
-                ShieldInstance instance = shieldInstances[i];
-                if ((ignorePhysicalShield &&
-                     instance.ShieldType ==
-                     ShieldType.Physical) ||
-                    (ignoreMagicShield &&
-                     (instance.ShieldType ==
-                          ShieldType.Magic ||
-                      instance.ShieldType ==
-                          ShieldType.Black)))
-                {
-                    i++;
-                    continue;
-                }
-                if (!MatchesDamage(instance.ShieldType, damageType))
-                {
-                    i++;
-                    continue;
-                }
-
-                fp amount = instance.CurrentValue < remainingDamage
-                    ? instance.CurrentValue
-                    : remainingDamage;
-                instance.CurrentValue -= amount;
-                remainingDamage -= amount;
-                absorbed += amount;
-
-                if (instance.CurrentValue <= fp.zero)
-                {
-                    RemoveShieldAt(i, instance);
-                    continue;
-                }
-
-                shieldInstances[i] = instance;
-                i++;
+                fp specific = ConsumeSpecificShields(
+                    damageType,
+                    remainingDamage);
+                absorbed += specific;
+                remainingDamage -= specific;
+            }
+            if (remainingDamage > fp.zero)
+            {
+                fp white = ConsumeWhiteShields(remainingDamage);
+                absorbed += white;
+                remainingDamage -= white;
             }
             return absorbed;
+        }
+
+        internal fp GetSpecificShieldTotal(DamageType damageType)
+        {
+            fp total = fp.zero;
+            for (int i = 0; i < shieldInstances.Count; i++)
+            {
+                ShieldType type = shieldInstances[i].ShieldType;
+                if (type != ShieldType.White &&
+                    MatchesDamage(type, damageType))
+                    total += shieldInstances[i].CurrentValue;
+            }
+            return total;
+        }
+
+        internal fp GetWhiteShieldTotal()
+        {
+            fp total = fp.zero;
+            for (int i = 0; i < shieldInstances.Count; i++)
+            {
+                if (shieldInstances[i].ShieldType == ShieldType.White)
+                    total += shieldInstances[i].CurrentValue;
+            }
+            return total;
+        }
+
+        internal fp ConsumeSpecificShields(
+            DamageType damageType,
+            fp requestedAmount)
+        {
+            return ConsumeShieldGroup(
+                requestedAmount,
+                damageType,
+                consumeWhite: false);
+        }
+
+        internal fp ConsumeWhiteShields(fp requestedAmount)
+        {
+            return ConsumeShieldGroup(
+                requestedAmount,
+                DamageType.True,
+                consumeWhite: true);
+        }
+
+        private fp ConsumeShieldGroup(
+            fp requestedAmount,
+            DamageType damageType,
+            bool consumeWhite)
+        {
+            fp remaining = requestedAmount;
+            fp consumed = fp.zero;
+            while (remaining > fp.zero)
+            {
+                int bestIndex = FindNextShieldIndex(
+                    damageType,
+                    consumeWhite);
+                if (bestIndex < 0) break;
+
+                ShieldInstance instance = shieldInstances[bestIndex];
+                fp amount = instance.CurrentValue < remaining
+                    ? instance.CurrentValue
+                    : remaining;
+                instance.CurrentValue -= amount;
+                remaining -= amount;
+                consumed += amount;
+                if (instance.CurrentValue <= fp.zero)
+                    RemoveShieldAt(bestIndex, instance);
+                else
+                    shieldInstances[bestIndex] = instance;
+            }
+            return consumed;
+        }
+
+        private int FindNextShieldIndex(
+            DamageType damageType,
+            bool consumeWhite)
+        {
+            int bestIndex = -1;
+            for (int i = 0; i < shieldInstances.Count; i++)
+            {
+                ShieldInstance candidate = shieldInstances[i];
+                bool eligible = consumeWhite
+                    ? candidate.ShieldType == ShieldType.White
+                    : candidate.ShieldType != ShieldType.White &&
+                      MatchesDamage(candidate.ShieldType, damageType);
+                if (!eligible) continue;
+                if (bestIndex < 0 ||
+                    CompareShieldConsumptionOrder(
+                        candidate,
+                        shieldInstances[bestIndex]) < 0)
+                    bestIndex = i;
+            }
+            return bestIndex;
+        }
+
+        private static int CompareShieldConsumptionOrder(
+            in ShieldInstance left,
+            in ShieldInstance right)
+        {
+            int comparison =
+                left.ExpireLogicTick.CompareTo(right.ExpireLogicTick);
+            if (comparison != 0) return comparison;
+            comparison =
+                left.StartLogicTick.CompareTo(right.StartLogicTick);
+            if (comparison != 0) return comparison;
+            comparison = left.ShieldType.CompareTo(right.ShieldType);
+            if (comparison != 0) return comparison;
+            comparison = left.SourceUnitUid.CompareTo(right.SourceUnitUid);
+            if (comparison != 0) return comparison;
+            return left.ShieldInstanceId.CompareTo(right.ShieldInstanceId);
         }
 
         public void ExpireShields(int currentLogicTick)

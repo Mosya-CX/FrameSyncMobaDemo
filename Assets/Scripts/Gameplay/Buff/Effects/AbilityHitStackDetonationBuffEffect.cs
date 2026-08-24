@@ -163,8 +163,15 @@ namespace FrameSyncMoba.Unit
                                     caster.UnitUid,
                                 EmitterUnitUid =
                                     caster.UnitUid,
-                            },
+                        },
                         RecipeId = RecipeId,
+                        OriginActionId =
+                            data.OriginActionId,
+                        EffectOrdinal =
+                            CombatFairnessKey.ComposeChildEffectOrdinal(
+                                data.EffectOrdinal,
+                                runtime.ConfigId.Value,
+                                RecipeId),
                     },
                     DamageType = DamageType.Magic,
                     BaseDamage = total,
