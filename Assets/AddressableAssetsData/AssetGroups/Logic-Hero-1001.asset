@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Logic-Hero-1001
+  m_EditorClassIdentifier: 
+  m_GroupName: Logic-Hero-1001
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 757b317f9c96f134288754ba64cc587b
+  m_SerializeEntries:
+  - m_GUID: 3b9c7c4bd406ebf449736a4a6c7432c8
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusSpellQMissle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5f386a968955e0a4d81c15425b3b770c
+    m_Address: content/table/hero/1001
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f4a50dde2a01f745bed4b9d9324f5fa
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusAttackMissle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8386d2da6f6754946a202d33532daffd
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/VarusRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9c9cad292a5e9134c8f337b579ef599a
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusSpellRMissle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b42bb0bfbbc144b4a9a76fd2e0090520
+    m_Address: Assets/Config/Formal/MatchContent/VarusProjectileRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c024096fa5aceb144b1c7ffedbc285fc
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusEMissle_DesecratedGround.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e09025f013ae7a8449335c6356fee5fb
+    m_Address: Assets/Config/Formal/Abilities/VarusAbilityRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eda55e7fb51c0574d99a99dcc190a8f8
+    m_Address: Assets/Config/Formal/MatchContent/VarusBuffCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fc96e287beaf82a45a3c1e9bae63b9a9
+    m_Address: Assets/Config/Formal/MatchContent/VarusUnitRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3ff6355b606cac54eb86fb806f6f509b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 7ecf63c73040ed045830cf1bd44126db, type: 2}
+    - {fileID: 11400000, guid: e634f0bb8e81ed042b742de3e8e4390c, type: 2}

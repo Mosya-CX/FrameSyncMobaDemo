@@ -2,18 +2,18 @@
 
 Generated deterministically with `AssetDatabase.GetDependencies`; no runtime reflection scan is used.
 
-- Root assets: 135
-- Unique dependencies: 363
-- Source/dependency edges: 1413
+- Root assets: 149
+- Unique dependencies: 345
+- Source/dependency edges: 987
 
 ## Ownership summary
 
 | Ownership | Edge count |
 |---|---:|
 | ClientPresentation | 180 |
-| EditorOrCode | 149 |
-| Logic | 381 |
-| SharedConfig | 437 |
+| EditorOrCode | 153 |
+| Logic | 217 |
+| SharedConfig | 171 |
 | ThirdParty | 240 |
 | Unclassified | 26 |
 

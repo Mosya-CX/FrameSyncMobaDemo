@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578fbfab572716e4f9fc9ed5857bd293, type: 3}
+  m_Name: Map1GlobalPrefabSubTable
+  m_EditorClassIdentifier: 
+  partitionKind: 1
+  ownerConfigId: 1
+  contentVersion: 1
+  contentHash: 3901336983848524330
+  prefabGroups:
+  - kind: 4
+    entries:
+    - prefabId: 5001
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Map/Map.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 58908e293ad4aea44a8dbe5b7d9abd59
+      clientViewAddress: view/map/main
+  contentAssets:
+  - assetKind: 6
+    address: Assets/Config/Formal/FullMatchDeterministicMapConfig.asset

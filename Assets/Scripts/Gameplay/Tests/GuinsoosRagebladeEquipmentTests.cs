@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
+using FrameSyncMoba.RuntimeConfig;
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
 using UnityEditor;
@@ -59,9 +60,28 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void GameScene_ReferencesFormalEquipmentCatalog()
+        public void GameScene_UsesCorePartitionInsteadOfDirectEquipmentCatalog()
         {
             EquipmentCatalogAsset expected = LoadCatalog();
+            GlobalPrefabSubTableAsset core =
+                AssetDatabase.LoadAssetAtPath<GlobalPrefabSubTableAsset>(
+                    "Assets/Config/Formal/MatchContent/" +
+                    "CoreGlobalPrefabSubTable.asset");
+            Assert.That(core, Is.Not.Null);
+            MatchContentAssetAddress equipment = null;
+            for (int i = 0; i < core.ContentAssets.Count; i++)
+            {
+                if (core.ContentAssets[i].AssetKind !=
+                    MatchContentAssetKind.EquipmentCatalog)
+                    continue;
+                equipment = core.ContentAssets[i];
+                break;
+            }
+            Assert.That(equipment, Is.Not.Null);
+            Assert.That(
+                AssetDatabase.LoadAssetAtPath<EquipmentCatalogAsset>(
+                    equipment.Address),
+                Is.SameAs(expected));
             Scene scene = EditorSceneManager.OpenScene(
                 "Assets/Scenes/GameScene.unity",
                 OpenSceneMode.Additive);
@@ -90,7 +110,8 @@ namespace FrameSyncMoba.Unit.Tests
                 Assert.That(
                     serialized.FindProperty("equipmentCatalog")
                         .objectReferenceValue,
-                    Is.SameAs(expected));
+                    Is.Null,
+                    "GameScene must obtain equipment through the Core Addressable partition.");
             }
             finally
             {

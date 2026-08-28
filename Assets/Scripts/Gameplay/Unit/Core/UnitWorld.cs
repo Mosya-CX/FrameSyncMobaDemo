@@ -353,6 +353,12 @@ namespace FrameSyncMoba.Unit
             if (!request.UnitUid.IsValid()) return false;
             if (!TryGetUnit(request.UnitUid, out Unit unit)) return false;
 
+            // A non-death removal invalidates the same attack relationships as
+            // a formal death. Apply that transition while the target is still
+            // registered so every attacker changes Handler and Runtime state
+            // through the ActionArbiter in one deterministic operation.
+            CancelAttacksTargeting(request.UnitUid);
+
             // 1. Stop active behaviours, intents, and movement.
             unit.Planner?.ClearIntent();
             unit.ActionRuntimes?.CancelAll();
@@ -768,6 +774,43 @@ namespace FrameSyncMoba.Unit
                     runtimeRevision++;
                     break;
             }
+        }
+
+        internal void ApplyFormalDeathActionInvalidations(
+            IReadOnlyList<DeathResult> deathResults)
+        {
+            if (deathResults == null)
+                return;
+
+            int previousSequence = -1;
+            for (int i = 0; i < deathResults.Count; i++)
+            {
+                DeathResult result = deathResults[i];
+                if (result.DeathSequenceInTick <= previousSequence)
+                    throw new DeterministicSimulationException(
+                        "Formal death action invalidation requires stable " +
+                        "DeathSequence order.");
+                previousSequence = result.DeathSequenceInTick;
+
+                if (!TryGetUnit(result.VictimUid, out Unit victim))
+                    throw new DeterministicSimulationException(
+                        $"Formal death victim {result.VictimUid} is missing " +
+                        "before action invalidation.");
+                if (victim.LifeState != LifeState.Dead)
+                    throw new DeterministicSimulationException(
+                        $"Formal death victim {result.VictimUid} is not Dead " +
+                        "during action invalidation.");
+
+                CancelAttacksTargeting(result.VictimUid);
+            }
+        }
+
+        private void CancelAttacksTargeting(UnitUid invalidTargetUid)
+        {
+            IReadOnlyList<Unit> units = GetAllUnits();
+            for (int i = 0; i < units.Count; i++)
+                units[i]?.Arbiter?.CancelAttackForInvalidTarget(
+                    invalidTargetUid);
         }
 
         public void ProcessPostCombatDeathDisposals(

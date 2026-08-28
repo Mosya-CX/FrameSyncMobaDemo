@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.LuaBridge;
@@ -36,13 +38,13 @@ namespace FrameSyncMoba.Bootstrap
     {
         [Header("Project-wide deterministic configuration")]
         [SerializeField] private GlobalGameplayData globalGameplayData;
-        [SerializeField] private UnitRuntimeCatalogAsset unitRuntimeCatalog;
-        [SerializeField] private AbilityRuntimeCatalogAsset abilityRuntimeCatalog;
-        [SerializeField] private ProjectileRuntimeCatalogAsset projectileRuntimeCatalog;
-        [SerializeField] private DeterministicMapConfig deterministicMapConfig;
-        [SerializeField] private EquipmentCatalogAsset equipmentCatalog;
-        [SerializeField] private BuffCatalogAsset buffCatalog;
-        [SerializeField] private CrowdControlCatalogAsset crowdControlCatalog;
+        [SerializeField, HideInInspector] private UnitRuntimeCatalogAsset unitRuntimeCatalog;
+        [SerializeField, HideInInspector] private AbilityRuntimeCatalogAsset abilityRuntimeCatalog;
+        [SerializeField, HideInInspector] private ProjectileRuntimeCatalogAsset projectileRuntimeCatalog;
+        [SerializeField, HideInInspector] private DeterministicMapConfig deterministicMapConfig;
+        [SerializeField, HideInInspector] private EquipmentCatalogAsset equipmentCatalog;
+        [SerializeField, HideInInspector] private BuffCatalogAsset buffCatalog;
+        [SerializeField, HideInInspector] private CrowdControlCatalogAsset crowdControlCatalog;
         [SerializeField] private bool dedicatedServer;
         [SerializeField] private bool driveSimulationFromUnityUpdate = true;
 
@@ -96,6 +98,8 @@ namespace FrameSyncMoba.Bootstrap
         public UnitWorld UnitWorld { get; private set; }
         public PhysicsWorld PhysicsWorld { get; private set; }
         public bool IsInitialized => Runtime != null;
+        public Task InitializationTask =>
+            initializationTask ?? Task.CompletedTask;
         public bool IsMatchReady => matchBootstrapApplied;
         public bool IsLaunchCommitted =>
             !UsesNetworkSimulation ||
@@ -136,8 +140,35 @@ namespace FrameSyncMoba.Bootstrap
             new List<InitialUnitSpawnAuthoring>();
         private LaneRuntimeData[] nonHeroLanes =
             Array.Empty<LaneRuntimeData>();
+        private CancellationTokenSource contentLoadCancellation;
+        private Task initializationTask;
+        private AddressableMatchContentScope matchContentScope;
+        private bool isDestroying;
 
         private void Awake()
+        {
+            contentLoadCancellation = new CancellationTokenSource();
+            initializationTask = InitializeWithCleanupAsync(
+                contentLoadCancellation.Token);
+        }
+
+        private async Task InitializeWithCleanupAsync(
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                await InitializeAsync(cancellationToken);
+            }
+            catch
+            {
+                matchContentScope?.Dispose();
+                matchContentScope = null;
+                throw;
+            }
+        }
+
+        private async Task InitializeAsync(
+            CancellationToken cancellationToken)
         {
             if (GameSessionContext.IsDedicatedServer)
                 dedicatedServer = true;
@@ -163,11 +194,43 @@ namespace FrameSyncMoba.Bootstrap
                     UosApplicationConfig.IsOnlineFlowRequested(
                         enableOnlineApplicationFlow);
             }
-            ResolveMapPathfindingAuthoring();
+            PrimeExternalLoadingPresentation();
             if (globalGameplayData == null)
                 throw new InvalidOperationException(
                     $"{nameof(GameBootstrap)} requires GlobalGameplayData.");
             BakedGlobalGameplayData config = globalGameplayData.BakeOrThrow();
+            if (config.PrefabTable.Partitions.Count > 0)
+            {
+                MatchContentSelection selection =
+                    ResolveMatchContentSelection(
+                        config.PrefabTable);
+                AddressableMatchContentScope loadedScope =
+                    await AddressableMatchContentService.LoadAsync(
+                        config.PrefabTable,
+                        selection,
+                        cancellationToken);
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (isDestroying)
+                        throw new OperationCanceledException(
+                            cancellationToken);
+                    config = config.WithPrefabTable(
+                        loadedScope.PrefabTable);
+                    deterministicMapConfig = loadedScope.MapConfig;
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (isDestroying)
+                        throw new OperationCanceledException(
+                            cancellationToken);
+                    matchContentScope = loadedScope;
+                    loadedScope = null;
+                }
+                finally
+                {
+                    loadedScope?.Dispose();
+                }
+            }
+            ResolveMapPathfindingAuthoring(config.PrefabTable);
             bakedConfig = config;
             Debug.Log(
                 $"[FrameSyncConfig] tickRate={config.TickRate} " +
@@ -184,22 +247,31 @@ namespace FrameSyncMoba.Bootstrap
                 config.GlobalPrefabTableVersion,
                 config.CommandSchemaVersion,
                 (uint)GameplaySnapshot.CurrentSchemaVersion);
-            if (unitRuntimeCatalog == null)
+            if (matchContentScope == null && unitRuntimeCatalog == null)
                 throw new InvalidOperationException(
                     $"{nameof(GameBootstrap)} requires UnitRuntimeCatalogAsset.");
             BakedUnitRuntimeCatalog unitCatalog =
-                unitRuntimeCatalog.BakeOrThrow(
-                    config.PrefabTable,
-                    config.TickRate);
+                matchContentScope != null
+                    ? UnitRuntimeCatalogAsset.BakeCombinedOrThrow(
+                        matchContentScope.UnitCatalogs,
+                        config.PrefabTable,
+                        config.TickRate)
+                    : unitRuntimeCatalog.BakeOrThrow(
+                        config.PrefabTable,
+                        config.TickRate);
             if (unitCatalog.DisposePolicies == null)
                 throw new InvalidOperationException(
                     $"{nameof(UnitRuntimeCatalogAsset)} requires a UnitDisposePolicyTable.");
-            if (abilityRuntimeCatalog == null)
+            if (matchContentScope == null && abilityRuntimeCatalog == null)
                 throw new InvalidOperationException(
                     $"{nameof(GameBootstrap)} requires AbilityRuntimeCatalogAsset.");
             AbilityDefinitionRegistry abilityDefinitions =
-                abilityRuntimeCatalog.BakeOrThrow(
-                    config.TickRate);
+                matchContentScope != null
+                    ? AbilityRuntimeCatalogAsset.BakeCombinedOrThrow(
+                        matchContentScope.AbilityCatalogs,
+                        config.TickRate)
+                    : abilityRuntimeCatalog.BakeOrThrow(
+                        config.TickRate);
             MaxLogicTicksPerUnityFrame = config.MaxLogicTicksPerUnityFrame;
             logicDeltaSeconds = 1d / config.TickRate;
             logicAccumulatorMillisecondRateUnits = 0L;
@@ -222,10 +294,13 @@ namespace FrameSyncMoba.Bootstrap
                 DisposePolicyTable = unitCatalog.DisposePolicies,
                 StatDefinitionTable = unitCatalog.StatDefinitions,
                 EquipmentDatabase =
-                    equipmentCatalog != null
-                        ? equipmentCatalog.BakeOrThrow(
+                    matchContentScope != null
+                        ? matchContentScope.EquipmentCatalog.BakeOrThrow(
                             config.TickRate)
-                        : new EquipmentDatabase(),
+                        : equipmentCatalog != null
+                            ? equipmentCatalog.BakeOrThrow(
+                            config.TickRate)
+                            : new EquipmentDatabase(),
                 AbilityDefinitions = abilityDefinitions,
                 BuffDefinitions = new BuffDefinitionRegistry(),
                 CrowdControlDefinitions =
@@ -242,15 +317,28 @@ namespace FrameSyncMoba.Bootstrap
                 RangedAttackRangeThreshold =
                     config.RangedAttackRangeThreshold,
             };
-            if (buffCatalog != null)
+            if (matchContentScope != null)
+            {
+                for (int i = 0;
+                     i < matchContentScope.BuffCatalogs.Count;
+                     i++)
+                    matchContentScope.BuffCatalogs[i].RegisterAll(
+                        UnitWorld.BuffDefinitions,
+                        config.TickRate);
+            }
+            else if (buffCatalog != null)
             {
                 buffCatalog.RegisterAll(
                     UnitWorld.BuffDefinitions,
                     config.TickRate);
             }
-            if (crowdControlCatalog != null)
+            CrowdControlCatalogAsset loadedCrowdControlCatalog =
+                matchContentScope != null
+                    ? matchContentScope.CrowdControlCatalog
+                    : crowdControlCatalog;
+            if (loadedCrowdControlCatalog != null)
             {
-                crowdControlCatalog.RegisterAll(
+                loadedCrowdControlCatalog.RegisterAll(
                     UnitWorld.CrowdControlDefinitions);
             }
             if (deterministicMapConfig != null)
@@ -274,7 +362,15 @@ namespace FrameSyncMoba.Bootstrap
             Runtime = new FrameSyncGameRuntime(UnitWorld, PhysicsWorld, config);
             ConfigureOptionalApplicationFlow();
             InitializeNonHeroTopology(config);
-            if (projectileRuntimeCatalog != null)
+            if (matchContentScope != null)
+            {
+                Runtime.TickPipeline.ProjectileWorld.DefRegistry =
+                    ProjectileRuntimeCatalogAsset.BakeCombinedOrThrow(
+                        matchContentScope.ProjectileCatalogs,
+                        config.PrefabTable,
+                        config.TickRate);
+            }
+            else if (projectileRuntimeCatalog != null)
             {
                 Runtime.TickPipeline.ProjectileWorld.DefRegistry =
                     projectileRuntimeCatalog.BakeOrThrow(
@@ -344,20 +440,27 @@ namespace FrameSyncMoba.Bootstrap
             if (!dedicatedServer &&
                 UnitWorld != null)
             {
-                var blightMarks =
-                    GetComponent<
-                        FrameSyncMoba.FrameSync
-                            .BlightStackMarkPresenter>();
-                if (blightMarks == null)
+                bool includesVarus =
+                    matchContentScope == null ||
+                    matchContentScope.Selection
+                        .ContainsHeroConfigId(1001);
+                if (includesVarus)
                 {
-                    blightMarks =
-                        gameObject.AddComponent<
+                    var blightMarks =
+                        GetComponent<
                             FrameSyncMoba.FrameSync
                                 .BlightStackMarkPresenter>();
+                    if (blightMarks == null)
+                    {
+                        blightMarks =
+                            gameObject.AddComponent<
+                                FrameSyncMoba.FrameSync
+                                    .BlightStackMarkPresenter>();
+                    }
+                    blightMarks.InitializeAddressable(
+                        "vfx/4102",
+                        () => UnitWorld.GetAllUnits());
                 }
-                blightMarks.InitializeAddressable(
-                    "vfx/4102",
-                    () => UnitWorld.GetAllUnits());
 
                 var verticalMotion =
                     GetComponent<
@@ -386,6 +489,45 @@ namespace FrameSyncMoba.Bootstrap
             }
 
             RegisterExternalFlowSession();
+        }
+
+        private MatchContentSelection ResolveMatchContentSelection(
+            GlobalPrefabTable rootTable)
+        {
+            var heroIds = new List<int>();
+            if (GameSessionContext.SelectedHeroConfigIds != null)
+                heroIds.AddRange(
+                    GameSessionContext.SelectedHeroConfigIds);
+            if (heroIds.Count == 0)
+            {
+                for (int i = 0; i < initialUnitSpawns.Count; i++)
+                    if (initialUnitSpawns[i].PlayerControlled)
+                        heroIds.Add(
+                            initialUnitSpawns[i].UnitPrototypeId);
+            }
+            int mapConfigId =
+                GameSessionContext.SelectedMapConfigId;
+            if (mapConfigId <= 0)
+            {
+                for (int i = 0; i < rootTable.Partitions.Count; i++)
+                {
+                    GlobalPrefabPartitionReference partition =
+                        rootTable.Partitions[i];
+                    if (partition.PartitionKind !=
+                        GlobalPrefabPartitionKind.Map)
+                        continue;
+                    if (mapConfigId != 0)
+                        throw new InvalidOperationException(
+                            "Standalone GameScene requires an explicit map when multiple map partitions exist.");
+                    mapConfigId = partition.OwnerConfigId;
+                }
+            }
+            if (mapConfigId <= 0)
+                throw new InvalidOperationException(
+                    "GameScene requires a selected MapConfigId before loading match content.");
+            return new MatchContentSelection(
+                mapConfigId,
+                heroIds);
         }
 
         /// <summary>
@@ -599,15 +741,15 @@ namespace FrameSyncMoba.Bootstrap
             return registry;
         }
 
-        private void ResolveMapPathfindingAuthoring()
+        private void ResolveMapPathfindingAuthoring(
+            GlobalPrefabTable prefabTable)
         {
             bool explicitlyWired =
                 flowFieldAuthoring != null;
             if (flowFieldAuthoring == null)
             {
                 GameObject mapPrefab = null;
-                globalGameplayData?.GlobalPrefabTable
-                    ?.TryGetPrefab(
+                prefabTable?.TryGetPrefab(
                         PrefabKind.Misc,
                         5001,
                         out mapPrefab);
@@ -706,6 +848,8 @@ namespace FrameSyncMoba.Bootstrap
                         lastUnityUpdateMonotonicMilliseconds);
             lastUnityUpdateMonotonicMilliseconds =
                 nowMilliseconds;
+            if (Runtime == null)
+                return;
             if (UsesNetworkSimulation &&
                 !dedicatedServer &&
                 IsClientGameplayActive() &&
@@ -803,9 +947,10 @@ namespace FrameSyncMoba.Bootstrap
 
         private async void Start()
         {
-            if (!UsesNetworkSimulation) return;
             try
             {
+                await initializationTask;
+                if (!UsesNetworkSimulation) return;
                 Debug.Log(
                     $"[GB] Start role={dedicatedServer} managed=" +
                     $"{GameSessionContext.FlowManagedExternally} " +
@@ -1062,6 +1207,7 @@ namespace FrameSyncMoba.Bootstrap
                 throw new InvalidOperationException(
                     "A bootstrap payload can only be built before the match starts.");
             config.ValidateOrThrow();
+            ValidateLoadedContentSelection(config);
             if (config.GameplayDataVersion !=
                 LocalVersions.GameplayDataVersion)
                 throw new DeterministicSimulationException(
@@ -1117,6 +1263,8 @@ namespace FrameSyncMoba.Bootstrap
             LocalVersions.RequireExactMatch(
                 payload.Versions);
             payload.GameStartConfig.ValidateOrThrow();
+            ValidateLoadedContentSelection(
+                payload.GameStartConfig);
             Runtime.ConfigureMatchStart(
                 payload.StartTick,
                 payload.InitialRandomSeed,
@@ -1174,6 +1322,20 @@ namespace FrameSyncMoba.Bootstrap
                 $"match='{payload.GameStartConfig.MatchId}' " +
                 $"startTick={payload.StartTick} " +
                 $"localBound={IsLocalPlayerBound}; waiting for LaunchCommit.");
+        }
+
+        private void ValidateLoadedContentSelection(
+            in GameStartConfig config)
+        {
+            if (matchContentScope == null)
+                return;
+            MatchContentSelection authoritative =
+                MatchContentSelection.FromGameStartConfig(config);
+            if (!matchContentScope.Selection.HasSameContent(
+                    authoritative))
+                throw new InvalidOperationException(
+                    $"Loaded match content ({matchContentScope.Selection}) does not match " +
+                    $"the authoritative bootstrap ({authoritative}).");
         }
 
         public void ApplyMatchLaunchCommit(
@@ -1303,6 +1465,32 @@ namespace FrameSyncMoba.Bootstrap
                 out _);
             uiManager?.RefreshLuaHost(
                 UIPageId.Select);
+        }
+
+        private void PrimeExternalLoadingPresentation()
+        {
+            if (dedicatedServer ||
+                !GameSessionContext.FlowManagedExternally)
+                return;
+
+            gameLoadStatus = "Loading match content";
+            if (uiManager == null)
+                uiManager = FindObjectOfType<UIManager>(true);
+            if (uiManager == null)
+                return;
+
+            // GameScene's UIManager begins loading its Addressable pages from
+            // Awake and has Main as its standalone OpenOnStart fallback. Queue
+            // the externally-owned page before the first match-content await
+            // so that fallback can never become the rendered handoff page.
+            GameFlowLuaBridge.UiManager = uiManager;
+            GameFlowLuaBridge.LocalLoadProgress =
+                () => gameLoadProgress;
+            GameFlowLuaBridge.GetLoadingStatus =
+                () => gameLoadStatus;
+            uiManager.Initialize();
+            uiManager.CloseAll();
+            uiManager.ShowPage(UIPageId.Load);
         }
 
         private void OnUiManagerInitialized()
@@ -3293,6 +3481,8 @@ namespace FrameSyncMoba.Bootstrap
 
         private void OnDestroy()
         {
+            isDestroying = true;
+            contentLoadCancellation?.Cancel();
             if (uiManager != null)
                 uiManager.Initialized -= OnUiManagerInitialized;
             FrameSyncGameRuntime.UnregisterActiveInstance(
@@ -3308,6 +3498,10 @@ namespace FrameSyncMoba.Bootstrap
                     .AllClientsBootstrapApplied -=
                     OnAllClientsBootstrapApplied;
             }
+            matchContentScope?.Dispose();
+            matchContentScope = null;
+            contentLoadCancellation?.Dispose();
+            contentLoadCancellation = null;
         }
     }
 }

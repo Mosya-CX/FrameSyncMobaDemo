@@ -55,35 +55,134 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void ClearTargetIfMissing_RemovesDeadTarget_SoRestoreResolveSucceeds()
+        public void FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime()
         {
-            attacker.AttackHandler.BeginAttack(
-                target.UnitUid);
-            Assert.IsTrue(
-                attacker.AttackHandler.CurrentTargetUid ==
-                target.UnitUid);
+            ActionSubmitResult started = attacker.Arbiter.Submit(
+                new AttackActionRequest(target.UnitUid));
+            Assert.That(started.IsGranted, Is.True);
+            Assert.That(attacker.AttackHandler.CurrentTargetUid,
+                Is.EqualTo(target.UnitUid));
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.True);
+            Assert.That(attacker.ActionRuntimes.Main.Kind,
+                Is.EqualTo(ActionKind.Attack));
 
-            // The target dies this Tick; the pipeline cleanup drops the
-            // attacker's stale reference before the Tick-end snapshot.
             world.RequestEnterDying(target);
             world.ConfirmUnitDeath(target);
-            attacker.AttackHandler
-                .ClearTargetIfMissing();
+            world.ApplyFormalDeathActionInvalidations(new[]
+            {
+                new DeathResult
+                {
+                    VictimUid = target.UnitUid,
+                    DeathSequenceInTick = 0,
+                    DeathLogicTick = 10,
+                },
+            });
 
-            Assert.IsFalse(
-                attacker.AttackHandler
-                    .CurrentTargetUid.IsValid());
+            Assert.That(attacker.AttackHandler.CurrentTargetUid.IsValid(),
+                Is.False);
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.False);
 
-            var snapshot = default(AttackSnapshot);
-            attacker.AttackHandler.Capture(
-                ref snapshot);
-            attacker.AttackHandler.Restore(
-                snapshot);
-            Assert.DoesNotThrow(
-                () => attacker.AttackHandler.Resolve(
-                    new RollbackContext(
-                        10,
-                        ExecutionMode.ClientReplay)));
+            var attackSnapshot = default(AttackSnapshot);
+            var runtimeSnapshot = default(ActionRuntimeSetSnapshot);
+            attacker.AttackHandler.Capture(ref attackSnapshot);
+            attacker.ActionRuntimes.Capture(ref runtimeSnapshot);
+            attacker.AttackHandler.Restore(attackSnapshot);
+            attacker.ActionRuntimes.Restore(runtimeSnapshot);
+
+            Assert.DoesNotThrow(() =>
+            {
+                attacker.AttackHandler.Resolve(new RollbackContext(
+                    10,
+                    ExecutionMode.ClientReplay));
+                attacker.ActionRuntimes.Resolve();
+            });
+        }
+
+        [Test]
+        public void DespawnTarget_AtomicallyClearsWindupAndMainRuntime()
+        {
+            ActionSubmitResult started = attacker.Arbiter.Submit(
+                new AttackActionRequest(target.UnitUid));
+            Assert.That(started.IsGranted, Is.True);
+
+            Assert.That(world.DespawnUnit(new UnitDespawnRequest(
+                target.UnitUid,
+                UnitDespawnReason.ScriptedCleanup,
+                UnitDespawnMode.Destroy)), Is.True);
+
+            Assert.That(attacker.AttackHandler.CurrentTargetUid.IsValid(),
+                Is.False);
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.False);
+        }
+
+        [Test]
+        public void FormalDeathInvalidation_DoesNotRevokeCommittedAttack()
+        {
+            int nextReadyTick = CommitCurrentAttack();
+
+            world.RequestEnterDying(target);
+            world.ConfirmUnitDeath(target);
+            world.ApplyFormalDeathActionInvalidations(new[]
+            {
+                new DeathResult
+                {
+                    VictimUid = target.UnitUid,
+                    DeathSequenceInTick = 0,
+                    DeathLogicTick = 11,
+                },
+            });
+
+            Assert.That(attacker.AttackHandler.ImpactCommitted, Is.True);
+            Assert.That(attacker.AttackHandler.CurrentTargetUid,
+                Is.EqualTo(target.UnitUid));
+            Assert.That(
+                attacker.AttackHandler.Snapshot.NextAttackReadyLogicTick,
+                Is.EqualTo(nextReadyTick));
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.False);
+        }
+
+        [Test]
+        public void DespawnTarget_DoesNotRevokeCommittedAttack()
+        {
+            UnitUid targetUid = target.UnitUid;
+            int nextReadyTick = CommitCurrentAttack();
+
+            Assert.That(world.DespawnUnit(new UnitDespawnRequest(
+                targetUid,
+                UnitDespawnReason.ScriptedCleanup,
+                UnitDespawnMode.Destroy)), Is.True);
+
+            Assert.That(attacker.AttackHandler.ImpactCommitted, Is.True);
+            Assert.That(attacker.AttackHandler.CurrentTargetUid,
+                Is.EqualTo(targetUid));
+            Assert.That(
+                attacker.AttackHandler.Snapshot.NextAttackReadyLogicTick,
+                Is.EqualTo(nextReadyTick));
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.False);
+        }
+
+        [Test]
+        public void FormalDeathInvalidation_RejectsNonIncreasingSequence()
+        {
+            world.RequestEnterDying(target);
+            world.ConfirmUnitDeath(target);
+
+            Assert.Throws<DeterministicSimulationException>(() =>
+                world.ApplyFormalDeathActionInvalidations(new[]
+                {
+                    new DeathResult
+                    {
+                        VictimUid = target.UnitUid,
+                        DeathSequenceInTick = 1,
+                        DeathLogicTick = 10,
+                    },
+                    new DeathResult
+                    {
+                        VictimUid = target.UnitUid,
+                        DeathSequenceInTick = 0,
+                        DeathLogicTick = 10,
+                    },
+                }));
         }
 
         [Test]
@@ -102,6 +201,21 @@ namespace FrameSyncMoba.Unit.Tests
 
             Assert.IsFalse(attacker.AttackHandler.CurrentTargetUid.IsValid());
             Assert.AreEqual(0, attacker.AttackHandler.AttackSequenceIndex);
+        }
+
+        private int CommitCurrentAttack()
+        {
+            ActionSubmitResult started = attacker.Arbiter.Submit(
+                new AttackActionRequest(target.UnitUid));
+            Assert.That(started.IsGranted, Is.True);
+
+            controller.EndTick();
+            controller.BeginTick(11, ExecutionMode.ServerAuthority);
+            combat.BeginTick();
+            Assert.That(attacker.AttackHandler.CommitAttack(), Is.True);
+            attacker.Arbiter.RefreshRuntimeStateFromHandlers();
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.False);
+            return attacker.AttackHandler.Snapshot.NextAttackReadyLogicTick;
         }
 
         [Test]

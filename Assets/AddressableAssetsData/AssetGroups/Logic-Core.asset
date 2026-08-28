@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Logic-Core
+  m_EditorClassIdentifier: 
+  m_GroupName: Logic-Core
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 61977410f4769904ba7ee28eedec3601
+  m_SerializeEntries:
+  - m_GUID: 014907760411f2c43844772f666dd711
+    m_Address: Assets/Config/Formal/MatchContent/CoreUnitRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2c0dd4221aa4d3445ad5e29b609bc03b
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionRedRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 310c2d7d629c8e743bfc7be38c507164
+    m_Address: content/table/core
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3ccd4e1aedf4eec4e858f61a124b015d
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionBlueRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 65e31fb930be6b34c812d22d5d2749d6
+    m_Address: Assets/Config/Formal/CrowdControl/CrowdControlCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8117cac3f6c07ae418a92479ffd9b25c
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerRedRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 86effef21215481438a7d1f6fb7ee429
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerBlueRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b1683136fbeb0ec43bb2651cb3c096cf
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionBlueRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b3eb1d4dc78a3914883c5db568ff2514
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/BlueTeamGeneralAttackMissle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b400545b29699e841a9e7eca456ad6ac
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionRedRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d0e27105677f5f4439bc6bf3e582435c
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/RedTeamGeneralAttackMissle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d7d516736827a3b4b81684f5515cc24f
+    m_Address: Assets/Config/Formal/MatchContent/CoreBuffCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb9d7cfdf62385847aa5e2480b266dae
+    m_Address: Assets/Config/Formal/Equipment/FormalEquipmentCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f233c81da2328b5489db6d3b6c3828fd
+    m_Address: Assets/Config/Formal/MatchContent/CoreProjectileRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3ff6355b606cac54eb86fb806f6f509b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 3db12faea6946d74b81c29a62f593b22, type: 2}
+    - {fileID: 11400000, guid: ff7b3913cf63d744881d414708cfeae9, type: 2}

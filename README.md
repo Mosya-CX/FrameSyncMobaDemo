@@ -2,7 +2,7 @@
 
 一个由作者与 AI 深度协作设计、实现和验证，以 **确定性帧同步 MOBA** 为目标的 Unity 2022.3 LTS 技术演示工程。它将固定 Tick 的 Gameplay 模拟、客户端预测与回滚、Dedicated Server、NGO/UOS 对局流程，以及数据驱动的英雄、单位和战斗框架组合在同一项目中。
 
-> 项目定位是可运行、可验证的技术框架与内容垂直切片，不是可直接发布的完整商业游戏。本文根据 2026-08-24 的源码和当前工程状态整理；正式实现依据始终以 [设计索引](Docs/Architecture/DESIGN_INDEX.md) 为准。
+> 项目定位是可运行、可验证的技术框架与内容垂直切片，不是可直接发布的完整商业游戏。本文根据 2026-08-27 的源码和当前工程状态整理；正式实现依据始终以 [设计索引](Docs/Architecture/DESIGN_INDEX.md) 为准。
 
 ## 演示
 
@@ -19,7 +19,7 @@
 - 数据驱动 Gameplay：Unit、移动、普攻、技能、Buff、控制、Projectile、Combat、装备、商店、金币、小兵、防御塔和 AI 共用确定性规则。
 - 逻辑空间与路径：二维固定点物理、稳定范围查询、Direct/A*、队伍流场、确定性 RVO 与投掷物扫掠命中。
 - 客户端表现：Animator 状态投影、技能指示器、VFX/SFX、相机、鼠标悬停描边和 Lua 驱动的 HUD/商店页面。表现层只读取 Gameplay，不能反写权威状态。
-- 客户端资源边界：使用 63 个本地 Addressable 根；8 个 Unit、8 个 Projectile 和地图均拆为同步加载的正式逻辑 Prefab 与异步客户端 View。Dedicated Server 排除客户端内容、Addressables catalog 和 bundle。
+- 对局级资源边界：63 个客户端表现根与 35 个逻辑根均为随安装包交付的本地 Addressables。`GameScene` 只加载 Core、选中地图和本局英雄分区；Dedicated Server 保留逻辑分区，但排除全部客户端表现组。
 
 当前内容切片包括韦鲁斯、亚托克斯、两方近战/远程小兵和防御塔。正式装备目录已包含 Dagger、Amplifying Tome、Pickaxe、Recurve Bow、Guinsoo's Rageblade，以及 Sundered Sky 和它的组件链等 11 件装备。
 
@@ -239,33 +239,53 @@ Animator、VFX、音频、技能指示器、相机、鼠标高亮和 UI 只消�
 
 ### 本地 Addressables 与 Dedicated Server 资源边界
 
-`GlobalPrefabTable` 仍是唯一 `PrefabKind + PrefabId` 注册表。每个条目保存同步逻辑 Prefab，并可附带一个稳定客户端 View 地址：
+`GlobalPrefabTable` 仍是唯一 `PrefabKind + PrefabId` 权威，但正式根资产不再直接引用全部逻辑 Prefab。它只保存 Core、Map、Hero 子表的稳定 Addressable 地址、内容版本和依赖哈希；子表保存 `PrefabKind + PrefabId -> logicAssetAddress + optional clientViewAddress`。加载完成后才生成一个非序列化、只属于本局的同步运行时表：
 
 ```text
-GlobalPrefabTable
-  PrefabId -> logicPrefab + optional clientViewAddress
-                    |                    |
-                    v                    v
-      UnitWorld / ProjectileWorld   ClientContent loader
-          synchronous logic          asynchronous view
-                    \                 /
-                     stable UID binding
+Lobby locked roster (MapConfigId + all HeroConfigIds)
+                         |
+                         v
+GlobalPrefabTable root index
+  Core + selected Map + selected Hero child tables
+                         |
+              async local Addressables load
+                         v
+        canonicalize / validate / freeze before Tick 0
+             |                            |
+             v                            v
+resolved logic table              client view addresses
+UnitWorld / ProjectileWorld       asynchronous UID binding
 ```
 
-客户端逻辑对象先同步创建，View 随后按稳定 UID 和对象身份异步绑定。回滚若用同一 UID 创建了新对象，Binder 会识别对象身份变化并重新绑定；每个 Addressables 句柄由引用计数 Lease 明确拥有和释放，取消代次阻止过期异步结果在场景清理后回写。
+Lobby 在切换 `GameScene` 前冻结完整玩家槽位中的英雄 ID 与地图 ID，并通过 `GameSessionContext` 交给 `GameBootstrap`。Bootstrap 异步加载后按 `(PartitionKind, OwnerConfigId)`、`(PrefabKind, PrefabId)` 和各目录自身稳定 ID 规范化；版本、哈希、缺失地址、重复 ID 或稍后到达的权威 `GameStartConfig` 闭包不一致都会在初始 Snapshot 与 Tick 0 之前显式失败。异步完成顺序不参与 Gameplay 排序。
 
-当前六个本地组如下：
+当前对局逻辑分区如下：
+
+| Group | 内容 | 根数量 | Client | Server |
+|---|---|---:|:---:|:---:|
+| `Logic-Core` | 通用 Unit/Projectile/Buff、共享 Unit 销毁策略、CC、装备与子表 | 14 | 是 | 是 |
+| `Logic-Map-1` | 地图子表、逻辑地图 Prefab 与地图配置 | 3 | 是 | 是 |
+| `Logic-Hero-1001` | 韦鲁斯逻辑 Prefab、Unit/Ability/Projectile/Buff | 10 | 是 | 是 |
+| `Logic-Hero-1002` | 亚托克斯逻辑 Prefab、Unit/Ability/Projectile/Buff | 8 | 是 | 是 |
+
+客户端逻辑对象在内容闭包冻结后同步创建，View 随后按稳定 UID 和对象身份异步绑定。回滚若用同一 UID 创建了新对象，Binder 会识别对象身份变化并重新绑定；每个 Addressables 句柄由 Match Scope 或引用计数 Lease 明确拥有和释放，取消代次阻止过期异步结果在场景清理后回写。
+
+跨分区共享的 ScriptableObject 不能简单地由多个 Bundle 根隐式引用：同一个源 GUID 在不同 Bundle 中可能反序列化成不同 Unity 对象实例。当前共享 Unit 销毁策略因此只由每局必选的 `Logic-Core` 持有，两个 Hero Unit Catalog 只保存各自英雄原型；组合阶段仍执行严格的单一策略权威校验。
+
+当前客户端表现根仍为 63 个，但英雄专属内容已从共享组移动到两个英雄组：
 
 | Group | 用途 | 根数量 |
 |---|---|---:|
-| `Client-UnitViews` | 8 个 Unit View Prefab | 8 |
-| `Client-ProjectileViews` | 8 个 Projectile View Prefab | 8 |
-| `Client-VFX` | 独立生成的表现效果 | 7 |
+| `Client-Hero-1001` | 韦鲁斯 Unit、Projectile 与技能 VFX | 8 |
+| `Client-Hero-1002` | 亚托克斯 Unit、Projectile 与 Q VFX | 6 |
+| `Client-UnitViews` | 六个通用 Unit View Prefab | 6 |
+| `Client-ProjectileViews` | 两个通用攻击 Projectile View | 2 |
+| `Client-VFX` | 一个共享表现效果 | 1 |
 | `Client-Audio` | 正式音频根 | 1 |
 | `Client-Shared` | 地图与共享客户端根 | 4 |
 | `Client-UI` | 页面、指示器和独立图标 | 35 |
 
-Catalog 和 bundle 都是随客户端安装的本地内容；没有远程 catalog、CDN、运行时下载或热更新路径。Dedicated Server 不初始化 Addressables，构建前剥离客户端场景对象，过滤遗留 `StreamingAssets/aa`，并在 BuildReport 中审计模型、动画、材质、VFX、音频与 UI 依赖。平台构建守卫还会检查 Windows 包是否误带 Linux bundle，避免再次出现 Shader 全部变紫的问题。
+Catalog 和 bundle 都是随安装包交付的本地内容；没有远程 catalog、CDN、运行时下载或热更新路径。Dedicated Server 也初始化 Addressables，但构建时只启用四个 `Logic-*` 组；全部 `Client-*` 组及模型、动画、材质、VFX、音频与 UI 依赖仍被排除和审计。平台构建守卫还会检查 Windows 包是否误带 Linux bundle，以及服务器输出是否误带 `client-*` bundle。
 
 ## 研发与 AI 协作
 
@@ -412,7 +432,7 @@ sequenceDiagram
     GS-->>B: Bootstrap / LaunchCommit
 ```
 
-UOS 负责匹配、分配和 Linux 战斗服托管，不替代项目自身的 NGO/UTP 帧同步协议。本地 C/S 与 UOS 使用同一 Gameplay、Bootstrap、Command 和 AuthorityFrame 实现。历史包已完成过 Ready、双客户端连接和持续 Gameplay；当前 schema-23/bootstrap-wire-4 与 Addressables 拆分后的匹配重建包仍待新的实机验收。
+UOS 负责匹配、分配和 Linux 战斗服托管，不替代项目自身的 NGO/UTP 帧同步协议。本地 C/S 与 UOS 使用同一 Gameplay、Bootstrap、Command 和 AuthorityFrame 实现。历史包已完成过 Ready、双客户端连接和持续 Gameplay；当前 schema-24/bootstrap-wire-4、Lobby LoadScene v2 与对局级 Addressables 分区后的匹配重建包仍待新的实机验收。
 
 ## 工程导航
 
@@ -423,7 +443,7 @@ UOS 负责匹配、分配和 Linux 战斗服托管，不替代项目自身的 NG
 | `Assets/Scripts/Gameplay/` | UnitWorld、Handler、战斗、技能、Buff、装备、Projectile、AI 与路径 |
 | `Assets/Scripts/FrameSync/` | Command、Tick 管线、快照、校验、预测、回滚与权威恢复 |
 | `Assets/Scripts/PlayerInput/` | 一次性将设备输入转换为 Gameplay Command |
-| `Assets/Scripts/RuntimeConfig/` | 全局配置、Prefab 表、时间 Authoring 与 Bake/校验工具 |
+| `Assets/Scripts/RuntimeConfig/` | 全局配置、Prefab 根索引/子表、时间 Authoring 与 Bake/校验工具 |
 | `Assets/Scripts/Bootstrap/` | 场景、Local NGO、UOS、应用流与组合根 |
 | `Assets/Scripts/ClientContent/` | Addressables 加载、Unit/Projectile/地图客户端 View 绑定 |
 | `Assets/Scripts/LuaBridge/`、`Assets/StreamingAssets/Lua/` | xLua UI 生命周期和只读 Gameplay 视图 |
@@ -486,7 +506,7 @@ Builds/UosUpload/FrameSyncMobaServer_uos_<timestamp>.zip.sha256
 
 Linux 镜像入口为 `./FrameSyncMobaServer.x86_64 -batchmode -nographics`，游戏端口使用 UDP 7777。UOS 的应用权限、Matchmaking Config、Multiverse Profile 和账户信息由运行环境提供，不应把 Secret、allocation UUID 或临时房间信息写入仓库。
 
-构建菜单会显式切换 Windows Player 与 Linux Server 子目标，并在完成后恢复编辑器原目标。Client 内容构建会校验 `settings.json`、平台目录和 bundle；Server 构建会过滤任何新旧 Addressables 客户端输出并审计最终依赖。不要为了打 Server 手工删除客户端资源，也不要把 `Assets/ClientContent/` 加到逻辑 Prefab 或 Server 场景。
+构建菜单会显式切换 Windows Player 与 Linux Server 子目标，并在完成后恢复编辑器原目标。Client 内容构建会校验 `settings.json`、平台目录和 bundle；Server 构建会临时只启用 `Logic-*` 组、构建服务器本地 catalog/bundle，并审计最终输出不含 `Client-*` 内容。不要为了打 Server 手工删除客户端资源，也不要把 `Assets/ClientContent/` 加到逻辑 Prefab 或 Server 场景。
 
 ### 测试层次
 
@@ -504,21 +524,24 @@ Linux 镜像入口为 `./FrameSyncMobaServer.x86_64 -batchmode -nographics`，�
 
 | 验证 | 结果 |
 |---|---|
-| Unity 编译 | 2026-08-23 普通 Player 与 Linux Dedicated Server 子目标通过；Server Player 程序集不包含 `FrameSyncMoba.ClientContent` |
-| Bootstrap EditMode | 106/106 通过 |
+| Unity 编译 | 2026-08-28 Unity MCP 同步刷新通过，最终 Console Error/Exception 为空；Player 实机构建沿用下述待验收项 |
+| Bootstrap EditMode | 全程序集 120/120 通过；其中包含客户端/服务端 Shader 构建作用域、精确 GraphicsSettings 恢复和通用技能指示器材质守卫 |
 | FrameSync EditMode | 91/91 通过 |
-| Addressables 配置 | 本地组/根 5/5；Server 遗留 StreamingAssets 排除 1/1 |
-| Addressables/表现 PlayMode | 代表性真实根加载释放、UI 异步生命周期、Aatrox Prefab、MapView 锚点、HeroTest Shop/Input 等定向测试通过 |
+| Addressables 配置 | 根/子表覆盖原 20 个 Prefab 映射、直接逻辑引用为 0；四个 Logic 分区共 35 根，客户端表现 63 根、远程条目 0 |
+| 对局资源 PlayMode | 韦鲁斯/亚托克斯独立闭包与 Q VFX 归属 2/2；正式 GameBootstrap 异步组合、销毁竞态句柄释放 2/2 |
+| 加载页与指示器 | 外部流程在首个异步资源等待前接管 GameScene Loading 页，聚焦 PlayMode 1/1；三类通用指示器从已加载 Addressables 源材质克隆运行时材质，材质不再携带旧 Shader 关键字，专用单变体 Shader 固定进入客户端 Player Core、在服务端构建中临时排除并精确恢复；真实 Addressables 获取、4 个 Renderer、清理与帧缓冲蓝色/非洋红断言 1/1，待新客户端包视觉复验 |
+| 范围内 Unit 资源契约 | Aatrox 正式内容 10/10；装备/Core 分区 6/6 |
 | PlayerInput | 映射 17/17；聚焦 PlayMode 输入模拟 4/4 |
 | 完整 PlayMode 基线 | 56/60 通过，4 项保留失败 |
 
-当前 Addressables 构建证据记录了 63 个根、零远程条目、7 个 bundle 加 1 个 catalog。已记录的一轮本地内容输出约 612 MB，其中三个大型 Projectile GLB 是主要体积来源；这属于模型/导入优化问题，不应通过重复地址或破坏逻辑/View 边界解决。
+当前清单记录 63 个客户端表现根、35 个逻辑根和零远程条目。迁移前后依赖清单与四个分区的版本/哈希/根数量见 [资源架构](Docs/Implementation/Addressables/RESOURCE_ARCHITECTURE.md) 与 [对局资源清单](Docs/Implementation/Addressables/MATCH_CONTENT_RESOURCE_MANIFEST.md)。已记录的旧客户端本地内容输出约 612 MB，其中三个大型 Projectile GLB 是主要体积来源；新分区后的最终 Player 体积仍需下一轮实际构建测量。
 
-这不是“完整测试套件全绿”的声明：当前 Unit 套件仍保留 10 项已知失败；最近一次完整 PlayMode 结果为 56/60 通过，保留 4 项失败。具体类别、证据与限制见 [模块状态](Docs/Implementation/MODULE_STATUS.md) 和 [当前交接状态](Docs/Implementation/CURRENT_HANDOFF.md)。
+这不是“完整测试套件全绿”的声明：当前 Unit 套件仍保留 10 项已知失败；2026-08-27 Bootstrap PlayMode 广覆盖探针的 34 个叶测试为 25 通过、9 项保留失败，类别集中在旧场景出生夹具、HeroTest 旧全局表查询、UOS 测试配置和异步取消日志。具体证据与限制见 [模块状态](Docs/Implementation/MODULE_STATUS.md) 和 [当前交接状态](Docs/Implementation/CURRENT_HANDOFF.md)。
 
 ## 已知限制与待验收项
 
-- D-048 的源码、资产拆分和定向测试已完成；最终 Windows Client + Linux Dedicated Server Player 重建、平台资源审计和报告检查仍待执行。
+- D-051 的根索引、四个逻辑分区、按对局加载、服务器逻辑 Addressables 与定向测试已完成；2026-08-27 UOS 日志暴露的跨 Bundle Unit 策略对象重复问题已按 Core 单一所有权修复。最终 Windows Client + Linux Dedicated Server Player 重建、平台资源审计、实机复测和体积测量仍待执行。
+- Select -> Loading -> HUD 的 GameScene 接管已通过聚焦测试。20:42 包中三个 Prefab 已正常 Show/Hide，但圆、圆环和直线贴图都被错误 Shader 画成了整块紫色 Quad。当前专用 Shader 已进入客户端 Player 的 Always Included Core，Dedicated Server 构建会临时排除并恢复；三个源材质也已清除旧 `_SURFACE_TYPE_TRANSPARENT` 关键字。韦鲁斯通用指示器及剑魔 W/E 最终效果仍以你下一次 Windows Client 构建为验收。
 - D-045/D-047 已提高 Snapshot schema 与 bootstrap wire 版本，所有端点必须使用同一轮重建包；新版 Local C/S 与 UOS 实机验收尚未完成。
 - UOS 仍需针对启动时 UTP 发送队列告警与回调所有权完成新的行为证据和实机复测。
 - 丛林内容、部分生产级 HUD/表现资产、结果/返回大厅/远端结算的端到端验收仍未完成。
@@ -546,7 +569,7 @@ Linux 镜像入口为 `./FrameSyncMobaServer.x86_64 -batchmode -nographics`，�
 | 二维物理与范围查询 | [Unit Physics v13.1](Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md) |
 | Direct、A*、FlowField 与 RVO | [Pathfinding v13.1](Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md) |
 | 小兵、防御塔与非英雄单位 | [Non-hero v5](Docs/Design/moba_non_hero_unit_modules_design_v5.md) |
-| 动画、VFX、音频、表现回滚和客户端资源 | [Presentation v13.2](Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md) + D-048 |
+| 动画、VFX、音频、表现回滚和对局资源 | [Presentation v13.2](Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md) + D-048/D-051 |
 | UI 与 Lua | [UI/Lua v9.1](Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md) |
 | 玩家输入与非智能施法 | [Player Input v1.1](Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md) |
 

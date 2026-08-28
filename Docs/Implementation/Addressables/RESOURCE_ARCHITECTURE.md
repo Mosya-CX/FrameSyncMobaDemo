@@ -1,134 +1,218 @@
-# Local Addressables and Dedicated Server resource architecture
+# Match-scoped local Addressables and server resource architecture
 
-## Goal and boundary
+## Goal and authority
 
-The client ships one local Addressables catalog with the installed player. The
-project has no remote catalog, CDN, download, cache-version or hot-update path.
-Dedicated Server neither initializes Addressables nor receives the client
-catalog, bundles, render models, animation, materials, VFX, audio or UI assets.
+The installed client and Dedicated Server both use one local Addressables
+catalog. There is no remote catalog, CDN, runtime download, content update or
+hot-update path. The client catalog contains deterministic logic and
+presentation groups; the server build contains only deterministic `Logic-*`
+groups.
 
-Deterministic Gameplay remains synchronous and Tick-based. Addressables never
-owns Unit/Projectile creation, Snapshot, restore, checksum or Command state.
+`GlobalPrefabTable` remains the sole `PrefabKind + PrefabId` authority. D-051
+changes its storage and loading boundary, not the ID namespaces: the formal
+root is a small partition index, child tables contain path-only mappings, and a
+nonserialized resolved table is frozen for the selected match before Gameplay
+starts.
 
 ```text
-GlobalPrefabTable
-  PrefabId -> logicPrefab + optional clientViewAddress
-                    |                    |
-                    v                    v
-      UnitWorld / ProjectileWorld   ClientContent loader
-          synchronous logic          asynchronous view
-                    \                 /
-                     stable UID binding
+locked Lobby roster
+  MapConfigId + sorted unique HeroConfigIds
+                     |
+                     v
+GlobalPrefabTable root index
+  Core / Map / Hero child-table addresses + expected version/hash
+                     |
+          local asynchronous Addressables load
+                     v
+validate -> canonicalize -> compose -> freeze before initial Snapshot/Tick 0
+             |                              |
+             v                              v
+resolved logic prefab table        client presentation addresses
+UnitWorld / ProjectileWorld        async view lease/binding
 ```
 
-## Folder and assembly ownership
+Addressables is therefore a pre-Tick resource transport. It does not determine
+spawn order, execute inside the deterministic Tick, or enter Command, Snapshot,
+checksum, rollback or restore state. A missing address, version/hash mismatch,
+duplicate ID or roster mismatch fails visibly before bootstrap materialization.
 
-| Ownership | Location | Runtime role |
-|---|---|---|
-| Deterministic logic prefabs | `Assets/Config/Formal/Prefabs/Logic/` | Synchronous Unit, Projectile and map logic |
-| Client view roots | `Assets/ClientContent/Views/` | Models, Animator, renderer, outline and view adapters |
-| Client shared presentation | `Assets/ClientContent/Animation`, `Materials`, `VFX`, `Audio`, `Indicators`, `UI` | Dependencies or independently addressed roots |
-| Client loader/binders | `Assets/Scripts/ClientContent/` | Addressables handles, async leases and UID reconciliation; excluded by `UNITY_SERVER` |
-| Server build policy | `Assets/Scripts/Bootstrap/Editor/DedicatedServerPresentationBuildPipeline.cs` | Content suppression, scene stripping and build-report audit |
-| Migration evidence | `Assets/Archive/LegacyMonolithicUnitPrefabs/` | Non-runtime comparison fixtures; never a formal root |
+## Root and partition contract
 
-`FrameSyncMoba.RuntimeConfig` owns the single PrefabId table and stores only the
-address string. Gameplay assemblies do not reference Addressables APIs.
-`FrameSyncMoba.ClientContent` implements the loading contract and is absent from
-Dedicated Server Player assemblies.
+The root asset is `Assets/Config/Formal/GlobalPrefabTable.asset`. Its serialized
+prefab groups are empty. It references these child tables by semantic address:
 
-## Address policy
+| Partition | Owner | Child-table address | Selection rule |
+|---|---:|---|---|
+| Core | 0 | `content/table/core` | every match |
+| Map | 1 | `content/table/map/1` | `MapConfigId == 1` |
+| Hero | 1001 | `content/table/hero/1001` | Varus is present in any locked player slot |
+| Hero | 1002 | `content/table/hero/1002` | Aatrox is present in any locked player slot |
 
-Only independently loaded roots are marked Addressable. Models, clips,
-materials, textures and other ordinary dependencies are intentionally not all
-given their own addresses; Addressables includes them transitively in the root's
-bundle. Mark a dependency separately only when the runtime must request it by a
-stable address.
+Each root descriptor owns a non-zero content version and dependency-backed
+64-bit hash. Each `GlobalPrefabSubTableAsset` repeats that identity and contains:
 
-The current six groups are:
+- path-only prefab rows keyed by `(PrefabKind, PrefabId)`;
+- `LogicAssetAddress` for deterministic Unit/Projectile/map prefabs;
+- optional semantic `ClientViewAddress` for reconstructible presentation;
+- typed addresses for Unit, Ability, Projectile, Buff, CrowdControl,
+  Equipment and Map configuration assets.
+
+Logical asset addresses are their normalized local Unity asset paths. This
+keeps the source mapping auditable and avoids another registry. IDs are still
+assigned by authored configuration; load order never allocates an ID.
+
+## Implemented match partitions
+
+| Group | Deterministic ownership | Roots | Client | Server |
+|---|---|---:|:---:|:---:|
+| `Logic-Core` | Core child table; common units/projectiles; Core Unit, Projectile and Buff catalogs; shared Unit dispose-policy table; full CC and Equipment | 14 | Yes | Yes |
+| `Logic-Map-1` | Map child table, logic map prefab and deterministic map config | 3 | Yes | Yes |
+| `Logic-Hero-1001` | Varus child table, logic prefabs and Unit/Ability/Projectile/Buff catalogs | 10 | Yes | Yes |
+| `Logic-Hero-1002` | Aatrox child table, logic prefabs and Unit/Ability/Projectile/Buff catalogs | 8 | Yes | Yes |
+
+The root plus four children cover the original 20 prefab rows with the same
+stable IDs and contain zero direct logical `GameObject` references. The former
+combined catalogs remain non-addressed migration evidence; `GameScene` no
+longer serializes them.
+
+## Client presentation groups
+
+Only independently requested roots are Addressable. Models, clips, materials,
+textures and other ordinary dependencies remain transitive dependencies unless
+the runtime requests them by their own stable address.
 
 | Group | Purpose | Roots |
 |---|---|---:|
-| `Client-UnitViews` | eight unit view prefabs | 8 |
-| `Client-ProjectileViews` | eight projectile view prefabs | 8 |
-| `Client-VFX` | independently spawned effects | 7 |
-| `Client-Audio` | formal audio clip roots | 1 |
+| `Client-Hero-1001` | Varus Unit, Projectile and ability VFX roots | 8 |
+| `Client-Hero-1002` | Aatrox Unit, Projectile and Q VFX roots | 6 |
+| `Client-UnitViews` | six common Unit views | 6 |
+| `Client-ProjectileViews` | two common attack Projectile views | 2 |
+| `Client-VFX` | shared independently spawned effect | 1 |
+| `Client-Audio` | formal audio root | 1 |
 | `Client-Shared` | map and shared client roots | 4 |
 | `Client-UI` | pages, indicators and independently resolved sprites | 35 |
 
+Client presentation still has 63 independently addressed roots in total.
 Addresses use semantic prefixes such as `view/unit/`, `view/projectile/`,
 `view/map/`, `vfx/`, `audio/`, `ui/page/`, `ui/indicator/` and `ui/icon/`.
-The complete authoritative inventory is `ADDRESSABLE_ROOTS.csv`.
 
-## Runtime lifecycle
+## Runtime selection and lifecycle
 
-1. Client bootstrap registers one `AddressablesClientContentService` and loads
-   the local catalog.
-2. Logic worlds synchronously create deterministic objects from direct formal
-   prefabs.
-3. Unit/projectile binders observe the stable UID and PrefabId, acquire the view
-   asynchronously, instantiate it and attach presentation readers.
-4. Reconciliation removes a view when its logic object disappears. If rollback
-   creates a new object with the same UID, object-identity mismatch forces a
-   clean rebind.
-5. Every acquired asset is represented by a disposable lease. Cache reference
-   counts release Addressables handles exactly when the last lease is disposed.
-6. Cancellation and generation checks prevent a completed old sprite request
-   from writing back after registry clear or scene teardown.
+1. Lobby freezes the selected map and the complete locked player-slot roster.
+   Hero IDs are sorted and deduplicated; local player identity is not used to
+   decide the match closure.
+2. `GameSessionContext` stores the selection before `GameScene` activation.
+   Standalone fixture scenes derive an equivalent selection from their
+   player-controlled initial spawns and the sole available map partition.
+3. `AddressableMatchContentService` initializes Addressables, selects Core,
+   the requested Map and requested Heroes, and loads every required child,
+   catalog and logical prefab asynchronously.
+4. Child identity, version/hash, addresses, ID uniqueness and required catalog
+   kinds are validated. Partitions and registry rows are sorted by explicit
+   stable keys before composition.
+5. `GameBootstrap` replaces the authoring prefab table in
+   `GlobalGameplayData` with the resolved match-local table, combines selected
+   catalogs and only then creates Gameplay worlds and initial state.
+6. A bootstrap payload arriving while content is loading is queued. Its
+   authoritative map/hero closure must exactly match the frozen local request.
+7. `Update` cannot advance Tick until `InitializationTask` succeeds. A failure
+   reports the exact partition/address and releases already acquired handles.
+8. One `AddressableMatchContentScope` owns all deterministic-content handles
+   and releases them once at match teardown. Client view caches continue to use
+   exact reference-counted leases and generation checks.
 
-Gameplay remains valid when a view is loading or fails; failures are logged with
-the exact address and any acquired handle is released.
+Async completion order is never registry order. A Varus-only scope contains
+Unit prototype 1001 and Ability 10011 but excludes Aatrox prototype 1002,
+Ability 10021 and its client hero roots; the inverse property holds for an
+Aatrox-only scope.
 
-## Dedicated Server exclusion
+## Assembly ownership
 
-The server build scope performs four independent safeguards:
+| Ownership | Location | Runtime role |
+|---|---|---|
+| Root/child contracts | `Assets/Scripts/RuntimeConfig/` | IDs, path-only partition metadata, validation and resolved runtime table |
+| Match selection/loading | `Assets/Scripts/Bootstrap/` | Lobby handoff, local Addressables loading, canonical composition and loading gate |
+| Deterministic content | `Assets/Config/Formal/MatchContent/`, `Prefabs/Logic/` | split catalogs and logic prefabs |
+| Client views | `Assets/ClientContent/Views/` and other `Assets/ClientContent/` roots | reconstructible models, Animator, VFX, audio and UI |
+| Client binders/loaders | `Assets/Scripts/ClientContent/` | presentation leases, UID/object reconciliation; excluded by `UNITY_SERVER` |
+| Build/migration tools | `Assets/Scripts/Bootstrap/Editor/Addressables/` | group configuration, partition migration, inventories and client/server audits |
 
-- sets `DoNotBuildWithPlayer` for Addressables content;
-- rejects all Addressables streaming paths, including stale content previously
-  built for a client;
-- strips known presentation components and client objects from server scenes;
-- audits the completed build and fails on forbidden catalogs, bundles or client
-  presentation dependencies.
+Gameplay assemblies consume the already resolved synchronous table and do not
+reference Addressables APIs. Bootstrap owns Addressables initialization and
+Unity scheduling on both endpoint types.
 
-Player build entry points also establish an explicit platform boundary before
-Addressables runs. Windows client content is built only while the active target
-is `StandaloneWindows64/Player`; Linux server compilation uses
-`StandaloneLinux64/Server`. Before a client build, only the previously generated
-`<Client>_Data/StreamingAssets/aa` directory is removed. Afterward,
-`settings.json`, the platform directory and at least one bundle must all declare
-the expected target, and a stale opposite-platform directory fails the build.
-This guard was added after the first acceptance package embedded Linux bundles
-inside a Windows Player and rendered all bundle shaders magenta.
+### Shared ScriptableObject ownership
 
-The internal streaming-path hook is deliberately pinned to Addressables 1.22.3.
-Its focused test fails visibly if a future package version changes that API.
+Runtime identity can differ across bundles even when several serialized fields
+point to the same source GUID: an implicit dependency may be embedded once per
+bundle and deserialize as separate Unity object instances. Shared deterministic
+configuration whose identity is validated during composition must therefore
+have one partition owner, not references copied into several `Logic-*` roots.
 
-## Adding a new client asset
+For the current Unit split, `CoreUnitRuntimeCatalog` is the sole owner of
+`FullMatchUnitDisposePolicyTable`. `VarusUnitRuntimeCatalog` and
+`AatroxUnitRuntimeCatalog` contain only their hero prototypes and serialize no
+dispose-policy reference. Core is selected in every match, so selected Unit
+catalogs still bake with one complete policy authority. The migration and
+EditMode configuration guard preserve this topology; do not weaken the runtime
+conflict check or re-add the policy reference to Hero catalogs.
 
-1. Keep deterministic logic/config under its formal non-client folder.
-2. Put the presentation prefab or independently loaded asset under
-   `Assets/ClientContent/`.
-3. Add only the independently requested root to the matching `Client-*` group
-   and assign a stable semantic address.
-4. For Unit/Projectile views, add the address to the existing
-   `GlobalPrefabTable` entry; never create a second PrefabId registry.
-5. Run local configuration tests, representative real-load PlayMode tests and
-   regenerate the root/dependency reports.
-6. For server-sensitive changes, run the server scope test, clean Dedicated
-   Server compilation and final BuildReport audit.
+## Dedicated Server packaging
 
-## Current measured evidence and limitations
+The server no longer deletes the whole Addressables output. Its build scope:
 
-- 63 roots, zero remote entries, seven bundles plus one catalog.
-- Current dependency graph: 135 roots, 363 unique dependencies, 1,413 edges.
-- Linux content output: 612,459,164 bytes. Projectile source GLBs dominate the
-  size; optimizing them is an import/content task, not an address duplication fix.
-- `UIManager` currently loads seven page prefabs during initialization even when
-  a page is configured not to pre-instantiate. This is client memory work left
-  for a focused lazy-page change.
-- Presentation assets and the new loader assembly are excluded from server;
-  older presentation classes still reside in shared managed assemblies. Moving
-  all of that code behind client-only asmdefs is a separate large refactor.
+- temporarily enables `IncludeInBuild` only for `Logic-Core`, `Logic-Map-1`,
+  `Logic-Hero-1001` and `Logic-Hero-1002`;
+- builds a local server catalog and logic bundles with the Player;
+- restores every group flag and default group after the build attempt;
+- strips presentation scene components and client objects;
+- audits the output for catalog/bundle presence and rejects any `client-*`
+  bundle or forbidden presentation dependency.
 
-See `BASELINE_DEPENDENCIES.*`, `CURRENT_DEPENDENCIES.*` and
-`ADDRESSABLE_ROOTS.*` in this directory for reproducible reference evidence.
+Client builds include Logic plus Client groups. Platform guards still ensure a
+Windows player cannot embed Linux bundles and vice versa. `UNITY_SERVER` still
+excludes `FrameSyncMoba.ClientContent`; only the Bootstrap match-content loader
+is shared.
+
+## Authoring and migration workflow
+
+For a new hero or map:
+
+1. allocate stable Gameplay and Prefab IDs in the existing namespaces;
+2. keep deterministic configuration and logic prefabs under
+   `Assets/Config/Formal/` and client presentation under
+   `Assets/ClientContent/`;
+3. create one child table and the split Unit/Ability/Projectile/Buff catalogs;
+4. add one `Logic-Hero-<id>` or `Logic-Map-<id>` local group and, when needed,
+   one `Client-Hero-<id>` group;
+5. add one root descriptor with a bumped content version and regenerated
+   dependency hash; never add another PrefabId registry;
+6. run `FrameSyncMoba/Addressables/Migrate Match-Scoped Gameplay Content` for
+   the current formal slice or equivalent Unity Editor authoring APIs;
+7. regenerate `Generate Current Dependency Inventory`, verify the manifest,
+   compile, and run focused EditMode plus real-load PlayMode tests.
+
+Do not hand-edit ScriptableObject or Addressables YAML. Do not use
+`WaitForCompletion`, remote paths, runtime catalog updates or a silent full-table
+fallback.
+
+## Evidence and remaining acceptance
+
+- Post-migration logic manifest: `MATCH_CONTENT_RESOURCE_MANIFEST.*`.
+- Pre-migration comparison: `MATCH_CONTENT_PRE_MIGRATION_DEPENDENCIES.*`,
+  `MATCH_CONTENT_PRE_MIGRATION_ROOTS.*` and
+  `MATCH_CONTENT_PRE_MIGRATION_FORMAL_ROOTS.csv`.
+- Current client roots: `ADDRESSABLE_ROOTS.*` (63 roots, 0 remote).
+- Current dependency graph: `CURRENT_DEPENDENCIES.*` (149 roots, 345 unique
+  dependencies, 987 edges at the 2026-08-27 capture). The formal policy table
+  is a direct dependency of the Core Unit catalog only.
+- Focused validation: Bootstrap EditMode 118/118; real Varus/Aatrox scoped load,
+  exclusion and release PlayMode 2/2; formal GameBootstrap composition and
+  destroy-during-load cleanup PlayMode 2/2; Aatrox
+  content 10/10; equipment/Core partition 6/6.
+
+The corrected Windows Client and Linux Dedicated Server Player rebuild,
+BuildReport inspection and post-partition package-size measurement remain
+user-owned external acceptance. The previous approximately 612 MB client
+measurement predates this partition build and must not be treated as the new
+package size.

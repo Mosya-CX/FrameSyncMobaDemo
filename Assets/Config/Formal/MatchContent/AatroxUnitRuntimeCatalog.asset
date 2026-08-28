@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b86cf68e04206d5488acf26a5bdc1e11, type: 3}
+  m_Name: AatroxUnitRuntimeCatalog
+  m_EditorClassIdentifier: 
+  statDefinitions: []
+  unitPrototypes:
+  - UnitPrototypeId: 1002
+    Name: Aatrox
+    RuntimeEntityPrefabId: 1102
+    UnitKind: 0
+    UnitSubKindId: 0
+    BaseGoldValue: 300
+    BaseExperienceValue: 0
+    InitialBuffConfigIds: 
+    UnitDisposePolicyId: 1
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 1
+      HasAttack: 1
+      HasAbility: 1
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 1
+    Locomotion:
+      BaseMoveSpeed: 345
+      CollisionRadius: 0.45
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.45
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 650
+      GrowthValue: 114
+    - StatId: 2
+      BaseValue: 0.6
+      GrowthValue: 0.1
+    - StatId: 3
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 4
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 60
+      GrowthValue: 5
+    - StatId: 6
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 38
+      GrowthValue: 4.8
+    - StatId: 8
+      BaseValue: 32
+      GrowthValue: 2.05
+    - StatId: 9
+      BaseValue: 0.651
+      GrowthValue: 0.025
+    - StatId: 10
+      BaseValue: 175
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 345
+      GrowthValue: 0
+    - StatId: 14
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 15
+      BaseValue: 1.75
+      GrowthValue: 0
+  disposePolicyTable: {fileID: 0}
+  heroDisplayTable: {fileID: 0}

@@ -370,17 +370,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalGameplayData: {fileID: 11400000, guid: 8b0cdcd39dbb2964baebdd8475f1e60e, type: 2}
-  unitRuntimeCatalog: {fileID: 11400000, guid: cf6a213803fa81b4cb7ac2699f40045b, type: 2}
-  abilityRuntimeCatalog: {fileID: 11400000, guid: 2d09d9a5b5be5294894114be7603b54a,
-    type: 2}
-  projectileRuntimeCatalog: {fileID: 11400000, guid: e548718fd0a6b7d4b87db7539574720f,
-    type: 2}
-  deterministicMapConfig: {fileID: 11400000, guid: f1c4e69f4a5028647b5c47fb0408da9f,
-    type: 2}
-  equipmentCatalog: {fileID: 11400000, guid: eb9d7cfdf62385847aa5e2480b266dae, type: 2}
-  buffCatalog: {fileID: 11400000, guid: bfbc23906fc1fac499ac5a7b12b8ca9b, type: 2}
-  crowdControlCatalog: {fileID: 11400000, guid: 65e31fb930be6b34c812d22d5d2749d6,
-    type: 2}
+  unitRuntimeCatalog: {fileID: 0}
+  abilityRuntimeCatalog: {fileID: 0}
+  projectileRuntimeCatalog: {fileID: 0}
+  deterministicMapConfig: {fileID: 0}
+  equipmentCatalog: {fileID: 0}
+  buffCatalog: {fileID: 0}
+  crowdControlCatalog: {fileID: 0}
   dedicatedServer: 0
   driveSimulationFromUnityUpdate: 1
   enableOnlineApplicationFlow: 0

@@ -216,6 +216,50 @@ namespace FrameSyncMoba.RuntimeConfig
             GlobalPrefabTableVersion = globalPrefabTableVersion;
             CommandSchemaVersion = commandSchemaVersion;
         }
+
+        public BakedGlobalGameplayData WithPrefabTable(
+            GlobalPrefabTable prefabTable)
+        {
+            if (prefabTable == null)
+                throw new ArgumentNullException(nameof(prefabTable));
+            return new BakedGlobalGameplayData(
+                prefabTable,
+                TickRate,
+                MinCommandLeadTicks,
+                MaxFutureCommandTicks,
+                SnapshotWindowTicks,
+                MaxPredictionLeadTicks,
+                MaxLogicTicksPerUnityFrame,
+                AuthorityRecoveryRetryTicks,
+                MaxAuthorityRecoveryAttemptsBeforeDisconnect,
+                StartLeadTicks,
+                LaunchDelayMilliseconds,
+                MaxPlayers,
+                CountdownTicks,
+                EndingDurationTicks,
+                InitialEarnedGold,
+                UnitGridCellSize,
+                StatGrowthC,
+                StatGrowthD,
+                MoveSpeedToLogicVelocityScale,
+                AttackSequenceResetIntervalTicks,
+                RangedAttackRangeThreshold,
+                HeroRespawnBaseTicks,
+                HeroRespawnPerMinuteTicks,
+                MinionWaveConfig,
+                JungleResetTimeoutTicks,
+                JungleResetDurationTicks,
+                JungleRespawnDelayTicks,
+                EquipmentSellRate,
+                NaturalRegenIntervalMilliseconds,
+                RandomSeed,
+                PeriodicGoldIntervalTicks,
+                PeriodicGoldAmount,
+                GameplayDataVersion,
+                MapDataVersion,
+                GlobalPrefabTableVersion,
+                CommandSchemaVersion);
+        }
     }
 
     [CreateAssetMenu(

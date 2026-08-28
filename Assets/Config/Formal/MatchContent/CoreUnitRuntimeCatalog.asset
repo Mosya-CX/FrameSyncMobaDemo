@@ -1,0 +1,786 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b86cf68e04206d5488acf26a5bdc1e11, type: 3}
+  m_Name: CoreUnitRuntimeCatalog
+  m_EditorClassIdentifier: 
+  statDefinitions:
+  - Id: 0
+    DebugName: MaxHealth
+    DefaultBaseValue: 100
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 2
+    DebugName: HealthRegeneration
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 3
+    DebugName: MaxCastResource
+    DefaultBaseValue: 100
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 4
+    DebugName: CastResourceRegeneration
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 5
+    DebugName: AttackDamage
+    DefaultBaseValue: 10
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 6
+    DebugName: AbilityPower
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 7
+    DebugName: Armor
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 8
+    DebugName: MagicResistance
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 9
+    DebugName: AttackSpeed
+    DefaultBaseValue: 1
+    SupportsLevelGrowth: 1
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 10
+    DebugName: AttackRange
+    DefaultBaseValue: 200
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 11
+    DebugName: MoveSpeed
+    DefaultBaseValue: 350
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 12
+    DebugName: CastRangeBonus
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 13
+    DebugName: CooldownReduction
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 14
+    DebugName: CriticalStrikeChance
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 15
+    DebugName: CriticalStrikeDamage
+    DefaultBaseValue: 2
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 16
+    DebugName: ArmorPenetrationRatio
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 17
+    DebugName: FlatArmorPenetration
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 18
+    DebugName: MagicPenetrationRatio
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 19
+    DebugName: FlatMagicPenetration
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 20
+    DebugName: LifeSteal
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 21
+    DebugName: Omnivamp
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 22
+    DebugName: HealPower
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 24
+    DebugName: Tenacity
+    DefaultBaseValue: 0
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 0
+    MaxValue: 0
+  - Id: 25
+    DebugName: HealingReceivedRatio
+    DefaultBaseValue: 1
+    SupportsLevelGrowth: 0
+    HasMinValue: 1
+    MinValue: 0
+    HasMaxValue: 1
+    MaxValue: 1
+  unitPrototypes:
+  - UnitPrototypeId: 2001
+    Name: Blue Melee Minion
+    RuntimeEntityPrefabId: 1201
+    UnitKind: 1
+    UnitSubKindId: 1
+    BaseGoldValue: 21
+    BaseExperienceValue: 60
+    InitialBuffConfigIds: 8d2300008f230000
+    UnitDisposePolicyId: 2
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 64
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 1
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 325
+      CollisionRadius: 0.28
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.28
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 430
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 11
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 1.25
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 125
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 325
+      GrowthValue: 0
+  - UnitPrototypeId: 2002
+    Name: Red Melee Minion
+    RuntimeEntityPrefabId: 1202
+    UnitKind: 1
+    UnitSubKindId: 1
+    BaseGoldValue: 21
+    BaseExperienceValue: 60
+    InitialBuffConfigIds: 8d2300008f230000
+    UnitDisposePolicyId: 2
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 64
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 1
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 325
+      CollisionRadius: 0.28
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.28
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 430
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 11
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 1.25
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 125
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 325
+      GrowthValue: 0
+  - UnitPrototypeId: 2101
+    Name: Blue Caster Minion
+    RuntimeEntityPrefabId: 1211
+    UnitKind: 1
+    UnitSubKindId: 2
+    BaseGoldValue: 14
+    BaseExperienceValue: 32
+    InitialBuffConfigIds: 8e2300008f230000
+    UnitDisposePolicyId: 2
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 64
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 1
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 325
+      CollisionRadius: 0.3
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.3
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 284
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 21
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 0.667
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 500
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 325
+      GrowthValue: 0
+  - UnitPrototypeId: 2102
+    Name: Red Caster Minion
+    RuntimeEntityPrefabId: 1212
+    UnitKind: 1
+    UnitSubKindId: 2
+    BaseGoldValue: 14
+    BaseExperienceValue: 32
+    InitialBuffConfigIds: 8e2300008f230000
+    UnitDisposePolicyId: 2
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 64
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 1
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 325
+      CollisionRadius: 0.3
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.3
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 284
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 21
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 0
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 0.667
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 500
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 325
+      GrowthValue: 0
+  - UnitPrototypeId: 3001
+    Name: Blue Outer Tower
+    RuntimeEntityPrefabId: 1301
+    UnitKind: 3
+    UnitSubKindId: 0
+    BaseGoldValue: 0
+    BaseExperienceValue: 0
+    InitialBuffConfigIds: 
+    UnitDisposePolicyId: 3
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 0
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 0
+      CollisionRadius: 0.75
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.75
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 3000
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 180
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 60
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 60
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 1
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 700
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 0
+      GrowthValue: 0
+  - UnitPrototypeId: 3002
+    Name: Red Outer Tower
+    RuntimeEntityPrefabId: 1302
+    UnitKind: 3
+    UnitSubKindId: 0
+    BaseGoldValue: 0
+    BaseExperienceValue: 0
+    InitialBuffConfigIds: 
+    UnitDisposePolicyId: 3
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 0
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 0
+      CollisionRadius: 0.75
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.75
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 3000
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 180
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 60
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 60
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 1
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 700
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 0
+      GrowthValue: 0
+  - UnitPrototypeId: 3101
+    Name: Blue Base
+    RuntimeEntityPrefabId: 1301
+    UnitKind: 3
+    UnitSubKindId: 0
+    BaseGoldValue: 0
+    BaseExperienceValue: 0
+    InitialBuffConfigIds: 
+    UnitDisposePolicyId: 3
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 0
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 0
+      CollisionRadius: 0.75
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.75
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 5000
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 180
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 100
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 100
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 1
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 700
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 0
+      GrowthValue: 0
+  - UnitPrototypeId: 3102
+    Name: Red Base
+    RuntimeEntityPrefabId: 1302
+    UnitKind: 3
+    UnitSubKindId: 0
+    BaseGoldValue: 0
+    BaseExperienceValue: 0
+    InitialBuffConfigIds: 
+    UnitDisposePolicyId: 3
+    RespawnConfig:
+      CanRespawn: 0
+      RespawnDelay:
+        milliseconds: 0
+        roundingPolicy: 0
+        authored: 1
+      RespawnDelayTicks: 0
+      HealthRule: 0
+      ResourceRule: 0
+      HealthRespawnValue: 100
+      ResourceRespawnValue: 100
+    PoolConfig:
+      PrewarmCount: 0
+      MaxCapacity: 32
+      ResizePolicy: 0
+    Loadout:
+      HasMovement: 0
+      HasAttack: 1
+      HasAbility: 0
+      HasBuff: 1
+      HasCrowdControl: 1
+      HasEquipment: 0
+    Locomotion:
+      BaseMoveSpeed: 0
+      CollisionRadius: 0.75
+      RadiusClass: 1
+      MaxTurnRate: 720
+      ArriveDistance: 0.1
+    Physics:
+      DefaultShape: 1
+      ShapeParam: 0.75
+      InitialForward: {x: 0, y: 1}
+      RegisterForSpatialQuery: 1
+    LevelExperience:
+      CanLevelUp: 1
+      InitialLevel: 1
+      MaxLevel: 18
+      InitialExperience: 0
+      RequiredExperiencePerLevel: 180100005401000090010000cc010000080200004e02000094020000da0200002003000070030000c00300001004000060040000ba0400001405000078050000dc050000
+      HealthOnLevelUp: 1
+      CastResourceOnLevelUp: 1
+    BaseStats:
+    - StatId: 0
+      BaseValue: 5000
+      GrowthValue: 0
+    - StatId: 5
+      BaseValue: 180
+      GrowthValue: 0
+    - StatId: 7
+      BaseValue: 100
+      GrowthValue: 0
+    - StatId: 8
+      BaseValue: 100
+      GrowthValue: 0
+    - StatId: 9
+      BaseValue: 1
+      GrowthValue: 0
+    - StatId: 10
+      BaseValue: 700
+      GrowthValue: 0
+    - StatId: 11
+      BaseValue: 0
+      GrowthValue: 0
+  disposePolicyTable: {fileID: 11400000, guid: a94aa9b65aa66d9438c9752a791476bd, type: 2}
+  heroDisplayTable: {fileID: 0}

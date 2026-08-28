@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578fbfab572716e4f9fc9ed5857bd293, type: 3}
+  m_Name: CoreGlobalPrefabSubTable
+  m_EditorClassIdentifier: 
+  partitionKind: 0
+  ownerConfigId: 0
+  contentVersion: 1
+  contentHash: 5233413462223469856
+  prefabGroups:
+  - kind: 0
+    entries:
+    - prefabId: 1201
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionBlueRuntime.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 3ccd4e1aedf4eec4e858f61a124b015d
+      clientViewAddress: view/unit/1201
+    - prefabId: 1202
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/TestMeleeMinionRedRuntime.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: b400545b29699e841a9e7eca456ad6ac
+      clientViewAddress: view/unit/1202
+    - prefabId: 1211
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionBlueRuntime.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: b1683136fbeb0ec43bb2651cb3c096cf
+      clientViewAddress: view/unit/1211
+    - prefabId: 1212
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionRedRuntime.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 2c0dd4221aa4d3445ad5e29b609bc03b
+      clientViewAddress: view/unit/1212
+    - prefabId: 1301
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerBlueRuntime.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 86effef21215481438a7d1f6fb7ee429
+      clientViewAddress: view/unit/1301
+    - prefabId: 1302
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerRedRuntime.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 8117cac3f6c07ae418a92479ffd9b25c
+      clientViewAddress: view/unit/1302
+  - kind: 1
+    entries:
+    - prefabId: 2201
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/BlueTeamGeneralAttackMissle.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: b3eb1d4dc78a3914883c5db568ff2514
+      clientViewAddress: view/projectile/2201
+    - prefabId: 2202
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/RedTeamGeneralAttackMissle.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: d0e27105677f5f4439bc6bf3e582435c
+      clientViewAddress: view/projectile/2202
+  contentAssets:
+  - assetKind: 0
+    address: Assets/Config/Formal/MatchContent/CoreUnitRuntimeCatalog.asset
+  - assetKind: 2
+    address: Assets/Config/Formal/MatchContent/CoreProjectileRuntimeCatalog.asset
+  - assetKind: 3
+    address: Assets/Config/Formal/MatchContent/CoreBuffCatalog.asset
+  - assetKind: 4
+    address: Assets/Config/Formal/CrowdControl/CrowdControlCatalog.asset
+  - assetKind: 5
+    address: Assets/Config/Formal/Equipment/FormalEquipmentCatalog.asset

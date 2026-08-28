@@ -331,6 +331,8 @@ namespace FrameSyncMoba.FrameSync
                 ProjectileWorld?.FlushDestroy();
                 CombatSystem?.SettleActiveRequests();
                 CombatSystem?.EndTick();
+                _unitWorld.ApplyFormalDeathActionInvalidations(
+                    CombatSystem?.DeathResults);
 
                 if (MatchRule != null)
                 {
@@ -380,18 +382,6 @@ namespace FrameSyncMoba.FrameSync
 
                 _unitWorld.ProcessPostCombatDeathDisposals(
                     CombatSystem?.DeathResults);
-
-                // Drop attack targets that died this Tick so Tick-end
-                // snapshots never hold stale unit references.
-                var attackCleanup =
-                    _unitWorld.GetAllUnits();
-                for (int ci = 0;
-                     ci < attackCleanup.Count;
-                     ci++)
-                {
-                    attackCleanup[ci]?.AttackHandler
-                        ?.ClearTargetIfMissing();
-                }
 
                 TickNonHeroSystems(tick);
                 // Unit v27.3 5.5.1: recompute every still-Dirty stat at tick

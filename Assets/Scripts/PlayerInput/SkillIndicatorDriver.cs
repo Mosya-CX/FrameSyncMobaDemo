@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace FrameSyncMoba.PlayerInput
 {
@@ -19,6 +21,9 @@ namespace FrameSyncMoba.PlayerInput
     [DisallowMultipleComponent]
     public sealed class SkillIndicatorDriver : MonoBehaviour
     {
+        private const string GenericIndicatorShaderName =
+            "FrameSyncMoba/SkillIndicatorUnlit";
+
         [Header("Indicator prefabs (assigned in Inspector or code)")]
         [SerializeField] private GameObject directionIndicatorPrefab;
         [SerializeField] private GameObject rangeCirclePrefab;
@@ -40,6 +45,8 @@ namespace FrameSyncMoba.PlayerInput
         private LineRenderer _directionalZoneOutline;
         private LineRenderer _directionalSweetSpotOutline;
         private Material _runtimeLineMaterial;
+        private readonly List<Material> _runtimeGenericMaterials =
+            new List<Material>();
 
         private AimKind _activeKind;
         private fp _activeRange;
@@ -87,6 +94,7 @@ namespace FrameSyncMoba.PlayerInput
                     Instantiate(
                         directionIndicatorPrefab,
                         transform);
+                BindGenericRuntimeMaterials(_directionInstance);
                 _directionInstance
                     .SetActive(false);
                 _directionBody =
@@ -105,6 +113,7 @@ namespace FrameSyncMoba.PlayerInput
                     Instantiate(
                         rangeCirclePrefab,
                         transform);
+                BindGenericRuntimeMaterials(_rangeCircleInstance);
                 _rangeCircleInstance
                     .SetActive(false);
                 _rangeDisc =
@@ -119,6 +128,7 @@ namespace FrameSyncMoba.PlayerInput
                     Instantiate(
                         groundTargetPrefab,
                         transform);
+                BindGenericRuntimeMaterials(_groundTargetInstance);
                 _groundTargetInstance
                     .SetActive(false);
                 _groundDisc =
@@ -382,11 +392,92 @@ namespace FrameSyncMoba.PlayerInput
                 Destroy(_directionalSweetSpotOutline.gameObject);
             if (_runtimeLineMaterial != null)
                 Destroy(_runtimeLineMaterial);
+            for (int i = 0; i < _runtimeGenericMaterials.Count; i++)
+                if (_runtimeGenericMaterials[i] != null)
+                    Destroy(_runtimeGenericMaterials[i]);
+            _runtimeGenericMaterials.Clear();
             _directionalZoneOutline = null;
             _directionalSweetSpotOutline = null;
             _runtimeLineMaterial = null;
             _activeDirectionalZone = null;
             _visible = false;
+        }
+
+        private void BindGenericRuntimeMaterials(GameObject instance)
+        {
+            Renderer[] renderers =
+                instance.GetComponentsInChildren<Renderer>(true);
+            for (int rendererIndex = 0;
+                 rendererIndex < renderers.Length;
+                 rendererIndex++)
+            {
+                Renderer renderer = renderers[rendererIndex];
+                Material[] sourceMaterials = renderer.sharedMaterials;
+                string failure = ValidateSourceMaterials(sourceMaterials);
+                if (failure != null)
+                {
+                    renderer.enabled = false;
+                    Debug.LogError(
+                        $"[Indicator] Renderer '{renderer.name}' from " +
+                        $"'{instance.name}' was disabled: {failure}");
+                    continue;
+                }
+
+                var runtimeMaterials =
+                    new Material[sourceMaterials.Length];
+                for (int materialIndex = 0;
+                     materialIndex < sourceMaterials.Length;
+                     materialIndex++)
+                {
+                    Material source = sourceMaterials[materialIndex];
+                    // The Shader is resolved as part of the Addressables
+                    // Prefab/material dependency. AssetBundle-contained
+                    // shaders are not guaranteed to be discoverable through
+                    // Shader.Find, so clone the loaded source directly.
+                    var runtime = new Material(source)
+                    {
+                        name = $"{source.name} (Runtime)",
+                        hideFlags = HideFlags.HideAndDontSave,
+                    };
+                    runtimeMaterials[materialIndex] = runtime;
+                    _runtimeGenericMaterials.Add(runtime);
+                }
+                renderer.sharedMaterials = runtimeMaterials;
+                renderer.shadowCastingMode = ShadowCastingMode.Off;
+                renderer.receiveShadows = false;
+                renderer.lightProbeUsage = LightProbeUsage.Off;
+                renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+            }
+        }
+
+        private static string ValidateSourceMaterials(
+            Material[] sourceMaterials)
+        {
+            if (sourceMaterials == null || sourceMaterials.Length == 0)
+                return "no source material was loaded from Addressables.";
+            for (int i = 0; i < sourceMaterials.Length; i++)
+            {
+                Material source = sourceMaterials[i];
+                if (source == null)
+                    return $"source material {i} is null.";
+                Shader shader = source.shader;
+                if (shader == null)
+                    return $"source material '{source.name}' has no Shader.";
+                if (!string.Equals(
+                        shader.name,
+                        GenericIndicatorShaderName,
+                        System.StringComparison.Ordinal))
+                {
+                    return $"source material '{source.name}' resolved " +
+                        $"unexpected Shader '{shader.name}'.";
+                }
+                if (!shader.isSupported)
+                {
+                    return $"source material '{source.name}' resolved " +
+                        $"unsupported Shader '{shader.name}'.";
+                }
+            }
+            return null;
         }
 
         private void EnsureDirectionalZoneLines()

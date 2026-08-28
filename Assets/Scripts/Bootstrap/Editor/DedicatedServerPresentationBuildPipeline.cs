@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -14,11 +15,22 @@ namespace FrameSyncMoba.EditorTools
 {
     public sealed class AddressablesPlayerBuildScope : IDisposable
     {
+        public const string RequiredClientIndicatorShaderPath =
+            "Assets/ClientContent/Shaders/SkillIndicatorUnlit.shader";
+
         private readonly AddressableAssetSettings settings;
         private readonly AddressableAssetSettings.PlayerBuildOption previous;
         private readonly bool previousDedicatedServerBuild;
-        private readonly PropertyInfo streamingAssetsFilterProperty;
-        private readonly Func<string, bool> previousStreamingAssetsFilter;
+        private readonly AddressableAssetGroup previousDefaultGroup;
+        private readonly UnityEngine.Object graphicsSettingsAsset;
+        private readonly Shader[] previousAlwaysIncludedShaders;
+        private readonly System.Collections.Generic.Dictionary<
+            BundledAssetGroupSchema,
+            bool> previousIncludeInBuild =
+                new System.Collections.Generic.Dictionary<
+                    BundledAssetGroupSchema,
+                    bool>();
+        private bool isDisposed;
 
         internal static bool IsDedicatedServerBuild { get; private set; }
 
@@ -29,47 +41,190 @@ namespace FrameSyncMoba.EditorTools
                 throw new InvalidOperationException(
                     "Addressables settings must exist before a player build.");
             previous = settings.BuildAddressablesWithPlayerBuild;
+            previousDefaultGroup = settings.DefaultGroup;
             previousDedicatedServerBuild = IsDedicatedServerBuild;
-            if (dedicatedServer)
+            graphicsSettingsAsset = LoadGraphicsSettingsAsset();
+            previousAlwaysIncludedShaders =
+                ReadAlwaysIncludedShaders(graphicsSettingsAsset);
+            for (int i = 0; i < settings.groups.Count; i++)
             {
-                streamingAssetsFilterProperty =
-                    typeof(AddressablesPlayerBuildProcessor).GetProperty(
-                        "AddPathToStreamingAssets",
-                        BindingFlags.Static | BindingFlags.NonPublic);
-                if (streamingAssetsFilterProperty == null ||
-                    streamingAssetsFilterProperty.PropertyType !=
-                        typeof(Func<string, bool>))
-                {
-                    throw new InvalidOperationException(
-                        "Addressables 1.22.3 streaming-assets filter hook was not found.");
-                }
-                previousStreamingAssetsFilter =
-                    (Func<string, bool>)streamingAssetsFilterProperty
-                        .GetValue(null);
-                streamingAssetsFilterProperty.SetValue(
-                    null,
-                    new Func<string, bool>(_ => false));
+                AddressableAssetGroup group = settings.groups[i];
+                if (group == null)
+                    continue;
+                BundledAssetGroupSchema bundled =
+                    group.GetSchema<BundledAssetGroupSchema>();
+                if (bundled == null)
+                    continue;
+                previousIncludeInBuild.Add(
+                    bundled,
+                    bundled.IncludeInBuild);
             }
-            settings.BuildAddressablesWithPlayerBuild = dedicatedServer
-                ? AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer
-                : AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
-            IsDedicatedServerBuild = dedicatedServer;
-            EditorUtility.SetDirty(settings);
-            AssetDatabase.SaveAssets();
+            if (dedicatedServer)
+                AddressablesServerBuildAudit
+                    .ValidateLogicGroupDependencies(settings);
+            try
+            {
+                ConfigureRequiredClientShader(
+                    graphicsSettingsAsset,
+                    previousAlwaysIncludedShaders,
+                    dedicatedServer);
+                for (int i = 0; i < settings.groups.Count; i++)
+                {
+                    AddressableAssetGroup group = settings.groups[i];
+                    BundledAssetGroupSchema bundled =
+                        group?.GetSchema<BundledAssetGroupSchema>();
+                    if (bundled == null)
+                        continue;
+                    bundled.IncludeInBuild =
+                        !dedicatedServer ||
+                        Array.IndexOf(
+                            Addressables.AddressablesProjectConstants.LogicGroups,
+                            group.Name) >= 0;
+                    EditorUtility.SetDirty(bundled);
+                }
+                if (dedicatedServer)
+                    settings.DefaultGroup = settings.FindGroup(
+                        Addressables.AddressablesProjectConstants.LogicCoreGroup);
+                settings.BuildAddressablesWithPlayerBuild =
+                    AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                IsDedicatedServerBuild = dedicatedServer;
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+            }
+            catch
+            {
+                Restore();
+                throw;
+            }
         }
 
         public void Dispose()
         {
-            if (streamingAssetsFilterProperty != null)
+            if (isDisposed)
+                return;
+            isDisposed = true;
+            Restore();
+        }
+
+        private void Restore()
+        {
+            foreach (System.Collections.Generic.KeyValuePair<
+                         BundledAssetGroupSchema,
+                         bool> pair in previousIncludeInBuild)
             {
-                streamingAssetsFilterProperty.SetValue(
-                    null,
-                    previousStreamingAssetsFilter);
+                if (pair.Key != null)
+                {
+                    pair.Key.IncludeInBuild = pair.Value;
+                    EditorUtility.SetDirty(pair.Key);
+                }
             }
+            settings.DefaultGroup = previousDefaultGroup;
             settings.BuildAddressablesWithPlayerBuild = previous;
             IsDedicatedServerBuild = previousDedicatedServerBuild;
+            WriteAlwaysIncludedShaders(
+                graphicsSettingsAsset,
+                previousAlwaysIncludedShaders);
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
+        }
+
+        public static bool IsRequiredClientShaderAlwaysIncluded()
+        {
+            UnityEngine.Object asset = LoadGraphicsSettingsAsset();
+            Shader required = LoadRequiredClientShader();
+            Shader[] shaders = ReadAlwaysIncludedShaders(asset);
+            for (int i = 0; i < shaders.Length; i++)
+            {
+                if (shaders[i] == required)
+                    return true;
+            }
+            return false;
+        }
+
+        private static void ConfigureRequiredClientShader(
+            UnityEngine.Object asset,
+            IReadOnlyList<Shader> current,
+            bool dedicatedServer)
+        {
+            Shader required = LoadRequiredClientShader();
+            var next = new List<Shader>(current.Count + 1);
+            for (int i = 0; i < current.Count; i++)
+            {
+                Shader shader = current[i];
+                if (shader != required)
+                    next.Add(shader);
+            }
+            if (!dedicatedServer)
+                next.Add(required);
+            WriteAlwaysIncludedShaders(asset, next);
+        }
+
+        private static UnityEngine.Object LoadGraphicsSettingsAsset()
+        {
+            UnityEngine.Object[] assets =
+                AssetDatabase.LoadAllAssetsAtPath(
+                    "ProjectSettings/GraphicsSettings.asset");
+            if (assets == null || assets.Length != 1 || assets[0] == null)
+            {
+                throw new InvalidOperationException(
+                    "Unity GraphicsSettings asset could not be resolved.");
+            }
+            return assets[0];
+        }
+
+        private static Shader LoadRequiredClientShader()
+        {
+            Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(
+                RequiredClientIndicatorShaderPath);
+            if (shader == null)
+            {
+                throw new InvalidOperationException(
+                    $"Required client indicator Shader is missing at " +
+                    $"'{RequiredClientIndicatorShaderPath}'.");
+            }
+            return shader;
+        }
+
+        private static Shader[] ReadAlwaysIncludedShaders(
+            UnityEngine.Object asset)
+        {
+            var serialized = new SerializedObject(asset);
+            SerializedProperty property = serialized.FindProperty(
+                "m_AlwaysIncludedShaders");
+            if (property == null || !property.isArray)
+            {
+                throw new InvalidOperationException(
+                    "GraphicsSettings.m_AlwaysIncludedShaders is unavailable.");
+            }
+            var result = new Shader[property.arraySize];
+            for (int i = 0; i < property.arraySize; i++)
+            {
+                result[i] = property.GetArrayElementAtIndex(i)
+                    .objectReferenceValue as Shader;
+            }
+            return result;
+        }
+
+        private static void WriteAlwaysIncludedShaders(
+            UnityEngine.Object asset,
+            IReadOnlyList<Shader> shaders)
+        {
+            var serialized = new SerializedObject(asset);
+            SerializedProperty property = serialized.FindProperty(
+                "m_AlwaysIncludedShaders");
+            if (property == null || !property.isArray)
+            {
+                throw new InvalidOperationException(
+                    "GraphicsSettings.m_AlwaysIncludedShaders is unavailable.");
+            }
+            property.arraySize = shaders.Count;
+            for (int i = 0; i < shaders.Count; i++)
+            {
+                property.GetArrayElementAtIndex(i).objectReferenceValue =
+                    shaders[i];
+            }
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(asset);
         }
     }
 
@@ -259,12 +414,61 @@ namespace FrameSyncMoba.EditorTools
             AddressablesServerBuildAudit.ValidateOutputDirectory(
                 outputDirectory);
             Debug.Log(
-                "[ServerBuildAudit] Passed: no Addressables catalog or AssetBundle was emitted into the Dedicated Server output.");
+                "[ServerBuildAudit] Passed: logic-only Addressables content is present and no client bundle was emitted.");
         }
     }
 
     public static class AddressablesServerBuildAudit
     {
+        public static void ValidateLogicGroupDependencies(
+            AddressableAssetSettings settings)
+        {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+            for (int groupIndex = 0;
+                 groupIndex < Addressables.AddressablesProjectConstants
+                     .LogicGroups.Length;
+                 groupIndex++)
+            {
+                string groupName = Addressables
+                    .AddressablesProjectConstants.LogicGroups[groupIndex];
+                AddressableAssetGroup group = settings.FindGroup(groupName);
+                if (group == null)
+                    throw new BuildFailedException(
+                        $"Dedicated Server logic Addressables group '{groupName}' is missing.");
+                foreach (AddressableAssetEntry entry in group.entries)
+                    ValidateLogicRootDependencies(
+                        entry.AssetPath,
+                        groupName);
+            }
+        }
+
+        public static void ValidateLogicRootDependencies(
+            string rootPath,
+            string owner)
+        {
+            if (Addressables.AddressableDependencyInventory.Classify(
+                    rootPath) == "ClientPresentation")
+                throw new BuildFailedException(
+                    $"Dedicated Server logic root '{rootPath}' in '{owner}' is client presentation content.");
+            string[] dependencies = AssetDatabase.GetDependencies(
+                rootPath,
+                true);
+            for (int i = 0; i < dependencies.Length; i++)
+            {
+                string dependency = dependencies[i];
+                if (string.Equals(
+                        dependency,
+                        rootPath,
+                        StringComparison.Ordinal))
+                    continue;
+                if (Addressables.AddressableDependencyInventory.Classify(
+                        dependency) == "ClientPresentation")
+                    throw new BuildFailedException(
+                        $"Dedicated Server logic root '{rootPath}' in '{owner}' reaches client presentation dependency '{dependency}'.");
+            }
+        }
+
         public static void ValidateOutputDirectory(string outputDirectory)
         {
             if (string.IsNullOrWhiteSpace(outputDirectory))
@@ -288,10 +492,14 @@ namespace FrameSyncMoba.EditorTools
                         "StreamingAssets",
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new BuildFailedException(
-                        $"Dedicated Server contains a client Addressables directory: '{addressablesDirectories[i]}'.");
+                    goto AddressablesFound;
                 }
             }
+
+            throw new BuildFailedException(
+                "Dedicated Server is missing its logic Addressables directory.");
+
+        AddressablesFound:
 
             string[] catalogs = Directory.GetFiles(
                 fullOutputDirectory,
@@ -301,10 +509,18 @@ namespace FrameSyncMoba.EditorTools
                 fullOutputDirectory,
                 "*.bundle",
                 SearchOption.AllDirectories);
-            if (catalogs.Length != 0 || bundles.Length != 0)
+            if (catalogs.Length == 0 || bundles.Length == 0)
             {
                 throw new BuildFailedException(
-                    $"Dedicated Server contains client Addressables content: catalogs={catalogs.Length}, bundles={bundles.Length}.");
+                    $"Dedicated Server logic Addressables content is incomplete: catalogs={catalogs.Length}, bundles={bundles.Length}.");
+            }
+            for (int i = 0; i < bundles.Length; i++)
+            {
+                if (Path.GetFileName(bundles[i]).IndexOf(
+                        "client-",
+                        StringComparison.OrdinalIgnoreCase) >= 0)
+                    throw new BuildFailedException(
+                        $"Dedicated Server contains a client Addressables bundle: '{bundles[i]}'.");
             }
         }
     }

@@ -70,7 +70,13 @@ namespace FrameSyncMoba.ClientContent
         {
             GameBootstrap bootstrap =
                 UnityEngine.Object.FindObjectOfType<GameBootstrap>();
-            if (!ReferenceEquals(boundBootstrap, bootstrap))
+            bool bootstrapBecameReady =
+                ReferenceEquals(boundBootstrap, bootstrap) &&
+                bootstrap != null &&
+                bootstrap.UnitWorld != null &&
+                unitViewBinder == null;
+            if (!ReferenceEquals(boundBootstrap, bootstrap) ||
+                bootstrapBecameReady)
             {
                 bindGeneration++;
                 unitViewBinder?.Dispose();
@@ -336,7 +342,9 @@ namespace FrameSyncMoba.ClientContent
 
         private void LateUpdate()
         {
-            if (boundBootstrap == null)
+            if (boundBootstrap == null ||
+                (boundBootstrap.UnitWorld != null &&
+                 unitViewBinder == null))
                 BindCurrentScene();
             unitViewBinder?.Reconcile();
             projectileViewBinder?.Reconcile();

@@ -17,16 +17,24 @@ namespace FrameSyncMoba.RuntimeConfig
     public sealed class PrefabEntry
     {
         [SerializeField, Min(1)] private int prefabId;
-        [SerializeField] private GameObject unityPrefab;
+        [SerializeField, HideInInspector] private GameObject unityPrefab;
+        [SerializeField] private string logicAssetAddress;
         [SerializeField] private int gameplayConfigId;
         [SerializeField, HideInInspector] private string editorAssetGuid;
         [SerializeField] private string clientViewAddress;
 
+        [NonSerialized] private GameObject resolvedUnityPrefab;
+
         public int PrefabId => prefabId;
-        public GameObject UnityPrefab => unityPrefab;
+        public GameObject UnityPrefab =>
+            resolvedUnityPrefab != null
+                ? resolvedUnityPrefab
+                : unityPrefab;
+        public string LogicAssetAddress => logicAssetAddress ?? string.Empty;
         public int GameplayConfigId => gameplayConfigId;
         public string EditorAssetGuid => editorAssetGuid;
         public string ClientViewAddress => clientViewAddress ?? string.Empty;
+        public bool HasLegacyDirectReference => unityPrefab != null;
 
         public PrefabEntry(
             int prefabId,
@@ -37,9 +45,41 @@ namespace FrameSyncMoba.RuntimeConfig
         {
             this.prefabId = prefabId;
             this.unityPrefab = unityPrefab;
+            logicAssetAddress = string.Empty;
             this.gameplayConfigId = gameplayConfigId;
             this.editorAssetGuid = editorAssetGuid ?? string.Empty;
             this.clientViewAddress = clientViewAddress ?? string.Empty;
+        }
+
+        public PrefabEntry(
+            int prefabId,
+            string logicAssetAddress,
+            int gameplayConfigId = 0,
+            string editorAssetGuid = null,
+            string clientViewAddress = null)
+        {
+            this.prefabId = prefabId;
+            unityPrefab = null;
+            this.logicAssetAddress = logicAssetAddress ?? string.Empty;
+            this.gameplayConfigId = gameplayConfigId;
+            this.editorAssetGuid = editorAssetGuid ?? string.Empty;
+            this.clientViewAddress = clientViewAddress ?? string.Empty;
+        }
+
+        internal PrefabEntry Resolve(GameObject prefab)
+        {
+            if (prefab == null)
+                throw new ArgumentNullException(nameof(prefab));
+            var resolved = new PrefabEntry(
+                prefabId,
+                LogicAssetAddress,
+                gameplayConfigId,
+                editorAssetGuid,
+                ClientViewAddress)
+            {
+                resolvedUnityPrefab = prefab,
+            };
+            return resolved;
         }
     }
 
@@ -86,9 +126,12 @@ namespace FrameSyncMoba.RuntimeConfig
         menuName = "FrameSyncMoba/Runtime/Global Prefab Table")]
     public sealed class GlobalPrefabTable : ScriptableObject
     {
-        [Header("Stable runtime prefab mappings")]
-        [Tooltip("Entries are resolved by the fixed PrefabKind plus PrefabId pair.")]
+        [Header("Resolved runtime mappings / legacy migration bridge")]
+        [Tooltip("Production root assets keep this empty. Loaded match scopes populate a nonserialized runtime clone.")]
         [SerializeField] private List<PrefabGroup> prefabGroups = new List<PrefabGroup>();
+        [Header("Addressable content partitions")]
+        [SerializeField] private List<GlobalPrefabPartitionReference>
+            partitions = new List<GlobalPrefabPartitionReference>();
         [Header("Per-kind ID ranges (design v10.2 17.5)")]
         [Tooltip("Configured ranges override the built-in defaults. IDs must stay inside their kind range.")]
         [SerializeField] private List<PrefabKindRangeConfig> kindRanges =
@@ -99,6 +142,8 @@ namespace FrameSyncMoba.RuntimeConfig
         private bool isLookupBuilt;
 
         public IReadOnlyList<PrefabGroup> PrefabGroups => prefabGroups;
+        public IReadOnlyList<GlobalPrefabPartitionReference> Partitions =>
+            partitions;
         public IReadOnlyList<PrefabKindRangeConfig> KindRanges =>
             kindRanges;
 
@@ -144,6 +189,155 @@ namespace FrameSyncMoba.RuntimeConfig
             RebuildLookup();
         }
 
+        public IReadOnlyList<GlobalPrefabPartitionReference>
+            SelectPartitions(
+                int mapConfigId,
+                IReadOnlyList<int> sortedHeroConfigIds)
+        {
+            ValidateRootPartitions();
+            if (sortedHeroConfigIds == null)
+                throw new ArgumentNullException(
+                    nameof(sortedHeroConfigIds));
+            var selected =
+                new List<GlobalPrefabPartitionReference>();
+            for (int i = 0; i < partitions.Count; i++)
+            {
+                GlobalPrefabPartitionReference partition =
+                    partitions[i];
+                bool include = false;
+                switch (partition.PartitionKind)
+                {
+                    case GlobalPrefabPartitionKind.Core:
+                    case GlobalPrefabPartitionKind.Shared:
+                        include = true;
+                        break;
+                    case GlobalPrefabPartitionKind.Map:
+                        include =
+                            partition.OwnerConfigId == mapConfigId;
+                        break;
+                    case GlobalPrefabPartitionKind.Hero:
+                        include = ContainsSorted(
+                            sortedHeroConfigIds,
+                            partition.OwnerConfigId);
+                        break;
+                    default:
+                        throw new InvalidOperationException(
+                            $"Unknown content partition kind {partition.PartitionKind}.");
+                }
+                if (include)
+                    selected.Add(partition);
+            }
+            selected.Sort(GlobalPrefabPartitionReference.Compare);
+            for (int heroIndex = 0;
+                 heroIndex < sortedHeroConfigIds.Count;
+                 heroIndex++)
+            {
+                int heroId = sortedHeroConfigIds[heroIndex];
+                bool found = false;
+                for (int partitionIndex = 0;
+                     partitionIndex < selected.Count;
+                     partitionIndex++)
+                {
+                    GlobalPrefabPartitionReference partition =
+                        selected[partitionIndex];
+                    if (partition.PartitionKind ==
+                            GlobalPrefabPartitionKind.Hero &&
+                        partition.OwnerConfigId == heroId)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    throw new InvalidOperationException(
+                        $"GlobalPrefabTable has no Hero partition for HeroConfigId {heroId}.");
+            }
+            return selected;
+        }
+
+        public GlobalPrefabTable CreateResolvedRuntimeTable(
+            IReadOnlyList<GlobalPrefabSubTableAsset> subTables,
+            IReadOnlyDictionary<string, GameObject> resolvedPrefabs)
+        {
+            if (subTables == null)
+                throw new ArgumentNullException(nameof(subTables));
+            if (resolvedPrefabs == null)
+                throw new ArgumentNullException(nameof(resolvedPrefabs));
+
+            var entriesByKind =
+                new Dictionary<PrefabKind, List<PrefabEntry>>();
+            for (int tableIndex = 0;
+                 tableIndex < subTables.Count;
+                 tableIndex++)
+            {
+                GlobalPrefabSubTableAsset subTable =
+                    subTables[tableIndex] ??
+                    throw new InvalidOperationException(
+                        $"Resolved sub-table {tableIndex} is null.");
+                subTable.ValidateOrThrow();
+                IReadOnlyList<PrefabGroup> groups =
+                    subTable.PrefabGroups;
+                for (int groupIndex = 0;
+                     groupIndex < groups.Count;
+                     groupIndex++)
+                {
+                    PrefabGroup group = groups[groupIndex];
+                    if (!entriesByKind.TryGetValue(
+                            group.Kind,
+                            out List<PrefabEntry> destination))
+                    {
+                        destination = new List<PrefabEntry>();
+                        entriesByKind.Add(group.Kind, destination);
+                    }
+                    for (int entryIndex = 0;
+                         entryIndex < group.Entries.Count;
+                         entryIndex++)
+                    {
+                        PrefabEntry entry = group.Entries[entryIndex];
+                        if (string.IsNullOrEmpty(
+                                entry.LogicAssetAddress))
+                        {
+                            destination.Add(entry);
+                            continue;
+                        }
+                        if (!resolvedPrefabs.TryGetValue(
+                                entry.LogicAssetAddress,
+                                out GameObject prefab) ||
+                            prefab == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Resolved match content is missing logic asset '{entry.LogicAssetAddress}' for {group.Kind}/{entry.PrefabId}.");
+                        }
+                        destination.Add(entry.Resolve(prefab));
+                    }
+                }
+            }
+
+            var resolvedGroups = new List<PrefabGroup>();
+            foreach (KeyValuePair<PrefabKind, List<PrefabEntry>> pair
+                     in entriesByKind)
+            {
+                pair.Value.Sort(
+                    (left, right) =>
+                        left.PrefabId.CompareTo(right.PrefabId));
+                resolvedGroups.Add(
+                    new PrefabGroup(pair.Key, pair.Value));
+            }
+            resolvedGroups.Sort(
+                (left, right) =>
+                    ((byte)left.Kind).CompareTo((byte)right.Kind));
+
+            GlobalPrefabTable runtime =
+                CreateInstance<GlobalPrefabTable>();
+            runtime.name = $"{name}_ResolvedMatch";
+            runtime.kindRanges = CloneRanges(kindRanges);
+            runtime.prefabGroups = resolvedGroups;
+            runtime.partitions =
+                new List<GlobalPrefabPartitionReference>();
+            runtime.RebuildLookup();
+            return runtime;
+        }
+
         internal void ReplaceGroupsForTests(IEnumerable<PrefabGroup> groups)
         {
             prefabGroups.Clear();
@@ -154,6 +348,28 @@ namespace FrameSyncMoba.RuntimeConfig
 
             isLookupBuilt = false;
         }
+
+        internal void ReplacePartitionsForTests(
+            IEnumerable<GlobalPrefabPartitionReference> values)
+        {
+            partitions.Clear();
+            if (values != null)
+                partitions.AddRange(values);
+            isLookupBuilt = false;
+        }
+
+#if UNITY_EDITOR
+        public void ConfigureAddressableRootForEditor(
+            IEnumerable<GlobalPrefabPartitionReference> values)
+        {
+            prefabGroups.Clear();
+            partitions.Clear();
+            if (values != null)
+                partitions.AddRange(values);
+            runtimeLookup.Clear();
+            isLookupBuilt = false;
+        }
+#endif
 
         internal void ReplaceRangesForTests(
             IEnumerable<PrefabKindRangeConfig> ranges)
@@ -197,6 +413,16 @@ namespace FrameSyncMoba.RuntimeConfig
             runtimeLookup.Clear();
             ValidateRanges();
 
+            if (partitions.Count > 0)
+            {
+                ValidateRootPartitions();
+                if (prefabGroups.Count > 0)
+                    throw new InvalidOperationException(
+                        "GlobalPrefabTable root cannot serialize resolved prefab groups together with Addressable partitions.");
+                isLookupBuilt = true;
+                return;
+            }
+
             for (int groupIndex = 0; groupIndex < prefabGroups.Count; groupIndex++)
             {
                 PrefabGroup group = prefabGroups[groupIndex];
@@ -226,13 +452,14 @@ namespace FrameSyncMoba.RuntimeConfig
                         group.Kind == PrefabKind.Projectile;
                     if (entry.UnityPrefab == null &&
                         (requiresLogicPrefab ||
-                         string.IsNullOrEmpty(entry.ClientViewAddress)))
+                         string.IsNullOrEmpty(
+                             entry.ClientViewAddress)))
                     {
                         throw new InvalidOperationException(
-                            $"{group.Kind} prefab {entry.PrefabId} requires " +
+                            $"Resolved {group.Kind} prefab {entry.PrefabId} requires " +
                             (requiresLogicPrefab
-                                ? "a synchronous logic prefab."
-                                : "a direct prefab or client Addressables address."));
+                                ? "a loaded logic asset."
+                                : "a loaded logic asset or client view address."));
                     }
 
                     if (!string.IsNullOrEmpty(entry.ClientViewAddress) &&
@@ -265,6 +492,25 @@ namespace FrameSyncMoba.RuntimeConfig
             }
 
             isLookupBuilt = true;
+        }
+
+        private void ValidateRootPartitions()
+        {
+            var keys = new HashSet<long>();
+            for (int i = 0; i < partitions.Count; i++)
+            {
+                GlobalPrefabPartitionReference partition =
+                    partitions[i] ??
+                    throw new InvalidOperationException(
+                        $"Global prefab partition {i} is null.");
+                partition.ValidateOrThrow();
+                long key =
+                    ((long)(byte)partition.PartitionKind << 32) |
+                    (uint)partition.OwnerConfigId;
+                if (!keys.Add(key))
+                    throw new InvalidOperationException(
+                        $"Duplicate {partition.PartitionKind} content partition owner {partition.OwnerConfigId}.");
+            }
         }
 
         private void ValidateRanges()
@@ -336,6 +582,44 @@ namespace FrameSyncMoba.RuntimeConfig
         private static long BuildKey(PrefabKind kind, int prefabId)
         {
             return ((long)(byte)kind << 32) | (uint)prefabId;
+        }
+
+        private static bool ContainsSorted(
+            IReadOnlyList<int> values,
+            int value)
+        {
+            int low = 0;
+            int high = values.Count - 1;
+            while (low <= high)
+            {
+                int middle = low + ((high - low) / 2);
+                int candidate = values[middle];
+                if (candidate == value)
+                    return true;
+                if (candidate < value)
+                    low = middle + 1;
+                else
+                    high = middle - 1;
+            }
+            return false;
+        }
+
+        private static List<PrefabKindRangeConfig> CloneRanges(
+            IReadOnlyList<PrefabKindRangeConfig> source)
+        {
+            var clone =
+                new List<PrefabKindRangeConfig>(source.Count);
+            for (int i = 0; i < source.Count; i++)
+            {
+                PrefabKindRangeConfig value = source[i];
+                clone.Add(new PrefabKindRangeConfig
+                {
+                    Kind = value.Kind,
+                    IdRangeStart = value.IdRangeStart,
+                    IdRangeEnd = value.IdRangeEnd,
+                });
+            }
+            return clone;
         }
     }
 }

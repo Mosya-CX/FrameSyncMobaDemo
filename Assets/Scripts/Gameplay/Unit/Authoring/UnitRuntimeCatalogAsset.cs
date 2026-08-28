@@ -321,6 +321,25 @@ namespace FrameSyncMoba.Unit
         public IReadOnlyList<StatDefinitionAuthoring> StatDefinitions => statDefinitions;
         public IReadOnlyList<UnitPrototypeAuthoring> UnitPrototypes => unitPrototypes;
 #if UNITY_EDITOR
+        public UnitDisposePolicyTable DisposePolicyTableForEditor =>
+            disposePolicyTable;
+
+        public void ConfigureForEditor(
+            IEnumerable<StatDefinitionAuthoring> definitions,
+            IEnumerable<UnitPrototypeAuthoring> prototypes,
+            UnitDisposePolicyTable disposePolicies,
+            HeroDisplayTable displayTable)
+        {
+            statDefinitions = definitions != null
+                ? new List<StatDefinitionAuthoring>(definitions)
+                : new List<StatDefinitionAuthoring>();
+            unitPrototypes = prototypes != null
+                ? new List<UnitPrototypeAuthoring>(prototypes)
+                : new List<UnitPrototypeAuthoring>();
+            disposePolicyTable = disposePolicies;
+            heroDisplayTable = displayTable;
+        }
+
         public HeroDisplayTable HeroDisplayTableForSync =>
             heroDisplayTable;
 #endif
@@ -351,15 +370,63 @@ namespace FrameSyncMoba.Unit
             GlobalPrefabTable prefabTable,
             int tickRate = 30)
         {
+            return BakeCombinedOrThrow(
+                new[] { this },
+                prefabTable,
+                tickRate);
+        }
+
+        public static BakedUnitRuntimeCatalog
+            BakeCombinedOrThrow(
+                IReadOnlyList<UnitRuntimeCatalogAsset> catalogs,
+                GlobalPrefabTable prefabTable,
+                int tickRate = 30)
+        {
+            if (catalogs == null || catalogs.Count == 0)
+                throw new InvalidOperationException(
+                    "Combined Unit catalog requires at least one partition.");
             if (prefabTable == null)
                 throw new ArgumentNullException(nameof(prefabTable));
             prefabTable.ValidateOrThrow();
             DeterministicTimeConversion.ValidateSupportedTickRate(
                 tickRate);
-            disposePolicyTable?.BakeTime(tickRate);
+
+            var combinedDefinitions =
+                new List<StatDefinitionAuthoring>();
+            var combinedPrototypes =
+                new List<UnitPrototypeAuthoring>();
+            UnitDisposePolicyTable combinedDisposePolicies = null;
+            for (int catalogIndex = 0;
+                 catalogIndex < catalogs.Count;
+                 catalogIndex++)
+            {
+                UnitRuntimeCatalogAsset catalog =
+                    catalogs[catalogIndex] ??
+                    throw new InvalidOperationException(
+                        $"Unit catalog partition {catalogIndex} is null.");
+                if (catalog.statDefinitions == null ||
+                    catalog.unitPrototypes == null)
+                    throw new InvalidOperationException(
+                        $"Unit catalog partition '{catalog.name}' contains a null collection.");
+                combinedDefinitions.AddRange(
+                    catalog.statDefinitions);
+                combinedPrototypes.AddRange(
+                    catalog.unitPrototypes);
+                if (catalog.disposePolicyTable != null)
+                {
+                    if (combinedDisposePolicies != null &&
+                        combinedDisposePolicies !=
+                            catalog.disposePolicyTable)
+                        throw new InvalidOperationException(
+                            "Unit content partitions reference different dispose-policy tables.");
+                    combinedDisposePolicies =
+                        catalog.disposePolicyTable;
+                }
+            }
+            combinedDisposePolicies?.BakeTime(tickRate);
 
             var sortedDefinitions = new List<StatDefinitionAuthoring>(
-                statDefinitions ?? new List<StatDefinitionAuthoring>());
+                combinedDefinitions);
             if (sortedDefinitions.Count == 0)
                 throw new InvalidOperationException(
                     "UnitRuntimeCatalog requires at least one StatDefinition.");
@@ -373,7 +440,7 @@ namespace FrameSyncMoba.Unit
             }
 
             var sortedPrototypes = new List<UnitPrototypeAuthoring>(
-                unitPrototypes ?? new List<UnitPrototypeAuthoring>());
+                combinedPrototypes);
             if (sortedPrototypes.Count == 0)
                 throw new InvalidOperationException(
                     "UnitRuntimeCatalog requires at least one UnitPrototype.");
@@ -386,9 +453,9 @@ namespace FrameSyncMoba.Unit
                     throw new InvalidOperationException($"Unit prototype {i} is null.");
                 UnitPrototype prototype = authoring.BakeOrThrow(
                     tickRate);
-                if (disposePolicyTable != null)
+                if (combinedDisposePolicies != null)
                 {
-                    if (!disposePolicyTable.TryGet(
+                    if (!combinedDisposePolicies.TryGet(
                             prototype.UnitDisposePolicyId,
                             out UnitDisposePolicyEntry disposePolicy))
                         throw new InvalidOperationException(
@@ -407,7 +474,7 @@ namespace FrameSyncMoba.Unit
             return new BakedUnitRuntimeCatalog(
                 definitionTable,
                 prototypeTable,
-                disposePolicyTable);
+                combinedDisposePolicies);
         }
 
         internal void ReplaceForTests(

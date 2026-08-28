@@ -8,6 +8,13 @@ namespace FrameSyncMoba.EditorTools.Addressables
         public const string AudioGroup = "Client-Audio";
         public const string UiGroup = "Client-UI";
         public const string SharedGroup = "Client-Shared";
+        public const string ClientHero1001Group = "Client-Hero-1001";
+        public const string ClientHero1002Group = "Client-Hero-1002";
+
+        public const string LogicCoreGroup = "Logic-Core";
+        public const string LogicMap1Group = "Logic-Map-1";
+        public const string LogicHero1001Group = "Logic-Hero-1001";
+        public const string LogicHero1002Group = "Logic-Hero-1002";
 
         public static readonly string[] ClientGroups =
         {
@@ -17,6 +24,32 @@ namespace FrameSyncMoba.EditorTools.Addressables
             AudioGroup,
             UiGroup,
             SharedGroup,
+            ClientHero1001Group,
+            ClientHero1002Group,
+        };
+
+        public static readonly string[] LogicGroups =
+        {
+            LogicCoreGroup,
+            LogicMap1Group,
+            LogicHero1001Group,
+            LogicHero1002Group,
+        };
+
+        public static readonly string[] LocalGroups =
+        {
+            UnitViewsGroup,
+            ProjectileViewsGroup,
+            VfxGroup,
+            AudioGroup,
+            UiGroup,
+            SharedGroup,
+            ClientHero1001Group,
+            ClientHero1002Group,
+            LogicCoreGroup,
+            LogicMap1Group,
+            LogicHero1001Group,
+            LogicHero1002Group,
         };
 
         public const string BaselineCsv =

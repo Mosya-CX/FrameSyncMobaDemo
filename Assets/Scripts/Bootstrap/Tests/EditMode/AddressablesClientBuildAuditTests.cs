@@ -119,7 +119,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
         }
 
         [Test]
-        public void ServerAudit_RejectsAnyStreamingAssetsAddressablesDirectory()
+        public void ServerAudit_RejectsIncompleteLogicAddressablesDirectory()
         {
             string serverOutput = Path.Combine(testRoot, "Server");
             string addressablesLink = Path.Combine(
@@ -138,8 +138,36 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 () => AddressablesServerBuildAudit
                     .ValidateOutputDirectory(serverOutput));
             StringAssert.Contains(
-                "Addressables directory",
+                "logic Addressables content is incomplete",
                 exception.Message);
+        }
+
+        [Test]
+        public void ServerAudit_AcceptsLogicOnlyAndRejectsClientBundle()
+        {
+            string aa = Path.Combine(
+                testRoot,
+                "ServerLogic",
+                "FrameSyncMobaServer_Data",
+                "StreamingAssets",
+                "aa");
+            Directory.CreateDirectory(aa);
+            File.WriteAllText(Path.Combine(aa, "catalog.json"), "{}");
+            File.WriteAllBytes(
+                Path.Combine(aa, "logic-core.bundle"),
+                new byte[] { 1 });
+
+            Assert.DoesNotThrow(
+                () => AddressablesServerBuildAudit.ValidateOutputDirectory(
+                    Path.Combine(testRoot, "ServerLogic")));
+
+            File.WriteAllBytes(
+                Path.Combine(aa, "client-hero-1001.bundle"),
+                new byte[] { 1 });
+            BuildFailedException exception = Assert.Throws<BuildFailedException>(
+                () => AddressablesServerBuildAudit.ValidateOutputDirectory(
+                    Path.Combine(testRoot, "ServerLogic")));
+            StringAssert.Contains("client Addressables bundle", exception.Message);
         }
 
         private void CreateAddressablesOutput(BuildTarget target)

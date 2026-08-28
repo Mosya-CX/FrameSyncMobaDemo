@@ -54,6 +54,16 @@ namespace FrameSyncMoba.Bootstrap
         /// </summary>
         public static GameBootstrap Bootstrap;
 
+        /// <summary>
+        /// Stable, de-duplicated hero roster selected in Lobby. GameScene uses
+        /// it only to choose the local Addressables partitions that must be
+        /// ready before deterministic runtime construction.
+        /// </summary>
+        public static int[] SelectedHeroConfigIds;
+
+        /// <summary>Map content partition selected for the pending match.</summary>
+        public static int SelectedMapConfigId;
+
         /// <summary>Persistent LobbyNetworkBridge (DontDestroyOnLoad).</summary>
         public static LobbyNetworkBridge LobbyBridge;
 
@@ -115,6 +125,8 @@ namespace FrameSyncMoba.Bootstrap
             FlowManagedExternally = false;
             NetworkAlreadyStarted = false;
             Bootstrap = null;
+            SelectedHeroConfigIds = null;
+            SelectedMapConfigId = 0;
             LobbyBridge = null;
             UiActions = null;
             Versions = null;
@@ -125,6 +137,23 @@ namespace FrameSyncMoba.Bootstrap
             ServerSlots = null;
             ClientFlow = null;
             ServerFlow = null;
+        }
+
+        public static void SetSelectedMatchContent(
+            int mapConfigId,
+            System.Collections.Generic.IEnumerable<int> heroConfigIds)
+        {
+            var selection = new MatchContentSelection(
+                mapConfigId,
+                heroConfigIds);
+            SelectedMapConfigId = selection.MapConfigId;
+            SelectedHeroConfigIds =
+                new int[selection.HeroConfigIds.Count];
+            for (int i = 0;
+                 i < SelectedHeroConfigIds.Length;
+                 i++)
+                SelectedHeroConfigIds[i] =
+                    selection.HeroConfigIds[i];
         }
 
         /// <summary>

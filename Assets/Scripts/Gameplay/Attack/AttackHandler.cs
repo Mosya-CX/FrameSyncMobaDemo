@@ -241,43 +241,6 @@ namespace FrameSyncMoba.Unit
             }
         }
 
-        /// <summary>
-        /// Deterministically drops a current attack target that is no longer
-        /// alive/present (e.g. it died this Tick and was disposed). Called
-        /// after combat death disposals so the Tick-end snapshot never
-        /// carries a stale target reference, which would otherwise make a
-        /// later rollback restore fail "Attack snapshot references missing
-        /// target".
-        /// </summary>
-        public void ClearTargetIfMissing()
-        {
-            if (!_state.CurrentTargetUid.IsValid())
-            {
-                return;
-            }
-            if (_state.ImpactCommitted)
-            {
-                // A committed attack already handed the target to its
-                // projectile; the handler field stays set until the cycle
-                // completes (and Resolve tolerates a target that died
-                // mid-flight). Clearing it here would violate the
-                // committed-with-target snapshot invariant.
-                return;
-            }
-            UnitWorld world = Owner?.World;
-            bool targetAlive =
-                world != null &&
-                world.TryGetUnit(
-                    _state.CurrentTargetUid,
-                    out Unit target) &&
-                target.LifeState == LifeState.Alive;
-            if (targetAlive)
-            {
-                return;
-            }
-            CancelBeforeCommit();
-        }
-
         public virtual bool CommitAttack()
         {
             int currentTick = SimulationTickContext.Current.Tick;

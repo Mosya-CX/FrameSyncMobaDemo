@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Generic;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.RuntimeConfig;
 using FrameSyncMoba.Unit;
@@ -31,11 +32,13 @@ namespace FrameSyncMoba.Bootstrap.Tests
             Assert.That(abilityCatalog, Is.Not.Null);
             Assert.That(mapConfig, Is.Not.Null);
 
+            GlobalGameplayData testGlobal =
+                CreateLegacyTestGlobal(global, out GlobalPrefabTable runtimeTable);
             var root = new GameObject("FrameworkSmokeBootstrapTest");
             try
             {
                 GameBootstrap bootstrap = root.AddComponent<GameBootstrap>();
-                SetField(bootstrap, "globalGameplayData", global);
+                SetField(bootstrap, "globalGameplayData", testGlobal);
                 SetField(bootstrap, "unitRuntimeCatalog", catalog);
                 SetField(
                     bootstrap,
@@ -194,8 +197,11 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     secondWire,
                     Is.EqualTo(firstWire));
 
-                for (int i = 0; i < 30; i++)
-                bootstrap.AdvanceSimulationByElapsedMilliseconds(1000L);
+                int countdownCalls =
+                    (global.BakeOrThrow().CountdownTicks /
+                     bootstrap.MaxLogicTicksPerUnityFrame) + 2;
+                for (int i = 0; i < countdownCalls; i++)
+                    bootstrap.AdvanceSimulationByElapsedMilliseconds(1000L);
                 Assert.That(
                     bootstrap.Runtime.MatchRule.CurrentPhase,
                     Is.EqualTo(
@@ -223,6 +229,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 for (int i = 0; i < units.Length; i++)
                     UnityEngine.Object.DestroyImmediate(units[i].gameObject);
                 UnityEngine.Object.DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(runtimeTable);
+                UnityEngine.Object.DestroyImmediate(testGlobal);
             }
         }
 
@@ -251,6 +259,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
             Assert.That(abilityCatalog, Is.Not.Null);
             Assert.That(mapConfig, Is.Not.Null);
 
+            GlobalGameplayData testGlobal =
+                CreateLegacyTestGlobal(global, out GlobalPrefabTable runtimeTable);
             var root = new GameObject(
                 "HeroBindBootstrapTest");
             try
@@ -260,7 +270,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 SetField(
                     bootstrap,
                     "globalGameplayData",
-                    global);
+                    testGlobal);
                 SetField(
                     bootstrap,
                     "unitRuntimeCatalog",
@@ -409,6 +419,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 }
                 UnityEngine.Object
                     .DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(runtimeTable);
+                UnityEngine.Object.DestroyImmediate(testGlobal);
             }
         }
 
@@ -433,6 +445,48 @@ namespace FrameSyncMoba.Bootstrap.Tests
             {
                 throw exception.InnerException ?? exception;
             }
+        }
+
+        private static GlobalGameplayData CreateLegacyTestGlobal(
+            GlobalGameplayData source,
+            out GlobalPrefabTable runtimeTable)
+        {
+            GlobalPrefabTable root = source.GlobalPrefabTable;
+            string[] paths =
+            {
+                "Assets/Config/Formal/MatchContent/CoreGlobalPrefabSubTable.asset",
+                "Assets/Config/Formal/MatchContent/Map1GlobalPrefabSubTable.asset",
+                "Assets/Config/Formal/MatchContent/VarusGlobalPrefabSubTable.asset",
+                "Assets/Config/Formal/MatchContent/AatroxGlobalPrefabSubTable.asset",
+            };
+            var tables = new GlobalPrefabSubTableAsset[paths.Length];
+            var resolved = new Dictionary<string, GameObject>(
+                System.StringComparer.Ordinal);
+            for (int i = 0; i < paths.Length; i++)
+            {
+                tables[i] = AssetDatabase.LoadAssetAtPath<
+                    GlobalPrefabSubTableAsset>(paths[i]);
+                Assert.That(tables[i], Is.Not.Null, paths[i]);
+                foreach (PrefabGroup group in tables[i].PrefabGroups)
+                foreach (PrefabEntry entry in group.Entries)
+                {
+                    if (string.IsNullOrEmpty(entry.LogicAssetAddress) ||
+                        resolved.ContainsKey(entry.LogicAssetAddress))
+                        continue;
+                    GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                        entry.LogicAssetAddress);
+                    Assert.That(prefab, Is.Not.Null, entry.LogicAssetAddress);
+                    resolved.Add(entry.LogicAssetAddress, prefab);
+                }
+            }
+            runtimeTable = root.CreateResolvedRuntimeTable(tables, resolved);
+            GlobalGameplayData clone = UnityEngine.Object.Instantiate(source);
+            FieldInfo field = typeof(GlobalGameplayData).GetField(
+                "globalPrefabTable",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null);
+            field.SetValue(clone, runtimeTable);
+            return clone;
         }
     }
 }

@@ -246,7 +246,7 @@ namespace FrameSyncMoba.EditorTools.Addressables
             markdown.AppendLine("# Addressable client roots");
             markdown.AppendLine();
             markdown.AppendLine(
-                "Generated from the six formal `Client-*` Addressables groups. The adjacent CSV records every root address, path, GUID and dependency count.");
+                "Generated from the formal `Client-*` Addressables groups. The adjacent CSV records every root address, path, GUID and dependency count.");
             markdown.AppendLine();
             markdown.AppendLine($"- Root entries: {roots.Count}");
             markdown.AppendLine("- Remote entries: 0");

@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Logic-Hero-1002
+  m_EditorClassIdentifier: 
+  m_GroupName: Logic-Hero-1002
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 06178e14b38cd5b4c8a152e78068d4ad
+  m_SerializeEntries:
+  - m_GUID: 1b1b1fdd0b061c344ab453924f26bf72
+    m_Address: Assets/Config/Formal/MatchContent/AatroxAbilityRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3561a9ede028f4741a955188d8b48b97
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/InfernalChainsArea.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 442ecd6829a9f3343854c9161dafcee9
+    m_Address: Assets/Config/Formal/MatchContent/AatroxProjectileRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45b294545c967314f9decb88c44d5920
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Projectile/AatroxSpellWMissle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a32edb0656e35b945b703c75e2a397a3
+    m_Address: content/table/hero/1002
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c0154f48222a5fb4b882598ab3b2f5dd
+    m_Address: Assets/Config/Formal/MatchContent/AatroxUnitRuntimeCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c817c55c2713ded47bb320e72d93562e
+    m_Address: Assets/Config/Formal/MatchContent/AatroxBuffCatalog.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e7b912ff51273d94aa44a93069b84017
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Unit/AatroxHeroRuntime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3ff6355b606cac54eb86fb806f6f509b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: e7cc01925c05f9b419ae46f56a93818a, type: 2}
+    - {fileID: 11400000, guid: cbfbd68a946f7eb4481665e0cf02ae24, type: 2}

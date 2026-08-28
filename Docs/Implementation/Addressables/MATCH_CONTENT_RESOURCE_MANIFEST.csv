@@ -1,0 +1,5 @@
+partition_kind,owner_config_id,child_address,subtable_asset,prefab_entry_count,content_asset_count,logic_group,logic_root_count,client_group,client_root_count
+Core,0,content/table/core,Assets/Config/Formal/MatchContent/CoreGlobalPrefabSubTable.asset,8,5,Logic-Core,14,,0
+Map,1,content/table/map/1,Assets/Config/Formal/MatchContent/Map1GlobalPrefabSubTable.asset,1,1,Logic-Map-1,3,,0
+Hero,1001,content/table/hero/1001,Assets/Config/Formal/MatchContent/VarusGlobalPrefabSubTable.asset,5,4,Logic-Hero-1001,10,Client-Hero-1001,8
+Hero,1002,content/table/hero/1002,Assets/Config/Formal/MatchContent/AatroxGlobalPrefabSubTable.asset,6,4,Logic-Hero-1002,8,Client-Hero-1002,6

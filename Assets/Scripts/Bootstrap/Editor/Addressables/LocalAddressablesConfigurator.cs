@@ -40,12 +40,12 @@ namespace FrameSyncMoba.EditorTools.Addressables
 
             AddressableAssetGroup firstClientGroup = null;
             for (int i = 0;
-                 i < AddressablesProjectConstants.ClientGroups.Length;
+                 i < AddressablesProjectConstants.LocalGroups.Length;
                  i++)
             {
                 AddressableAssetGroup group = EnsureLocalGroup(
                     settings,
-                    AddressablesProjectConstants.ClientGroups[i]);
+                    AddressablesProjectConstants.LocalGroups[i]);
                 if (firstClientGroup == null)
                     firstClientGroup = group;
             }

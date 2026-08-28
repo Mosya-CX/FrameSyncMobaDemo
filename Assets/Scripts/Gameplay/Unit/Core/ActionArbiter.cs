@@ -125,6 +125,18 @@ namespace FrameSyncMoba.Unit
             _runtimeReconciler.Refresh();
         }
 
+        /// <summary>
+        /// Atomically cancels an uncommitted attack whose target left the set
+        /// of valid Gameplay targets. The Arbiter remains the sole owner of
+        /// the Handler/ActionRuntime cancellation decision.
+        /// </summary>
+        internal bool CancelAttackForInvalidTarget(UnitUid targetUnitUid)
+        {
+            return _owner.ActionRuntimes != null &&
+                _owner.ActionRuntimes.CancelAttackForInvalidTarget(
+                    targetUnitUid);
+        }
+
         public bool CancelAbility(byte abilitySlot)
         {
             if (_owner.AbilityHandler == null) return false;

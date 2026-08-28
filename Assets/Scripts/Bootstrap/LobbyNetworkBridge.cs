@@ -37,7 +37,7 @@ namespace FrameSyncMoba.Bootstrap
         private const string LobbyStateMessage =
             "FrameSyncMoba.Lobby.State.v1";
         private const string LoadSceneMessage =
-            "FrameSyncMoba.Lobby.LoadScene.v1";
+            "FrameSyncMoba.Lobby.LoadScene.v2";
         private const string LoadedMessage =
             "FrameSyncMoba.Lobby.Loaded.v1";
         private const string ReadyMessage =
@@ -76,6 +76,8 @@ namespace FrameSyncMoba.Bootstrap
         private int teamCount;
         private uint initialRandomSeed;
         private ClientUiActionRouter uiActions;
+        private LobbySelectionSnapshot[] latestLobbyState =
+            Array.Empty<LobbySelectionSnapshot>();
 
         public bool IsBound =>
             isServerOwner || isClientOwner;
@@ -464,6 +466,7 @@ namespace FrameSyncMoba.Bootstrap
             LobbySelectionSnapshot[] snapshots =
                 LobbyWireCodec.ReadLobbyState(
                     ReadPayload(reader));
+            latestLobbyState = snapshots;
             GameFlowLuaBridge.ApplyLobbySelection(
                 snapshots,
                 localPlayerSlot);
@@ -495,8 +498,12 @@ namespace FrameSyncMoba.Bootstrap
                 NetworkManager.ServerClientId)
                 throw new DeterministicSimulationException(
                     "Load scene request must come from the server.");
-            LobbyWireCodec.ReadMarker(
-                ReadPayload(reader));
+            int selectedMapConfigId =
+                LobbyWireCodec.ReadPositiveInt(
+                    ReadPayload(reader));
+            SetSelectedMatchContent(
+                selectedMapConfigId,
+                latestLobbyState);
             LoadSceneRequested?.Invoke();
         }
 
@@ -625,6 +632,7 @@ namespace FrameSyncMoba.Bootstrap
                 BootstrapPayloadWireCodec.Read(
                     ReadPayload(reader));
             if (GameSessionContext.Bootstrap == null ||
+                !GameSessionContext.Bootstrap.IsInitialized ||
                 GameSessionContext.Bootstrap.IsMatchReady)
             {
                 GameSessionContext.ReceivedClientPayload =
@@ -699,13 +707,42 @@ namespace FrameSyncMoba.Bootstrap
                         LobbyPlayerSlotState.HeroLocked) ==
                     0)
                     return;
+            var snapshots =
+                new LobbySelectionSnapshot[lobby.SlotCount];
+            for (int i = 0; i < snapshots.Length; i++)
+                snapshots[i] =
+                    lobby.GetSelectionSnapshot(i);
+            SetSelectedMatchContent(
+                mapConfigId,
+                snapshots);
             Broadcast(
                 LoadSceneMessage,
-                LobbyWireCodec.WriteMarker());
+                LobbyWireCodec.WritePositiveInt(
+                    mapConfigId));
             Debug.Log(
                 "[Lobby] All heroes locked; broadcasting load scene " +
                 "to all clients.");
             AllHeroesLocked?.Invoke();
+        }
+
+        private static void SetSelectedMatchContent(
+            int selectedMapConfigId,
+            LobbySelectionSnapshot[] snapshots)
+        {
+            if (snapshots == null || snapshots.Length == 0)
+                throw new InvalidOperationException(
+                    "Lobby must receive a non-empty selection state before loading GameScene.");
+            var heroIds = new int[snapshots.Length];
+            for (int i = 0; i < snapshots.Length; i++)
+            {
+                if (!snapshots[i].IsLocked)
+                    throw new InvalidOperationException(
+                        $"Lobby slot {snapshots[i].PlayerSlot} is not locked before GameScene load.");
+                heroIds[i] = snapshots[i].HeroConfigId;
+            }
+            GameSessionContext.SetSelectedMatchContent(
+                selectedMapConfigId,
+                heroIds);
         }
 
         private bool AreAllSlotsVerified()
@@ -933,6 +970,10 @@ namespace FrameSyncMoba.Bootstrap
                 SelectMessage);
             messages.UnregisterNamedMessageHandler(
                 LockMessage);
+            messages.UnregisterNamedMessageHandler(
+                LobbyStateMessage);
+            messages.UnregisterNamedMessageHandler(
+                LoadSceneMessage);
             messages.UnregisterNamedMessageHandler(
                 LoadedMessage);
             messages.UnregisterNamedMessageHandler(

@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578fbfab572716e4f9fc9ed5857bd293, type: 3}
+  m_Name: AatroxGlobalPrefabSubTable
+  m_EditorClassIdentifier: 
+  partitionKind: 2
+  ownerConfigId: 1002
+  contentVersion: 1
+  contentHash: 8362605082240316254
+  prefabGroups:
+  - kind: 0
+    entries:
+    - prefabId: 1102
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/AatroxHeroRuntime.prefab
+      gameplayConfigId: 1002
+      editorAssetGuid: e7b912ff51273d94aa44a93069b84017
+      clientViewAddress: view/unit/1102
+  - kind: 1
+    entries:
+    - prefabId: 2105
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/AatroxSpellWMissle.prefab
+      gameplayConfigId: 109
+      editorAssetGuid: 45b294545c967314f9decb88c44d5920
+      clientViewAddress: view/projectile/2105
+    - prefabId: 2106
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/InfernalChainsArea.prefab
+      gameplayConfigId: 110
+      editorAssetGuid: 3561a9ede028f4741a955188d8b48b97
+      clientViewAddress: view/projectile/2106
+  - kind: 2
+    entries:
+    - prefabId: 3101
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: 
+      gameplayConfigId: 3101
+      editorAssetGuid: c104df327fc900e459d8d8d88080e74c
+      clientViewAddress: vfx/3101
+    - prefabId: 3102
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: 
+      gameplayConfigId: 3102
+      editorAssetGuid: e548ee90e7b95e74fa2b03d68ec88b7a
+      clientViewAddress: vfx/3102
+    - prefabId: 3103
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: 
+      gameplayConfigId: 3103
+      editorAssetGuid: 4c4378ba777eca9439d5d0e74413316d
+      clientViewAddress: vfx/3103
+  contentAssets:
+  - assetKind: 0
+    address: Assets/Config/Formal/MatchContent/AatroxUnitRuntimeCatalog.asset
+  - assetKind: 1
+    address: Assets/Config/Formal/MatchContent/AatroxAbilityRuntimeCatalog.asset
+  - assetKind: 2
+    address: Assets/Config/Formal/MatchContent/AatroxProjectileRuntimeCatalog.asset
+  - assetKind: 3
+    address: Assets/Config/Formal/MatchContent/AatroxBuffCatalog.asset

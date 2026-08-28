@@ -203,6 +203,84 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary()
+        {
+            UnitWorld world = CreateWorld();
+            UnitType attacker = SpawnAttackUnit(
+                world,
+                1320,
+                0,
+                new TeamId(1),
+                (fp)1,
+                (fp)10);
+            UnitType killer = SpawnAttackUnit(
+                world,
+                1321,
+                0,
+                new TeamId(1),
+                (fp)30,
+                (fp)500);
+            UnitType target = SpawnAttackUnit(
+                world,
+                1322,
+                0,
+                new TeamId(2));
+            var combat = new CombatSystem(world, 0, 0);
+            world.CombatSystem = combat;
+            var pipeline = new SimulationTickPipeline(
+                world,
+                world.PhysicsWorld)
+            {
+                CombatSystem = combat,
+            };
+            var controller = new SimulationTickContextController();
+            controller.BeginTick(0, ExecutionMode.ServerAuthority);
+            try
+            {
+                ActionSubmitResult waiting = attacker.Arbiter.Submit(
+                    new AttackActionRequest(target.UnitUid));
+                Assert.That(
+                    waiting.IsGranted,
+                    Is.True,
+                    waiting.RejectReason.ToString());
+                ActionSubmitResult lethal = killer.Arbiter.Submit(
+                    new AttackActionRequest(target.UnitUid));
+                Assert.That(
+                    lethal.IsGranted,
+                    Is.True,
+                    lethal.RejectReason.ToString());
+                Assert.That(attacker.ActionRuntimes.Main.IsOccupied,
+                    Is.True);
+            }
+            finally
+            {
+                controller.EndTick();
+            }
+
+            pipeline.ExecuteTick(controller);
+            Assert.That(target.LifeState, Is.EqualTo(LifeState.Alive));
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.True);
+
+            pipeline.ExecuteTick(controller);
+
+            Assert.That(target.LifeState, Is.EqualTo(LifeState.Dead));
+            Assert.That(attacker.AttackHandler.CurrentTargetUid.IsValid(),
+                Is.False);
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.False);
+
+            GameplaySnapshot boundary = pipeline.CaptureAggregateSnapshot();
+
+            Assert.DoesNotThrow(() =>
+                pipeline.RestoreFromSnapshot(
+                    boundary,
+                    2,
+                    ExecutionMode.ClientReplay));
+            Assert.That(attacker.AttackHandler.CurrentTargetUid.IsValid(),
+                Is.False);
+            Assert.That(attacker.ActionRuntimes.Main.IsOccupied, Is.False);
+        }
+
+        [Test]
         public void SharedChecksum_SerializesEveryActionRuntimeSlotMember()
         {
             UnitWorld world = CreateWorld();
@@ -524,7 +602,72 @@ namespace FrameSyncMoba.FrameSync.Tests
                 UnitKind = UnitKind.Hero,
                 BaseStats = new StatPreset(),
             };
-            return world.SpawnUnit(prototype, TeamId.Neutral, tick, fp.zero, fp.zero);
+            return world.SpawnUnit(
+                prototype,
+                TeamId.Neutral,
+                tick,
+                fp.zero,
+                fp.zero);
+        }
+
+        private static UnitType SpawnAttackUnit(
+            UnitWorld world,
+            int prefabId,
+            int tick,
+            TeamId teamId)
+        {
+            return SpawnAttackUnit(
+                world,
+                prefabId,
+                tick,
+                teamId,
+                (fp)30,
+                (fp)100);
+        }
+
+        private static UnitType SpawnAttackUnit(
+            UnitWorld world,
+            int prefabId,
+            int tick,
+            TeamId teamId,
+            fp attackSpeed,
+            fp attackDamage)
+        {
+            var stats = new StatPreset();
+            stats.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.MaxHealth,
+                BaseValue = (fp)500,
+            });
+            stats.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.AttackDamage,
+                BaseValue = attackDamage,
+            });
+            stats.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.AttackSpeed,
+                BaseValue = attackSpeed,
+            });
+            stats.Stats.Add(new StatPresetEntry
+            {
+                StatId = StatId.AttackRange,
+                BaseValue = (fp)200,
+            });
+            var prototype = new UnitPrototype
+            {
+                UnitPrototypeId = prefabId,
+                RuntimeEntityPrefabId = prefabId,
+                UnitKind = UnitKind.Hero,
+                BaseStats = stats,
+                Loadout = HandlerLoadout.DefaultHero,
+            };
+            return world.SpawnUnit(
+                prototype,
+                teamId,
+                tick,
+                fp.zero,
+                fp.zero);
         }
 
     }

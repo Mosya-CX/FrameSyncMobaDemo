@@ -229,14 +229,40 @@ namespace FrameSyncMoba.Unit
             GlobalPrefabTable prefabTable,
             int tickRate = 30)
         {
+            return BakeCombinedOrThrow(
+                new[] { this },
+                prefabTable,
+                tickRate);
+        }
+
+        public static ProjectileDefRegistry BakeCombinedOrThrow(
+            IReadOnlyList<ProjectileRuntimeCatalogAsset> catalogs,
+            GlobalPrefabTable prefabTable,
+            int tickRate = 30)
+        {
+            if (catalogs == null || catalogs.Count == 0)
+                throw new InvalidOperationException(
+                    "Combined Projectile catalog requires at least one partition.");
             var registry = new ProjectileDefRegistry();
-            for (int i = 0; i < definitions.Count; i++)
+            var combined = new List<ProjectileDefinitionAuthoring>();
+            for (int catalogIndex = 0;
+                 catalogIndex < catalogs.Count;
+                 catalogIndex++)
             {
-                ProjectileDefinitionAuthoring authoring =
-                    definitions[i];
-                if (authoring == null)
+                ProjectileRuntimeCatalogAsset catalog =
+                    catalogs[catalogIndex] ??
                     throw new InvalidOperationException(
-                        $"Projectile definition {i} is null.");
+                        $"Projectile catalog partition {catalogIndex} is null.");
+                combined.AddRange(catalog.definitions);
+            }
+            combined.Sort(
+                (left, right) =>
+                    left.DefId.CompareTo(right.DefId));
+            for (int i = 0; i < combined.Count; i++)
+            {
+                ProjectileDefinitionAuthoring authoring = combined[i] ??
+                    throw new InvalidOperationException(
+                        $"Combined projectile definition {i} is null.");
                 registry.Register(
                     authoring.BakeOrThrow(
                         prefabTable,
@@ -244,6 +270,19 @@ namespace FrameSyncMoba.Unit
             }
             return registry;
         }
+
+        public IReadOnlyList<ProjectileDefinitionAuthoring> Definitions =>
+            definitions;
+
+#if UNITY_EDITOR
+        public void ConfigureForEditor(
+            IEnumerable<ProjectileDefinitionAuthoring> values)
+        {
+            definitions.Clear();
+            if (values != null)
+                definitions.AddRange(values);
+        }
+#endif
 
         internal void ReplaceForTests(
             IEnumerable<ProjectileDefinitionAuthoring>

@@ -37,6 +37,13 @@ namespace FrameSyncMoba.EditorTools.Addressables
             "Assets/Scenes/Tests/HeroTestScene.unity",
         };
 
+        private static readonly string[] IndicatorMaterialPaths =
+        {
+            "Assets/ClientContent/Indicators/IndicatorBarBody.mat",
+            "Assets/ClientContent/Indicators/IndicatorCircle.mat",
+            "Assets/ClientContent/Indicators/IndicatorRing.mat",
+        };
+
         [MenuItem("FrameSyncMoba/Addressables/Migrate Shared Presentation and UI")]
         public static void Migrate()
         {
@@ -67,6 +74,7 @@ namespace FrameSyncMoba.EditorTools.Addressables
                 "Assets/ClientContent/Materials/UnitOutlineRim.mat");
             report.AppendLine(
                 "| `Assets/Config/Formal/UnitOutlineRim.mat` | `Assets/ClientContent/Materials/UnitOutlineRim.mat` |");
+            NormalizeIndicatorMaterials();
 
             AddressableAssetSettings settings =
                 AddressableAssetSettingsDefaultObject.Settings;
@@ -205,6 +213,44 @@ namespace FrameSyncMoba.EditorTools.Addressables
                 settings.CreateOrMoveEntry(guid, group, false, false);
             entry.SetAddress(address, false);
             entry.SetLabel(label, true, false, false);
+        }
+
+        private static void NormalizeIndicatorMaterials()
+        {
+            Shader shader = Shader.Find(
+                "FrameSyncMoba/SkillIndicatorUnlit");
+            if (shader == null)
+                throw new InvalidOperationException(
+                    "Project shader 'FrameSyncMoba/SkillIndicatorUnlit' is required by generic skill indicators.");
+
+            for (int i = 0; i < IndicatorMaterialPaths.Length; i++)
+            {
+                string path = IndicatorMaterialPaths[i];
+                Material material =
+                    AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (material == null)
+                    throw new InvalidOperationException(
+                        $"Indicator material is missing at '{path}'.");
+
+                Color tint = material.HasProperty("_BaseColor")
+                    ? material.GetColor("_BaseColor")
+                    : material.HasProperty("_Color")
+                        ? material.GetColor("_Color")
+                        : Color.white;
+                Texture texture = material.HasProperty("_BaseMap")
+                    ? material.GetTexture("_BaseMap")
+                    : material.HasProperty("_MainTex")
+                        ? material.GetTexture("_MainTex")
+                        : null;
+
+                material.shader = shader;
+                material.shaderKeywords = Array.Empty<string>();
+                if (material.HasProperty("_Color"))
+                    material.SetColor("_Color", tint);
+                if (texture != null && material.HasProperty("_MainTex"))
+                    material.SetTexture("_MainTex", texture);
+                EditorUtility.SetDirty(material);
+            }
         }
 
         private static void MigrateSceneManagers(

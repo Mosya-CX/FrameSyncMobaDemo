@@ -1,17 +1,17 @@
 # Current Handoff — FrameSyncMobaDemo
 
 > Document class: Current State / New-task SaveGame
-> Replaced: 2026-08-24
+> Replaced: 2026-08-29
 > Update policy: replace current state; never append a dated development log
 
 ## 1. Repository state
 
 - Branch: `master`.
 - Base HEAD before the workflow migration: `60c84fd`.
-- The current worktree contains the approved D-048 local Addressables and
-  Dedicated Server presentation split, D-049 same-Tick Combat fairness, and
-  D-050 action-keyed Crit / neutral Projectile tie implementation. Preserve
-  all three scopes and inspect `git status` before editing.
+- The current worktree contains the approved D-048 client presentation split,
+  D-049 same-Tick Combat fairness, D-050 action-keyed Crit / neutral Projectile
+  tie implementation and D-051 match-scoped local Addressables content. Preserve
+  all four scopes and inspect `git status` before editing.
 - Unity version: `2022.3.62f1c1`.
 - Current formal designs are only those listed in
   `Docs/Architecture/DESIGN_INDEX.md`.
@@ -33,15 +33,51 @@
 
 ## 3. Reliable validation baseline
 
-- Last recorded clean Unity compilation: passing through Unity MCP on
-  2026-08-23 for Linux Dedicated Server and ordinary Player subtargets.
-  Server Player assemblies contain neither `FrameSyncMoba.ClientContent` nor
-  the Odin Addressables Editor module. A UnityMCP skill-file sharing violation
-  occurred during one domain reload; it is tool-owned and not a project compile
-  failure.
-- Current Addressables EditMode evidence: FrameSync `91/91`, Bootstrap
-  `106/106`, local group/root validation `5/5`, and Dedicated Server stale
-  StreamingAssets exclusion `1/1`.
+- Last recorded clean source compilation: Unity MCP script refresh on
+  2026-08-27 after the project-owned indicator shader and runtime-material
+  repair; final isolated Console Error/Exception queries are empty. The
+  2026-08-23 Linux Server/ordinary Player build evidence
+  predates server logic Addressables and is not final D-051 packaging evidence.
+- Current D-051 evidence: Bootstrap EditMode `118/118`; match-content
+  configuration `8/8`; client build audit `6/6`; real Varus-only load,
+  Aatrox-exclusion plus Aatrox Q-VFX ownership/release PlayMode `2/2`; formal
+  asynchronous GameBootstrap composition and destroy/load cleanup `2/2`;
+  Aatrox content `10/10`; Equipment/Core
+  partition `6/6`.
+- Corrected 2026-08-27 UOS logs proved both clients and the Dedicated Server
+  loaded all four selected partitions, then failed in Unit catalog composition
+  because the same source dispose-policy asset had been duplicated into three
+  Logic bundles as different runtime objects. ExecPlan 0142 makes Core the sole
+  serialized owner; Hero Unit catalogs now carry no policy reference. Matching
+  rebuilt Windows Client/Linux Server live acceptance remains user-owned.
+- ExecPlan 0143 source verification: Bootstrap EditMode is `119/119`; the
+  generic Direction/Range/Ground indicator material guard passes; the external
+  GameScene Loading ownership PlayMode is `1/1` focused and also passes when
+  Addressables is already cached by earlier tests. The broad Bootstrap
+  PlayMode probe has 34 leaf results (`25 passed / 9 retained failures`); all
+  nine failures are existing scene spawn-fixture, HeroTest pre-partition lookup,
+  UOS configuration or async-cancellation-log categories.
+- The user's rebuilt 19:43 Windows client disproved ExecPlan 0143's
+  source-asset-only indicator acceptance: the new bundles contained
+  `Sprites/Default`, but Varus generic indicators and Aatrox W/E still rendered
+  magenta. ExecPlan 0144 replaces that dependency with a project-owned URP
+  shader and driver-owned runtime materials. PlayerInput is `36/36`, Bootstrap
+  EditMode is `119/119`, and real Addressables acquisition plus framebuffer
+  blue/not-magenta PlayMode is `1/1`.
+- The 20:12 rebuilt clients then exposed ExecPlan 0144's remaining lookup
+  assumption: all three Addressable Prefabs loaded, but the Bundle shader was
+  not registered for global `Shader.Find`, so the defensive fallback disabled
+  the renderers. ExecPlan 0145 removes global lookup entirely and clones each
+  loaded source material directly. The focused test now asserts exact source
+  Shader object inheritance in addition to texture/tint and framebuffer output.
+- The 20:42 rebuild proved the remaining Player-side failure: all three
+  Prefabs loaded and executed Show/Hide, but their transparent circle/line
+  textures rendered as solid magenta Quad geometry. The 20:30 Bundle contains
+  the expected materials, textures and one-pass D3D11 Shader, while the Player
+  GraphicsSettings did not retain that Shader and the migrated materials still
+  requested stale `_SURFACE_TYPE_TRANSPARENT`. ExecPlan 0146 now retains the
+  Shader in the client Player core, excludes it only inside server build scope,
+  restores GraphicsSettings exactly and clears all indicator material keywords.
 - Current D-049 evidence: UnityMCP compilation has no Console errors;
   Deterministic `53/53`, FrameSync `91/91`, same-Tick fairness `15/15`,
   CombatSystem `14/14`, contribution log `5/5`, assist integration `2/2` and
@@ -56,6 +92,27 @@
   capped equal-distance hit, Deferred/Projectile round-trip and checksum
   coverage pass. ClientContent Projectile PlayMode is `2/2`; the four recorded
   unrelated PlayMode fixture failures were reproduced unchanged.
+- Current atomic dead-target evidence: UnityMCP compilation and Console Error
+  query are clean. Six focused EditMode cases pass for formal death, Despawn,
+  committed non-revocation, invalid death ordering and real `ExecuteTick`
+  capture/ClientReplay restore; the focused Unit lifecycle PlayMode case also
+  passes. The broad baselines are Unit `549 passed / 10 retained failures`,
+  FrameSync `98 passed / 1 retained missing-prefab fixture failure`, and Unit
+  PlayMode `2 passed / 1 retained PrefabId 9 range fixture failure`.
+- Aatrox basic-attack content now uses direct settlement
+  (`ProjectileDefId = 0`) instead of Varus projectile `101`; both melee-minion
+  Prefabs were already direct. The AttackRange-based ranged threshold is
+  unchanged and independent of projectile selection. The focused content
+  EditMode test and Aatrox Prefab PlayMode instantiation test both pass.
+- All six formal non-Structure Unit controllers now bind every basic-attack
+  State to `AttackMotionTime` and every Walk/Move State to live `MoveSpeed`
+  with a formal-base-speed normalization. Aatrox is `6/6` attacks and `3/3`
+  moves; Varus is `2/2` and `2/2`; each melee/caster minion is `1/1` and
+  `1/1`. The two Structure controllers remain Idle/Death-only with zero attack
+  States. The two new all-formal-unit asset contracts, existing controller
+  completeness, focused Aatrox EditMode and Aatrox Prefab PlayMode tests pass;
+  full FrameSync EditMode is `100 passed / 1 retained missing-PrefabId-1101
+  fixture failure`.
 - Current Addressables PlayMode evidence: representative real root loading and
   release `1/1`; UI page lifecycle and async-clear race `3/3`; Aatrox prefab
   `8/8`; map prefab `1/1`; GameScene map-view anchor placement `1/1`;
@@ -64,7 +121,7 @@
   wave; `HeroTestScene` binds unit and projectile Addressable views.
 - The full Unit suite still has exactly 10 retained failures in the recorded
   Buff, charge, combat enhancement, authored lane, movement, active-Tick guard
-  and assembly-boundary categories; the current result is `542 passed / 10
+  and assembly-boundary categories; the current probe is `545 passed / 10
   retained failures`. No D-050 regression was added to that baseline.
 - Last full PlayMode run (2026-08-14): `56/60` passed, 4 retained failures.
 - PlayerInput mapping is `17/17`; focused PlayMode input simulation is `4/4`
@@ -116,15 +173,42 @@
 - Event-derived Damage folds its parent `EffectOrdinal` into the child key;
   invalid negative ordinals fail at Damage submission, Deferred and Restore
   boundaries. Pending tracked Projectile restore also preserves `TargetUnitUid`.
-- D-048 is integrated in source and assets. The client has 63 local-only
-  Addressable roots in six groups and no remote catalog. Eight Unit prefabs,
-  eight Projectile prefabs and the map are split into formal synchronous logic
-  prefabs plus client-only asynchronous views. Models, animation, materials,
-  VFX, audio, indicators and UI moved under `Assets/ClientContent/`; ordinary
-  dependencies intentionally are not all marked as independent addresses.
-- `GlobalPrefabTable` remains the sole PrefabId registry and stores an optional
-  view address beside each direct logic prefab. Addressables never enters
-  Gameplay spawn, Snapshot, restore, checksum or Command state.
+- Formal death target invalidation is now a UnitWorld-to-ActionArbiter state
+  transition immediately after frozen Combat settlement. A matching
+  uncommitted AttackHandler windup and Main ActionRuntime are canceled in one
+  deterministic call before Tick-end capture; non-death Despawn reuses that
+  path, committed attacks are preserved, and rollback topology removal is not
+  treated as Gameplay cancellation.
+- D-051 is integrated in source and assets. `GlobalPrefabTable` remains the sole
+  PrefabId authority but its formal root now contains four partition descriptors
+  and zero direct logical prefab groups. Core, Map 1, Varus and Aatrox child
+  tables retain all 20 former rows as path-only mappings with exact
+  version/dependency hashes. The original combined catalogs remain
+  non-addressed migration evidence and `GameScene` has no direct formal content
+  catalog references.
+- Lobby freezes MapConfigId plus the sorted unique complete hero roster before
+  `GameScene`. Bootstrap asynchronously loads only Core + selected Map + selected
+  Heroes, validates and canonicalizes the closure, then creates one
+  nonserialized resolved table and combined registries before initial Snapshot
+  or Tick 0. The later bootstrap payload must match that closure exactly.
+- Four `Logic-*` groups contain 35 deterministic roots. Client presentation has
+  63 local-only roots across eight `Client-*` groups and no remote catalog;
+  hero-specific views/projectiles/VFX moved to `Client-Hero-1001/1002`.
+  Addressables is a pre-Tick transport and never enters Gameplay Tick, Snapshot,
+  restore, checksum, Command, spawn order or random state.
+- Externally managed GameScene flow now primes `UIPageId.Load` before the first
+  match-scoped Addressables await. This replaces the scene's standalone Main
+  fallback before it can render and preserves Load until the existing launch
+  barrier opens HUD.
+- The three generic indicator materials use project-owned URP shader
+  `FrameSyncMoba/SkillIndicatorUnlit`. `SkillIndicatorDriver` clones runtime
+  materials directly from the loaded Addressables source materials for all four
+  generic renderers, preserves the exact Bundle-resolved Shader plus
+  texture/tint/UV data,
+  disables lighting/shadows and owns cleanup; an unavailable shader disables
+  those renderers rather than exposing Unity's magenta fallback. This covers
+  Varus generic indicators and Aatrox W/E, while Aatrox Q remains on its
+  dedicated multi-zone line path.
 - The client map view anchors to the static `DeterministicMapTopology` root at
   the world origin instead of the GameBootstrap root, which also carries the
   gameplay Camera and moves every LateUpdate; the new
@@ -170,11 +254,12 @@
   compare both stable UID and object identity, so rollback replacement under an
   unchanged UID rebinds correctly. Sprite loads use cancellation generations to
   reject stale completion after registry clear.
-- Dedicated Server does not initialize Addressables, excludes the
-  `FrameSyncMoba.ClientContent` assembly, prevents stale client Addressables
-  output from entering StreamingAssets, strips presentation scene content and
-  audits forbidden build dependencies. The local content build succeeded with
-  seven bundles plus one catalog totaling 612,459,164 bytes.
+- Dedicated Server now initializes the shared Bootstrap content loader and
+  ships a local Addressables catalog with only the four `Logic-*` groups. It
+  still excludes `FrameSyncMoba.ClientContent`, every `Client-*` group and
+  presentation dependencies; output audit requires logic catalog/bundles and
+  rejects any client bundle. The previous 612,459,164-byte client measurement
+  predates D-051 and is not the new package-size result.
 - D-045 replaced calendar-UTC launch authorization with synchronized server-time
   milliseconds plus local monotonic pacing. Runtime Gameplay remains Tick-based.
 - D-047 is frozen in the Unit Framework v27.4 amendment. Intent/Planner/Arbiter
@@ -224,13 +309,17 @@
 - A matching Local C/S or UOS live run has not yet been performed for the
   schema-24/GameplayDataVersion-4/bootstrap-wire-4 package; source/EditMode
   acceptance is complete.
-- ExecPlan 0138 still requires one final Windows client plus Linux Dedicated
-  Server Player rebuild/report inspection. The first combined build was not
+- ExecPlans 0138/0141 still require one final Windows client plus Linux
+  Dedicated Server Player rebuild/report inspection. The first combined build was not
   accepted: its Windows Player accidentally carried Linux Addressables and
   rendered models/TMP/Sprites magenta; server scene stripping also removed
   Camera/Light before their URP additional-data dependants. Both source defects
   are fixed and guarded by Bootstrap EditMode tests, but the user will perform
   the corrected build manually. Do not initiate it unless explicitly asked.
+- ExecPlan 0146 requires a new rebuilt-client UOS pass to confirm Varus generic
+  indicators plus Aatrox W/E are blue and textured. Loading handoff acceptance
+  from ExecPlan 0143 remains part of the same visual run. These changes affect
+  client presentation only and require no protocol/schema migration.
 
 ### P2 / product completion
 
@@ -257,7 +346,8 @@
   Bake rounding policy; runtime/snapshot/checksum/Command state remains integer
   Tick-based.
 - All endpoints in one test use matching GameplayDataVersion, wire versions and
-  Snapshot schema.
+  Snapshot schema. D-051 additionally requires matching Lobby LoadScene v2 and
+  the same local content versions/hashes.
 - Ordinary unit actions must follow Intent -> Planner -> Arbiter -> fixed
   Main/Base Runtime -> Handler. Automatic Handler Stage transitions are
   reconciled through Arbiter before Tick-end capture; do not mutate Runtime
@@ -270,6 +360,8 @@
 - New client resources follow
   `Docs/Implementation/Addressables/RESOURCE_ARCHITECTURE.md`. Only independent
   runtime roots receive addresses; transitive dependencies remain dependencies.
+  New logic content must join the one root/child aggregate and complete loading
+  before initial Snapshot/Tick 0; never reintroduce a full-scene direct catalog.
 
 ## 7. Resume protocol
 

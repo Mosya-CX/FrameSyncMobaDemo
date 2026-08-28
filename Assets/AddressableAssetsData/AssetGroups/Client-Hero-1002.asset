@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Client-Hero-1002
+  m_EditorClassIdentifier: 
+  m_GroupName: Client-Hero-1002
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 543ce46e13d6f764e94dfa6f0ae8d082
+  m_SerializeEntries:
+  - m_GUID: 4c4378ba777eca9439d5d0e74413316d
+    m_Address: vfx/3103
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 660b37e1b2a4ac443a59bf8c72966b74
+    m_Address: view/unit/1102
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 70dd00e2e1009a941bb5995d8998b1d7
+    m_Address: view/projectile/2105
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7320cc46ff446ba489f3e5a0dbf37d25
+    m_Address: view/projectile/2106
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c104df327fc900e459d8d8d88080e74c
+    m_Address: vfx/3101
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e548ee90e7b95e74fa2b03d68ec88b7a
+    m_Address: vfx/3102
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3ff6355b606cac54eb86fb806f6f509b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 76fc00d17ce8de24e85c5c2bf6328711, type: 2}
+    - {fileID: 11400000, guid: 3202c2c1cc8d295418c6f94d7beb4c4c, type: 2}

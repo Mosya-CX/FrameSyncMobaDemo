@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dd9fe71164fdd74d8c227b087003d1a, type: 3}
+  m_Name: AatroxAbilityRuntimeCatalog
+  m_EditorClassIdentifier: 
+  abilities:
+  - {fileID: 11400000, guid: 068666dd3d20a5f489558bcc4a192c7e, type: 2}
+  - {fileID: 11400000, guid: 3eee2ff2bb53ee740aa5a12e3f48e95e, type: 2}
+  - {fileID: 11400000, guid: 8e8be4ed5eedca54e985f6627921f2fa, type: 2}
+  - {fileID: 11400000, guid: ddf98aa7c50788945a38d851c9ac8b87, type: 2}
+  slots:
+  - SlotId: 0
+    MaxAllocatedPoints: 5
+    RequiredUnitLevelByRank: 0100000002000000030000000400000005000000
+    AbilityIds: 25270000
+    InitialActiveAbilityId: 10021
+  - SlotId: 1
+    MaxAllocatedPoints: 5
+    RequiredUnitLevelByRank: 0100000002000000030000000400000005000000
+    AbilityIds: 26270000
+    InitialActiveAbilityId: 10022
+  - SlotId: 2
+    MaxAllocatedPoints: 5
+    RequiredUnitLevelByRank: 0100000002000000030000000400000005000000
+    AbilityIds: 27270000
+    InitialActiveAbilityId: 10023
+  - SlotId: 3
+    MaxAllocatedPoints: 3
+    RequiredUnitLevelByRank: 060000000b00000010000000
+    AbilityIds: 28270000
+    InitialActiveAbilityId: 10024
+  fixedPassives:
+  - {fileID: 11400000, guid: f15496fe2a0e113408522ca662ce1684, type: 2}

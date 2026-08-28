@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578fbfab572716e4f9fc9ed5857bd293, type: 3}
+  m_Name: VarusGlobalPrefabSubTable
+  m_EditorClassIdentifier: 
+  partitionKind: 2
+  ownerConfigId: 1001
+  contentVersion: 1
+  contentHash: 15379179350999139146
+  prefabGroups:
+  - kind: 0
+    entries:
+    - prefabId: 1101
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Unit/VarusRuntime.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 8386d2da6f6754946a202d33532daffd
+      clientViewAddress: view/unit/1101
+  - kind: 1
+    entries:
+    - prefabId: 2101
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusAttackMissle.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 6f4a50dde2a01f745bed4b9d9324f5fa
+      clientViewAddress: view/projectile/2101
+    - prefabId: 2102
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusSpellQMissle.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 3b9c7c4bd406ebf449736a4a6c7432c8
+      clientViewAddress: view/projectile/2102
+    - prefabId: 2103
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusSpellRMissle.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: 9c9cad292a5e9134c8f337b579ef599a
+      clientViewAddress: view/projectile/2103
+    - prefabId: 2104
+      unityPrefab: {fileID: 0}
+      logicAssetAddress: Assets/Config/Formal/Prefabs/Logic/Projectile/VarusEMissle_DesecratedGround.prefab
+      gameplayConfigId: 0
+      editorAssetGuid: c024096fa5aceb144b1c7ffedbc285fc
+      clientViewAddress: view/projectile/2104
+  contentAssets:
+  - assetKind: 0
+    address: Assets/Config/Formal/MatchContent/VarusUnitRuntimeCatalog.asset
+  - assetKind: 1
+    address: Assets/Config/Formal/Abilities/VarusAbilityRuntimeCatalog.asset
+  - assetKind: 2
+    address: Assets/Config/Formal/MatchContent/VarusProjectileRuntimeCatalog.asset
+  - assetKind: 3
+    address: Assets/Config/Formal/MatchContent/VarusBuffCatalog.asset

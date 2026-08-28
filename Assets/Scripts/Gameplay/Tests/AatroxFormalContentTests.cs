@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.RuntimeConfig;
@@ -437,9 +438,11 @@ namespace FrameSyncMoba.Unit.Tests
         [Test]
         public void FormalCatalogs_RegisterAatroxRuntimeContent()
         {
-            GlobalPrefabTable prefabs = Load<GlobalPrefabTable>(
+            GlobalPrefabTable root = Load<GlobalPrefabTable>(
                 Root + "GlobalPrefabTable.asset");
-            prefabs.ValidateOrThrow();
+            GlobalPrefabTable prefabs = BuildResolvedFormalPrefabTable(root);
+            try
+            {
             Assert.That(prefabs.GetRequiredPrefab(PrefabKind.Unit, 1102), Is.Not.Null);
             Assert.That(prefabs.GetRequiredPrefab(PrefabKind.Projectile, 2105), Is.Not.Null);
             Assert.That(prefabs.GetRequiredPrefab(PrefabKind.Projectile, 2106), Is.Not.Null);
@@ -529,6 +532,53 @@ namespace FrameSyncMoba.Unit.Tests
                 Root + "CrowdControl/CrowdControlCatalog.asset");
             Assert.That(controls.Definitions.Any(
                 item => item.ControlId.Value == 113), Is.True);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(prefabs);
+            }
+        }
+
+        [Test]
+        public void BasicAttackProjectiles_MeleeContentUsesDirectDamage()
+        {
+            Assert.That(
+                Load<GameObject>(
+                        Root + "Prefabs/Logic/Unit/AatroxHeroRuntime.prefab")
+                    .GetComponent<AttackHandler>().ProjectileDefId,
+                Is.Zero,
+                "Aatrox basic attacks must settle directly without a projectile.");
+            Assert.That(
+                Load<GameObject>(
+                        Root + "Prefabs/Logic/Unit/TestMeleeMinionBlueRuntime.prefab")
+                    .GetComponent<AttackHandler>().ProjectileDefId,
+                Is.Zero,
+                "Blue melee minions must settle directly without a projectile.");
+            Assert.That(
+                Load<GameObject>(
+                        Root + "Prefabs/Logic/Unit/TestMeleeMinionRedRuntime.prefab")
+                    .GetComponent<AttackHandler>().ProjectileDefId,
+                Is.Zero,
+                "Red melee minions must settle directly without a projectile.");
+
+            Assert.That(
+                Load<GameObject>(
+                        Root + "Prefabs/Logic/Unit/VarusRuntime.prefab")
+                    .GetComponent<AttackHandler>().ProjectileDefId,
+                Is.EqualTo(101),
+                "Varus remains a projectile basic attacker.");
+            Assert.That(
+                Load<GameObject>(
+                        Root + "Prefabs/Logic/Unit/TestCasterMinionBlueRuntime.prefab")
+                    .GetComponent<AttackHandler>().ProjectileDefId,
+                Is.EqualTo(102),
+                "Blue caster minions remain projectile basic attackers.");
+            Assert.That(
+                Load<GameObject>(
+                        Root + "Prefabs/Logic/Unit/TestCasterMinionRedRuntime.prefab")
+                    .GetComponent<AttackHandler>().ProjectileDefId,
+                Is.EqualTo(103),
+                "Red caster minions remain projectile basic attackers.");
         }
 
         [Test]
@@ -1060,6 +1110,45 @@ namespace FrameSyncMoba.Unit.Tests
         private static float BaseStat(UnitPrototypeAuthoring unit, StatId stat)
         {
             return unit.BaseStats.Single(item => item.StatId == stat).BaseValue;
+        }
+
+        private static GlobalPrefabTable BuildResolvedFormalPrefabTable(
+            GlobalPrefabTable root)
+        {
+            string[] paths =
+            {
+                Root + "MatchContent/CoreGlobalPrefabSubTable.asset",
+                Root + "MatchContent/VarusGlobalPrefabSubTable.asset",
+                Root + "MatchContent/AatroxGlobalPrefabSubTable.asset",
+            };
+            var children = new List<GlobalPrefabSubTableAsset>();
+            var resolved = new Dictionary<string, GameObject>(
+                StringComparer.Ordinal);
+            for (int pathIndex = 0; pathIndex < paths.Length; pathIndex++)
+            {
+                GlobalPrefabSubTableAsset child =
+                    Load<GlobalPrefabSubTableAsset>(paths[pathIndex]);
+                child.ValidateOrThrow();
+                children.Add(child);
+                for (int groupIndex = 0;
+                     groupIndex < child.PrefabGroups.Count;
+                     groupIndex++)
+                {
+                    PrefabGroup group = child.PrefabGroups[groupIndex];
+                    for (int entryIndex = 0;
+                         entryIndex < group.Entries.Count;
+                         entryIndex++)
+                    {
+                        PrefabEntry entry = group.Entries[entryIndex];
+                        if (string.IsNullOrEmpty(entry.LogicAssetAddress))
+                            continue;
+                        resolved.Add(
+                            entry.LogicAssetAddress,
+                            Load<GameObject>(entry.LogicAssetAddress));
+                    }
+                }
+            }
+            return root.CreateResolvedRuntimeTable(children, resolved);
         }
 
         private static T Load<T>(string path) where T : UnityEngine.Object

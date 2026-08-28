@@ -1255,3 +1255,55 @@ assignment and Projectile equal-distance ordering to remain UID-coupled.
   and active snapshots preserve origin action identity. GameplaySnapshot
   schema and GameplayDataVersion advance; command and bootstrap wire shapes do
   not change unless implementation proves a new serialized field is required.
+
+## D-051 — Match-scoped local Addressable gameplay content (2026-08-26)
+
+**Status:** Frozen; implemented and focused-verified by ExecPlan 0141. Approved
+by the current user request. This decision supersedes D-048 only where D-048
+requires direct logical-prefab references and forbids all Addressables content
+from Dedicated Server. D-048's local-only distribution, presentation
+reconstructibility, exact handle ownership and client/server presentation
+isolation remain frozen.
+
+- `GlobalPrefabTable` remains the only formal `PrefabKind + PrefabId`
+  authority. Its production root contains no direct logical `GameObject`
+  references and no complete content list; it indexes Core, Map and Hero child
+  tables by stable local Addressables address, owner config ID, content version
+  and dependency-backed hash. A child table is part of this one aggregate, not
+  a second PrefabId registry.
+- Child prefab entries contain path-only logical asset addresses and optional
+  client-view addresses. Addressables loads those assets before Gameplay
+  composition; a nonserialized match-local `GlobalPrefabTable` then provides
+  the unchanged synchronous lookup consumed by UnitWorld, ProjectileWorld,
+  logical pools and Bake validation.
+- The match closure is Core plus the selected Map and the sorted unique set of
+  `HeroConfigId` values from every locked player slot. Local-player identity,
+  scene object order, asynchronous completion order and Addressables group
+  enumeration cannot select or order Gameplay content.
+- Lobby freezes that closure before `GameScene` activation. The later
+  authoritative `GameStartConfig` must describe the exact same map/hero set.
+  Missing partitions, addresses or required catalog kinds; duplicate IDs;
+  direct logical references; version/hash mismatch; or roster mismatch fail
+  visibly before initial Snapshot materialization, bootstrap commit or Tick 0.
+- Loaded Unit, Ability, Projectile and Buff partitions are combined by explicit
+  stable IDs. Core owns current shared configuration; map- and hero-specific
+  assets load only with their partition. No ID is allocated from load order,
+  and there is no silent fallback to the former full catalogs.
+- Addressables is a local, asynchronous pre-Tick resource transport on both
+  client and Dedicated Server. It never executes inside the deterministic Tick
+  and does not enter Command, Snapshot, checksum, rollback, restore, spawn
+  ordering or deterministic random state. Synchronous `WaitForCompletion`
+  remains forbidden.
+- Client builds include Logic and Client groups. Dedicated Server builds include
+  only `Logic-*` groups and a local catalog/bundles; they still exclude
+  `FrameSyncMoba.ClientContent`, every `Client-*` group and presentation
+  dependencies. Build-scope flags and the default group are restored after each
+  attempt, and output audit rejects any client bundle.
+- Remote catalogs, remote load paths, runtime catalog update, download, cache
+  versioning, CDN and hot update remain disabled. Every initialization/asset
+  handle is owned by one match scope and released once on failure or teardown.
+- `GameStartConfig`, Command and Gameplay Snapshot wire shapes do not change.
+  The Lobby scene-transition custom message advances to
+  `FrameSyncMoba.Lobby.LoadScene.v2` because its final integer now carries the
+  positive `MapConfigId` used to freeze the content closure rather than an
+  untyped load marker. Mixed transition-message versions are not compatible.

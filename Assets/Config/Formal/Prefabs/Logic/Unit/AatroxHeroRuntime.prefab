@@ -114,7 +114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   windupRatio: 0.25
-  projectileDefId: 101
+  projectileDefId: 0
   commitSfxEventId: 1
   commitSfxAnchor: 7
 --- !u!114 &5132658253536718210

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.Physics;
@@ -23,21 +24,29 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 AssetDatabase.LoadAssetAtPath<GlobalPrefabTable>(TablePath);
             AddressableAssetSettings settings =
                 AddressableAssetSettingsDefaultObject.Settings;
-            PrefabGroup group = FindGroup(table, PrefabKind.Projectile);
-            Assert.That(group.Entries.Count, Is.EqualTo(8));
-            for (int i = 0; i < group.Entries.Count; i++)
+            List<PrefabEntry> entries = FindEntries(
+                table,
+                settings,
+                PrefabKind.Projectile);
+            Assert.That(entries.Count, Is.EqualTo(8));
+            for (int i = 0; i < entries.Count; i++)
             {
-                PrefabEntry entry = group.Entries[i];
-                string logicPath = AssetDatabase.GetAssetPath(entry.UnityPrefab);
+                PrefabEntry entry = entries[i];
+                AddressableAssetEntry logic =
+                    FindEntryByAddress(settings, entry.LogicAssetAddress);
+                Assert.That(logic, Is.Not.Null, entry.LogicAssetAddress);
+                string logicPath = logic.AssetPath;
+                GameObject logicPrefab =
+                    AssetDatabase.LoadAssetAtPath<GameObject>(logicPath);
                 Assert.That(logicPath,
                     Does.StartWith(
                         "Assets/Config/Formal/Prefabs/Logic/Projectile/"));
                 Assert.That(
-                    entry.UnityPrefab.GetComponent<PhysicsEntity2D>(),
+                    logicPrefab.GetComponent<PhysicsEntity2D>(),
                     Is.Not.Null,
                     logicPath);
                 Assert.That(
-                    entry.UnityPrefab.GetComponentsInChildren<Renderer>(true),
+                    logicPrefab.GetComponentsInChildren<Renderer>(true),
                     Is.Empty,
                     logicPath);
                 AddressableAssetEntry view =
@@ -80,19 +89,31 @@ namespace FrameSyncMoba.Bootstrap.Tests
         {
             GlobalPrefabTable table =
                 AssetDatabase.LoadAssetAtPath<GlobalPrefabTable>(TablePath);
+            AddressableAssetSettings settings =
+                AddressableAssetSettingsDefaultObject.Settings;
             Assert.That(
-                table.TryGetEntry(PrefabKind.Misc, 5001, out PrefabEntry entry),
+                TryFindEntry(
+                    table,
+                    settings,
+                    PrefabKind.Misc,
+                    5001,
+                    out PrefabEntry entry),
                 Is.True);
-            Assert.That(entry.UnityPrefab.GetComponent<
+            AddressableAssetEntry logic =
+                FindEntryByAddress(settings, entry.LogicAssetAddress);
+            Assert.That(logic, Is.Not.Null, entry.LogicAssetAddress);
+            GameObject logicPrefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(logic.AssetPath);
+            Assert.That(logicPrefab.GetComponent<
                 FrameSyncMoba.Unit.FlowFieldSceneAuthoring>(), Is.Not.Null);
             Assert.That(
-                entry.UnityPrefab.GetComponentsInChildren<Renderer>(true),
+                logicPrefab.GetComponentsInChildren<Renderer>(true),
                 Is.Empty);
             Assert.That(
-                entry.UnityPrefab.GetComponentsInChildren<Collider>(true),
+                logicPrefab.GetComponentsInChildren<Collider>(true),
                 Is.Empty);
             AddressableAssetEntry view = FindEntryByAddress(
-                AddressableAssetSettingsDefaultObject.Settings,
+                settings,
                 entry.ClientViewAddress);
             GameObject viewPrefab =
                 AssetDatabase.LoadAssetAtPath<GameObject>(view.AssetPath);
@@ -213,6 +234,66 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 Is.Null);
         }
 
+        [Test]
+        public void GenericSkillIndicatorsUseSupportedTransparentShader()
+        {
+            string[] paths =
+            {
+                "Assets/ClientContent/Indicators/DirectionIndicator.prefab",
+                "Assets/ClientContent/Indicators/RangeCircleIndicator.prefab",
+                "Assets/ClientContent/Indicators/GroundTargetIndicator.prefab",
+            };
+            for (int pathIndex = 0; pathIndex < paths.Length; pathIndex++)
+            {
+                GameObject prefab =
+                    AssetDatabase.LoadAssetAtPath<GameObject>(paths[pathIndex]);
+                Assert.That(prefab, Is.Not.Null, paths[pathIndex]);
+                Renderer[] renderers =
+                    prefab.GetComponentsInChildren<Renderer>(true);
+                Assert.That(renderers, Is.Not.Empty, paths[pathIndex]);
+                for (int rendererIndex = 0;
+                     rendererIndex < renderers.Length;
+                     rendererIndex++)
+                {
+                    Material[] materials =
+                        renderers[rendererIndex].sharedMaterials;
+                    Assert.That(
+                        materials,
+                        Is.Not.Empty,
+                        $"{paths[pathIndex]}:{renderers[rendererIndex].name}");
+                    for (int materialIndex = 0;
+                         materialIndex < materials.Length;
+                         materialIndex++)
+                    {
+                        Material material = materials[materialIndex];
+                        Assert.That(material, Is.Not.Null);
+                        Assert.That(
+                            material.shader.name,
+                            Is.EqualTo(
+                                "FrameSyncMoba/SkillIndicatorUnlit"),
+                            AssetDatabase.GetAssetPath(material));
+                        Assert.That(
+                            material.shader.isSupported,
+                            Is.True,
+                            AssetDatabase.GetAssetPath(material));
+                        Assert.That(
+                            material.shaderKeywords,
+                            Is.Empty,
+                            "The dedicated indicator Shader declares no " +
+                            "keywords; migrated URP/Sprite keywords would " +
+                            "request an unavailable Player variant.");
+                        Assert.That(
+                            material.color.b,
+                            Is.GreaterThan(material.color.r),
+                            "Generic indicator tint must remain blue, not the magenta missing-shader fallback.");
+                        Assert.That(
+                            material.color.a,
+                            Is.GreaterThan(0f));
+                    }
+                }
+            }
+        }
+
         private static void AssertLibrary(
             string path,
             string entriesName,
@@ -243,15 +324,66 @@ namespace FrameSyncMoba.Bootstrap.Tests
             }
         }
 
-        private static PrefabGroup FindGroup(
+        private static List<PrefabEntry> FindEntries(
             GlobalPrefabTable table,
+            AddressableAssetSettings settings,
             PrefabKind kind)
         {
-            for (int i = 0; i < table.PrefabGroups.Count; i++)
-                if (table.PrefabGroups[i].Kind == kind)
-                    return table.PrefabGroups[i];
-            Assert.Fail($"Missing {kind} prefab group.");
-            return null;
+            Assert.That(table, Is.Not.Null);
+            Assert.That(settings, Is.Not.Null);
+            table.ValidateOrThrow();
+            var result = new List<PrefabEntry>();
+            for (int partitionIndex = 0;
+                 partitionIndex < table.Partitions.Count;
+                 partitionIndex++)
+            {
+                GlobalPrefabPartitionReference partition =
+                    table.Partitions[partitionIndex];
+                AddressableAssetEntry childEntry = FindEntryByAddress(
+                    settings,
+                    partition.SubTableAddress);
+                Assert.That(
+                    childEntry,
+                    Is.Not.Null,
+                    partition.SubTableAddress);
+                GlobalPrefabSubTableAsset child =
+                    AssetDatabase.LoadAssetAtPath<GlobalPrefabSubTableAsset>(
+                        childEntry.AssetPath);
+                Assert.That(child, Is.Not.Null, childEntry.AssetPath);
+                child.ValidateAgainst(partition);
+                for (int groupIndex = 0;
+                     groupIndex < child.PrefabGroups.Count;
+                     groupIndex++)
+                {
+                    PrefabGroup group = child.PrefabGroups[groupIndex];
+                    if (group.Kind != kind)
+                        continue;
+                    for (int entryIndex = 0;
+                         entryIndex < group.Entries.Count;
+                         entryIndex++)
+                        result.Add(group.Entries[entryIndex]);
+                }
+            }
+            return result;
+        }
+
+        private static bool TryFindEntry(
+            GlobalPrefabTable table,
+            AddressableAssetSettings settings,
+            PrefabKind kind,
+            int prefabId,
+            out PrefabEntry found)
+        {
+            List<PrefabEntry> entries = FindEntries(table, settings, kind);
+            for (int i = 0; i < entries.Count; i++)
+            {
+                if (entries[i].PrefabId != prefabId)
+                    continue;
+                found = entries[i];
+                return true;
+            }
+            found = null;
+            return false;
         }
 
         private static AddressableAssetEntry FindEntryByAddress(

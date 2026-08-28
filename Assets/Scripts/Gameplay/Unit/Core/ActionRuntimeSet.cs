@@ -122,6 +122,36 @@ namespace FrameSyncMoba.Unit
             state = ActionRuntimeSlotSnapshot.Empty;
         }
 
+        internal bool CancelAttackForInvalidTarget(UnitUid targetUnitUid)
+        {
+            if (!targetUnitUid.IsValid())
+                throw new DeterministicSimulationException(
+                    "Attack target invalidation requires a valid UnitUid.");
+
+            AttackHandler attackHandler = _owner.AttackHandler;
+            bool handlerHasUncommittedTarget =
+                attackHandler != null &&
+                attackHandler.CurrentTargetUid == targetUnitUid &&
+                attackHandler.IsAttackCycleActive &&
+                !attackHandler.ImpactCommitted;
+            bool runtimeHasTarget =
+                _main.IsOccupied &&
+                _main.Kind == ActionKind.Attack &&
+                _main.TargetUnitUid == targetUnitUid;
+
+            if (!handlerHasUncommittedTarget && !runtimeHasTarget)
+                return false;
+            if (!handlerHasUncommittedTarget || !runtimeHasTarget)
+                throw new DeterministicSimulationException(
+                    $"Unit {_owner.UnitUid} cannot invalidate attack target " +
+                    $"{targetUnitUid}: AttackHandler and Main ActionRuntime " +
+                    "do not describe the same uncommitted attack windup.");
+
+            attackHandler.CancelBeforeCommit();
+            _main = ActionRuntimeSlotSnapshot.Empty;
+            return true;
+        }
+
         public void RefreshFromHandlers()
         {
             RefreshSlot(ActionSlot.Main);

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Logic-Map-1
+  m_EditorClassIdentifier: 
+  m_GroupName: Logic-Map-1
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 2ce1726b64646044d800af5bef9e8112
+  m_SerializeEntries:
+  - m_GUID: 58908e293ad4aea44a8dbe5b7d9abd59
+    m_Address: Assets/Config/Formal/Prefabs/Logic/Map/Map.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b72d6f37437a20d4592e019694bacdb8
+    m_Address: content/table/map/1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f1c4e69f4a5028647b5c47fb0408da9f
+    m_Address: Assets/Config/Formal/FullMatchDeterministicMapConfig.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3ff6355b606cac54eb86fb806f6f509b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 7151757f21365c54ebf71d3c3f1660fc, type: 2}
+    - {fileID: 11400000, guid: 78bdce3fbdae8d6458d153394dc3bd0b, type: 2}

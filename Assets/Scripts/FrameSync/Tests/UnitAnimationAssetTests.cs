@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FrameSyncMoba.Presentation;
 using FrameSyncMoba.Physics;
+using FrameSyncMoba.RuntimeConfig;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
 using UnityEditor;
@@ -47,6 +48,63 @@ namespace FrameSyncMoba.FrameSync.Tests
             "Assets/Config/Formal/Prefabs/Logic/Unit/TestCasterMinionRedRuntime.prefab",
             "Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerBlueRuntime.prefab",
             "Assets/Config/Formal/Prefabs/Logic/Unit/TestTowerRedRuntime.prefab",
+        };
+
+        private readonly struct AnimatedUnitCase
+        {
+            public AnimatedUnitCase(
+                string viewPath,
+                int runtimePrefabId,
+                string controllerPath)
+            {
+                ViewPath = viewPath;
+                RuntimePrefabId = runtimePrefabId;
+                ControllerPath = controllerPath;
+            }
+
+            public string ViewPath { get; }
+            public int RuntimePrefabId { get; }
+            public string ControllerPath { get; }
+        }
+
+        private static readonly AnimatedUnitCase[] AnimatedUnits =
+        {
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab",
+                1102,
+                "Assets/ClientContent/Animation/Aatrox/AatroxAnimator.controller"),
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/VarusRuntimeView.prefab",
+                1101,
+                "Assets/ClientContent/Animation/Profiles/Varus.controller"),
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/TestMeleeMinionBlueRuntimeView.prefab",
+                1201,
+                "Assets/ClientContent/Animation/Profiles/MeleeBlue.controller"),
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/TestMeleeMinionRedRuntimeView.prefab",
+                1202,
+                "Assets/ClientContent/Animation/Profiles/MeleeRed.controller"),
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/TestCasterMinionBlueRuntimeView.prefab",
+                1211,
+                "Assets/ClientContent/Animation/Profiles/CasterBlue.controller"),
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/TestCasterMinionRedRuntimeView.prefab",
+                1212,
+                "Assets/ClientContent/Animation/Profiles/CasterRed.controller"),
+        };
+
+        private static readonly AnimatedUnitCase[] Structures =
+        {
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/TestTowerBlueRuntimeView.prefab",
+                1301,
+                "Assets/ClientContent/Animation/Turret/TurretBlue.controller"),
+            new AnimatedUnitCase(
+                "Assets/ClientContent/Views/Unit/TestTowerRedRuntimeView.prefab",
+                1302,
+                "Assets/ClientContent/Animation/Turret/TurretRed.controller"),
         };
 
         [Test]
@@ -180,6 +238,136 @@ namespace FrameSyncMoba.FrameSync.Tests
             Assert.That(profile.TryGetStageBinding(10014, 1, out _), Is.True);
         }
 
+        [Test]
+        public void FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats()
+        {
+            UnitRuntimeCatalogAsset unitCatalog =
+                AssetDatabase.LoadAssetAtPath<UnitRuntimeCatalogAsset>(
+                    "Assets/Config/Formal/FullMatchUnitRuntimeCatalog.asset");
+            GlobalGameplayData globalData =
+                AssetDatabase.LoadAssetAtPath<GlobalGameplayData>(
+                    "Assets/Config/Formal/GlobalGameplayData.asset");
+            Assert.That(unitCatalog, Is.Not.Null);
+            Assert.That(globalData, Is.Not.Null);
+            float moveSpeedScale =
+                (float)globalData.BakeOrThrow()
+                    .MoveSpeedToLogicVelocityScale;
+
+            AssertFormalViewCoverage();
+            for (int i = 0; i < AnimatedUnits.Length; i++)
+            {
+                AnimatedUnitCase item = AnimatedUnits[i];
+                UnitPrototypeAuthoring prototype =
+                    FindPrototype(
+                        unitCatalog,
+                        item.RuntimePrefabId);
+                Assert.That(
+                    prototype.UnitKind,
+                    Is.Not.EqualTo(UnitKind.Structure),
+                    item.ViewPath);
+                float baseLogicMoveSpeed =
+                    prototype.Locomotion.BaseMoveSpeed *
+                    moveSpeedScale;
+                Assert.That(baseLogicMoveSpeed, Is.GreaterThan(0f));
+
+                AnimatorController controller =
+                    LoadControllerFromView(item);
+                AssertParameter(
+                    controller,
+                    "AttackMotionTime",
+                    AnimatorControllerParameterType.Float);
+                AssertParameter(
+                    controller,
+                    "MoveSpeed",
+                    AnimatorControllerParameterType.Float);
+
+                var states = new List<AnimatorState>();
+                CollectStates(controller, states);
+                int attackStates = 0;
+                int moveStates = 0;
+                for (int stateIndex = 0;
+                     stateIndex < states.Count;
+                     stateIndex++)
+                {
+                    AnimatorState state = states[stateIndex];
+                    if (IsAttackState(state))
+                    {
+                        attackStates++;
+                        Assert.That(
+                            state.timeParameterActive,
+                            Is.True,
+                            $"{item.ControllerPath}: {state.name} must use Motion Time.");
+                        Assert.That(
+                            state.timeParameter,
+                            Is.EqualTo("AttackMotionTime"),
+                            $"{item.ControllerPath}: {state.name}");
+                    }
+
+                    if (!IsMoveState(state))
+                        continue;
+                    moveStates++;
+                    Assert.That(
+                        state.speedParameterActive,
+                        Is.True,
+                        $"{item.ControllerPath}: {state.name} must use MoveSpeed.");
+                    Assert.That(
+                        state.speedParameter,
+                        Is.EqualTo("MoveSpeed"),
+                        $"{item.ControllerPath}: {state.name}");
+                    Assert.That(
+                        state.speed * baseLogicMoveSpeed,
+                        Is.EqualTo(1f).Within(0.0001f),
+                        $"{item.ControllerPath}: {state.name} must play at 1x " +
+                        "for the formal base movement speed.");
+                }
+
+                Assert.That(
+                    attackStates,
+                    Is.GreaterThan(0),
+                    item.ControllerPath);
+                Assert.That(
+                    moveStates,
+                    Is.GreaterThan(0),
+                    item.ControllerPath);
+            }
+        }
+
+        [Test]
+        public void FormalStructures_HaveNoAttackAnimation()
+        {
+            UnitRuntimeCatalogAsset unitCatalog =
+                AssetDatabase.LoadAssetAtPath<UnitRuntimeCatalogAsset>(
+                    "Assets/Config/Formal/FullMatchUnitRuntimeCatalog.asset");
+            Assert.That(unitCatalog, Is.Not.Null);
+            for (int i = 0; i < Structures.Length; i++)
+            {
+                AnimatedUnitCase item = Structures[i];
+                UnitPrototypeAuthoring prototype =
+                    FindPrototype(
+                        unitCatalog,
+                        item.RuntimePrefabId);
+                Assert.That(
+                    prototype.UnitKind,
+                    Is.EqualTo(UnitKind.Structure),
+                    item.ViewPath);
+
+                AnimatorController controller =
+                    LoadControllerFromView(item);
+                var states = new List<AnimatorState>();
+                CollectStates(controller, states);
+                for (int stateIndex = 0;
+                     stateIndex < states.Count;
+                     stateIndex++)
+                {
+                    Assert.That(
+                        IsAttackState(states[stateIndex]),
+                        Is.False,
+                        $"{item.ControllerPath}: Structure must not author an " +
+                        $"attack state ({states[stateIndex].name}).");
+                }
+            }
+        }
+
         private static void ValidatePrefab(string path)
         {
             GameObject root =
@@ -223,6 +411,119 @@ namespace FrameSyncMoba.FrameSync.Tests
                 PrefabUtility.UnloadPrefabContents(root);
             }
         }
+
+        private static void AssertFormalViewCoverage()
+        {
+            string[] guids = AssetDatabase.FindAssets(
+                "t:Prefab",
+                new[] { "Assets/ClientContent/Views/Unit" });
+            Assert.That(
+                guids,
+                Has.Length.EqualTo(
+                    AnimatedUnits.Length + Structures.Length),
+                "Every formal Unit view must declare whether it is an " +
+                "animated attacker or a Structure without attack animation.");
+        }
+
+        private static UnitPrototypeAuthoring FindPrototype(
+            UnitRuntimeCatalogAsset catalog,
+            int runtimePrefabId)
+        {
+            for (int i = 0; i < catalog.UnitPrototypes.Count; i++)
+            {
+                UnitPrototypeAuthoring prototype =
+                    catalog.UnitPrototypes[i];
+                if (prototype.RuntimeEntityPrefabId == runtimePrefabId)
+                    return prototype;
+            }
+
+            Assert.Fail(
+                $"Missing formal Unit prototype for PrefabId {runtimePrefabId}.");
+            return null;
+        }
+
+        private static AnimatorController LoadControllerFromView(
+            in AnimatedUnitCase item)
+        {
+            GameObject view = AssetDatabase.LoadAssetAtPath<GameObject>(
+                item.ViewPath);
+            Assert.That(view, Is.Not.Null, item.ViewPath);
+            Animator animator =
+                view.GetComponentInChildren<Animator>(true);
+            Assert.That(animator, Is.Not.Null, item.ViewPath);
+            AnimatorController controller =
+                animator.runtimeAnimatorController as AnimatorController;
+            Assert.That(controller, Is.Not.Null, item.ViewPath);
+            Assert.That(
+                AssetDatabase.GetAssetPath(controller),
+                Is.EqualTo(item.ControllerPath),
+                item.ViewPath);
+            return controller;
+        }
+
+        private static void AssertParameter(
+            AnimatorController controller,
+            string name,
+            AnimatorControllerParameterType type)
+        {
+            for (int i = 0;
+                 i < controller.parameters.Length;
+                 i++)
+            {
+                AnimatorControllerParameter parameter =
+                    controller.parameters[i];
+                if (parameter.name != name)
+                    continue;
+                Assert.That(
+                    parameter.type,
+                    Is.EqualTo(type),
+                    AssetDatabase.GetAssetPath(controller));
+                return;
+            }
+
+            Assert.Fail(
+                $"{AssetDatabase.GetAssetPath(controller)} is missing {name}.");
+        }
+
+        private static void CollectStates(
+            AnimatorController controller,
+            List<AnimatorState> states)
+        {
+            for (int layerIndex = 0;
+                 layerIndex < controller.layers.Length;
+                 layerIndex++)
+            {
+                CollectStates(
+                    controller.layers[layerIndex].stateMachine,
+                    states);
+            }
+        }
+
+        private static void CollectStates(
+            AnimatorStateMachine machine,
+            List<AnimatorState> states)
+        {
+            ChildAnimatorState[] directStates = machine.states;
+            for (int i = 0; i < directStates.Length; i++)
+                states.Add(directStates[i].state);
+            ChildAnimatorStateMachine[] children =
+                machine.stateMachines;
+            for (int i = 0; i < children.Length; i++)
+                CollectStates(children[i].stateMachine, states);
+        }
+
+        private static bool IsAttackState(AnimatorState state) =>
+            state.name.IndexOf(
+                "Attack",
+                StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private static bool IsMoveState(AnimatorState state) =>
+            state.name.IndexOf(
+                "Walk",
+                StringComparison.OrdinalIgnoreCase) >= 0 ||
+            state.name.Equals(
+                "Move",
+                StringComparison.OrdinalIgnoreCase);
 
         private static void ValidateClipBindings(
             Transform animatorRoot,
