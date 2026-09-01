@@ -11,6 +11,14 @@
 
 视频对应历史已验收包。D-045、D-047、D-048 的源码与定向验证已完成，但匹配这些协议和资源拆分变更的新版 Windows Client 与 Linux Dedicated Server 实机重建验收仍待执行，因此旧视频不是新版包的验收结论。
 
+## 下载
+
+- [GitHub Releases：下载最新公开版本](https://github.com/Mosya-CX/FrameSyncMobaDemo/releases/latest)
+
+普通玩家下载 Release 附件中的 `FrameSyncMobaDemo-Bootstrap-*.zip`，完整解压后运行 `Demo/Launcher/FrameSyncMobaLauncher.exe`。Bootstrap 的 `Demo/Game` 初始为空，启动器会通过签名 UOS CDN 清单下载或增量更新 `AAALOL.exe` 及完整客户端内容；下载/更新完成后仍需玩家点击“开始游戏”。
+
+Linux Dedicated Server 是部署方使用的 UOS 镜像内容，不是玩家客户端。只有通过依赖审计和 UOS 验收的服务器 ZIP 才会作为 GitHub Release 附件发布。
+
 ## 这个项目做了什么
 
 - 固定 Tick 的确定性 Gameplay：固定点数、稳定 UID、显式排序、确定性随机与规范化字节序列化。
@@ -530,7 +538,7 @@ Builds/CdnUpload/<客户端版本>/Upload/
 
 上传 UOS Bucket 时应把 `Upload` **里面的内容**放到 Bucket 根目录，不要再套一层 `Upload`。每个物理内容文件最多 95,000,000 字节；空安装可重组完整客户端，可信旧安装则只下载变化内容。
 
-`Builds/` 始终是本地可再生成的工作目录，不提交 Git。只有人工验收通过的客户端/服务端压缩包才放入 `Release/<版本>/Client|Server`，其中 ZIP 使用 Git LFS；签名私钥、UOS 凭据、日志、CDN 中间目录以及 `.claude/.codex/.opencode` 等个人工具目录不得提交。
+`Builds/` 始终是本地可再生成的工作目录，不提交 Git。只有人工验收通过的客户端/服务端压缩包才放入 `Release/<版本>/Client|Server`，GitHub Release 也以对应版本目录中的全部文件作为附件；仓库内 ZIP 使用 Git LFS。签名私钥、UOS 凭据、日志、CDN 中间目录以及 `.claude/.codex/.opencode` 等个人工具目录不得提交。
 
 ### 测试层次
 
