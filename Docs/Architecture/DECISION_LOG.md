@@ -938,8 +938,8 @@ Assets/Resources/       C/S-used UI / missiles / indicators / VFX / materials
 - `MatchStatisticsRuntime.MinionRewardShareRadius` is authored in the same
   stat-distance domain as attack ranges. It is converted exactly once through
   `UnitWorld.StatDistanceToLogicDistanceScale` before comparing squared logic
-  positions. At the current 0.01 scale, radius 800 is approximately 8 logic
-  units.
+  positions. Per the 2026-08-31 user balance adjustment, the radius is 1200;
+  at the current 0.01 scale this is approximately 12 logic units.
 
 ## D-041 -- Integer kill rewards and formal test gold (2026-08-11)
 
@@ -1307,3 +1307,39 @@ isolation remain frozen.
   `FrameSyncMoba.Lobby.LoadScene.v2` because its final integer now carries the
   positive `MapConfigId` used to freeze the content closure rather than an
   untyped load marker. Mixed transition-message versions are not compatible.
+
+## D-052 — Presentation-owned interpolated animation sampling (2026-08-29)
+
+**Status:** Frozen; implemented and focused-verified by ExecPlan 0148. Approved
+by the current user request.
+
+- Client unit-animation sampling owns a configurable frequency independent of
+  Gameplay `TickRate`; the formal client default is 20 Hz with interpolation.
+  This frequency does not create a second Gameplay or Presentation Tick.
+- Bootstrap publishes a read-only continuous animation-time projection from
+  the completed Gameplay Tick, the configured `UnitWorld.TickRate` and the
+  scheduler's clamped sub-Tick accumulator. The projection is owned and queried
+  by exact `UnitWorld` identity, publishes the Runtime-owned last completed
+  Tick, and is cleared only by its owning match; one match cannot observe or
+  clear another match's clock. It cannot advance Gameplay.
+- Attack Motion Time remains derived from the attack module's locked Start,
+  Impact and Ready Tick. Presentation prediction cannot cross an uncommitted
+  Impact or the Ready boundary, and recovery remains complete at/after Ready.
+- Looping Idle/Walk/Move states use externally sampled `LoopMotionTime`, active
+  Clip length and the live movement playback multiplier. Initial observation,
+  state/rate changes and rollback rebuild phase from the match logic-time epoch,
+  not local View-instantiation time or locally retained rate history, then
+  reduce it modulo one. A rate change may therefore make one client-only phase
+  correction; this is preferred to a permanent cross-endpoint phase split and
+  does not add Gameplay Snapshot state.
+- State changes and time regression reset/re-anchor the presentation sampler.
+  Animator routing parameter changes must be resolved before that frame chooses
+  its active loop Clip, so an Idle/Walk change never samples the previous state
+  and corrects one render frame later.
+  The sampler is client-only and reconstructible; it is not serialized,
+  checksummed, networked or restored, and Dedicated Server does not publish it.
+- No fixed 30 Hz fallback is permitted when Gameplay TickRate is unavailable.
+  An animated runtime unit must obtain its rate from its owning `UnitWorld`.
+- Bootstrap publishes before `UnitAnimationDriver.Update`; the driver writes
+  Motion Time before Animator evaluation. `LateUpdate` must not add a local
+  render-frame delay to animation progress.

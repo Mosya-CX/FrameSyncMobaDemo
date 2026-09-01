@@ -29,6 +29,30 @@ namespace FrameSyncMoba.Unit
 
         public void ClearIntent() { _currentIntent = UnitIntent.None; }
 
+        internal bool ClearIntentTargeting(UnitUid targetUnitUid)
+        {
+            if (!targetUnitUid.IsValid())
+                throw new DeterministicSimulationException(
+                    "Intent target invalidation requires a valid UnitUid.");
+
+            bool targetsUnit =
+                _currentIntent.Kind == IntentKind.AttackTarget &&
+                _currentIntent.TargetUnit == targetUnitUid;
+            if (!targetsUnit &&
+                _currentIntent.Kind == IntentKind.CastAbility &&
+                _currentIntent.AbilityAim.Kind == AimKind.Unit)
+            {
+                targetsUnit =
+                    _currentIntent.AbilityAim.TargetUnitUid ==
+                    targetUnitUid;
+            }
+            if (!targetsUnit)
+                return false;
+
+            _currentIntent = UnitIntent.None;
+            return true;
+        }
+
         public void Tick(out ActionRequest primaryRequest)
         {
             primaryRequest = null;

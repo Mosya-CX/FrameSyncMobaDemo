@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Only user-accepted distributable archives belong in Release. Keep generated
+# Builds ignored and store release ZIP payloads through Git LFS.
+Release/**/*.zip filter=lfs diff=lfs merge=lfs -text

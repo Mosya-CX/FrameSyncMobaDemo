@@ -385,11 +385,20 @@ namespace FrameSyncMoba.Bootstrap
             if (!dedicatedServer)
             {
                 ConfigureClientPresentation();
+                await PreloadClientVfxAsync(
+                    cancellationToken);
             }
 
             // Wire presentation dispatch and UI snapshot after each tick
-            Runtime.TickPipeline.TickCompleted += (_, _, _) =>
+            Runtime.TickPipeline.TickCompleted +=
+                (completedTick, completedCommands, completedChecksum) =>
             {
+                playerInputController
+                    ?.CommandRequester
+                    ?.ObserveCompletedGameplayTick(
+                        completedTick,
+                        completedCommands,
+                        completedChecksum);
                 MatchFlow.ObserveTick();
 
                 // Show result screen when match finishes (0092)
@@ -489,6 +498,47 @@ namespace FrameSyncMoba.Bootstrap
             }
 
             RegisterExternalFlowSession();
+        }
+
+        private async Task PreloadClientVfxAsync(
+            CancellationToken cancellationToken)
+        {
+            VfxManager[] managers =
+                FindObjectsOfType<VfxManager>(true);
+            if (managers.Length == 0)
+                return;
+
+            gameLoadStatus = "Warming battle effects";
+            IClientPresentationAssetLoader loader =
+                await AwaitWithCancellation(
+                    ClientPresentationServices.GetLoaderAsync(),
+                    cancellationToken);
+            for (int i = 0; i < managers.Length; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                managers[i].SetAssetLoader(loader);
+                await managers[i].PreloadAsync(
+                    matchContentScope?.Selection?.HeroConfigIds,
+                    cancellationToken);
+            }
+        }
+
+        private static async Task<T> AwaitWithCancellation<T>(
+            Task<T> task,
+            CancellationToken cancellationToken)
+        {
+            if (task.IsCompleted)
+                return await task;
+            Task canceled = Task.Delay(
+                Timeout.Infinite,
+                cancellationToken);
+            Task completed = await Task.WhenAny(
+                task,
+                canceled);
+            if (!ReferenceEquals(completed, task))
+                throw new OperationCanceledException(
+                    cancellationToken);
+            return await task;
         }
 
         private MatchContentSelection ResolveMatchContentSelection(
@@ -879,6 +929,7 @@ namespace FrameSyncMoba.Bootstrap
             if (driveSimulationFromUnityUpdate)
                 AdvanceSimulationByElapsedMilliseconds(
                     elapsedMilliseconds);
+            PublishAnimationPresentationTime();
             if (hudLaunchPending &&
                 Runtime != null &&
                 !IsEndpointLaunchTimeReached())
@@ -1128,6 +1179,8 @@ namespace FrameSyncMoba.Bootstrap
                 new NgoFrameSyncLaunchClock(networkManager);
             frameSyncNetworkBridge.MatchResultReady +=
                 OnMatchResultReady;
+            frameSyncNetworkBridge.AcceptedCommandsReceived +=
+                OnAcceptedCommandsReceived;
 
             if (GameSessionContext.FlowManagedExternally)
             {
@@ -3083,6 +3136,25 @@ namespace FrameSyncMoba.Bootstrap
             return executed;
         }
 
+        private void PublishAnimationPresentationTime()
+        {
+            if (dedicatedServer || Runtime == null || UnitWorld == null)
+                return;
+
+            double subTickAlpha = Math.Max(
+                0d,
+                Math.Min(
+                    1d,
+                    logicAccumulatorMillisecondRateUnits /
+                    (double)DeterministicTimeConversion
+                        .MillisecondsPerSecond));
+            AnimationPresentationClock.Publish(
+                UnitWorld,
+                Runtime.LastCompletedTick,
+                UnitWorld.TickRate,
+                subTickAlpha);
+        }
+
         private static long GetUnityMonotonicMilliseconds()
         {
             return FrameSyncLaunchSchedule.SecondsToMilliseconds(
@@ -3238,7 +3310,8 @@ namespace FrameSyncMoba.Bootstrap
                 Runtime.CreateCommandTargetTickResolver(),
                 AbilityInputMappingProvider.CreateFromAbilityHandler(
                     controlledUnit.AbilityHandler),
-                new UnitWorldAbilityRuntimeView(UnitWorld));
+                new UnitWorldAbilityRuntimeView(UnitWorld),
+                () => Runtime.LastCompletedTick);
             playerInputController.Initialize(buffer, resolver, requester);
             Runtime.ConfigureShopCommandSubmitter(requester);
             if (indicatorDriver != null)
@@ -3487,9 +3560,14 @@ namespace FrameSyncMoba.Bootstrap
                 uiManager.Initialized -= OnUiManagerInitialized;
             FrameSyncGameRuntime.UnregisterActiveInstance(
                 Runtime);
+            AnimationPresentationClock.Clear(UnitWorld);
             if (frameSyncNetworkBridge != null)
+            {
                 frameSyncNetworkBridge.MatchResultReady -=
                     OnMatchResultReady;
+                frameSyncNetworkBridge.AcceptedCommandsReceived -=
+                    OnAcceptedCommandsReceived;
+            }
             if (GameSessionContext.LobbyBridge != null)
             {
                 GameSessionContext.LobbyBridge.StartScheduled -=
@@ -3502,6 +3580,14 @@ namespace FrameSyncMoba.Bootstrap
             matchContentScope = null;
             contentLoadCancellation?.Dispose();
             contentLoadCancellation = null;
+        }
+
+        private void OnAcceptedCommandsReceived(
+            IReadOnlyList<GameplayCommand> commands)
+        {
+            playerInputController
+                ?.CommandRequester
+                ?.ObserveAcceptedGameplayCommands(commands);
         }
     }
 }

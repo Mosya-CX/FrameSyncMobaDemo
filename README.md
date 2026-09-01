@@ -2,7 +2,7 @@
 
 一个由作者与 AI 深度协作设计、实现和验证，以 **确定性帧同步 MOBA** 为目标的 Unity 2022.3 LTS 技术演示工程。它将固定 Tick 的 Gameplay 模拟、客户端预测与回滚、Dedicated Server、NGO/UOS 对局流程，以及数据驱动的英雄、单位和战斗框架组合在同一项目中。
 
-> 项目定位是可运行、可验证的技术框架与内容垂直切片，不是可直接发布的完整商业游戏。本文根据 2026-08-27 的源码和当前工程状态整理；正式实现依据始终以 [设计索引](Docs/Architecture/DESIGN_INDEX.md) 为准。
+> 项目定位是可运行、可验证的技术框架与内容垂直切片，不是可直接发布的完整商业游戏。本文根据 2026-09-01 的源码和当前工程状态整理；正式实现依据始终以 [设计索引](Docs/Architecture/DESIGN_INDEX.md) 为准。
 
 ## 演示
 
@@ -235,7 +235,7 @@ flowchart LR
 
 UI 使用 xLua。`LuaManager` 维护唯一 `LuaEnv`，页面模块通过 `module.New(refs)` 创建独立实例；C# 侧的 `LuaHost`、`UIManager`、`UIList` 和 `UICell` 管理生命周期与复用。Lua 可以读取静态数据库、Unit/Handler 只读视图和 Shop 接口，也可以提交类型化请求，但不能直接修改技能 Runtime、Stat、装备槽、金币或 Command Buffer。
 
-Animator、VFX、音频、技能指示器、相机、鼠标高亮和 UI 只消费只读 Gameplay 状态或带稳定 `PresentationEventId` 的事件。回滚重演通过客户端事件账本避免重复播放。表现对象即使异步加载失败、丢失或重建，也不能改变命中、控制持续时间、逻辑位置或 Checksum。
+Animator、VFX、音频、技能指示器、相机、鼠标高亮和 UI 只消费只读 Gameplay 状态或带稳定 `PresentationEventId` 的事件。回滚重演通过客户端事件账本避免重复播放。单位攻击与 Idle/Move 循环动画使用可单独配置的客户端采样频率（正式默认 20 Hz），根据“已完成 Gameplay Tick + 子 Tick 累积”重建连续进度并在渲染帧间插值；它不建立第二套 Tick，也不改写 Gameplay。表现对象即使异步加载失败、丢失或重建，也不能改变命中、控制持续时间、逻辑位置或 Checksum。
 
 ### 本地 Addressables 与 Dedicated Server 资源边界
 
@@ -475,6 +475,7 @@ UOS 负责匹配、分配和 Linux 战斗服托管，不替代项目自身的 NG
 - [本地 C/S 测试指南](Docs/Implementation/C_S_TEST_GUIDE.md)
 - [完整对局测试计划](Docs/Implementation/TEST_PLAN.md)
 - [UOS 客户端启动器指南](Docs/Implementation/UOS_CLIENT_LAUNCHER_GUIDE.md)
+- [正式 Demo 游戏启动器与 CDN 指南](Docs/Implementation/GAME_LAUNCHER_GUIDE.md)
 
 Unity 菜单中的本地构建入口为 `FrameSyncMoba/Build Local NGO/Build Both`。构建操作一次只能发起一轮；构建期间不要继续对同一工程执行 Unity 操作，等待构建完成后再检查报告和日志。
 
@@ -508,6 +509,29 @@ Linux 镜像入口为 `./FrameSyncMobaServer.x86_64 -batchmode -nographics`，�
 
 构建菜单会显式切换 Windows Player 与 Linux Server 子目标，并在完成后恢复编辑器原目标。Client 内容构建会校验 `settings.json`、平台目录和 bundle；Server 构建会临时只启用 `Logic-*` 组、构建服务器本地 catalog/bundle，并审计最终输出不含 `Client-*` 内容。不要为了打 Server 手工删除客户端资源，也不要把 `Assets/ClientContent/` 加到逻辑 Prefab 或 Server 场景。
 
+### 正式启动器、CDN 与 Release
+
+玩家侧使用独立的 `FrameSyncMobaLauncher.exe`。启动器启动时只检查安装/更新状态，唯一主按钮在“下载游戏”“更新”“开始游戏”之间切换；下载或更新完成后不会自动启动游戏，点击“开始游戏”时还会再次校验签名清单与完整文件哈希。
+
+Unity 的正式客户端入口为：
+
+```text
+FrameSyncMoba/Build Local NGO/Build Release Client (Optional CDN Package)...
+```
+
+它与测试用的 `Builds/UosClient` 完全分离，固定生成 `Builds/Demo/Game/AAALOL.exe`、`AAALOL_Data` 等正式 Player 内容。CDN 分片是默认关闭的可选项；勾选后才会在 Player 构建成功后生成签名 schema-v3 上传树：
+
+```text
+Builds/CdnUpload/<客户端版本>/Upload/
+    client-manifest.json
+    client-manifest.sig
+    content/<sha256>
+```
+
+上传 UOS Bucket 时应把 `Upload` **里面的内容**放到 Bucket 根目录，不要再套一层 `Upload`。每个物理内容文件最多 95,000,000 字节；空安装可重组完整客户端，可信旧安装则只下载变化内容。
+
+`Builds/` 始终是本地可再生成的工作目录，不提交 Git。只有人工验收通过的客户端/服务端压缩包才放入 `Release/<版本>/Client|Server`，其中 ZIP 使用 Git LFS；签名私钥、UOS 凭据、日志、CDN 中间目录以及 `.claude/.codex/.opencode` 等个人工具目录不得提交。
+
 ### 测试层次
 
 测试按风险分为三层：
@@ -524,14 +548,14 @@ Linux 镜像入口为 `./FrameSyncMobaServer.x86_64 -batchmode -nographics`，�
 
 | 验证 | 结果 |
 |---|---|
-| Unity 编译 | 2026-08-28 Unity MCP 同步刷新通过，最终 Console Error/Exception 为空；Player 实机构建沿用下述待验收项 |
-| Bootstrap EditMode | 全程序集 120/120 通过；其中包含客户端/服务端 Shader 构建作用域、精确 GraphicsSettings 恢复和通用技能指示器材质守卫 |
-| FrameSync EditMode | 91/91 通过 |
+| Unity 编译 | 2026-09-01 Unity MCP 强制刷新通过，最终 Console Error/Exception 为空；本轮未实际触发 Player 构建 |
+| Bootstrap EditMode | 全程序集 123/123；正式客户端/可选 CDN 构建菜单聚焦测试 6/6 |
+| FrameSync 与动画同步 | FrameSync 全程序集 123/123；采样器与跨对局时钟 13/13、正式 Animator 资产 6/6、亚托克斯真实 Driver PlayMode 9/9、表现配置 PlayMode 3/3 |
 | Addressables 配置 | 根/子表覆盖原 20 个 Prefab 映射、直接逻辑引用为 0；四个 Logic 分区共 35 根，客户端表现 63 根、远程条目 0 |
 | 对局资源 PlayMode | 韦鲁斯/亚托克斯独立闭包与 Q VFX 归属 2/2；正式 GameBootstrap 异步组合、销毁竞态句柄释放 2/2 |
 | 加载页与指示器 | 外部流程在首个异步资源等待前接管 GameScene Loading 页，聚焦 PlayMode 1/1；三类通用指示器从已加载 Addressables 源材质克隆运行时材质，材质不再携带旧 Shader 关键字，专用单变体 Shader 固定进入客户端 Player Core、在服务端构建中临时排除并精确恢复；真实 Addressables 获取、4 个 Renderer、清理与帧缓冲蓝色/非洋红断言 1/1，待新客户端包视觉复验 |
 | 范围内 Unit 资源契约 | Aatrox 正式内容 10/10；装备/Core 分区 6/6 |
-| PlayerInput | 映射 17/17；聚焦 PlayMode 输入模拟 4/4 |
+| PlayerInput | EditMode 42/42；聚焦 PlayMode 输入模拟证据见模块状态与当前交接文档 |
 | 完整 PlayMode 基线 | 56/60 通过，4 项保留失败 |
 
 当前清单记录 63 个客户端表现根、35 个逻辑根和零远程条目。迁移前后依赖清单与四个分区的版本/哈希/根数量见 [资源架构](Docs/Implementation/Addressables/RESOURCE_ARCHITECTURE.md) 与 [对局资源清单](Docs/Implementation/Addressables/MATCH_CONTENT_RESOURCE_MANIFEST.md)。已记录的旧客户端本地内容输出约 612 MB，其中三个大型 Projectile GLB 是主要体积来源；新分区后的最终 Player 体积仍需下一轮实际构建测量。
@@ -569,7 +593,7 @@ Linux 镜像入口为 `./FrameSyncMobaServer.x86_64 -batchmode -nographics`，�
 | 二维物理与范围查询 | [Unit Physics v13.1](Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md) |
 | Direct、A*、FlowField 与 RVO | [Pathfinding v13.1](Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md) |
 | 小兵、防御塔与非英雄单位 | [Non-hero v5](Docs/Design/moba_non_hero_unit_modules_design_v5.md) |
-| 动画、VFX、音频、表现回滚和对局资源 | [Presentation v13.2](Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md) + D-048/D-051 |
+| 动画、VFX、音频、表现回滚和对局资源 | [Presentation v13.2](Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md) + D-048/D-051/D-052 |
 | UI 与 Lua | [UI/Lua v9.1](Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md) |
 | 玩家输入与非智能施法 | [Player Input v1.1](Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md) |
 

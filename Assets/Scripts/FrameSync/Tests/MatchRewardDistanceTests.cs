@@ -35,14 +35,14 @@ namespace FrameSyncMoba.FrameSync.Tests
                 702,
                 UnitKind.Hero,
                 new TeamId(1),
-                (fp)7.99m,
+                (fp)11.99m,
                 0);
             UnitType farHero = Spawn(
                 world,
                 703,
                 UnitKind.Hero,
                 new TeamId(1),
-                (fp)8.01m,
+                (fp)12.01m,
                 0);
             var statistics =
                 new MatchStatisticsRuntime();
@@ -63,7 +63,7 @@ namespace FrameSyncMoba.FrameSync.Tests
                 fpmath.lengthsq(
                     nearHero.PhysicsEntity.Transform2D.Position -
                     minion.PhysicsEntity.Transform2D.Position),
-                Is.LessThan((fp)64m));
+                Is.LessThan((fp)144m));
 
             statistics.Consume(
                 new[]
@@ -83,7 +83,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             Assert.That(
                 nearHero.StatHandler.CurrentExperience,
                 Is.EqualTo(100),
-                "800 authored distance at scale 0.01 is approximately 8 logic units.");
+                "1200 authored distance at scale 0.01 is approximately 12 logic units.");
             Assert.That(
                 farHero.StatHandler.CurrentExperience,
                 Is.Zero);

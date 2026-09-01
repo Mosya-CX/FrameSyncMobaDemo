@@ -29,6 +29,15 @@ namespace FrameSyncMoba.PlayerInput
         private PlayerCommandRequester commandRequester;
         private bool subscribed;
         private SkillIndicatorDriver indicatorDriver;
+        private readonly LocalAbilityInputStateKind[] lastIndicatorStates =
+            new LocalAbilityInputStateKind[4];
+        private readonly AimKind[] lastIndicatorAimKinds =
+            new AimKind[4];
+        private readonly bool[] lastIndicatorAimInfo =
+            new bool[4];
+        private bool indicatorTraceInitialized;
+        private bool indicatorDriverMissingLogged;
+        private bool indicatorDependencyMissingLogged;
 
         public LocalInputEventBuffer Buffer => buffer;
         public PlayerCommandRequester CommandRequester =>
@@ -55,6 +64,13 @@ namespace FrameSyncMoba.PlayerInput
         /// </summary>
         public void SetIndicatorDriver(SkillIndicatorDriver driver)
         {
+            if (!ReferenceEquals(indicatorDriver, driver))
+            {
+                HideIndicator();
+                indicatorTraceInitialized = false;
+                indicatorDriverMissingLogged = false;
+                indicatorDependencyMissingLogged = false;
+            }
             indicatorDriver = driver;
         }
 
@@ -68,11 +84,16 @@ namespace FrameSyncMoba.PlayerInput
         private void OnDisable()
         {
             UnsubscribeActions();
+            HideIndicator();
         }
 
-        private void LateUpdate()
+        private void Update()
         {
-            if (buffer == null || commandRequester == null) return;
+            if (buffer == null || commandRequester == null)
+            {
+                HideIndicator();
+                return;
+            }
             if (pointerResolver != null && pointerPosition != null)
             {
                 pointerResolver.LastScreenPosition =
@@ -84,19 +105,62 @@ namespace FrameSyncMoba.PlayerInput
 
         private void UpdateIndicator()
         {
-            if (indicatorDriver == null || pointerResolver == null) return;
-            if (commandRequester == null || commandRequester.ControlledUnit == null) return;
+            if (indicatorDriver == null)
+            {
+                if (!indicatorDriverMissingLogged &&
+                    HasPendingIndicatorState())
+                {
+                    Debug.Log(
+                        "[IndicatorTrace] pending aim state exists but " +
+                        "SkillIndicatorDriver is not assigned.");
+                    indicatorDriverMissingLogged = true;
+                }
+                return;
+            }
+            if (pointerResolver == null ||
+                commandRequester == null ||
+                commandRequester.ControlledUnit == null)
+            {
+                if (!indicatorDependencyMissingLogged)
+                {
+                    Debug.Log(
+                        "[IndicatorTrace] indicator evaluation skipped: " +
+                        $"pointer={(pointerResolver != null ? "ready" : "null")} " +
+                        $"requester={(commandRequester != null ? "ready" : "null")} " +
+                        $"unit={(commandRequester?.ControlledUnit != null ? "ready" : "null")}");
+                    indicatorDependencyMissingLogged = true;
+                }
+                HideIndicator();
+                return;
+            }
+            indicatorDependencyMissingLogged = false;
 
-            // Show and follow the indicator while the player is locally
-            // aiming (E/R) or holding a Focus session (Q hold-release).
+            // Player Input v1.1 §§15.3/17.4: keep the preparatory indicator
+            // visible while a Focus/Commit command is pending. The command may
+            // target a future prediction Tick, so waiting for the Gameplay
+            // Session before showing it creates a false "Q did not start"
+            // gap and can hide the indicator again after Commit.
             for (byte slot = 0; slot < 4; slot++)
             {
                 ref readonly var state = ref commandRequester.GetAbilityState(slot);
                 if (state.Kind == LocalAbilityInputStateKind.LocalAiming ||
-                    state.Kind == LocalAbilityInputStateKind.GameplayFocusing)
+                    state.Kind == LocalAbilityInputStateKind.FocusRequested ||
+                    state.Kind == LocalAbilityInputStateKind.GameplayFocusing ||
+                    state.Kind == LocalAbilityInputStateKind.CommitRequested)
                 {
                     // Get the aim kind and cast range for this slot
-                    if (commandRequester.TryGetAimInfo(slot, out var aimKind, out var castRange, out var casterPos, out var casterForward))
+                    bool aimInfo = commandRequester.TryGetAimInfo(
+                        slot,
+                        out var aimKind,
+                        out var castRange,
+                        out var casterPos,
+                        out var casterForward);
+                    LogIndicatorState(
+                        slot,
+                        state.Kind,
+                        aimInfo,
+                        aimKind);
+                    if (aimInfo)
                     {
                         fp groundRadius = fp.zero;
                         commandRequester.TryGetGroundTargetRadius(
@@ -133,16 +197,75 @@ namespace FrameSyncMoba.PlayerInput
                         {
                             indicatorDriver.UpdateCursor(cursorWorld.Value, casterPos, casterForward);
                         }
+                        return;
                     }
-                    return;
+
+                    // A pending no-aim Commit (for example Varus W) owns no
+                    // indicator. Keep scanning other slots instead of
+                    // suppressing a simultaneous aiming context, and let the
+                    // no-context path below hide any stale visual.
+                    continue;
                 }
+                LogIndicatorState(
+                    slot,
+                    LocalAbilityInputStateKind.Idle,
+                    false,
+                    AimKind.None);
             }
 
             // No slot is aiming — hide indicator
-            if (indicatorDriver.IsVisible)
+            HideIndicator();
+        }
+
+        private void HideIndicator()
+        {
+            if (indicatorDriver != null && indicatorDriver.IsVisible)
             {
                 indicatorDriver.Hide();
             }
+        }
+
+        private bool HasPendingIndicatorState()
+        {
+            if (commandRequester == null)
+                return false;
+            for (byte slot = 0; slot < 4; slot++)
+            {
+                LocalAbilityInputStateKind kind =
+                    commandRequester.GetAbilityState(slot).Kind;
+                if (kind == LocalAbilityInputStateKind.LocalAiming ||
+                    kind == LocalAbilityInputStateKind.FocusRequested ||
+                    kind == LocalAbilityInputStateKind.GameplayFocusing ||
+                    kind == LocalAbilityInputStateKind.CommitRequested)
+                    return true;
+            }
+            return false;
+        }
+
+        private void LogIndicatorState(
+            byte slot,
+            LocalAbilityInputStateKind state,
+            bool aimInfo,
+            AimKind aimKind)
+        {
+            bool changed = !indicatorTraceInitialized ||
+                lastIndicatorStates[slot] != state ||
+                lastIndicatorAimInfo[slot] != aimInfo ||
+                lastIndicatorAimKinds[slot] != aimKind;
+            lastIndicatorStates[slot] = state;
+            lastIndicatorAimInfo[slot] = aimInfo;
+            lastIndicatorAimKinds[slot] = aimKind;
+            indicatorTraceInitialized = true;
+            if (!changed)
+                return;
+            int abilityId = commandRequester.ControlledUnit
+                ?.AbilityHandler
+                ?.GetAbilityDef(slot)
+                ?.AbilityId ?? 0;
+            Debug.Log(
+                $"[IndicatorTrace] slot={slot} ability={abilityId} " +
+                $"state={state} aimInfo={aimInfo} aimKind={aimKind} " +
+                $"driverVisible={indicatorDriver?.IsVisible ?? false}");
         }
 
         private void CacheActionsOrThrow()

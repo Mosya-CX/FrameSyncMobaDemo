@@ -18,7 +18,8 @@ namespace FrameSyncMoba.Physics
         private Vector3 presentationTargetPosition;
         private Quaternion presentationStartRotation = Quaternion.identity;
         private Quaternion presentationTargetRotation = Quaternion.identity;
-        private float presentationElapsed;
+        private float presentationPositionElapsed;
+        private float presentationRotationElapsed;
         private bool presentationInitialized;
         private bool presentationSnapRequested = true;
 
@@ -190,7 +191,9 @@ namespace FrameSyncMoba.Physics
                 presentationTargetPosition = desiredPosition;
                 presentationStartRotation = desiredRotation;
                 presentationTargetRotation = desiredRotation;
-                presentationElapsed =
+                presentationPositionElapsed =
+                    PhysicsPresentationSettings.DurationSeconds;
+                presentationRotationElapsed =
                     PhysicsPresentationSettings.DurationSeconds;
                 presentationInitialized = true;
                 presentationSnapRequested = false;
@@ -198,31 +201,38 @@ namespace FrameSyncMoba.Physics
             }
 
             if ((desiredPosition - presentationTargetPosition)
-                    .sqrMagnitude > 0.0000001f ||
-                Quaternion.Angle(
-                    desiredRotation,
-                    presentationTargetRotation) > 0.001f)
+                    .sqrMagnitude > 0.0000001f)
             {
                 presentationStartPosition = transform.position;
                 presentationTargetPosition = desiredPosition;
+                presentationPositionElapsed = 0f;
+            }
+            if (Quaternion.Angle(
+                    desiredRotation,
+                    presentationTargetRotation) > 0.001f)
+            {
                 presentationStartRotation = transform.rotation;
                 presentationTargetRotation = desiredRotation;
-                presentationElapsed = 0f;
+                presentationRotationElapsed = 0f;
             }
 
-            presentationElapsed += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(
-                presentationElapsed /
+            presentationPositionElapsed += Time.unscaledDeltaTime;
+            presentationRotationElapsed += Time.unscaledDeltaTime;
+            float positionT = Mathf.Clamp01(
+                presentationPositionElapsed /
+                PhysicsPresentationSettings.DurationSeconds);
+            float rotationT = Mathf.Clamp01(
+                presentationRotationElapsed /
                 PhysicsPresentationSettings.DurationSeconds);
             transform.SetPositionAndRotation(
                 Vector3.LerpUnclamped(
                     presentationStartPosition,
                     presentationTargetPosition,
-                    t),
+                    positionT),
                 Quaternion.SlerpUnclamped(
                     presentationStartRotation,
                     presentationTargetRotation,
-                    t));
+                    rotationT));
         }
 
         private void CommitTransform(in PhysicsTransform2D transform)

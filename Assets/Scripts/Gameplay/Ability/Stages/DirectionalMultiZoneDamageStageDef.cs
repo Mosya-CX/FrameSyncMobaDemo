@@ -325,7 +325,8 @@ namespace FrameSyncMoba.Unit
                     WorldDirection = forward,
                     AttachToUnit = caster.UnitUid,
                     DurationScale = ImpactDelayTicks > 0
-                        ? (fp)ImpactDelayTicks / (fp)30
+                        ? (fp)ImpactDelayTicks /
+                          (fp)runtime.World.TickRate
                         : fp.one,
                 });
         }

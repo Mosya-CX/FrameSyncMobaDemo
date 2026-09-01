@@ -1,4 +1,5 @@
 using FrameSyncMoba.Unit;
+using FrameSyncMoba.FrameSync;
 using UnityEngine;
 using UnitType = FrameSyncMoba.Unit.Unit;
 
@@ -68,6 +69,9 @@ namespace FrameSyncMoba.Bootstrap
         private Camera mainCamera;
         private Vector2 currentClampMin;
         private Vector2 currentClampMax;
+        private Vector3 followVelocity;
+        private float lockedFollowSmoothTime = 0.06f;
+        private float lockedFollowSnapDistance = 6f;
 
         public MobaCameraPresentationConfig PresentationConfig =>
             presentationConfig;
@@ -172,6 +176,12 @@ namespace FrameSyncMoba.Bootstrap
             panSpeed = Mathf.Max(0.01f, side.PanSpeed);
             edgeSize = Mathf.Max(0f, side.EdgeSize);
             followOffset = side.FollowOffset;
+            lockedFollowSmoothTime = Mathf.Max(
+                0f,
+                presentationConfig.LockedFollowSmoothTime);
+            lockedFollowSnapDistance = Mathf.Max(
+                0.01f,
+                presentationConfig.LockedFollowSnapDistance);
             transform.rotation = Quaternion.Euler(side.EulerAngles);
             if (mainCamera == null)
                 mainCamera = GetComponent<Camera>();
@@ -184,6 +194,9 @@ namespace FrameSyncMoba.Bootstrap
                 !Application.isBatchMode,
                 presentationConfig.SmoothingDuration,
                 presentationConfig.SmoothingSnapDistance);
+            UnitAnimationSynchronizationSettings.Configure(
+                presentationConfig.AnimationSynchronizationRateHz,
+                presentationConfig.InterpolateAnimationProgress);
         }
 
         public void ApplyDebugSide(
@@ -266,13 +279,24 @@ namespace FrameSyncMoba.Bootstrap
             desired.y = transform.position.y;
             if (targetUsesLogicPoseProjection)
             {
-                // Locked MOBA camera follows after PhysicsEntity2D has
-                // projected the current logic pose. Smoothing a 30 Hz stepped
-                // unit root with render-frame delta makes the camera and its
-                // target use different timelines, which presents as unit
-                // shake/ghosting. Exact late follow keeps the controlled unit
-                // stable in screen space.
-                transform.position = desired;
+                Vector3 delta = desired - transform.position;
+                if (lockedFollowSmoothTime <= 0f ||
+                    delta.sqrMagnitude >=
+                        lockedFollowSnapDistance *
+                        lockedFollowSnapDistance)
+                {
+                    transform.position = desired;
+                    followVelocity = Vector3.zero;
+                    return;
+                }
+
+                transform.position = Vector3.SmoothDamp(
+                    transform.position,
+                    desired,
+                    ref followVelocity,
+                    lockedFollowSmoothTime,
+                    Mathf.Infinity,
+                    Time.unscaledDeltaTime);
                 return;
             }
 

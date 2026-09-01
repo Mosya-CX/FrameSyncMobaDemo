@@ -220,5 +220,9 @@ Build entry points and procedures are defined in:
 Build commands are sent exactly once. After sending a build request, stop all
 Unity operations and wait for the user to report that the build has ended.
 
+`Builds/` is ignored local/generated output. Git-tracked distributable archives
+belong only under `Release/<version>/Client` and `Release/<version>/Server` after
+the user has accepted them; never force-add `Builds/` for a release upload.
+
 - Local C/S: `LocalNgoBuildMenu.BuildBoth()`.
 - UOS Linux server image: `BuildServerLinux()`.

@@ -362,6 +362,10 @@ namespace FrameSyncMoba.FrameSync
                             $"segment={segments[segmentIndex].Label} " +
                             $"hash={segments[segmentIndex].Hash}");
                     }
+                    PrintDetailedChecksumDiagnostics(
+                        frame.Tick,
+                        world,
+                        mismatchGoldDigest);
                     FrameSyncMoba.Unit.FrameSyncDiagnostics.LogCritical(
                         $"[Checksum] Tick {frame.Tick} " +
                         $"server={frame.SharedGameplayChecksum} " +
@@ -529,17 +533,13 @@ namespace FrameSyncMoba.FrameSync
 
         private static void PrintDetailedChecksumDiagnostics(
             int tick,
-            SimulationTickPipeline pipeline)
+            in GameplaySnapshot predicted,
+            GoldIncomeBatchDigest digest)
         {
-            GameplaySnapshot predicted =
-                pipeline.CaptureAggregateSnapshot();
             var lines = new System.Collections.Generic.List<string>
             {
                 $"[ChecksumDetail] Tick {tick} predicted(client) segments:",
             };
-            GoldIncomeBatchDigest digest =
-                pipeline.GoldIncome?.GetBatchDigest(tick) ??
-                new GoldIncomeBatchDigest(0);
             SharedGameplayChecksum.ChecksumSegment[] segments =
                 SharedGameplayChecksum.ComputeSegmentHashes(
                     predicted,
@@ -549,6 +549,9 @@ namespace FrameSyncMoba.FrameSync
                 lines.Add(
                     $"  {segments[i].Label}={segments[i].Hash}");
             }
+            ChecksumDiagnosticFormatter.AppendWorldState(
+                lines,
+                predicted);
             UnitSnapshot[] units =
                 predicted.UnitWorldState.Units ??
                 System.Array.Empty<UnitSnapshot>();
@@ -557,17 +560,9 @@ namespace FrameSyncMoba.FrameSync
                 lines.Add(
                     $"  Unit {units[u].UnitUid} " +
                     $"(kind={units[u].UnitKind}):");
-                var pos = units[u].PhysicsTransform.Position;
-                lines.Add(
-                    $"    pos=({pos.x},{pos.y})");
-                var loco = units[u].LocomotionState;
-                lines.Add(
-                    $"    locoActive={loco.HasActiveTask} " +
-                    $"purpose={loco.Task.Purpose} " +
-                    $"state={loco.Task.State} " +
-                    $"cursor={loco.FollowerState.PathCursor} " +
-                    $"routeFinished={loco.FollowerState.RouteFinished} " +
-                    $"needRepath={loco.Route.NeedRepath}");
+                ChecksumDiagnosticFormatter.AppendUnitState(
+                    lines,
+                    units[u]);
                 SharedGameplayChecksum.ChecksumSegment[] handlers =
                     SharedGameplayChecksum
                         .ComputeUnitHandlerHashes(units[u]);

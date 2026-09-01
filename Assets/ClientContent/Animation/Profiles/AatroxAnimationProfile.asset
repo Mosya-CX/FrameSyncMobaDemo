@@ -20,6 +20,7 @@ MonoBehaviour:
   DeathTriggerHash: -1309810756
   RespawnTriggerHash: -1899461591
   MoveSpeedHash: 526065662
+  LoopMotionTimeHash: -663193337
   IsAttackingHash: -1130678506
   IsAttackRecoveringHash: -1196666925
   IsEmpoweredAttackHash: 151424662

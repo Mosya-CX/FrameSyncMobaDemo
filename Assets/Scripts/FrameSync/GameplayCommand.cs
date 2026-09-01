@@ -78,6 +78,59 @@ namespace FrameSyncMoba.FrameSync
         }
     }
 
+    /// <summary>
+    /// Match-scoped idempotency identity for one physical Gameplay input.
+    /// TargetTick and payload are intentionally excluded: a late duplicate
+    /// remains the same input after server retargeting.
+    /// </summary>
+    public readonly struct GameplayCommandIdentity :
+        IEquatable<GameplayCommandIdentity>
+    {
+        public readonly ulong ClientId;
+        public readonly uint CommandSeq;
+
+        public GameplayCommandIdentity(
+            ulong clientId,
+            uint commandSeq)
+        {
+            ClientId = clientId;
+            CommandSeq = commandSeq;
+        }
+
+        public static GameplayCommandIdentity From(
+            in GameplayCommand command) =>
+            new GameplayCommandIdentity(
+                command.Header.ClientId,
+                command.CommandSeq);
+
+        public bool Equals(GameplayCommandIdentity other) =>
+            ClientId == other.ClientId &&
+            CommandSeq == other.CommandSeq;
+
+        public override bool Equals(object obj) =>
+            obj is GameplayCommandIdentity other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (ClientId.GetHashCode() * 397) ^
+                    (int)CommandSeq;
+            }
+        }
+
+        public static bool operator ==(
+            GameplayCommandIdentity left,
+            GameplayCommandIdentity right) => left.Equals(right);
+
+        public static bool operator !=(
+            GameplayCommandIdentity left,
+            GameplayCommandIdentity right) => !left.Equals(right);
+
+        public override string ToString() =>
+            $"{ClientId}:{CommandSeq}";
+    }
+
     public enum AbilityCancelReason : byte
     {
         Unspecified = 0,

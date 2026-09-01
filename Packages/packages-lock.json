@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "cn.unity.uos.cdn": {
+      "version": "https://cnb.cool/unity/uos/UosCdnSDK.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "bb6d3a7b152662c98a7d1b2833fc4c862c4e9e1f"
+    },
     "cn.unity.uos.launcher": {
       "version": "https://cnb.cool/unity/uos/UOSLauncher.git",
       "depth": 0,
@@ -7,7 +14,7 @@
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       },
-      "hash": "c8c4b4be6f23b399c5a2eb4157afa3d1cd6e17d7"
+      "hash": "76a5a7e54c24e8f428e43b5071892f60260beea2"
     },
     "cn.unity.uos.matchmaking": {
       "version": "https://cnb.cool/unity/uos/MatchmakingSDK.git",

@@ -25,6 +25,7 @@ namespace FrameSyncMoba.Unit
         NewRoute,
         AttackStarted,
         AbilityCastStarted,
+        TargetLost,
     }
 
     /// <summary>

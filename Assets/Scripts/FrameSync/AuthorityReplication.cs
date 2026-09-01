@@ -266,6 +266,9 @@ namespace FrameSyncMoba.FrameSync
             new SortedDictionary<int, TickRelayState>();
         private readonly Dictionary<ulong, uint> latestBundleSequenceByClient =
             new Dictionary<ulong, uint>();
+        private readonly HashSet<GameplayCommandIdentity>
+            acceptedCommandIdentities =
+                new HashSet<GameplayCommandIdentity>();
 
         public AcceptedCommandRelay[] AcceptBundle(
             in GameplayCommandBundle bundle,
@@ -289,6 +292,11 @@ namespace FrameSyncMoba.FrameSync
             for (int i = 0; i < commands.Length; i++)
             {
                 GameplayCommand command = commands[i];
+                GameplayCommandIdentity identity =
+                    GameplayCommandIdentity.From(command);
+                if (acceptedCommandIdentities.Contains(identity))
+                    continue;
+
                 if (command.TargetTick < serverTick)
                 {
                     // Late Command: its targeted Tick has already executed.
@@ -313,7 +321,8 @@ namespace FrameSyncMoba.FrameSync
                     state = new TickRelayState(command.TargetTick);
                     states.Add(command.TargetTick, state);
                 }
-                if (!state.TryCollect(command)) continue;
+                state.Collect(command);
+                acceptedCommandIdentities.Add(identity);
                 InsertUniqueSorted(touchedTicks, command.TargetTick);
             }
 
@@ -352,8 +361,6 @@ namespace FrameSyncMoba.FrameSync
         private sealed class TickRelayState
         {
             private readonly CommandCollector collector = new CommandCollector();
-            private readonly HashSet<CommandIdentity> acceptedCommands =
-                new HashSet<CommandIdentity>();
             private readonly int targetTick;
             private byte[] committedBytes;
             private uint revision;
@@ -372,14 +379,9 @@ namespace FrameSyncMoba.FrameSync
                     revision,
                     committedBytes);
 
-            public bool TryCollect(GameplayCommand command)
+            public void Collect(GameplayCommand command)
             {
-                var identity = new CommandIdentity(
-                    command.Header.ClientId,
-                    command.CommandSeq);
-                if (!acceptedCommands.Add(identity)) return false;
                 collector.Collect(command);
-                return true;
             }
 
             public AcceptedCommandRelay CommitRevisionIfChanged()
@@ -401,33 +403,6 @@ namespace FrameSyncMoba.FrameSync
             }
         }
 
-        private readonly struct CommandIdentity : IEquatable<CommandIdentity>
-        {
-            private readonly ulong clientId;
-            private readonly uint commandSequence;
-
-            public CommandIdentity(ulong clientId, uint commandSequence)
-            {
-                this.clientId = clientId;
-                this.commandSequence = commandSequence;
-            }
-
-            public bool Equals(CommandIdentity other) =>
-                clientId == other.clientId &&
-                commandSequence == other.commandSequence;
-
-            public override bool Equals(object obj) =>
-                obj is CommandIdentity other && Equals(other);
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (clientId.GetHashCode() * 397) ^
-                        (int)commandSequence;
-                }
-            }
-        }
     }
 
     public sealed class AuthorityRecoveryArchive
@@ -574,12 +549,10 @@ namespace FrameSyncMoba.FrameSync
                 commands,
                 flags,
                 pipeline.LastChecksum);
-            // Healthy-run baseline is quiet; detail prints only when the
-            // checksum-detail flag is enabled for a diagnostic round.
-            // Rate-limit the full per-unit detail so a diagnostic round with
-            // -checksumDetail stays readable instead of growing hundreds of MB.
-            if (SharedGameplayChecksum.DetailedLoggingEnabled &&
-                (tick % 30 == 0 || tick <= 5))
+            // D-032: full Snapshot/unit diagnostics are explicitly opt-in.
+            // They synchronously capture and format the whole world, so never
+            // place them on the healthy server Tick path by default.
+            if (SharedGameplayChecksum.DetailedLoggingEnabled)
             {
                 PrintDetailedChecksum(tick, pipeline);
             }
@@ -611,6 +584,9 @@ namespace FrameSyncMoba.FrameSync
                 lines.Add(
                     $"  {segments[i].Label}={segments[i].Hash}");
             }
+            ChecksumDiagnosticFormatter.AppendWorldState(
+                lines,
+                snapshot);
             UnitSnapshot[] units =
                 snapshot.UnitWorldState.Units ??
                 System.Array.Empty<UnitSnapshot>();
@@ -619,17 +595,9 @@ namespace FrameSyncMoba.FrameSync
                 lines.Add(
                     $"  Unit {units[u].UnitUid} " +
                     $"(kind={units[u].UnitKind}):");
-                var pos = units[u].PhysicsTransform.Position;
-                lines.Add(
-                    $"    pos=({pos.x},{pos.y})");
-                var loco = units[u].LocomotionState;
-                lines.Add(
-                    $"    locoActive={loco.HasActiveTask} " +
-                    $"purpose={loco.Task.Purpose} " +
-                    $"state={loco.Task.State} " +
-                    $"cursor={loco.FollowerState.PathCursor} " +
-                    $"routeFinished={loco.FollowerState.RouteFinished} " +
-                    $"needRepath={loco.Route.NeedRepath}");
+                ChecksumDiagnosticFormatter.AppendUnitState(
+                    lines,
+                    units[u]);
                 SharedGameplayChecksum.ChecksumSegment[] handlers =
                     SharedGameplayChecksum
                         .ComputeUnitHandlerHashes(units[u]);

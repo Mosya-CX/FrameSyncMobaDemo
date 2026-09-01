@@ -271,7 +271,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
 
         [UnityTest]
         public IEnumerator
-            HoldReleaseDefault_SimulatedPressFocus_ReleaseNoCommit_LeftClickCommitsOnce()
+            HoldReleaseDefault_RightClickMoveThenLeftClickCommitsOnce()
         {
             BuildController(
                 new HoldReleaseTestProvider());
@@ -317,6 +317,27 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     LocalAbilityInputStateKind
                         .FocusRequested));
 
+            // Route movement during the movable Hold must neither close the
+            // local Q state nor consume its later primary Commit.
+            Press(Mouse.current.rightButton);
+            InputSystem.Update();
+            requester.ProcessFrame(buffer, resolver);
+            yield return null;
+            yield return null;
+            Release(Mouse.current.rightButton);
+            InputSystem.Update();
+            requester.ProcessFrame(buffer, resolver);
+            Assert.That(
+                collector.GetCanonicalCommands(),
+                Has.Count.EqualTo(2),
+                "Right click during Q Hold must add one route Move.");
+            Assert.That(
+                collector.GetCanonicalCommands()[1].Kind,
+                Is.EqualTo(GameplayCommandKind.Move));
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.FocusRequested));
+
             // Left click Commits.
             Press(Mouse.current.leftButton);
             InputSystem.Update();
@@ -327,10 +348,10 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 $"[InputSim] after left click commands={collector.GetCanonicalCommands().Count}");
             Assert.That(
                 collector.GetCanonicalCommands(),
-                Has.Count.EqualTo(2),
+                Has.Count.EqualTo(3),
                 "Left click must Commit.");
             Assert.That(
-                collector.GetCanonicalCommands()[1]
+                collector.GetCanonicalCommands()[2]
                     .AbilityVerb,
                 Is.EqualTo(AbilitySignalVerb.Commit));
             Assert.That(
@@ -352,7 +373,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
             yield return null;
             Assert.That(
                 collector.GetCanonicalCommands(),
-                Has.Count.EqualTo(2),
+                Has.Count.EqualTo(3),
                 "Duplicate left click must be suppressed.");
 
             Release(Mouse.current.leftButton);
@@ -516,6 +537,94 @@ namespace FrameSyncMoba.Bootstrap.Tests
             yield return null;
         }
 
+        [UnityTest]
+        public IEnumerator
+            VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands()
+        {
+            BuildController(new VarusInputTestProvider());
+            var indicatorObject = new GameObject(
+                "PendingAbilityIndicator",
+                typeof(SkillIndicatorDriver));
+            created.Add(indicatorObject);
+            SkillIndicatorDriver indicator =
+                indicatorObject.GetComponent<SkillIndicatorDriver>();
+            controller.SetIndicatorDriver(indicator);
+            Set(Mouse.current.position, new Vector2(1200f, 540f));
+            yield return null;
+
+            Press(Keyboard.current.wKey);
+            InputSystem.Update();
+            requester.ProcessFrame(buffer, resolver);
+            Release(Keyboard.current.wKey);
+            InputSystem.Update();
+            requester.ProcessFrame(buffer, resolver);
+            yield return null;
+            Assert.That(indicator.IsVisible, Is.False,
+                "A pending no-aim W Commit must not create or retain an " +
+                "ability indicator.");
+
+            Press(Keyboard.current.qKey);
+            InputSystem.Update();
+            requester.ProcessFrame(buffer, resolver);
+            yield return null;
+
+            IReadOnlyList<GameplayCommand> commands =
+                collector.GetCanonicalCommands();
+            Assert.That(commands, Has.Count.EqualTo(2));
+            Assert.That(commands[0].AbilitySlot, Is.EqualTo(1));
+            Assert.That(commands[0].AbilityVerb,
+                Is.EqualTo(AbilitySignalVerb.Commit));
+            Assert.That(commands[1].AbilitySlot, Is.EqualTo(0));
+            Assert.That(commands[1].AbilityVerb,
+                Is.EqualTo(AbilitySignalVerb.Focus));
+            Assert.That(requester.GetAbilityState(1).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.CommitRequested));
+            Assert.That(requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.FocusRequested));
+            Assert.That(indicator.IsVisible, Is.True,
+                "Q must show its preparatory indicator before the future " +
+                "Focus TargetTick creates the Gameplay Session.");
+            Assert.That(indicator.ActiveKind, Is.EqualTo(AimKind.Direction));
+
+            Press(Mouse.current.leftButton);
+            InputSystem.Update();
+            requester.ProcessFrame(buffer, resolver);
+            yield return null;
+
+            commands = collector.GetCanonicalCommands();
+            Assert.That(commands, Has.Count.EqualTo(3));
+            Assert.That(commands[2].AbilitySlot, Is.EqualTo(0));
+            Assert.That(commands[2].AbilityVerb,
+                Is.EqualTo(AbilitySignalVerb.Commit));
+            Assert.That(requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.CommitRequested));
+            Assert.That(indicator.IsVisible, Is.True,
+                "Q must keep its indicator until Gameplay executes the " +
+                "pending Commit and advances the Session.");
+
+            var replacementObject = new GameObject(
+                "ReplacementAbilityIndicator",
+                typeof(SkillIndicatorDriver));
+            created.Add(replacementObject);
+            SkillIndicatorDriver replacement =
+                replacementObject.GetComponent<SkillIndicatorDriver>();
+            controller.SetIndicatorDriver(replacement);
+            Assert.That(indicator.IsVisible, Is.False,
+                "Replacing the indicator driver must hide the old view.");
+            yield return null;
+            Assert.That(replacement.IsVisible, Is.True,
+                "The replacement driver must project the still-pending Q.");
+
+            controller.enabled = false;
+            Assert.That(replacement.IsVisible, Is.False,
+                "Disabling input mid-aim must not strand an indicator.");
+
+            Release(Keyboard.current.qKey);
+            Release(Mouse.current.leftButton);
+            InputSystem.Update();
+            yield return null;
+        }
+
         private sealed class HoldReleaseTestProvider :
             IPlayerAbilityInputProfileProvider
         {
@@ -579,6 +688,41 @@ namespace FrameSyncMoba.Bootstrap.Tests
             {
                 aimKind = AimKind.None;
                 return true;
+            }
+        }
+
+        private sealed class VarusInputTestProvider :
+            IPlayerAbilityInputProfileProvider,
+            IPlayerAbilityAimProfileProvider
+        {
+            public bool TryGetTemplate(
+                byte slot,
+                out InputMappingTemplate template)
+            {
+                template = slot == 1
+                    ? AbilityInputMapping.BuildDefault(
+                        new ToggleCastModelDef(),
+                        AimKind.None)
+                    : AbilityInputMapping.BuildHoldReleaseDefault();
+                return true;
+            }
+
+            public bool TryGetAimKind(byte slot, out AimKind aimKind)
+            {
+                aimKind = slot == 0
+                    ? AimKind.Direction
+                    : AimKind.None;
+                return true;
+            }
+
+            public bool TryGetAimConfiguration(
+                byte slot,
+                out AimKind aimKind,
+                out fp castRange)
+            {
+                TryGetAimKind(slot, out aimKind);
+                castRange = slot == 0 ? (fp)10 : fp.zero;
+                return aimKind != AimKind.None;
             }
         }
     }

@@ -138,6 +138,28 @@ namespace FrameSyncMoba.Unit
         }
 
         /// <summary>
+        /// Cancels an active unit-follow route when that stable target leaves
+        /// the world. This transition must happen before the target is
+        /// removed from a Tick-end snapshot; Resolve intentionally rejects a
+        /// snapshot that still contains the dangling UnitUid.
+        /// </summary>
+        internal bool CancelRouteForInvalidTarget(UnitUid targetUnitUid)
+        {
+            if (!targetUnitUid.IsValid())
+                throw new DeterministicSimulationException(
+                    "Locomotion target invalidation requires a valid UnitUid.");
+            if (_currentTask.State != MovementTaskState.Active ||
+                !_currentTask.Target.TargetUid.HasValue ||
+                _currentTask.Target.TargetUid.Value != targetUnitUid)
+            {
+                return false;
+            }
+
+            CancelRoute(MoveCancelReason.TargetLost);
+            return true;
+        }
+
+        /// <summary>
         /// Clear all locomotion-owned runtime state on formal death.
         /// (Pathfinding Design v13.1 section 11.10)
         /// Ownership rules:

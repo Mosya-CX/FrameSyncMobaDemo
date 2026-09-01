@@ -38,6 +38,9 @@ namespace FrameSyncMoba.Presentation
         [Tooltip("Hash for the 'MoveSpeed' float parameter.")]
         public int MoveSpeedHash;
 
+        [Tooltip("Hash for the 'LoopMotionTime' float parameter.")]
+        public int LoopMotionTimeHash;
+
         [Tooltip("Hash for the 'IsAttacking' boolean parameter.")]
         public int IsAttackingHash;
 
@@ -118,6 +121,8 @@ namespace FrameSyncMoba.Presentation
             profile.DeathTriggerHash = Animator.StringToHash("DeathTrigger");
             profile.RespawnTriggerHash = Animator.StringToHash("RespawnTrigger");
             profile.MoveSpeedHash = Animator.StringToHash("MoveSpeed");
+            profile.LoopMotionTimeHash =
+                Animator.StringToHash("LoopMotionTime");
             profile.IsAttackingHash = Animator.StringToHash("IsAttacking");
             profile.IsAttackRecoveringHash = Animator.StringToHash("IsAttackRecovering");
             profile.IsEmpoweredAttackHash = Animator.StringToHash("IsEmpoweredAttack");

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.Unit;
 
 namespace FrameSyncMoba.FrameSync
@@ -17,13 +18,17 @@ namespace FrameSyncMoba.FrameSync
         public int CommandCount =>
             moveCommands.Count + attackCommands.Count +
             useItemCommands.Count + nonMergedCommands.Count;
+        public ulong ContentRevision { get; private set; }
 
         public void BeginTick(int targetTick)
         {
+            bool hadCommands = CommandCount > 0;
             moveCommands.Clear();
             attackCommands.Clear();
             useItemCommands.Clear();
             nonMergedCommands.Clear();
+            if (hadCommands)
+                MarkContentChanged();
         }
 
         public void Collect(GameplayCommand command)
@@ -39,26 +44,36 @@ namespace FrameSyncMoba.FrameSync
             switch (command.Kind)
             {
                 case GameplayCommandKind.Move:
-                    CollectLastBySequence(moveCommands, key, command);
+                    if (CollectLastBySequence(
+                            moveCommands,
+                            key,
+                            command))
+                        MarkContentChanged();
                     break;
 
                 case GameplayCommandKind.Attack:
-                    CollectLastBySequence(attackCommands, key, command);
+                    if (CollectLastBySequence(
+                            attackCommands,
+                            key,
+                            command))
+                        MarkContentChanged();
                     break;
 
                 case GameplayCommandKind.UseItem:
-                    CollectLastBySequence(
-                        useItemCommands,
-                        new UseItemMergeKey(
-                            command.PlayerSlot,
-                            command.ControlledUnitUid,
-                            command.TargetTick,
-                            command.SourceSlot),
-                        command);
+                    if (CollectLastBySequence(
+                            useItemCommands,
+                            new UseItemMergeKey(
+                                command.PlayerSlot,
+                                command.ControlledUnitUid,
+                                command.TargetTick,
+                                command.SourceSlot),
+                            command))
+                        MarkContentChanged();
                     break;
 
                 default:
                     nonMergedCommands.Add(command);
+                    MarkContentChanged();
                     break;
             }
         }
@@ -80,6 +95,7 @@ namespace FrameSyncMoba.FrameSync
         {
             List<GameplayCommand> allCommands = GetCanonicalCommands();
             var result = new List<GameplayCommand>();
+            bool contentChanged = false;
             for (int i = 0; i < allCommands.Count; i++)
             {
                 GameplayCommand command = allCommands[i];
@@ -90,11 +106,11 @@ namespace FrameSyncMoba.FrameSync
                     command.ControlledUnitUid,
                     command.TargetTick);
                 if (command.Kind == GameplayCommandKind.Move)
-                    moveCommands.Remove(key);
+                    contentChanged |= moveCommands.Remove(key);
                 else if (command.Kind == GameplayCommandKind.Attack)
-                    attackCommands.Remove(key);
+                    contentChanged |= attackCommands.Remove(key);
                 else if (command.Kind == GameplayCommandKind.UseItem)
-                    useItemCommands.Remove(
+                    contentChanged |= useItemCommands.Remove(
                         new UseItemMergeKey(
                             command.PlayerSlot,
                             command.ControlledUnitUid,
@@ -105,8 +121,13 @@ namespace FrameSyncMoba.FrameSync
             for (int i = nonMergedCommands.Count - 1; i >= 0; i--)
             {
                 if (nonMergedCommands[i].TargetTick == targetTick)
+                {
                     nonMergedCommands.RemoveAt(i);
+                    contentChanged = true;
+                }
             }
+            if (contentChanged)
+                MarkContentChanged();
             return result;
         }
 
@@ -121,7 +142,7 @@ namespace FrameSyncMoba.FrameSync
             }
         }
 
-        private static void CollectLastBySequence(
+        private static bool CollectLastBySequence(
             Dictionary<CommandMergeKey, GameplayCommand> commands,
             CommandMergeKey key,
             GameplayCommand command)
@@ -130,10 +151,12 @@ namespace FrameSyncMoba.FrameSync
                 || command.CommandSeq >= existing.CommandSeq)
             {
                 commands[key] = command;
+                return true;
             }
+            return false;
         }
 
-        private static void CollectLastBySequence(
+        private static bool CollectLastBySequence(
             Dictionary<UseItemMergeKey, GameplayCommand> commands,
             UseItemMergeKey key,
             GameplayCommand command)
@@ -142,7 +165,19 @@ namespace FrameSyncMoba.FrameSync
                     key,
                     out GameplayCommand existing) ||
                 command.CommandSeq >= existing.CommandSeq)
+            {
                 commands[key] = command;
+                return true;
+            }
+            return false;
+        }
+
+        private void MarkContentChanged()
+        {
+            if (ContentRevision == ulong.MaxValue)
+                throw new DeterministicSimulationException(
+                    "CommandCollector content revision exhausted.");
+            ContentRevision++;
         }
 
         private static void ValidateHeader(GameplayCommand command)

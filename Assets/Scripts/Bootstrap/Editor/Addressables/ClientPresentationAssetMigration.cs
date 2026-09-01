@@ -218,10 +218,10 @@ namespace FrameSyncMoba.EditorTools.Addressables
         private static void NormalizeIndicatorMaterials()
         {
             Shader shader = Shader.Find(
-                "FrameSyncMoba/SkillIndicatorUnlit");
+                "Sprites/Default");
             if (shader == null)
                 throw new InvalidOperationException(
-                    "Project shader 'FrameSyncMoba/SkillIndicatorUnlit' is required by generic skill indicators.");
+                    "Built-in shader 'Sprites/Default' is required by generic skill indicators.");
 
             for (int i = 0; i < IndicatorMaterialPaths.Length; i++)
             {

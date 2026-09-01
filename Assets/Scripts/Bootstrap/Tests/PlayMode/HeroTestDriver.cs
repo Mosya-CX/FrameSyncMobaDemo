@@ -28,8 +28,8 @@ namespace FrameSyncMoba.Bootstrap
     /// Standalone hero test scene driver: builds a local deterministic world
     /// (no frame-sync authority/rollback), a grid map for A*, a hero and a
     /// dummy target, advances logic ticks, and exposes debug input + an
-    /// IMGUI panel + grid/A* gizmos. Loads the FullMatchTest config assets
-    /// directly (editor play only, not packaged).
+    /// IMGUI panel + grid/A* gizmos. Resolves the editor-only match content
+    /// partitions selected by the configured hero and dummy (not packaged).
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class HeroTestDriver : MonoBehaviour
@@ -61,6 +61,7 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField] private PlayerInputController playerInputController;
 
         private UnitWorld world;
+        private GlobalPrefabTable resolvedPrefabTable;
         private PhysicsWorld physicsWorld;
         private SimulationTickPipeline pipeline;
         private CombatSystem combat;
@@ -106,6 +107,21 @@ namespace FrameSyncMoba.Bootstrap
             public float Y;
             public bool Alive;
             public bool IsFriendly;
+        }
+
+        private sealed class EditorMatchContent
+        {
+            public GlobalPrefabTable PrefabTable;
+            public readonly List<UnitRuntimeCatalogAsset> UnitCatalogs =
+                new List<UnitRuntimeCatalogAsset>();
+            public readonly List<AbilityRuntimeCatalogAsset> AbilityCatalogs =
+                new List<AbilityRuntimeCatalogAsset>();
+            public readonly List<ProjectileRuntimeCatalogAsset> ProjectileCatalogs =
+                new List<ProjectileRuntimeCatalogAsset>();
+            public readonly List<BuffCatalogAsset> BuffCatalogs =
+                new List<BuffCatalogAsset>();
+            public CrowdControlCatalogAsset CrowdControlCatalog;
+            public EquipmentCatalogAsset EquipmentCatalog;
         }
 
         public UnitType Hero => hero;
@@ -284,27 +300,33 @@ namespace FrameSyncMoba.Bootstrap
 
         private void BuildWorld()
         {
-            var config = AssetDatabase
-                .LoadAssetAtPath<GlobalGameplayData>(
-                    "Assets/Config/Formal/GlobalGameplayData.asset")
-                .BakeOrThrow();
+            GlobalGameplayData globalData =
+                AssetDatabase.LoadAssetAtPath<GlobalGameplayData>(
+                    "Assets/Config/Formal/GlobalGameplayData.asset");
+            if (globalData == null)
+            {
+                throw new InvalidOperationException(
+                    "HeroTestScene requires GlobalGameplayData.");
+            }
+            BakedGlobalGameplayData config =
+                globalData.BakeOrThrow();
             outlineRimMaterial =
                 AssetDatabase
                     .LoadAssetAtPath<Material>(
                         "Assets/ClientContent/Materials/UnitOutlineRim.mat");
-            heroDisplayTable =
-                AssetDatabase
-                    .LoadAssetAtPath<GlobalGameplayData>(
-                        "Assets/Config/Formal/GlobalGameplayData.asset")
-                    ?.HeroDisplayTable;
-            var unitCatalog = AssetDatabase
-                .LoadAssetAtPath<UnitRuntimeCatalogAsset>(
-                    "Assets/Config/Formal/FullMatchUnitRuntimeCatalog.asset")
-                .BakeOrThrow(config.PrefabTable);
-            var abilityCatalog = AssetDatabase
-                .LoadAssetAtPath<AbilityRuntimeCatalogAsset>(
-                    "Assets/Config/Formal/Abilities/FormalHeroAbilityRuntimeCatalog.asset")
-                .BakeOrThrow();
+            heroDisplayTable = globalData.HeroDisplayTable;
+            EditorMatchContent matchContent =
+                LoadEditorMatchContent(config.PrefabTable);
+            resolvedPrefabTable = matchContent.PrefabTable;
+            var unitCatalog =
+                UnitRuntimeCatalogAsset.BakeCombinedOrThrow(
+                    matchContent.UnitCatalogs,
+                    resolvedPrefabTable,
+                    config.TickRate);
+            AbilityDefinitionRegistry abilityCatalog =
+                AbilityRuntimeCatalogAsset.BakeCombinedOrThrow(
+                    matchContent.AbilityCatalogs,
+                    config.TickRate);
 
             physicsWorld = new PhysicsWorld
             {
@@ -327,7 +349,7 @@ namespace FrameSyncMoba.Bootstrap
             world = new UnitWorld
             {
                 PhysicsWorld = physicsWorld,
-                GlobalPrefabTable = config.PrefabTable,
+                GlobalPrefabTable = resolvedPrefabTable,
                 UnitPrototypeTable = unitCatalog.UnitPrototypes,
                 DisposePolicyTable = unitCatalog.DisposePolicies,
                 StatDefinitionTable = unitCatalog.StatDefinitions,
@@ -352,14 +374,16 @@ namespace FrameSyncMoba.Bootstrap
             };
             world.RangeQuery =
                 new RangeQueryService(physicsWorld);
-            var buffCatalog = AssetDatabase
-                .LoadAssetAtPath<BuffCatalogAsset>(
-                    "Assets/Config/Formal/Buffs/FullMatchTestBuffCatalog.asset");
-            buffCatalog?.RegisterAll(
-                world.BuffDefinitions);
-            var ccCatalog = AssetDatabase
-                .LoadAssetAtPath<CrowdControlCatalogAsset>(
-                    "Assets/Config/Formal/CrowdControl/CrowdControlCatalog.asset");
+            for (int i = 0;
+                 i < matchContent.BuffCatalogs.Count;
+                 i++)
+            {
+                matchContent.BuffCatalogs[i].RegisterAll(
+                    world.BuffDefinitions,
+                    config.TickRate);
+            }
+            CrowdControlCatalogAsset ccCatalog =
+                matchContent.CrowdControlCatalog;
             if (ccCatalog != null &&
                 ccCatalog.Definitions != null)
             {
@@ -387,16 +411,14 @@ namespace FrameSyncMoba.Bootstrap
                 new ProjectileWorld
                 {
                     DefRegistry =
-                        AssetDatabase
-                            .LoadAssetAtPath<
-                                ProjectileRuntimeCatalogAsset>(
-                                "Assets/Config/Formal/FullMatchProjectileRuntimeCatalog.asset")
-                            .BakeOrThrow(
-                                config.PrefabTable),
+                        ProjectileRuntimeCatalogAsset.BakeCombinedOrThrow(
+                            matchContent.ProjectileCatalogs,
+                            resolvedPrefabTable,
+                            config.TickRate),
                     UnitWorld = world,
                     PhysicsWorld = physicsWorld,
                     PrefabTable =
-                        config.PrefabTable,
+                        resolvedPrefabTable,
                     LogicSecondsPerTick =
                         fp.one / (fp)config.TickRate,
                 };
@@ -433,6 +455,289 @@ namespace FrameSyncMoba.Bootstrap
                 projectileWorld;
             world.RandomService =
                 randomService;
+        }
+
+        private EditorMatchContent LoadEditorMatchContent(
+            GlobalPrefabTable rootTable)
+        {
+            if (rootTable == null)
+            {
+                throw new InvalidOperationException(
+                    "HeroTestScene requires a GlobalPrefabTable.");
+            }
+            rootTable.ValidateOrThrow();
+
+            var selectedHeroIds = new List<int>();
+            AddEditorHeroPartitionIfPresent(
+                rootTable,
+                heroPrototypeId,
+                selectedHeroIds,
+                true);
+            AddEditorHeroPartitionIfPresent(
+                rootTable,
+                dummyPrototypeId,
+                selectedHeroIds,
+                false);
+            selectedHeroIds.Sort();
+            int mapConfigId =
+                ResolveSingleEditorMapConfigId(rootTable);
+            IReadOnlyList<GlobalPrefabPartitionReference> references =
+                rootTable.SelectPartitions(
+                    mapConfigId,
+                    selectedHeroIds);
+            var tables =
+                new List<GlobalPrefabSubTableAsset>(references.Count);
+            var resolvedPrefabs =
+                new Dictionary<string, GameObject>(
+                    StringComparer.Ordinal);
+            var content = new EditorMatchContent();
+
+            for (int referenceIndex = 0;
+                 referenceIndex < references.Count;
+                 referenceIndex++)
+            {
+                GlobalPrefabPartitionReference reference =
+                    references[referenceIndex];
+                GlobalPrefabSubTableAsset table =
+                    LoadEditorSubTable(reference);
+                tables.Add(table);
+
+                IReadOnlyList<PrefabGroup> groups =
+                    table.PrefabGroups;
+                for (int groupIndex = 0;
+                     groupIndex < groups.Count;
+                     groupIndex++)
+                {
+                    IReadOnlyList<PrefabEntry> entries =
+                        groups[groupIndex].Entries;
+                    for (int entryIndex = 0;
+                         entryIndex < entries.Count;
+                         entryIndex++)
+                    {
+                        string address =
+                            entries[entryIndex].LogicAssetAddress;
+                        if (string.IsNullOrEmpty(address) ||
+                            resolvedPrefabs.ContainsKey(address))
+                        {
+                            continue;
+                        }
+                        resolvedPrefabs.Add(
+                            address,
+                            LoadEditorAsset<GameObject>(
+                                address,
+                                $"{groups[groupIndex].Kind}/" +
+                                $"{entries[entryIndex].PrefabId} logic prefab"));
+                    }
+                }
+
+                IReadOnlyList<MatchContentAssetAddress> assets =
+                    table.ContentAssets;
+                for (int assetIndex = 0;
+                     assetIndex < assets.Count;
+                     assetIndex++)
+                {
+                    MatchContentAssetAddress asset = assets[assetIndex];
+                    switch (asset.AssetKind)
+                    {
+                        case MatchContentAssetKind.UnitRuntimeCatalog:
+                            content.UnitCatalogs.Add(
+                                LoadEditorAsset<UnitRuntimeCatalogAsset>(
+                                    asset.Address,
+                                    "UnitRuntimeCatalog"));
+                            break;
+                        case MatchContentAssetKind.AbilityRuntimeCatalog:
+                            content.AbilityCatalogs.Add(
+                                LoadEditorAsset<AbilityRuntimeCatalogAsset>(
+                                    asset.Address,
+                                    "AbilityRuntimeCatalog"));
+                            break;
+                        case MatchContentAssetKind.ProjectileRuntimeCatalog:
+                            content.ProjectileCatalogs.Add(
+                                LoadEditorAsset<ProjectileRuntimeCatalogAsset>(
+                                    asset.Address,
+                                    "ProjectileRuntimeCatalog"));
+                            break;
+                        case MatchContentAssetKind.BuffCatalog:
+                            content.BuffCatalogs.Add(
+                                LoadEditorAsset<BuffCatalogAsset>(
+                                    asset.Address,
+                                    "BuffCatalog"));
+                            break;
+                        case MatchContentAssetKind.CrowdControlCatalog:
+                            content.CrowdControlCatalog =
+                                RequireSingleEditorContent(
+                                    content.CrowdControlCatalog,
+                                    LoadEditorAsset<CrowdControlCatalogAsset>(
+                                        asset.Address,
+                                        "CrowdControlCatalog"),
+                                    asset.AssetKind);
+                            break;
+                        case MatchContentAssetKind.EquipmentCatalog:
+                            content.EquipmentCatalog =
+                                RequireSingleEditorContent(
+                                    content.EquipmentCatalog,
+                                    LoadEditorAsset<EquipmentCatalogAsset>(
+                                        asset.Address,
+                                        "EquipmentCatalog"),
+                                    asset.AssetKind);
+                            break;
+                        case MatchContentAssetKind.DeterministicMapConfig:
+                            LoadEditorAsset<DeterministicMapConfig>(
+                                asset.Address,
+                                "DeterministicMapConfig");
+                            break;
+                        default:
+                            throw new InvalidOperationException(
+                                $"HeroTestScene does not support content asset kind {asset.AssetKind}.");
+                    }
+                }
+            }
+
+            if (content.UnitCatalogs.Count == 0 ||
+                content.AbilityCatalogs.Count == 0 ||
+                content.ProjectileCatalogs.Count == 0 ||
+                content.BuffCatalogs.Count == 0 ||
+                content.CrowdControlCatalog == null ||
+                content.EquipmentCatalog == null)
+            {
+                throw new InvalidOperationException(
+                    "HeroTestScene selected content is missing a required deterministic catalog.");
+            }
+            content.PrefabTable = rootTable.CreateResolvedRuntimeTable(
+                tables,
+                resolvedPrefabs);
+            return content;
+        }
+
+        private static void AddEditorHeroPartitionIfPresent(
+            GlobalPrefabTable rootTable,
+            int prototypeId,
+            List<int> selectedHeroIds,
+            bool required)
+        {
+            bool found = false;
+            IReadOnlyList<GlobalPrefabPartitionReference> partitions =
+                rootTable.Partitions;
+            for (int i = 0; i < partitions.Count; i++)
+            {
+                GlobalPrefabPartitionReference partition = partitions[i];
+                if (partition.PartitionKind ==
+                        GlobalPrefabPartitionKind.Hero &&
+                    partition.OwnerConfigId == prototypeId)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                if (required)
+                {
+                    throw new InvalidOperationException(
+                        $"HeroTestScene has no Hero content partition for hero prototype {prototypeId}.");
+                }
+                return;
+            }
+            if (!selectedHeroIds.Contains(prototypeId))
+            {
+                selectedHeroIds.Add(prototypeId);
+            }
+        }
+
+        private static int ResolveSingleEditorMapConfigId(
+            GlobalPrefabTable rootTable)
+        {
+            int mapConfigId = 0;
+            IReadOnlyList<GlobalPrefabPartitionReference> partitions =
+                rootTable.Partitions;
+            for (int i = 0; i < partitions.Count; i++)
+            {
+                GlobalPrefabPartitionReference partition = partitions[i];
+                if (partition.PartitionKind !=
+                    GlobalPrefabPartitionKind.Map)
+                {
+                    continue;
+                }
+                if (mapConfigId != 0 &&
+                    mapConfigId != partition.OwnerConfigId)
+                {
+                    throw new InvalidOperationException(
+                        "HeroTestScene requires exactly one map content partition.");
+                }
+                mapConfigId = partition.OwnerConfigId;
+            }
+            if (mapConfigId <= 0)
+            {
+                throw new InvalidOperationException(
+                    "HeroTestScene requires a map content partition.");
+            }
+            return mapConfigId;
+        }
+
+        private static GlobalPrefabSubTableAsset LoadEditorSubTable(
+            GlobalPrefabPartitionReference reference)
+        {
+            string[] guids = AssetDatabase.FindAssets(
+                "t:GlobalPrefabSubTableAsset");
+            Array.Sort(guids, StringComparer.Ordinal);
+            GlobalPrefabSubTableAsset found = null;
+            string foundPath = null;
+            for (int i = 0; i < guids.Length; i++)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+                GlobalPrefabSubTableAsset candidate =
+                    AssetDatabase.LoadAssetAtPath<GlobalPrefabSubTableAsset>(
+                        path);
+                if (candidate == null ||
+                    candidate.PartitionKind != reference.PartitionKind ||
+                    candidate.OwnerConfigId != reference.OwnerConfigId)
+                {
+                    continue;
+                }
+                if (found != null)
+                {
+                    throw new InvalidOperationException(
+                        $"HeroTestScene found multiple editor child tables for {reference.PartitionKind}/{reference.OwnerConfigId}: " +
+                        $"'{foundPath}' and '{path}'.");
+                }
+                found = candidate;
+                foundPath = path;
+            }
+            if (found == null)
+            {
+                throw new InvalidOperationException(
+                    $"HeroTestScene cannot resolve child table address '{reference.SubTableAddress}'.");
+            }
+            found.ValidateAgainst(reference);
+            return found;
+        }
+
+        private static T LoadEditorAsset<T>(
+            string path,
+            string label)
+            where T : UnityEngine.Object
+        {
+            T asset = AssetDatabase.LoadAssetAtPath<T>(path);
+            if (asset == null)
+            {
+                throw new InvalidOperationException(
+                    $"HeroTestScene cannot load {label} at '{path}'.");
+            }
+            return asset;
+        }
+
+        private static T RequireSingleEditorContent<T>(
+            T current,
+            T loaded,
+            MatchContentAssetKind kind)
+            where T : UnityEngine.Object
+        {
+            if (current != null)
+            {
+                throw new InvalidOperationException(
+                    $"HeroTestScene selected content defines {kind} more than once.");
+            }
+            return loaded;
         }
 
         private void ConfigureTestShop()
@@ -2084,6 +2389,11 @@ namespace FrameSyncMoba.Bootstrap
         {
             projectileViewBinder?.Dispose();
             projectileViewBinder = null;
+            if (resolvedPrefabTable != null)
+            {
+                Destroy(resolvedPrefabTable);
+                resolvedPrefabTable = null;
+            }
             for (int i = 0;
                  i < presentationViewInstances.Count;
                  i++)

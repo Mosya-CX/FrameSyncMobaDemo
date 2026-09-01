@@ -62,12 +62,15 @@ namespace FrameSyncMoba.Unit
 
     /// <summary>
     /// Animation-facing snapshot of the current attack state for presentation.
-    /// Computed each LateUpdate by reading deterministic AttackHandler state.
+    /// Computed during presentation Update by reading deterministic
+    /// AttackHandler state.
     /// </summary>
     public struct AttackAnimationSnapshot
     {
         public bool IsAttacking;
         public int AttackStartLogicTick;
+        public int ImpactLogicTick;
+        public int NextAttackReadyLogicTick;
         public byte SequenceIndex;
         public bool ImpactCommitted;
         public bool IsEmpoweredAttack;

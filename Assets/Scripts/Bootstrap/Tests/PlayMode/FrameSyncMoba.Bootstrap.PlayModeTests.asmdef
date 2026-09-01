@@ -25,7 +25,7 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": false,
-    "defineConstraints": [],
+    "defineConstraints": ["!UNITY_SERVER"],
     "versionDefines": [],
     "optionalUnityReferences": ["TestAssemblies"],
     "noEngineReferences": false

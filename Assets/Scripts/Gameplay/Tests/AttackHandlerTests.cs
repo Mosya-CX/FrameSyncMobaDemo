@@ -99,6 +99,55 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot()
+        {
+            var grid = new PathGridMap2D();
+            grid.Initialise(
+                new fp2((fp)(-5), (fp)(-5)),
+                new fp2((fp)10, (fp)10),
+                fp.one);
+            attacker.Locomotion =
+                new UnitLocomotionAgent(attacker, grid);
+            attacker.ApplyOrder(
+                Order.CreateAttack(target.UnitUid, true));
+            controller.EndTick();
+            controller.BeginTick(11, ExecutionMode.ServerAuthority);
+            Assert.That(
+                attacker.Locomotion.AcceptRouteRequest(
+                    RouteMoveRequest.FollowUnit(
+                        target.UnitUid,
+                        attacker.AttackHandler.CurrentAttackRange,
+                        MovePurpose.ChaseForAttack)),
+                Is.EqualTo(MoveAcceptResult.Accepted));
+
+            world.RequestEnterDying(target);
+            world.ConfirmUnitDeath(target);
+            world.ApplyFormalDeathActionInvalidations(new[]
+            {
+                new DeathResult
+                {
+                    VictimUid = target.UnitUid,
+                    DeathSequenceInTick = 0,
+                    DeathLogicTick = 11,
+                },
+            });
+
+            Assert.That(attacker.Intent.Kind, Is.EqualTo(IntentKind.None));
+            Assert.That(
+                attacker.Locomotion.CurrentTask.State,
+                Is.EqualTo(MovementTaskState.Idle));
+
+            var locomotion = default(LocomotionAgentSnapshot);
+            attacker.Locomotion.Capture(ref locomotion);
+            attacker.Locomotion.Restore(locomotion);
+            Assert.DoesNotThrow(() =>
+                attacker.Locomotion.Resolve(
+                    new RollbackContext(
+                        11,
+                        ExecutionMode.ClientReplay)));
+        }
+
+        [Test]
         public void DespawnTarget_AtomicallyClearsWindupAndMainRuntime()
         {
             ActionSubmitResult started = attacker.Arbiter.Submit(
@@ -592,6 +641,31 @@ namespace FrameSyncMoba.Unit.Tests
                     10,
                     ExecutionMode.ServerAuthority);
             }
+        }
+
+        [Test]
+        public void AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery()
+        {
+            attacker.StatHandler.SetStat(
+                StatId.AttackSpeed,
+                fp.one);
+            attacker.AttackHandler.BeginAttack(target.UnitUid);
+            AttackSnapshot started = Capture(attacker.AttackHandler);
+
+            AdvanceTo(started.ImpactLogicTick);
+            Assert.That(attacker.AttackHandler.CommitAttack(), Is.True);
+            AdvanceTo(started.NextAttackReadyLogicTick);
+
+            AttackAnimationSnapshot animation =
+                attacker.AttackHandler.GetAnimationSnapshot();
+            Assert.That(animation.IsAttacking, Is.False);
+            Assert.That(animation.ImpactCommitted, Is.True);
+            Assert.That(animation.RecoveryProgress,
+                Is.EqualTo(1f).Within(0.0001f));
+            Assert.That(animation.ImpactLogicTick,
+                Is.EqualTo(started.ImpactLogicTick));
+            Assert.That(animation.NextAttackReadyLogicTick,
+                Is.EqualTo(started.NextAttackReadyLogicTick));
         }
 
         [Test]

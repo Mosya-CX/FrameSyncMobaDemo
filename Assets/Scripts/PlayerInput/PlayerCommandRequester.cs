@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FrameSyncMoba.Deterministic;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.Unit;
@@ -82,6 +83,7 @@ namespace FrameSyncMoba.PlayerInput
         public byte Slot;
         public UnitUid ControlledUnitUidAtBegin;
         public GameplayCommandRequestReceipt LastRequestReceipt;
+        public bool AwaitingAcceptedExecution;
     }
 
     public sealed class PlayerCommandRequester :
@@ -90,14 +92,21 @@ namespace FrameSyncMoba.PlayerInput
         FrameSyncMoba.Unit.IEquipmentShopCommandSubmitter
     {
         private const int AbilitySlotCount = 4;
+        private const int AbilityRequestDiagnosticCapacity = 64;
 
         private readonly IGameplayInputGate gate;
         private readonly CommandCollector collector;
         private readonly CommandTargetTickResolver targetTickResolver;
         private readonly IPlayerAbilityInputProfileProvider profileProvider;
         private readonly ILocalAbilityRuntimeView abilityRuntimeView;
+        private readonly Func<int> completedGameplayTickProvider;
         private readonly LocalAbilityInputState[] abilityStates =
             new LocalAbilityInputState[AbilitySlotCount];
+        private readonly AbilityRequestDiagnostic[]
+            abilityRequestDiagnostics =
+                new AbilityRequestDiagnostic[
+                    AbilityRequestDiagnosticCapacity];
+        private int nextAbilityRequestDiagnosticIndex;
 
         private UnitType controlledUnit;
         private readonly int playerSlot;
@@ -112,7 +121,8 @@ namespace FrameSyncMoba.PlayerInput
             ulong clientId,
             CommandTargetTickResolver targetTickResolver,
             IPlayerAbilityInputProfileProvider profileProvider = null,
-            ILocalAbilityRuntimeView abilityRuntimeView = null)
+            ILocalAbilityRuntimeView abilityRuntimeView = null,
+            Func<int> completedGameplayTickProvider = null)
         {
             this.controlledUnit = controlledUnit;
             this.gate = gate ?? throw new ArgumentNullException(nameof(gate));
@@ -123,6 +133,8 @@ namespace FrameSyncMoba.PlayerInput
                 ?? throw new ArgumentNullException(nameof(targetTickResolver));
             this.profileProvider = profileProvider;
             this.abilityRuntimeView = abilityRuntimeView;
+            this.completedGameplayTickProvider =
+                completedGameplayTickProvider;
         }
 
         public UnitType ControlledUnit => controlledUnit;
@@ -271,6 +283,17 @@ namespace FrameSyncMoba.PlayerInput
 
             while (buffer.TryDequeue(out LocalGameplayInputEvent inputEvent))
             {
+                LocalAbilityInputStateKind stateBefore =
+                    inputEvent.AbilitySlot < AbilitySlotCount
+                        ? abilityStates[inputEvent.AbilitySlot].Kind
+                        : LocalAbilityInputStateKind.Idle;
+                Debug.Log(
+                    $"[InputTrace] eventSeq={inputEvent.LocalEventSequence} " +
+                    $"kind={inputEvent.Kind} slot={inputEvent.AbilitySlot} " +
+                    $"screen={inputEvent.ScreenPositionAtEvent} " +
+                    $"stateBefore={stateBefore} " +
+                    $"states={DescribeAbilityStates()} " +
+                    $"bufferRemaining={buffer.Count}");
                 switch (inputEvent.Kind)
                 {
                     case LocalGameplayInputEventKind.SecondaryClick:
@@ -293,6 +316,15 @@ namespace FrameSyncMoba.PlayerInput
                         ProcessCancel();
                         break;
                 }
+                LocalAbilityInputStateKind stateAfter =
+                    inputEvent.AbilitySlot < AbilitySlotCount
+                        ? abilityStates[inputEvent.AbilitySlot].Kind
+                        : LocalAbilityInputStateKind.Idle;
+                Debug.Log(
+                    $"[InputTrace] eventSeq={inputEvent.LocalEventSequence} " +
+                    $"outcome stateAfter={stateAfter} " +
+                    $"states={DescribeAbilityStates()} " +
+                    $"nextCommandSeq={nextCommandSeq}");
             }
         }
 
@@ -333,8 +365,258 @@ namespace FrameSyncMoba.PlayerInput
             CommandHeader header = CreateHeader(GameplayCommandKind.CastAbility);
             collector.Collect(GameplayCommand.CreateCastAbility(header, slot, signal, aim));
             receipt = new GameplayCommandRequestReceipt(header.TargetTick, header.CommandSeq);
+            Debug.Log(
+                $"[AbilityCommandRequest] unit={header.ControlledUnitUid} " +
+                $"slot={slot} verb={signal} seq={header.CommandSeq} " +
+                $"targetTick={header.TargetTick} buildTick={header.BuildLocalTick} " +
+                $"localState={abilityStates[slot].Kind} aim={aim.Kind}");
+            RecordAbilityRequest(header, slot, signal);
             AdvanceSequence();
             return true;
+        }
+
+        /// <summary>
+        /// Correlates a locally submitted ability Command with the exact
+        /// canonical command list observed at TickCompleted. It reconciles
+        /// local-only receipt/input presentation state but never changes
+        /// Gameplay state. It is intentionally called for both prediction and
+        /// ClientReplay so a packaged log can distinguish a real physical
+        /// input event from a rollback re-execution of the same CommandSeq.
+        /// </summary>
+        public void ObserveCompletedGameplayTick(
+            int tick,
+            IReadOnlyList<GameplayCommand> commands,
+            uint checksum)
+        {
+            if (commands == null ||
+                controlledUnit == null ||
+                !controlledUnit.UnitUid.IsValid())
+            {
+                return;
+            }
+
+            for (int i = 0; i < commands.Count; i++)
+            {
+                GameplayCommand command = commands[i];
+                if (command.Kind != GameplayCommandKind.CastAbility ||
+                    command.ControlledUnitUid != controlledUnit.UnitUid)
+                {
+                    continue;
+                }
+
+                int requestIndex =
+                    FindAbilityRequestDiagnostic(command.CommandSeq);
+
+                bool hasSession = abilityRuntimeView != null &&
+                    abilityRuntimeView.HasActiveSession(
+                        controlledUnit.UnitUid,
+                        command.AbilitySlot);
+                bool waitingForCommit = abilityRuntimeView != null &&
+                    abilityRuntimeView.IsWaitingForCommit(
+                        controlledUnit.UnitUid,
+                        command.AbilitySlot);
+                LocalAbilityInputStateKind localState =
+                    command.AbilitySlot < AbilitySlotCount
+                        ? abilityStates[command.AbilitySlot].Kind
+                        : LocalAbilityInputStateKind.Idle;
+                if (command.AbilitySlot < AbilitySlotCount)
+                {
+                    ref LocalAbilityInputState state =
+                        ref abilityStates[command.AbilitySlot];
+                    if (state.Kind != LocalAbilityInputStateKind.Idle &&
+                        state.ControlledUnitUidAtBegin ==
+                            command.ControlledUnitUid &&
+                        state.LastRequestReceipt.CommandSeq ==
+                            command.CommandSeq)
+                    {
+                        state.LastRequestReceipt =
+                            new GameplayCommandRequestReceipt(
+                                command.TargetTick,
+                                command.CommandSeq);
+                        state.AwaitingAcceptedExecution = false;
+                        if (command.AbilityVerb ==
+                                AbilitySignalVerb.Focus &&
+                            (hasSession || waitingForCommit))
+                        {
+                            state.Kind =
+                                LocalAbilityInputStateKind
+                                    .GameplayFocusing;
+                        }
+                        localState = state.Kind;
+                    }
+                }
+                AbilityRequestDiagnostic request =
+                    requestIndex >= 0
+                        ? abilityRequestDiagnostics[requestIndex]
+                        : default;
+                string requestTarget = requestIndex >= 0
+                    ? request.RequestTargetTick.ToString()
+                    : "<untracked>";
+                if (requestIndex >= 0)
+                {
+                    ref AbilityRequestDiagnostic trackedRequest =
+                        ref abilityRequestDiagnostics[requestIndex];
+                    trackedRequest.LastObservationTick = tick;
+                    trackedRequest.LastObservationMode =
+                        SimulationTickContext.Current.ExecutionMode;
+                }
+                Debug.Log(
+                    $"[AbilityCommandObserved] mode={SimulationTickContext.Current.ExecutionMode} " +
+                    $"tick={tick} checksum=0x{checksum:X8} " +
+                    $"unit={command.ControlledUnitUid} seq={command.CommandSeq} " +
+                    $"slot={command.AbilitySlot} verb={command.AbilityVerb} " +
+                    $"requestTarget={requestTarget} " +
+                    $"actualTarget={command.TargetTick} " +
+                    $"buildTick={command.Header.BuildLocalTick} " +
+                    $"localState={localState} session={hasSession} " +
+                    $"waiting={waitingForCommit} tracked={requestIndex >= 0}");
+            }
+
+            for (int i = 0;
+                i < abilityRequestDiagnostics.Length;
+                i++)
+            {
+                ref AbilityRequestDiagnostic request =
+                    ref abilityRequestDiagnostics[i];
+                if (!request.Active ||
+                    request.UnitUid != controlledUnit.UnitUid ||
+                    request.MissingAtTargetLogged ||
+                    tick != request.RequestTargetTick)
+                {
+                    continue;
+                }
+
+                bool observed = request.LastObservationTick == tick &&
+                    request.LastObservationMode ==
+                        SimulationTickContext.Current.ExecutionMode;
+                if (observed)
+                    continue;
+
+                request.MissingAtTargetLogged = true;
+                LocalAbilityInputStateKind localState =
+                    request.Slot < AbilitySlotCount
+                        ? abilityStates[request.Slot].Kind
+                        : LocalAbilityInputStateKind.Idle;
+                Debug.LogWarning(
+                    $"[AbilityCommandMissing] mode={SimulationTickContext.Current.ExecutionMode} " +
+                    $"tick={tick} unit={request.UnitUid} " +
+                    $"seq={request.CommandSeq} slot={request.Slot} " +
+                    $"verb={request.Verb} requestTarget={request.RequestTargetTick} " +
+                    $"buildTick={request.BuildLocalTick} localState={localState} " +
+                    "no matching CastAbility command at its requested Tick.");
+            }
+        }
+
+        /// <summary>
+        /// Updates a local request receipt when the server accepts the same
+        /// CommandSeq on a different Tick. If rollback already retired the
+        /// stale local latch, the exact tracked Focus/Commit request is
+        /// reconstructed from the accepted command. This local presentation
+        /// state never participates in Gameplay rollback or checksums.
+        /// </summary>
+        public void ObserveAcceptedGameplayCommands(
+            IReadOnlyList<GameplayCommand> commands)
+        {
+            if (commands == null || controlledUnit == null)
+                return;
+
+            for (int i = 0; i < commands.Count; i++)
+            {
+                GameplayCommand command = commands[i];
+                if (command.Kind != GameplayCommandKind.CastAbility ||
+                    command.ControlledUnitUid != controlledUnit.UnitUid ||
+                    command.AbilitySlot >= AbilitySlotCount)
+                {
+                    continue;
+                }
+
+                ref LocalAbilityInputState state =
+                    ref abilityStates[command.AbilitySlot];
+                int requestTarget;
+                bool recoveredFromIdle = false;
+                if (state.Kind == LocalAbilityInputStateKind.Idle)
+                {
+                    int requestIndex =
+                        FindAbilityRequestDiagnostic(command.CommandSeq);
+                    if (requestIndex < 0)
+                        continue;
+
+                    AbilityRequestDiagnostic request =
+                        abilityRequestDiagnostics[requestIndex];
+                    if (!request.MissingAtTargetLogged ||
+                        command.TargetTick <= request.RequestTargetTick ||
+                        request.LastObservationTick >= command.TargetTick ||
+                        request.Slot != command.AbilitySlot ||
+                        request.Verb != command.AbilityVerb ||
+                        !TryGetAcceptedRecoveryState(
+                            command.AbilityVerb,
+                            out LocalAbilityInputStateKind recoveryKind))
+                    {
+                        continue;
+                    }
+
+                    requestTarget = request.RequestTargetTick;
+                    state = CreateState(
+                        command.AbilitySlot,
+                        recoveryKind,
+                        new GameplayCommandRequestReceipt(
+                            command.TargetTick,
+                            command.CommandSeq));
+                    recoveredFromIdle = true;
+                }
+                else if (state.ControlledUnitUidAtBegin !=
+                        command.ControlledUnitUid ||
+                    state.LastRequestReceipt.CommandSeq !=
+                        command.CommandSeq)
+                {
+                    continue;
+                }
+                else
+                {
+                    requestTarget =
+                        state.LastRequestReceipt.TargetTick;
+                }
+                state.LastRequestReceipt =
+                    new GameplayCommandRequestReceipt(
+                        command.TargetTick,
+                        command.CommandSeq);
+                int completedGameplayTick =
+                    completedGameplayTickProvider != null
+                        ? completedGameplayTickProvider()
+                        : SimulationTickContext.Current.Tick;
+                bool acceptedTickAlreadyCompleted =
+                    command.TargetTick <= completedGameplayTick;
+                state.AwaitingAcceptedExecution =
+                    !acceptedTickAlreadyCompleted;
+                Debug.Log(
+                    $"[AbilityCommandAccepted] unit={command.ControlledUnitUid} " +
+                    $"seq={command.CommandSeq} slot={command.AbilitySlot} " +
+                    $"verb={command.AbilityVerb} requestTarget={requestTarget} " +
+                    $"acceptedTarget={command.TargetTick} state={state.Kind} " +
+                    $"completedTick={completedGameplayTick} " +
+                    $"awaitingExecution={state.AwaitingAcceptedExecution} " +
+                    $"recoveredFromIdle={recoveredFromIdle}");
+            }
+        }
+
+        private static bool TryGetAcceptedRecoveryState(
+            AbilitySignalVerb verb,
+            out LocalAbilityInputStateKind stateKind)
+        {
+            switch (verb)
+            {
+                case AbilitySignalVerb.Focus:
+                    stateKind =
+                        LocalAbilityInputStateKind.FocusRequested;
+                    return true;
+                case AbilitySignalVerb.Commit:
+                    stateKind =
+                        LocalAbilityInputStateKind.CommitRequested;
+                    return true;
+                default:
+                    stateKind = LocalAbilityInputStateKind.Idle;
+                    return false;
+            }
         }
 
         public bool RequestEquipmentPurchase(int equipmentId)
@@ -479,6 +761,10 @@ namespace FrameSyncMoba.PlayerInput
             in LocalGameplayInputEvent inputEvent,
             MouseWorldResolver pointerResolver)
         {
+            Debug.Log(
+                $"[InputTrace] SecondaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                $"statesBefore={DescribeAbilityStates()} " +
+                $"pointer={(pointerResolver != null ? "ready" : "null")}");
             for (int i = 0; i < abilityStates.Length; i++)
             {
                 if (abilityStates[i].Kind !=
@@ -493,18 +779,43 @@ namespace FrameSyncMoba.PlayerInput
                 {
                     abilityStates[i] = default;
                     Debug.Log(
-                        $"[Input] SecondaryClick closed local aim on slot {i}.");
+                        $"[Input] SecondaryClick closed local aim on slot {i} " +
+                        $"eventSeq={inputEvent.LocalEventSequence}.");
                     return;
                 }
             }
 
-            if (controlledUnit == null || pointerResolver == null) return;
+            if (controlledUnit == null || pointerResolver == null)
+            {
+                Debug.Log(
+                    $"[InputTrace] SecondaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                    "did not submit Move/Attack: controlled unit or pointer resolver is null.");
+                return;
+            }
             UnitUid? target = pointerResolver.ResolveUnitTarget(inputEvent.ScreenPositionAtEvent);
-            if (target.HasValue && RequestAttack(target.Value)) return;
+            if (target.HasValue)
+            {
+                bool attackSubmitted = RequestAttack(target.Value);
+                Debug.Log(
+                    $"[InputTrace] SecondaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                    $"unitTarget={target.Value} attackSubmitted={attackSubmitted} " +
+                    $"statesAfterAttack={DescribeAbilityStates()}");
+                if (attackSubmitted) return;
+            }
             fp2? point = pointerResolver.ResolveGroundPoint(inputEvent.ScreenPositionAtEvent);
             if (point.HasValue)
             {
-                RequestMove(point.Value);
+                bool moveSubmitted = RequestMove(point.Value);
+                Debug.Log(
+                    $"[InputTrace] SecondaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                    $"groundTarget={point.Value} moveSubmitted={moveSubmitted} " +
+                    $"statesAfterMove={DescribeAbilityStates()}");
+            }
+            else
+            {
+                Debug.Log(
+                    $"[InputTrace] SecondaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                    "resolved neither a unit target nor a ground point.");
             }
         }
 
@@ -524,7 +835,13 @@ namespace FrameSyncMoba.PlayerInput
                 return;
             }
             ref LocalAbilityInputState state = ref abilityStates[slot];
-            if (state.Kind != LocalAbilityInputStateKind.Idle) return;
+            if (state.Kind != LocalAbilityInputStateKind.Idle)
+            {
+                Debug.Log(
+                    $"[InputTrace] AbilityKeyPressed eventSeq={inputEvent.LocalEventSequence} " +
+                    $"slot={slot} ignored because state={state.Kind}.");
+                return;
+            }
 
             if (!TryGetBinding(
                     slot,
@@ -646,6 +963,9 @@ namespace FrameSyncMoba.PlayerInput
             if (state.Kind != LocalAbilityInputStateKind.FocusRequested
                 && state.Kind != LocalAbilityInputStateKind.GameplayFocusing)
             {
+                Debug.Log(
+                    $"[InputTrace] AbilityKeyReleased eventSeq={inputEvent.LocalEventSequence} " +
+                    $"slot={slot} ignored because state={state.Kind}.");
                 return;
             }
 
@@ -708,6 +1028,7 @@ namespace FrameSyncMoba.PlayerInput
             in LocalGameplayInputEvent inputEvent,
             MouseWorldResolver pointerResolver)
         {
+            bool foundEligibleSlot = false;
             for (byte slot = 0; slot < AbilitySlotCount; slot++)
             {
                 ref LocalAbilityInputState state = ref abilityStates[slot];
@@ -717,6 +1038,7 @@ namespace FrameSyncMoba.PlayerInput
                 {
                     continue;
                 }
+                foundEligibleSlot = true;
                 if (!TryGetBinding(
                         slot,
                         InputTrigger.PrimaryClick,
@@ -733,7 +1055,12 @@ namespace FrameSyncMoba.PlayerInput
                         pointerResolver,
                         binding.CaptureAim,
                         out AimSnapshot aim))
+                {
+                    Debug.Log(
+                        $"[InputTrace] PrimaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                        $"slot={slot} could not build aim; state remains {state.Kind}.");
                     return;
+                }
                 if (RequestCastAbility(
                     slot,
                     AbilitySignalVerb.Commit,
@@ -747,7 +1074,19 @@ namespace FrameSyncMoba.PlayerInput
                     Debug.Log(
                         $"[Input] PrimaryClick slot {slot}: Commit -> CommitRequested (seq {receipt.CommandSeq}).");
                 }
+                else
+                {
+                    Debug.Log(
+                        $"[InputTrace] PrimaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                        $"slot={slot} RequestCastAbility returned false; state remains {state.Kind}.");
+                }
                 return;
+            }
+            if (!foundEligibleSlot)
+            {
+                Debug.Log(
+                    $"[InputTrace] PrimaryClick eventSeq={inputEvent.LocalEventSequence} " +
+                    "had no LocalAiming/FocusRequested/GameplayFocusing slot.");
             }
         }
 
@@ -776,19 +1115,35 @@ namespace FrameSyncMoba.PlayerInput
                 case AimKind.Point:
                     fp2? point = pointerResolver?.ResolveGroundPoint(inputEvent.ScreenPositionAtEvent);
                     aim = point.HasValue ? AimSnapshot.ForPoint(point.Value) : default;
+                    if (!point.HasValue)
+                    {
+                        Debug.Log(
+                            $"[InputTrace] TryBuildAim failed eventSeq={inputEvent.LocalEventSequence} " +
+                            $"slot={slot} kind={kind} reason=ground-point-unresolved.");
+                    }
                     return point.HasValue;
                 case AimKind.Unit:
                     UnitUid? target = pointerResolver?.ResolveUnitTarget(inputEvent.ScreenPositionAtEvent);
                     aim = target.HasValue ? AimSnapshot.ForUnit(target.Value) : default;
+                    if (!target.HasValue)
+                    {
+                        Debug.Log(
+                            $"[InputTrace] TryBuildAim failed eventSeq={inputEvent.LocalEventSequence} " +
+                            $"slot={slot} kind={kind} reason=unit-target-unresolved.");
+                    }
                     return target.HasValue;
                 case AimKind.Direction:
                     fp2? groundPoint = pointerResolver?.ResolveGroundPoint(inputEvent.ScreenPositionAtEvent);
                     if (!groundPoint.HasValue || controlledUnit?.MovementHandler == null)
                     {
                         aim = default;
+                        Debug.Log(
+                            $"[InputTrace] TryBuildAim failed eventSeq={inputEvent.LocalEventSequence} " +
+                            $"slot={slot} kind={kind} " +
+                            $"reason={(groundPoint.HasValue ? "movement-handler-null" : "ground-point-unresolved")}.");
                         return false;
                     }
-            fp2 direction = groundPoint.Value - controlledUnit.MovementHandler.Position;
+                    fp2 direction = groundPoint.Value - controlledUnit.MovementHandler.Position;
                     try
                     {
                         aim = AimSnapshot.ForDirection(direction);
@@ -797,12 +1152,37 @@ namespace FrameSyncMoba.PlayerInput
                     catch (ArgumentException)
                     {
                         aim = default;
+                        Debug.Log(
+                            $"[InputTrace] TryBuildAim failed eventSeq={inputEvent.LocalEventSequence} " +
+                            $"slot={slot} kind={kind} reason=zero-direction " +
+                            $"groundPoint={groundPoint.Value} caster={controlledUnit.MovementHandler.Position}.");
                         return false;
                     }
                 default:
                     aim = default;
+                    Debug.Log(
+                        $"[InputTrace] TryBuildAim failed eventSeq={inputEvent.LocalEventSequence} " +
+                        $"slot={slot} kind={kind} reason=unsupported-aim-kind.");
                     return false;
             }
+        }
+
+        private string DescribeAbilityStates()
+        {
+            string description = "[";
+            bool hasState = false;
+            for (int i = 0; i < abilityStates.Length; i++)
+            {
+                LocalAbilityInputState state = abilityStates[i];
+                if (state.Kind == LocalAbilityInputStateKind.Idle)
+                    continue;
+                if (hasState)
+                    description += ",";
+                description +=
+                    $"{i}:{state.Kind}/target={state.LastRequestReceipt.TargetTick}/seq={state.LastRequestReceipt.CommandSeq}";
+                hasState = true;
+            }
+            return hasState ? description + "]" : "[]";
         }
 
         private bool TryGetBinding(
@@ -866,8 +1246,9 @@ namespace FrameSyncMoba.PlayerInput
             // executed is observable through the runtime view; until then
             // the local state stays pending so duplicate input is
             // suppressed (Player Input v1.1 17.4).
-            int currentTick =
-                SimulationTickContext.Current.Tick;
+            int currentTick = completedGameplayTickProvider != null
+                ? completedGameplayTickProvider()
+                : SimulationTickContext.Current.Tick;
             for (byte slot = 0; slot < AbilitySlotCount; slot++)
             {
                 ref LocalAbilityInputState state = ref abilityStates[slot];
@@ -882,6 +1263,9 @@ namespace FrameSyncMoba.PlayerInput
                     controlledUnit.UnitUid, slot);
                 bool targetReached =
                     currentTick >=
+                    state.LastRequestReceipt.TargetTick;
+                LocalAbilityInputStateKind beforeKind = state.Kind;
+                int requestTargetTick =
                     state.LastRequestReceipt.TargetTick;
 
                 switch (state.Kind)
@@ -900,14 +1284,15 @@ namespace FrameSyncMoba.PlayerInput
                                 LocalAbilityInputStateKind
                                     .GameplayFocusing;
                         }
-                        else
+                        else if (!state.AwaitingAcceptedExecution)
                         {
                             state = default;
                         }
                         break;
 
                     case LocalAbilityInputStateKind.GameplayFocusing:
-                        if (!hasSession)
+                        if (!hasSession &&
+                            !state.AwaitingAcceptedExecution)
                         {
                             state = default;
                         }
@@ -918,6 +1303,10 @@ namespace FrameSyncMoba.PlayerInput
                         // TargetTick may the runtime view decide the fate of
                         // the Commit Command.
                         if (!targetReached)
+                        {
+                            break;
+                        }
+                        if (state.AwaitingAcceptedExecution)
                         {
                             break;
                         }
@@ -938,6 +1327,16 @@ namespace FrameSyncMoba.PlayerInput
                             state = default;
                         }
                         break;
+                }
+
+                if (state.Kind != beforeKind)
+                {
+                    Debug.Log(
+                        $"[AbilityLocalState] unit={controlledUnit.UnitUid} " +
+                        $"slot={slot} completedTick={currentTick} " +
+                        $"targetTick={requestTargetTick} " +
+                        $"session={hasSession} waiting={waiting} " +
+                        $"state={beforeKind}->{state.Kind}");
                 }
             }
         }
@@ -988,6 +1387,78 @@ namespace FrameSyncMoba.PlayerInput
         private void ClearLocalAbilityStates()
         {
             Array.Clear(abilityStates, 0, abilityStates.Length);
+            Array.Clear(
+                abilityRequestDiagnostics,
+                0,
+                abilityRequestDiagnostics.Length);
+            nextAbilityRequestDiagnosticIndex = 0;
+        }
+
+        private void RecordAbilityRequest(
+            in CommandHeader header,
+            byte slot,
+            AbilitySignalVerb verb)
+        {
+            int index = nextAbilityRequestDiagnosticIndex;
+            nextAbilityRequestDiagnosticIndex =
+                (nextAbilityRequestDiagnosticIndex + 1) %
+                abilityRequestDiagnostics.Length;
+            ref AbilityRequestDiagnostic existing =
+                ref abilityRequestDiagnostics[index];
+            if (existing.Active &&
+                !existing.MissingAtTargetLogged)
+            {
+                Debug.LogWarning(
+                    $"[AbilityCommandDiagnostic] request ring overwrote " +
+                    $"seq={existing.CommandSeq} slot={existing.Slot} " +
+                    $"targetTick={existing.RequestTargetTick}.");
+            }
+            existing = new AbilityRequestDiagnostic
+            {
+                Active = true,
+                UnitUid = header.ControlledUnitUid,
+                Slot = slot,
+                Verb = verb,
+                CommandSeq = header.CommandSeq,
+                RequestTargetTick = header.TargetTick,
+                BuildLocalTick = header.BuildLocalTick,
+                MissingAtTargetLogged = false,
+                LastObservationTick = -1,
+                LastObservationMode = default,
+            };
+        }
+
+        private int FindAbilityRequestDiagnostic(uint commandSeq)
+        {
+            for (int i = 0;
+                i < abilityRequestDiagnostics.Length;
+                i++)
+            {
+                AbilityRequestDiagnostic request =
+                    abilityRequestDiagnostics[i];
+                if (request.Active &&
+                    request.CommandSeq == commandSeq &&
+                    controlledUnit != null &&
+                    request.UnitUid == controlledUnit.UnitUid)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private struct AbilityRequestDiagnostic
+        {
+            public bool Active;
+            public UnitUid UnitUid;
+            public byte Slot;
+            public AbilitySignalVerb Verb;
+            public uint CommandSeq;
+            public int RequestTargetTick;
+            public int BuildLocalTick;
+            public bool MissingAtTargetLogged;
+            public int LastObservationTick;
+            public ExecutionMode LastObservationMode;
         }
 
         private LocalAbilityInputState CreateState(
@@ -1001,6 +1472,7 @@ namespace FrameSyncMoba.PlayerInput
                 Slot = slot,
                 ControlledUnitUidAtBegin = controlledUnit?.UnitUid ?? default,
                 LastRequestReceipt = receipt,
+                AwaitingAcceptedExecution = false,
             };
         }
 

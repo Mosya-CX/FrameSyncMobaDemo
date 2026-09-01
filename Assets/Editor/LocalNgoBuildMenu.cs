@@ -1,6 +1,8 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 
@@ -32,6 +34,14 @@ namespace FrameSyncMoba.EditorTools
             "Builds/UosServer";
         public const string UosClientBuildRoot =
             "Builds/UosClient";
+        public const string ReleaseClientBuildRoot =
+            "Builds/Demo/Game";
+        public const string ReleaseClientExecutableName =
+            "AAALOL.exe";
+        public const string CdnPackagerProjectPath =
+            "Tools/UosGameLauncher/FrameSyncMoba.GameLauncher.csproj";
+        public const string CdnUploadBuildRoot =
+            "Builds/CdnUpload";
         private const string UosOnlineBuildDefine =
             "FRAME_SYNC_MOBA_UOS_ONLINE";
 
@@ -61,6 +71,66 @@ namespace FrameSyncMoba.EditorTools
         public static void BuildClientUos()
         {
             RunExclusive("client-windows-uos", BuildClientUosCore);
+        }
+
+        public static void BuildReleaseClient(
+            string clientVersion,
+            bool buildCdnPackage)
+        {
+            string normalizedVersion = buildCdnPackage
+                ? NormalizeReleaseClientVersion(clientVersion)
+                : string.Empty;
+            RunExclusive(
+                "client-windows-release",
+                () =>
+                {
+                    BuildReleaseClientCore();
+                    if (buildCdnPackage)
+                        BuildReleaseCdnPackage(normalizedVersion);
+                });
+        }
+
+        public static string NormalizeReleaseClientVersion(string value)
+        {
+            string normalized = value == null
+                ? string.Empty
+                : value.Trim();
+            if (!Version.TryParse(normalized, out Version version) ||
+                version.Major < 0 ||
+                normalized.Length > 64)
+            {
+                throw new ArgumentException(
+                    "客户端版本必须是数字版本号，例如 1.0.0。",
+                    nameof(value));
+            }
+
+            return normalized;
+        }
+
+        public static string GetReleaseClientExecutablePath()
+        {
+            return Path.GetFullPath(
+                Path.Combine(
+                    GetProjectRoot(),
+                    ReleaseClientBuildRoot,
+                    ReleaseClientExecutableName));
+        }
+
+        public static string GetCdnPackageOutputRoot(string clientVersion)
+        {
+            string normalizedVersion =
+                NormalizeReleaseClientVersion(clientVersion);
+            return Path.GetFullPath(
+                Path.Combine(
+                    GetProjectRoot(),
+                    CdnUploadBuildRoot,
+                    normalizedVersion));
+        }
+
+        private static string GetProjectRoot()
+        {
+            return Path.GetFullPath(
+                Path.Combine(UnityEngine.Application.dataPath, ".."));
         }
 
         [MenuItem(
@@ -114,6 +184,7 @@ namespace FrameSyncMoba.EditorTools
                 "server-linux-uos",
                 "client-windows-local",
                 "client-windows-uos",
+                "client-windows-release",
                 "both-local",
                 "both-uos",
             };
@@ -222,6 +293,158 @@ namespace FrameSyncMoba.EditorTools
                     UosClientBuildRoot,
                     "FrameSyncMobaClient.exe"));
             Build(ClientScene, output, false, true);
+        }
+
+        private static void BuildReleaseClientCore()
+        {
+            string output = GetReleaseClientExecutablePath();
+            PrepareReleaseClientOutput(output);
+            Build(
+                ClientScene,
+                output,
+                false,
+                true,
+                false);
+            ValidateReleaseClientOutput(output);
+        }
+
+        private static void PrepareReleaseClientOutput(
+            string executablePath)
+        {
+            string expectedRoot = Path.GetFullPath(
+                Path.Combine(GetProjectRoot(), ReleaseClientBuildRoot));
+            string actualRoot = Path.GetFullPath(
+                Path.GetDirectoryName(executablePath) ?? string.Empty);
+            if (!string.Equals(
+                    expectedRoot.TrimEnd(
+                        Path.DirectorySeparatorChar,
+                        Path.AltDirectorySeparatorChar),
+                    actualRoot.TrimEnd(
+                        Path.DirectorySeparatorChar,
+                        Path.AltDirectorySeparatorChar),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "拒绝清理非正式发布目录：" + actualRoot);
+            }
+
+            if (Directory.Exists(expectedRoot))
+                Directory.Delete(expectedRoot, true);
+        }
+
+        private static void ValidateReleaseClientOutput(string executablePath)
+        {
+            if (!string.Equals(
+                    Path.GetFileName(executablePath),
+                    ReleaseClientExecutableName,
+                    StringComparison.Ordinal) ||
+                !File.Exists(executablePath))
+            {
+                throw new InvalidOperationException(
+                    $"发布客户端入口必须是 {ReleaseClientExecutableName}。");
+            }
+
+            string directory = Path.GetDirectoryName(executablePath);
+            string dataDirectory = Path.Combine(directory, "AAALOL_Data");
+            if (!Directory.Exists(dataDirectory))
+            {
+                throw new InvalidOperationException(
+                    "发布客户端缺少 AAALOL_Data。请勿混用 Builds/UosClient 测试包。");
+            }
+        }
+
+        private static void BuildReleaseCdnPackage(string clientVersion)
+        {
+            string projectRoot = GetProjectRoot();
+            string projectPath = Path.GetFullPath(
+                Path.Combine(projectRoot, CdnPackagerProjectPath));
+            string sourceRoot = Path.GetFullPath(
+                Path.Combine(projectRoot, ReleaseClientBuildRoot));
+            string outputRoot = GetCdnPackageOutputRoot(clientVersion);
+            if (!File.Exists(projectPath))
+            {
+                throw new FileNotFoundException(
+                    "没有找到正式 Launcher CDN 分片器项目。",
+                    projectPath);
+            }
+
+            ValidateReleaseClientOutput(
+                Path.Combine(sourceRoot, ReleaseClientExecutableName));
+            string arguments = ComposeCdnPackagerArguments(
+                projectPath,
+                sourceRoot,
+                outputRoot,
+                clientVersion);
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = arguments,
+                WorkingDirectory = projectRoot,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            using (var process = new Process { StartInfo = startInfo })
+            {
+                if (!process.Start())
+                {
+                    throw new InvalidOperationException(
+                        "无法启动 CDN 分片器进程。");
+                }
+
+                Task<string> outputTask =
+                    process.StandardOutput.ReadToEndAsync();
+                Task<string> errorTask =
+                    process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+                Task.WaitAll(outputTask, errorTask);
+                string standardOutput = outputTask.Result.Trim();
+                string standardError = errorTask.Result.Trim();
+                if (process.ExitCode != 0)
+                {
+                    throw new InvalidOperationException(
+                        "CDN 签名分片失败。\n" +
+                        (string.IsNullOrEmpty(standardError)
+                            ? standardOutput
+                            : standardError));
+                }
+
+                if (!string.IsNullOrEmpty(standardOutput))
+                    UnityEngine.Debug.Log(standardOutput);
+            }
+
+            UnityEngine.Debug.Log(
+                $"[Build] Release CDN package ready: {outputRoot}");
+        }
+
+        public static string ComposeCdnPackagerArguments(
+            string projectPath,
+            string sourceRoot,
+            string outputRoot,
+            string clientVersion)
+        {
+            string normalizedVersion =
+                NormalizeReleaseClientVersion(clientVersion);
+            return
+                "run --project " + QuoteProcessArgument(projectPath) +
+                " -c Release -- --build-cdn-package" +
+                " --version " + normalizedVersion +
+                " --source " + QuoteProcessArgument(sourceRoot) +
+                " --output " + QuoteProcessArgument(outputRoot);
+        }
+
+        private static string QuoteProcessArgument(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value) ||
+                value.IndexOf('"') >= 0)
+            {
+                throw new ArgumentException(
+                    "进程参数路径为空或包含不允许的双引号。",
+                    nameof(value));
+            }
+
+            return "\"" + value + "\"";
         }
 
         private static bool WasBuildRecentlyCompleted(
@@ -368,7 +591,8 @@ namespace FrameSyncMoba.EditorTools
             string scene,
             string output,
             bool dedicatedServer,
-            bool uosOnline = false)
+            bool uosOnline = false,
+            bool developmentBuild = true)
         {
             EnsureStandaloneBuildTarget(
                 BuildTarget.StandaloneWindows64,
@@ -409,8 +633,9 @@ namespace FrameSyncMoba.EditorTools
                     targetGroup =
                         BuildTargetGroup.Standalone,
                     options =
-                        BuildOptions
-                            .Development,
+                        developmentBuild
+                            ? BuildOptions.Development
+                            : BuildOptions.None,
                     subtarget = dedicatedServer
                         ? (int)StandaloneBuildSubtarget
                             .Server

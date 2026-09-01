@@ -406,6 +406,7 @@ AnimatorController 负责：
 - 把状态翻译为 Animator Bool、Int、Float 和 Trigger；
 - 检测新的攻击开始 Tick和技能 Stage 变化；
 - 在攻击后摇恢复与回滚时精确定位 State；
+- 按客户端可配置频率采样攻击与循环动画进度，并在渲染帧之间插值；
 - 将 `AbilityCastView.ReadOnlyBlackboard` 中已有技能语义映射为 Animator 参数；
 - 校验 Animator 是否仍与当前 Gameplay 状态一致。
 
@@ -418,7 +419,8 @@ Animator 不决定攻击 Commit、技能 Stage 推进、强化攻击消费、伤
 | 参数 | 类型 | 作用 |
 |---|---|---|
 | `IsMoving` | Bool | Locomotion 状态选择 |
-| `MoveSpeed` | Float | 移动 BlendTree |
+| `MoveSpeed` | Float | 移动状态的实时播放倍率 |
+| `LoopMotionTime` | Float | Idle/Walk/Move 循环 Clip 的插值 normalized time |
 | `IsAttacking` | Bool | 当前是否处于 Attack 主行为 |
 | `IsEmpoweredAttack` | Bool | 当前攻击是否使用强化攻击 State |
 | `IsAttackRecovering` | Bool | 当前是否正在恢复上一轮后摇 |
@@ -478,6 +480,23 @@ Hero AnimatorController
 - 通知 `UnitAnimationDriver` 某个表现 Transition 已完成。
 
 它不能提交伤害、消耗被动、修改攻击计时、推进技能 Stage 或改变 Unit 行为。
+
+### 3.5.6 独立动画采样频率与连续表现时间
+
+客户端动画不建立 `PresentationTick`，也不要求动画采样频率等于 Gameplay `TickRate`。`MobaCameraPresentationConfig` 统一配置 `AnimationSynchronizationRateHz` 和 `InterpolateAnimationProgress`；正式默认值为 20 Hz 并启用插值，允许范围为 1 到 240 Hz。离线对局仍可独立配置 Gameplay `TickRate`，两者互不改写。
+
+Bootstrap 在每帧完成本次 Gameplay 推进后发布只读 `AnimationPresentationTime`：
+
+```text
+LogicTimeTicks = CompletedLogicTick + SubTickAlpha
+LogicTimeSeconds = LogicTimeTicks / GameplayTickRate
+```
+
+`CompletedLogicTick` 必须读取当前 `FrameSyncGameRuntime` 自有的最后完成 Tick，而不能读取进程级遗留的 `SimulationTickContext`。时钟按精确 `UnitWorld` 身份发布和查询，并由所属对局清理；即使同一进程连续两局使用相同 TickRate，新局也不能读取或被旧局清理时钟。`SubTickAlpha` 只来自调度器尚未消费的时间累积，限制在 `[0, 1]`。该投影不拥有 Tick、不执行 Gameplay，也不进入网络消息、Command、Snapshot、Checksum 或回滚权威；Dedicated Server 不发布它。未取得有效 `UnitWorld.TickRate` 的单位不能使用硬编码频率替代。
+
+动画采样器按自己的同步间隔读取当前目标进度与下一采样点预测值。启用插值时，各渲染帧在两个样本端点间插值；关闭时保持上一样本直到下一个动画采样边界。确定性状态键变化、攻击阶段变化或逻辑时间回退时必须立即重置样本段，以当前 Gameplay 投影重新建立表现状态。由 Animator 参数驱动的 Idle/Walk/Move 路由必须在状态变化当帧先解析出目标 State/Clip，再计算循环相位；不能先使用旧 State 采样、下一渲染帧再校正。
+
+Idle/Walk/Move 的循环相位在首次观察、状态变化、播放倍率变化和时间回退时从匹配逻辑时间原点重建，而不能以本地 View 实例化帧或本地保存的速率历史作为零点；因此不同客户端即使在不同渲染帧取得同一 View，或只有一端发生回滚，也能从相同 Gameplay 时间与当前播放倍率得到相同规范相位。计算使用当前 State 基础倍率、移动时的 `MoveSpeed` 与活动 Clip 长度；写入 `LoopMotionTime` 前对 1 取模。倍率变化必须立即重建插值段，不能继续沿旧速率预测后回跳。该无历史方案允许倍率突变时发生一次纯表现相位校正，以避免引入 Gameplay Snapshot 字段或永久跨端相位分叉。Structure 没有攻击动画，也不因此新增攻击 State。
 
 ## 3.6 完整攻击 Clip、序列空闲重置、剩余后摇恢复与强化攻击
 
@@ -635,13 +654,15 @@ and currentLogicTick - LastSuccessfulAttackLogicTick
 | `AttackStartLogicTick → ImpactLogicTick` | `0 → ImpactNormalizedTime` |
 | `ImpactLogicTick → NextAttackReadyLogicTick` | `ImpactNormalizedTime → 1` |
 
-`UnitAnimationDriver` 在函数内部读取：
+`UnitAnimationDriver` 读取攻击模块锁定的 Start、Impact、Ready Tick，并使用 3.5.6 的连续表现时间计算：
 
 ```text
-currentLogicTick = SimulationTickContext.Current.Tick
+currentLogicTimeTicks = CompletedLogicTick + SubTickAlpha
 ```
 
-并计算 `AttackMotionTime`。
+随后按独立动画采样频率生成当前值和下一样本端点，再逐渲染帧插值得到 `AttackMotionTime`。Commit 尚未由 Gameplay 确认时，预测端点不能越过 `ImpactLogicTick`；任何预测端点都不能越过 `NextAttackReadyLogicTick`。如果边界早于完整动画采样间隔，插值段的结束时间必须同步缩短到该逻辑边界，不能把边界姿势摊到完整间隔后再跳变。Ready 边界和 Ready 之后的恢复进度保持 1，不能在退出攻击 State 前回跳到 Commit 姿势。
+
+`UnitAnimationDriver` 必须在 Bootstrap 发布本帧连续表现时间之后、Animator 常规求值之前写入 Motion Time；不得在 `LateUpdate` 才写入并把不同渲染帧率各自的一帧延迟带入最终姿势。
 
 本轮攻击中途发生的攻速变化不重新拉伸当前动画；攻击模块已经锁定 Start、Impact 和 Ready Tick，新的攻速从下一轮攻击开始生效。
 
@@ -1849,4 +1870,3 @@ v13.2 在 v13.1 基础上落实第五轮音频接缝收口后，最终规则如�
 23. 所有函数需要当前逻辑 Tick 时直接读取 `SimulationTickContext.Current`，不传递 Context、不维护第二套 Gameplay 时钟。
 24. Animator、ParticleSystem、AudioSource、对象池和表现账本均属于表现缓存或可重建状态，不进入 GameplaySnapshot。
 25. 公共 `PrefabKind` 由代码固定，表现层只消费公共 `GlobalPrefabTable` 运行时数据。
-

@@ -609,7 +609,7 @@ namespace FrameSyncMoba.PlayerInput.Tests
         }
 
         [Test]
-        public void RightClickAndEscapeDuringHoldRelease_NoCancel_StatePreserved()
+        public void HoldRelease_RightClickMoveThenPrimaryClick_CommitIsPreserved()
         {
             UnitType unit = UnitTestFactory.CreateUnit(
                 new UnitUid(10, 4, 0),
@@ -629,38 +629,55 @@ namespace FrameSyncMoba.PlayerInput.Tests
                     2,
                     12),
                 new HoldReleaseTemplateProvider());
-            var buffer = new LocalInputEventBuffer();
-            buffer.Push(
-                LocalGameplayInputEventKind
-                    .AbilityKeyPressed,
-                0,
-                Vector2.zero);
-            requester.ProcessFrame(buffer, null);
-            buffer.Push(
-                LocalGameplayInputEventKind
-                    .SecondaryClick,
-                0,
-                Vector2.zero);
-            requester.ProcessFrame(buffer, null);
-            buffer.Push(
-                LocalGameplayInputEventKind.Cancel,
-                0,
-                Vector2.zero);
-            requester.ProcessFrame(buffer, null);
+            Camera camera = CreateDownwardCamera();
+            var resolver = new MouseWorldResolver(camera, fp.zero, null);
+            try
+            {
+                var buffer = new LocalInputEventBuffer();
+                buffer.Push(
+                    LocalGameplayInputEventKind.AbilityKeyPressed,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+                buffer.Push(
+                    LocalGameplayInputEventKind.SecondaryClick,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
 
-            Assert.That(
-                collector.GetCanonicalCommands(),
-                Has.Count.EqualTo(1),
-                "Right-click and Escape must not send Cancel.");
-            Assert.That(
-                collector.GetCanonicalCommands()[0]
-                    .AbilityVerb,
-                Is.EqualTo(AbilitySignalVerb.Focus));
-            Assert.That(
-                requester.GetAbilityState(0).Kind,
-                Is.EqualTo(
-                    LocalAbilityInputStateKind
-                        .FocusRequested));
+                Assert.That(
+                    requester.GetAbilityState(0).Kind,
+                    Is.EqualTo(LocalAbilityInputStateKind.FocusRequested),
+                    "A route Move must not clear the pending Q Hold state.");
+
+                buffer.Push(
+                    LocalGameplayInputEventKind.PrimaryClick,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+
+                var commands = collector.GetCanonicalCommands();
+                Assert.That(commands, Has.Count.EqualTo(3));
+                Assert.That(commands[0].Kind,
+                    Is.EqualTo(GameplayCommandKind.CastAbility));
+                Assert.That(commands[0].AbilityVerb,
+                    Is.EqualTo(AbilitySignalVerb.Focus));
+                Assert.That(commands[1].Kind,
+                    Is.EqualTo(GameplayCommandKind.Move));
+                Assert.That(commands[2].Kind,
+                    Is.EqualTo(GameplayCommandKind.CastAbility));
+                Assert.That(commands[2].AbilityVerb,
+                    Is.EqualTo(AbilitySignalVerb.Commit));
+                Assert.That(commands[0].TargetTick,
+                    Is.EqualTo(commands[2].TargetTick));
+                Assert.That(
+                    requester.GetAbilityState(0).Kind,
+                    Is.EqualTo(LocalAbilityInputStateKind.CommitRequested));
+            }
+            finally
+            {
+                Object.DestroyImmediate(camera.gameObject);
+            }
         }
 
         [Test]
@@ -894,6 +911,419 @@ namespace FrameSyncMoba.PlayerInput.Tests
             Assert.That(
                 collector.GetCanonicalCommands(),
                 Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void
+            FocusRequested_UsesCompletedGameplayTickInsteadOfStaticRollbackTick()
+        {
+            SetCurrentTick(999);
+            int completedGameplayTick = 14;
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                new CommandCollector(),
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new HoldReleaseTemplateProvider(),
+                new FakeAbilityRuntimeView(),
+                () => completedGameplayTick);
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind.AbilityKeyPressed,
+                0,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+            requester.ProcessFrame(buffer, null);
+
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind.FocusRequested),
+                "A future/static rollback Tick must not retire the local " +
+                "Focus latch before its receipt Tick completes.");
+
+            completedGameplayTick = 15;
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+        }
+
+        [Test]
+        public void
+            ServerRetargetedFocus_RemainsCommitEligibleUntilAcceptedTickExecutes()
+        {
+            SetCurrentTick(10);
+            int completedGameplayTick = 14;
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var view = new FakeAbilityRuntimeView();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new HoldReleaseTemplateProvider(),
+                view,
+                () => completedGameplayTick);
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind.AbilityKeyPressed,
+                0,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+            GameplayCommand requested =
+                collector.GetCanonicalCommands()[0];
+            GameplayCommand accepted =
+                requested.WithTargetTick(16);
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { accepted });
+
+            completedGameplayTick = 15;
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.FocusRequested),
+                "The stale request Tick must not retire a server-retargeted Focus.");
+
+            view.HasSession = true;
+            view.WaitingForCommit = true;
+            completedGameplayTick = 16;
+            requester.ObserveCompletedGameplayTick(
+                16,
+                new[] { accepted },
+                0u);
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind.GameplayFocusing));
+        }
+
+        [Test]
+        public void
+            AcceptedCommitAfterSameTickAlreadyExecuted_DoesNotRelatchLocalState()
+        {
+            SetCurrentTick(10);
+            int completedGameplayTick = 14;
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var view = new FakeAbilityRuntimeView();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new PressCommitTemplateProvider(),
+                view,
+                () => completedGameplayTick);
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind.AbilityKeyPressed,
+                1,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+            GameplayCommand commit =
+                collector.GetCanonicalCommands()[0];
+            Assert.That(
+                requester.GetAbilityState(1).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind.CommitRequested));
+
+            // Live ordering: local prediction completes the authoritative
+            // TargetTick first, then the accepted relay for the exact same
+            // Tick arrives later in the Unity frame.
+            completedGameplayTick = commit.TargetTick;
+            requester.ObserveCompletedGameplayTick(
+                commit.TargetTick,
+                new[] { commit },
+                0u);
+            Assert.That(
+                requester.GetAbilityState(1)
+                    .AwaitingAcceptedExecution,
+                Is.False);
+
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { commit });
+            Assert.That(
+                requester.GetAbilityState(1)
+                    .AwaitingAcceptedExecution,
+                Is.False,
+                "A relay for an already-completed TargetTick must not " +
+                "wait for a second execution of the same CommandSeq.");
+
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(1).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+        }
+
+        [Test]
+        public void
+            ServerRetargetedFocus_AfterRollbackRetiresState_AuthorityRestoresCommitEligibility()
+        {
+            SetCurrentTick(10);
+            int completedGameplayTick = 14;
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var view = new FakeAbilityRuntimeView();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new HoldReleaseTemplateProvider(),
+                view,
+                () => completedGameplayTick);
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind.AbilityKeyPressed,
+                0,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+            GameplayCommand requested =
+                collector.GetCanonicalCommands()[0];
+
+            SetCurrentTick(
+                requested.TargetTick,
+                ExecutionMode.ClientPrediction);
+            requester.ObserveCompletedGameplayTick(
+                requested.TargetTick,
+                new[] { requested },
+                0u);
+
+            // Authority omitted the previously predicted command at its
+            // requested Tick. The local latch is allowed to return to Idle
+            // during rollback replay.
+            SetCurrentTick(
+                requested.TargetTick,
+                ExecutionMode.ClientReplay);
+            requester.ObserveCompletedGameplayTick(
+                requested.TargetTick,
+                new GameplayCommand[0],
+                0u);
+            completedGameplayTick = requested.TargetTick;
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+
+            // The relay later accepts the exact CommandSeq at a newer Tick.
+            // Receipt observation reconstructs only the local input latch;
+            // Gameplay still changes solely when the authority Tick executes.
+            GameplayCommand accepted =
+                requested.WithTargetTick(requested.TargetTick + 8);
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { accepted });
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.FocusRequested));
+            Assert.That(
+                requester.GetAbilityState(0)
+                    .LastRequestReceipt.TargetTick,
+                Is.EqualTo(accepted.TargetTick));
+
+            view.HasSession = true;
+            view.WaitingForCommit = true;
+            completedGameplayTick = accepted.TargetTick;
+            requester.ObserveCompletedGameplayTick(
+                accepted.TargetTick,
+                new[] { accepted },
+                0u);
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(
+                    LocalAbilityInputStateKind.GameplayFocusing));
+
+            Camera camera = CreateDownwardCamera();
+            try
+            {
+                var resolver = new MouseWorldResolver(
+                    camera,
+                    fp.zero,
+                    null);
+                buffer.Push(
+                    LocalGameplayInputEventKind.PrimaryClick,
+                    0,
+                    Vector2.zero);
+                requester.ProcessFrame(buffer, resolver);
+
+                Assert.That(
+                    collector.GetCanonicalCommands(),
+                    Has.Count.EqualTo(2));
+                Assert.That(
+                    collector.GetCanonicalCommands()[1].AbilityVerb,
+                    Is.EqualTo(AbilitySignalVerb.Commit));
+            }
+            finally
+            {
+                Object.DestroyImmediate(camera.gameObject);
+            }
+        }
+
+        [Test]
+        public void
+            AcceptedRecovery_RequiresTrackedMissingIdentityAndLaterTick()
+        {
+            SetCurrentTick(10);
+            int completedGameplayTick = 14;
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            var collector = new CommandCollector();
+            var requester = new PlayerCommandRequester(
+                unit,
+                new GameplayInputGate(),
+                collector,
+                2,
+                77,
+                new CommandTargetTickResolver(
+                    () => 12,
+                    () => 13,
+                    2,
+                    12),
+                new HoldReleaseTemplateProvider(),
+                new FakeAbilityRuntimeView(),
+                () => completedGameplayTick);
+
+            var buffer = new LocalInputEventBuffer();
+            buffer.Push(
+                LocalGameplayInputEventKind.AbilityKeyPressed,
+                0,
+                Vector2.zero);
+            requester.ProcessFrame(buffer, null);
+            GameplayCommand requested =
+                collector.GetCanonicalCommands()[0];
+            GameplayCommand acceptedLater =
+                requested.WithTargetTick(requested.TargetTick + 8);
+
+            completedGameplayTick = requested.TargetTick;
+            requester.ProcessFrame(buffer, null);
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+
+            // An Idle state alone is insufficient: absence at the original
+            // execution Tick must have been observed first.
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { acceptedLater });
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+
+            SetCurrentTick(
+                requested.TargetTick,
+                ExecutionMode.ClientReplay);
+            requester.ObserveCompletedGameplayTick(
+                requested.TargetTick,
+                new GameplayCommand[0],
+                0u);
+
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { requested });
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle),
+                "The accepted Tick must be later than the missing request Tick.");
+
+            GameplayCommand wrongSlot =
+                GameplayCommand.CreateCastAbility(
+                    acceptedLater.Header,
+                    1,
+                    AbilitySignalVerb.Focus,
+                    requested.Aim);
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { wrongSlot });
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+
+            GameplayCommand wrongVerb =
+                GameplayCommand.CreateCastAbility(
+                    acceptedLater.Header,
+                    0,
+                    AbilitySignalVerb.Commit,
+                    requested.Aim);
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { wrongVerb });
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+
+            var wrongSequenceHeader = new CommandHeader(
+                requested.Header.CommandSeq + 100,
+                requested.Header.ClientId,
+                requested.Header.PlayerSlot,
+                requested.Header.ControlledUnitUid,
+                acceptedLater.TargetTick,
+                GameplayCommandKind.CastAbility,
+                requested.Header.BuildLocalTick,
+                0);
+            GameplayCommand wrongSequence =
+                GameplayCommand.CreateCastAbility(
+                    wrongSequenceHeader,
+                    0,
+                    AbilitySignalVerb.Focus,
+                    requested.Aim);
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { wrongSequence });
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.Idle));
+
+            requester.ObserveAcceptedGameplayCommands(
+                new[] { acceptedLater });
+            Assert.That(
+                requester.GetAbilityState(0).Kind,
+                Is.EqualTo(LocalAbilityInputStateKind.FocusRequested));
         }
 
         [Test]
@@ -1139,11 +1569,20 @@ namespace FrameSyncMoba.PlayerInput.Tests
 
         private static void SetCurrentTick(int tick)
         {
+            SetCurrentTick(
+                tick,
+                ExecutionMode.ClientPrediction);
+        }
+
+        private static void SetCurrentTick(
+            int tick,
+            ExecutionMode executionMode)
+        {
             var controller =
                 new SimulationTickContextController();
             controller.BeginTick(
                 tick,
-                ExecutionMode.ClientPrediction);
+                executionMode);
             controller.EndTick();
         }
 
@@ -1199,14 +1638,31 @@ namespace FrameSyncMoba.PlayerInput.Tests
                         new AbilityDef
                         {
                             AbilityId = 99,
+                            CastModel = new HoldReleaseCastModelDef
+                            {
+                                Hold = new CastStage
+                                {
+                                    StageKey = 1,
+                                    Def = new DelayStageDef(),
+                                    DurationTicks = 30,
+                                    LockMovement = false,
+                                },
+                                Release = new CastStage
+                                {
+                                    StageKey = 2,
+                                    Def = new DelayStageDef(),
+                                    DurationTicks = 10,
+                                    LockMovement = true,
+                                },
+                            },
                         },
                 });
             handler.AddSlot(slot);
-            slot.GetActiveAbility()
-                .BeginSession(
-                    1,
-                    0,
-                    AimSnapshot.None);
+            AbilitySession session = slot.GetActiveAbility().BeginSession(
+                1,
+                0,
+                AimSnapshot.None);
+            session.CurrentStageKey = 1;
 
             var gate =
                 new GameplayInputGate();
@@ -1222,6 +1678,52 @@ namespace FrameSyncMoba.PlayerInput.Tests
                 gate.IsAttackAllowed(unit),
                 "Attack must be blocked while any cast/charge " +
                 "session is active.");
+        }
+
+        [Test]
+        public void InputGate_DuringPureToggleSession_AttackRemainsAllowed()
+        {
+            UnitType unit = UnitTestFactory.CreateUnit(
+                new UnitUid(10, 4, 0),
+                UnitKind.Hero,
+                0,
+                new TeamId(1));
+            AbilityHandler handler = unit.AbilityHandler;
+            var slot = new AbilitySlotRuntime
+            {
+                SlotIndex = 4,
+                MaxAllocatedPoints = 1,
+                ActiveAbilityId = 10021,
+            };
+            slot.AddAbility(new AbilityRuntime
+            {
+                Definition = new AbilityDef
+                {
+                    AbilityId = 10021,
+                    CastModel = new ToggleCastModelDef
+                    {
+                        Active = new CastStage
+                        {
+                            StageKey = 1,
+                            Def = new DelayStageDef(),
+                            DurationTicks = 0,
+                            LockMovement = false,
+                        },
+                    },
+                },
+            });
+            handler.AddSlot(slot);
+            AbilitySession session = slot.GetActiveAbility().BeginSession(
+                1,
+                0,
+                AimSnapshot.None);
+            session.CurrentStageKey = 1;
+
+            var gate = new GameplayInputGate();
+            Assert.That(handler.HasActiveCastSession(), Is.True);
+            Assert.That(handler.HasActiveActionStage(), Is.False);
+            Assert.That(gate.IsAttackAllowed(unit), Is.True,
+                "A pure Toggle session must not block ordinary attacks.");
         }
     }
 }

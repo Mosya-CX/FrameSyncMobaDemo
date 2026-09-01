@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "bucketId": "971e7dbb-9730-48dd-8537-0a614b8a8100",
+  "badgeName": "Test",
+  "manifestPath": "client-manifest.json",
+  "manifestSignaturePath": "client-manifest.sig",
+  "manifestUrlOverride": "",
+  "maxAttempts": 3
+}

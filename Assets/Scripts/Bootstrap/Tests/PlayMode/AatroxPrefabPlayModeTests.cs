@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using FrameSyncMoba.FrameSync;
 using FrameSyncMoba.Physics;
 using FrameSyncMoba.Unit;
@@ -7,6 +8,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Unity.Mathematics.FixedPoint;
 using GameplayUnit = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.Bootstrap.Tests
@@ -194,15 +196,10 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     animator.GetCurrentAnimatorStateInfo(0)
                         .IsName("Base Layer.AatroxWalk_Passive"),
                     Is.True);
-                float passiveProgress = animator
-                    .GetCurrentAnimatorStateInfo(0).normalizedTime;
-                animator.Update(.12f);
-                float advancedPassiveProgress = animator
-                    .GetCurrentAnimatorStateInfo(0).normalizedTime;
-                Assert.That(advancedPassiveProgress,
-                    Is.GreaterThan(passiveProgress + .01f),
-                    "Walk_Passive must keep advancing instead of " +
-                    "re-entering every frame.");
+                CompleteAnimatorTransition(animator);
+                AssertLoopMotionTimeChangesPose(
+                    animator,
+                    "Walk_Passive");
 
                 animator.SetBool("IsAnimationVariantActive", true);
                 AdvanceAnimator(animator);
@@ -218,14 +215,10 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     animator.GetCurrentAnimatorStateInfo(0)
                         .IsName("Base Layer.AatroxWalk"),
                     Is.True);
-                float normalProgress = animator
-                    .GetCurrentAnimatorStateInfo(0).normalizedTime;
-                animator.Update(.12f);
-                Assert.That(
-                    animator.GetCurrentAnimatorStateInfo(0).normalizedTime,
-                    Is.GreaterThan(normalProgress + .01f),
-                    "Walk must keep advancing instead of re-entering " +
-                    "every frame.");
+                CompleteAnimatorTransition(animator);
+                AssertLoopMotionTimeChangesPose(
+                    animator,
+                    "Walk");
 
                 animator.SetBool("IsMoving", false);
                 AdvanceAnimator(animator);
@@ -237,6 +230,103 @@ namespace FrameSyncMoba.Bootstrap.Tests
             finally
             {
                 Object.Destroy(instance);
+            }
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator UnitAnimationDriver_UsesNewLocomotionStateOnChangeFrame()
+        {
+            GameObject logicPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/Config/Formal/Prefabs/Logic/Unit/AatroxHeroRuntime.prefab");
+            GameObject viewPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/ClientContent/Views/Unit/AatroxHeroRuntimeView.prefab");
+            Assert.That(logicPrefab, Is.Not.Null);
+            Assert.That(viewPrefab, Is.Not.Null);
+
+            GameObject logic = Object.Instantiate(logicPrefab);
+            GameObject view = Object.Instantiate(viewPrefab);
+            var world = new UnitWorld { TickRate = 30 };
+            try
+            {
+                GameplayUnit unit = logic.GetComponent<GameplayUnit>();
+                MovementHandler movement = unit.MovementHandler;
+                UnitPresentationHost host =
+                    view.GetComponent<UnitPresentationHost>();
+                UnitAnimationDriver driver =
+                    view.GetComponent<UnitAnimationDriver>();
+                Animator animator =
+                    view.GetComponentInChildren<Animator>(true);
+                Assert.That(unit, Is.Not.Null);
+                Assert.That(movement, Is.Not.Null);
+                Assert.That(host, Is.Not.Null);
+                Assert.That(driver, Is.Not.Null);
+                Assert.That(animator, Is.Not.Null);
+
+                typeof(GameplayUnit).GetProperty(
+                        nameof(GameplayUnit.World),
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic)
+                    ?.SetValue(unit, world);
+                host.Bind(unit);
+                movement.SetMoveSpeed((fp)5);
+                FieldInfo movingField = typeof(MovementHandler).GetField(
+                    "_isMoving",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                MethodInfo driverUpdate = typeof(UnitAnimationDriver).GetMethod(
+                    "Update",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(movingField, Is.Not.Null);
+                Assert.That(driverUpdate, Is.Not.Null);
+
+                animator.Rebind();
+                animator.Update(0f);
+                AnimationPresentationClock.Publish(
+                    world,
+                    9,
+                    world.TickRate,
+                    0.5d);
+                driverUpdate.Invoke(driver, null);
+                animator.Update(0f);
+                Assert.That(
+                    animator.GetCurrentAnimatorStateInfo(0)
+                        .IsName("Base Layer.AatroxIdle"),
+                    Is.True);
+
+                movingField.SetValue(movement, true);
+                AnimationPresentationClock.Publish(
+                    world,
+                    9,
+                    world.TickRate,
+                    0.75d);
+                driverUpdate.Invoke(driver, null);
+
+                AnimatorStateInfo current =
+                    animator.GetCurrentAnimatorStateInfo(0);
+                AnimatorStateInfo next =
+                    animator.GetNextAnimatorStateInfo(0);
+                bool walkResolved =
+                    current.IsName("Base Layer.AatroxWalk") ||
+                    animator.IsInTransition(0) &&
+                    next.IsName("Base Layer.AatroxWalk");
+                Assert.That(
+                    walkResolved,
+                    Is.True,
+                    "Driver must resolve the Gameplay-selected Walk state " +
+                    "before sampling loop Motion Time on the change frame.");
+                Assert.That(
+                    animator.GetFloat("MoveSpeed"),
+                    Is.EqualTo(5f).Within(0.0001f));
+                Assert.That(
+                    animator.GetFloat("LoopMotionTime"),
+                    Is.GreaterThan(0f));
+            }
+            finally
+            {
+                AnimationPresentationClock.Clear(world);
+                Object.Destroy(view);
+                Object.Destroy(logic);
             }
             yield return null;
         }
@@ -327,6 +417,51 @@ namespace FrameSyncMoba.Bootstrap.Tests
             animator.Update(.12f);
             animator.Update(.12f);
             animator.Update(.12f);
+        }
+
+        private static void CompleteAnimatorTransition(Animator animator)
+        {
+            for (int i = 0;
+                 i < 20 && animator.IsInTransition(0);
+                 i++)
+            {
+                animator.Update(.05f);
+            }
+
+            Assert.That(
+                animator.IsInTransition(0),
+                Is.False,
+                "Animator transition did not complete in the test budget.");
+        }
+
+        private static void AssertLoopMotionTimeChangesPose(
+            Animator animator,
+            string stateLabel)
+        {
+            Transform[] probes =
+                animator.GetComponentsInChildren<Transform>(true);
+            animator.SetFloat("LoopMotionTime", .15f);
+            animator.Update(0f);
+            var first = new Quaternion[probes.Length];
+            for (int i = 0; i < probes.Length; i++)
+                first[i] = probes[i].localRotation;
+            animator.SetFloat("LoopMotionTime", .65f);
+            animator.Update(0f);
+            float maximumAngle = 0f;
+            for (int i = 0; i < probes.Length; i++)
+            {
+                maximumAngle = Mathf.Max(
+                    maximumAngle,
+                    Quaternion.Angle(
+                        first[i],
+                        probes[i].localRotation));
+            }
+
+            Assert.That(
+                maximumAngle,
+                Is.GreaterThan(.1f),
+                stateLabel +
+                " pose must respond to external loop Motion Time.");
         }
     }
 }

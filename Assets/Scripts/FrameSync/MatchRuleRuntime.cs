@@ -54,7 +54,7 @@ namespace FrameSyncMoba.FrameSync
         /// to logic distance through UnitWorld.StatDistanceToLogicDistanceScale.
         /// Minion gold is not shared; only the killer receives gold.
         /// </summary>
-        public const int MinionRewardShareRadius = 800;
+        public const int MinionRewardShareRadius = 1200;
 
         /// <summary>
         /// Killer share of a hero-victim reward (Combat v13.2 11.5); the

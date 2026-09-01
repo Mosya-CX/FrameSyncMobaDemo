@@ -91,6 +91,50 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void CommandCollector_ContentRevisionTracksCanonicalMutations()
+        {
+            var controller = new SimulationTickContextController();
+            controller.BeginTick(1, ExecutionMode.ServerAuthority);
+
+            try
+            {
+                var unit = _world.SpawnUnit(
+                    _prototype,
+                    TeamId.Neutral,
+                    1,
+                    0m,
+                    0m);
+                var collector = new CommandCollector();
+                Assert.AreEqual(0ul, collector.ContentRevision);
+
+                collector.Collect(GameplayCommand.CreateMove(
+                    CreateHeader(unit.UnitUid, 2, 2),
+                    new fp2(fp.one, fp.zero)));
+                Assert.AreEqual(1ul, collector.ContentRevision);
+
+                collector.Collect(GameplayCommand.CreateMove(
+                    CreateHeader(unit.UnitUid, 2, 1),
+                    new fp2(fp.zero, fp.one)));
+                Assert.AreEqual(
+                    1ul,
+                    collector.ContentRevision,
+                    "An older merged command does not change canonical content.");
+
+                collector.ConsumeCanonicalCommands(2);
+                Assert.AreEqual(2ul, collector.ContentRevision);
+                collector.BeginTick(3);
+                Assert.AreEqual(
+                    2ul,
+                    collector.ContentRevision,
+                    "Clearing an already empty collector is not a mutation.");
+            }
+            finally
+            {
+                controller.EndTick();
+            }
+        }
+
+        [Test]
         public void Pipeline_SingleUnit_MovesWithCommand()
         {
             var controller = new SimulationTickContextController();
@@ -182,6 +226,112 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void ActivePointMove_RestoreReplayMatchesContinuousTick()
+        {
+            FrameSyncGameRuntime runtime =
+                CreateMovingRuntime(out FrameSyncMoba.Unit.Unit movingUnit);
+            runtime.SubmitCommand(GameplayCommand.CreateMove(
+                CreateHeader(movingUnit.UnitUid, 1, 1),
+                new fp2((fp)10, fp.zero)));
+            var predictionTick =
+                new SimulationTickContextController();
+            runtime.TickPipeline.ExecuteTick(
+                predictionTick,
+                ExecutionMode.ClientPrediction);
+            runtime.TickPipeline.ExecuteTick(
+                predictionTick,
+                ExecutionMode.ClientPrediction);
+            Assert.That(
+                movingUnit.ActionRuntimes.BaseKind,
+                Is.EqualTo(ActionKind.Move));
+
+            GameplaySnapshot boundary =
+                runtime.TickPipeline.CaptureAggregateSnapshot();
+            GameplayCommand repeatedMove =
+                GameplayCommand.CreateMove(
+                    CreateHeader(movingUnit.UnitUid, 2, 2),
+                    new fp2((fp)10, fp.zero));
+            runtime.SubmitCommand(repeatedMove);
+            runtime.TickPipeline.ExecuteTick(
+                predictionTick,
+                ExecutionMode.ClientPrediction);
+            uint continuous = runtime.LastChecksum;
+
+            runtime.GoldIncome.DiscardUnconfirmedFromTick(2);
+            runtime.TickPipeline.RestoreFromSnapshot(
+                boundary,
+                2,
+                ExecutionMode.ClientReplay);
+            runtime.TickPipeline.ReplaceCommandsForNextTick(
+                new[] { repeatedMove });
+            var replayTick = new SimulationTickContextController();
+            runtime.TickPipeline.ExecuteTick(
+                replayTick,
+                ExecutionMode.ClientReplay);
+
+            Assert.That(runtime.LastChecksum, Is.EqualTo(continuous));
+        }
+
+        [Test]
+        public void ReplacedPredictedMove_RestoreThenAuthoritativeMoveMatchesCleanReplay()
+        {
+            FrameSyncGameRuntime runtime =
+                CreateMovingRuntime(out FrameSyncMoba.Unit.Unit movingUnit);
+            var tickController = new SimulationTickContextController();
+            fp2 establishedTarget = new fp2((fp)10, fp.zero);
+            runtime.SubmitCommand(GameplayCommand.CreateMove(
+                CreateHeader(movingUnit.UnitUid, 1, 1),
+                establishedTarget));
+            runtime.TickPipeline.ExecuteTick(
+                tickController,
+                ExecutionMode.ClientPrediction);
+            runtime.TickPipeline.ExecuteTick(
+                tickController,
+                ExecutionMode.ClientPrediction);
+            GameplaySnapshot boundary =
+                runtime.TickPipeline.CaptureAggregateSnapshot();
+            GameplayCommand acceptedRepeatedMove =
+                GameplayCommand.CreateMove(
+                    CreateHeader(movingUnit.UnitUid, 2, 2),
+                    establishedTarget);
+
+            runtime.TickPipeline.ReplaceCommandsForNextTick(
+                new[] { acceptedRepeatedMove });
+            runtime.TickPipeline.ExecuteTick(
+                tickController,
+                ExecutionMode.ClientReplay);
+            uint cleanChecksum = runtime.LastChecksum;
+
+            runtime.GoldIncome.DiscardUnconfirmedFromTick(2);
+            runtime.TickPipeline.RestoreFromSnapshot(
+                boundary,
+                2,
+                ExecutionMode.ClientReplay);
+            GameplayCommand supersededPrediction =
+                GameplayCommand.CreateMove(
+                    CreateHeader(movingUnit.UnitUid, 2, 3),
+                    new fp2((fp)(-10), fp.zero));
+            runtime.TickPipeline.ReplaceCommandsForNextTick(
+                new[] { supersededPrediction });
+            runtime.TickPipeline.ExecuteTick(
+                tickController,
+                ExecutionMode.ClientPrediction);
+
+            runtime.GoldIncome.DiscardUnconfirmedFromTick(2);
+            runtime.TickPipeline.RestoreFromSnapshot(
+                boundary,
+                2,
+                ExecutionMode.ClientReplay);
+            runtime.TickPipeline.ReplaceCommandsForNextTick(
+                new[] { acceptedRepeatedMove });
+            runtime.TickPipeline.ExecuteTick(
+                tickController,
+                ExecutionMode.ClientReplay);
+
+            Assert.That(runtime.LastChecksum, Is.EqualTo(cleanChecksum));
+        }
+
+        [Test]
         public void ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity()
         {
             var world = CreateWorldWithUnit();
@@ -237,6 +387,55 @@ namespace FrameSyncMoba.FrameSync.Tests
             finally { ctrl.EndTick(); }
 
             return world;
+        }
+
+        private static FrameSyncGameRuntime CreateMovingRuntime(
+            out FrameSyncMoba.Unit.Unit movingUnit)
+        {
+            var world = new UnitWorld
+            {
+                StatDefinitionTable = new StatDefinitionTable(),
+                PhysicsWorld = new Physics.PhysicsWorld(),
+                PathGrid = new PathGridMap2D(),
+            };
+            world.PathGrid.Initialise(
+                new fp2((fp)(-20), (fp)(-20)),
+                new fp2((fp)20, (fp)20),
+                fp.one);
+            var prototype = new UnitPrototype
+            {
+                UnitPrototypeId = 1,
+                Name = "MovingHero",
+                RuntimeEntityPrefabId = 99,
+                UnitKind = UnitKind.Hero,
+                BaseStats = new StatPreset(),
+            };
+            var spawnTick = new SimulationTickContextController();
+            spawnTick.BeginTick(0, ExecutionMode.ServerAuthority);
+            try
+            {
+                movingUnit = world.SpawnUnit(
+                    prototype,
+                    TeamId.Neutral,
+                    0,
+                    fp.zero,
+                    fp.zero);
+            }
+            finally
+            {
+                spawnTick.EndTick();
+            }
+            movingUnit.MovementHandler.SetMoveSpeed((fp)4);
+            return new FrameSyncGameRuntime(
+                world,
+                world.PhysicsWorld,
+                0,
+                0,
+                180,
+                300,
+                60,
+                (fp)7 / (fp)10,
+                42u);
         }
 
         private FrameSyncGameRuntime CreateRuntime()

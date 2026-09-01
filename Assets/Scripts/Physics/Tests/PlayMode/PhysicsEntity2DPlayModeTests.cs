@@ -262,6 +262,38 @@ namespace FrameSyncMoba.Physics.PlayModeTests
             }
         }
 
+        [UnityTest]
+        public IEnumerator PresentationSmoothing_FacingChurnDoesNotRestartPositionInterpolation()
+        {
+            PhysicsPresentationSettings.Configure(true, 0.2f, 100f);
+            try
+            {
+                entity.TeleportLogicPosition(Vector(0, 0));
+                yield return null;
+                entity.SetLogicPosition(Vector(10, 0));
+
+                float deadline = Time.realtimeSinceStartup + 0.35f;
+                bool faceRight = false;
+                while (Time.realtimeSinceStartup < deadline)
+                {
+                    entity.SetLogicForward(
+                        faceRight ? Vector(1, 0) : Vector(-1, 0));
+                    faceRight = !faceRight;
+                    yield return null;
+                }
+
+                Assert.That(gameObject.transform.position.x,
+                    Is.EqualTo(10f).Within(.02f),
+                    "Rotation target churn must not keep restarting the " +
+                    "independent position interpolation used by the locked camera.");
+                AssertVector(entity.Transform2D.Position, Vector(10, 0));
+            }
+            finally
+            {
+                PhysicsPresentationSettings.Configure(false, 0.033333f, 6f);
+            }
+        }
+
         private static fp Whole(int value)
         {
             return fp.FromRaw((long)value << 32);

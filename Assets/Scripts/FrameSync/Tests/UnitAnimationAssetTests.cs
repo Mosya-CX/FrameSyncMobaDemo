@@ -18,6 +18,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         {
             "IsMoving",
             "MoveSpeed",
+            "LoopMotionTime",
             "IsAttacking",
             "IsAttackRecovering",
             "AttackSequenceIndex",
@@ -280,6 +281,10 @@ namespace FrameSyncMoba.FrameSync.Tests
                     controller,
                     "MoveSpeed",
                     AnimatorControllerParameterType.Float);
+                AssertParameter(
+                    controller,
+                    "LoopMotionTime",
+                    AnimatorControllerParameterType.Float);
 
                 var states = new List<AnimatorState>();
                 CollectStates(controller, states);
@@ -301,10 +306,27 @@ namespace FrameSyncMoba.FrameSync.Tests
                             state.timeParameter,
                             Is.EqualTo("AttackMotionTime"),
                             $"{item.ControllerPath}: {state.name}");
+                        Assert.That(
+                            (state.motion as AnimationClip)?.isLooping,
+                            Is.False,
+                            $"{item.ControllerPath}: {state.name} is a one-shot attack and must not wrap to its first frame.");
                     }
 
                     if (!IsMoveState(state))
+                    {
+                        if (IsLoopedLocomotionState(state))
+                        {
+                            Assert.That(
+                                state.timeParameterActive,
+                                Is.True,
+                                $"{item.ControllerPath}: {state.name} must use interpolated Loop Motion Time.");
+                            Assert.That(
+                                state.timeParameter,
+                                Is.EqualTo("LoopMotionTime"),
+                                $"{item.ControllerPath}: {state.name}");
+                        }
                         continue;
+                    }
                     moveStates++;
                     Assert.That(
                         state.speedParameterActive,
@@ -319,6 +341,14 @@ namespace FrameSyncMoba.FrameSync.Tests
                         Is.EqualTo(1f).Within(0.0001f),
                         $"{item.ControllerPath}: {state.name} must play at 1x " +
                         "for the formal base movement speed.");
+                    Assert.That(
+                        state.timeParameterActive,
+                        Is.True,
+                        $"{item.ControllerPath}: {state.name} must use interpolated Loop Motion Time.");
+                    Assert.That(
+                        state.timeParameter,
+                        Is.EqualTo("LoopMotionTime"),
+                        $"{item.ControllerPath}: {state.name}");
                 }
 
                 Assert.That(
@@ -516,6 +546,26 @@ namespace FrameSyncMoba.FrameSync.Tests
             state.name.IndexOf(
                 "Attack",
                 StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private static bool IsLoopedLocomotionState(
+            AnimatorState state)
+        {
+            if (!(state.motion is AnimationClip clip) ||
+                !clip.isLooping ||
+                IsAttackState(state))
+                return false;
+            string combined = state.name + "|" + clip.name;
+            return combined.IndexOf(
+                       "Idle",
+                       StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   combined.IndexOf(
+                       "Walk",
+                       StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   string.Equals(
+                       state.name,
+                       "Move",
+                       StringComparison.OrdinalIgnoreCase);
+        }
 
         private static bool IsMoveState(AnimatorState state) =>
             state.name.IndexOf(

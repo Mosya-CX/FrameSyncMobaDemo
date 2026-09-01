@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace FrameSyncMoba.FrameSync
 {
@@ -37,9 +39,106 @@ namespace FrameSyncMoba.FrameSync
             _library = library;
             foreach (Queue<GameObject> queue in _poolByDefId.Values)
                 while (queue.Count > 0)
-                    Destroy(queue.Dequeue());
+                    DestroyOwnedInstance(queue.Dequeue());
             ReleasePrefabLeases();
             _poolByDefId.Clear();
+        }
+
+        /// <summary>
+        /// Loads shared entries and entries owned by selected heroes and
+        /// creates one inactive pool instance before Gameplay can emit its
+        /// first event. The manager retains both leases and instances for its
+        /// normal lifetime, so warmup does not introduce a second resource
+        /// owner.
+        /// </summary>
+        public async Task PreloadAsync(
+            CancellationToken cancellationToken)
+        {
+            await PreloadAsync(
+                null,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Loads only shared VFX and entries owned by one of the selected
+        /// heroes. A null hero list preserves legacy/full-library warmup for
+        /// standalone scenes that do not have a match content scope.
+        /// </summary>
+        public async Task PreloadAsync(
+            IReadOnlyList<int> selectedHeroConfigIds,
+            CancellationToken cancellationToken)
+        {
+            if (_library == null)
+                throw new InvalidOperationException(
+                    "VfxManager requires a VfxLibrary before preload.");
+            if (_assetLoader == null)
+                throw new InvalidOperationException(
+                    "VfxManager requires an asset loader before preload.");
+
+            Stopwatch total = Stopwatch.StartNew();
+            int loadedEntries = 0;
+            Debug.Log(
+                $"[VfxPreload] begin entries={_library.Count} " +
+                $"manager={name}");
+            for (int i = 0; i < _library.Count; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                VfxLibrary.VfxPrefabEntry entry =
+                    _library.GetEntry(i);
+                if (entry.VfxDefId <= 0 ||
+                    string.IsNullOrWhiteSpace(entry.Address))
+                {
+                    throw new InvalidOperationException(
+                        $"VfxLibrary entry {i} must have a positive " +
+                        "VfxDefId and a non-empty Address.");
+                }
+                if (selectedHeroConfigIds != null &&
+                    entry.OwnerHeroConfigId > 0 &&
+                    !ContainsHeroConfigId(
+                        selectedHeroConfigIds,
+                        entry.OwnerHeroConfigId))
+                {
+                    Debug.Log(
+                        $"[VfxPreload] skip id={entry.VfxDefId} " +
+                        $"address={entry.Address} " +
+                        $"ownerHero={entry.OwnerHeroConfigId}");
+                    continue;
+                }
+
+                Stopwatch entryTimer = Stopwatch.StartNew();
+                GameObject prefab = await GetPrefabAsync(
+                    entry.VfxDefId,
+                    cancellationToken);
+                if (prefab == null)
+                {
+                    throw new InvalidOperationException(
+                        $"VFX {entry.VfxDefId} at '{entry.Address}' " +
+                        "resolved to a null prefab.");
+                }
+                bool createdPoolInstance =
+                    EnsureWarmPoolInstance(
+                        entry.VfxDefId,
+                        prefab);
+                Debug.Log(
+                    $"[VfxPreload] entry={entry.VfxDefId} " +
+                    $"address={entry.Address} elapsedMs={entryTimer.ElapsedMilliseconds} " +
+                    $"ownerHero={entry.OwnerHeroConfigId} " +
+                    $"createdPoolInstance={createdPoolInstance}");
+                loadedEntries++;
+            }
+            Debug.Log(
+                $"[VfxPreload] complete entries={loadedEntries}/{_library.Count} " +
+                $"elapsedMs={total.ElapsedMilliseconds} manager={name}");
+        }
+
+        private static bool ContainsHeroConfigId(
+            IReadOnlyList<int> selectedHeroConfigIds,
+            int heroConfigId)
+        {
+            for (int i = 0; i < selectedHeroConfigIds.Count; i++)
+                if (selectedHeroConfigIds[i] == heroConfigId)
+                    return true;
+            return false;
         }
 
         public async void PlayOrReconcile(Unit.VfxEvent evt)
@@ -50,10 +149,15 @@ namespace FrameSyncMoba.FrameSync
                 return;
             }
 
+            Stopwatch playTimer = Stopwatch.StartNew();
+            bool prefabCacheHit =
+                _prefabLeases.ContainsKey(evt.VfxDefId);
             GameObject prefab;
             try
             {
-                prefab = await GetPrefabAsync(evt.VfxDefId);
+                prefab = await GetPrefabAsync(
+                    evt.VfxDefId,
+                    _lifetimeCancellation.Token);
             }
             catch (OperationCanceledException)
             {
@@ -71,6 +175,7 @@ namespace FrameSyncMoba.FrameSync
                 return;
             }
 
+            bool poolHit = HasPooledInstance(evt.VfxDefId);
             GameObject instance = GetFromPool(evt.VfxDefId, prefab);
             if (instance == null)
                 return;
@@ -171,9 +276,17 @@ namespace FrameSyncMoba.FrameSync
                 instance,
                 evt.VfxDefId,
                 duration));
+            Debug.Log(
+                $"[VfxPlayback] id={evt.VfxDefId} " +
+                $"sourceTick={evt.Id.SourceLogicTick} " +
+                $"prefabCacheHit={prefabCacheHit} poolHit={poolHit} " +
+                $"prepareMs={playTimer.ElapsedMilliseconds} " +
+                $"durationMs={Mathf.RoundToInt(duration * 1000f)}");
         }
 
-        private async Task<GameObject> GetPrefabAsync(int vfxDefId)
+        private async Task<GameObject> GetPrefabAsync(
+            int vfxDefId,
+            CancellationToken cancellationToken)
         {
             if (_prefabLeases.TryGetValue(
                     vfxDefId,
@@ -190,7 +303,7 @@ namespace FrameSyncMoba.FrameSync
             {
                 pending = _assetLoader.AcquirePrefabAsync(
                     address,
-                    _lifetimeCancellation.Token);
+                    cancellationToken);
                 _pendingLoads.Add(vfxDefId, pending);
             }
             IPresentationAssetLease<GameObject> lease;
@@ -209,12 +322,35 @@ namespace FrameSyncMoba.FrameSync
             return _prefabLeases[vfxDefId].Asset;
         }
 
+        private bool EnsureWarmPoolInstance(
+            int vfxDefId,
+            GameObject prefab)
+        {
+            if (HasPooledInstance(vfxDefId))
+                return false;
+            GameObject instance = GetFromPool(
+                vfxDefId,
+                prefab);
+            ReturnToPool(
+                vfxDefId,
+                instance);
+            return true;
+        }
+
+        private bool HasPooledInstance(int vfxDefId)
+        {
+            return _poolByDefId.TryGetValue(
+                    vfxDefId,
+                    out Queue<GameObject> queue) &&
+                queue.Count > 0;
+        }
+
         private void OnDestroy()
         {
             _lifetimeCancellation?.Cancel();
             foreach (Queue<GameObject> queue in _poolByDefId.Values)
                 while (queue.Count > 0)
-                    Destroy(queue.Dequeue());
+                    DestroyOwnedInstance(queue.Dequeue());
             ReleasePrefabLeases();
             _lifetimeCancellation?.Dispose();
         }
@@ -226,6 +362,17 @@ namespace FrameSyncMoba.FrameSync
                 lease.Dispose();
             _prefabLeases.Clear();
             _pendingLoads.Clear();
+        }
+
+        private static void DestroyOwnedInstance(
+            GameObject instance)
+        {
+            if (instance == null)
+                return;
+            if (Application.isPlaying)
+                Destroy(instance);
+            else
+                DestroyImmediate(instance);
         }
 
         private GameObject GetFromPool(int vfxDefId, GameObject prefab)

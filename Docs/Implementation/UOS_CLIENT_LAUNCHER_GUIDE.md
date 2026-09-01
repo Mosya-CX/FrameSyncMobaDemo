@@ -1,14 +1,19 @@
-# UOS 客户端 GUI 启动器
+# UOS 客户端 GUI 启动器（开发者工具）
 
 > Document class: Operational Guide
 > Default read: only when launching packaged UOS clients is in scope
 
 ## 用途
 
-`UosClientLauncher` 是一个独立的 Windows GUI 工具，用于启动一个或多个
-UOS 测试客户端。它不实现或替代 UOS 登录协议：客户端仍由现有
+`UosClientLauncher` 是一个**仅供开发者使用**的独立 Windows GUI 工具，用于
+启动一个或多个 UOS 测试客户端。它不实现或替代 UOS 登录协议：客户端仍由现有
 `ClientBootstrap`、`TestAccountBootstrapService` 和 `UosClientSession`
 完成初始化与登录。
+
+它不是玩家正式入口。正式 Demo 启动器位于
+`Tools/UosGameLauncher`，发布到 `Builds/Demo/Launcher`，只需要填写登录名；
+其目录约定、美术资源和白板 UI 见 `GAME_LAUNCHER_GUIDE.md`。不要把本工具复制
+或改名后当作正式启动器发布。
 
 启动器只负责：
 

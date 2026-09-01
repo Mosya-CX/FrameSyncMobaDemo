@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -324,6 +325,9 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 ground = groundTask.Result;
 
                 root = new GameObject("GenericIndicatorRuntimeMaterials");
+                root.transform.SetPositionAndRotation(
+                    new Vector3(0f, 12f, -10f),
+                    Quaternion.Euler(47f, 0f, 0f));
                 SkillIndicatorDriver driver =
                     root.AddComponent<SkillIndicatorDriver>();
                 driver.Configure(
@@ -331,8 +335,26 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     range.Asset,
                     ground.Asset);
 
-                Renderer[] renderers =
-                    root.GetComponentsInChildren<Renderer>(true);
+                GameObject directionInstance =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_directionInstance");
+                GameObject rangeInstance =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_rangeCircleInstance");
+                GameObject groundInstance =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_groundTargetInstance");
+                var rendererList = new List<Renderer>();
+                rendererList.AddRange(
+                    directionInstance.GetComponentsInChildren<Renderer>(true));
+                rendererList.AddRange(
+                    rangeInstance.GetComponentsInChildren<Renderer>(true));
+                rendererList.AddRange(
+                    groundInstance.GetComponentsInChildren<Renderer>(true));
+                Renderer[] renderers = rendererList.ToArray();
                 Assert.That(renderers.Length, Is.EqualTo(4));
                 for (int rendererIndex = 0;
                      rendererIndex < renderers.Length;
@@ -352,7 +374,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     Assert.That(
                         material.shader.name,
                         Is.EqualTo(
-                            "FrameSyncMoba/SkillIndicatorUnlit"));
+                            "Sprites/Default"));
                     Assert.That(material.shader.isSupported, Is.True);
                     Assert.That(material.mainTexture, Is.Not.Null);
                     Assert.That(material.color.b,
@@ -366,15 +388,21 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     Assert.That(
                         material.shader,
                         Is.SameAs(sourceMaterial.shader),
-                        "Runtime binding must inherit the Shader object " +
-                        "resolved by the loaded Addressables material, not " +
-                        "perform a global name lookup.");
+                        "Runtime binding must preserve the exact Shader object " +
+                        "resolved through the Addressables source material.");
                     Assert.That(
                         material.mainTexture,
                         Is.SameAs(sourceMaterial.mainTexture));
-                    Assert.That(
-                        material.color,
-                        Is.EqualTo(sourceMaterial.color));
+                    Color runtimeColor = material.color;
+                    Color sourceColor = sourceMaterial.color;
+                    Assert.That(runtimeColor.r,
+                        Is.EqualTo(sourceColor.r).Within(0.0001f));
+                    Assert.That(runtimeColor.g,
+                        Is.EqualTo(sourceColor.g).Within(0.0001f));
+                    Assert.That(runtimeColor.b,
+                        Is.EqualTo(sourceColor.b).Within(0.0001f));
+                    Assert.That(runtimeColor.a,
+                        Is.EqualTo(sourceColor.a).Within(0.0001f));
                 }
 
                 driver.Show(
@@ -382,6 +410,20 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     (fp)3,
                     fp2.zero,
                     new fp2(fp.one, fp.zero));
+                Vector3 indicatorPosition =
+                    directionInstance.transform.position;
+                root.transform.SetPositionAndRotation(
+                    new Vector3(30f, 20f, 10f),
+                    Quaternion.Euler(20f, 90f, 0f));
+                Assert.That(
+                    directionInstance.transform.position,
+                    Is.EqualTo(indicatorPosition),
+                    "Camera/driver LateUpdate motion must not move a " +
+                    "world-space skill indicator after input projected it.");
+                Assert.That(
+                    directionInstance.transform.parent.parent,
+                    Is.Null,
+                    "Runtime indicators must not inherit the Camera root.");
                 AssertGenericIndicatorFrameIsBlueNotMagenta();
 
                 driver.ForceClear();
@@ -400,6 +442,210 @@ namespace FrameSyncMoba.Bootstrap.Tests
             }
         }
 
+        [UnityTest]
+        public IEnumerator
+            GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances()
+        {
+            Task<IClientPresentationAssetLoader> loaderTask =
+                ClientPresentationServices.GetLoaderAsync();
+            while (!loaderTask.IsCompleted)
+                yield return null;
+            Assert.That(loaderTask.IsCompletedSuccessfully, Is.True);
+            IClientPresentationAssetLoader loader = loaderTask.Result;
+
+            IPresentationAssetLease<GameObject> firstDirection = null;
+            IPresentationAssetLease<GameObject> firstRange = null;
+            IPresentationAssetLease<GameObject> firstGround = null;
+            IPresentationAssetLease<GameObject> secondDirection = null;
+            IPresentationAssetLease<GameObject> secondRange = null;
+            IPresentationAssetLease<GameObject> secondGround = null;
+            GameObject root = null;
+            SkillIndicatorDriver driver = null;
+            try
+            {
+                Task<IPresentationAssetLease<GameObject>> directionTask =
+                    loader.AcquirePrefabAsync(
+                        "ui/indicator/direction",
+                        CancellationToken.None);
+                Task<IPresentationAssetLease<GameObject>> rangeTask =
+                    loader.AcquirePrefabAsync(
+                        "ui/indicator/range-circle",
+                        CancellationToken.None);
+                Task<IPresentationAssetLease<GameObject>> groundTask =
+                    loader.AcquirePrefabAsync(
+                        "ui/indicator/ground-target",
+                        CancellationToken.None);
+                while (!directionTask.IsCompleted ||
+                       !rangeTask.IsCompleted ||
+                       !groundTask.IsCompleted)
+                    yield return null;
+                Assert.That(directionTask.IsCompletedSuccessfully, Is.True);
+                Assert.That(rangeTask.IsCompletedSuccessfully, Is.True);
+                Assert.That(groundTask.IsCompletedSuccessfully, Is.True);
+                firstDirection = directionTask.Result;
+                firstRange = rangeTask.Result;
+                firstGround = groundTask.Result;
+
+                root = new GameObject("GenericIndicatorLeaseRebind");
+                driver = root.AddComponent<SkillIndicatorDriver>();
+                driver.Configure(
+                    firstDirection.Asset,
+                    firstRange.Asset,
+                    firstGround.Asset);
+                GameObject oldDirection =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_directionInstance");
+                GameObject oldRange =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_rangeCircleInstance");
+                GameObject oldGround =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_groundTargetInstance");
+                Material oldDirectionMaterial = oldDirection
+                    .GetComponentInChildren<Renderer>(true)
+                    .sharedMaterial;
+                Material oldRangeMaterial = oldRange
+                    .GetComponentInChildren<Renderer>(true)
+                    .sharedMaterial;
+                Material oldGroundMaterial = oldGround
+                    .GetComponentInChildren<Renderer>(true)
+                    .sharedMaterial;
+
+                directionTask = loader.AcquirePrefabAsync(
+                    "ui/indicator/direction",
+                    CancellationToken.None);
+                rangeTask = loader.AcquirePrefabAsync(
+                    "ui/indicator/range-circle",
+                    CancellationToken.None);
+                groundTask = loader.AcquirePrefabAsync(
+                    "ui/indicator/ground-target",
+                    CancellationToken.None);
+                while (!directionTask.IsCompleted ||
+                       !rangeTask.IsCompleted ||
+                       !groundTask.IsCompleted)
+                    yield return null;
+                Assert.That(directionTask.IsCompletedSuccessfully, Is.True);
+                Assert.That(rangeTask.IsCompletedSuccessfully, Is.True);
+                Assert.That(groundTask.IsCompletedSuccessfully, Is.True);
+                secondDirection = directionTask.Result;
+                secondRange = rangeTask.Result;
+                secondGround = groundTask.Result;
+
+                // The old generation remains owned throughout the asynchronous
+                // acquisition window. Reconfiguration happens while both
+                // generations are resident; only then may the old leases go.
+                Assert.That(oldDirection != null, Is.True);
+                Assert.That(oldDirectionMaterial.mainTexture, Is.Not.Null);
+                driver.Configure(
+                    secondDirection.Asset,
+                    secondRange.Asset,
+                    secondGround.Asset);
+                firstDirection.Dispose();
+                firstDirection = null;
+                firstRange.Dispose();
+                firstRange = null;
+                firstGround.Dispose();
+                firstGround = null;
+                GameObject newDirection =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_directionInstance");
+                GameObject newRange =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_rangeCircleInstance");
+                GameObject newGround =
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_groundTargetInstance");
+                Material newDirectionMaterial = newDirection
+                    .GetComponentInChildren<Renderer>(true)
+                    .sharedMaterial;
+                Material newRangeMaterial = newRange
+                    .GetComponentInChildren<Renderer>(true)
+                    .sharedMaterial;
+                Material newGroundMaterial = newGround
+                    .GetComponentInChildren<Renderer>(true)
+                    .sharedMaterial;
+
+                Assert.That(newDirection, Is.Not.SameAs(oldDirection));
+                Assert.That(newRange, Is.Not.SameAs(oldRange));
+                Assert.That(newGround, Is.Not.SameAs(oldGround));
+                Assert.That(
+                    newDirectionMaterial,
+                    Is.Not.SameAs(oldDirectionMaterial));
+                Assert.That(
+                    newRangeMaterial,
+                    Is.Not.SameAs(oldRangeMaterial));
+                Assert.That(
+                    newGroundMaterial,
+                    Is.Not.SameAs(oldGroundMaterial));
+                Assert.That(oldDirection.activeSelf, Is.False);
+                Assert.That(oldRange.activeSelf, Is.False);
+                Assert.That(oldGround.activeSelf, Is.False);
+                Assert.That(newDirectionMaterial.shader, Is.Not.Null);
+                Assert.That(newDirectionMaterial.mainTexture, Is.Not.Null);
+                Assert.That(newRangeMaterial.mainTexture, Is.Not.Null);
+                Assert.That(newGroundMaterial.mainTexture, Is.Not.Null);
+
+                yield return null;
+                Assert.That(oldDirection == null, Is.True);
+                Assert.That(oldRange == null, Is.True);
+                Assert.That(oldGround == null, Is.True);
+                Assert.That(oldDirectionMaterial == null, Is.True);
+                Assert.That(oldRangeMaterial == null, Is.True);
+                Assert.That(oldGroundMaterial == null, Is.True);
+                Assert.That(newDirection != null, Is.True);
+                Assert.That(newRange != null, Is.True);
+                Assert.That(newGround != null, Is.True);
+
+                var directionalZone =
+                    new DirectionalMultiZoneDamageStageDef
+                    {
+                        Shape = DirectionalZoneShape.Rectangle,
+                        ForwardLength = (fp)3,
+                        NearHalfWidth = (fp)1,
+                        SweetForwardStart = (fp)2,
+                        SweetForwardEnd = (fp)3,
+                    };
+                driver.Show(
+                    AimKind.Direction,
+                    (fp)3,
+                    fp2.zero,
+                    new fp2(fp.one, fp.zero),
+                    directionalZone: directionalZone);
+                LineRenderer zoneOutline =
+                    GetPrivateField<LineRenderer>(
+                        driver,
+                        "_directionalZoneOutline");
+                Assert.That(zoneOutline.gameObject.activeSelf, Is.True);
+                Assert.That(zoneOutline.sharedMaterial, Is.Not.Null);
+
+                driver.ForceClear();
+                yield return null;
+                Assert.That(
+                    GetPrivateField<GameObject>(
+                        driver,
+                        "_worldSpaceRoot"),
+                    Is.Null);
+            }
+            finally
+            {
+                firstDirection?.Dispose();
+                firstRange?.Dispose();
+                firstGround?.Dispose();
+                secondDirection?.Dispose();
+                secondRange?.Dispose();
+                secondGround?.Dispose();
+                driver?.ForceClear();
+                if (root != null)
+                    Object.DestroyImmediate(root);
+            }
+        }
+
         private static T LoadAsset<T>(
             string guid)
             where T : Object
@@ -414,6 +660,18 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 asset,
                 $"Project asset {guid} must exist.");
             return asset;
+        }
+
+        private static T GetPrivateField<T>(
+            object target,
+            string fieldName)
+            where T : class
+        {
+            FieldInfo field = target.GetType().GetField(
+                fieldName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null);
+            return field.GetValue(target) as T;
         }
 
         private static void SetReference(

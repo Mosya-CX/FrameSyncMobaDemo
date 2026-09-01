@@ -1,7 +1,7 @@
 # Current Handoff — FrameSyncMobaDemo
 
 > Document class: Current State / New-task SaveGame
-> Replaced: 2026-08-29
+> Replaced: 2026-08-31
 > Update policy: replace current state; never append a dated development log
 
 ## 1. Repository state
@@ -10,8 +10,12 @@
 - Base HEAD before the workflow migration: `60c84fd`.
 - The current worktree contains the approved D-048 client presentation split,
   D-049 same-Tick Combat fairness, D-050 action-keyed Crit / neutral Projectile
-  tie implementation and D-051 match-scoped local Addressables content. Preserve
-  all four scopes and inspect `git status` before editing.
+  tie implementation, D-051 match-scoped local Addressables content and D-052
+  independent interpolated animation sampling, plus the completed 0154 W/VFX/
+  reward closure. The current 0155/0156/0157 formal demo launcher is an
+  independent standalone .NET tool under `Tools/UosGameLauncher`; preserve it
+  alongside the six Unity scopes and
+  inspect `git status` before editing.
 - Unity version: `2022.3.62f1c1`.
 - Current formal designs are only those listed in
   `Docs/Architecture/DESIGN_INDEX.md`.
@@ -26,18 +30,77 @@
 - High-risk changes receive one independent read-only design/diff review.
 - `CURRENT_HANDOFF.md` is a replace-on-update current save state, not a project
   diary.
+- ExecPlan 0155 adds a player-facing single-client launcher. Its published
+  binary is `Builds/Demo/Launcher/FrameSyncMobaLauncher.exe`; it locates the
+  copied `Builds/Demo/Game/AAALOL.exe`, checks `AAALOL_Data`, accepts one login
+  name and passes only `-onlineFlow` plus `--TestAccountId`. The player-facing
+  surface has no settings page, directory picker, announcement card, update
+  flow or launcher-owned log system, and it does not alter the developer-only
+  `Tools/UosClientLauncher`. The supplied Background/Banner/Logo PNGs and
+  generated multi-size AppIcon ICO are integrated; release build and published
+  self-test are clean. The first independent read-only review found no P0/P1;
+  final packaged visual acceptance remains external.
+- ExecPlan 0156 finalizes that launcher as the four-art fixed-layout build:
+  `Background.png`, `Banner.png`, `Logo.png` and generated multi-size
+  `AppIcon.ico` are copied beside the published binary. The source AppIcon PNG
+  is excluded from publish, the fixed Game path is not serialized, and the
+  final package self-test plus executable-icon extraction both pass.
+- ExecPlan 0157 supersedes the earlier no-update launcher boundary with the
+  user-approved standalone Player distribution channel. It generates a signed
+  full ZIP plus SHA-256 content objects from `Builds/Demo/Game`; an empty first
+  package downloads into the sibling `Game`, while trusted older installs reuse
+  unchanged files. The EXE embeds the signing trust root, all launch/no-op/
+  offline-recovery paths require signed full-file hash validation, and directory
+  swap recovery validates both candidates before deletion. D-051 local
+  Addressables and all Unity Gameplay/network contracts remain unchanged.
+- ExecPlan 0159 supersedes 0158's confusing physical directory names with a
+  schema-v3 upload tree containing only `client-manifest.json`, its detached
+  signature and `content/<sha256>`. The Launcher is now 1.3.1; every remote data
+  Entry remains capped at 95,000,000 bytes, and the complete ZIP is explicitly a
+  local reconstructed filename rather than a nonexistent CDN `packages` path.
+  Upload the two root files plus `content` into the Bucket root before creating
+  a Release; do not upload the enclosing local `Upload` folder.
+- ExecPlan 0160 adds a separate Unity release-client window at
+  `FrameSyncMoba/Build Local NGO/Build Release Client (Optional CDN Package)...`.
+  It produces the non-Development UOS Online Player as
+  `Builds/Demo/Game/AAALOL.exe` with Unity-generated `AAALOL_Data`/`AAALOL_*`
+  companions. Its signed CDN packaging checkbox is optional and off by default;
+  when selected it invokes the existing schema-v3 packager into
+  `Builds/CdnUpload/<version>/Upload` only after a successful Player build.
+  `Builds/UosClient/FrameSyncMobaClient.exe` remains the independent full test
+  client and is neither read nor overwritten by this release path.
 - Historical audit, prompt and candidate documents live under `Docs/Archive/`
   and are not current authorities.
 - Workflow health guards start as Warning in their first implementation round
   and become Blocking after the baseline is corrected in the second round.
+- `Builds/` remains ignored local/generated output. Only user-accepted client and
+  server archives are copied to `Release/<version>/Client|Server` for Git;
+  `Release/**/*.zip` uses Git LFS. Do not force-add `Builds/` or publish private
+  signing keys, UOS credentials, logs or unaccepted intermediates.
 
 ## 3. Reliable validation baseline
 
-- Last recorded clean source compilation: Unity MCP script refresh on
-  2026-08-27 after the project-owned indicator shader and runtime-material
-  repair; final isolated Console Error/Exception queries are empty. The
+- Last recorded clean source compilation: Unity MCP forced script refresh on
+  2026-09-01 after the optional release-client/CDN menu integration; the focused
+  `UosBuildMenuTests` suite is 6/6, the standalone Launcher Release build and
+  self-test pass, the Editor is idle, and the isolated Console Error query is
+  empty. No real Player build was triggered during this source verification. The
   2026-08-23 Linux Server/ordinary Player build evidence
   predates server logic Addressables and is not final D-051 packaging evidence.
+- Current launcher distribution evidence: Release build/format and source plus
+  published self-tests pass; loopback tests cover empty full install,
+  same-version/same-size update, local same-size repair, Range resume, bad
+  signature, corrupt-object full-ZIP fallback and dual-candidate recovery. The
+  audited schema-v3 1.0.0 upload set has 277 logical files and 284 physical
+  `content` Entries; installed size is 702.23 MiB and the reconstructed full ZIP
+  size is 548.74 MiB. No physical upload file exceeds 95,000,000 bytes (about
+  90.60 MiB). The 1.3.1 bootstrap ZIP contains only the seven allowlisted
+  Launcher files and an empty `Demo/Game`; its manifest path is the Bucket-root
+  `client-manifest.json`. One primary button owns explicit Download, Update,
+  Start, Cancel and Stop states; download/update never auto-launch, and Start
+  rechecks the signed remote state before process creation.
+  Actual UOS upload, Badge propagation and player-machine acceptance remain
+  user-owned.
 - Current D-051 evidence: Bootstrap EditMode `118/118`; match-content
   configuration `8/8`; client build audit `6/6`; real Varus-only load,
   Aatrox-exclusion plus Aatrox Q-VFX ownership/release PlayMode `2/2`; formal
@@ -113,9 +176,162 @@
   completeness, focused Aatrox EditMode and Aatrox Prefab PlayMode tests pass;
   full FrameSync EditMode is `100 passed / 1 retained missing-PrefabId-1101
   fixture failure`.
+- D-052 adds `LoopMotionTime` to every formal Idle/Walk/Move state and raises
+  Aatrox to 16 Animator parameters. The client samples attack and loop progress
+  at a configurable presentation-owned rate (formal 20 Hz), interpolates render
+  frames from completed Gameplay Tick plus sub-Tick accumulator, rebuilds loop
+  phase from the logic-time epoch on state/rate/rollback changes and never predicts past uncommitted Impact or
+  Ready. No `PresentationTick`, Snapshot/checksum/network field or fixed 30 Hz
+  fallback was introduced. The clock is isolated by exact `UnitWorld`, reads the
+  Runtime-owned last completed Tick, and target locomotion routing resolves
+  before same-frame sampling. Focused evidence is sampler/clock `13/13`,
+  animation assets `6/6`, AttackHandler `21/21`, bound-Driver Aatrox PlayMode
+  `9/9` and config PlayMode `3/3`; full FrameSync is `113 passed / 1 retained
+  fixture failure`, full Unit is
+  `551 passed / 10 retained failures`, and broad Bootstrap PlayMode is
+  `27 passed / 9 retained failures` in the same recorded categories. A rebuilt
+  client visual comparison at multiple animation rates remains user-owned.
+- ExecPlan 0149 skips the D-052 zero-duration Animator evaluation only when an
+  ability-stage CrossFade already selected the route that frame; movement
+  changes during an existing movable cast still resolve their idle/walk route
+  immediately. A real Varus logic Unit/View/Driver binding now verifies Q Focus
+  channel-walk entry, casting-time stop/start routing and continuing loop
+  sampling. PlayerInput keeps
+  Direction/Point indicators through `FocusRequested` and `CommitRequested`,
+  while no-aim pending Toggles such as Varus W neither create nor suppress an
+  indicator. The W-then-Q Input System test records exactly W Commit, Q Focus
+  and Q Commit; the existing Gameplay tests confirm that W remains active in
+  isolation and is intentionally consumed only when Q Focus enters its charge
+  Stage. `PhysicsEntity2D` now advances position and rotation interpolation on
+  independent clocks, so facing churn cannot restart the followed position;
+  focused Physics and locked-camera PlayMode regressions pass. Current evidence
+  is PlayerInput `36/36`, FrameSync `113 passed / 1 retained fixture failure`,
+  focused new PlayMode `4/4`, and broad Bootstrap PlayMode `31 passed / 9
+  retained failures`. Rebuilt-client visual acceptance remains user-owned.
+- ExecPlan 0150 closes the remaining source-side client regressions from the
+  latest UOS report. Request receipts are reconciled against the Runtime-owned
+  last completed Gameplay Tick; Q remains visible through pending Focus/Commit,
+  and a no-aim W request cannot hide another slot's indicator. Unit position and
+  rotation presentation use independent interpolation clocks; the explicitly
+  late camera follows the already projected root with bounded configurable
+  smoothing. Generic indicators now build runtime materials on built-in
+  `Sprites/Default` and copy source texture/tint, preserving texture-alpha
+  circles/rings/lines without a custom Bundle Shader dependency. Aatrox Q VFX
+  duration is `ImpactDelayTicks / World.TickRate`. PlayerInput is `37/37`,
+  FrameSync is `117/117`, and the exact input, camera, Physics, indicator,
+  animation and Aatrox timing PlayMode/EditMode regressions pass.
+- ExecPlan 0151 closes the follow-up Varus/input and indicator regressions in
+  source. A requester-level and real Input System test preserve Q Focus,
+  right-click route Move and primary-click Commit at the intended TargetTick;
+  the live refusal was not reproduced, so no speculative same-Tick command
+  merge or Planner/Intent contract change was made. Request receipt, canonical
+  execution, AbilitySignal, local-state and Toggle-restore logs now include
+  Tick/mode/slot/verb/sequence or session and before/after state for the next
+  UOS run. The pure Varus W Toggle is attack-neutral while a real Hold stage
+  still blocks ordinary attacks. Generic indicators clone the complete
+  Addressables-loaded source Material (including its resolved Shader, texture,
+  tint and render state) without `Shader.Find`; the source guard and
+  framebuffer regression pass. Unity MCP confirms `HeroTestScene` is open,
+  valid and clean with hero and dummy prototype `1001` (Varus). PlayerInput is
+  `38/38`; the focused Q route, W-then-Q, one-shot W and indicator checks pass.
+  Rebuilt Windows/UOS acceptance and a live W state-jump reproduction remain
+  user-owned. The required reviewer turns were rejected by the host usage
+  limit, so the local read-only review found no P0/P1 and no second review was
+  run.
+- ExecPlan 0152 closes the reproduced Varus W double-Toggle at the application
+  command boundary. One physical W press produced sequence 2 once, but the
+  client placed it in Bundle sequences 11 through 21; after Tick 136 froze, the
+  server's former Tick-local dedupe accepted the same identity again at Tick
+  138. `GameplayCommandIdentity` now defines the match-scoped
+  `ClientId + CommandSeq` identity, and the server discards accepted identities
+  before late retargeting or authorization. The client bridge also sends only
+  newly changed, not-yet-successfully-sent canonical identities instead of
+  rebuilding an identical reliable Bundle every Unity Update. Two deliberate
+  consecutive W presses remain distinct because they own different
+  CommandSeq values. No wire, Snapshot, checksum, rollback or Toggle contract
+  changed. Unity compilation is clean; full FrameSync is `121/121` and
+  Bootstrap EditMode is `123/123`. The first independent review found one P1
+  concerning authorization after owner invalidation; it was fixed and covered
+  by regression. The threshold for a second review was not met. Rebuilt UOS
+  acceptance remains user-owned.
+- ExecPlan 0153 closes the two remaining failures proven by the 12:22 UOS
+  clients. Generic Direction/Range/Ground indicator instances had survived a
+  GameScene content rebind after their generation-1 Addressables leases were
+  released, so their cloned materials referenced unloadable dependencies while
+  Aatrox Q's independent line path remained valid. The Host now acquires all
+  generation-2 leases first, synchronously rebuilds every generic instance and
+  runtime material while both generations are resident, adopts the new leases
+  and only then releases generation 1. Driver destruction is idempotently
+  cleaned, and Aatrox Q lines remain re-showable after rebind. Varus Q may still
+  return to Idle when rollback replay removes its predicted Focus; if Relay
+  later accepts the exact tracked Unit/slot/verb/CommandSeq at a strictly newer
+  Tick, PlayerInput reconstructs only the local latch and waits for authority
+  Gameplay execution before allowing Commit. It does not preserve local state
+  through rollback and changes no wire, Snapshot or checksum state. Unity
+  compilation and final Console are clean; PlayerInput is `41/41`; atomic
+  generation, existing framebuffer/world-space, W-then-Q and representative
+  Addressables PlayMode cases each pass `1/1`. The first independent review's
+  one P1, one P2 and one P3 were all fixed; one P1 did not meet the user's
+  threshold for a second review. Rebuilt UOS acceptance remains user-owned.
+- The 2026-08-31 UOS evidence closes three later live failures in source. A
+  client rollback at Tick 4700 restored attacker `3/1101/1` with a locomotion
+  target `3040/1201/1` that formal death had already removed; UnitWorld now
+  clears Attack, Planner intent and unit-follow locomotion in the same stable
+  invalidation traversal before the Tick-end Snapshot, while Resolve remains a
+  strict dangling-reference failure boundary. Varus Q sequence 57 was requested
+  for Tick 3017 but accepted by the server at Tick 3018; ExecPlan 0153 supersedes
+  the earlier keep-pending workaround: rollback may clear the local latch, then
+  the exact later accepted relay restores that local-only latch before its
+  authority Tick executes. HeroTestScene proved the
+  indicator assets themselves were sound; Unity scene inspection then showed
+  that only GameScene hosted `SkillIndicatorDriver` on the moving/rotating
+  Camera root. Runtime generic indicators and Aatrox zone lines now live under
+  a scene-owned, unparented world-space root and no longer inherit Camera
+  LateUpdate. Unity compilation and the final isolated Console query are clean;
+  PlayerInput at that checkpoint was `39/39`; current 0153 evidence is `41/41`.
+  The focused death/Despawn/input regressions are `6/6`,
+  the indicator world-space/material/framebuffer PlayMode case is `1/1`, and
+  the full Unit probe is `553 passed / 10 retained failures`. Varus W was not
+  exercised in the supplied run and no new W conclusion is recorded.
+- ExecPlan 0154 completes the next live-evidence closure. In the first of two
+  UOS matches, Aatrox W sequence 17 executed at Tick 3156 before its accepted
+  relay arrived; the relay used the same already-completed TargetTick and
+  previously re-latched the local indicator state. `PlayerCommandRequester`
+  now compares accepted TargetTick with the Runtime-owned completed Tick, so it
+  waits only for genuinely future authority execution. The exact callback-order
+  regression and full PlayerInput suite pass `42/42`.
+  `VfxManager` warms shared and selected-hero VFX addresses and one inactive
+  pool instance before client event dispatch; Varus E VFX 4001 therefore no
+  longer waits for its first event to perform the cold load. Playback and
+  `ClientProjectileViewBinder` now log source/spawn Tick, address, cache/pool
+  hit and elapsed milliseconds to correlate any residual first-use gap with
+  the polluted-ground view. Minion experience range is 1200 authored distance
+  (1.5x the former 800), covered at 11.99/12.01. The UOS CDN full-client ZIP
+  and future remote-Addressables procedures are documented in
+  `BUILD_GUIDE.md`; no build or upload was performed. Unity refresh is clean,
+  FrameSync is `123/123`, Bootstrap EditMode is `123/123`, the focused VFX and
+  reward tests pass, and client PlayMode/UOS rebuild acceptance remains
+  user-owned because the Editor target is `UNITY_SERVER`.
+- The editor-only `HeroTestDriver` now composes the selected Core, map and hero
+  Addressables partitions into a transient resolved `GlobalPrefabTable` before
+  baking Unit/Ability/Projectile registries. The current `HeroTestScene`
+  Varus fixture (prototype `1001`, runtime Prefab `1101`) starts successfully
+  and spawns its five dummy units; the production `GameBootstrap` path and
+  packaged build inputs are unchanged.
+- The supplied Client-A Tick 5152 checksum mismatch is not reproduced by the
+  minimal predicted-Move replacement, frozen-anchor replay or active-route
+  Restore/Replay tests; those new regressions pass, including preservation of a
+  future local command beyond the authority-correction replay boundary. Per the
+  user's direction, no speculative deterministic-state change was made. With
+  D-032's explicit `-checksumDetail` flag, the server and client mismatch path
+  print matching aggregate, lifecycle, projectile, minion-wave and per-Unit
+  identity/pose/intent/action/attack/locomotion state; healthy server Ticks do
+  not pay this full Snapshot/logging cost by default.
+  The next rebuilt UOS logs are the required evidence for assigning the first
+  divergent member; no Snapshot/checksum/wire contract changed.
 - Current Addressables PlayMode evidence: representative real root loading and
   release `1/1`; UI page lifecycle and async-clear race `3/3`; Aatrox prefab
-  `8/8`; map prefab `1/1`; GameScene map-view anchor placement `1/1`;
+  `9/9`; map prefab `1/1`; GameScene map-view anchor placement `1/1`;
   HeroTest equipment `2/2`; unit view root-origin EditMode guard `1/1`.
   `MinionTowerLongRunTest` plays without exceptions and ticks its diagnostic
   wave; `HeroTestScene` binds unit and projectile Addressable views.
@@ -200,15 +416,17 @@
   match-scoped Addressables await. This replaces the scene's standalone Main
   fallback before it can render and preserves Load until the existing launch
   barrier opens HUD.
-- The three generic indicator materials use project-owned URP shader
-  `FrameSyncMoba/SkillIndicatorUnlit`. `SkillIndicatorDriver` clones runtime
-  materials directly from the loaded Addressables source materials for all four
-  generic renderers, preserves the exact Bundle-resolved Shader plus
-  texture/tint/UV data,
-  disables lighting/shadows and owns cleanup; an unavailable shader disables
-  those renderers rather than exposing Unity's magenta fallback. This covers
-  Varus generic indicators and Aatrox W/E, while Aatrox Q remains on its
-  dedicated multi-zone line path.
+- The three generic indicator source materials use built-in `Sprites/Default`.
+  `SkillIndicatorDriver` clones each complete Addressables-loaded source
+  Material, preserving its exact resolved Shader, texture, tint and render
+  state, and owns the runtime clone cleanup. Each content generation is swapped
+  atomically: new leases are fully acquired and every generic instance is
+  rebuilt before the old leases are released. No live instance crosses an
+  unowned Addressables window, and `OnDestroy` clears the independent world
+  root/materials. No second global `Shader.Find` is used for these prefabs.
+  Texture alpha supplies the circle/ring/line shape on the existing Quad
+  meshes. This covers Varus generic indicators plus Aatrox W/E; Aatrox Q
+  remains on its dedicated multi-zone path and is verified after rebind.
 - The client map view anchors to the static `DeterministicMapTopology` root at
   the world origin instead of the GameBootstrap root, which also carries the
   gameplay Camera and moves every LateUpdate; the new
@@ -237,6 +455,16 @@
 - `ClientContentRuntimeHost` additionally preloads every projectile view
   address when GameScene binds, so the projectile bundle is resident before
   the first missile spawns (verified: 8 preloaded leases in GameScene play).
+- `VfxManager.PreloadAsync` additionally preloads every entry in the configured
+  `FullMatchVfxLibrary` and creates one inactive instance per definition before
+  the client registers external flow readiness. Manager-owned leases and pool
+  instances remain presentation-only; no Gameplay Tick is delayed or changed.
+  `[VfxPreload]`, `[VfxPlayback]` and `[ClientProjectileView]` diagnostics are
+  intentionally detailed for the next UOS run.
+- `MatchRuleRuntime.MinionRewardShareRadius` is 1200 authored/stat distance.
+  It is still converted exactly once through
+  `UnitWorld.StatDistanceToLogicDistanceScale`; only the configured range
+  changed, not recipient ordering or reward settlement semantics.
 - `CorruptionVineSpreadBuffEffect` attributes chain-spread Blight to the
   original R caster (blackboard caster slot), so Blight applied by Varus R
   detonates on the caster's subsequent Ability damage on every infected hero.
@@ -278,7 +506,13 @@
 - HeroTest no longer owns hero-specific QWER translation. It uses the same
   generic PlayerInput composition as GameScene; slot mappings derive from
   `CastModelDef` and `AimKind`, and Shop/QWER/Move/Attack/skill allocation share
-  one `PlayerCommandRequester` and CommandSeq owner.
+  one `PlayerCommandRequester` and CommandSeq owner. Completed-Tick local state
+  may return to Idle when rollback removes the original predicted Q Focus; an
+  exact strictly later accepted relay reconstructs the local-only latch, and
+  its authority execution restores primary Commit eligibility through route
+  Move. Pure Toggle W remains attack-neutral, and the expanded request,
+  execution, signal, local-state and Toggle-restore diagnostics expose the
+  next live transition without entering Gameplay state.
 - GameplaySnapshot schema is 24. GameplayDataVersion is 4; launch wire v2 and
   bootstrap payload wire v4 require
   matching rebuilt endpoints.
@@ -316,10 +550,15 @@
   Camera/Light before their URP additional-data dependants. Both source defects
   are fixed and guarded by Bootstrap EditMode tests, but the user will perform
   the corrected build manually. Do not initiate it unless explicitly asked.
-- ExecPlan 0146 requires a new rebuilt-client UOS pass to confirm Varus generic
-  indicators plus Aatrox W/E are blue and textured. Loading handoff acceptance
-  from ExecPlan 0143 remains part of the same visual run. These changes affect
-  client presentation only and require no protocol/schema migration.
+- ExecPlan 0153 source fixes are complete and focused-tested. A new rebuilt
+  Windows/UOS pass is still required to confirm atomic rebind keeps Varus
+  generic indicators plus Aatrox W/E textured/visible and that Q remains
+  usable after route movement and a retargeted authority acceptance. Varus W's
+  0152 identity/send fix also still needs this rebuilt live pass. If the W
+  jump or Tick 5152-class divergence recurs, the new request/execution/signal/
+  session logs and the existing checksum-detail world dump are the required
+  evidence. These presentation/input changes require no protocol/schema
+  migration; the diagnostics are read-only.
 
 ### P2 / product completion
 

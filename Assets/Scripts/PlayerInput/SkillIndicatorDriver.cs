@@ -3,6 +3,7 @@ using FrameSyncMoba.Unit;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 namespace FrameSyncMoba.PlayerInput
 {
@@ -21,9 +22,6 @@ namespace FrameSyncMoba.PlayerInput
     [DisallowMultipleComponent]
     public sealed class SkillIndicatorDriver : MonoBehaviour
     {
-        private const string GenericIndicatorShaderName =
-            "FrameSyncMoba/SkillIndicatorUnlit";
-
         [Header("Indicator prefabs (assigned in Inspector or code)")]
         [SerializeField] private GameObject directionIndicatorPrefab;
         [SerializeField] private GameObject rangeCirclePrefab;
@@ -37,6 +35,7 @@ namespace FrameSyncMoba.PlayerInput
         private GameObject _directionInstance;
         private GameObject _rangeCircleInstance;
         private GameObject _groundTargetInstance;
+        private GameObject _worldSpaceRoot;
 
         private Transform _directionBody;
         private Transform _directionHead;
@@ -71,12 +70,25 @@ namespace FrameSyncMoba.PlayerInput
             GameObject rangeCirclePrefab,
             GameObject groundTargetPrefab)
         {
+            // ClientContentRuntimeHost may release the previous Addressables
+            // leases before rebinding a newly acquired generation.  Instances
+            // cloned from that generation must not survive the lease release:
+            // their Material/Texture dependencies can already be unloaded.
+            // Always rebuild the generic presentation from the assets owned by
+            // the new leases, even when the address resolves to the same
+            // prefab object identity.
+            ReleaseGenericInstances();
             directionIndicatorPrefab =
                 directionPrefab;
             this.rangeCirclePrefab =
                 rangeCirclePrefab;
             this.groundTargetPrefab =
                 groundTargetPrefab;
+            Debug.Log(
+                $"[IndicatorBind] Configure driver={name} " +
+                $"direction={DescribePrefab(directionIndicatorPrefab)} " +
+                $"range={DescribePrefab(this.rangeCirclePrefab)} " +
+                $"ground={DescribePrefab(this.groundTargetPrefab)}");
             EnsureInstances();
         }
 
@@ -85,15 +97,21 @@ namespace FrameSyncMoba.PlayerInput
             EnsureInstances();
         }
 
+        private void OnDestroy()
+        {
+            ForceClear();
+        }
+
         private void EnsureInstances()
         {
+            EnsureWorldSpaceRoot();
             if (_directionInstance == null &&
                 directionIndicatorPrefab != null)
             {
                 _directionInstance =
                     Instantiate(
                         directionIndicatorPrefab,
-                        transform);
+                        _worldSpaceRoot.transform);
                 BindGenericRuntimeMaterials(_directionInstance);
                 _directionInstance
                     .SetActive(false);
@@ -105,6 +123,11 @@ namespace FrameSyncMoba.PlayerInput
                     FindChild(
                         _directionInstance.transform,
                         "Head");
+                LogInstanceBinding(
+                    "direction",
+                    _directionInstance,
+                    _directionBody,
+                    _directionHead);
             }
             if (_rangeCircleInstance == null &&
                 rangeCirclePrefab != null)
@@ -112,7 +135,7 @@ namespace FrameSyncMoba.PlayerInput
                 _rangeCircleInstance =
                     Instantiate(
                         rangeCirclePrefab,
-                        transform);
+                        _worldSpaceRoot.transform);
                 BindGenericRuntimeMaterials(_rangeCircleInstance);
                 _rangeCircleInstance
                     .SetActive(false);
@@ -120,6 +143,11 @@ namespace FrameSyncMoba.PlayerInput
                     FindChild(
                         _rangeCircleInstance.transform,
                         "Disc");
+                LogInstanceBinding(
+                    "range",
+                    _rangeCircleInstance,
+                    _rangeDisc,
+                    null);
             }
             if (_groundTargetInstance == null &&
                 groundTargetPrefab != null)
@@ -127,7 +155,7 @@ namespace FrameSyncMoba.PlayerInput
                 _groundTargetInstance =
                     Instantiate(
                         groundTargetPrefab,
-                        transform);
+                        _worldSpaceRoot.transform);
                 BindGenericRuntimeMaterials(_groundTargetInstance);
                 _groundTargetInstance
                     .SetActive(false);
@@ -135,6 +163,11 @@ namespace FrameSyncMoba.PlayerInput
                     FindChild(
                         _groundTargetInstance.transform,
                         "Dot");
+                LogInstanceBinding(
+                    "ground",
+                    _groundTargetInstance,
+                    _groundDisc,
+                    null);
             }
         }
 
@@ -211,6 +244,11 @@ namespace FrameSyncMoba.PlayerInput
                 UpdateDirectionalZoneIndicator(
                     casterPosition,
                     casterForward);
+                Debug.Log(
+                    $"[IndicatorRender] Show kind={kind} target=directional-zone " +
+                    $"outlineActive={_directionalZoneOutline?.gameObject.activeSelf ?? false} " +
+                    $"sweetActive={_directionalSweetSpotOutline?.gameObject.activeSelf ?? false} " +
+                    $"lineMaterial={_runtimeLineMaterial?.shader?.name ?? "<null>"}");
                 return;
             }
 
@@ -223,6 +261,18 @@ namespace FrameSyncMoba.PlayerInput
                     kind,
                     casterPosition,
                     casterForward);
+                LogRenderState(
+                    "Show",
+                    kind,
+                    target);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"[IndicatorRender] Show kind={kind} has no bound target " +
+                    $"direction={DescribePrefab(_directionInstance)} " +
+                    $"range={DescribePrefab(_rangeCircleInstance)} " +
+                    $"ground={DescribePrefab(_groundTargetInstance)}.");
             }
         }
 
@@ -271,6 +321,9 @@ namespace FrameSyncMoba.PlayerInput
                     _activeKind);
             if (target == null)
             {
+                Debug.LogWarning(
+                    $"[IndicatorRender] UpdateCursor kind={_activeKind} " +
+                    "has no bound target.");
                 return;
             }
 
@@ -367,18 +420,33 @@ namespace FrameSyncMoba.PlayerInput
         /// </summary>
         public void ForceClear()
         {
+            ReleaseGenericInstances();
+            if (_directionalZoneOutline != null)
+                Destroy(_directionalZoneOutline.gameObject);
+            if (_directionalSweetSpotOutline != null)
+                Destroy(_directionalSweetSpotOutline.gameObject);
+            if (_runtimeLineMaterial != null)
+                Destroy(_runtimeLineMaterial);
+            if (_worldSpaceRoot != null)
+                Destroy(_worldSpaceRoot);
+            _directionalZoneOutline = null;
+            _directionalSweetSpotOutline = null;
+            _runtimeLineMaterial = null;
+            _worldSpaceRoot = null;
+            _activeDirectionalZone = null;
+            _visible = false;
+        }
+
+        private void ReleaseGenericInstances()
+        {
+            HideAllInstances();
             if (_directionInstance != null)
-            {
                 Destroy(_directionInstance);
-            }
             if (_rangeCircleInstance != null)
-            {
                 Destroy(_rangeCircleInstance);
-            }
             if (_groundTargetInstance != null)
-            {
                 Destroy(_groundTargetInstance);
-            }
+
             _directionInstance = null;
             _rangeCircleInstance = null;
             _groundTargetInstance = null;
@@ -386,19 +454,15 @@ namespace FrameSyncMoba.PlayerInput
             _directionHead = null;
             _groundDisc = null;
             _rangeDisc = null;
-            if (_directionalZoneOutline != null)
-                Destroy(_directionalZoneOutline.gameObject);
-            if (_directionalSweetSpotOutline != null)
-                Destroy(_directionalSweetSpotOutline.gameObject);
-            if (_runtimeLineMaterial != null)
-                Destroy(_runtimeLineMaterial);
+
             for (int i = 0; i < _runtimeGenericMaterials.Count; i++)
+            {
                 if (_runtimeGenericMaterials[i] != null)
                     Destroy(_runtimeGenericMaterials[i]);
+            }
             _runtimeGenericMaterials.Clear();
-            _directionalZoneOutline = null;
-            _directionalSweetSpotOutline = null;
-            _runtimeLineMaterial = null;
+            _activeKind = AimKind.None;
+            _showRangeCircle = false;
             _activeDirectionalZone = null;
             _visible = false;
         }
@@ -407,6 +471,9 @@ namespace FrameSyncMoba.PlayerInput
         {
             Renderer[] renderers =
                 instance.GetComponentsInChildren<Renderer>(true);
+            Debug.Log(
+                $"[IndicatorBind] material-bind instance={instance.name} " +
+                $"rendererCount={renderers.Length}");
             for (int rendererIndex = 0;
                  rendererIndex < renderers.Length;
                  rendererIndex++)
@@ -430,10 +497,21 @@ namespace FrameSyncMoba.PlayerInput
                      materialIndex++)
                 {
                     Material source = sourceMaterials[materialIndex];
-                    // The Shader is resolved as part of the Addressables
-                    // Prefab/material dependency. AssetBundle-contained
-                    // shaders are not guaranteed to be discoverable through
-                    // Shader.Find, so clone the loaded source directly.
+                    Shader shader = source.shader;
+                    if (shader == null || !shader.isSupported)
+                    {
+                        renderer.enabled = false;
+                        Debug.LogError(
+                            $"[Indicator] Renderer '{renderer.name}' from " +
+                            $"'{instance.name}' was disabled: Addressables " +
+                            $"source Shader '{shader?.name ?? "<null>"}' is unavailable.");
+                        break;
+                    }
+                    // The Addressables-loaded source Material already owns a
+                    // Player-resolved Shader object plus the texture-alpha and
+                    // render-state data that define the circle/ring/line
+                    // silhouette. Clone that complete object instead of doing
+                    // a second global Shader.Find in the built Player.
                     var runtime = new Material(source)
                     {
                         name = $"{source.name} (Runtime)",
@@ -447,7 +525,36 @@ namespace FrameSyncMoba.PlayerInput
                 renderer.receiveShadows = false;
                 renderer.lightProbeUsage = LightProbeUsage.Off;
                 renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+                Debug.Log(
+                    $"[IndicatorBind] renderer={renderer.name} " +
+                    $"instance={instance.name} enabled={renderer.enabled} " +
+                    $"materials={DescribeMaterials(renderer.sharedMaterials)}");
             }
+        }
+
+        private void EnsureWorldSpaceRoot()
+        {
+            if (_worldSpaceRoot != null)
+                return;
+
+            _worldSpaceRoot =
+                new GameObject("SkillIndicatorsWorldSpace");
+            Scene ownerScene = gameObject.scene;
+            if (ownerScene.IsValid() && ownerScene.isLoaded &&
+                _worldSpaceRoot.scene != ownerScene)
+            {
+                SceneManager.MoveGameObjectToScene(
+                    _worldSpaceRoot,
+                    ownerScene);
+            }
+            _worldSpaceRoot.transform.SetPositionAndRotation(
+                Vector3.zero,
+                Quaternion.identity);
+            _worldSpaceRoot.transform.localScale = Vector3.one;
+            Debug.Log(
+                $"[IndicatorBind] world-root={_worldSpaceRoot.name} " +
+                $"parent=<none> owner={name} ownerPosition={transform.position} " +
+                $"ownerRotation={transform.rotation.eulerAngles}");
         }
 
         private static string ValidateSourceMaterials(
@@ -460,22 +567,8 @@ namespace FrameSyncMoba.PlayerInput
                 Material source = sourceMaterials[i];
                 if (source == null)
                     return $"source material {i} is null.";
-                Shader shader = source.shader;
-                if (shader == null)
+                if (source.shader == null)
                     return $"source material '{source.name}' has no Shader.";
-                if (!string.Equals(
-                        shader.name,
-                        GenericIndicatorShaderName,
-                        System.StringComparison.Ordinal))
-                {
-                    return $"source material '{source.name}' resolved " +
-                        $"unexpected Shader '{shader.name}'.";
-                }
-                if (!shader.isSupported)
-                {
-                    return $"source material '{source.name}' resolved " +
-                        $"unsupported Shader '{shader.name}'.";
-                }
             }
             return null;
         }
@@ -493,6 +586,10 @@ namespace FrameSyncMoba.PlayerInput
                         hideFlags = HideFlags.HideAndDontSave,
                     };
                 }
+                Debug.Log(
+                    $"[IndicatorBind] directional-line-shader=" +
+                    $"{_runtimeLineMaterial?.shader?.name ?? "<null>"} " +
+                    $"supported={_runtimeLineMaterial?.shader?.isSupported ?? false}");
             }
             if (_directionalZoneOutline == null)
             {
@@ -516,7 +613,10 @@ namespace FrameSyncMoba.PlayerInput
             float width)
         {
             var holder = new GameObject(objectName);
-            holder.transform.SetParent(transform, false);
+            EnsureWorldSpaceRoot();
+            holder.transform.SetParent(
+                _worldSpaceRoot.transform,
+                false);
             var line = holder.AddComponent<LineRenderer>();
             line.useWorldSpace = false;
             line.loop = true;
@@ -889,6 +989,76 @@ namespace FrameSyncMoba.PlayerInput
                 }
             }
             return null;
+        }
+
+        private void LogInstanceBinding(
+            string kind,
+            GameObject instance,
+            Transform primaryChild,
+            Transform secondaryChild)
+        {
+            Renderer[] renderers =
+                instance.GetComponentsInChildren<Renderer>(true);
+            int enabledRendererCount = 0;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null && renderers[i].enabled)
+                    enabledRendererCount++;
+            }
+            Debug.Log(
+                $"[IndicatorBind] instance kind={kind} name={instance.name} " +
+                $"activeSelf={instance.activeSelf} activeInHierarchy={instance.activeInHierarchy} " +
+                $"primaryChild={primaryChild?.name ?? "<missing>"} " +
+                $"secondaryChild={secondaryChild?.name ?? "<none>"} " +
+                $"renderers={renderers.Length} enabledRenderers={enabledRendererCount}");
+        }
+
+        private void LogRenderState(
+            string operation,
+            AimKind kind,
+            GameObject target)
+        {
+            Renderer[] renderers =
+                target.GetComponentsInChildren<Renderer>(true);
+            int enabledRendererCount = 0;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null &&
+                    renderers[i].enabled &&
+                    renderers[i].gameObject.activeInHierarchy)
+                    enabledRendererCount++;
+            }
+            Debug.Log(
+                $"[IndicatorRender] {operation} kind={kind} " +
+                $"target={target.name} activeSelf={target.activeSelf} " +
+                $"activeInHierarchy={target.activeInHierarchy} " +
+                $"renderers={renderers.Length} enabledActiveRenderers={enabledRendererCount} " +
+                $"directionChild={_directionBody?.name ?? "<missing>"} " +
+                $"headChild={_directionHead?.name ?? "<missing>"} " +
+                $"rangeChild={_rangeDisc?.name ?? "<missing>"} " +
+                $"groundChild={_groundDisc?.name ?? "<missing>"}");
+        }
+
+        private static string DescribePrefab(GameObject prefab)
+        {
+            return prefab == null ? "<null>" : prefab.name;
+        }
+
+        private static string DescribeMaterials(Material[] materials)
+        {
+            if (materials == null || materials.Length == 0)
+                return "<none>";
+            string description = string.Empty;
+            for (int i = 0; i < materials.Length; i++)
+            {
+                if (i > 0)
+                    description += ",";
+                Material material = materials[i];
+                description += material == null
+                    ? "<null>"
+                    : $"{material.name}:{material.shader?.name ?? "<null>"}";
+            }
+            return description;
         }
 
         private static void SetCircleScale(

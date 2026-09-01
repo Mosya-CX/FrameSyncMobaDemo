@@ -33,7 +33,7 @@ A document not listed as **Current** here is not an implementation authority.
 | Unit physics / range query | `Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md` | Current | Deterministic 2D movement, collision/query and transform boundary |
 | Pathfinding | `Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md` | Current | Deterministic pathfinding integration |
 | Non-hero units | `Docs/Design/moba_non_hero_unit_modules_design_v5.md` | Current | Minion and jungle ownership, AI registration and death cleanup |
-| Presentation | `Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md` | Current + D-048/D-051 amendments | Visual snapshots, event identity, attack SFX, presentation rollback, match-scoped local Addressables, client views and Dedicated Server presentation exclusion |
+| Presentation | `Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md` | Current + D-048/D-051/D-052 amendments | Visual snapshots, event identity, attack SFX, presentation rollback, independently sampled/interpolated unit animation, match-scoped local Addressables, client views and Dedicated Server presentation exclusion |
 | UI / Lua | `Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md` | Current | UI/Lua bridge and read-only gold display |
 | Player input | `Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md` | Current | Move, Attack, QWER, non-smart cast and hold-release physical input mapping |
 

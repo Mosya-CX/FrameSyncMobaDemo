@@ -809,8 +809,22 @@ namespace FrameSyncMoba.Unit
         {
             IReadOnlyList<Unit> units = GetAllUnits();
             for (int i = 0; i < units.Count; i++)
-                units[i]?.Arbiter?.CancelAttackForInvalidTarget(
+            {
+                Unit unit = units[i];
+                if (unit == null)
+                    continue;
+
+                // Invalidate every owner of the same stable target in one
+                // deterministic UnitWorld traversal. Attack Handler/Main
+                // Runtime remain atomically owned by the Arbiter; Planner and
+                // Locomotion clear only their own target-bearing state.
+                unit.Arbiter?.CancelAttackForInvalidTarget(
                     invalidTargetUid);
+                unit.Planner?.ClearIntentTargeting(
+                    invalidTargetUid);
+                unit.Locomotion?.CancelRouteForInvalidTarget(
+                    invalidTargetUid);
+            }
         }
 
         public void ProcessPostCombatDeathDisposals(

@@ -89,6 +89,53 @@ namespace FrameSyncMoba.Unit
 
         public bool HandleSignal(AbilitySignal signal)
         {
+            ulong toggleMaskBefore = BuildActiveToggleMask();
+            AbilityRuntime beforeRuntime =
+                _book.GetSlot(signal.Slot)?.GetActiveAbility();
+            int beforeSessionUid =
+                beforeRuntime?.ActiveSession?.SessionUid ?? 0;
+            int beforeStage =
+                beforeRuntime?.ActiveSession?.CurrentStageKey ?? -1;
+            int beforeStartTick =
+                beforeRuntime?.ActiveSession?.StartLogicTick ?? -1;
+            int beforeElapsedTicks =
+                beforeRuntime?.ActiveSession?.StageElapsedTicks ?? -1;
+            bool handled = HandleSignalCore(signal);
+            AbilityRuntime afterRuntime =
+                _book.GetSlot(signal.Slot)?.GetActiveAbility();
+            int afterSessionUid =
+                afterRuntime?.ActiveSession?.SessionUid ?? 0;
+            int afterStage =
+                afterRuntime?.ActiveSession?.CurrentStageKey ?? -1;
+            int afterStartTick =
+                afterRuntime?.ActiveSession?.StartLogicTick ?? -1;
+            int afterElapsedTicks =
+                afterRuntime?.ActiveSession?.StageElapsedTicks ?? -1;
+            ulong toggleMaskAfter = BuildActiveToggleMask();
+            Debug.Log(
+                $"[AbilitySignal] tick={SimulationTickContext.Current.Tick} " +
+                $"mode={SimulationTickContext.Current.ExecutionMode} " +
+                $"unit={Owner.UnitUid} slot={signal.Slot} " +
+                $"ability={afterRuntime?.Definition?.AbilityId ?? beforeRuntime?.Definition?.AbilityId ?? 0} " +
+                $"model={afterRuntime?.Definition?.CastModel?.Kind.ToString() ?? beforeRuntime?.Definition?.CastModel?.Kind.ToString() ?? "<none>"} " +
+                $"verb={signal.Verb} handled={handled} " +
+                $"session={beforeSessionUid}->{afterSessionUid} " +
+                $"stage={beforeStage}->{afterStage} aim={signal.Aim.Kind}");
+            Debug.Log(
+                $"[AbilitySignalTrace] tick={SimulationTickContext.Current.Tick} " +
+                $"mode={SimulationTickContext.Current.ExecutionMode} " +
+                $"unit={Owner.UnitUid} slot={signal.Slot} verb={signal.Verb} " +
+                $"handled={handled} activeMask=0x{toggleMaskBefore:X}->0x{toggleMaskAfter:X} " +
+                $"session={beforeSessionUid}->{afterSessionUid} " +
+                $"stage={beforeStage}->{afterStage} " +
+                $"startTick={beforeStartTick}->{afterStartTick} " +
+                $"elapsed={beforeElapsedTicks}->{afterElapsedTicks} " +
+                $"nextSessionUid={_nextSessionUid}");
+            return handled;
+        }
+
+        private bool HandleSignalCore(AbilitySignal signal)
+        {
             if (Owner.HitReaction.InterruptsAbility &&
                 signal.Verb != AbilitySignalVerb.Cancel)
                 return false;
@@ -673,8 +720,11 @@ namespace FrameSyncMoba.Unit
 
         /// <summary>
         /// True while any ability slot has an active cast/charge session
-        /// (windup, hold, channel, ...). During such a session the unit must
-        /// not start a normal attack (Unit Framework v27.3 cast rule).
+        /// (windup, hold, channel, ...). Pure Toggle and sequential-recast
+        /// sessions are included because they retain an AbilitySession even
+        /// after releasing Main/Base resources; callers that gate ordinary
+        /// actions should use HasActiveActionStage when that distinction
+        /// matters (D-047).
         /// </summary>
         public bool HasActiveCastSession()
         {
@@ -1269,6 +1319,10 @@ namespace FrameSyncMoba.Unit
         }
         public void Restore(in AbilityHandlerSnapshot state)
         {
+            ulong toggleMaskBefore = BuildActiveToggleMask();
+            string toggleStateBefore =
+                DescribeActiveToggleStates();
+            int nextSessionUidBefore = _nextSessionUid;
             PendingSkillPoints = state.PendingSkillPoints;
             _nextSessionUid = state.NextSessionUid;
             _book.Restore(state.BookSnapshot);
@@ -1285,6 +1339,58 @@ namespace FrameSyncMoba.Unit
                 throw new DeterministicSimulationException(
                     "Runtime has a fixed passive absent from the Ability snapshot.");
             }
+            ulong toggleMaskAfter = BuildActiveToggleMask();
+            if (toggleMaskBefore != toggleMaskAfter)
+            {
+                Debug.Log(
+                    $"[AbilityToggleRestore] tick={SimulationTickContext.Current.Tick} " +
+                    $"mode={SimulationTickContext.Current.ExecutionMode} " +
+                    $"unit={Owner.UnitUid} activeMask=0x{toggleMaskBefore:X}->" +
+                    $"0x{toggleMaskAfter:X} " +
+                    $"nextSessionUid={nextSessionUidBefore}->{_nextSessionUid} " +
+                    $"states={toggleStateBefore}->{DescribeActiveToggleStates()}");
+            }
+        }
+
+        private string DescribeActiveToggleStates()
+        {
+            string description = "[";
+            bool hasState = false;
+            IReadOnlyList<AbilitySlotRuntime> slots = _book.Slots;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                AbilitySlotRuntime slot = slots[i];
+                AbilityRuntime runtime = slot.GetActiveAbility();
+                if (runtime?.ActiveSession == null ||
+                    !(runtime.Definition?.CastModel is ToggleCastModelDef))
+                    continue;
+                if (hasState)
+                    description += ";";
+                AbilitySession session = runtime.ActiveSession;
+                description +=
+                    $"slot={slot.SlotIndex},ability={runtime.Definition.AbilityId}," +
+                    $"session={session.SessionUid},stage={session.CurrentStageKey}," +
+                    $"start={session.StartLogicTick},elapsed={session.StageElapsedTicks}";
+                hasState = true;
+            }
+            return hasState ? description + "]" : "[]";
+        }
+
+        private ulong BuildActiveToggleMask()
+        {
+            ulong mask = 0;
+            IReadOnlyList<AbilitySlotRuntime> slots = _book.Slots;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                AbilitySlotRuntime slot = slots[i];
+                if (slot.SlotIndex >= 64)
+                    continue;
+                AbilityRuntime runtime = slot.GetActiveAbility();
+                if (runtime?.ActiveSession != null &&
+                    runtime.Definition?.CastModel is ToggleCastModelDef)
+                    mask |= 1UL << slot.SlotIndex;
+            }
+            return mask;
         }
         public void Resolve(in RollbackContext context)
         {

@@ -73,6 +73,15 @@ namespace FrameSyncMoba.Bootstrap
         [SerializeField, Min(0.001f)] private float smoothingDuration = 0.033333f;
         [SerializeField, Min(0.01f)] private float smoothingSnapDistance = 6f;
 
+        [Header("Locked camera follow smoothing")]
+        [SerializeField, Min(0f)] private float lockedFollowSmoothTime = 0.06f;
+        [SerializeField, Min(0.01f)] private float lockedFollowSnapDistance = 6f;
+
+        [Header("Unit animation synchronization")]
+        [SerializeField, Range(1f, 240f)]
+        private float animationSynchronizationRateHz = 20f;
+        [SerializeField] private bool interpolateAnimationProgress = true;
+
         public byte BlueTeamId => blueTeamId;
         public byte RedTeamId => redTeamId;
         public CameraSideSettings BlueSide => blueSide;
@@ -85,6 +94,12 @@ namespace FrameSyncMoba.Bootstrap
         public bool SmoothLogicPose => smoothLogicPose;
         public float SmoothingDuration => smoothingDuration;
         public float SmoothingSnapDistance => smoothingSnapDistance;
+        public float LockedFollowSmoothTime => lockedFollowSmoothTime;
+        public float LockedFollowSnapDistance => lockedFollowSnapDistance;
+        public float AnimationSynchronizationRateHz =>
+            animationSynchronizationRateHz;
+        public bool InterpolateAnimationProgress =>
+            interpolateAnimationProgress;
 
         public CameraSideSettings ResolveSide(TeamId team)
         {

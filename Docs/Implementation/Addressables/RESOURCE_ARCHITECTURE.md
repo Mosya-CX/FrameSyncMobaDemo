@@ -96,6 +96,14 @@ Client presentation still has 63 independently addressed roots in total.
 Addresses use semantic prefixes such as `view/unit/`, `view/projectile/`,
 `view/map/`, `vfx/`, `audio/`, `ui/page/`, `ui/indicator/` and `ui/icon/`.
 
+`VfxLibrary` keeps the stable VFX definition ID and Addressable address, plus
+an optional `OwnerHeroConfigId` (`0` means shared). Before client presentation
+dispatch starts, `GameBootstrap` passes the frozen match hero list to
+`VfxManager.PreloadAsync`; only shared entries and entries owned by a selected
+hero acquire a lease and create their first inactive pool instance. This keeps
+the first-use path warm without loading another hero's VFX, while a standalone
+scene with no match scope may explicitly use the full-library overload.
+
 ## Runtime selection and lifecycle
 
 1. Lobby freezes the selected map and the complete locked player-slot roster.
@@ -206,7 +214,8 @@ fallback.
 - Current dependency graph: `CURRENT_DEPENDENCIES.*` (149 roots, 345 unique
   dependencies, 987 edges at the 2026-08-27 capture). The formal policy table
   is a direct dependency of the Core Unit catalog only.
-- Focused validation: Bootstrap EditMode 118/118; real Varus/Aatrox scoped load,
+- Focused validation: Bootstrap EditMode 123/123; VFX preload/reuse/filter
+  EditMode 2/2; real Varus/Aatrox scoped load,
   exclusion and release PlayMode 2/2; formal GameBootstrap composition and
   destroy-during-load cleanup PlayMode 2/2; Aatrox
   content 10/10; equipment/Core partition 6/6.

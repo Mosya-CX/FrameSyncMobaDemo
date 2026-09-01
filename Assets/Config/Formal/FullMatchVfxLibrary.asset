@@ -16,21 +16,28 @@ MonoBehaviour:
   - VfxDefId: 3101
     Prefab: {fileID: 0}
     Address: vfx/3101
+    OwnerHeroConfigId: 1002
   - VfxDefId: 3102
     Prefab: {fileID: 0}
     Address: vfx/3102
+    OwnerHeroConfigId: 1002
   - VfxDefId: 3103
     Prefab: {fileID: 0}
     Address: vfx/3103
+    OwnerHeroConfigId: 1002
   - VfxDefId: 4001
     Prefab: {fileID: 0}
     Address: vfx/4001
+    OwnerHeroConfigId: 1001
   - VfxDefId: 4102
     Prefab: {fileID: 0}
     Address: vfx/4102
+    OwnerHeroConfigId: 1001
   - VfxDefId: 4103
     Prefab: {fileID: 0}
     Address: vfx/4103
+    OwnerHeroConfigId: 1001
   - VfxDefId: 4104
     Prefab: {fileID: 0}
     Address: vfx/4104
+    OwnerHeroConfigId: 1001

@@ -628,7 +628,6 @@ namespace FrameSyncMoba.Unit
             int now = SimulationTickContext.Current.Tick;
             bool hasCycle = HasActiveAttackCycle(now);
             bool windup = hasCycle && !_state.ImpactCommitted;
-            bool recovery = hasCycle && _state.ImpactCommitted;
 
             float windupProgress = 0f;
             if (windup && _state.ResolvedWindupTicks > 0)
@@ -642,7 +641,7 @@ namespace FrameSyncMoba.Unit
             int recoveryTicks =
                 _state.ResolvedAttackDurationTicks -
                 _state.ResolvedWindupTicks;
-            if (recovery && recoveryTicks > 0)
+            if (_state.ImpactCommitted && recoveryTicks > 0)
             {
                 recoveryProgress =
                     (float)(now - _state.ImpactLogicTick) /
@@ -659,6 +658,9 @@ namespace FrameSyncMoba.Unit
             {
                 IsAttacking = hasCycle,
                 AttackStartLogicTick = _state.AttackStartLogicTick,
+                ImpactLogicTick = _state.ImpactLogicTick,
+                NextAttackReadyLogicTick =
+                    _state.NextAttackReadyLogicTick,
                 SequenceIndex = animationSequence,
                 ImpactCommitted = _state.ImpactCommitted,
                 IsEmpoweredAttack = _state.IsEmpoweredAttack,

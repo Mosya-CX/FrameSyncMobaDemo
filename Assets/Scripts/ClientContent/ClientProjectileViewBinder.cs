@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FrameSyncMoba.RuntimeConfig;
 using FrameSyncMoba.Unit;
 using UnityEngine;
 using FrameSyncMoba.FrameSync;
+using Debug = UnityEngine.Debug;
 
 namespace FrameSyncMoba.ClientContent
 {
@@ -88,6 +90,11 @@ namespace FrameSyncMoba.ClientContent
                     Cancellation = new CancellationTokenSource(),
                 };
                 bindings.Add(uid, binding);
+                Debug.Log(
+                    $"[ClientProjectileView] bind begin uid={uid} " +
+                    $"spawnTick={uid.SpawnLogicTick} " +
+                    $"prefabId={uid.RuntimeEntityPrefabId} " +
+                    $"address='{entry.ClientViewAddress}'");
                 _ = LoadAndBindAsync(
                     uid,
                     entry.ClientViewAddress,
@@ -125,6 +132,7 @@ namespace FrameSyncMoba.ClientContent
             string address,
             Binding binding)
         {
+            Stopwatch bindTimer = Stopwatch.StartNew();
             GameObject instance = null;
             try
             {
@@ -148,6 +156,10 @@ namespace FrameSyncMoba.ClientContent
                     $"ClientView_{lease.Asset.name}_{uid}";
                 binding.Instance = instance;
                 instance = null;
+                Debug.Log(
+                    $"[ClientProjectileView] bind complete uid={uid} " +
+                    $"spawnTick={uid.SpawnLogicTick} address='{address}' " +
+                    $"elapsedMs={bindTimer.ElapsedMilliseconds}");
             }
             catch (OperationCanceledException)
             {

@@ -12,6 +12,47 @@ namespace FrameSyncMoba.Bootstrap.Tests
     public sealed class HeroTestSceneEquipmentPlayModeTests
     {
         [UnityTest]
+        public IEnumerator BuildWorld_LoadsSelectedVarusPartition()
+        {
+            var root = new GameObject("HeroTestVarusContentProbe");
+            root.SetActive(false);
+            HeroTestDriver driver = null;
+            try
+            {
+                driver = root.AddComponent<HeroTestDriver>();
+                SetField(driver, "heroPrototypeId", 1001);
+                SetField(driver, "dummyPrototypeId", 1001);
+                Invoke(driver, "BuildWorld");
+                Invoke(driver, "SpawnHero");
+
+                Assert.That(driver.Hero, Is.Not.Null);
+                Assert.That(driver.Hero.UnitPrototypeId, Is.EqualTo(1001));
+                Assert.That(
+                    driver.World.GlobalPrefabTable.TryGetEntry(
+                        FrameSyncMoba.RuntimeConfig.PrefabKind.Unit,
+                        1101,
+                        out _),
+                    Is.True,
+                    "The selected Varus partition must resolve Unit prefab 1101.");
+                Assert.That(
+                    driver.World.GlobalPrefabTable.TryGetEntry(
+                        FrameSyncMoba.RuntimeConfig.PrefabKind.Unit,
+                        1102,
+                        out _),
+                    Is.False,
+                    "A Varus-only HeroTest must not resolve Aatrox Unit prefab 1102.");
+            }
+            finally
+            {
+                if (driver?.Hero != null)
+                    Object.Destroy(driver.Hero.gameObject);
+                Object.Destroy(root);
+            }
+
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator BuildWorld_LoadsFormalEquipmentCatalogForShop()
         {
             var root = new GameObject("HeroTestEquipmentProbe");
@@ -255,6 +296,20 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     BindingFlags.NonPublic);
             Assert.That(method, Is.Not.Null, methodName);
             method.Invoke(driver, null);
+        }
+
+        private static void SetField(
+            HeroTestDriver driver,
+            string fieldName,
+            object value)
+        {
+            FieldInfo field = typeof(HeroTestDriver)
+                .GetField(
+                    fieldName,
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, fieldName);
+            field.SetValue(driver, value);
         }
 
         private static T GetField<T>(

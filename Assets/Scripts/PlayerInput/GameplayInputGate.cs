@@ -24,7 +24,7 @@ namespace FrameSyncMoba.PlayerInput
                     UnitActionBlockMask.VoluntaryMove))
                 return false;
             if (unit.AbilityHandler != null &&
-            unit.AbilityHandler?.IsCastMovementLocked() == true)
+                unit.AbilityHandler.IsCastMovementLocked())
                 return false;
             return true;
         }
@@ -40,14 +40,14 @@ namespace FrameSyncMoba.PlayerInput
                     UnitActionBlockMask.VoluntaryAttack))
                 return false;
             if (unit.AbilityHandler != null &&
-            unit.AbilityHandler?.IsCastMovementLocked() == true)
+                unit.AbilityHandler.IsCastMovementLocked())
                 return false;
-            // Charging/casting units must not start a normal attack
-            // (Unit Framework v27.3 cast rule). Move stays allowed during
-            // movable cast stages (e.g. charge Hold); only the attack
-            // request is rejected while any cast/charge session is active.
+            // Only a real action-owning cast stage blocks a normal attack.
+            // Pure Toggles deliberately retain an AbilitySession without
+            // owning Main/Base ActionRuntime resources (D-047), so their
+            // persistent session must remain attack-neutral.
             if (unit.AbilityHandler != null &&
-                unit.AbilityHandler.HasActiveCastSession())
+                unit.AbilityHandler.HasActiveActionStage())
                 return false;
             return true;
         }

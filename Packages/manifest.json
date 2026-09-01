@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cn.unity.uos.cdn": "https://cnb.cool/unity/uos/UosCdnSDK.git",
     "cn.unity.uos.launcher": "https://cnb.cool/unity/uos/UOSLauncher.git",
     "cn.unity.uos.matchmaking": "https://cnb.cool/unity/uos/MatchmakingSDK.git",
     "cn.unity.uos.matchmaking.server": "https://cnb.cool/unity/uos/matchmaking-server-sdk.git?path=/unity",

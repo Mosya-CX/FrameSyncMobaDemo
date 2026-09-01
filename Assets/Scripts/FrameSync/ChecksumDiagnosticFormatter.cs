@@ -12,6 +12,121 @@ namespace FrameSyncMoba.FrameSync
     /// </summary>
     internal static class ChecksumDiagnosticFormatter
     {
+        public static void AppendWorldState(
+            List<string> lines,
+            in GameplaySnapshot snapshot)
+        {
+            UnitWorldSnapshot world = snapshot.UnitWorldState;
+            UnitSnapshot[] units = world.Units ??
+                System.Array.Empty<UnitSnapshot>();
+            var respawns = world.PendingUnitLifecycleState.Entries;
+            var disposals =
+                world.PendingUnitLifecycleState.DisposalEntries;
+            ProjectileRuntimeSnapshot[] projectiles =
+                snapshot.ProjectileState.ActiveProjectiles ??
+                System.Array.Empty<ProjectileRuntimeSnapshot>();
+            PendingSpawnRecordSnapshot[] pendingProjectiles =
+                snapshot.ProjectileState.PendingSpawns ??
+                System.Array.Empty<PendingSpawnRecordSnapshot>();
+            lines.Add(
+                $"  World schema={snapshot.SchemaVersion} " +
+                $"random={snapshot.RandomState.State} " +
+                $"units={units.Length} revision={world.RuntimeRevision} " +
+                $"respawns={respawns?.Count ?? 0} " +
+                $"disposals={disposals?.Count ?? 0} " +
+                $"ai={world.AIControllerStates?.Length ?? 0} " +
+                $"projectiles={projectiles.Length} " +
+                $"pendingProjectiles={pendingProjectiles.Length}");
+            lines.Add(
+                $"  Minions wave={world.MinionSystemState.WaveIndex} " +
+                $"nextWave={world.MinionSystemState.NextWaveLogicTick} " +
+                $"ticketCursor={world.MinionSystemState.NextTicketCursor} " +
+                $"tickets={world.MinionSystemState.PendingTickets?.Length ?? 0} " +
+                $"managed={world.MinionSystemState.ManagedMinionUids?.Length ?? 0}");
+
+            if (respawns != null)
+            {
+                for (int i = 0; i < respawns.Count; i++)
+                {
+                    RespawnEntry entry = respawns[i];
+                    lines.Add(
+                        $"  Respawn[{i}] unit={entry.UnitUid} " +
+                        $"death={entry.DeathLogicTick} " +
+                        $"at={entry.RespawnLogicTick}");
+                }
+            }
+            if (disposals != null)
+            {
+                for (int i = 0; i < disposals.Count; i++)
+                {
+                    DeathDisposalEntry entry = disposals[i];
+                    lines.Add(
+                        $"  Disposal[{i}] unit={entry.UnitUid} " +
+                        $"death={entry.DeathLogicTick} " +
+                        $"at={entry.DisposeLogicTick}");
+                }
+            }
+        }
+
+        public static void AppendUnitState(
+            List<string> lines,
+            in UnitSnapshot unit)
+        {
+            UnitIntent intent = unit.IntentState;
+            ActionRuntimeSlotSnapshot main =
+                unit.ActionRuntimeState.Main;
+            ActionRuntimeSlotSnapshot baseAction =
+                unit.ActionRuntimeState.Base;
+            AttackSnapshot attack = unit.AttackState;
+            var transform = unit.PhysicsTransform;
+            LocomotionAgentSnapshot locomotion =
+                unit.LocomotionState;
+
+            lines.Add(
+                $"    identity participant={unit.GameplayParticipantId} " +
+                $"prototype={unit.UnitPrototypeId} team={unit.TeamId.Value} " +
+                $"life={unit.LifeState}");
+            lines.Add(
+                $"    pose=({transform.Position.x},{transform.Position.y}) " +
+                $"prev=({transform.PrevPosition.x},{transform.PrevPosition.y}) " +
+                $"forward=({transform.Forward.x},{transform.Forward.y})");
+            lines.Add(
+                $"    intent={intent.Kind} target={intent.TargetUnit} " +
+                $"point=({intent.TargetPosition.x},{intent.TargetPosition.y}) " +
+                $"ability={intent.AbilityId}/{intent.AbilityVerb} " +
+                $"chase={intent.AllowChase} replan={intent.AllowReplan}");
+            lines.Add(
+                $"    main={FormatAction(main)} " +
+                $"base={FormatAction(baseAction)}");
+            lines.Add(
+                $"    attack target={attack.CurrentTargetUid} " +
+                $"start={attack.AttackStartLogicTick} " +
+                $"impact={attack.ImpactLogicTick} " +
+                $"ready={attack.NextAttackReadyLogicTick} " +
+                $"committed={attack.ImpactCommitted} " +
+                $"seq={attack.AttackSequenceIndex} " +
+                $"last={attack.LastSuccessfulAttackLogicTick}");
+            lines.Add(
+                $"    locomotion active={locomotion.HasActiveTask} " +
+                $"purpose={locomotion.Task.Purpose} " +
+                $"state={locomotion.Task.State} " +
+                $"cursor={locomotion.FollowerState.PathCursor} " +
+                $"finished={locomotion.FollowerState.RouteFinished} " +
+                $"repath={locomotion.Route.NeedRepath}");
+        }
+
+        private static string FormatAction(
+            in ActionRuntimeSlotSnapshot action)
+        {
+            if (!action.IsOccupied)
+                return "empty";
+            return
+                $"{action.Kind}/{action.Phase}" +
+                $"[resources={action.OccupiedResources}," +
+                $"target={action.TargetUnitUid}," +
+                $"abilitySlot={action.AbilitySlot}]";
+        }
+
         public static void AppendEquipmentSlots(
             List<string> lines,
             in UnitSnapshot unit)

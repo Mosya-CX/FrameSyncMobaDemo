@@ -47,6 +47,8 @@ namespace FrameSyncMoba.Bootstrap
         private string matchId;
         private MatchResultState? pendingMatchResult;
         private PresentationPingTracker pingTracker;
+        private readonly GameplayCommandSendLedger commandSendLedger =
+            new GameplayCommandSendLedger();
 
         public bool IsBound => runtime != null;
         internal bool IsConnectedClient =>
@@ -55,6 +57,8 @@ namespace FrameSyncMoba.Bootstrap
             !networkManager.IsServer &&
             networkManager.IsConnectedClient;
         public event Action<MatchResultState> MatchResultReady;
+        public event Action<IReadOnlyList<GameplayCommand>>
+            AcceptedCommandsReceived;
         public int LatestPingMilliseconds =>
             pingTracker?.LatestRoundTripMilliseconds ?? -1;
 
@@ -81,6 +85,7 @@ namespace FrameSyncMoba.Bootstrap
                 throw new InvalidOperationException(
                     "FrameSyncNetworkBridge requires NetworkManager.");
             this.authorizeCommand = authorizeCommand;
+            commandSendLedger.Reset();
             pingTracker = new PresentationPingTracker(
                 pingRefreshIntervalMilliseconds > 0
                     ? pingRefreshIntervalMilliseconds
@@ -106,9 +111,13 @@ namespace FrameSyncMoba.Bootstrap
         public void SendLocalCommands()
         {
             RequireClient();
-            IReadOnlyList<GameplayCommand> commands =
-                runtime.CommandCollector.GetCanonicalCommands();
-            if (commands.Count == 0) return;
+            if (!commandSendLedger.TryBuildUnsentCommands(
+                    runtime.CommandCollector,
+                    out ulong contentRevision,
+                    out List<GameplayCommand> commands))
+            {
+                return;
+            }
             if (nextBundleSequence == uint.MaxValue)
                 throw new DeterministicSimulationException(
                     "GameplayCommandBundle sequence exhausted.");
@@ -125,6 +134,11 @@ namespace FrameSyncMoba.Bootstrap
                 $"sync={runtime.LatestSynchronizedServerTick} " +
                 $"count={commands.Count} min={minTick} max={maxTick} " +
                 $"client={networkManager.LocalClientId}");
+            LogCastAbilityCommands(
+                "BundleSend",
+                commands,
+                $"sendTick={runtime.CurrentTick} " +
+                $"bundleSeq={nextBundleSequence}");
             GameplayCommandBundle bundle =
                 GameplayCommandBundle.Create(
                     networkManager.LocalClientId,
@@ -135,6 +149,9 @@ namespace FrameSyncMoba.Bootstrap
                 BundleMessage,
                 NetworkManager.ServerClientId,
                 FrameSyncWireCodec.WriteBundle(bundle));
+            commandSendLedger.CommitSuccessfulSend(
+                contentRevision,
+                commands);
         }
 
         public void TickRecovery(int controlTick)
@@ -251,6 +268,13 @@ namespace FrameSyncMoba.Bootstrap
             if (bundle.ClientId != senderClientId)
                 throw new DeterministicSimulationException(
                     "GameplayCommandBundle sender does not match ClientId.");
+            GameplayCommand[] bundledCommands =
+                bundle.DecodeCommands();
+            LogCastAbilityCommands(
+                "BundleReceive",
+                bundledCommands,
+                $"client={bundle.ClientId} bundleSeq={bundle.BundleSequence} " +
+                $"sendTick={bundle.SendLocalTick}");
             AcceptedCommandRelay[] relays =
                 runtime.AcceptCommandBundle(
                     bundle,
@@ -260,9 +284,16 @@ namespace FrameSyncMoba.Bootstrap
                             senderClientId,
                             command));
             for (int i = 0; i < relays.Length; i++)
+            {
+                LogCastAbilityCommands(
+                    "RelayBuild",
+                    relays[i].DecodeCommands(),
+                    $"targetTick={relays[i].TargetTick} " +
+                    $"revision={relays[i].RelayRevision}");
                 Broadcast(
                     RelayMessage,
                     FrameSyncWireCodec.WriteRelay(relays[i]));
+            }
         }
 
         private void ReceivePingRequest(
@@ -302,9 +333,18 @@ namespace FrameSyncMoba.Bootstrap
             FastBufferReader reader)
         {
             RequireClientServerSender(senderClientId);
-            runtime.ApplyAcceptedCommandRelay(
+            AcceptedCommandRelay relay =
                 FrameSyncWireCodec.ReadRelay(
-                    ReadPayload(reader)));
+                    ReadPayload(reader));
+            GameplayCommand[] acceptedCommands =
+                relay.DecodeCommands();
+            LogCastAbilityCommands(
+                "RelayReceive",
+                acceptedCommands,
+                $"targetTick={relay.TargetTick} " +
+                $"revision={relay.RelayRevision}");
+            runtime.ApplyAcceptedCommandRelay(relay);
+            AcceptedCommandsReceived?.Invoke(acceptedCommands);
         }
 
         private void ReceiveAuthority(
@@ -312,9 +352,16 @@ namespace FrameSyncMoba.Bootstrap
             FastBufferReader reader)
         {
             RequireClientServerSender(senderClientId);
-            runtime.ReceiveAuthorityFrame(
+            AuthorityFrame frame =
                 FrameSyncWireCodec.ReadAuthorityFrame(
-                    ReadPayload(reader)));
+                    ReadPayload(reader));
+            LogCastAbilityCommands(
+                "AuthorityReceive",
+                frame.DecodeCommands(),
+                $"tick={frame.Tick} frameSeq={frame.FrameSequence} " +
+                $"revision={frame.FinalCommandRevision} " +
+                $"checksum=0x{frame.SharedGameplayChecksum:X8}");
+            runtime.ReceiveAuthorityFrame(frame);
             TryDispatchPendingMatchResult();
         }
 
@@ -450,6 +497,27 @@ namespace FrameSyncMoba.Bootstrap
                         clients,
                         writer,
                         NetworkDelivery.ReliableSequenced);
+            }
+        }
+
+        private static void LogCastAbilityCommands(
+            string boundary,
+            IReadOnlyList<GameplayCommand> commands,
+            string metadata)
+        {
+            if (commands == null)
+                return;
+            for (int i = 0; i < commands.Count; i++)
+            {
+                GameplayCommand command = commands[i];
+                if (command.Kind != GameplayCommandKind.CastAbility)
+                    continue;
+                UnityEngine.Debug.Log(
+                    $"[AbilityTransport] boundary={boundary} {metadata} " +
+                    $"unit={command.ControlledUnitUid} " +
+                    $"seq={command.CommandSeq} slot={command.AbilitySlot} " +
+                    $"verb={command.AbilityVerb} targetTick={command.TargetTick} " +
+                    $"buildTick={command.Header.BuildLocalTick}");
             }
         }
 

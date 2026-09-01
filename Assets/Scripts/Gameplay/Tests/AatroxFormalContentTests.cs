@@ -106,6 +106,63 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
+        public void DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate()
+        {
+            VisualEventOutput.Clear();
+            UnitWorld world = new UnitWorld();
+            UnitType caster = UnitTestFactory.SpawnUnit(
+                world,
+                CreateTestPrototype(),
+                new TeamId(1),
+                50,
+                fp.zero,
+                fp.zero);
+            // UnitTestFactory supplies its canonical 30 Hz fixture defaults;
+            // override the runtime rate after fixture setup for this
+            // variable-Tick presentation assertion.
+            world.TickRate = 50;
+            var runtime = new AbilityRuntime
+            {
+                Definition = new AbilityDef { AbilityId = 10021 },
+                Level = 1,
+                World = world,
+                CasterUnitUid = caster.UnitUid,
+            };
+            var session = new AbilitySession
+            {
+                Runtime = runtime,
+                Aim = AimSnapshot.ForDirection(
+                    new fp2(fp.one, fp.zero)),
+            };
+            var stage = new DirectionalMultiZoneDamageStageDef
+            {
+                StageDefId = 1,
+                VfxDefId = 2101,
+                ImpactDelayTicks = 50,
+            };
+
+            try
+            {
+                Assert.That(
+                    stage.OnEnter(session, runtime),
+                    Is.EqualTo(StageResult.Running));
+                IReadOnlyList<VfxEvent> events =
+                    VisualEventOutput.ConsumeVfxEvents();
+                Assert.That(events.Count, Is.EqualTo(1));
+                Assert.That(
+                    events[0].DurationScale,
+                    Is.EqualTo(fp.one),
+                    "A one-second impact delay at 50 Tick/s must keep a " +
+                    "one-second presentation duration.");
+            }
+            finally
+            {
+                VisualEventOutput.Clear();
+                UnitTestFactory.DestroyCreatedObjects();
+            }
+        }
+
+        [Test]
         public void
             WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition()
         {

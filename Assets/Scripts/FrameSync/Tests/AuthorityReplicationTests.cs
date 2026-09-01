@@ -83,6 +83,146 @@ namespace FrameSyncMoba.FrameSync.Tests
         }
 
         [Test]
+        public void AcceptedCommand_AfterTickFreeze_LateDuplicateIsIgnored()
+        {
+            UnitUid unitUid = new UnitUid(0, 10, 1);
+            GameplayCommand toggle =
+                GameplayCommand.CreateCastAbility(
+                    Header(unitUid, 3, 1),
+                    1,
+                    AbilitySignalVerb.Commit,
+                    AimSnapshot.None);
+            var buffer = new CommandRelayBuffer();
+
+            AcceptedCommandRelay[] first = buffer.AcceptBundle(
+                GameplayCommandBundle.Create(
+                    7,
+                    1,
+                    2,
+                    new[] { toggle }),
+                3,
+                12,
+                null);
+            Assert.AreEqual(1, first.Length);
+            Assert.AreEqual(3, first[0].TargetTick);
+            buffer.FreezeTick(3);
+
+            AcceptedCommandRelay[] repeated = buffer.AcceptBundle(
+                GameplayCommandBundle.Create(
+                    7,
+                    2,
+                    3,
+                    new[] { toggle }),
+                4,
+                12,
+                null);
+
+            Assert.AreEqual(0, repeated.Length);
+            Assert.AreEqual(
+                0,
+                buffer.GetCurrentRelay(4).DecodeCommands().Length,
+                "An accepted input identity must not be retargeted into a " +
+                "second authoritative Tick after its original Tick freezes.");
+        }
+
+        [Test]
+        public void AcceptedCommand_AfterOwnerInvalidation_DuplicateSkipsAuthorization()
+        {
+            UnitUid unitUid = new UnitUid(0, 10, 1);
+            GameplayCommand toggle =
+                GameplayCommand.CreateCastAbility(
+                    Header(unitUid, 3, 1),
+                    1,
+                    AbilitySignalVerb.Commit,
+                    AimSnapshot.None);
+            var buffer = new CommandRelayBuffer();
+
+            AcceptedCommandRelay[] first = buffer.AcceptBundle(
+                GameplayCommandBundle.Create(
+                    7,
+                    1,
+                    2,
+                    new[] { toggle }),
+                3,
+                12,
+                _ => true);
+            Assert.AreEqual(1, first.Length);
+            buffer.FreezeTick(3);
+
+            int authorizationCalls = 0;
+            Assert.DoesNotThrow(() =>
+            {
+                AcceptedCommandRelay[] repeated = buffer.AcceptBundle(
+                    GameplayCommandBundle.Create(
+                        7,
+                        2,
+                        3,
+                        new[] { toggle }),
+                    4,
+                    12,
+                    _ =>
+                    {
+                        authorizationCalls++;
+                        return false;
+                    });
+                Assert.AreEqual(0, repeated.Length);
+            });
+            Assert.AreEqual(
+                0,
+                authorizationCalls,
+                "An already accepted identity is idempotent even if its " +
+                "former controlled unit can no longer be authorized.");
+        }
+
+        [Test]
+        public void DistinctCommandSequences_OnAdjacentTicks_AreBothAccepted()
+        {
+            UnitUid unitUid = new UnitUid(0, 10, 1);
+            GameplayCommand firstToggle =
+                GameplayCommand.CreateCastAbility(
+                    Header(unitUid, 3, 1),
+                    1,
+                    AbilitySignalVerb.Commit,
+                    AimSnapshot.None);
+            GameplayCommand secondToggle =
+                GameplayCommand.CreateCastAbility(
+                    Header(unitUid, 4, 2),
+                    1,
+                    AbilitySignalVerb.Commit,
+                    AimSnapshot.None);
+            var buffer = new CommandRelayBuffer();
+
+            AcceptedCommandRelay[] first = buffer.AcceptBundle(
+                GameplayCommandBundle.Create(
+                    7,
+                    1,
+                    2,
+                    new[] { firstToggle }),
+                3,
+                12,
+                null);
+            buffer.FreezeTick(3);
+            AcceptedCommandRelay[] second = buffer.AcceptBundle(
+                GameplayCommandBundle.Create(
+                    7,
+                    2,
+                    3,
+                    new[] { secondToggle }),
+                4,
+                12,
+                null);
+
+            Assert.AreEqual(1, first.Length);
+            Assert.AreEqual(1, second.Length);
+            Assert.AreEqual(
+                1u,
+                first[0].DecodeCommands()[0].CommandSeq);
+            Assert.AreEqual(
+                2u,
+                second[0].DecodeCommands()[0].CommandSeq);
+        }
+
+        [Test]
         public void DirectionAim_CastAbility_RoundTripsCanonically()
         {
             UnitUid uid = new UnitUid(0, 12, 1);
@@ -225,6 +365,74 @@ namespace FrameSyncMoba.FrameSync.Tests
             Assert.AreEqual(0, client.PredictedTickCount);
             Assert.AreEqual(PredictionPauseReason.None,
                 client.PauseReasons);
+        }
+
+        [Test]
+        public void AcceptedRelayReplacingExecutedLocalMove_ReplaysFromFrozenAnchor()
+        {
+            FrameSyncGameRuntime server =
+                CreateMovingRuntime(out FrameSyncMoba.Unit.Unit serverUnit);
+            FrameSyncGameRuntime client =
+                CreateMovingRuntime(out FrameSyncMoba.Unit.Unit clientUnit);
+
+            Assert.IsTrue(client.Prediction.ExecutePredictionTick());
+            client.ReceiveAuthorityFrame(server.ExecuteAuthorityTick());
+
+            fp2 establishedTarget = new fp2((fp)10, fp.zero);
+            GameplayCommand serverMove = GameplayCommand.CreateMove(
+                Header(serverUnit.UnitUid, 1, 1),
+                establishedTarget);
+            AcceptedCommandRelay[] initialRelays =
+                server.AcceptCommandBundle(
+                    GameplayCommandBundle.Create(
+                        7,
+                        1,
+                        0,
+                        new[] { serverMove }));
+            Assert.That(initialRelays, Has.Length.EqualTo(1));
+            client.ApplyAcceptedCommandRelay(initialRelays[0]);
+            Assert.IsTrue(client.Prediction.ExecutePredictionTick());
+            client.ReceiveAuthorityFrame(server.ExecuteAuthorityTick());
+
+            GameplayCommand supersededLocalMove =
+                GameplayCommand.CreateMove(
+                    Header(clientUnit.UnitUid, 2, 3),
+                    new fp2((fp)(-10), fp.zero));
+            client.SubmitCommand(supersededLocalMove);
+            Assert.IsTrue(client.Prediction.ExecutePredictionTick());
+
+            GameplayCommand acceptedRepeatedMove =
+                GameplayCommand.CreateMove(
+                    Header(serverUnit.UnitUid, 2, 2),
+                    establishedTarget);
+            AcceptedCommandRelay[] replacementRelays =
+                server.AcceptCommandBundle(
+                    GameplayCommandBundle.Create(
+                        7,
+                        2,
+                        1,
+                        new[] { acceptedRepeatedMove }));
+            Assert.That(replacementRelays, Has.Length.EqualTo(1));
+            client.ApplyAcceptedCommandRelay(replacementRelays[0]);
+            AuthorityFrame authority = server.ExecuteAuthorityTick();
+            GameplayCommand futureLocalMove =
+                GameplayCommand.CreateMove(
+                    Header(clientUnit.UnitUid, 3, 4),
+                    new fp2((fp)4, (fp)2));
+            client.SubmitCommand(futureLocalMove);
+
+            Assert.DoesNotThrow(
+                () => client.ReceiveAuthorityFrame(authority));
+            Assert.That(client.LastChecksum,
+                Is.EqualTo(authority.SharedGameplayChecksum));
+            Assert.That(client.Prediction.LatestAuthorityFrameTick,
+                Is.EqualTo(2));
+            var pending =
+                client.CommandCollector.GetCanonicalCommands();
+            Assert.That(pending, Has.Count.EqualTo(1));
+            Assert.That(pending[0], Is.EqualTo(futureLocalMove),
+                "Rollback must reinsert commands at or beyond the replay " +
+                "end Tick after authoritative replacement.");
         }
 
         [Test]
@@ -477,6 +685,57 @@ namespace FrameSyncMoba.FrameSync.Tests
                 GameplayCommandKind.None,
                 0,
                 0);
+        }
+
+        private static FrameSyncGameRuntime CreateMovingRuntime(
+            out FrameSyncMoba.Unit.Unit movingUnit)
+        {
+            var world = new UnitWorld
+            {
+                StatDefinitionTable = new StatDefinitionTable(),
+                PhysicsWorld = new Physics.PhysicsWorld(),
+                PathGrid = new PathGridMap2D(),
+            };
+            world.PathGrid.Initialise(
+                new fp2((fp)(-20), (fp)(-20)),
+                new fp2((fp)20, (fp)20),
+                fp.one);
+            var prototype = new UnitPrototype
+            {
+                UnitPrototypeId = 1,
+                Name = "MovingHero",
+                RuntimeEntityPrefabId = 99,
+                UnitKind = UnitKind.Hero,
+                BaseStats = new StatPreset(),
+            };
+            var spawnTick = new SimulationTickContextController();
+            spawnTick.BeginTick(0, ExecutionMode.ServerAuthority);
+            try
+            {
+                movingUnit = world.SpawnUnit(
+                    prototype,
+                    TeamId.Neutral,
+                    0,
+                    fp.zero,
+                    fp.zero);
+            }
+            finally
+            {
+                spawnTick.EndTick();
+            }
+            movingUnit.MovementHandler.SetMoveSpeed((fp)4);
+            return new FrameSyncGameRuntime(
+                world,
+                world.PhysicsWorld,
+                0,
+                0,
+                180,
+                300,
+                60,
+                (fp)7 / (fp)10,
+                42u,
+                snapshotWindowTicks: 16,
+                maxPredictionLeadTicks: 3);
         }
     }
 }

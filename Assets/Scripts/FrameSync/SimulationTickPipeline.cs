@@ -904,6 +904,13 @@ namespace FrameSyncMoba.FrameSync
             }
             else if (command.Kind == GameplayCommandKind.CastAbility)
             {
+                UnityEngine.Debug.Log(
+                    $"[AbilityCommandExecute] tick={SimulationTickContext.Current.Tick} " +
+                    $"mode={SimulationTickContext.Current.ExecutionMode} " +
+                    $"unit={command.UnitUid} slot={command.AbilitySlot} " +
+                    $"verb={command.AbilityVerb} seq={command.CommandSeq} " +
+                    $"intentBefore={unit.Planner.CurrentIntent.Kind} " +
+                    $"aim={command.Aim.Kind}");
                 unit.ReplaceIntent(new UnitIntent
                 {
                     Kind = IntentKind.CastAbility,

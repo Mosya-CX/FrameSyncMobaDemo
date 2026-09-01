@@ -39,3 +39,5 @@ MonoBehaviour:
   smoothLogicPose: 1
   smoothingDuration: 0.033333
   smoothingSnapDistance: 6
+  animationSynchronizationRateHz: 20
+  interpolateAnimationProgress: 1

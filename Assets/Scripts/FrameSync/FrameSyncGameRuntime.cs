@@ -37,6 +37,7 @@ namespace FrameSyncMoba.FrameSync
         }
         public CommandCollector CommandCollector => _pipeline.CommandCollector;
         public int CurrentTick => _pipeline.LocalSimulationTick;
+        public int LastCompletedTick => _pipeline.LocalSimulationTick - 1;
         public int LatestSynchronizedServerTick { get; private set; } = -1;
         public int MinCommandLeadTicks { get; private set; } = 1;
         public int MaxFutureCommandTicks => _pipeline.MaxFutureCommandTicks;

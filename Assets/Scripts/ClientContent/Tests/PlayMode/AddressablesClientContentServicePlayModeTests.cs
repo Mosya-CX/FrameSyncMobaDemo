@@ -58,6 +58,15 @@ namespace FrameSyncMoba.ClientContent.Tests
                 yield return LoadAndReleasePrefab(
                     service,
                     "ui/page/hud");
+                yield return LoadAndReleasePrefab(
+                    service,
+                    "ui/indicator/direction");
+                yield return LoadAndReleasePrefab(
+                    service,
+                    "ui/indicator/range-circle");
+                yield return LoadAndReleasePrefab(
+                    service,
+                    "ui/indicator/ground-target");
 
                 Task<IPresentationAssetLease<AudioClip>> audio =
                     service.AcquireAudioClipAsync(

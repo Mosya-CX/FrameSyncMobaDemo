@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace FrameSyncMoba.FrameSync
@@ -21,6 +22,17 @@ namespace FrameSyncMoba.FrameSync
             [HideInInspector]
             public GameObject Prefab;
             public string Address;
+            [Min(0)]
+            public int OwnerHeroConfigId;
+        }
+
+        public int Count => _entries?.Length ?? 0;
+
+        public VfxPrefabEntry GetEntry(int index)
+        {
+            if (_entries == null)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            return _entries[index];
         }
 
         public string GetAddress(int vfxDefId)

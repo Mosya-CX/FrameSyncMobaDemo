@@ -3,8 +3,11 @@ using FrameSyncMoba.Physics;
 using FrameSyncMoba.RuntimeConfig;
 using FrameSyncMoba.Unit;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using UnityEditor;
+using UnityEngine;
 using UnitType = FrameSyncMoba.Unit.Unit;
 
 namespace FrameSyncMoba.FrameSync.Tests
@@ -27,6 +30,8 @@ namespace FrameSyncMoba.FrameSync.Tests
             "Assets/Config/Formal/Abilities/VarusAbilityRuntimeCatalog.asset";
         private const string BuffCatalogPath =
             "Assets/Config/Formal/Buffs/FullMatchTestBuffCatalog.asset";
+        private const string MatchContentRoot =
+            "Assets/Config/Formal/MatchContent/";
 
         private readonly System.Collections.Generic.List<UnitType>
             spawnedUnits =
@@ -69,10 +74,14 @@ namespace FrameSyncMoba.FrameSync.Tests
                 AssetDatabase.LoadAssetAtPath<
                     BuffCatalogAsset>(
                     BuffCatalogPath);
+            GlobalPrefabTable resolvedPrefabTable =
+                BuildResolvedFormalPrefabTable(
+                    baked.PrefabTable);
 
             // Server: authoritative build then execute first tick.
             UnitWorld server = CreateWorld(
                 baked,
+                resolvedPrefabTable,
                 unitCatalog,
                 abilityCatalog,
                 buffCatalog);
@@ -118,6 +127,7 @@ namespace FrameSyncMoba.FrameSync.Tests
             // the same first tick under ClientPrediction.
             UnitWorld client = CreateWorld(
                 baked,
+                resolvedPrefabTable,
                 unitCatalog,
                 abilityCatalog,
                 buffCatalog);
@@ -254,17 +264,18 @@ namespace FrameSyncMoba.FrameSync.Tests
 
         private UnitWorld CreateWorld(
             BakedGlobalGameplayData baked,
+            GlobalPrefabTable resolvedPrefabTable,
             UnitRuntimeCatalogAsset unitCatalog,
             AbilityRuntimeCatalogAsset abilityCatalog,
             BuffCatalogAsset buffCatalog)
         {
             BakedUnitRuntimeCatalog bakedUnits =
                 unitCatalog.BakeOrThrow(
-                    baked.PrefabTable);
+                    resolvedPrefabTable);
             var world = new UnitWorld
             {
                 PhysicsWorld = new PhysicsWorld(),
-                GlobalPrefabTable = baked.PrefabTable,
+                GlobalPrefabTable = resolvedPrefabTable,
                 UnitPrototypeTable =
                     bakedUnits.UnitPrototypes,
                 DisposePolicyTable =
@@ -286,6 +297,67 @@ namespace FrameSyncMoba.FrameSync.Tests
             buffCatalog.RegisterAll(
                 world.BuffDefinitions);
             return world;
+        }
+
+        private static GlobalPrefabTable BuildResolvedFormalPrefabTable(
+            GlobalPrefabTable root)
+        {
+            string[] paths =
+            {
+                MatchContentRoot + "CoreGlobalPrefabSubTable.asset",
+                MatchContentRoot + "Map1GlobalPrefabSubTable.asset",
+                MatchContentRoot + "VarusGlobalPrefabSubTable.asset",
+                MatchContentRoot + "AatroxGlobalPrefabSubTable.asset",
+            };
+            var children = new List<GlobalPrefabSubTableAsset>(
+                paths.Length);
+            var resolved = new Dictionary<string, GameObject>(
+                StringComparer.Ordinal);
+            for (int pathIndex = 0;
+                 pathIndex < paths.Length;
+                 pathIndex++)
+            {
+                GlobalPrefabSubTableAsset child =
+                    AssetDatabase.LoadAssetAtPath<
+                        GlobalPrefabSubTableAsset>(
+                        paths[pathIndex]);
+                Assert.That(child, Is.Not.Null, paths[pathIndex]);
+                child.ValidateOrThrow();
+                children.Add(child);
+                for (int groupIndex = 0;
+                     groupIndex < child.PrefabGroups.Count;
+                     groupIndex++)
+                {
+                    PrefabGroup group =
+                        child.PrefabGroups[groupIndex];
+                    for (int entryIndex = 0;
+                         entryIndex < group.Entries.Count;
+                         entryIndex++)
+                    {
+                        PrefabEntry entry =
+                            group.Entries[entryIndex];
+                        if (string.IsNullOrEmpty(
+                                entry.LogicAssetAddress) ||
+                            resolved.ContainsKey(
+                                entry.LogicAssetAddress))
+                            continue;
+                        GameObject prefab =
+                            AssetDatabase.LoadAssetAtPath<
+                                GameObject>(
+                                entry.LogicAssetAddress);
+                        Assert.That(
+                            prefab,
+                            Is.Not.Null,
+                            entry.LogicAssetAddress);
+                        resolved.Add(
+                            entry.LogicAssetAddress,
+                            prefab);
+                    }
+                }
+            }
+            return root.CreateResolvedRuntimeTable(
+                children,
+                resolved);
         }
     }
 }

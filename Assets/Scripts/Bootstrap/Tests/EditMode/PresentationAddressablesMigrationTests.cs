@@ -270,7 +270,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
                         Assert.That(
                             material.shader.name,
                             Is.EqualTo(
-                                "FrameSyncMoba/SkillIndicatorUnlit"),
+                                "Sprites/Default"),
                             AssetDatabase.GetAssetPath(material));
                         Assert.That(
                             material.shader.isSupported,
@@ -279,9 +279,8 @@ namespace FrameSyncMoba.Bootstrap.Tests
                         Assert.That(
                             material.shaderKeywords,
                             Is.Empty,
-                            "The dedicated indicator Shader declares no " +
-                            "keywords; migrated URP/Sprite keywords would " +
-                            "request an unavailable Player variant.");
+                            "Generic indicator materials must not retain " +
+                            "Addressables-unsafe shader variants.");
                         Assert.That(
                             material.color.b,
                             Is.GreaterThan(material.color.r),

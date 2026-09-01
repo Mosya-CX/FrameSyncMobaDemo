@@ -93,7 +93,6 @@ namespace FrameSyncMoba.ClientContent
                     pair.Value.Dispose();
                 }
                 projectileViewLeases.Clear();
-                ReleaseIndicatorLeases();
                 unitViewBinder = null;
                 projectileViewBinder = null;
                 boundBootstrap = bootstrap;
@@ -134,8 +133,19 @@ namespace FrameSyncMoba.ClientContent
             SkillIndicatorDriver[] drivers =
                 UnityEngine.Object.FindObjectsOfType<
                     SkillIndicatorDriver>(true);
+            Debug.Log(
+                $"[ClientContent] Skill indicator bind begin generation={generation} " +
+                $"currentGeneration={bindGeneration} driverCount={drivers.Length} " +
+                $"scene={SceneManager.GetActiveScene().name}");
             if (drivers.Length == 0)
+            {
+                // No current-scene presentation consumes the previous
+                // generation, so its leases can be released immediately.
+                ReleaseIndicatorLeases();
+                Debug.Log(
+                    "[ClientContent] Skill indicator bind skipped: no drivers in scene.");
                 return;
+            }
             IPresentationAssetLease<GameObject> direction = null;
             IPresentationAssetLease<GameObject> range = null;
             IPresentationAssetLease<GameObject> ground = null;
@@ -150,27 +160,41 @@ namespace FrameSyncMoba.ClientContent
                 ground = await contentService.AcquirePrefabAsync(
                     "ui/indicator/ground-target",
                     lifetimeCancellation.Token);
+                Debug.Log(
+                    $"[ClientContent] Skill indicator assets acquired " +
+                    $"direction={direction?.Asset?.name ?? "<null>"} " +
+                    $"range={range?.Asset?.name ?? "<null>"} " +
+                    $"ground={ground?.Asset?.name ?? "<null>"} " +
+                    $"generation={generation} currentGeneration={bindGeneration}");
                 if (generation != bindGeneration)
+                {
+                    Debug.Log(
+                        $"[ClientContent] Skill indicator bind discarded: " +
+                        $"stale generation={generation}, current={bindGeneration}.");
                     return;
-                indicatorLeases.Add(direction);
-                indicatorLeases.Add(range);
-                indicatorLeases.Add(ground);
-                direction = null;
-                range = null;
-                ground = null;
+                }
                 for (int i = 0; i < drivers.Length; i++)
                 {
                     if (drivers[i] != null)
                     {
                         drivers[i].Configure(
-                            indicatorLeases[0].Asset,
-                            indicatorLeases[1].Asset,
-                            indicatorLeases[2].Asset);
+                            direction.Asset,
+                            range.Asset,
+                            ground.Asset);
                     }
                 }
+                ReplaceIndicatorLeases(
+                    ref direction,
+                    ref range,
+                    ref ground);
+                Debug.Log(
+                    $"[ClientContent] Skill indicator bind complete generation={generation} " +
+                    $"configuredDrivers={drivers.Length}");
             }
             catch (OperationCanceledException)
             {
+                Debug.Log(
+                    $"[ClientContent] Skill indicator bind canceled generation={generation}.");
             }
             catch (Exception exception)
             {
@@ -183,6 +207,31 @@ namespace FrameSyncMoba.ClientContent
                 range?.Dispose();
                 ground?.Dispose();
             }
+        }
+
+        private void ReplaceIndicatorLeases(
+            ref IPresentationAssetLease<GameObject> direction,
+            ref IPresentationAssetLease<GameObject> range,
+            ref IPresentationAssetLease<GameObject> ground)
+        {
+            var previous =
+                new IPresentationAssetLease<GameObject>[
+                    indicatorLeases.Count];
+            indicatorLeases.CopyTo(previous);
+            indicatorLeases.Clear();
+            indicatorLeases.Add(direction);
+            indicatorLeases.Add(range);
+            indicatorLeases.Add(ground);
+            direction = null;
+            range = null;
+            ground = null;
+
+            // Configure synchronously rebuilt every driver while both asset
+            // generations were resident. Only now may the old generation be
+            // released, so no live instance ever references an unloaded
+            // source texture/material dependency.
+            for (int i = 0; i < previous.Length; i++)
+                previous[i]?.Dispose();
         }
 
         private void ReleaseIndicatorLeases()
