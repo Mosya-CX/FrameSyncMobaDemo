@@ -476,7 +476,8 @@ namespace FrameSyncMoba.Unit
             {
                 return;
             }
-            target.BuffHandler.Apply(
+            StructureEffectPolicy.TryApplyBuff(
+                target,
                 timerId,
                 timerDef,
                 BuffSource.Create(
@@ -501,11 +502,13 @@ namespace FrameSyncMoba.Unit
                 target,
                 runtime);
             ApplySpreadCrowdControl(
-                target);
+                target,
+                runtime);
             ApplySpreadTag(
                 target,
                 runtime);
-            target.BuffHandler.Apply(
+            StructureEffectPolicy.TryApplyBuff(
+                target,
                 vineId,
                 vineDef,
                 BuffSource.Create(
@@ -607,17 +610,27 @@ namespace FrameSyncMoba.Unit
         }
 
         private void ApplySpreadCrowdControl(
-            Unit target)
+            Unit target,
+            BuffRuntime runtime)
         {
             if (SpreadCrowdControlId <= 0 ||
-                target?.CrowdControl == null)
+                target == null ||
+                (target.CrowdControl == null &&
+                 target.UnitKind != UnitKind.Structure))
             {
                 return;
             }
-            target.CrowdControl.Add(
+            UnitUid casterUid = runtime.Blackboard
+                .ReadUnitUidOrDefault(
+                    CasterUnitUidSlot);
+            if (!casterUid.IsValid())
+                casterUid = runtime.SourceUnitUid;
+            StructureEffectPolicy.TryApplyCrowdControl(
+                target,
+                casterUid,
                 new CrowdControlId(
                     SpreadCrowdControlId),
-                    SpreadCrowdControlTicks,
+                SpreadCrowdControlTicks,
                 default);
         }
 
@@ -641,6 +654,12 @@ namespace FrameSyncMoba.Unit
                     runtime.SourceUnitUid;
             }
             if (!casterUid.IsValid())
+            {
+                return;
+            }
+            if (!StructureEffectPolicy.AllowsExternalEffect(
+                    target,
+                    casterUid))
             {
                 return;
             }

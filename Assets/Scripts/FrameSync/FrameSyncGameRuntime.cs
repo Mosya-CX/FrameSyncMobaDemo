@@ -476,13 +476,15 @@ namespace FrameSyncMoba.FrameSync
             _pipeline.QueueInitialSpawn(request);
         }
 
-        public CommandTargetTickResolver CreateCommandTargetTickResolver()
+        public CommandTargetTickResolver CreateCommandTargetTickResolver(
+            ICommandNetworkTimingProvider networkTimingProvider = null)
         {
             return new CommandTargetTickResolver(
                 () => CurrentTick,
                 () => LatestSynchronizedServerTick,
                 MinCommandLeadTicks,
-                MaxFutureCommandTicks);
+                MaxFutureCommandTicks,
+                networkTimingProvider);
         }
 
         public void ExecuteTicks(int count)

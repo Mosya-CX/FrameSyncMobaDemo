@@ -106,6 +106,12 @@ namespace FrameSyncMoba.Unit
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
             if (!configId.IsValid) return false;
+            if (!StructureEffectPolicy.AllowsBuff(
+                    _owner,
+                    source))
+            {
+                return false;
+            }
 
             if (_store.TryGet(configId, out var existing))
                 return Reapply(existing, definition, source);

@@ -12,7 +12,8 @@ using UnityEngine.Serialization;
 namespace FrameSyncMoba.Bootstrap
 {
     [DisallowMultipleComponent]
-    public sealed class FrameSyncNetworkBridge : MonoBehaviour
+    public sealed class FrameSyncNetworkBridge : MonoBehaviour,
+        ICommandNetworkTimingProvider
     {
         private const string BundleMessage =
             "FrameSyncMoba.GameplayCommandBundle.v1";
@@ -27,9 +28,9 @@ namespace FrameSyncMoba.Bootstrap
         private const string MatchResultMessage =
             "FrameSyncMoba.MatchResultState.v1";
         private const string PingRequestMessage =
-            "FrameSyncMoba.PresentationPingRequest.v1";
+            "FrameSyncMoba.CommandTimingPingRequest.v2";
         private const string PingResponseMessage =
-            "FrameSyncMoba.PresentationPingResponse.v1";
+            "FrameSyncMoba.CommandTimingPingResponse.v2";
 
         [SerializeField] private NetworkManager networkManager;
         [SerializeField, Min(1)]
@@ -37,6 +38,19 @@ namespace FrameSyncMoba.Bootstrap
         [FormerlySerializedAs("pingRefreshIntervalSeconds")]
         [SerializeField, HideInInspector]
         private float legacyPingRefreshIntervalSeconds;
+        [Header("Adaptive Command Timing")]
+        [SerializeField, Min(1)]
+        private int minimumCommandTimingSamples = 4;
+        [SerializeField, Min(1)]
+        private int commandTimingSampleMaxAgeMilliseconds = 3000;
+        [SerializeField, Min(0)]
+        private int minimumJitterBudgetMilliseconds = 10;
+        [SerializeField, Min(0)]
+        private int commandProcessingBudgetMilliseconds = 10;
+        [SerializeField, Min(0)]
+        private int jitterVariationMultiplier = 2;
+        [SerializeField, Min(0)]
+        private int desiredServerSlackTicks = 1;
 
         private FrameSyncGameRuntime runtime;
         private Func<ulong, GameplayCommand, bool>
@@ -47,6 +61,8 @@ namespace FrameSyncMoba.Bootstrap
         private string matchId;
         private MatchResultState? pendingMatchResult;
         private PresentationPingTracker pingTracker;
+        private long scheduledServerGameplayActivationRealtimeMilliseconds =
+            -1;
         private readonly GameplayCommandSendLedger commandSendLedger =
             new GameplayCommandSendLedger();
 
@@ -61,6 +77,34 @@ namespace FrameSyncMoba.Bootstrap
             AcceptedCommandsReceived;
         public int LatestPingMilliseconds =>
             pingTracker?.LatestRoundTripMilliseconds ?? -1;
+        public int SmoothedPingMilliseconds =>
+            pingTracker?.SmoothedRoundTripMilliseconds ?? -1;
+        public int PingVariationMilliseconds =>
+            pingTracker?.RoundTripVariationMilliseconds ?? -1;
+
+        public bool TryGetCommandNetworkTiming(
+            out CommandNetworkTiming timing)
+        {
+            timing = default;
+            if (!IsConnectedClient ||
+                runtime?.UnitWorld == null ||
+                pingTracker == null)
+            {
+                return false;
+            }
+
+            return pingTracker.TryBuildCommandNetworkTiming(
+                FrameSyncLaunchSchedule.SecondsToMilliseconds(
+                    Time.realtimeSinceStartupAsDouble),
+                runtime.UnitWorld.TickRate,
+                minimumCommandTimingSamples,
+                commandTimingSampleMaxAgeMilliseconds,
+                minimumJitterBudgetMilliseconds,
+                commandProcessingBudgetMilliseconds,
+                jitterVariationMultiplier,
+                desiredServerSlackTicks,
+                out timing);
+        }
 
         public void SetMatchId(string matchId)
         {
@@ -93,6 +137,11 @@ namespace FrameSyncMoba.Bootstrap
                         ? (int)Math.Round(
                             legacyPingRefreshIntervalSeconds * 1000f)
                         : 500);
+            if (scheduledServerGameplayActivationRealtimeMilliseconds >= 0)
+            {
+                pingTracker.ScheduleServerGameplayActivation(
+                    scheduledServerGameplayActivationRealtimeMilliseconds);
+            }
             TryRegisterHandlers();
             runtime.AuthorityFrames.AuthorityFrameBuilt +=
                 OnAuthorityFrameBuilt;
@@ -106,6 +155,25 @@ namespace FrameSyncMoba.Bootstrap
             if (!TryRegisterHandlers())
                 throw new InvalidOperationException(
                     "NGO CustomMessagingManager is not available after network start.");
+        }
+
+        public void ScheduleServerGameplayActivation(
+            long activationRealtimeMilliseconds)
+        {
+            if (activationRealtimeMilliseconds < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(activationRealtimeMilliseconds));
+            if (scheduledServerGameplayActivationRealtimeMilliseconds >= 0 &&
+                scheduledServerGameplayActivationRealtimeMilliseconds !=
+                    activationRealtimeMilliseconds)
+            {
+                throw new InvalidOperationException(
+                    "A conflicting server Gameplay activation time was scheduled.");
+            }
+            scheduledServerGameplayActivationRealtimeMilliseconds =
+                activationRealtimeMilliseconds;
+            pingTracker?.ScheduleServerGameplayActivation(
+                activationRealtimeMilliseconds);
         }
 
         public void SendLocalCommands()
@@ -303,10 +371,11 @@ namespace FrameSyncMoba.Bootstrap
             RequireServer();
             reader.ReadValueSafe(out uint sequence);
             using (var writer = new FastBufferWriter(
-                sizeof(uint),
+                sizeof(uint) + sizeof(int),
                 Allocator.Temp))
             {
                 writer.WriteValueSafe(sequence);
+                writer.WriteValueSafe(runtime.CurrentTick);
                 networkManager.CustomMessagingManager
                     .SendNamedMessage(
                         PingResponseMessage,
@@ -322,10 +391,12 @@ namespace FrameSyncMoba.Bootstrap
         {
             RequireClientServerSender(senderClientId);
             reader.ReadValueSafe(out uint sequence);
+            reader.ReadValueSafe(out int serverTickAtResponse);
             pingTracker?.TryComplete(
                 sequence,
                 FrameSyncLaunchSchedule.SecondsToMilliseconds(
-                    Time.realtimeSinceStartupAsDouble));
+                    Time.realtimeSinceStartupAsDouble),
+                serverTickAtResponse);
         }
 
         private void ReceiveRelay(
@@ -572,18 +643,25 @@ namespace FrameSyncMoba.Bootstrap
     }
 
     /// <summary>
-    /// Presentation-only ping cadence and round-trip measurement. It never
-    /// enters Gameplay commands, snapshots, or checksums.
+    /// Client-only integer network timing estimator. Raw RTT remains available
+    /// for presentation; smoothed timing may choose a new Command TargetTick.
+    /// The estimator itself never enters snapshots, checksums or replay.
     /// </summary>
     public sealed class PresentationPingTracker
     {
         private readonly int intervalMilliseconds;
         private long nextSendRealtimeMilliseconds;
         private long pendingSendRealtimeMilliseconds;
+        private long latestResponseRealtimeMilliseconds = -1;
+        private long serverGameplayActivationRealtimeMilliseconds = -1;
         private uint nextSequence = 1;
         private uint pendingSequence;
+        private int latestServerTickAtResponse = -1;
 
         public int LatestRoundTripMilliseconds { get; private set; } = -1;
+        public int SmoothedRoundTripMilliseconds { get; private set; } = -1;
+        public int RoundTripVariationMilliseconds { get; private set; } = -1;
+        public int CompletedSampleCount { get; private set; }
 
         public PresentationPingTracker(int intervalMilliseconds)
         {
@@ -617,6 +695,17 @@ namespace FrameSyncMoba.Bootstrap
             uint sequence,
             long realtimeMilliseconds)
         {
+            return TryComplete(
+                sequence,
+                realtimeMilliseconds,
+                -1);
+        }
+
+        public bool TryComplete(
+            uint sequence,
+            long realtimeMilliseconds,
+            int serverTickAtResponse)
+        {
             if (sequence == 0 ||
                 sequence != pendingSequence ||
                 realtimeMilliseconds <
@@ -629,8 +718,180 @@ namespace FrameSyncMoba.Bootstrap
                 milliseconds >= int.MaxValue
                     ? int.MaxValue
                     : (int)milliseconds;
+            int sample = LatestRoundTripMilliseconds;
+            if (CompletedSampleCount == 0)
+            {
+                SmoothedRoundTripMilliseconds = sample;
+                RoundTripVariationMilliseconds =
+                    DivideRounded(sample, 2);
+            }
+            else
+            {
+                int previousSmoothed =
+                    SmoothedRoundTripMilliseconds;
+                int deviation = sample >= previousSmoothed
+                    ? sample - previousSmoothed
+                    : previousSmoothed - sample;
+                RoundTripVariationMilliseconds =
+                    DivideRounded(
+                        checked(
+                            3L * RoundTripVariationMilliseconds +
+                            deviation),
+                        4);
+                SmoothedRoundTripMilliseconds =
+                    DivideRounded(
+                        checked(
+                            7L * previousSmoothed + sample),
+                        8);
+            }
+            if (CompletedSampleCount < int.MaxValue)
+                CompletedSampleCount++;
+            if (serverTickAtResponse >= 0)
+            {
+                latestServerTickAtResponse =
+                    serverTickAtResponse;
+                latestResponseRealtimeMilliseconds =
+                    realtimeMilliseconds;
+            }
             pendingSequence = 0;
             return true;
+        }
+
+        public void ScheduleServerGameplayActivation(
+            long activationRealtimeMilliseconds)
+        {
+            if (activationRealtimeMilliseconds < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(activationRealtimeMilliseconds));
+            if (serverGameplayActivationRealtimeMilliseconds >= 0 &&
+                serverGameplayActivationRealtimeMilliseconds !=
+                    activationRealtimeMilliseconds)
+            {
+                throw new InvalidOperationException(
+                    "A conflicting server Gameplay activation time was scheduled.");
+            }
+            serverGameplayActivationRealtimeMilliseconds =
+                activationRealtimeMilliseconds;
+        }
+
+        public bool TryBuildCommandNetworkTiming(
+            long realtimeMilliseconds,
+            int tickRate,
+            int minimumSampleCount,
+            int maximumSampleAgeMilliseconds,
+            int minimumJitterBudgetMilliseconds,
+            int processingBudgetMilliseconds,
+            int jitterVariationMultiplier,
+            int desiredServerSlackTicks,
+            out CommandNetworkTiming timing)
+        {
+            timing = default;
+            if (tickRate <= 0 ||
+                minimumSampleCount <= 0 ||
+                maximumSampleAgeMilliseconds <= 0 ||
+                minimumJitterBudgetMilliseconds < 0 ||
+                processingBudgetMilliseconds < 0 ||
+                jitterVariationMultiplier < 0 ||
+                desiredServerSlackTicks < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "Command timing configuration must be non-negative and use positive Tick/sample limits.");
+            }
+            if (CompletedSampleCount < minimumSampleCount ||
+                latestServerTickAtResponse < 0 ||
+                latestResponseRealtimeMilliseconds < 0 ||
+                realtimeMilliseconds <
+                    latestResponseRealtimeMilliseconds)
+            {
+                return false;
+            }
+
+            long sampleAgeMilliseconds =
+                realtimeMilliseconds -
+                latestResponseRealtimeMilliseconds;
+            if (sampleAgeMilliseconds >
+                maximumSampleAgeMilliseconds)
+            {
+                return false;
+            }
+
+            long halfRoundTripMilliseconds =
+                (SmoothedRoundTripMilliseconds + 1L) / 2L;
+            long serverAdvanceAnchorMilliseconds =
+                latestResponseRealtimeMilliseconds;
+            if (serverGameplayActivationRealtimeMilliseconds >= 0 &&
+                serverAdvanceAnchorMilliseconds <
+                    serverGameplayActivationRealtimeMilliseconds)
+            {
+                serverAdvanceAnchorMilliseconds =
+                    serverGameplayActivationRealtimeMilliseconds;
+            }
+            long serverAdvanceAgeMilliseconds = Math.Max(
+                0L,
+                realtimeMilliseconds -
+                serverAdvanceAnchorMilliseconds);
+            long estimatedServerAdvanceMilliseconds = checked(
+                halfRoundTripMilliseconds +
+                serverAdvanceAgeMilliseconds);
+            int estimatedServerAdvanceTicks =
+                CeilMillisecondsToTicks(
+                    estimatedServerAdvanceMilliseconds,
+                    tickRate);
+            int estimatedServerTickNow;
+            try
+            {
+                estimatedServerTickNow = checked(
+                    latestServerTickAtResponse +
+                    estimatedServerAdvanceTicks);
+            }
+            catch (OverflowException)
+            {
+                return false;
+            }
+
+            long variationBudgetMilliseconds = checked(
+                (long)RoundTripVariationMilliseconds *
+                jitterVariationMultiplier);
+            long jitterBudgetMilliseconds = Math.Max(
+                variationBudgetMilliseconds,
+                minimumJitterBudgetMilliseconds);
+            long networkBudgetMilliseconds = checked(
+                halfRoundTripMilliseconds +
+                jitterBudgetMilliseconds +
+                processingBudgetMilliseconds);
+            int networkBudgetTicks = CeilMillisecondsToTicks(
+                networkBudgetMilliseconds,
+                tickRate);
+
+            timing = new CommandNetworkTiming(
+                estimatedServerTickNow,
+                networkBudgetTicks,
+                desiredServerSlackTicks);
+            return true;
+        }
+
+        private static int DivideRounded(
+            long numerator,
+            int denominator)
+        {
+            return checked((int)(
+                (numerator + denominator / 2L) /
+                denominator));
+        }
+
+        private static int CeilMillisecondsToTicks(
+            long milliseconds,
+            int tickRate)
+        {
+            if (milliseconds <= 0)
+                return 0;
+            long numerator = checked(
+                milliseconds * tickRate);
+            long ticks = checked(
+                (numerator + 999L) / 1000L);
+            return ticks >= int.MaxValue
+                ? int.MaxValue
+                : (int)ticks;
         }
     }
 

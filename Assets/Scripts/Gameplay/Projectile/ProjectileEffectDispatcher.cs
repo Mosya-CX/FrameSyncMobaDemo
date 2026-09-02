@@ -280,14 +280,10 @@ namespace FrameSyncMoba.Unit
             UnitWorld world,
             ProjectileOnHitBuff[] effects)
         {
-            if (effects == null) return;
-            if (target.BuffHandler == null)
-                throw new DeterministicSimulationException(
-                    $"Projectile target {target.UnitUid} has no BuffHandler.");
+            if (effects == null || effects.Length == 0) return;
             if (world.BuffDefinitions == null)
                 throw new DeterministicSimulationException(
                     "Projectile Buff effect has no BuffDefinitionRegistry.");
-
             for (int i = 0; i < effects.Length; i++)
             {
                 ProjectileOnHitBuff effect = effects[i];
@@ -304,8 +300,8 @@ namespace FrameSyncMoba.Unit
                         out BuffDefinition definition))
                     throw new DeterministicSimulationException(
                         $"Projectile Buff effect references missing BuffConfigId {effect.BuffId.Value}.");
-
-                target.BuffHandler.Apply(
+                StructureEffectPolicy.TryApplyBuff(
+                    target,
                     effect.BuffId,
                     definition,
                     BuffSource.Create(
@@ -341,9 +337,6 @@ namespace FrameSyncMoba.Unit
             ProjectileOnHitCC[] effects)
         {
             if (effects == null) return;
-            if (target.CrowdControl == null)
-                throw new DeterministicSimulationException(
-                    $"Projectile target {target.UnitUid} has no CrowdControlHandler.");
 
             for (int i = 0; i < effects.Length; i++)
             {
@@ -351,10 +344,23 @@ namespace FrameSyncMoba.Unit
                 if (!effect.IsValid)
                     throw new DeterministicSimulationException(
                         $"Projectile CC effect {i} is invalid.");
-                target.CrowdControl.Add(
-                    effect.ControlId,
-                    effect.DurationTicks,
-                    default);
+                CrowdControlAddResult result =
+                    StructureEffectPolicy.TryApplyCrowdControl(
+                        target,
+                        projectile.OwnerUnitUid,
+                        effect.ControlId,
+                        effect.DurationTicks,
+                        default);
+                if (result.Status ==
+                        CrowdControlAddStatus.InvalidDefinition ||
+                    result.Status ==
+                        CrowdControlAddStatus.InvalidParams ||
+                    result.Status ==
+                        CrowdControlAddStatus.InvalidDuration)
+                {
+                    throw new DeterministicSimulationException(
+                        $"Projectile CC effect {i} failed validation with {result.Status}.");
+                }
             }
         }
 

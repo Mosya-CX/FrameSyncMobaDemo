@@ -82,10 +82,13 @@ namespace FrameSyncMoba.Unit
             for (int i = 0; i < _results.Count; i++)
             {
                 Unit target = _results[i];
-                if (target?.CrowdControl == null ||
-                    target.UnitKind == UnitKind.Structure)
+                if (target == null ||
+                    (target.CrowdControl == null &&
+                     target.UnitKind != UnitKind.Structure))
                     continue;
-                target.CrowdControl.Add(
+                StructureEffectPolicy.TryApplyCrowdControl(
+                    target,
+                    caster.UnitUid,
                     ControlId,
                     ControlDurationTicks,
                     default);

@@ -21,6 +21,7 @@ namespace FrameSyncMoba.FrameSync.Tests
         private GameplayUnit owner;
         private GameplayUnit firstTarget;
         private GameplayUnit secondTarget;
+        private CrowdControlDefinition testCrowdControlDefinition;
 
         [SetUp]
         public void SetUp()
@@ -78,6 +79,9 @@ namespace FrameSyncMoba.FrameSync.Tests
         {
             CombatEvents.Clear();
             projectileWorld?.Dispose();
+            if (testCrowdControlDefinition != null)
+                UnityEngine.Object.DestroyImmediate(
+                    testCrowdControlDefinition);
             controller.EndTick();
             UnitTestFactory.DestroyCreatedObjects();
         }
@@ -303,6 +307,121 @@ namespace FrameSyncMoba.FrameSync.Tests
                 }
             }
             Assert.That(found, Is.True);
+        }
+
+        [Test]
+        public void MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp()
+        {
+            unitWorld.CrowdControlDefinitions =
+                new CrowdControlDefinitionRegistry();
+            testCrowdControlDefinition =
+                UnityEngine.ScriptableObject.CreateInstance<
+                    CrowdControlDefinition>();
+            testCrowdControlDefinition.Configure(
+                CrowdControlIds.Stun,
+                CrowdControlIntensity.Low,
+                CrowdControlDefinition.ControlTagBits.Control,
+                CrowdControlDurationRule.DefaultTenacity,
+                Array.Empty<CrowdControlParamAuthoring>(),
+                Array.Empty<CrowdControlModuleAuthoring>());
+            unitWorld.CrowdControlDefinitions.Register(
+                testCrowdControlDefinition);
+            GameplayUnit structure = unitWorld.SpawnUnit(
+                CreatePrototype(UnitKind.Structure, 2, 1002),
+                new TeamId(2),
+                10,
+                fp.zero,
+                fp.zero);
+            UnitTestFactory.AddProjectilePrefab(
+                unitWorld,
+                2001);
+            SetTargetPose(structure, (fp)1);
+            RegisterDefinition(
+                maxHits: 4,
+                endOnFirst: false,
+                includeCrowdControl: true);
+            SpawnAndAdvance(
+                CombatSourceType.Ability,
+                10011);
+            physicsWorld.BuildUnitFinalGrid();
+
+            resolver.ResolveAllHits(projectileWorld);
+            Assert.DoesNotThrow(
+                () => resolver.EmitEffects(projectileWorld));
+            combat.SettleActiveRequests();
+
+            Assert.AreEqual(
+                (fp)100,
+                structure.StatHandler.CurrentHealth);
+            Assert.AreEqual(0, structure.CrowdControl.Count);
+        }
+
+        [Test]
+        public void MisconfiguredProjectileBuff_StructureHitStillFailsVisibly()
+        {
+            unitWorld.BuffDefinitions =
+                new BuffDefinitionRegistry();
+            GameplayUnit structure = unitWorld.SpawnUnit(
+                CreatePrototype(UnitKind.Structure, 2, 1002),
+                new TeamId(2),
+                10,
+                fp.zero,
+                fp.zero);
+            UnitTestFactory.AddProjectilePrefab(
+                unitWorld,
+                2001);
+            RegisterDefinition(
+                maxHits: 1,
+                endOnFirst: true,
+                buffEffects: new[]
+                {
+                    new ProjectileOnHitBuff
+                    {
+                        BuffId = new BuffConfigId(9909),
+                        DurationTicks = 10,
+                        TargetKinds = UnitKindMask.All,
+                    },
+                });
+            SpawnAndAdvance(
+                CombatSourceType.Ability,
+                10011);
+            ProjectileRuntime projectile =
+                projectileWorld.GetAllOrdered()[0];
+
+            Assert.Throws<DeterministicSimulationException>(
+                () => ProjectileEffectDispatcher.DispatchOnHit(
+                    projectile,
+                    structure.UnitUid,
+                    unitWorld));
+        }
+
+        [Test]
+        public void MisconfiguredProjectileCC_StructureHitStillFailsVisibly()
+        {
+            GameplayUnit structure = unitWorld.SpawnUnit(
+                CreatePrototype(UnitKind.Structure, 2, 1002),
+                new TeamId(2),
+                10,
+                fp.zero,
+                fp.zero);
+            UnitTestFactory.AddProjectilePrefab(
+                unitWorld,
+                2001);
+            RegisterDefinition(
+                maxHits: 1,
+                endOnFirst: true,
+                includeCrowdControl: true);
+            SpawnAndAdvance(
+                CombatSourceType.Ability,
+                10011);
+            ProjectileRuntime projectile =
+                projectileWorld.GetAllOrdered()[0];
+
+            Assert.Throws<DeterministicSimulationException>(
+                () => ProjectileEffectDispatcher.DispatchOnHit(
+                    projectile,
+                    structure.UnitUid,
+                    unitWorld));
         }
 
         [Test]
@@ -652,7 +771,9 @@ namespace FrameSyncMoba.FrameSync.Tests
             int maxHits,
             bool endOnFirst,
             int pierceCount = 0,
-            bool restrictToTracked = false)
+            bool restrictToTracked = false,
+            bool includeCrowdControl = false,
+            ProjectileOnHitBuff[] buffEffects = null)
         {
             projectileWorld.DefRegistry.Register(
                 new ProjectileDef
@@ -691,18 +812,39 @@ namespace FrameSyncMoba.FrameSync.Tests
                                         RecipeId = 1,
                                     },
                                 },
+                            CCEffects = includeCrowdControl
+                                ? new[]
+                                {
+                                    new ProjectileOnHitCC
+                                    {
+                                        ControlId =
+                                            CrowdControlIds.Stun,
+                                        DurationTicks = 10,
+                                    },
+                                }
+                                : Array.Empty<ProjectileOnHitCC>(),
+                            BuffEffects = buffEffects ??
+                                Array.Empty<ProjectileOnHitBuff>(),
                         },
                 });
         }
 
         private void SpawnAndAdvance(
+            bool lockSecondTarget = false) =>
+            SpawnAndAdvance(
+                CombatSourceType.Attack,
+                CombatBuiltinSourceId.BasicAttack,
+                lockSecondTarget);
+
+        private void SpawnAndAdvance(
+            CombatSourceType sourceType,
+            int sourceId,
             bool lockSecondTarget = false)
         {
             var source = new SourceDescriptor
             {
-                SourceType = CombatSourceType.Attack,
-                SourceId =
-                    CombatBuiltinSourceId.BasicAttack,
+                SourceType = sourceType,
+                SourceId = sourceId,
                 OwnerUnitUid = owner.UnitUid,
                 EmitterUnitUid = owner.UnitUid,
             };

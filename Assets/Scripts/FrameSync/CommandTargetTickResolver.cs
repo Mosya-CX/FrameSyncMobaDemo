@@ -4,8 +4,10 @@ using FrameSyncMoba.Deterministic;
 namespace FrameSyncMoba.FrameSync
 {
     /// <summary>
-    /// Owns the formal local Command target-Tick formula from FrameSync v10.2.
-    /// PlayerInput supplies intent only and never chooses a Tick itself.
+    /// Owns the formal local Command target-Tick formula. PlayerInput supplies
+    /// intent only and never chooses a Tick itself. Network timing is an
+    /// optional client-side lower bound; the static formula remains the
+    /// cold-start and stale-sample fallback.
     /// </summary>
     public sealed class CommandTargetTickResolver
     {
@@ -13,12 +15,17 @@ namespace FrameSyncMoba.FrameSync
         private readonly Func<int> latestSynchronizedServerTickProvider;
         private readonly int minCommandLeadTicks;
         private readonly int maxFutureCommandTicks;
+        private readonly ICommandNetworkTimingProvider networkTimingProvider;
+        private bool hasCachedTargetTick;
+        private int cachedBuildLocalTick = -1;
+        private int cachedTargetTick = -1;
 
         public CommandTargetTickResolver(
             Func<int> localSimulationTickProvider,
             Func<int> latestSynchronizedServerTickProvider,
             int minCommandLeadTicks,
-            int maxFutureCommandTicks)
+            int maxFutureCommandTicks,
+            ICommandNetworkTimingProvider networkTimingProvider = null)
         {
             this.localSimulationTickProvider = localSimulationTickProvider
                 ?? throw new ArgumentNullException(
@@ -36,11 +43,16 @@ namespace FrameSyncMoba.FrameSync
                     nameof(maxFutureCommandTicks));
             this.minCommandLeadTicks = minCommandLeadTicks;
             this.maxFutureCommandTicks = maxFutureCommandTicks;
+            this.networkTimingProvider = networkTimingProvider;
         }
 
         public int ResolveTargetTick(out int buildLocalTick)
         {
             buildLocalTick = localSimulationTickProvider();
+            if (hasCachedTargetTick &&
+                buildLocalTick == cachedBuildLocalTick)
+                return cachedTargetTick;
+
             int latestSynchronizedServerTick =
                 latestSynchronizedServerTickProvider();
             if (buildLocalTick < 0 || latestSynchronizedServerTick < -1)
@@ -70,10 +82,39 @@ namespace FrameSyncMoba.FrameSync
             if (targetTick > latestAllowedTick)
             {
                 throw new DeterministicSimulationException(
-                    $"Resolved Command TargetTick {targetTick} exceeds local future window ending at {latestAllowedTick}.");
+                    $"Static Command TargetTick {targetTick} exceeds local future window ending at {latestAllowedTick}.");
             }
-            // Per-command tick resolution is silent during healthy play;
-            // enable DetailedLoggingEnabled for a diagnostic round if needed.
+            if (networkTimingProvider != null &&
+                networkTimingProvider.TryGetCommandNetworkTiming(
+                    out CommandNetworkTiming timing))
+            {
+                int adaptiveDesiredTick;
+                int estimatedServerLatestAllowedTick;
+                try
+                {
+                    adaptiveDesiredTick = checked(
+                        timing.EstimatedServerTickNow +
+                        timing.NetworkBudgetTicks +
+                        timing.DesiredServerSlackTicks);
+                    estimatedServerLatestAllowedTick = checked(
+                        timing.EstimatedServerTickNow +
+                        maxFutureCommandTicks);
+                }
+                catch (OverflowException exception)
+                {
+                    throw new DeterministicSimulationException(
+                        $"Adaptive Command TargetTick arithmetic overflowed: {exception.Message}");
+                }
+                int adaptiveTick = Math.Min(
+                    adaptiveDesiredTick,
+                    Math.Min(
+                        latestAllowedTick,
+                        estimatedServerLatestAllowedTick));
+                targetTick = Math.Max(targetTick, adaptiveTick);
+            }
+            hasCachedTargetTick = true;
+            cachedBuildLocalTick = buildLocalTick;
+            cachedTargetTick = targetTick;
             return targetTick;
         }
     }

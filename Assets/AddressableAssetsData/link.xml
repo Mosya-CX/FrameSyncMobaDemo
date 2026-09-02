@@ -1,0 +1,256 @@
+<linker>
+  <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="FrameSyncMoba.Presentation.SplineTentacleRenderer" preserve="all" />
+  </assembly>
+  <assembly fullname="FrameSyncMoba.Bootstrap, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="FrameSyncMoba.Bootstrap.ClientUnitOutline" preserve="all" />
+    <type fullname="FrameSyncMoba.Bootstrap.MinimapController" preserve="all" />
+    <type fullname="FrameSyncMoba.Bootstrap.UIPage" preserve="all" />
+    <type fullname="FrameSyncMoba.Bootstrap.UIPageOpenButton" preserve="all" />
+    <type fullname="FrameSyncMoba.Bootstrap.UIPanel" preserve="all" />
+  </assembly>
+  <assembly fullname="FrameSyncMoba.FrameSync, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="FrameSyncMoba.FrameSync.BuffDrivenBoneVisibility" preserve="all" />
+    <type fullname="FrameSyncMoba.FrameSync.CorruptionVineSpreadLineBehaviour" preserve="all" />
+    <type fullname="FrameSyncMoba.FrameSync.PresentationSocketSet" preserve="all" />
+    <type fullname="FrameSyncMoba.FrameSync.ProjectileAreaRadiusVisualizer" preserve="all" />
+    <type fullname="FrameSyncMoba.FrameSync.UnitAnimationDriver" preserve="all" />
+    <type fullname="FrameSyncMoba.FrameSync.UnitPresentationHost" preserve="all" />
+    <type fullname="FrameSyncMoba.FrameSync.VfxPlaybackHost" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.TowerTargetLinePresenter" preserve="all" />
+  </assembly>
+  <assembly fullname="FrameSyncMoba.LuaBridge, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="FrameSyncMoba.LuaBridge.UICell" preserve="all" />
+    <type fullname="FrameSyncMoba.LuaBridge.UIList" preserve="all" />
+    <type fullname="FrameSyncMoba.LuaBridge.UIRef" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="FrameSyncMoba.Physics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="FrameSyncMoba.Physics.PhysicsEntity2D" preserve="all" />
+    <type fullname="FrameSyncMoba.Physics.PhysicsEntity2DShapeAuthoring" preserve="all" />
+  </assembly>
+  <assembly fullname="FrameSyncMoba.RuntimeConfig, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="FrameSyncMoba.RuntimeConfig.GlobalPrefabSubTableAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.RuntimeConfig.DurationAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.RuntimeConfig.MatchContentAssetAddress" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.RuntimeConfig.PrefabEntry" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.RuntimeConfig.PrefabGroup" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="FrameSyncMoba.Unit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="FrameSyncMoba.Presentation.UnitAnimationProfile" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.AatroxAbilityZoneAuthoringGizmo" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.AbilityAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.AbilityHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.AbilityLoadoutAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.AbilityRuntimeCatalogAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.AttackHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.BuffCatalogAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.BuffDefinition" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.BuffHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.CrowdControlCatalogAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.CrowdControlDefinition" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.CrowdControlHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.DeterministicMapConfig" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentCatalogAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentDefinition" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.FixedPassiveDefinitionAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.FlowFieldBakeAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.FlowFieldSceneAuthoring" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.FlowFieldVisualizer" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.LaneAuthoring" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.MovementHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileContainmentZoneAuthoring" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileRuntimeCatalogAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.StatHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.TowerAttackHandler" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.Unit" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.UnitDisposePolicyTable" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.UnitRuntimeCatalogAsset" preserve="all" />
+    <type fullname="FrameSyncMoba.Unit.AbilityInitialLevel" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.AbilityLoadoutSlot" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.AbilityRankStatModifierBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.AbilityRankStatModifierPassiveEffectAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.AbilitySlotDef" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffBlackboardLayout" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffConfigId" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffDisplayInfo" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffEffectConfig" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffEventReactions" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffLifeRuleConfig" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffLifecycleReactions" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffStackRuleConfig" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffTagSet" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.CommitCastModelAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.DashStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.DecayingAbilityRankStatModifierBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.DelayStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.DirectionalMultiZoneDamageStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.EmpoweredAttackMaxHealthPassiveEffectDef" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.HandlerLoadout" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.LevelExperienceConfig" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.LocomotionProfileAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.MaxHealthOnHitBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.PhysicsProfile2DAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileBuffAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileDefinitionAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileHitPolicy" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileTargetFilter" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.RefreshDurationOnKillParticipationBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ScaledProjectileStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.SelfBuffAreaControlStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.SequentialRecastCastModelAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.StatModifierBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.StatPresetEntryAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.TetherZoneBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.UnitKindMask" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.UnitPoolConfig" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.UnitPrototypeAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.UnitRespawnConfig" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.DeterministicMapObstacleAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.DeterministicSpawnPointAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.FlowFieldKey" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.LaneTeamSpawnAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.TeamFlowFieldData" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Presentation.AttackAnimationPlan" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Presentation.StageAnimationBinding" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.BuffEquipmentModule" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.CombatModifierBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ControlModuleOp" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.CrowdControlModuleAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.CrowdControlParamAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.CrowdControlParamLayoutEntry" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentActiveSettings" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentEffectDef" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentFixedStatAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentRecipe" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.EquipmentRecipePart" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.FlatStatBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.KillStatGrowthBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.LightshieldStrikeEquipmentModule" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.OnHitBonusDamageModule" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.OnHitRepeatModule" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileDamageAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.StatDefinitionAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.UniqueEquipmentTagTable" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.UnitDisposePolicyEntry" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.AbilityHitStackDetonationBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ApplyBuffPassiveEffectDef" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.AreaDamageStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ChargeProjectileStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ChargeStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.CorruptionVineSpreadBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.HoldReleaseCastModelAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.OnHitBonusDamagePassiveEffectAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ProjectileCrowdControlAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.SpawnProjectileStageDefAuthoring" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.StatRatioBuffEffect" preserve="nothing" serialized="true" />
+    <type fullname="FrameSyncMoba.Unit.ToggleCastModelAuthoring" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.Addressables, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.AddressableAssets.Addressables" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.InstanceProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.LegacyResourcesProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.SceneProvider" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.Splines, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Splines.SplineContainer" preserve="all" />
+    <type fullname="UnityEngine.Splines.BezierKnot" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Splines.KnotLinkCollection" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Splines.Spline" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Splines.Spline/MetaData" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Splines.SplineDataDictionary`1[System.Int32]" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Splines.SplineDataDictionary`1[System.Single]" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Splines.SplineDataDictionary`1[Unity.Mathematics.float4]" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Splines.SplineDataDictionary`1[UnityEngine.Object]" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="TMPro.TextMeshProUGUI" preserve="all" />
+    <type fullname="TMPro.TMP_FontAsset" preserve="all" />
+    <type fullname="TMPro.FaceInfo_Legacy" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.FontAssetCreationSettings" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.KerningTable" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_Character" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_FontFeatureTable" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_FontWeightPair" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_GlyphAdjustmentRecord" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_GlyphPairAdjustmentRecord" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_GlyphValueRecord" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.VertexGradient" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.AnimationClip" preserve="all" />
+    <type fullname="UnityEngine.Animator" preserve="all" />
+    <type fullname="UnityEngine.RuntimeAnimatorController" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.AudioClip" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.GameObject" preserve="all" />
+    <type fullname="UnityEngine.LineRenderer" preserve="all" />
+    <type fullname="UnityEngine.Material" preserve="all" />
+    <type fullname="UnityEngine.Mesh" preserve="all" />
+    <type fullname="UnityEngine.MeshFilter" preserve="all" />
+    <type fullname="UnityEngine.MeshRenderer" preserve="all" />
+    <type fullname="UnityEngine.Object" preserve="all" />
+    <type fullname="UnityEngine.RectTransform" preserve="all" />
+    <type fullname="UnityEngine.RenderTexture" preserve="all" />
+    <type fullname="UnityEngine.Shader" preserve="all" />
+    <type fullname="UnityEngine.SkinnedMeshRenderer" preserve="all" />
+    <type fullname="UnityEngine.Sprite" preserve="all" />
+    <type fullname="UnityEngine.SpriteRenderer" preserve="all" />
+    <type fullname="UnityEngine.Texture2D" preserve="all" />
+    <type fullname="UnityEngine.TrailRenderer" preserve="all" />
+    <type fullname="UnityEngine.Transform" preserve="all" />
+    <type fullname="UnityEngine.Events.PersistentCallGroup" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.RectOffset" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.ParticleSystem" preserve="all" />
+    <type fullname="UnityEngine.ParticleSystemRenderer" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Font" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.UI.Button" preserve="all" />
+    <type fullname="UnityEngine.UI.GridLayoutGroup" preserve="all" />
+    <type fullname="UnityEngine.UI.Image" preserve="all" />
+    <type fullname="UnityEngine.UI.Mask" preserve="all" />
+    <type fullname="UnityEngine.UI.RawImage" preserve="all" />
+    <type fullname="UnityEngine.UI.Scrollbar" preserve="all" />
+    <type fullname="UnityEngine.UI.ScrollRect" preserve="all" />
+    <type fullname="UnityEngine.UI.Slider" preserve="all" />
+    <type fullname="UnityEngine.UI.AnimationTriggers" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Button/ButtonClickedEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.ColorBlock" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.MaskableGraphic/CullStateChangedEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Navigation" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.ScrollRect/ScrollRectEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Scrollbar/ScrollEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Slider/SliderEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.SpriteState" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.CanvasGroup" preserve="all" />
+    <type fullname="UnityEngine.CanvasRenderer" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.Mathematics">
+    <type fullname="Unity.Mathematics.float3" preserve="nothing" serialized="true" />
+    <type fullname="Unity.Mathematics.float4" preserve="nothing" serialized="true" />
+    <type fullname="Unity.Mathematics.quaternion" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.Mathematics.FixedPoint">
+    <type fullname="Unity.Mathematics.FixedPoint.fp" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.TextCoreFontEngineModule">
+    <type fullname="UnityEngine.TextCore.FaceInfo" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.Glyph" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.GlyphMetrics" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.GlyphRect" preserve="nothing" serialized="true" />
+  </assembly>
+</linker>

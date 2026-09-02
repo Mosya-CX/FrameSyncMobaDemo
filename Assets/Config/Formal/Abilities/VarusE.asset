@@ -57,7 +57,7 @@ MonoBehaviour:
         targetFilter:
           TeamRule: 1
           UnitKindMask:
-            mask: 4294967295
+            mask: 7
           RequireSubKind: 0
           UnitSubKindId: 0
           RequirePrototype: 0

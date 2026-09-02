@@ -204,9 +204,13 @@ namespace FrameSyncMoba.Unit
                 }
 
                 if (sweet && SweetSpotControlId.IsValid &&
-                    SweetSpotControlDurationTicks > 0)
+                    SweetSpotControlDurationTicks > 0 &&
+                    (target.CrowdControl != null ||
+                     target.UnitKind == UnitKind.Structure))
                 {
-                    target.CrowdControl?.Add(
+                    StructureEffectPolicy.TryApplyCrowdControl(
+                        target,
+                        caster.UnitUid,
                         SweetSpotControlId,
                         SweetSpotControlDurationTicks,
                         default);

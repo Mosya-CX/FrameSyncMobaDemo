@@ -900,16 +900,24 @@ namespace FrameSyncMoba.Bootstrap
                 nowMilliseconds;
             if (Runtime == null)
                 return;
-            if (UsesNetworkSimulation &&
+            bool connectedFrameSyncClient =
+                UsesNetworkSimulation &&
                 !dedicatedServer &&
-                IsClientGameplayActive() &&
                 frameSyncNetworkBridge != null &&
-                frameSyncNetworkBridge
-                    .IsConnectedClient)
+                frameSyncNetworkBridge.IsBound &&
+                frameSyncNetworkBridge.IsConnectedClient;
+            if (connectedFrameSyncClient)
             {
-                frameSyncNetworkBridge.SendLocalCommands();
+                // Warm the RTT estimator throughout the loaded/ready launch
+                // barrier. Gameplay remains frozen until its existing launch
+                // gates open, but the first Command can use fresh samples.
                 frameSyncNetworkBridge.TickPresentationPing(
                     nowMilliseconds);
+            }
+            if (connectedFrameSyncClient &&
+                IsClientGameplayActive())
+            {
+                frameSyncNetworkBridge.SendLocalCommands();
                 recoveryAccumulatorMillisecondRateUnits =
                     checked(
                         recoveryAccumulatorMillisecondRateUnits +
@@ -1441,6 +1449,19 @@ namespace FrameSyncMoba.Bootstrap
             IFrameSyncLaunchClock clock = RequireLaunchClock();
             long receivedServerTimeMilliseconds =
                 clock.SynchronizedServerTimeMilliseconds;
+            if (!dedicatedServer)
+            {
+                long serverActivationMonotonicMilliseconds =
+                    checked(
+                        clock.MonotonicTimeMilliseconds +
+                        Math.Max(
+                            0L,
+                            commit.LaunchServerTimeMilliseconds -
+                            receivedServerTimeMilliseconds));
+                frameSyncNetworkBridge?
+                    .ScheduleServerGameplayActivation(
+                        serverActivationMonotonicMilliseconds);
+            }
             loadWaitStartMonotonicMilliseconds =
                 clock.MonotonicTimeMilliseconds;
             loadWaitDurationMilliseconds = Math.Max(
@@ -3307,7 +3328,8 @@ namespace FrameSyncMoba.Bootstrap
                 Runtime.CommandCollector,
                 playerSlot,
                 clientId,
-                Runtime.CreateCommandTargetTickResolver(),
+                Runtime.CreateCommandTargetTickResolver(
+                    frameSyncNetworkBridge),
                 AbilityInputMappingProvider.CreateFromAbilityHandler(
                     controlledUnit.AbilityHandler),
                 new UnitWorldAbilityRuntimeView(UnitWorld),

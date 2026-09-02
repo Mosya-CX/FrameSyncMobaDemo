@@ -20,15 +20,15 @@ A document not listed as **Current** here is not an implementation authority.
 
 | Domain | Current design | Status | Notes |
 |---|---|---|---|
-| FrameSync / flow / match runtime | `Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md` | Current + D-045/D-051 amendments | Also owns application flow, synchronized-server-time launch, match-scoped content selection/loading gate, monotonic pacing, AuthorityFrame, recovery, prediction and match result boundaries |
+| FrameSync / flow / match runtime | `Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md` | Current + D-045/D-051/D-053 amendments | Also owns application flow, synchronized-server-time launch, adaptive Command TargetTick selection, match-scoped content selection/loading gate, monotonic pacing, AuthorityFrame, recovery, prediction and match result boundaries |
 | Snapshot / rollback schema | `Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md` + `Docs/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md` section 6 | Current + D-047 amendment | Exact snapshot membership and restore phases; ActionRuntime schema 23 membership is frozen by the amendment |
 | Unit behavior framework | `Docs/Design/unit_behavior_framework_design_v27_3.md` + `Docs/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md` | Current v27.4 amendment | UnitWorld, Handler ownership, AI controller lifecycle, structured arbitration and fixed Main/Base Runtime slots |
-| Combat | `Docs/Design/moba_combat_system_design_v13_2.md` + `Docs/Design/moba_combat_system_design_v13_3_same_tick_fairness_amendment.md` + `Docs/Design/moba_combat_system_design_v13_4_action_identity_fairness_amendment.md` | Current + D-049/D-050 amendments | Traversal-neutral sealed settlement waves, action-keyed Crit, neutral Projectile ties, formal death and fair lethal-batch killer attribution |
-| Projectile | `Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md` | Current | Projectile UID, world lifecycle, snapshot and hit pipeline |
-| Ability | `Docs/Design/moba_ability_system_design_v15_2.md` | Current | Ability Runtime, Session, Stage, signal language and indicator-stage source |
-| Attack | `Docs/Design/moba_attack_module_design_v6_2.md` | Current | Attack action/session/commit and presentation audio integration |
-| Buff | `Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md` | Current | Handle ownership and death/respawn lifecycle |
-| Crowd control | `Docs/Design/moba_crowd_control_system_design_v6_2.md` | Current | CC state, immunity/unstoppable handles and lifecycle |
+| Combat | `Docs/Design/moba_combat_system_design_v13_2.md` + `Docs/Design/moba_combat_system_design_v13_3_same_tick_fairness_amendment.md` + `Docs/Design/moba_combat_system_design_v13_4_action_identity_fairness_amendment.md` | Current + D-049/D-050/D-054 amendments | Traversal-neutral sealed settlement waves, action-keyed Crit, neutral Projectile ties, structure effect admission, formal death and fair lethal-batch killer attribution |
+| Projectile | `Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md` | Current + D-054 amendment | Projectile UID, world lifecycle, snapshot, hit pipeline and structure target exclusion |
+| Ability | `Docs/Design/moba_ability_system_design_v15_2.md` | Current + D-054 amendment | Ability Runtime, Session, Stage, signal language, indicator-stage source and structure target exclusion |
+| Attack | `Docs/Design/moba_attack_module_design_v6_2.md` | Current + D-054 amendment | Attack action/session/commit, ordinary-attack structure exception and presentation audio integration |
+| Buff | `Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md` | Current + D-054 amendment | Handle ownership, structure admission and death/respawn lifecycle |
+| Crowd control | `Docs/Design/moba_crowd_control_system_design_v6_2.md` | Current + D-054 amendment | CC state, immunity/unstoppable handles, structure admission and lifecycle |
 | Equipment / shop / gold | `Docs/Design/moba_equipment_shop_gold_system_design_v12.md` | Current | Equipment runtime, OperationLog, undo and unique GoldIncomeRuntime |
 | Unit physics / range query | `Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md` | Current | Deterministic 2D movement, collision/query and transform boundary |
 | Pathfinding | `Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md` | Current | Deterministic pathfinding integration |
@@ -43,10 +43,10 @@ Where a topic appears in multiple documents, use this ownership table:
 
 | Contract | Owning design |
 |---|---|
-| Tick meanings, AuthorityFrame, recovery and rollback boundary | FrameSync v10.2 |
+| Tick meanings, adaptive Command TargetTick, AuthorityFrame, recovery and rollback boundary | FrameSync v10.2 + D-053 |
 | Exact GameplaySnapshot membership | Snapshot Appendix v7.2 + Unit Framework v27.4 amendment section 6 |
 | Unit lifecycle API and Handler ownership | Unit Framework v27.3 + v27.4 amendment |
-| Damage/heal/shield settlement, action-keyed Crit, Projectile equal-distance arbitration, killer attribution and death/kill deferred requests | Combat v13.2 + v13.3/v13.4 fairness amendments |
+| Damage/heal/shield settlement, structure effect admission, action-keyed Crit, Projectile equal-distance arbitration, killer attribution and death/kill deferred requests | Combat v13.2 + v13.3/v13.4 fairness amendments + D-054 |
 | Projectile UID and ProjectileWorld snapshot | Projectile v19 |
 | Ability signals, sessions, stages and Gameplay timing | Ability v15.2 |
 | Physical player input mapping | Player Input v1.1 |

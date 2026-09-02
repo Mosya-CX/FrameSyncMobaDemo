@@ -9,7 +9,7 @@ namespace FrameSyncMoba.Unit.Tests
     public sealed class FormalAbilityStructureTargetTests
     {
         [Test]
-        public void FormalAreaAbility_TargetsAliveEnemyStructures()
+        public void FormalAreaAbility_ExcludesStructures()
         {
             AbilityAsset asset =
                 AssetDatabase.LoadAssetAtPath<AbilityAsset>(
@@ -26,7 +26,7 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.That(
                 stage.TargetFilter.UnitKindMask.Contains(
                     UnitKind.Structure),
-                Is.True);
+                Is.False);
             Assert.That(
                 stage.TargetFilter.LifeStateMask.Contains(
                     LifeState.Alive),
@@ -34,16 +34,32 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.That(stage.TargetFilter.RequireTargetable, Is.True);
         }
 
-        [TestCase(106)]
-        [TestCase(107)]
-        [TestCase(108)]
-        public void FormalAbilityProjectile_TargetsStructures(
+        [TestCase(
+            "Assets/Config/Formal/FullMatchProjectileRuntimeCatalog.asset",
+            106)]
+        [TestCase(
+            "Assets/Config/Formal/FullMatchProjectileRuntimeCatalog.asset",
+            107)]
+        [TestCase(
+            "Assets/Config/Formal/FullMatchProjectileRuntimeCatalog.asset",
+            108)]
+        [TestCase(
+            "Assets/Config/Formal/MatchContent/VarusProjectileRuntimeCatalog.asset",
+            106)]
+        [TestCase(
+            "Assets/Config/Formal/MatchContent/VarusProjectileRuntimeCatalog.asset",
+            107)]
+        [TestCase(
+            "Assets/Config/Formal/MatchContent/VarusProjectileRuntimeCatalog.asset",
+            108)]
+        public void FormalAbilityProjectile_ExcludesStructures(
+            string catalogPath,
             int projectileDefId)
         {
             ProjectileRuntimeCatalogAsset catalog =
                 AssetDatabase.LoadAssetAtPath<
                     ProjectileRuntimeCatalogAsset>(
-                    "Assets/Config/Formal/FullMatchProjectileRuntimeCatalog.asset");
+                    catalogPath);
             Assert.That(catalog, Is.Not.Null);
 
             FieldInfo definitionsField =
@@ -73,7 +89,7 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.That(
                 definition.TargetFilter.UnitKindMask &
                     ProjectileUnitKindMask.Structure,
-                Is.Not.EqualTo(ProjectileUnitKindMask.None));
+                Is.EqualTo(ProjectileUnitKindMask.None));
             Assert.That(
                 definition.TargetFilter.AllowedLifeStates &
                     ProjectileLifeStateMask.Alive,

@@ -1,7 +1,7 @@
 # ExecPlan Index
 
 > Document class: Current Plan Locator
-> Updated: 2026-09-01
+> Updated: 2026-09-02
 > Default read: yes, when `.agents/PLANS.md` says an ExecPlan is required
 
 ## Active
@@ -19,6 +19,14 @@ Matching rebuilt Local C/S and UOS live acceptance was explicitly outside that
 plan. Create a new plan if the user requests that external acceptance.
 
 ## Completed
+
+ExecPlan 0161 completed integer adaptive Command timing with launch-barrier
+RTT/variation warmup and frozen-server-Tick clamping, plus the D-054 central
+Structure admission policy. FrameSync `132/132`, Bootstrap `131/131`, focused
+timing `12/12`, structure `14/14`, projectile `16/16` and required PlayMode
+probes pass; Unit retains the same 10 unrelated baseline failures. Independent
+High-risk review closed with no P0/P1. Rebuilt multi-process latency/UOS
+acceptance remains external.
 
 ExecPlan 0160 completed the isolated Unity release-client build window for
 `Builds/Demo/Game/AAALOL.exe`. Its schema-v3 CDN packaging checkbox is optional

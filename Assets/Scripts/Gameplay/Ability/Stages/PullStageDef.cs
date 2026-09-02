@@ -70,7 +70,9 @@ namespace FrameSyncMoba.Unit
                 ControlParamKeys.ForcedMovePriority,
                 (short)Priority);
             CrowdControlAddResult result =
-                target.CrowdControl.Add(
+                StructureEffectPolicy.TryApplyCrowdControl(
+                    target,
+                    caster.UnitUid,
                     CrowdControlIds.KnockBack,
                     durationTicks,
                     parameters);

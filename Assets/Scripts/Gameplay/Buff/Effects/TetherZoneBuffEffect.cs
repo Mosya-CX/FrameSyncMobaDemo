@@ -183,10 +183,16 @@ namespace FrameSyncMoba.Unit
             parameters.SetShort(
                 ControlParamKeys.ForcedMovePriority,
                 (short)PullPriority);
-            owner.CrowdControl?.Add(
-                CrowdControlIds.KnockBack,
-                PullDurationTicks,
-                parameters);
+            if (owner.CrowdControl != null ||
+                owner.UnitKind == UnitKind.Structure)
+            {
+                StructureEffectPolicy.TryApplyCrowdControl(
+                    owner,
+                    source.UnitUid,
+                    CrowdControlIds.KnockBack,
+                    PullDurationTicks,
+                    parameters);
+            }
         }
 
         public override void ClearForDeath(BuffRuntime runtime, Unit owner)

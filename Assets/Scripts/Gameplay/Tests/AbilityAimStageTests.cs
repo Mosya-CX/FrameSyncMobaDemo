@@ -117,7 +117,7 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void AreaDamageStage_DamagesEnemyStructure()
+        public void AreaDamageStage_DoesNotDamageEnemyStructure()
         {
             UnitWorld world = new UnitWorld();
             UnitType caster = UnitTestFactory.SpawnUnit(
@@ -184,7 +184,7 @@ namespace FrameSyncMoba.Unit.Tests
             combat.SettleActiveRequests();
 
             Assert.AreEqual(
-                (fp)70,
+                (fp)100,
                 structure.StatHandler.CurrentHealth);
         }
 

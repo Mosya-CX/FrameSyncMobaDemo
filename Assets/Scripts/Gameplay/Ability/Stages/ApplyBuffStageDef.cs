@@ -33,7 +33,8 @@ namespace FrameSyncMoba.Unit
             if (!runtime.World.BuffDefinitions.TryGet(BuffConfigId, out BuffDefinition definition))
                 return StageResult.Failed;
 
-            target.BuffHandler.Apply(
+            StructureEffectPolicy.TryApplyBuff(
+                target,
                 BuffConfigId,
                 definition,
                 BuffSource.Create(

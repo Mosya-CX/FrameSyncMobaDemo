@@ -137,7 +137,7 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void OnHitEquipmentEffects_ApplyToStructure()
+        public void OnHitEquipmentEffects_DoNotApplyToStructure()
         {
             ScenarioContext context = CreateScenario(
                 250,
@@ -145,7 +145,10 @@ namespace FrameSyncMoba.Unit.Tests
 
             fp damage = DealAttack(context, 1);
 
-            Assert.That(damage, Is.EqualTo((fp)31));
+            Assert.That(
+                damage,
+                Is.EqualTo(fp.one),
+                "Only the ordinary Attack request may damage a structure.");
         }
 
         [Test]

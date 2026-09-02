@@ -19,7 +19,9 @@ namespace FrameSyncMoba.Unit
                 return StageResult.Failed;
 
             CrowdControlAddResult result =
-                target.CrowdControl.Add(
+                StructureEffectPolicy.TryApplyCrowdControl(
+                    target,
+                    runtime.CasterUnitUid,
                     CrowdControlIds.Stun,
                     DurationTicks,
                     default);

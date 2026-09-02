@@ -69,6 +69,17 @@
   `Builds/CdnUpload/<version>/Upload` only after a successful Player build.
   `Builds/UosClient/FrameSyncMobaClient.exe` remains the independent full test
   client and is neither read nor overwritten by this release path.
+- ExecPlan 0161 adds D-053 integer adaptive Command timing and D-054 structure
+  effect admission. Ping response v2 carries a server Gameplay Tick anchor;
+  Bootstrap computes integer SRTT/RTT variation and FrameSync resolves one
+  bounded TargetTick per local build Tick with the former formula as fallback.
+  Connected clients warm the estimator during the loaded/ready launch barrier,
+  while Command send, recovery and simulation remain behind the Gameplay gate.
+  Structures accept only the canonical `Attack + BasicAttack` external damage
+  source and reject all other external Damage/Heal/Shield/Buff/control/tag
+  effects. Deferred rejections occur before sequence/Snapshot storage. Varus E
+  and ability projectile masks exclude structures, and rejected Blight creates
+  no presentation mark. Command/Snapshot/checksum schemas are unchanged.
 - Historical audit, prompt and candidate documents live under `Docs/Archive/`
   and are not current authorities.
 - Workflow health guards start as Warning in their first implementation round
@@ -81,10 +92,16 @@
 ## 3. Reliable validation baseline
 
 - Last recorded clean source compilation: Unity MCP forced script refresh on
-  2026-09-01 after the optional release-client/CDN menu integration; the focused
-  `UosBuildMenuTests` suite is 6/6, the standalone Launcher Release build and
-  self-test pass, the Editor is idle, and the isolated Console Error query is
-  empty. No real Player build was triggered during this source verification. The
+  2026-09-02 after D-053/D-054 integration; FrameSync EditMode is `132/132`,
+  Bootstrap EditMode is `131/131`, PlayerInput is `42/42`, and Unit is
+  `570 passed / 10 unchanged retained failures`. The adaptive estimator and
+  resolver pass `12/12`; structure admission `14/14`; projectile pipeline
+  `16/16`; formal Varus structure assets `7/7`; Blight/on-hit `8/8`; the
+  structure Blight presentation PlayMode probe
+  is `1/1`, and PlayerInput simulation PlayMode is `5/5`. The Editor is idle
+  and the isolated Console Error query is empty. Broad Unit PlayMode is
+  `2 passed / 1 retained PrefabId-range failure`. No real Player build was
+  triggered during this source verification. The
   2026-08-23 Linux Server/ordinary Player build evidence
   predates server logic Addressables and is not final D-051 packaging evidence.
 - Current launcher distribution evidence: Release build/format and source plus

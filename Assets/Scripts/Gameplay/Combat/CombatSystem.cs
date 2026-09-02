@@ -115,6 +115,15 @@ namespace FrameSyncMoba.Unit
         {
             if (!request.IsValid) return;
             ValidateActiveSubmission();
+            if (_unitWorld.TryGetUnit(
+                    request.TargetUnitUid,
+                    out Unit shieldTarget) &&
+                !StructureEffectPolicy.AllowsExternalEffect(
+                    shieldTarget,
+                    request.SourceUnitUid))
+            {
+                return;
+            }
             _shieldQueue.Add(request);
         }
 
@@ -123,6 +132,19 @@ namespace FrameSyncMoba.Unit
             ValidateDamageEffectOrdinal(request, "submitted");
             if (!request.IsValid) return false;
             ValidateActiveSubmission();
+            if (_unitWorld.TryGetUnit(
+                    request.Header.TargetUnitUid,
+                    out Unit damageTarget) &&
+                !StructureEffectPolicy.AllowsDamage(
+                    damageTarget,
+                    request.Header))
+            {
+                // A valid request rejected by the structure policy is a
+                // consumed no-op. Several formal producers treat false as an
+                // invalid request and must not turn content misconfiguration
+                // into a deterministic match failure.
+                return true;
+            }
             _damageQueue.Add(request);
             return true;
         }
@@ -131,6 +153,15 @@ namespace FrameSyncMoba.Unit
         {
             if (!request.IsValid) return;
             ValidateActiveSubmission();
+            if (_unitWorld.TryGetUnit(
+                    request.TargetUnitUid,
+                    out Unit healTarget) &&
+                !StructureEffectPolicy.AllowsExternalEffect(
+                    healTarget,
+                    request.SourceUnitUid))
+            {
+                return;
+            }
             _healQueue.Add(request);
         }
 
@@ -291,11 +322,53 @@ namespace FrameSyncMoba.Unit
         {
             if (d.HasValue)
                 ValidateDamageEffectOrdinal(d.Value, "deferred");
+            if (ShouldConsumeDeferredStructureRequest(k, s, d, h))
+                return;
             if (_deferredSeqExhausted) throw new DeterministicSimulationException("Deferred seq exhausted.");
             ushort seq = _nextDeferredSeq; if (_nextDeferredSeq == ushort.MaxValue) _deferredSeqExhausted = true; else _nextDeferredSeq++;
             var req = new DeferredCombatRequest { ExecuteLogicTick = et, SourceLogicTick = st, DeferredSequenceInSourceTick = seq, RequestKind = k };
             if (s.HasValue) req.Shield = s.Value; if (d.HasValue) req.Damage = d.Value; if (h.HasValue) req.Heal = h.Value;
             _deferredBuffer.Add(req);
+        }
+
+        private bool ShouldConsumeDeferredStructureRequest(
+            CombatRequestKind kind,
+            ShieldRequest? shield,
+            DamageRequest? damage,
+            HealRequest? heal)
+        {
+            switch (kind)
+            {
+                case CombatRequestKind.Shield:
+                    if (!shield.HasValue || !shield.Value.IsValid)
+                        return false;
+                    return _unitWorld.TryGetUnit(
+                            shield.Value.TargetUnitUid,
+                            out Unit shieldTarget) &&
+                        !StructureEffectPolicy.AllowsExternalEffect(
+                            shieldTarget,
+                            shield.Value.SourceUnitUid);
+                case CombatRequestKind.Damage:
+                    if (!damage.HasValue || !damage.Value.IsValid)
+                        return false;
+                    return _unitWorld.TryGetUnit(
+                            damage.Value.TargetUnitUid,
+                            out Unit damageTarget) &&
+                        !StructureEffectPolicy.AllowsDamage(
+                            damageTarget,
+                            damage.Value.Header);
+                case CombatRequestKind.Heal:
+                    if (!heal.HasValue || !heal.Value.IsValid)
+                        return false;
+                    return _unitWorld.TryGetUnit(
+                            heal.Value.TargetUnitUid,
+                            out Unit healTarget) &&
+                        !StructureEffectPolicy.AllowsExternalEffect(
+                            healTarget,
+                            heal.Value.SourceUnitUid);
+                default:
+                    return false;
+            }
         }
 
         private void ExecuteNaturalRegen()

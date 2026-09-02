@@ -1343,3 +1343,93 @@ by the current user request.
 - Bootstrap publishes before `UnitAnimationDriver.Update`; the driver writes
   Motion Time before Animator evaluation. `LateUpdate` must not add a local
   render-frame delay to animation progress.
+
+## D-053 — Integer adaptive Command TargetTick selection (2026-09-01)
+
+**Status:** Frozen; implemented and focused-verified by ExecPlan 0161. Approved
+by the current user request. This decision amends FrameSync v10.2 §9.4 and
+D-045 without changing Command canonical bytes.
+
+- The existing static lower bound remains authoritative and is the cold-start,
+  under-sampled and stale-sample fallback:
+  `StaticLower = max(LocalSimulationTick + 1,
+  LatestSynchronizedServerTick + MinCommandLeadTicks)`.
+- Bootstrap's unreliable Ping response v2 carries the echoed sequence and the
+  server's current Gameplay Tick. The client records raw RTT, integer SRTT and
+  integer RTT variation from monotonic milliseconds. The first sample sets
+  `SRTT = R` and `RTTVar = round(R / 2)`; later samples use
+  `SRTT = round((7*SRTT + R)/8)` and
+  `RTTVar = round((3*RTTVar + abs(R - previous SRTT))/4)`.
+- A timing estimate is usable only after the configured minimum sample count
+  and while its server-Tick anchor is fresh. It derives:
+  `EstimatedServerTickNow = ServerTickAtResponse +
+  ceil((ceil(SRTT/2) + SampleAgeMs) * TickRate / 1000)` and
+  `NetworkBudgetTicks = ceil((ceil(SRTT/2) +
+  max(RTTVar*JitterMultiplier, MinimumJitterMs) + ProcessingMs) *
+  TickRate / 1000)`.
+- When usable, the adaptive candidate is
+  `EstimatedServerTickNow + NetworkBudgetTicks + DesiredServerSlackTicks`,
+  capped explicitly to both the local and estimated-server
+  `MaxFutureCommandTicks` ceilings. The final target is
+  `max(StaticLower, CappedAdaptiveCandidate)`: the frozen static lower bound
+  remains authoritative if it is later than the estimated-server ceiling.
+  When latency exceeds the configured future window, the server may still
+  retarget the Command as late on arrival. A static-lower-bound local-window
+  violation or arithmetic overflow remains a visible deterministic failure.
+- Every Command built during the same local simulation Tick reuses one resolved
+  TargetTick. Once written to the Command header, the Tick remains canonical
+  through merge, send, resend, authority comparison, rollback and replay.
+- RTT state, wall-clock timestamps and the server-Tick anchor are client-side
+  transport estimates only. They do not enter GameplaySnapshot, checksum,
+  deterministic random state or replay, and NGO types do not cross into the
+  FrameSync assembly.
+- A bound, connected client begins Command-timing Ping sampling during the
+  loaded/ready launch barrier, before Gameplay becomes active. The launch
+  barrier does not emit Commands or execute recovery/simulation early; it only
+  warms the client-only estimator so the first Gameplay Command may use a
+  fresh minimum-sample estimate. If the barrier is too short or replies are
+  missing, the unchanged static fallback applies.
+- Pre-launch responses warm SRTT/RTT variation but frozen barrier time is not
+  converted into server Gameplay Tick advance. For a response anchored before
+  launch, sample-age advance begins at the authoritative server
+  `LaunchServerTime`; a first client-predicted Command before that instant adds
+  only half SRTT to its server-Tick anchor. Response freshness still uses the
+  actual response age.
+
+## D-054 — Structures reject externally sourced non-basic-attack effects (2026-09-01)
+
+**Status:** Frozen; implemented and focused-verified by ExecPlan 0161. Approved
+by the current user request. This decision amends the Combat, Ability,
+Projectile, Attack and Buff current contracts wherever older examples or
+tests allowed arbitrary ability effects on structures.
+
+- A `UnitKind.Structure` accepts externally sourced damage only when its
+  canonical Combat source pair is `CombatSourceType.Attack` plus
+  `CombatBuiltinSourceId.BasicAttack`. An Attack-typed ability with another
+  SourceId is not a basic attack. `AttackEffect` is likewise rejected together
+  with Ability, Buff, Equipment and System damage.
+- Externally sourced Heal, Shield and Buff application to a structure are
+  rejected at their central Gameplay admission boundaries before entering
+  settlement/storage. A rejected Buff therefore cannot create a Buff runtime
+  or its presentation mark; this includes Varus W bonus damage and Blight.
+- Externally sourced CrowdControl and forced movement are rejected through the
+  structure-aware control admission boundary before an optional
+  `CrowdControlHandler` is accessed. This is a successful owner rejection, not
+  a missing-handler exception. An explicitly self-sourced structure control
+  remains legal when that structure owns a CrowdControlHandler.
+- A valid Damage request rejected only by this structure policy is consumed as
+  a successful no-op rather than reported as an invalid submission. Formal
+  projectile/stage producers therefore cannot turn a future content-mask
+  mistake into a deterministic match exception; invalid requests retain their
+  existing visible failure behavior.
+- A structure's self-owned authored/runtime effects remain allowed. The policy
+  compares stable `UnitUid` source/owner identity and never uses Unity object
+  identity, traversal order or presentation state.
+- Formal ability area filters and ability-projectile target masks exclude
+  Structure. Central Damage/Buff/CrowdControl admission remains the
+  authoritative safety net for future content misconfiguration; ordinary
+  attack target selection and base attack damage against structures remain
+  unchanged.
+- Rejection does not create Combat requests, events, Buff state, Snapshot data
+  or checksum changes. Existing deterministic request validation and active
+  settlement guards still execute and continue to fail visibly when invalid.

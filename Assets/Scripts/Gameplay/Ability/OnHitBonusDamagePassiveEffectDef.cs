@@ -111,7 +111,8 @@ namespace FrameSyncMoba.Unit
                     ApplyBuffConfigId,
                     out BuffDefinition definition))
             {
-                target.BuffHandler?.Apply(
+                StructureEffectPolicy.TryApplyBuff(
+                    target,
                     ApplyBuffConfigId,
                     definition,
                     BuffSource.Create(

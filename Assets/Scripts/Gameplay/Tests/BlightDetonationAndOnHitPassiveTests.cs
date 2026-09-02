@@ -147,7 +147,7 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void Detonation_Structure_CapsPerStackDamage()
+        public void ExternalBlightAndAbilityDamage_DoNotAffectStructure()
         {
             UnitType structure = UnitTestFactory.SpawnUnit(
                 world,
@@ -166,7 +166,7 @@ namespace FrameSyncMoba.Unit.Tests
             combat.SettleActiveRequests();
 
             Assert.AreEqual(
-                (double)((fp)10000 - (fp)10 - (fp)240),
+                (double)((fp)10000),
                 (double)structure.StatHandler.CurrentHealth,
                 0.01);
             Assert.IsFalse(
@@ -263,7 +263,7 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void WPassive_OnHit_AppliesToStructure()
+        public void WPassive_OnHit_DoesNotAffectStructure()
         {
             UnitType structure = UnitTestFactory.SpawnUnit(
                 world,
@@ -287,10 +287,10 @@ namespace FrameSyncMoba.Unit.Tests
             combat.SettleActiveRequests();
 
             Assert.AreEqual(
-                (double)((fp)1000 - (fp)19),
+                (double)((fp)1000),
                 (double)structure.StatHandler.CurrentHealth,
                 0.0001);
-            Assert.IsTrue(
+            Assert.IsFalse(
                 structure.BuffHandler.HasBuff(
                     new BuffConfigId(BlightConfigId)));
         }

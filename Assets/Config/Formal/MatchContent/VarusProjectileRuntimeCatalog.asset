@@ -74,7 +74,7 @@ MonoBehaviour:
     HitRadius: 0.15
     TargetFilter:
       TeamRule: 0
-      UnitKindMask: 15
+      UnitKindMask: 7
       IncludeSubKindIds: 
       ExcludeSubKindIds: 
       IncludePrototypeIds: 
@@ -121,7 +121,7 @@ MonoBehaviour:
     HitRadius: 0.15
     TargetFilter:
       TeamRule: 0
-      UnitKindMask: 15
+      UnitKindMask: 7
       IncludeSubKindIds: 
       ExcludeSubKindIds: 
       IncludePrototypeIds: 
@@ -182,7 +182,7 @@ MonoBehaviour:
     HitRadius: 2.75
     TargetFilter:
       TeamRule: 0
-      UnitKindMask: 15
+      UnitKindMask: 7
       IncludeSubKindIds: 
       ExcludeSubKindIds: 
       IncludePrototypeIds: 
