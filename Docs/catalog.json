@@ -1,0 +1,1408 @@
+{
+  "schemaVersion": 2,
+  "entries": [
+    {
+      "id": "FACT-4E2A6CA25B98",
+      "path": "Docs/rules/index/FACT-4E2A6CA25B98_engineering-index.md",
+      "metadata": "Docs/rules/index/FACT-4E2A6CA25B98_engineering-index.meta.json"
+    },
+    {
+      "id": "FACT-82B7CF40B5E6",
+      "path": "Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md",
+      "metadata": "Docs/rules/facts/FACT-82B7CF40B5E6_current-state.meta.json"
+    },
+    {
+      "id": "FACT-9CD2F2F2C7BD",
+      "path": "Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.md",
+      "metadata": "Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.meta.json"
+    },
+    {
+      "id": "RULE-002",
+      "path": "Docs/rules/execution/RULE-002_agent-execution-cycle.md",
+      "metadata": "Docs/rules/execution/RULE-002_agent-execution-cycle.meta.json"
+    },
+    {
+      "id": "RULE-008",
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+      "metadata": "Docs/rules/execution/RULE-008_git-review-integration.meta.json"
+    },
+    {
+      "id": "RULE-007",
+      "path": "Docs/rules/execution/RULE-007_unity-assets-build.md",
+      "metadata": "Docs/rules/execution/RULE-007_unity-assets-build.meta.json"
+    },
+    {
+      "id": "RULE-001",
+      "path": "Docs/rules/execution/RULE-001_engineering-constitution.md",
+      "metadata": "Docs/rules/execution/RULE-001_engineering-constitution.meta.json"
+    },
+    {
+      "id": "RULE-005",
+      "path": "Docs/rules/execution/RULE-005_document-maintenance.md",
+      "metadata": "Docs/rules/execution/RULE-005_document-maintenance.meta.json"
+    },
+    {
+      "id": "RULE-004",
+      "path": "Docs/rules/templates/RULE-004_plan-template.md",
+      "metadata": "Docs/rules/templates/RULE-004_plan-template.meta.json"
+    },
+    {
+      "id": "RULE-003",
+      "path": "Docs/rules/templates/RULE-003_requirement-template.md",
+      "metadata": "Docs/rules/templates/RULE-003_requirement-template.meta.json"
+    },
+    {
+      "id": "RULE-006",
+      "path": "Docs/rules/execution/RULE-006_verification-evidence.md",
+      "metadata": "Docs/rules/execution/RULE-006_verification-evidence.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-002",
+      "path": "Docs/plans/karolina/PLAN-KAR-002_workbench-reconstruction.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-002_workbench-reconstruction.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-003",
+      "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-001",
+      "path": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.meta.json"
+    },
+    {
+      "id": "PLAN-0137",
+      "path": "Docs/plans/units/PLAN-0137_unit-decision-arbitration-migration.md",
+      "metadata": "Docs/plans/units/PLAN-0137_unit-decision-arbitration-migration.meta.json"
+    },
+    {
+      "id": "PLAN-0022",
+      "path": "Docs/plans/units/PLAN-0022_unit-prototype-and-table.md",
+      "metadata": "Docs/plans/units/PLAN-0022_unit-prototype-and-table.meta.json"
+    },
+    {
+      "id": "PLAN-0011",
+      "path": "Docs/plans/units/PLAN-0011_unit-lifestate-authoritative-state-machine.md",
+      "metadata": "Docs/plans/units/PLAN-0011_unit-lifestate-authoritative-state-machine.meta.json"
+    },
+    {
+      "id": "PLAN-0017",
+      "path": "Docs/plans/units/PLAN-0017_unit-spawn-identity-core.md",
+      "metadata": "Docs/plans/units/PLAN-0017_unit-spawn-identity-core.meta.json"
+    },
+    {
+      "id": "PLAN-0005",
+      "path": "Docs/plans/units/PLAN-0005_unit-world-stable-registry-kernel.md",
+      "metadata": "Docs/plans/units/PLAN-0005_unit-world-stable-registry-kernel.meta.json"
+    },
+    {
+      "id": "PLAN-0040",
+      "path": "Docs/plans/units/PLAN-0040_hit-reaction-integration.md",
+      "metadata": "Docs/plans/units/PLAN-0040_hit-reaction-integration.meta.json"
+    },
+    {
+      "id": "PLAN-0142",
+      "path": "Docs/plans/units/PLAN-0142_core-owned-unit-dispose-policy.md",
+      "metadata": "Docs/plans/units/PLAN-0142_core-owned-unit-dispose-policy.meta.json"
+    },
+    {
+      "id": "PLAN-0038",
+      "path": "Docs/plans/units/PLAN-0038_death-respawn-lifecycle-hit-reaction.md",
+      "metadata": "Docs/plans/units/PLAN-0038_death-respawn-lifecycle-hit-reaction.meta.json"
+    },
+    {
+      "id": "PLAN-0009",
+      "path": "Docs/plans/units/PLAN-0009_unit-spawn-tick-active-gameplay-gate.md",
+      "metadata": "Docs/plans/units/PLAN-0009_unit-spawn-tick-active-gameplay-gate.meta.json"
+    },
+    {
+      "id": "PLAN-0013",
+      "path": "Docs/plans/units/PLAN-0013_capability-state-storage-and-death-gate.md",
+      "metadata": "Docs/plans/units/PLAN-0013_capability-state-storage-and-death-gate.meta.json"
+    },
+    {
+      "id": "PLAN-0014",
+      "path": "Docs/plans/units/PLAN-0014_teamid-and-team-registry-and-getbyteam.md",
+      "metadata": "Docs/plans/units/PLAN-0014_teamid-and-team-registry-and-getbyteam.meta.json"
+    },
+    {
+      "id": "PLAN-0018",
+      "path": "Docs/plans/unit-stats/PLAN-0018_stathandler-foundation.md",
+      "metadata": "Docs/plans/unit-stats/PLAN-0018_stathandler-foundation.meta.json"
+    },
+    {
+      "id": "PLAN-0044",
+      "path": "Docs/plans/unit-stats/PLAN-0044_xp-level-up-system.md",
+      "metadata": "Docs/plans/unit-stats/PLAN-0044_xp-level-up-system.meta.json"
+    },
+    {
+      "id": "PLAN-0159",
+      "path": "Docs/plans/launchers/PLAN-0159_uos-cdn-flat-content-layout.md",
+      "metadata": "Docs/plans/launchers/PLAN-0159_uos-cdn-flat-content-layout.meta.json"
+    },
+    {
+      "id": "PLAN-0158",
+      "path": "Docs/plans/launchers/PLAN-0158_uos-cdn-console-safe-chunked-upload.md",
+      "metadata": "Docs/plans/launchers/PLAN-0158_uos-cdn-console-safe-chunked-upload.meta.json"
+    },
+    {
+      "id": "PLAN-0157",
+      "path": "Docs/plans/launchers/PLAN-0157_uos-launcher-full-install-and-incremental-update.md",
+      "metadata": "Docs/plans/launchers/PLAN-0157_uos-launcher-full-install-and-incremental-update.meta.json"
+    },
+    {
+      "id": "PLAN-0154",
+      "path": "Docs/plans/launchers/PLAN-0154_live-w-vfx-reward-and-cdn-closure.md",
+      "metadata": "Docs/plans/launchers/PLAN-0154_live-w-vfx-reward-and-cdn-closure.meta.json"
+    },
+    {
+      "id": "PLAN-0160",
+      "path": "Docs/plans/launchers/PLAN-0160_optional-release-client-cdn-build.md",
+      "metadata": "Docs/plans/launchers/PLAN-0160_optional-release-client-cdn-build.meta.json"
+    },
+    {
+      "id": "PLAN-0156",
+      "path": "Docs/plans/launchers/PLAN-0156_formal-launcher-art-scope-finalization.md",
+      "metadata": "Docs/plans/launchers/PLAN-0156_formal-launcher-art-scope-finalization.meta.json"
+    },
+    {
+      "id": "PLAN-0155",
+      "path": "Docs/plans/launchers/PLAN-0155_formal-demo-game-launcher.md",
+      "metadata": "Docs/plans/launchers/PLAN-0155_formal-demo-game-launcher.meta.json"
+    },
+    {
+      "id": "PLAN-0128",
+      "path": "Docs/plans/buffs/PLAN-0128_buff-design-conformance.md",
+      "metadata": "Docs/plans/buffs/PLAN-0128_buff-design-conformance.meta.json"
+    },
+    {
+      "id": "PLAN-0058",
+      "path": "Docs/plans/buffs/PLAN-0058_buff-effect-library.md",
+      "metadata": "Docs/plans/buffs/PLAN-0058_buff-effect-library.meta.json"
+    },
+    {
+      "id": "PLAN-0023",
+      "path": "Docs/plans/buffs/PLAN-0023_buff-system-foundation.md",
+      "metadata": "Docs/plans/buffs/PLAN-0023_buff-system-foundation.meta.json"
+    },
+    {
+      "id": "PLAN-0125",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0125_unit-prefab-ui-lifecycle-and-pathfinding-integration.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0125_unit-prefab-ui-lifecycle-and-pathfinding-integration.meta.json"
+    },
+    {
+      "id": "PLAN-0164",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0164_map-camp-runtime-composition-fix.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0164_map-camp-runtime-composition-fix.meta.json"
+    },
+    {
+      "id": "PLAN-0041",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0041_pathfinding-infrastructure.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0041_pathfinding-infrastructure.meta.json"
+    },
+    {
+      "id": "PLAN-0091",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0091_pathfinding-integration.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0091_pathfinding-integration.meta.json"
+    },
+    {
+      "id": "PLAN-0116",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0116_movement-forced-move-dash-and-rvo-conformance.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0116_movement-forced-move-dash-and-rvo-conformance.meta.json"
+    },
+    {
+      "id": "PLAN-0047",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0047_astar-pathfinding.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0047_astar-pathfinding.meta.json"
+    },
+    {
+      "id": "PLAN-0122",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0122_deterministic-map-topology-and-objective-fixture.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0122_deterministic-map-topology-and-objective-fixture.meta.json"
+    },
+    {
+      "id": "PLAN-0035",
+      "path": "Docs/plans/pathfinding-movement/PLAN-0035_movement-system-completion.md",
+      "metadata": "Docs/plans/pathfinding-movement/PLAN-0035_movement-system-completion.meta.json"
+    },
+    {
+      "id": "PLAN-0134",
+      "path": "Docs/plans/frame-sync/PLAN-0134_uos-rollback-and-client-feedback.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0134_uos-rollback-and-client-feedback.meta.json"
+    },
+    {
+      "id": "PLAN-0153",
+      "path": "Docs/plans/frame-sync/PLAN-0153_uos-indicator-rebind-and-varus-q-authority-recovery.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0153_uos-indicator-rebind-and-varus-q-authority-recovery.meta.json"
+    },
+    {
+      "id": "PLAN-0152",
+      "path": "Docs/plans/frame-sync/PLAN-0152_command-bundle-idempotency-and-send-gating.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0152_command-bundle-idempotency-and-send-gating.meta.json"
+    },
+    {
+      "id": "PLAN-0020",
+      "path": "Docs/plans/frame-sync/PLAN-0020_rollback-contract-and-stathandler-snapshot.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0020_rollback-contract-and-stathandler-snapshot.meta.json"
+    },
+    {
+      "id": "PLAN-0094",
+      "path": "Docs/plans/frame-sync/PLAN-0094_integration-test-suite.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0094_integration-test-suite.meta.json"
+    },
+    {
+      "id": "PLAN-0046",
+      "path": "Docs/plans/frame-sync/PLAN-0046_full-design-conformance-recovery.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0046_full-design-conformance-recovery.meta.json"
+    },
+    {
+      "id": "PLAN-0024",
+      "path": "Docs/plans/frame-sync/PLAN-0024_frame-sync-pipeline-core.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0024_frame-sync-pipeline-core.meta.json"
+    },
+    {
+      "id": "PLAN-0111",
+      "path": "Docs/plans/frame-sync/PLAN-0111_snapshot-and-shared-checksum-completeness.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0111_snapshot-and-shared-checksum-completeness.meta.json"
+    },
+    {
+      "id": "PLAN-0034",
+      "path": "Docs/plans/frame-sync/PLAN-0034_ability-command-dispatch.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0034_ability-command-dispatch.meta.json"
+    },
+    {
+      "id": "PLAN-0119",
+      "path": "Docs/plans/frame-sync/PLAN-0119_authority-frame-recovery-and-prediction-limits.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0119_authority-frame-recovery-and-prediction-limits.meta.json"
+    },
+    {
+      "id": "PLAN-0027",
+      "path": "Docs/plans/frame-sync/PLAN-0027_audit-and-fix.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0027_audit-and-fix.meta.json"
+    },
+    {
+      "id": "PLAN-0161",
+      "path": "Docs/plans/frame-sync/PLAN-0161_adaptive-command-timing-and-structure-effect-filter.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0161_adaptive-command-timing-and-structure-effect-filter.meta.json"
+    },
+    {
+      "id": "PLAN-0004",
+      "path": "Docs/plans/frame-sync/PLAN-0004_canonical-primitive-byte-writer.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0004_canonical-primitive-byte-writer.meta.json"
+    },
+    {
+      "id": "PLAN-0036",
+      "path": "Docs/plans/frame-sync/PLAN-0036_nonhero-snapshot-rollback.md",
+      "metadata": "Docs/plans/frame-sync/PLAN-0036_nonhero-snapshot-rollback.meta.json"
+    },
+    {
+      "id": "PLAN-0139",
+      "path": "Docs/plans/combat/PLAN-0139_same-tick-combat-fairness.md",
+      "metadata": "Docs/plans/combat/PLAN-0139_same-tick-combat-fairness.meta.json"
+    },
+    {
+      "id": "PLAN-0021",
+      "path": "Docs/plans/combat/PLAN-0021_combat-modifier-set-core.md",
+      "metadata": "Docs/plans/combat/PLAN-0021_combat-modifier-set-core.meta.json"
+    },
+    {
+      "id": "PLAN-0059",
+      "path": "Docs/plans/combat/PLAN-0059_combat-enhancement.md",
+      "metadata": "Docs/plans/combat/PLAN-0059_combat-enhancement.meta.json"
+    },
+    {
+      "id": "PLAN-0113",
+      "path": "Docs/plans/combat/PLAN-0113_attack-and-combat-source-contract-recovery.md",
+      "metadata": "Docs/plans/combat/PLAN-0113_attack-and-combat-source-contract-recovery.meta.json"
+    },
+    {
+      "id": "PLAN-0150",
+      "path": "Docs/plans/combat/PLAN-0150_live-client-combat-presentation-regression-closure.md",
+      "metadata": "Docs/plans/combat/PLAN-0150_live-client-combat-presentation-regression-closure.meta.json"
+    },
+    {
+      "id": "PLAN-0061",
+      "path": "Docs/plans/abilities/PLAN-0061_stagedef-library.md",
+      "metadata": "Docs/plans/abilities/PLAN-0061_stagedef-library.meta.json"
+    },
+    {
+      "id": "PLAN-0089",
+      "path": "Docs/plans/abilities/PLAN-0089_ability-cooldown-indicator.md",
+      "metadata": "Docs/plans/abilities/PLAN-0089_ability-cooldown-indicator.meta.json"
+    },
+    {
+      "id": "PLAN-0054-AUTHORING",
+      "path": "Docs/plans/abilities/PLAN-0054-AUTHORING_ability-authoring-bake-pipeline.md",
+      "metadata": "Docs/plans/abilities/PLAN-0054-AUTHORING_ability-authoring-bake-pipeline.meta.json"
+    },
+    {
+      "id": "PLAN-0054-BAKE",
+      "path": "Docs/plans/abilities/PLAN-0054-BAKE_ability-bake.md",
+      "metadata": "Docs/plans/abilities/PLAN-0054-BAKE_ability-bake.meta.json"
+    },
+    {
+      "id": "PLAN-0050",
+      "path": "Docs/plans/abilities/PLAN-0050_ability-indicator-system.md",
+      "metadata": "Docs/plans/abilities/PLAN-0050_ability-indicator-system.meta.json"
+    },
+    {
+      "id": "PLAN-0048",
+      "path": "Docs/plans/abilities/PLAN-0048_ability-input-profile-bake.md",
+      "metadata": "Docs/plans/abilities/PLAN-0048_ability-input-profile-bake.meta.json"
+    },
+    {
+      "id": "PLAN-0115",
+      "path": "Docs/plans/abilities/PLAN-0115_generic-ability-authoring-and-player-input.md",
+      "metadata": "Docs/plans/abilities/PLAN-0115_generic-ability-authoring-and-player-input.meta.json"
+    },
+    {
+      "id": "PLAN-0140",
+      "path": "Docs/plans/projectiles/PLAN-0140_action-keyed-crit-and-projectile-ties.md",
+      "metadata": "Docs/plans/projectiles/PLAN-0140_action-keyed-crit-and-projectile-ties.meta.json"
+    },
+    {
+      "id": "PLAN-0039",
+      "path": "Docs/plans/projectiles/PLAN-0039_projectile-hit-resolution-def-registry.md",
+      "metadata": "Docs/plans/projectiles/PLAN-0039_projectile-hit-resolution-def-registry.meta.json"
+    },
+    {
+      "id": "PLAN-0114",
+      "path": "Docs/plans/projectiles/PLAN-0114_projectile-combat-hit-pipeline.md",
+      "metadata": "Docs/plans/projectiles/PLAN-0114_projectile-combat-hit-pipeline.meta.json"
+    },
+    {
+      "id": "PLAN-0026",
+      "path": "Docs/plans/projectiles/PLAN-0026_projectile-system-foundation.md",
+      "metadata": "Docs/plans/projectiles/PLAN-0026_projectile-system-foundation.meta.json"
+    },
+    {
+      "id": "PLAN-0130",
+      "path": "Docs/plans/crowd-control/PLAN-0130_crowd-control-v6-2-conformance.md",
+      "metadata": "Docs/plans/crowd-control/PLAN-0130_crowd-control-v6-2-conformance.meta.json"
+    },
+    {
+      "id": "PLAN-0025",
+      "path": "Docs/plans/crowd-control/PLAN-0025_crowd-control-foundation.md",
+      "metadata": "Docs/plans/crowd-control/PLAN-0025_crowd-control-foundation.meta.json"
+    },
+    {
+      "id": "PLAN-0043",
+      "path": "Docs/plans/basic-attacks/PLAN-0043_onhit-effect-pipeline.md",
+      "metadata": "Docs/plans/basic-attacks/PLAN-0043_onhit-effect-pipeline.meta.json"
+    },
+    {
+      "id": "PLAN-0062",
+      "path": "Docs/plans/basic-attacks/PLAN-0062_onhit-pipeline.md",
+      "metadata": "Docs/plans/basic-attacks/PLAN-0062_onhit-pipeline.meta.json"
+    },
+    {
+      "id": "PLAN-0147",
+      "path": "Docs/plans/basic-attacks/PLAN-0147_atomic-dead-attack-target-invalidation.md",
+      "metadata": "Docs/plans/basic-attacks/PLAN-0147_atomic-dead-attack-target-invalidation.meta.json"
+    },
+    {
+      "id": "PLAN-0120",
+      "path": "Docs/plans/match-flow/PLAN-0120_uos-ngo-application-and-lobby-flow.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0120_uos-ngo-application-and-lobby-flow.meta.json"
+    },
+    {
+      "id": "PLAN-0136",
+      "path": "Docs/plans/match-flow/PLAN-0136_network-monotonic-launch-and-tickrate-independent-authoring.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0136_network-monotonic-launch-and-tickrate-independent-authoring.meta.json"
+    },
+    {
+      "id": "PLAN-0110",
+      "path": "Docs/plans/match-flow/PLAN-0110_runnable-composition-root-and-neutral-test-fixtures.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0110_runnable-composition-root-and-neutral-test-fixtures.meta.json"
+    },
+    {
+      "id": "PLAN-0129",
+      "path": "Docs/plans/match-flow/PLAN-0129_scene-split-application-flow.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0129_scene-split-application-flow.meta.json"
+    },
+    {
+      "id": "PLAN-0124",
+      "path": "Docs/plans/match-flow/PLAN-0124_lobby-ngo-uos-end-to-end-composition.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0124_lobby-ngo-uos-end-to-end-composition.meta.json"
+    },
+    {
+      "id": "PLAN-0090",
+      "path": "Docs/plans/match-flow/PLAN-0090_match-flow-bootstrap.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0090_match-flow-bootstrap.meta.json"
+    },
+    {
+      "id": "PLAN-0000",
+      "path": "Docs/plans/match-flow/PLAN-0000_repository-audit-and-framework-planning.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0000_repository-audit-and-framework-planning.meta.json"
+    },
+    {
+      "id": "PLAN-0121",
+      "path": "Docs/plans/match-flow/PLAN-0121_match-bootstrap-payload-and-runtime-initialization.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0121_match-bootstrap-payload-and-runtime-initialization.meta.json"
+    },
+    {
+      "id": "PLAN-0109",
+      "path": "Docs/plans/match-flow/PLAN-0109_design-conformance-remediation-program.md",
+      "metadata": "Docs/plans/match-flow/PLAN-0109_design-conformance-remediation-program.meta.json"
+    },
+    {
+      "id": "PLAN-0143",
+      "path": "Docs/plans/player-input/PLAN-0143_loading-handoff-and-indicator-shader.md",
+      "metadata": "Docs/plans/player-input/PLAN-0143_loading-handoff-and-indicator-shader.meta.json"
+    },
+    {
+      "id": "PLAN-0149",
+      "path": "Docs/plans/player-input/PLAN-0149_animation-input-camera-regression-fixes.md",
+      "metadata": "Docs/plans/player-input/PLAN-0149_animation-input-camera-regression-fixes.meta.json"
+    },
+    {
+      "id": "PLAN-0146",
+      "path": "Docs/plans/player-input/PLAN-0146_client-core-indicator-shader.md",
+      "metadata": "Docs/plans/player-input/PLAN-0146_client-core-indicator-shader.meta.json"
+    },
+    {
+      "id": "PLAN-0145",
+      "path": "Docs/plans/player-input/PLAN-0145_indicator-bundle-shader-binding.md",
+      "metadata": "Docs/plans/player-input/PLAN-0145_indicator-bundle-shader-binding.meta.json"
+    },
+    {
+      "id": "PLAN-0144",
+      "path": "Docs/plans/player-input/PLAN-0144_player-indicator-runtime-material.md",
+      "metadata": "Docs/plans/player-input/PLAN-0144_player-indicator-runtime-material.meta.json"
+    },
+    {
+      "id": "PLAN-0031",
+      "path": "Docs/plans/player-input/PLAN-0031_player-input-system.md",
+      "metadata": "Docs/plans/player-input/PLAN-0031_player-input-system.meta.json"
+    },
+    {
+      "id": "PLAN-0151",
+      "path": "Docs/plans/player-input/PLAN-0151_varus-input-indicator-and-hero-test-regression-closure.md",
+      "metadata": "Docs/plans/player-input/PLAN-0151_varus-input-indicator-and-hero-test-regression-closure.meta.json"
+    },
+    {
+      "id": "PLAN-0010",
+      "path": "Docs/plans/determinism/PLAN-0010_unitkind-classification-and-registry-category-query.md",
+      "metadata": "Docs/plans/determinism/PLAN-0010_unitkind-classification-and-registry-category-query.meta.json"
+    },
+    {
+      "id": "PLAN-0003",
+      "path": "Docs/plans/determinism/PLAN-0003_deterministic-random-collection-operations.md",
+      "metadata": "Docs/plans/determinism/PLAN-0003_deterministic-random-collection-operations.meta.json"
+    },
+    {
+      "id": "PLAN-0002",
+      "path": "Docs/plans/determinism/PLAN-0002_stable-unit-uid-value-contract.md",
+      "metadata": "Docs/plans/determinism/PLAN-0002_stable-unit-uid-value-contract.meta.json"
+    },
+    {
+      "id": "PLAN-0001",
+      "path": "Docs/plans/determinism/PLAN-0001_deterministic-tick-context-and-random-state.md",
+      "metadata": "Docs/plans/determinism/PLAN-0001_deterministic-tick-context-and-random-state.meta.json"
+    },
+    {
+      "id": "PLAN-0029",
+      "path": "Docs/plans/spatial-physics/PLAN-0029_per-unit-eventbus-physics-snapshot.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0029_per-unit-eventbus-physics-snapshot.meta.json"
+    },
+    {
+      "id": "PLAN-0012",
+      "path": "Docs/plans/spatial-physics/PLAN-0012_physics-circle-target-narrow-phase.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0012_physics-circle-target-narrow-phase.meta.json"
+    },
+    {
+      "id": "PLAN-0006",
+      "path": "Docs/plans/spatial-physics/PLAN-0006_physics-entity-2d-point-circle-spatial-core.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0006_physics-entity-2d-point-circle-spatial-core.meta.json"
+    },
+    {
+      "id": "PLAN-0007",
+      "path": "Docs/plans/spatial-physics/PLAN-0007_deterministic-random-geometry-operations.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0007_deterministic-random-geometry-operations.meta.json"
+    },
+    {
+      "id": "PLAN-0016",
+      "path": "Docs/plans/spatial-physics/PLAN-0016_physics-world-registration-core.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0016_physics-world-registration-core.meta.json"
+    },
+    {
+      "id": "PLAN-0015",
+      "path": "Docs/plans/spatial-physics/PLAN-0015_physics-entity-query-info-and-registration.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0015_physics-entity-query-info-and-registration.meta.json"
+    },
+    {
+      "id": "PLAN-0019",
+      "path": "Docs/plans/spatial-physics/PLAN-0019_physics-spatial-grid-unit-final-grid.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0019_physics-spatial-grid-unit-final-grid.meta.json"
+    },
+    {
+      "id": "PLAN-0008",
+      "path": "Docs/plans/spatial-physics/PLAN-0008_physics-entity-2d-segment-rect-geometry.md",
+      "metadata": "Docs/plans/spatial-physics/PLAN-0008_physics-entity-2d-segment-rect-geometry.meta.json"
+    },
+    {
+      "id": "PLAN-0053-FOUNDATION",
+      "path": "Docs/plans/presentation-ui/PLAN-0053-FOUNDATION_lua-ui-bridge-foundation.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0053-FOUNDATION_lua-ui-bridge-foundation.meta.json"
+    },
+    {
+      "id": "PLAN-0053-BRIDGE",
+      "path": "Docs/plans/presentation-ui/PLAN-0053-BRIDGE_lua-ui-bridge.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0053-BRIDGE_lua-ui-bridge.meta.json"
+    },
+    {
+      "id": "PLAN-0126",
+      "path": "Docs/plans/presentation-ui/PLAN-0126_ui-lua-reconstruction.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0126_ui-lua-reconstruction.meta.json"
+    },
+    {
+      "id": "PLAN-0148",
+      "path": "Docs/plans/presentation-ui/PLAN-0148_configurable-interpolated-animation-sampling.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0148_configurable-interpolated-animation-sampling.meta.json"
+    },
+    {
+      "id": "PLAN-0055",
+      "path": "Docs/plans/presentation-ui/PLAN-0055_shop-ui-foundation.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0055_shop-ui-foundation.meta.json"
+    },
+    {
+      "id": "PLAN-0123",
+      "path": "Docs/plans/presentation-ui/PLAN-0123_client-control-presentation-and-ui-composition.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0123_client-control-presentation-and-ui-composition.meta.json"
+    },
+    {
+      "id": "PLAN-0135",
+      "path": "Docs/plans/presentation-ui/PLAN-0135_camera-pointer-presentation.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0135_camera-pointer-presentation.meta.json"
+    },
+    {
+      "id": "PLAN-0092",
+      "path": "Docs/plans/presentation-ui/PLAN-0092_result-screen-ui.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0092_result-screen-ui.meta.json"
+    },
+    {
+      "id": "PLAN-0093",
+      "path": "Docs/plans/presentation-ui/PLAN-0093_hero-select-ui.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0093_hero-select-ui.meta.json"
+    },
+    {
+      "id": "PLAN-0118",
+      "path": "Docs/plans/presentation-ui/PLAN-0118_presentation-event-history-and-shop-view.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0118_presentation-event-history-and-shop-view.meta.json"
+    },
+    {
+      "id": "PLAN-0042",
+      "path": "Docs/plans/presentation-ui/PLAN-0042_presentation-bridge.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0042_presentation-bridge.meta.json"
+    },
+    {
+      "id": "PLAN-0051",
+      "path": "Docs/plans/presentation-ui/PLAN-0051_presentation-event-bridge.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0051_presentation-event-bridge.meta.json"
+    },
+    {
+      "id": "PLAN-0060",
+      "path": "Docs/plans/presentation-ui/PLAN-0060_presentation-bridge.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0060_presentation-bridge.meta.json"
+    },
+    {
+      "id": "PLAN-0087",
+      "path": "Docs/plans/presentation-ui/PLAN-0087_scoreboard-minimap-ui.md",
+      "metadata": "Docs/plans/presentation-ui/PLAN-0087_scoreboard-minimap-ui.meta.json"
+    },
+    {
+      "id": "PLAN-0037",
+      "path": "Docs/plans/equipment-shop/PLAN-0037_buff-equipment-passive-rebuild.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0037_buff-equipment-passive-rebuild.meta.json"
+    },
+    {
+      "id": "PLAN-0112",
+      "path": "Docs/plans/equipment-shop/PLAN-0112_local-command-gold-and-authority-matchflow.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0112_local-command-gold-and-authority-matchflow.meta.json"
+    },
+    {
+      "id": "PLAN-0028",
+      "path": "Docs/plans/equipment-shop/PLAN-0028_equipment-gold-foundation.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0028_equipment-gold-foundation.meta.json"
+    },
+    {
+      "id": "PLAN-0030",
+      "path": "Docs/plans/equipment-shop/PLAN-0030_equipment-completion.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0030_equipment-completion.meta.json"
+    },
+    {
+      "id": "PLAN-0127",
+      "path": "Docs/plans/equipment-shop/PLAN-0127_equipment-shop-design-conformance.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0127_equipment-shop-design-conformance.meta.json"
+    },
+    {
+      "id": "PLAN-0063",
+      "path": "Docs/plans/equipment-shop/PLAN-0063_equipment-passive-runtime.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0063_equipment-passive-runtime.meta.json"
+    },
+    {
+      "id": "PLAN-0045",
+      "path": "Docs/plans/equipment-shop/PLAN-0045_gold-equipment-completion.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0045_gold-equipment-completion.meta.json"
+    },
+    {
+      "id": "PLAN-0132",
+      "path": "Docs/plans/equipment-shop/PLAN-0132_guinsoos-rageblade-equipment.md",
+      "metadata": "Docs/plans/equipment-shop/PLAN-0132_guinsoos-rageblade-equipment.meta.json"
+    },
+    {
+      "id": "PLAN-0133",
+      "path": "Docs/plans/configuration-content/PLAN-0133_aatrox-hero-content.md",
+      "metadata": "Docs/plans/configuration-content/PLAN-0133_aatrox-hero-content.meta.json"
+    },
+    {
+      "id": "PLAN-0046-COMPOSITION",
+      "path": "Docs/plans/configuration-content/PLAN-0046-COMPOSITION_unit-monobehaviour-prefab-composition.md",
+      "metadata": "Docs/plans/configuration-content/PLAN-0046-COMPOSITION_unit-monobehaviour-prefab-composition.meta.json"
+    },
+    {
+      "id": "PLAN-CONTENT-138",
+      "path": "Docs/plans/configuration-content/PLAN-CONTENT-138_addressables-server-isolation.md",
+      "metadata": "Docs/plans/configuration-content/PLAN-CONTENT-138_addressables-server-isolation.meta.json"
+    },
+    {
+      "id": "PLAN-0141",
+      "path": "Docs/plans/configuration-content/PLAN-0141_match-scoped-addressable-gameplay-content.md",
+      "metadata": "Docs/plans/configuration-content/PLAN-0141_match-scoped-addressable-gameplay-content.meta.json"
+    },
+    {
+      "id": "PLAN-0163",
+      "path": "Docs/plans/configuration-content/PLAN-0163_repository-structure-resource-and-code-cleanup.md",
+      "metadata": "Docs/plans/configuration-content/PLAN-0163_repository-structure-resource-and-code-cleanup.meta.json"
+    },
+    {
+      "id": "PLAN-WOLF-165",
+      "path": "Docs/plans/non-heroes/PLAN-WOLF-165_wolf-return-navigation.md",
+      "metadata": "Docs/plans/non-heroes/PLAN-WOLF-165_wolf-return-navigation.meta.json"
+    },
+    {
+      "id": "PLAN-0162",
+      "path": "Docs/plans/non-heroes/PLAN-0162_murk-wolf-runtime-behavior-correction.md",
+      "metadata": "Docs/plans/non-heroes/PLAN-0162_murk-wolf-runtime-behavior-correction.meta.json"
+    },
+    {
+      "id": "PLAN-0049",
+      "path": "Docs/plans/non-heroes/PLAN-0049_minion-wave-spawning.md",
+      "metadata": "Docs/plans/non-heroes/PLAN-0049_minion-wave-spawning.meta.json"
+    },
+    {
+      "id": "PLAN-0117",
+      "path": "Docs/plans/non-heroes/PLAN-0117_generic-non-hero-and-match-topology.md",
+      "metadata": "Docs/plans/non-heroes/PLAN-0117_generic-non-hero-and-match-topology.meta.json"
+    },
+    {
+      "id": "PLAN-0088",
+      "path": "Docs/plans/non-heroes/PLAN-0088_jungle-camp-config-bake.md",
+      "metadata": "Docs/plans/non-heroes/PLAN-0088_jungle-camp-config-bake.meta.json"
+    },
+    {
+      "id": "PLAN-0131",
+      "path": "Docs/plans/non-heroes/PLAN-0131_nonhero-tower-minion.md",
+      "metadata": "Docs/plans/non-heroes/PLAN-0131_nonhero-tower-minion.meta.json"
+    },
+    {
+      "id": "PLAN-0032",
+      "path": "Docs/plans/non-heroes/PLAN-0032_non-hero-units.md",
+      "metadata": "Docs/plans/non-heroes/PLAN-0032_non-hero-units.meta.json"
+    },
+    {
+      "id": "GUIDE-CONTENT",
+      "path": "Docs/rules/facts/GUIDE-CONTENT_resource-content-boundaries.md",
+      "metadata": "Docs/rules/facts/GUIDE-CONTENT_resource-content-boundaries.meta.json"
+    },
+    {
+      "id": "GUIDE-006",
+      "path": "Docs/tools/guides/GUIDE-006_uos-client-launcher.md",
+      "metadata": "Docs/tools/guides/GUIDE-006_uos-client-launcher.meta.json"
+    },
+    {
+      "id": "GUIDE-001",
+      "path": "Docs/tools/guides/GUIDE-001_build-guide.md",
+      "metadata": "Docs/tools/guides/GUIDE-001_build-guide.meta.json"
+    },
+    {
+      "id": "GUIDE-004",
+      "path": "Docs/tools/guides/GUIDE-004_async-diagnostics.md",
+      "metadata": "Docs/tools/guides/GUIDE-004_async-diagnostics.meta.json"
+    },
+    {
+      "id": "GUIDE-003",
+      "path": "Docs/tools/guides/GUIDE-003_time-tickrate.md",
+      "metadata": "Docs/tools/guides/GUIDE-003_time-tickrate.meta.json"
+    },
+    {
+      "id": "GUIDE-002",
+      "path": "Docs/tools/guides/GUIDE-002_local-client-server.md",
+      "metadata": "Docs/tools/guides/GUIDE-002_local-client-server.meta.json"
+    },
+    {
+      "id": "GUIDE-005",
+      "path": "Docs/tools/guides/GUIDE-005_game-launcher-cdn.md",
+      "metadata": "Docs/tools/guides/GUIDE-005_game-launcher-cdn.meta.json"
+    },
+    {
+      "id": "REQ-KAR-001",
+      "path": "Docs/requirements/karolina/REQ-KAR-001_workbench-product.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-001_workbench-product.meta.json"
+    },
+    {
+      "id": "REQ-KAR-004",
+      "path": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.meta.json"
+    },
+    {
+      "id": "REQ-KAR-003",
+      "path": "Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-047",
+      "path": "Docs/requirements/game-content/REQ-FEAT-047_varus-test-content.md",
+      "metadata": "Docs/requirements/game-content/REQ-FEAT-047_varus-test-content.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-020-PART-3",
+      "path": "Docs/requirements/units/REQ-FEAT-020-PART-3_handler-dependencies.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-020-PART-3_handler-dependencies.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-022",
+      "path": "Docs/requirements/units/REQ-FEAT-022_action-arbitration.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-022_action-arbitration.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-020",
+      "path": "Docs/requirements/units/REQ-FEAT-020_unit-capability-composition.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-020_unit-capability-composition.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-020-PART-4",
+      "path": "Docs/requirements/units/REQ-FEAT-020-PART-4_movement-spatial-seams.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-020-PART-4_movement-spatial-seams.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-020-PART-2",
+      "path": "Docs/requirements/units/REQ-FEAT-020-PART-2_capability-combat-modifiers.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-020-PART-2_capability-combat-modifiers.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-020-PART-1",
+      "path": "Docs/requirements/units/REQ-FEAT-020-PART-1_unit-identity-state.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-020-PART-1_unit-identity-state.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-028-PART-1",
+      "path": "Docs/requirements/units/REQ-FEAT-028-PART-1_spawn-ai-registration.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-028-PART-1_spawn-ai-registration.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-028",
+      "path": "Docs/requirements/units/REQ-FEAT-028_unit-lifecycle.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-028_unit-lifecycle.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-028-PART-5",
+      "path": "Docs/requirements/units/REQ-FEAT-028-PART-5_startup-unit-events.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-028-PART-5_startup-unit-events.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-027",
+      "path": "Docs/requirements/units/REQ-FEAT-027_unit-events.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-027_unit-events.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-021",
+      "path": "Docs/requirements/units/REQ-FEAT-021_intent-planning.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-021_intent-planning.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-028-PART-2",
+      "path": "Docs/requirements/units/REQ-FEAT-028-PART-2_death-disposal.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-028-PART-2_death-disposal.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-028-PART-4",
+      "path": "Docs/requirements/units/REQ-FEAT-028-PART-4_lifecycle-restore-order.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-028-PART-4_lifecycle-restore-order.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-028-PART-3",
+      "path": "Docs/requirements/units/REQ-FEAT-028-PART-3_hero-respawn-pooling.md",
+      "metadata": "Docs/requirements/units/REQ-FEAT-028-PART-3_hero-respawn-pooling.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-023",
+      "path": "Docs/requirements/unit-stats/REQ-FEAT-023_stat-formulas.md",
+      "metadata": "Docs/requirements/unit-stats/REQ-FEAT-023_stat-formulas.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-026",
+      "path": "Docs/requirements/unit-stats/REQ-FEAT-026_stat-refresh.md",
+      "metadata": "Docs/requirements/unit-stats/REQ-FEAT-026_stat-refresh.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-024",
+      "path": "Docs/requirements/unit-stats/REQ-FEAT-024_health-shields-regeneration.md",
+      "metadata": "Docs/requirements/unit-stats/REQ-FEAT-024_health-shields-regeneration.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-025",
+      "path": "Docs/requirements/unit-stats/REQ-FEAT-025_experience-levels.md",
+      "metadata": "Docs/requirements/unit-stats/REQ-FEAT-025_experience-levels.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-083",
+      "path": "Docs/requirements/launchers/REQ-FEAT-083_content-updates.md",
+      "metadata": "Docs/requirements/launchers/REQ-FEAT-083_content-updates.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-084",
+      "path": "Docs/requirements/launchers/REQ-FEAT-084_safe-content-upload.md",
+      "metadata": "Docs/requirements/launchers/REQ-FEAT-084_safe-content-upload.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-082",
+      "path": "Docs/requirements/launchers/REQ-FEAT-082_game-install.md",
+      "metadata": "Docs/requirements/launchers/REQ-FEAT-082_game-install.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-050",
+      "path": "Docs/requirements/buffs/REQ-FEAT-050_buff-capacity.md",
+      "metadata": "Docs/requirements/buffs/REQ-FEAT-050_buff-capacity.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-049",
+      "path": "Docs/requirements/buffs/REQ-FEAT-049_buff-reaction-lifecycle.md",
+      "metadata": "Docs/requirements/buffs/REQ-FEAT-049_buff-reaction-lifecycle.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-048",
+      "path": "Docs/requirements/buffs/REQ-FEAT-048_buff-application.md",
+      "metadata": "Docs/requirements/buffs/REQ-FEAT-048_buff-application.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-064",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-064_astar-search.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-064_astar-search.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-067-PART-3",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-3_dash-forced-teleport.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-3_dash-forced-teleport.meta.json"
+    },
+    {
+      "id": "REQ-WOLF-NAV",
+      "path": "Docs/requirements/pathfinding-movement/REQ-WOLF-NAV_wolf-return-navigation.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-WOLF-NAV_wolf-return-navigation.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-062",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-062_pathfinding-grid.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-062_pathfinding-grid.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-067",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067_movement-pipeline.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-067_movement-pipeline.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-066",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-066_local-avoidance.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-066_local-avoidance.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-067-PART-4",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-4_movement-grid-order.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-4_movement-grid-order.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-067-PART-6",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-6_movement-implementation.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-6_movement-implementation.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-067-PART-5",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-5_movement-snapshot.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-5_movement-snapshot.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-067-PART-1",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-1_movement-contracts.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-1_movement-contracts.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-067-PART-2",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-2_movement-routes.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-2_movement-routes.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-063",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-063_path-following.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-063_path-following.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-065",
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-065_team-flow-field.md",
+      "metadata": "Docs/requirements/pathfinding-movement/REQ-FEAT-065_team-flow-field.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-006",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-006_simulation-pipeline.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-006_simulation-pipeline.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-013",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-013_shared-checksum.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-013_shared-checksum.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-008",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-008_command-forwarding.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-008_command-forwarding.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-007",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-007_command-dispatch.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-007_command-dispatch.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-012",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-012_snapshot-ownership.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-012_snapshot-ownership.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-010",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-009",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-009_command-timing.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-009_command-timing.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-005",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-005_simulation-tick.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-005_simulation-tick.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-011",
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-011_rollback-replay.md",
+      "metadata": "Docs/requirements/frame-sync/REQ-FEAT-011_rollback-replay.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-030",
+      "path": "Docs/requirements/combat/REQ-FEAT-030_damage-resistance.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-030_damage-resistance.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-031",
+      "path": "Docs/requirements/combat/REQ-FEAT-031_critical-action-identity.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-031_critical-action-identity.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-036",
+      "path": "Docs/requirements/combat/REQ-FEAT-036_structure-effect-admission.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-036_structure-effect-admission.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-033",
+      "path": "Docs/requirements/combat/REQ-FEAT-033_combat-operands.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-033_combat-operands.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-029",
+      "path": "Docs/requirements/combat/REQ-FEAT-029_combat-causal-waves.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-029_combat-causal-waves.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-035",
+      "path": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-032",
+      "path": "Docs/requirements/combat/REQ-FEAT-032_healing-settlement.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-032_healing-settlement.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-034",
+      "path": "Docs/requirements/combat/REQ-FEAT-034_death-attribution.md",
+      "metadata": "Docs/requirements/combat/REQ-FEAT-034_death-attribution.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-046",
+      "path": "Docs/requirements/abilities/REQ-FEAT-046_ability-passives.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-046_ability-passives.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-042",
+      "path": "Docs/requirements/abilities/REQ-FEAT-042_ability-signal-session.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-042_ability-signal-session.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-042-PART-1",
+      "path": "Docs/requirements/abilities/REQ-FEAT-042-PART-1_signal-cast-completion.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-042-PART-1_signal-cast-completion.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-042-PART-2",
+      "path": "Docs/requirements/abilities/REQ-FEAT-042-PART-2_ability-indicator-query.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-042-PART-2_ability-indicator-query.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-042-PART-5",
+      "path": "Docs/requirements/abilities/REQ-FEAT-042-PART-5_ability-snapshot-tick.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-042-PART-5_ability-snapshot-tick.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-042-PART-3",
+      "path": "Docs/requirements/abilities/REQ-FEAT-042-PART-3_ability-ui-events.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-042-PART-3_ability-ui-events.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-045",
+      "path": "Docs/requirements/abilities/REQ-FEAT-045_ability-catalog.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-045_ability-catalog.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-042-PART-4",
+      "path": "Docs/requirements/abilities/REQ-FEAT-042-PART-4_catalog-session-ownership.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-042-PART-4_catalog-session-ownership.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-043",
+      "path": "Docs/requirements/abilities/REQ-FEAT-043_cast-stages.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-043_cast-stages.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-044",
+      "path": "Docs/requirements/abilities/REQ-FEAT-044_stage-effects.md",
+      "metadata": "Docs/requirements/abilities/REQ-FEAT-044_stage-effects.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-041",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-041_projectile-hit-order.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-041_projectile-hit-order.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-039",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-039_projectile-definitions.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-039_projectile-definitions.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-040-PART-4",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040-PART-4_projectile-pool.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-040-PART-4_projectile-pool.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-040-PART-2",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040-PART-2_projectile-deferred-submit.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-040-PART-2_projectile-deferred-submit.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-040-PART-5",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040-PART-5_projectile-snapshot.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-040-PART-5_projectile-snapshot.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-040-PART-1",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040-PART-1_projectile-spatial-ownership.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-040-PART-1_projectile-spatial-ownership.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-040-PART-6",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040-PART-6_projectile-integration.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-040-PART-6_projectile-integration.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-040-PART-3",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040-PART-3_projectile-motion-order.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-040-PART-3_projectile-motion-order.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-040",
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040_projectile-lifecycle.md",
+      "metadata": "Docs/requirements/projectiles/REQ-FEAT-040_projectile-lifecycle.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-052",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-052_control-immunity.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-052_control-immunity.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-051-PART-1",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-1_control-handler-lifecycle.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-1_control-handler-lifecycle.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-051-PART-3",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-3_control-bake-execution.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-3_control-bake-execution.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-051",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051_crowd-control-instances.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-051_crowd-control-instances.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-051-PART-2",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-2_control-instance-signals.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-2_control-instance-signals.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-051-PART-4",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-4_control-identity-parameters.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-4_control-identity-parameters.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-051-PART-6",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-6_control-snapshot-rules.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-6_control-snapshot-rules.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-051-PART-5",
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-5_standard-control-effects.md",
+      "metadata": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-5_standard-control-effects.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-037",
+      "path": "Docs/requirements/basic-attacks/REQ-FEAT-037_attack-cycle.md",
+      "metadata": "Docs/requirements/basic-attacks/REQ-FEAT-037_attack-cycle.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-038",
+      "path": "Docs/requirements/basic-attacks/REQ-FEAT-038_attack-effects.md",
+      "metadata": "Docs/requirements/basic-attacks/REQ-FEAT-038_attack-effects.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-004",
+      "path": "Docs/requirements/match-flow/REQ-FEAT-004_uos-configuration.md",
+      "metadata": "Docs/requirements/match-flow/REQ-FEAT-004_uos-configuration.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-003",
+      "path": "Docs/requirements/match-flow/REQ-FEAT-003_startup-barrier.md",
+      "metadata": "Docs/requirements/match-flow/REQ-FEAT-003_startup-barrier.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-002",
+      "path": "Docs/requirements/match-flow/REQ-FEAT-002_lobby-slots.md",
+      "metadata": "Docs/requirements/match-flow/REQ-FEAT-002_lobby-slots.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-001",
+      "path": "Docs/requirements/match-flow/REQ-FEAT-001_application-flow.md",
+      "metadata": "Docs/requirements/match-flow/REQ-FEAT-001_application-flow.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-016",
+      "path": "Docs/requirements/match-flow/REQ-FEAT-016_match-statistics.md",
+      "metadata": "Docs/requirements/match-flow/REQ-FEAT-016_match-statistics.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-080",
+      "path": "Docs/requirements/player-input/REQ-FEAT-080_aim-requests.md",
+      "metadata": "Docs/requirements/player-input/REQ-FEAT-080_aim-requests.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-081",
+      "path": "Docs/requirements/player-input/REQ-FEAT-081_skill-indicator.md",
+      "metadata": "Docs/requirements/player-input/REQ-FEAT-081_skill-indicator.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-079",
+      "path": "Docs/requirements/player-input/REQ-FEAT-079_ability-input.md",
+      "metadata": "Docs/requirements/player-input/REQ-FEAT-079_ability-input.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-078",
+      "path": "Docs/requirements/player-input/REQ-FEAT-078_input-event-buffer.md",
+      "metadata": "Docs/requirements/player-input/REQ-FEAT-078_input-event-buffer.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-014",
+      "path": "Docs/requirements/determinism/REQ-FEAT-014_deterministic-random.md",
+      "metadata": "Docs/requirements/determinism/REQ-FEAT-014_deterministic-random.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-015",
+      "path": "Docs/requirements/determinism/REQ-FEAT-015_stable-unit-identity.md",
+      "metadata": "Docs/requirements/determinism/REQ-FEAT-015_stable-unit-identity.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-061",
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-061_wall-recovery.md",
+      "metadata": "Docs/requirements/spatial-physics/REQ-FEAT-061_wall-recovery.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-059",
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-059_spatial-geometry.md",
+      "metadata": "Docs/requirements/spatial-physics/REQ-FEAT-059_spatial-geometry.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-060",
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-060_collision-facts.md",
+      "metadata": "Docs/requirements/spatial-physics/REQ-FEAT-060_collision-facts.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-058",
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-058_spatial-registration.md",
+      "metadata": "Docs/requirements/spatial-physics/REQ-FEAT-058_spatial-registration.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-076",
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-076_hud-minimap.md",
+      "metadata": "Docs/requirements/presentation-ui/REQ-FEAT-076_hud-minimap.meta.json"
+    },
+    {
+      "id": "REQ-WOLF-ANIM",
+      "path": "Docs/requirements/presentation-ui/REQ-WOLF-ANIM_wolf-alert-animation.md",
+      "metadata": "Docs/requirements/presentation-ui/REQ-WOLF-ANIM_wolf-alert-animation.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-072",
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-072_unit-view-binding.md",
+      "metadata": "Docs/requirements/presentation-ui/REQ-FEAT-072_unit-view-binding.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-077",
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-077_shop-view.md",
+      "metadata": "Docs/requirements/presentation-ui/REQ-FEAT-077_shop-view.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-073",
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-073_animation-sampling.md",
+      "metadata": "Docs/requirements/presentation-ui/REQ-FEAT-073_animation-sampling.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-074",
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-074_presentation-ledger.md",
+      "metadata": "Docs/requirements/presentation-ui/REQ-FEAT-074_presentation-ledger.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-075",
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-075_lua-ui-lifecycle.md",
+      "metadata": "Docs/requirements/presentation-ui/REQ-FEAT-075_lua-ui-lifecycle.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-053",
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-053_equipment-recipes.md",
+      "metadata": "Docs/requirements/equipment-shop/REQ-FEAT-053_equipment-recipes.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-056",
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-056_shop-undo.md",
+      "metadata": "Docs/requirements/equipment-shop/REQ-FEAT-056_shop-undo.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-054",
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.md",
+      "metadata": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-055",
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-055_shop-purchase-validation.md",
+      "metadata": "Docs/requirements/equipment-shop/REQ-FEAT-055_shop-purchase-validation.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-057",
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-057_gold-accounting.md",
+      "metadata": "Docs/requirements/equipment-shop/REQ-FEAT-057_gold-accounting.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-017",
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-017_configuration-validation.md",
+      "metadata": "Docs/requirements/configuration-content/REQ-FEAT-017_configuration-validation.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-019",
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-019_client-server-resources.md",
+      "metadata": "Docs/requirements/configuration-content/REQ-FEAT-019_client-server-resources.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-018",
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
+      "metadata": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-068",
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-068_ai-scheduling.md",
+      "metadata": "Docs/requirements/non-heroes/REQ-FEAT-068_ai-scheduling.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-069",
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-069_minion-waves.md",
+      "metadata": "Docs/requirements/non-heroes/REQ-FEAT-069_minion-waves.meta.json"
+    },
+    {
+      "id": "REQ-WOLF-PATIENCE",
+      "path": "Docs/requirements/non-heroes/REQ-WOLF-PATIENCE_camp-patience.md",
+      "metadata": "Docs/requirements/non-heroes/REQ-WOLF-PATIENCE_camp-patience.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-070",
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-070_jungle-camps.md",
+      "metadata": "Docs/requirements/non-heroes/REQ-FEAT-070_jungle-camps.meta.json"
+    },
+    {
+      "id": "REQ-FEAT-071",
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-071_tower-targeting.md",
+      "metadata": "Docs/requirements/non-heroes/REQ-FEAT-071_tower-targeting.meta.json"
+    },
+    {
+      "id": "REQ-KAR-005",
+      "path": "Docs/requirements/karolina/REQ-KAR-005_current-version-git-workflow.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-005_current-version-git-workflow.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-004",
+      "path": "Docs/plans/karolina/PLAN-KAR-004_current-version-git-implementation.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-004_current-version-git-implementation.meta.json"
+    },
+    {
+      "id": "REQ-KAR-006",
+      "path": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-005",
+      "path": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.meta.json"
+    },
+    {
+      "id": "REQ-KAR-007",
+      "path": "Docs/requirements/karolina/REQ-KAR-007_workspace-modes-tools.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-007_workspace-modes-tools.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-006",
+      "path": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.meta.json"
+    },
+    {
+      "id": "TOOL-GUIDE-UNITY-INSPECT",
+      "path": "Docs/tools/guides/TOOL-GUIDE-UNITY-INSPECT_usage.md",
+      "metadata": "Docs/tools/guides/TOOL-GUIDE-UNITY-INSPECT_usage.meta.json"
+    },
+    {
+      "id": "TOOL-GUIDE-DOTNET-INFO",
+      "path": "Docs/tools/guides/TOOL-GUIDE-DOTNET-INFO_usage.md",
+      "metadata": "Docs/tools/guides/TOOL-GUIDE-DOTNET-INFO_usage.meta.json"
+    },
+    {
+      "id": "FACT-KAR-001",
+      "path": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.md",
+      "metadata": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.meta.json"
+    }
+  ],
+  "activePlan": "PLAN-KAR-006",
+  "authority": "当前用户指令优先；已接受需求与规则为现行约束；旧 ID 仅来源别名",
+  "latestCompletedPlan": "PLAN-KAR-003"
+}

@@ -1,5 +1,7 @@
 # FrameSyncMobaDemo — 项目事实审计
 
+> 历史快照，不作为当前权威。保留原日期的分析与取证；当前事实见 [工程状态](Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md)，当前需求与计划见 [资料目录](Docs/README.md)。正文中的旧路径仅表示当时的来源，可通过 [迁移对照](Docs/rules/facts/migration-coverage.json) 追溯。
+
 > 审计基线：`master` / `a7a061f`，审计日期 2026-08-25。本文以仓库中首方 C# 源码、Unity 配置、序列化资产和真实调用关系为主要证据；设计文档、README、历史 ExecPlan 和 handoff 只在明确标为“记录性证据”时使用。
 >
 > 审计边界：已清点首方运行源码约 77,023 行（不含 `Assets/3rd`、Tests、Editor-only 源）和测试源码约 40,695 行（165 个文件），以及全部程序集定义、Packages、ProjectSettings、Build Settings、场景、Formal/ClientContent 资产和 160 份非归档项目 Markdown 文档的目录/状态。第三方源码（XLua、DOTween、Odin 等）不被当作项目自研能力。未修改业务代码，也未在本次审计中重新执行 Unity 编译、Player Build 或测试。

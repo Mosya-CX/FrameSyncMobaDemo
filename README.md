@@ -2,7 +2,7 @@
 
 一个由作者与 AI 深度协作设计、实现和验证，以 **确定性帧同步 MOBA** 为目标的 Unity 2022.3 LTS 技术演示工程。它将固定 Tick 的 Gameplay 模拟、客户端预测与回滚、Dedicated Server、NGO/UOS 对局流程，以及数据驱动的英雄、单位和战斗框架组合在同一项目中。
 
-> 项目定位是可运行、可验证的技术框架与内容垂直切片，不是可直接发布的完整商业游戏。本文根据 2026-09-01 的源码和当前工程状态整理；正式实现依据始终以 [设计索引](Docs/Architecture/DESIGN_INDEX.md) 为准。
+> 项目定位是可运行、可验证的技术框架与内容垂直切片，不是可直接发布的完整商业游戏。本文根据 2026-09-01 的源码和当前工程状态整理；正式实现依据始终以 [需求索引](Docs/README.md) 为准。
 
 ## 演示
 
@@ -301,7 +301,7 @@ Catalog 和 bundle 都是随安装包交付的本地内容；没有远程 catalo
 
 ### 设计阶段
 
-作者提供需求、边界与审查结论；GPTChat 协助演进系统设计。设计以帧同步流程和 Unit 行为框架两份母设计为基础，多份系统设计在并行审查与交叉校验中逐步收敛。当前唯一有效的设计版本由 [DESIGN_INDEX.md](Docs/Architecture/DESIGN_INDEX.md) 指定，跨系统冻结决策记录在 [DECISION_LOG.md](Docs/Architecture/DECISION_LOG.md)。
+作者提供需求、边界与审查结论；GPTChat 协助演进系统设计。设计以帧同步流程和 Unit 行为框架两份母设计为基础，多份系统设计在并行审查与交叉校验中逐步收敛。当前有效需求按功能维护于 [资料目录](Docs/README.md) 和 [独立元数据索引](Docs/catalog.json)；原固定设计与 Decision Log 已退役，修订合入相关功能，原文可从本机恢复快照追溯。
 
 设计阶段不是让一个 Agent 从头到尾独立输出。作者把初稿、实现思路和不可突破的边界分别交给多个设计 Agent；任何一份文档完成一轮后都会立即进入作者审查，其他文档仍并行推进。复杂系统会经历多轮退回、补充和重新对齐：
 
@@ -343,11 +343,11 @@ flowchart TB
 
 ### 框架编码阶段：候选计划驱动
 
-早期框架建设从 [0000 仓库审计计划](Docs/Implementation/Plans/0000_repository_audit_and_framework_planning_execplan.md) 开始。`0000` 不直接写玩法，而是审计仓库、Unity、程序集依赖、设计权威、缺失契约和验证基线。Codex 在完成一个基础设施切片后提出后续候选 ExecPlan，作者同时审查上一计划的结果与下一计划的范围，决定批准、退回或重新指定。这个阶段的候选计划、已完成计划和审计记录保存在 [Docs/Implementation/Plans/](Docs/Implementation/Plans/)，它们是理解框架如何逐步落地的重要工程历史。
+早期框架建设从 [0000 仓库审计计划](Docs/rules/facts/migration-coverage.json) 开始。`0000` 不直接写玩法，而是审计仓库、Unity、程序集依赖、设计权威、缺失契约和验证基线。Codex 在完成一个基础设施切片后提出后续候选 ExecPlan，作者同时审查上一计划的结果与下一计划的范围，决定批准、退回或重新指定。这个阶段的候选计划、已完成计划和审计记录保存在 [Docs/plans/](Docs/plans/)，它们是理解框架如何逐步落地的重要工程历史。
 
 ### 当前具体实现阶段：需求与设计案直接驱动
 
-现在以作者给出的具体需求和当前正式设计案为主进行实现：先解析设计权威和现有实现，再选择最小完整切片、完成 Unity 编译与聚焦测试，并记录当前证据。候选计划不再自动生成或替代作者的需求；仍有意义的高风险或跨模块工作会按约定建立正式 ExecPlan。完整执行约定见 [AI 直接请求工作流](Docs/Implementation/AI_WORKFLOW.md)。
+现在以作者给出的具体需求和当前正式设计案为主进行实现：先解析设计权威和现有实现，再选择最小完整切片、完成 Unity 编译与聚焦测试，并记录当前证据。候选计划不再自动生成或替代作者的需求；仍有意义的高风险或跨模块工作会按约定建立正式 ExecPlan。完整执行约定见 [AI 直接请求工作流](Docs/rules/execution/RULE-002_agent-execution-cycle.md)。
 
 框架建设阶段的典型闭环如下，历史候选计划在这里承担的是“把庞大框架拆成可审查、可验证切片”的作用：
 
@@ -479,11 +479,11 @@ UOS 负责匹配、分配和 Linux 战斗服托管，不替代项目自身的 NG
 
 本项目提供 Windows 客户端与 Linux Dedicated Server 的构建入口。具体前置条件、输出目录、Addressables 平台审计、UOS 打包与安全注意事项请阅读：
 
-- [构建指南](Docs/Implementation/BUILD_GUIDE.md)
-- [本地 C/S 测试指南](Docs/Implementation/C_S_TEST_GUIDE.md)
-- [完整对局测试计划](Docs/Implementation/TEST_PLAN.md)
-- [UOS 客户端启动器指南](Docs/Implementation/UOS_CLIENT_LAUNCHER_GUIDE.md)
-- [正式 Demo 游戏启动器与 CDN 指南](Docs/Implementation/GAME_LAUNCHER_GUIDE.md)
+- [构建指南](Docs/tools/guides/GUIDE-001_build-guide.md)
+- [本地 C/S 测试指南](Docs/tools/guides/GUIDE-002_local-client-server.md)
+- [完整对局测试计划](Docs/rules/execution/RULE-006_verification-evidence.md)
+- [UOS 客户端启动器指南](Docs/tools/guides/GUIDE-006_uos-client-launcher.md)
+- [正式 Demo 游戏启动器与 CDN 指南](Docs/tools/guides/GUIDE-005_game-launcher-cdn.md)
 
 Unity 菜单中的本地构建入口为 `FrameSyncMoba/Build Local NGO/Build Both`。构建操作一次只能发起一轮；构建期间不要继续对同一工程执行 Unity 操作，等待构建完成后再检查报告和日志。
 
@@ -496,7 +496,7 @@ Builds/LocalNgo/Server/FrameSyncMobaServer.exe
 Builds/LocalNgo/Client/FrameSyncMobaClient.exe
 ```
 
-启动时先运行 Server；两个客户端必须分别携带 `--LocalPlayerSlot=0` 和 `--LocalPlayerSlot=1`。三个进程都应通过 `-logFile` 写入不同日志，避免客户端共用默认 `Player.log`。完整启动命令、操作检查表和错误标记见 [本地 C/S 测试指南](Docs/Implementation/C_S_TEST_GUIDE.md)。
+启动时先运行 Server；两个客户端必须分别携带 `--LocalPlayerSlot=0` 和 `--LocalPlayerSlot=1`。三个进程都应通过 `-logFile` 写入不同日志，避免客户端共用默认 `Player.log`。完整启动命令、操作检查表和错误标记见 [本地 C/S 测试指南](Docs/tools/guides/GUIDE-002_local-client-server.md)。
 
 ### UOS Client 与 Linux Dedicated Server
 
@@ -566,9 +566,9 @@ Builds/CdnUpload/<客户端版本>/Upload/
 | PlayerInput | EditMode 42/42；聚焦 PlayMode 输入模拟证据见模块状态与当前交接文档 |
 | 完整 PlayMode 基线 | 56/60 通过，4 项保留失败 |
 
-当前清单记录 63 个客户端表现根、35 个逻辑根和零远程条目。迁移前后依赖清单与四个分区的版本/哈希/根数量见 [资源架构](Docs/Implementation/Addressables/RESOURCE_ARCHITECTURE.md) 与 [对局资源清单](Docs/Implementation/Addressables/MATCH_CONTENT_RESOURCE_MANIFEST.md)。已记录的旧客户端本地内容输出约 612 MB，其中三个大型 Projectile GLB 是主要体积来源；新分区后的最终 Player 体积仍需下一轮实际构建测量。
+当前清单记录 63 个客户端表现根、35 个逻辑根和零远程条目。迁移前后依赖清单与四个分区的版本/哈希/根数量见 [资源架构](Docs/rules/facts/GUIDE-CONTENT_resource-content-boundaries.md) 与 [对局资源清单](Docs/rules/facts/GUIDE-CONTENT_resource-content-boundaries.md)。已记录的旧客户端本地内容输出约 612 MB，其中三个大型 Projectile GLB 是主要体积来源；新分区后的最终 Player 体积仍需下一轮实际构建测量。
 
-这不是“完整测试套件全绿”的声明：当前 Unit 套件仍保留 10 项已知失败；2026-08-27 Bootstrap PlayMode 广覆盖探针的 34 个叶测试为 25 通过、9 项保留失败，类别集中在旧场景出生夹具、HeroTest 旧全局表查询、UOS 测试配置和异步取消日志。具体证据与限制见 [模块状态](Docs/Implementation/MODULE_STATUS.md) 和 [当前交接状态](Docs/Implementation/CURRENT_HANDOFF.md)。
+这不是“完整测试套件全绿”的声明：当前 Unit 套件仍保留 10 项已知失败；2026-08-27 Bootstrap PlayMode 广覆盖探针的 34 个叶测试为 25 通过、9 项保留失败，类别集中在旧场景出生夹具、HeroTest 旧全局表查询、UOS 测试配置和异步取消日志。具体证据与限制见 [模块状态](Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md) 和 [当前交接状态](Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md)。
 
 ## 已知限制与待验收项
 
@@ -582,32 +582,27 @@ Builds/CdnUpload/<客户端版本>/Upload/
 - 客户端表现资产和新 Loader 程序集已从 Server 排除，但部分旧表现类仍在共享程序集；完整表现代码 asmdef 拆分是独立的大型重构。
 - 仓库没有单独的开源许可证文件；复用源码或资源前需要先向仓库所有者确认授权。
 
-## 设计案与模块对应关系
+## 功能需求与工程资料
 
-正式实现只使用 [DESIGN_INDEX.md](Docs/Architecture/DESIGN_INDEX.md) 标记为 Current 的版本；文件名较旧、已完成计划或归档报告都不能自行提升为当前需求。
+当前需求按功能拆分，已接受的补充修订合入相应功能的演进记录。编号、状态、来源与关联保存在独立元数据；需求接受不等于已实现或验收通过。
 
-| 模块/系统 | 当前正式设计 |
+| 模块 | 中文功能目录 |
 |---|---|
-| 帧同步、流程、权威帧、恢复、比赛规则 | [FrameSync Flow v10.2](Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md) + D-045 |
-| Snapshot 精确成员与三阶段恢复 | [Snapshot Appendix v7.2](Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md) + Unit v27.4 amendment section 6 |
-| Unit、Handler、行为 AI、生命周期和动作仲裁 | [Unit Framework v27.3](Docs/Design/unit_behavior_framework_design_v27_3.md) + [v27.4 amendment](Docs/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md) |
-| 战斗、正式死亡、贡献与奖励 | [Combat v13.2](Docs/Design/moba_combat_system_design_v13_2.md) |
-| Projectile | [Projectile v19](Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md) |
-| Ability、CastModel、Stage 与被动 | [Ability v15.2](Docs/Design/moba_ability_system_design_v15_2.md) |
-| 普通攻击 | [Attack v6.2](Docs/Design/moba_attack_module_design_v6_2.md) |
-| Buff | [Buff v14.2](Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md) |
-| Crowd Control | [Crowd Control v6.2](Docs/Design/moba_crowd_control_system_design_v6_2.md) |
-| 装备、商店与金币 | [Equipment/Shop/Gold v12](Docs/Design/moba_equipment_shop_gold_system_design_v12.md) |
-| 二维物理与范围查询 | [Unit Physics v13.1](Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md) |
-| Direct、A*、FlowField 与 RVO | [Pathfinding v13.1](Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md) |
-| 小兵、防御塔与非英雄单位 | [Non-hero v5](Docs/Design/moba_non_hero_unit_modules_design_v5.md) |
-| 动画、VFX、音频、表现回滚和对局资源 | [Presentation v13.2](Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md) + D-048/D-051/D-052 |
-| UI 与 Lua | [UI/Lua v9.1](Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md) |
-| 玩家输入与非智能施法 | [Player Input v1.1](Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md) |
+| 同步、命令、快照与比赛 | [帧同步](Docs/requirements/frame-sync/) |
+| 单位、生命周期、仲裁 | [单位](Docs/requirements/units/) |
+| 战斗与奖励 | [战斗](Docs/requirements/combat/) |
+| 投射物、技能、攻击 | [投射物](Docs/requirements/projectiles/)、[技能](Docs/requirements/abilities/)、[普攻](Docs/requirements/basic-attacks/) |
+| Buff 与控制 | [Buff](Docs/requirements/buffs/)、[控制](Docs/requirements/crowd-control/) |
+| 装备、商店、金币 | [装备商店](Docs/requirements/equipment-shop/) |
+| 空间、寻路与移动 | [空间](Docs/requirements/spatial-physics/)、[寻路移动](Docs/requirements/pathfinding-movement/) |
+| 非英雄、数值与资源 | [非英雄](Docs/requirements/non-heroes/)、[单位数值](Docs/requirements/unit-stats/)、[配置资源](Docs/requirements/configuration-content/) |
+| 表现、界面与输入 | [表现](Docs/requirements/presentation-ui/)、[界面](Docs/requirements/presentation-ui/)、[输入](Docs/requirements/player-input/) |
+
+完整入口为 [资料目录](Docs/README.md)。不确定状态及合同差异见 [待确认清单](Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.md)，旧计划的覆盖与去向见 [迁移覆盖清单](Docs/rules/facts/migration-coverage.json)。
 
 ## 设计与工程约定
 
-[DESIGN_INDEX.md](Docs/Architecture/DESIGN_INDEX.md) 是唯一的当前正式设计索引；当文档与实现不一致时，遵循该索引、[决策日志](Docs/Architecture/DECISION_LOG.md) 与仓库中的工程约定。历史计划和归档资料用于理解决策及实现脉络，但不自动成为新的实现要求。
+[需求索引](Docs/README.md) 是当前要求入口；当前用户请求优先，已接受需求及规则作为约束；修订合入所属功能的演进，执行计划限定范围与顺序，实现不覆盖要求。历史计划和归档资料用于理解决策及实现脉络，但不自动成为新的实现要求。
 
 权威 Gameplay 的关键约束如下：
 
@@ -619,7 +614,14 @@ Builds/CdnUpload/<客户端版本>/Upload/
 
 更多入口：
 
-- [当前模块状态](Docs/Implementation/MODULE_STATUS.md)
-- [当前工程交接状态](Docs/Implementation/CURRENT_HANDOFF.md)
-- [架构与程序集地图](Docs/Architecture/REPOSITORY_MAP.md)
-- [资源架构](Docs/Implementation/Addressables/RESOURCE_ARCHITECTURE.md)
+- [当前模块状态](Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md)
+- [当前工程交接状态](Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md)
+- [架构与程序集地图](Docs/rules/index/FACT-4E2A6CA25B98_engineering-index.md)
+- [资源架构](Docs/rules/facts/GUIDE-CONTENT_resource-content-boundaries.md)
+
+
+## Karolina 工程工作台
+
+本地桌面工作台提供 Codex 模型、权限、连续对话、资料阅读与 Git 可视化；Unity 和 Codex 状态位于底栏。
+
+[最终产品需求](Docs/requirements/karolina/REQ-KAR-001_workbench-product.md)、[当前工作台需求](Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.md)、[运行说明](Tools/Karolina/README.md)。启动：`powershell -File Tools/Karolina/start-karolina.ps1`。图谱、Jev、自有 MCP、多 Harness 自动续接与档位映射为后续功能。

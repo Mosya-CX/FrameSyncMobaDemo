@@ -1,5 +1,7 @@
 # FrameSyncMobaDemo 面向 Unity / 游戏客户端岗位的技术价值分析
 
+> 历史快照，不作为当前权威。保留原日期的分析与取证；当前事实见 [工程状态](Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md)，当前需求与计划见 [资料目录](Docs/README.md)。正文中的旧路径仅表示当时的来源，可通过 [迁移对照](Docs/rules/facts/migration-coverage.json) 追溯。
+
 > 分析日期：2026-08-25  
 > 分析对象：当前仓库源码、配置、README、`PROJECT_AUDIT.md`，以及用户提供的 `陈曦_Unity游戏客户端简历_校招版_v2.pdf` 中 `FrameSyncMobaDemo` 板块。  
 > 边界：本文分析“项目能证明什么技术能力”，不替代个人贡献说明。仓库能证明代码和资产存在，不能单独证明每段代码的个人作者归属；现有简历已披露“主要代码实现由 Codex 完成”，因此后续表达应继续使用“主导设计 / 约束 / 审查 / 验收 / 推动实现”等符合实际职责的动词，不能改写成“个人独立实现全部系统”。  
