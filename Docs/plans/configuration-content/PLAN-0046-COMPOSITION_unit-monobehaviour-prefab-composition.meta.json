@@ -1,0 +1,139 @@
+{
+  "id": "PLAN-0046-COMPOSITION",
+  "code": "0046-COMPOSITION",
+  "title": "单位 MonoBehaviour 与预制体组合",
+  "type": "plan",
+  "domain": "配置资源",
+  "status": "关闭",
+  "path": "Docs/plans/configuration-content/PLAN-0046-COMPOSITION_unit-monobehaviour-prefab-composition.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-018",
+    "REQ-FEAT-072"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-018",
+      "title": "按对局加载内容闭包",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f8ded111ac8f777c33b80a3b065878902c19c32e157402f081a24b24dbc7ffcc"
+    },
+    {
+      "id": "REQ-FEAT-072",
+      "title": "单位视图绑定与语义挂点",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-072_unit-view-binding.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "aca8e1fa1bcdf4b0ab277301052aa1b5fda5635349ed8f33cad8eaa6b162b36f"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0046_unit_monobehaviour_prefab_composition_execplan.md",
+      "sha256": "0bc9e514b13a32acbd61abb0c3fcb53d7f01bd71050a83590694667849e009f7",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "Approved — executing.",
+      "targets": [
+        "REQ-FEAT-018",
+        "REQ-FEAT-072"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0046-COMPOSITION",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitSpawnRequest.cs",
+      "Assets/Scripts/RuntimeConfig/GlobalPrefabTable.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitHandler.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "Assets/Scripts/Gameplay/Ability/AbilityHandler.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitUidTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "sha256": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitSpawnRequest.cs",
+      "sha256": "504bc13e8c4ae3193b471eaa9fc4cda3796068fb083570ecf6cc636a9da84035",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalPrefabTable.cs",
+      "sha256": "33ad3646e1370759f84437c0b9e88324d557ca1696ff8c8a68e32981a37a2bc9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitHandler.cs",
+      "sha256": "b69a82affac158346384dbf5b782d7509a7c52847a9ebe6589b080af1c2d564d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "sha256": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityHandler.cs",
+      "sha256": "cba899eb50f7cc4011625d424ca4e210a0c6bc8ecd7f16699f68fd7365648050",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "sha256": "ad0df036c910fcb93318705c187af1906b6910a16c16e9d1494834fa0680b841",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitUidTests.cs",
+      "sha256": "387a080439a64a6073359b6c2219956e68b43a7a11b6652caea6d89aa1e17d8a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

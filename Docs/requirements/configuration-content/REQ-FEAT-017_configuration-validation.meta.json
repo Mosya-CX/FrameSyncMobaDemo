@@ -1,0 +1,206 @@
+{
+  "id": "REQ-FEAT-017",
+  "title": "全局配置与离线校验",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "配置资源",
+  "path": "Docs/requirements/configuration-content/REQ-FEAT-017_configuration-validation.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.2 `FrameSyncSettings`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.3 `GameModeConfig`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.4 固定 `PrefabKind`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.5 `GlobalPrefabTable`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.6 Inspector 要求",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.7 Bake 结果",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.8 Unit 与 Projectile 配置引用",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.9 版本握手",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 GlobalUnitPrototypeTable",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 GlobalPrefabTable",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 UnitSubKindTable",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.5 UnitDisposePolicyTable",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.6 StatDefinitionTable 与数值成长参数",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.7 移速与抗性参数",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.8 到达与追踪参数",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.9 加载校验",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalGameplayData.cs",
+      "sha256": "1b0f7c44a40958748013b9b385f21c624b34804deb6147ca593d00e8283ec906",
+      "symbols": [
+        "BakedGlobalGameplayData",
+        "GlobalGameplayData"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GlobalGameplayDataContractTests.cs",
+      "sha256": "f00e56e56d1c8946d5c1798d3b95d143c8e2c546e8eb4fe6222065ef800fa6e2",
+      "testFunctions": [
+        "ProjectAsset_BakesInspectorFloatsToDeterministicValues"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
+      "sha256": "73a8797011fe50dc4481f2ae7edd731f442528cc0c5030e9c7a902418d195c4d",
+      "testFunctions": [
+        "ServerFirstTick_MatchesClientPredictionFirstTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FormalGoldRewardConfigTests.cs",
+      "sha256": "2ded60e00a71679f563d3a480c94c8d46b4ccc0a61e929a1bb640b168632c1b9",
+      "testFunctions": [
+        "FormalConfig_UsesRequestedInitialAndKillGoldValues"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "testFunctions": [
+        "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
+        "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
+      "sha256": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+      "testFunctions": [
+        "FullMatchAnimationFixtures_HaveCompleteBindableControllers",
+        "RuntimeUnits_HaveCompleteRuntimeComposition",
+        "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
+        "FormalStructures_HaveNoAttackAnimation"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

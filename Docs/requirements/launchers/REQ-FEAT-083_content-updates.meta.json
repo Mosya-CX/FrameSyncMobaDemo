@@ -1,0 +1,34 @@
+{
+  "id": "REQ-FEAT-083",
+  "title": "增量更新与内容寻址分片",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "启动器",
+  "path": "Docs/requirements/launchers/REQ-FEAT-083_content-updates.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [],
+  "evidence": [
+    {
+      "path": "Tools/UosGameLauncher/CdnContracts.cs",
+      "sha256": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Tools/UosGameLauncher/CdnPackageBuilder.cs",
+      "sha256": "7bf7f82aeabd4bc5e6ab51dc1175bde478a89457c03dd21dbf8d886e127bbaea",
+      "symbols": [
+        "CdnPackageBuilder"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+      "sha256": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+      "testFunctions": [],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

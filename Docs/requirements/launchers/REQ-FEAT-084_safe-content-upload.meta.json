@@ -1,0 +1,41 @@
+{
+  "id": "REQ-FEAT-084",
+  "title": "安全分片上传与可选发布包",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "启动器",
+  "path": "Docs/requirements/launchers/REQ-FEAT-084_safe-content-upload.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [],
+  "evidence": [
+    {
+      "path": "Tools/UosGameLauncher/CdnPackageBuilder.cs",
+      "sha256": "7bf7f82aeabd4bc5e6ab51dc1175bde478a89457c03dd21dbf8d886e127bbaea",
+      "symbols": [
+        "CdnPackageBuilder"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UosBuildMenuTests.cs",
+      "sha256": "b35b8fcd4f96e7d9cb0dfc1fa53e6754ca5a88d413597f5c390aa41ea6e6fc65",
+      "testFunctions": [
+        "CombinedUosBuild_HasOneClickMenuEntry",
+        "ClearBuildGuard_ClearsCombinedUosGuard",
+        "ReleaseClientBuild_HasOptionalWindowEntry",
+        "ReleaseClientBuild_UsesIsolatedAaalolOutput",
+        "ReleaseClientBuild_ComposesValidatedCdnPackagerInvocation",
+        "ReleaseClientBuild_RefusesToCleanAnyOtherDirectory"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+      "sha256": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+      "testFunctions": [],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

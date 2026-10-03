@@ -1,0 +1,109 @@
+{
+  "id": "PLAN-0154",
+  "code": "0154",
+  "title": "W 特效奖励与 CDN 收尾",
+  "type": "plan",
+  "domain": "启动器",
+  "status": "关闭",
+  "path": "Docs/plans/launchers/PLAN-0154_live-w-vfx-reward-and-cdn-closure.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-084",
+    "REQ-FEAT-083"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-084",
+      "title": "安全分片上传与可选发布包",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/launchers/REQ-FEAT-084_safe-content-upload.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "76d3d4e37b2affaaf67e311eadabcf4d315736fb5dfc2ecdb711c8cce074c0c6"
+    },
+    {
+      "id": "REQ-FEAT-083",
+      "title": "增量更新与内容寻址分片",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/launchers/REQ-FEAT-083_content-updates.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "1a045df34f06180a3f4f070fb709d1adca2d6813c7edbd7f9cc9c2599f06a176"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0154_live_w_vfx_reward_and_cdn_closure.md",
+      "sha256": "1c8db8b2affbe6ca37f508aea1632cb7739b7cd3e4b8d79d9a38a4856b1e1445",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-084",
+        "REQ-FEAT-083"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0154",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/FrameSync/VfxManager.cs",
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/FrameSync/VfxLibrary.cs",
+      "Assets/Scripts/Gameplay/Ability/Stages/AreaDamageStageDef.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/FrameSync/Tests/MatchRewardDistanceTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/VfxManager.cs",
+      "sha256": "068e884c3aec64e63c7665e2802066dd740eee93d3ac29e88a803811b1960737",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/VfxLibrary.cs",
+      "sha256": "477bcbf1f43ac8f1e44f4c50c53852d52a8566b54a18b4dca8ccb883c1e6a58b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/AreaDamageStageDef.cs",
+      "sha256": "e00de48b8d711f6cdfabd56f47ef4cb40c56617321c5c6c926cf39c80c1fbfc5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchRewardDistanceTests.cs",
+      "sha256": "268675be19d563b56f1e31cf74384a18b28a1bbcd360e0e082a7e79095a9d623",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

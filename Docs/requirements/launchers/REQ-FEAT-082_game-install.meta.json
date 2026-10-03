@@ -1,0 +1,38 @@
+{
+  "id": "REQ-FEAT-082",
+  "title": "游戏下载校验与完整安装",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "启动器",
+  "path": "Docs/requirements/launchers/REQ-FEAT-082_game-install.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [],
+  "evidence": [
+    {
+      "path": "Tools/UosGameLauncher/CdnContracts.cs",
+      "sha256": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Tools/UosGameLauncher/CdnUpdater.cs",
+      "sha256": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Tools/UosGameLauncher/MainForm.cs",
+      "sha256": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+      "sha256": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+      "testFunctions": [],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

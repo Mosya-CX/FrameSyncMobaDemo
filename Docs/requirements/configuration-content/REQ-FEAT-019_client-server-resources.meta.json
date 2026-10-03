@@ -1,0 +1,52 @@
+{
+  "id": "REQ-FEAT-019",
+  "title": "客户端视图与服务器资源隔离",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "配置资源",
+  "path": "Docs/requirements/configuration-content/REQ-FEAT-019_client-server-resources.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/ClientContent/AddressablesClientContentService.cs",
+      "sha256": "ecc4c5957efd2ca8a3a137ac1b842187149f20da386cb0dabbe3a453fe082435",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/ClientUnitViewBinder.cs",
+      "sha256": "7af5c529a4a72e21044e16101e00a72c4e67649e99622486dd8b45caf074c70f",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/Tests/PlayMode/AddressablesClientContentServicePlayModeTests.cs",
+      "sha256": "02a14feb866cfc71919f9f4be9e2ed6fe417a19e1edea23f43c84400387cc8df",
+      "testFunctions": [
+        "RepresentativeClientRoots_LoadAndReleaseAsynchronously"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/LocalAddressablesConfigurationTests.cs",
+      "sha256": "f63196c0904d4eecf87c2e99d9ab5e5b098f1d61695fca772f0caa48491abea8",
+      "testFunctions": [
+        "FormalSettingsAreLocalOnlyAndContainAllClientGroups",
+        "ClientRootEntries_HaveUniqueAddressesAndExistingAssets",
+        "InventoryClassificationIsStable"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
+      "sha256": "c1cdce263d6a4e33c0acb6c413a0b3be1e6981dd597fd1c2b4ba4fef75f9cafc",
+      "testFunctions": [
+        "ProjectileViewLeaseStaysResidentAcrossLifetimes"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

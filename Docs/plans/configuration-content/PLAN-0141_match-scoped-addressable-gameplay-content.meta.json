@@ -1,0 +1,139 @@
+{
+  "id": "PLAN-0141",
+  "code": "0141",
+  "title": "对局范围 Addressables 内容",
+  "type": "plan",
+  "domain": "配置资源",
+  "status": "关闭",
+  "path": "Docs/plans/configuration-content/PLAN-0141_match-scoped-addressable-gameplay-content.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-018",
+    "REQ-FEAT-019"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-018",
+      "title": "按对局加载内容闭包",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f8ded111ac8f777c33b80a3b065878902c19c32e157402f081a24b24dbc7ffcc"
+    },
+    {
+      "id": "REQ-FEAT-019",
+      "title": "客户端视图与服务器资源隔离",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-019_client-server-resources.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "11e76ff6aa7e9ef726c4487cc8feadf010bfe92daba38a89882ba378c5af706c"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0141_match_scoped_addressable_gameplay_content.md",
+      "sha256": "30789ea891384a3c5a408f109a3424d7dae1b840f081ecc7bc741b28404f8182",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-018",
+        "REQ-FEAT-019"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0141",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/RuntimeConfig/GlobalPrefabTable.cs",
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/Bootstrap/GameSessionContext.cs",
+      "Assets/Scripts/Bootstrap/MatchContentSelection.cs",
+      "Assets/Scripts/Gameplay/Equipment/PlayerSlot.cs",
+      "Assets/Scripts/Gameplay/Projectile/ProjectileWorld.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitUidTests.cs",
+      "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalPrefabTable.cs",
+      "sha256": "33ad3646e1370759f84437c0b9e88324d557ca1696ff8c8a68e32981a37a2bc9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameSessionContext.cs",
+      "sha256": "393230ca8865187f00d2ceb257bc4216ef8f870fb0e160258650305245d329e9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/MatchContentSelection.cs",
+      "sha256": "8a3a43778a049c589745d3572215172831914d7e786aa893a715f3c414b89b8e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/PlayerSlot.cs",
+      "sha256": "1f5fd5e9fbf5a5d30773e5114aa8c5b846b0862cbb1d9342ced226af6bf821dd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileWorld.cs",
+      "sha256": "7854d24e2ba48820146651edd099a46374762584ce9a6a005699d047bd91f4fd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "sha256": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitUidTests.cs",
+      "sha256": "387a080439a64a6073359b6c2219956e68b43a7a11b6652caea6d89aa1e17d8a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
+      "sha256": "756d183174fddfdaf5eafaf15d3dcadfb35ba0c6d5f9e1f4e0718c362356d7fe",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

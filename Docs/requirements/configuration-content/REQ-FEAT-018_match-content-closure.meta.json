@@ -1,0 +1,270 @@
+{
+  "id": "REQ-FEAT-018",
+  "title": "按对局加载内容闭包",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "配置资源",
+  "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "七、`GlobalPrefabTable`：运行时引用边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 表现层使用的最小运行时语义",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 表现定义与 PrefabId 分离",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 职责边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalPrefabSubTableAsset.cs",
+      "sha256": "ac63332eb3b2f8c37bc577b5e600f67f9aa78df2bd859e09052bdcdf308d7b66",
+      "symbols": [
+        "GlobalPrefabSubTableAsset"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalPrefabTable.cs",
+      "sha256": "33ad3646e1370759f84437c0b9e88324d557ca1696ff8c8a68e32981a37a2bc9",
+      "symbols": [
+        "GlobalPrefabTable"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "testFunctions": [
+        "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
+        "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchScopedContentConfigurationTests.cs",
+      "sha256": "11b58b5f73f1c05aa17f99d71e441dcc240e06c57796887e40b2a6fbb4417341",
+      "testFunctions": [
+        "FormalRoot_SelectsOnlyCoreMapAndRequestedHeroes",
+        "FormalPartitions_ArePathOnlyAndCoverTwentyTwoEntries",
+        "SelectedHeroCatalogs_BakeWithoutOtherHero",
+        "UnitCatalogPartitions_CoreAloneOwnsSharedDisposePolicies",
+        "LogicAndHeroGroups_AreLocalAndPartitioned",
+        "SessionSelection_IsStableAndResettable",
+        "FormalGameScene_HasNoLegacyDirectCatalogReferences"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs",
+      "sha256": "669146600ce73f40a9e22a078b633dd7e52999ae4ac13b4f6c5caf7e4efbb0cf",
+      "testFunctions": [
+        "ProjectilesAreSplitIntoLogicAndAddressableViews",
+        "ProjectileViewRootsAreAtWorldOrigin",
+        "MapLogicAndClientViewHaveDisjointResponsibilities",
+        "VfxAndAudioLibrariesContainAddressesNotDirectAssets",
+        "GameplayConfigurationsHaveNoDirectSpriteDependencies",
+        "UiPagesAndPresentationRootsAreAddressableAndOutsideResources",
+        "GenericSkillIndicatorsUseSupportedTransparentShader"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitAddressablesMigrationTests.cs",
+      "sha256": "a7a921a7d2b02b8523f57a1debda3eb7248596ce4be205207069510bee37ad08",
+      "testFunctions": [
+        "AllFormalUnitEntriesResolveLogicPrefabAndAddressableView",
+        "LogicPrefabsContainNoPresentationComponentsOrAssets",
+        "ClientViewsContainPresentationHostButNoGameplayRoot",
+        "ClientViewRootsAreAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
+      "sha256": "c1cdce263d6a4e33c0acb6c413a0b3be1e6981dd597fd1c2b4ba4fef75f9cafc",
+      "testFunctions": [
+        "ProjectileViewLeaseStaysResidentAcrossLifetimes"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
+      "sha256": "73a8797011fe50dc4481f2ae7edd731f442528cc0c5030e9c7a902418d195c4d",
+      "testFunctions": [
+        "ServerFirstTick_MatchesClientPredictionFirstTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/Editor/Tests/HeroDisplayAndPrefabRangeTests.cs",
+      "sha256": "0fdab39bb0cd36db7d2ecd31ec06ac95ecd285509c456c2cd8069643c0fd943f",
+      "testFunctions": [
+        "Sync_AutoCreatesRow_ForEachHeroPrototype",
+        "Sync_IgnoresNonHeroPrototypes",
+        "Sync_IsIdempotent",
+        "Sync_PreservesAvatarAndManualName",
+        "Sync_RemapsPrefabId_WhenPrototypeChanges",
+        "Sync_RemovesRow_WhenHeroPrototypeDisappears",
+        "DefaultUnitRange_AcceptsConfiguredIds",
+        "DefaultUnitRange_RejectsOutOfRangeId",
+        "ConfiguredRange_IsEnforced",
+        "OverlappingKindRanges_AreRejected",
+        "ReplaceForTests_WhenInputsAliasBackingLists_PreservesContent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AddressableMatchContentPlayModeTests.cs",
+      "sha256": "700cd2a54ef137d9b6d8a0c31b8a80d4c1de91774160c0e89e25a7dec4aeed80",
+      "testFunctions": [
+        "VarusSelection_LoadsOnlyVarusAndReleasesEveryHandle",
+        "AatroxSelection_LoadsItsQMetadataWithoutVarus",
+        "SelectedMap_CreatesOwnedSortedCampTopology"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
+      "sha256": "1e37183d31d9b782b58e0c8b2f6e9c221ab17bf5f26443111ae407d0566325aa",
+      "testFunctions": [
+        "BuildWorld_LoadsSelectedVarusPartition",
+        "BuildWorld_LoadsFormalEquipmentCatalogForShop",
+        "LocalTickShop_UsesFormalGoldPurchaseRecipeAndUndo"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+      "sha256": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+      "testFunctions": [
+        "EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat",
+        "EndOnFirstHit_RejectsLaterSameTickCandidate",
+        "EqualDistanceArbitration_UidRelabelKeepsParticipantWinner",
+        "PierceBudget_EndsAtConfiguredHitCount",
+        "ProjectileDamage_UsesCombatShieldPipeline",
+        "EnemyFilter_ExcludesFriendlyTarget",
+        "EnemyFilter_IncludesStructureTarget",
+        "MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp",
+        "MisconfiguredProjectileBuff_StructureHitStillFailsVisibly",
+        "MisconfiguredProjectileCC_StructureHitStillFailsVisibly",
+        "RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget",
+        "PendingTrackedTarget_SnapshotRoundTripPreservesLock",
+        "SnapshotRoundTrip_PreservesSourceAndHitMemory",
+        "Capture_PrunesHitMemoryForDisposedTargets",
+        "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
+        "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+      "sha256": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+      "testFunctions": [
+        "PiercingFalloff_ReducesDamagePerExtraHit",
+        "PiercingFalloff_OverridePath_MatchesStaticConfig",
+        "PiercingFalloff_ClampsAtMinDamageRatio"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+      "sha256": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+      "testFunctions": [
+        "AreaDamageStage_CentersOnAimTargetPoint",
+        "AreaDamageStage_DoesNotDamageEnemyStructure",
+        "SpawnProjectileStage_FiresTowardAimDirection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
+      "sha256": "5455a608d93b019d84f6e22a06fe68984a5f8ba9739967a3493e7163b606f44c",
+      "testFunctions": [
+        "ChargeStage_RatioIncreasesWithElapsedTicks",
+        "ChargeStage_SelfSlowAppliesWhileChargingAndRemovesOnRelease",
+        "ChargeStage_TimeoutCancelsAndRefundsHalfCost",
+        "ChargeStage_ConsumesActiveToggleAndStartsCooldown",
+        "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
+        "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+      "sha256": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+      "testFunctions": [
+        "FormalCatalog_ContainsExpectedStatsRecipeAndModules",
+        "GameScene_UsesCorePartitionInsteadOfDirectEquipmentCatalog",
+        "SixRealHits_StackBuffAndRepeatThirdFullStackOnHitOnce",
+        "OnHitEquipmentEffects_DoNotApplyToStructure",
+        "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
+        "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
+      "sha256": "e2427837e7915ce403f46f10b401818bb4ce883f366ff64fd75e1d903cc4aeee",
+      "testFunctions": [
+        "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
+        "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "sha256": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+      "testFunctions": [
+        "Bake_ConvertsFloatAuthoringToExistingRuntimeContracts",
+        "Bake_ReversedAuthoringOrderProducesSameStableTables",
+        "Bake_DuplicateStatDefinitionFailsInsteadOfOverwriting",
+        "Bake_DuplicatePrototypePresetStatFails",
+        "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

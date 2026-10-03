@@ -1,0 +1,111 @@
+{
+  "id": "PLAN-0163",
+  "code": "0163",
+  "title": "工程资源与代码清理",
+  "type": "plan",
+  "domain": "配置资源",
+  "status": "关闭",
+  "path": "Docs/plans/configuration-content/PLAN-0163_repository-structure-resource-and-code-cleanup.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-018"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-018",
+      "title": "按对局加载内容闭包",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f8ded111ac8f777c33b80a3b065878902c19c32e157402f081a24b24dbc7ffcc"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0163_repository_structure_resource_and_code_cleanup.md",
+      "sha256": "3e5269c75119efff7d586f6c988cc0bef21afdc3c7ad84358a526db1ffd42bc0",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-018"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0163",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentTag.cs",
+      "Assets/Scripts/Gameplay/Equipment/PlayerSlot.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/BehaviorPlanner.cs",
+      "Assets/Scripts/RuntimeConfig/GlobalPrefabSubTableAsset.cs",
+      "Assets/Scripts/Gameplay/Tests/EquipmentTagAndCatalogTests.cs",
+      "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "sha256": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentTag.cs",
+      "sha256": "78cda1f5c138b6be48508512ba74a28363af3a5929e9cf156ca786b337a520e5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/PlayerSlot.cs",
+      "sha256": "1f5fd5e9fbf5a5d30773e5114aa8c5b846b0862cbb1d9342ced226af6bf821dd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/BehaviorPlanner.cs",
+      "sha256": "e7318a0240bc5a74d2d35744182f2d9063aa98071fe493579f124d5eec81eb04",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalPrefabSubTableAsset.cs",
+      "sha256": "ac63332eb3b2f8c37bc577b5e600f67f9aa78df2bd859e09052bdcdf308d7b66",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentTagAndCatalogTests.cs",
+      "sha256": "8c5d038a6d6456121b0b702d752c8de8e5a2631912bd937a4fd4c53a007b6d82",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

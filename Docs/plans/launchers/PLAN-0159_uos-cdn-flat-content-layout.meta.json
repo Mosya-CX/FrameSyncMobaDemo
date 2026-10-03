@@ -1,0 +1,97 @@
+{
+  "id": "PLAN-0159",
+  "code": "0159",
+  "title": "CDN 扁平内容布局",
+  "type": "plan",
+  "domain": "启动器",
+  "status": "关闭",
+  "path": "Docs/plans/launchers/PLAN-0159_uos-cdn-flat-content-layout.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-084",
+    "REQ-FEAT-083"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-084",
+      "title": "安全分片上传与可选发布包",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/launchers/REQ-FEAT-084_safe-content-upload.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "76d3d4e37b2affaaf67e311eadabcf4d315736fb5dfc2ecdb711c8cce074c0c6"
+    },
+    {
+      "id": "REQ-FEAT-083",
+      "title": "增量更新与内容寻址分片",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/launchers/REQ-FEAT-083_content-updates.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "1a045df34f06180a3f4f070fb709d1adca2d6813c7edbd7f9cc9c2599f06a176"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0159_uos_cdn_flat_content_layout.md",
+      "sha256": "3f8458dba2c7bfb542a81cafd457e85aedaa21a2efb33555ad231e3fa137a7e7",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-084",
+        "REQ-FEAT-083"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0159",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Tools/UosGameLauncher/CdnPackageBuilder.cs",
+      "Tools/UosGameLauncher/CdnUpdater.cs",
+      "Tools/UosGameLauncher/CdnContracts.cs",
+      "Tools/UosGameLauncher/LauncherSelfTest.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Tools/UosGameLauncher/CdnPackageBuilder.cs",
+      "sha256": "7bf7f82aeabd4bc5e6ab51dc1175bde478a89457c03dd21dbf8d886e127bbaea",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Tools/UosGameLauncher/CdnUpdater.cs",
+      "sha256": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Tools/UosGameLauncher/CdnContracts.cs",
+      "sha256": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+      "sha256": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}
