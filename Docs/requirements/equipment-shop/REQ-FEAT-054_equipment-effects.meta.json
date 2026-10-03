@@ -1,0 +1,213 @@
+{
+  "id": "REQ-FEAT-054",
+  "title": "装备主动被动与可重复命中",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "装备商店",
+  "path": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 三层静态配置结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 EquipmentEffectDef 是非抽象配置资产",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 模块作为 EffectDef 的内嵌多态配置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.4 调用时机",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.5 被动效果的模块时机",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.6 主动效果锁定调用时机",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.7 主动公共配置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.8 Effect 和 Module Runtime",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.9 UID",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.10 不增加 Effect 专用 Bake 层",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.11 典型模块类型",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.12 事件驱动模块",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.13 Tick 模块",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.14 动态属性模块",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.15 CombatModifier 模块",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 每件装备最多一个主动 Effect",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 CheckUse",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 先验证全部模块，再统一执行",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 ActionArbiter 接入",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 不使用 EquipmentInstanceUid",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.6 装备使用使商店撤销失效",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.7 普通死亡与复活接缝",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.8 UnitDeath 同 Tick 执行",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.9 新生单位的装备生效边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentEffect.cs",
+      "sha256": "eb58a9d0ffc809eee74f0248b4c5623b3d5d9f5ce6fd1bdc971330b2c3f29a34",
+      "symbols": [
+        "EquipmentEffectModule",
+        "EquipmentEffectRuntime"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/OnHitRepeatModule.cs",
+      "sha256": "5ee3e8aa122afc9c8962a244f0c9446ed3f9ce9ba3569afd7fc97a18ff0d04b3",
+      "symbols": [
+        "OnHitRepeatModule"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+      "sha256": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+      "testFunctions": [
+        "FormalCatalog_ContainsExpectedStatsRecipeAndModules",
+        "GameScene_UsesCorePartitionInsteadOfDirectEquipmentCatalog",
+        "SixRealHits_StackBuffAndRepeatThirdFullStackOnHitOnce",
+        "OnHitEquipmentEffects_DoNotApplyToStructure",
+        "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
+        "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

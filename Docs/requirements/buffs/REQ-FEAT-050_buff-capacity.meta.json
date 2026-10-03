@@ -1,0 +1,307 @@
+{
+  "id": "REQ-FEAT-050",
+  "title": "Buff 上限优先级与驱逐",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "增益",
+  "path": "Docs/requirements/buffs/REQ-FEAT-050_buff-capacity.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13A. Buff 上限与优先级驱逐（正式扩展）",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13A.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13A.2 配置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13A.3 驱逐规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13A.4 确定性要求",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffDefinition.cs",
+      "sha256": "a212995e7004ad81b7458faf29bef709d9043b609f9a199913ccd8c559ea4fa7",
+      "symbols": [
+        "BuffDefinition"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "sha256": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+      "symbols": [
+        "BuffHandler"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/BlightStackMarkStructurePlayModeTests.cs",
+      "sha256": "8ad04ea6ca0119045e15ebc8df4e8cb415740adce84c170ed169cabf9bc37ab9",
+      "testFunctions": [
+        "ExternalBlightOnStructure_CreatesNoPresentationMark"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+      "sha256": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+      "testFunctions": [
+        "EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat",
+        "EndOnFirstHit_RejectsLaterSameTickCandidate",
+        "EqualDistanceArbitration_UidRelabelKeepsParticipantWinner",
+        "PierceBudget_EndsAtConfiguredHitCount",
+        "ProjectileDamage_UsesCombatShieldPipeline",
+        "EnemyFilter_ExcludesFriendlyTarget",
+        "EnemyFilter_IncludesStructureTarget",
+        "MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp",
+        "MisconfiguredProjectileBuff_StructureHitStillFailsVisibly",
+        "MisconfiguredProjectileCC_StructureHitStillFailsVisibly",
+        "RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget",
+        "PendingTrackedTarget_SnapshotRoundTripPreservesLock",
+        "SnapshotRoundTrip_PreservesSourceAndHitMemory",
+        "Capture_PrunesHitMemoryForDisposedTargets",
+        "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
+        "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
+      "sha256": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+      "testFunctions": [
+        "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
+        "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+      "sha256": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+      "testFunctions": [
+        "AbilityHit_DetonatesAndConsumesAllStacks",
+        "Detonation_DoesNotRecurse",
+        "Detonation_NonHero_CapsPerStackDamage",
+        "ExternalBlightAndAbilityDamage_DoNotAffectStructure",
+        "Detonation_Hero_GrantsCooldownReduction",
+        "AttackDamage_DoesNotDetonate",
+        "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
+        "WPassive_OnHit_DoesNotAffectStructure"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "sha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "testFunctions": [
+        "PeriodicDamage_DealsDamageEachInterval",
+        "PeriodicDamage_NoDamageWithoutCombatSystem",
+        "HealOverTime_RestoresHealthEachInterval",
+        "CurrentHealthOnHit_DealsThreePercentOfPreHitHealth",
+        "ShieldOverTime_GrantsShieldEachInterval",
+        "OnKillStat_GrantsStatOnKill",
+        "OnKillStat_StacksUpToMax"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+      "sha256": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+      "testFunctions": [
+        "Blackboard_StaticLayout_ReadWriteResetAndRoundTrip",
+        "FirstApply_FiresStackChanged_ZeroToInitial",
+        "Reapply_FiresReapplied_AndStackChangedOnChange",
+        "PeriodicReaction_FiresOnIntervalSlot",
+        "EventReactions_AbilityCastAndLevelUp_Fire",
+        "RemovedReaction_FiresOnRemove_ButNotOnDespawn",
+        "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
+        "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+      "sha256": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+      "testFunctions": [
+        "Spread_InfectsOnlyEnemyHeroesOfOriginalCaster",
+        "Spread_DoesNotReinfectAnInfectedHero",
+        "Spread_RequiresContinuousContactInsideRadius",
+        "Spread_AppliesSameRDamageAndRoot",
+        "SecondR_StartsAFreshSpread",
+        "SecondR_UsesADifferentTagUid",
+        "Blight_StacksAreAppliedAtConfiguredTicks"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+      "sha256": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+      "testFunctions": [
+        "FormalCatalog_ContainsExpectedStatsRecipeAndModules",
+        "GameScene_UsesCorePartitionInsteadOfDirectEquipmentCatalog",
+        "SixRealHits_StackBuffAndRepeatThirdFullStackOnHitOnce",
+        "OnHitEquipmentEffects_DoNotApplyToStructure",
+        "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
+        "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+      "sha256": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+      "testFunctions": [
+        "InitialBuffs_AppliedAutomaticallyFromPrototype",
+        "MeleeMinion_AttacksMinion_AddsTwoPercentCurrentHealth",
+        "RangedMinion_AttacksMinion_AddsThreePointFivePercentCurrentHealth",
+        "Minion_AttacksStructure_DealsSixtyPercent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
+      "sha256": "6eda01992bdd94efe7e3e6d05d4b0c88b2d328e8293e3ff7300f67e3bfd7b730",
+      "testFunctions": [
+        "KillNonHero_GrantsAttackSpeedAndDerivedStats",
+        "KillHero_AppliesThreeTimesBonus",
+        "Kill_RefreshesBuffDurationToFiveSeconds",
+        "Cooldown_ResolvesPerAbilityLevel",
+        "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
+        "AssistHero_AppliesEmpoweredBonusToAssistant"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
+      "sha256": "befe86e69278bfcf13ba35b6eac2dd97d539a160cb0c306560becdea828d8b58",
+      "testFunctions": [
+        "ExternalOrdinaryAttackDamage_IsAccepted",
+        "ExternalNonAttackDamage_IsRejected",
+        "AttackTypedNonBasicSource_IsRejected",
+        "ExternalHealAndShield_AreRejected",
+        "SelfOwnedStructureBuff_IsAllowedButExternalBuffIsRejected",
+        "ExternalCrowdControl_IsRejectedButSelfOwnedIsAllowed",
+        "ExternalBuffToHandlerlessTower_IsConsumedNoOp",
+        "ExternalCrowdControlToHandlerlessTower_IsConsumedNoOp",
+        "InvalidExternalCrowdControl_IsNotHiddenByStructureFilter",
+        "DeferredExternalEffects_AreFilteredBeforeSequenceAndSnapshot"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+      "sha256": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+      "testFunctions": [
+        "Catalog_ContainsSunderedSkyTreeWithStatsAndRecipes",
+        "EmpoweredStrike_Deals160PercentCritical_AndStartsCooldown",
+        "PerTargetCooldown_SecondHitOnSameHeroIsNormal",
+        "DifferentEnemyHero_StillTriggersEmpoweredStrike",
+        "HealRestoresMissingHealth_AndOverhealBecomesTempMaxHealth",
+        "RangedStrike_HealsWithRangedBaseAdRatio",
+        "MeleeWithProjectile_StillHealsWithMeleeRatio",
+        "FinishedItem_IsUnique_SecondPurchaseRejected",
+        "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "sha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "testFunctions": [
+        "UnitCatalog_ContainsAuthoredGreaterAndMiniWolfValues",
+        "GreaterWolf_OnHitBuff_IsPermanentThreePercentCurrentHealth",
+        "MapPrefab_AuthorsTwoVisualizedThreeWolfCamps",
+        "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
+        "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
+      "sha256": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+      "testFunctions": [
+        "FullMatchAnimationFixtures_HaveCompleteBindableControllers",
+        "RuntimeUnits_HaveCompleteRuntimeComposition",
+        "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
+        "FormalStructures_HaveNoAttackAnimation"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
+      "sha256": "e2427837e7915ce403f46f10b401818bb4ce883f366ff64fd75e1d903cc4aeee",
+      "testFunctions": [
+        "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
+        "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
+      "sha256": "01d291fac5c4ac3107fde051bb2e39a017248b44e2b0e309b5617bbdf8d1d457",
+      "testFunctions": [
+        "FactoryUnit_BindsEveryHandlerToSameComponentOwner",
+        "Death_PreservesGlobalStatAndCombatModifierOwnership",
+        "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "sha256": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+      "testFunctions": [
+        "Bake_ConvertsFloatAuthoringToExistingRuntimeContracts",
+        "Bake_ReversedAuthoringOrderProducesSameStableTables",
+        "Bake_DuplicateStatDefinitionFailsInsteadOfOverwriting",
+        "Bake_DuplicatePrototypePresetStatFails",
+        "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

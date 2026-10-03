@@ -1,0 +1,155 @@
+{
+  "id": "PLAN-0030",
+  "code": "0030",
+  "title": "装备交易与效果分发",
+  "type": "plan",
+  "domain": "装备商店",
+  "status": "关闭",
+  "path": "Docs/plans/equipment-shop/PLAN-0030_equipment-completion.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-053",
+    "REQ-FEAT-054",
+    "REQ-FEAT-055"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-053",
+      "title": "六格装备配方与唯一标签",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-053_equipment-recipes.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "08136385e8c8168d974b7f67fc78f9e5de5f134e62679f1f5af78f751773a3a6"
+    },
+    {
+      "id": "REQ-FEAT-054",
+      "title": "装备主动被动与可重复命中",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "33317ac180b0d875e3811316eb090e85a2901e0df115edfbe84ae297362dd26c"
+    },
+    {
+      "id": "REQ-FEAT-055",
+      "title": "购买合成与 Command 二次校验",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-055_shop-purchase-validation.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4de5b4b09111f99c877aedea0ef8cb88aed450e7d25108517f49f3a53485c23c"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0030_equipment_completion.md",
+      "sha256": "171730010acd108b58b2c0dee2c0f55a4b1768aa12f106c6df3f98308ebd1492",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-053",
+        "REQ-FEAT-054",
+        "REQ-FEAT-055"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0030",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Equipment/EquipmentShopRuntime.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentEffectDispatch.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentDatabase.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Tests/EquipmentShopRuntimeSnapshotTests.cs",
+      "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentShopRuntime.cs",
+      "sha256": "644eae81e5f06149e78e89e6cc75d687a9df1f1cb10a044dc56d6f3fb66de33e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentEffectDispatch.cs",
+      "sha256": "eda7adc7faa30dba7c9d3268ef184aabc7c4e7e93141c8b71c0aa6241f6a5fad",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentDatabase.cs",
+      "sha256": "9d244643db977c14baf10da6908683e3ecb602aff9f49d736fddd9a8443eaefb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs",
+      "sha256": "43a7635662621e4b4cb4c01ff5214da3423a0fd87ae11c84e6c761d9791b3fa1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "sha256": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRuntimeSnapshotTests.cs",
+      "sha256": "dcc995c3e3161b7539e4c692d4602935807fe2a9ea88656f98539ce3963c403b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+      "sha256": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

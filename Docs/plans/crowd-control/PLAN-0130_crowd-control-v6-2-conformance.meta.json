@@ -1,0 +1,139 @@
+{
+  "id": "PLAN-0130",
+  "code": "0130",
+  "title": "控制系统合同补全",
+  "type": "plan",
+  "domain": "控制",
+  "status": "关闭",
+  "path": "Docs/plans/crowd-control/PLAN-0130_crowd-control-v6-2-conformance.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-051",
+    "REQ-FEAT-052"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-051",
+      "title": "控制实例与模块参数",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051_crowd-control-instances.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "fdf7fe01106ba33ebb164edcbf15f1fb9a9e5b9bf2d2dbc9960c7a3ccf876f63"
+    },
+    {
+      "id": "REQ-FEAT-052",
+      "title": "控制免疫净化与汇总裁决",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-052_control-immunity.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "633d459c2079684e85c425d200e4639d52e17fa710c176943b0794b00a9ba03d"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0130_crowd_control_v6_2_conformance_execplan.md",
+      "sha256": "93fcd81203188a13eee05dbb60b67cf8d5017a1e501e5bcb2a25e6f2399980f8",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Slices 1-3 complete, Slice 4 (tests/docs) in progress (2026-08-06).",
+      "targets": [
+        "REQ-FEAT-051",
+        "REQ-FEAT-052"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0130",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/CrowdControl/CrowdControlTypes.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/Gameplay/Ability/Stages/PullStageDef.cs",
+      "Assets/Scripts/Gameplay/Ability/Stages/StunStageDef.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffCatalogAsset.cs",
+      "Assets/Scripts/Gameplay/CrowdControl/CrowdControlCatalogAsset.cs",
+      "Assets/Scripts/Gameplay/CrowdControl/CrowdControlDefinition.cs",
+      "Assets/Scripts/Gameplay/CrowdControl/CrowdControlDefinitionRegistry.cs",
+      "Assets/Scripts/Gameplay/Tests/CrowdControlCatalogAssetTests.cs",
+      "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlTypes.cs",
+      "sha256": "fe13b8e8b334aeaab7bdfea0cc9f27248fddb3fb9dfbebbcb5934572a2d41a6b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/PullStageDef.cs",
+      "sha256": "01fa89a993f373f2e48b25483cbf38abd5b4e3079b06103228fc3932b4322eff",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/StunStageDef.cs",
+      "sha256": "6a43b460b91ec5c65780b4dd18b679853898e03653a0922843e75c80682b6e8d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffCatalogAsset.cs",
+      "sha256": "153d89ec0b8bedfbb3776eab6d67a457f6b0e78774281dd369ed7c125400ef6d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlCatalogAsset.cs",
+      "sha256": "1be35178d60e51341b5c4abe4c335e4cf39b2e2bf0756dbc3641743c4ee9f140",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlDefinition.cs",
+      "sha256": "20dbab659d357865c924d0be133daf6efdd7471d593fdd4046b6dfe43cc4d39e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlDefinitionRegistry.cs",
+      "sha256": "60a1db732afb3d0759459eae80d24abbfa851d3cf09519b94513c326f16a1207",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlCatalogAssetTests.cs",
+      "sha256": "81a87d71b20bed9a178c0379ccb9e23cb8fffabca0087d5c599dac1fbd4717fb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "sha256": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
+      "sha256": "4c9b9506a7f2a49aac9f93214d6d6d1355115a633adde9a71f89840bd549b560",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

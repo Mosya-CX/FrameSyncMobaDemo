@@ -1,0 +1,291 @@
+{
+  "id": "REQ-FEAT-052",
+  "title": "控制免疫净化与汇总裁决",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "控制",
+  "path": "Docs/requirements/crowd-control/REQ-FEAT-052_control-immunity.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.1 标签的用途",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.2 数据结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.3 建议标签",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.4 TagQuery",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.5 标签与模块的关系",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 三者不是同一个概念",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 CrowdControlIntensity",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 控制免疫",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 CrowdControlImmunitySpec",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.5 AddImmunity",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.6 一次性控制护盾与完整法术盾",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.7 不可阻挡",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.8 为什么删除 CrowdControlInterruptMask",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.9 UnitActionBlockMask",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.10 净化规则由谁定义",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.11 Cleanse",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.12 复合控制的净化",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 CrowdControlStateView",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 多实例总原则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 限制叠加",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 同种控制时间重叠",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 数值控制",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 ForcedBehavior 胜者",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.7 RebuildOutputs",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.8 Tenacity",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 最简入口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 为什么直接引用不等于高耦合",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 外部效果接入契约",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 单位动作框架接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.5 强制行为",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
+      "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.6 强制移动",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlTypes.cs",
+      "sha256": "fe13b8e8b334aeaab7bdfea0cc9f27248fddb3fb9dfbebbcb5934572a2d41a6b",
+      "symbols": [
+        "CrowdControlImmunitySpec",
+        "CrowdControlStateView"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "sha256": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "testFunctions": [
+        "Add_CreatesIndependentInstances_NoMerge",
+        "Immunity_BlocksLowMedium_ConsumesOneShot_BypassesHigh",
+        "Cleanse_RemovesMatchingNonHigh_RespectsCount",
+        "Unstoppable_SuppressesOutput_AndRejectsForcedMove",
+        "DamageTakenSignal_RemovesSleepInstance",
+        "Drowsy_OnNaturalExpire_AddsSleepWithConfiguredDuration",
+        "Tenacity_ShortensDefaultDuration_IgnoredByIgnoreRule",
+        "ForcedMove_PriorityArbitration_RejectsLower_ReplacesEqual",
+        "ForcedBehavior_WinnerSelected_AndConsumedByPlanner",
+        "ForcedMoveBehavior_BypassesVoluntaryCapabilityBlock",
+        "Snapshot_RoundTrip_PreservesInstancesAndState",
+        "Restore_ValidatesRestoredForcedMoveHandleNotPreRestoreHandle",
+        "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
+        "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

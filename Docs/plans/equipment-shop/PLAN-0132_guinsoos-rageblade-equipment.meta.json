@@ -1,0 +1,161 @@
+{
+  "id": "PLAN-0132",
+  "code": "0132",
+  "title": "鬼索狂暴之刃装备",
+  "type": "plan",
+  "domain": "装备商店",
+  "status": "关闭",
+  "path": "Docs/plans/equipment-shop/PLAN-0132_guinsoos-rageblade-equipment.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-053",
+    "REQ-FEAT-054",
+    "REQ-FEAT-055"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-053",
+      "title": "六格装备配方与唯一标签",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-053_equipment-recipes.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "08136385e8c8168d974b7f67fc78f9e5de5f134e62679f1f5af78f751773a3a6"
+    },
+    {
+      "id": "REQ-FEAT-054",
+      "title": "装备主动被动与可重复命中",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "33317ac180b0d875e3811316eb090e85a2901e0df115edfbe84ae297362dd26c"
+    },
+    {
+      "id": "REQ-FEAT-055",
+      "title": "购买合成与 Command 二次校验",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-055_shop-purchase-validation.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4de5b4b09111f99c877aedea0ef8cb88aed450e7d25108517f49f3a53485c23c"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0132_guinsoos_rageblade_equipment_execplan.md",
+      "sha256": "1c555f5d9a9ad22ea0322ef11b3873679f40bf3423949f4620b20617adaf727b",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Implemented and focused-tested; cs26 packaged-Shop bootstrap",
+      "targets": [
+        "REQ-FEAT-053",
+        "REQ-FEAT-054",
+        "REQ-FEAT-055"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0132",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffConfigId.cs",
+      "Assets/Scripts/Gameplay/Equipment/BuffEquipmentModule.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentCatalogAsset.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentShopRuntime.cs",
+      "Assets/Scripts/Gameplay/Equipment/OnHitRepeatModule.cs",
+      "Assets/Scripts/Gameplay/Equipment/PlayerSlot.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
+      "Assets/Scripts/Gameplay/Tests/EquipmentShopTransactionTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/CellPrefabRefTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffConfigId.cs",
+      "sha256": "d06debd1840fb3ad521cb6e39312312946a18fe8559279d33f6fa7cb58bd447e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/BuffEquipmentModule.cs",
+      "sha256": "c614dea429a2ed869158d75a0b03bfca5153f7b77ccea52a4a60992645f8a229",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentCatalogAsset.cs",
+      "sha256": "075f8f08a7a00a003d80e13fdbbb90e4924cdfb721a0fda5f753bf8a5dbd6506",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentShopRuntime.cs",
+      "sha256": "644eae81e5f06149e78e89e6cc75d687a9df1f1cb10a044dc56d6f3fb66de33e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/OnHitRepeatModule.cs",
+      "sha256": "5ee3e8aa122afc9c8962a244f0c9446ed3f9ce9ba3569afd7fc97a18ff0d04b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/PlayerSlot.cs",
+      "sha256": "1f5fd5e9fbf5a5d30773e5114aa8c5b846b0862cbb1d9342ced226af6bf821dd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
+      "sha256": "1e37183d31d9b782b58e0c8b2f6e9c221ab17bf5f26443111ae407d0566325aa",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopTransactionTests.cs",
+      "sha256": "9080dbc8a898af58dfdf20eecbf85645ba18c417a22993bca9cb7210a4547cfa",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/CellPrefabRefTests.cs",
+      "sha256": "8780fb11dedfd3f1dabe1a9b9630b47b0856021bc683c87521fb1a8d768a522b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

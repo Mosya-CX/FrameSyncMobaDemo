@@ -1,0 +1,203 @@
+{
+  "id": "PLAN-0028",
+  "code": "0028",
+  "title": "装备与金币基础",
+  "type": "plan",
+  "domain": "装备商店",
+  "status": "关闭",
+  "path": "Docs/plans/equipment-shop/PLAN-0028_equipment-gold-foundation.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-057",
+    "REQ-FEAT-035",
+    "REQ-FEAT-056",
+    "REQ-FEAT-053",
+    "REQ-FEAT-054",
+    "REQ-FEAT-055"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-057",
+      "title": "金币批次确认与可用余额",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-057_gold-accounting.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "65783dea1e1a6a8ba2eb81f1b2416f6691d5b98f22063d84c044cdc9552a029d"
+    },
+    {
+      "id": "REQ-FEAT-035",
+      "title": "死亡奖励与贡献窗口",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "bfb31422561c563722d4853f12f79e62435cfcfb726d715f1ed24c277c9b507a"
+    },
+    {
+      "id": "REQ-FEAT-056",
+      "title": "卖出撤销与交易失效",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-056_shop-undo.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "8c048201345024c9156efb583d11ef320c1a1318195db7f05e7e4eb68bd015d6"
+    },
+    {
+      "id": "REQ-FEAT-053",
+      "title": "六格装备配方与唯一标签",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-053_equipment-recipes.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "08136385e8c8168d974b7f67fc78f9e5de5f134e62679f1f5af78f751773a3a6"
+    },
+    {
+      "id": "REQ-FEAT-054",
+      "title": "装备主动被动与可重复命中",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "33317ac180b0d875e3811316eb090e85a2901e0df115edfbe84ae297362dd26c"
+    },
+    {
+      "id": "REQ-FEAT-055",
+      "title": "购买合成与 Command 二次校验",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-055_shop-purchase-validation.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4de5b4b09111f99c877aedea0ef8cb88aed450e7d25108517f49f3a53485c23c"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0028_equipment_gold_foundation.md",
+      "sha256": "77d4c90b43afe1ce835b55d109153ec3734f4bb5979341861a2817d879e3a565",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-057",
+        "REQ-FEAT-035",
+        "REQ-FEAT-056",
+        "REQ-FEAT-053",
+        "REQ-FEAT-054",
+        "REQ-FEAT-055"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0028",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentShopRuntime.cs",
+      "Assets/Scripts/FrameSync/GoldIncomeRuntime.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentDefinition.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentEffect.cs",
+      "Assets/Scripts/Gameplay/Tests/EquipmentShopRuntimeSnapshotTests.cs",
+      "Assets/Scripts/FrameSync/Tests/GoldIncomeRuntimeContractTests.cs",
+      "Assets/Scripts/Gameplay/Tests/EquipmentShopRequestTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs",
+      "sha256": "43a7635662621e4b4cb4c01ff5214da3423a0fd87ae11c84e6c761d9791b3fa1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentShopRuntime.cs",
+      "sha256": "644eae81e5f06149e78e89e6cc75d687a9df1f1cb10a044dc56d6f3fb66de33e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GoldIncomeRuntime.cs",
+      "sha256": "2715e9e96ef3b369ff07d84068079f80d66305cf36b628a0d904c09e517c3809",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentDefinition.cs",
+      "sha256": "26e5618e3ec2dca575022b2393327440ec8d3500a0aeb8f0a4664a5efa40aea1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentEffect.cs",
+      "sha256": "eb58a9d0ffc809eee74f0248b4c5623b3d5d9f5ce6fd1bdc971330b2c3f29a34",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRuntimeSnapshotTests.cs",
+      "sha256": "dcc995c3e3161b7539e4c692d4602935807fe2a9ea88656f98539ce3963c403b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GoldIncomeRuntimeContractTests.cs",
+      "sha256": "08c9ce4d92a4939b729b175deb10a5d17cecfd2debdb9ae0430b3545733e055a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRequestTests.cs",
+      "sha256": "4253fb056bef1d4d619321ada6a7505af39233970c360081573ac1dd0f83c48f",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

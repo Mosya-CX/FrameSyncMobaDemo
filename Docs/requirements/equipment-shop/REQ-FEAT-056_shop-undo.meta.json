@@ -1,0 +1,196 @@
+{
+  "id": "REQ-FEAT-056",
+  "title": "卖出撤销与交易失效",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "装备商店",
+  "path": "Docs/requirements/equipment-shop/REQ-FEAT-056_shop-undo.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "八、`EquipmentShopRuntimeSnapshot`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.14 卖出",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.15 交易记录",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.16 UndoableOperationStack",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.17 撤销查询与 RequestCheck",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.18 撤销 ProcessCommand",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.19 永久撤销失效规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.20 离开商店范围",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.21 CombatSystem 帧内参与记录",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.22 CombatSystem 调用商店接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    },
+    {
+      "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
+      "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.23 FailureReason",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentShopRuntime.cs",
+      "sha256": "644eae81e5f06149e78e89e6cc75d687a9df1f1cb10a044dc56d6f3fb66de33e",
+      "symbols": [
+        "EquipmentShopRuntime"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRuntimeSnapshotTests.cs",
+      "sha256": "dcc995c3e3161b7539e4c692d4602935807fe2a9ea88656f98539ce3963c403b",
+      "testFunctions": [
+        "RestoreResolve_PreservesValidControlledUnitReference",
+        "Restore_RejectsNoncanonicalPlayerOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ShopFoundationEditModeTests.cs",
+      "sha256": "d7e622eeb60c439d5f6136a2bdea5b58555a704595704a51f70ae05b2176d323",
+      "testFunctions": [
+        "Database_RegisterAndRetrieve",
+        "Database_AllDefinitions_Sorted",
+        "Capture_SnapshotsOwnTheirCreatedTradersList",
+        "ShopTrader_CreateAndRetrieve",
+        "GoldDelta_InitialZero",
+        "GoldDelta_AfterManualLog",
+        "Snapshot_RoundTrip_PreservesTrader",
+        "Snapshot_RoundTrip_PreservesOperationLog"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopTransactionTests.cs",
+      "sha256": "9080dbc8a898af58dfdf20eecbf85645ba18c417a22993bca9cb7210a4547cfa",
+      "testFunctions": [
+        "Purchase_UsesOwnedRecipePartAndFreedLowestSlot",
+        "SellUndo_RequiresReturnedGoldAndRestoresSlot",
+        "DuplicateRule_AllowsSmallItemsAndRejectsFinishedItems",
+        "SequentialPurchases_AfterSnapshotRestore_MatchContinuousState"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
+      "sha256": "1e37183d31d9b782b58e0c8b2f6e9c221ab17bf5f26443111ae407d0566325aa",
+      "testFunctions": [
+        "BuildWorld_LoadsSelectedVarusPartition",
+        "BuildWorld_LoadsFormalEquipmentCatalogForShop",
+        "LocalTickShop_UsesFormalGoldPurchaseRecipeAndUndo"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/EquipmentShopViewTests.cs",
+      "sha256": "da66122a2c963fef39f47e517f4a411be1a1225a858993ff1f0ca463098146e1",
+      "testFunctions": [
+        "CurrentAvailableGold_UsesConfirmedIncomeAndEffectiveShopDelta"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRequestTests.cs",
+      "sha256": "4253fb056bef1d4d619321ada6a7505af39233970c360081573ac1dd0f83c48f",
+      "testFunctions": [
+        "RequestPurchase_Allowed_SubmitsCanonicalCommand",
+        "InitialRequestCheck_UsesPlayerSlotMappingWithoutCreatingTrader",
+        "RequestPurchase_InsufficientGold_RejectsWithoutSubmission",
+        "RequestSell_EmptySlot_RejectsWithoutSubmission",
+        "RequestSell_Allowed_SubmitsSlot",
+        "RequestUndo_AfterSettledSell_Allowed",
+        "RequestUndo_NoTransactions_Rejects",
+        "RequestPurchase_MissingIncomeView_Throws",
+        "RequestPurchase_MissingSubmitter_Throws"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentTagAndCatalogTests.cs",
+      "sha256": "8c5d038a6d6456121b0b702d752c8de8e5a2631912bd937a4fd4c53a007b6d82",
+      "testFunctions": [
+        "UniqueTagInTable_ConflictingPurchase_Rejected",
+        "NonUniqueTag_NotInTable_AllowsCoexistence",
+        "Catalog_Bake_SealsDefinitionsAndUniqueTags",
+        "Catalog_Bake_DuplicateId_Throws"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+      "sha256": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+      "testFunctions": [
+        "Catalog_ContainsSunderedSkyTreeWithStatsAndRecipes",
+        "EmpoweredStrike_Deals160PercentCritical_AndStartsCooldown",
+        "PerTargetCooldown_SecondHitOnSameHeroIsNormal",
+        "DifferentEnemyHero_StillTriggersEmpoweredStrike",
+        "HealRestoresMissingHealth_AndOverhealBecomesTempMaxHealth",
+        "RangedStrike_HealsWithRangedBaseAdRatio",
+        "MeleeWithProjectile_StillHealsWithMeleeRatio",
+        "FinishedItem_IsUnique_SecondPurchaseRejected",
+        "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

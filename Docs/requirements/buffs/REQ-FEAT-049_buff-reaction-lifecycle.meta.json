@@ -1,0 +1,309 @@
+{
+  "id": "REQ-FEAT-049",
+  "title": "Buff 反应与句柄生命周期",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "增益",
+  "path": "Docs/requirements/buffs/REQ-FEAT-049_buff-reaction-lifecycle.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.1 采用 v26 延续的强类型即时路由",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.2 BuffHandler 的强类型事件入口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.3 AbilityCast 的正式语义",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.4 Reaction 产生的新请求",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.2 静态布局与运行槽位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.3 允许的值类型",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 静态 Effect 模块",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 Handle 的运行时所有权",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 Reaction Action",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 ReactionContext",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 类型",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 Added",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 Reapplied",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 StackChanged",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 Periodic",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 Removed",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 强类型 Reaction Set",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 DamageTaken 示例过滤项",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 AbilityCast 示例过滤项",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1 v27.1 延续的正式接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2 StatModifierEffectConfig",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3 创建、更新与清理",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4 Handle 不是第二套 Modifier 状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5 CombatModifierEffectConfig",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.1 点燃",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.2 施法后强化",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.3 三环",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.4 受伤反击",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.5 层数加速",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.6 永久光环 Buff 跨死亡保留",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13. 生命周期与单位框架接缝",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.1 生命周期矩阵",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.2 固定要求",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    },
+    {
+      "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
+      "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.3 调用所有权",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffEffect.cs",
+      "sha256": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+      "symbols": [
+        "BuffEffect"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+      "sha256": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+      "testFunctions": [
+        "Blackboard_StaticLayout_ReadWriteResetAndRoundTrip",
+        "FirstApply_FiresStackChanged_ZeroToInitial",
+        "Reapply_FiresReapplied_AndStackChangedOnChange",
+        "PeriodicReaction_FiresOnIntervalSlot",
+        "EventReactions_AbilityCastAndLevelUp_Fire",
+        "RemovedReaction_FiresOnRemove_ButNotOnDespawn",
+        "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
+        "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "sha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "testFunctions": [
+        "PeriodicDamage_DealsDamageEachInterval",
+        "PeriodicDamage_NoDamageWithoutCombatSystem",
+        "HealOverTime_RestoresHealthEachInterval",
+        "CurrentHealthOnHit_DealsThreePercentOfPreHitHealth",
+        "ShieldOverTime_GrantsShieldEachInterval",
+        "OnKillStat_GrantsStatOnKill",
+        "OnKillStat_StacksUpToMax"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "sha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "testFunctions": [
+        "UnitCatalog_ContainsAuthoredGreaterAndMiniWolfValues",
+        "GreaterWolf_OnHitBuff_IsPermanentThreePercentCurrentHealth",
+        "MapPrefab_AuthorsTwoVisualizedThreeWolfCamps",
+        "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
+        "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

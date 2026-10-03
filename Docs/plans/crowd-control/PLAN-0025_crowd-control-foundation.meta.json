@@ -1,0 +1,127 @@
+{
+  "id": "PLAN-0025",
+  "code": "0025",
+  "title": "控制系统基础",
+  "type": "plan",
+  "domain": "控制",
+  "status": "关闭",
+  "path": "Docs/plans/crowd-control/PLAN-0025_crowd-control-foundation.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-051",
+    "REQ-FEAT-052"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-051",
+      "title": "控制实例与模块参数",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-051_crowd-control-instances.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "fdf7fe01106ba33ebb164edcbf15f1fb9a9e5b9bf2d2dbc9960c7a3ccf876f63"
+    },
+    {
+      "id": "REQ-FEAT-052",
+      "title": "控制免疫净化与汇总裁决",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/crowd-control/REQ-FEAT-052_control-immunity.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "633d459c2079684e85c425d200e4639d52e17fa710c176943b0794b00a9ba03d"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0025_crowd_control_foundation.md",
+      "sha256": "eb65796941ca7f5d3c09d5fa58a48b2e6c1f75c5f9bd0bc47226da25d53029f8",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-051",
+        "REQ-FEAT-052"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0025",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/CrowdControl/CrowdControlHandler.cs",
+      "Assets/Scripts/Gameplay/Movement/MovementHandler.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Deterministic/Core/IRollback.cs",
+      "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "Assets/Scripts/Gameplay/Tests/MovementIntegrationTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlHandler.cs",
+      "sha256": "3ce3c92ce35a531179412b5e8b1db41626987f72856cc5175367e81282005496",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Movement/MovementHandler.cs",
+      "sha256": "d652d3e9a6be3d3d3e52e578e81f07758647deab0e6b8bb46ce9d5733f3336ce",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "sha256": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Core/IRollback.cs",
+      "sha256": "1d8a9ab8bef9ad8f8c821636ce4327ff8622103106c901fa043c8b6cf929dad2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "sha256": "32bfbdb6c1e9a977b8ae81f53ebc4f117b560190616f0445dd0d527b60342ab2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementIntegrationTests.cs",
+      "sha256": "b608bd7167479a86948b66863547cc8884d4fb07acef329e906dcabe2ca66ca9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

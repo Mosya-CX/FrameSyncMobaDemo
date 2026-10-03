@@ -1,0 +1,149 @@
+{
+  "id": "PLAN-0128",
+  "code": "0128",
+  "title": "Buff 合同补全",
+  "type": "plan",
+  "domain": "增益",
+  "status": "关闭",
+  "path": "Docs/plans/buffs/PLAN-0128_buff-design-conformance.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-048",
+    "REQ-FEAT-049",
+    "REQ-FEAT-050"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-048",
+      "title": "Buff 施加覆写与运行身份",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/buffs/REQ-FEAT-048_buff-application.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "2e6170ce3081622fa4c1f4b6e8818da8bcb64b9bcb57fb4fd4d350a3db46da2c"
+    },
+    {
+      "id": "REQ-FEAT-049",
+      "title": "Buff 反应与句柄生命周期",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/buffs/REQ-FEAT-049_buff-reaction-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "461e5e8993b8d9fe24807edd80d3c7d5431babd027d5e952b4356fa48855d0ca"
+    },
+    {
+      "id": "REQ-FEAT-050",
+      "title": "Buff 上限优先级与驱逐",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/buffs/REQ-FEAT-050_buff-capacity.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "21d08e6f78c0189eede5207183aee26c6a09e1234953e4fe7887b84b2faf3470"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0128_buff_design_conformance_execplan.md",
+      "sha256": "1eddfb157323e0ceba655c7ff7380f066db9677aedc041350f0f7f0d65f93775",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-048",
+        "REQ-FEAT-049",
+        "REQ-FEAT-050"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0128",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Buff/BuffInfo.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffDefinition.cs",
+      "Assets/Scripts/Gameplay/Stats/StatHandler.cs",
+      "Assets/Scripts/Gameplay/Ability/AbilityHandler.cs",
+      "Assets/Scripts/Gameplay/Ability/Stages/ApplyBuffStageDef.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffBlackboard.cs",
+      "Assets/Scripts/Gameplay/Equipment/BuffEquipmentModule.cs",
+      "Assets/Scripts/Gameplay/Projectile/ProjectileEffectDispatcher.cs",
+      "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffInfo.cs",
+      "sha256": "452a6153480c0ad8b8e292530269b0564608ec36df7e98d6c391883f718a11d1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffDefinition.cs",
+      "sha256": "a212995e7004ad81b7458faf29bef709d9043b609f9a199913ccd8c559ea4fa7",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Stats/StatHandler.cs",
+      "sha256": "61fefc93a6d2a59998fa2d5501a42fd12e70db6335ea966eb159055f43a033bd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityHandler.cs",
+      "sha256": "cba899eb50f7cc4011625d424ca4e210a0c6bc8ecd7f16699f68fd7365648050",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/ApplyBuffStageDef.cs",
+      "sha256": "e90152af2fb54e7a81218100212083b4f53fcfd752181a4951607f224c1159e7",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffBlackboard.cs",
+      "sha256": "5f94f512eb62b58dace61529df69bff870c1f15578ae7feabdf3c007626413b5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/BuffEquipmentModule.cs",
+      "sha256": "c614dea429a2ed869158d75a0b03bfca5153f7b77ccea52a4a60992645f8a229",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileEffectDispatcher.cs",
+      "sha256": "35ccff832a7cd81bb9ba35505184bb5b9143f9a8789a025d925d0e37da031ec0",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "sha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+      "sha256": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}
