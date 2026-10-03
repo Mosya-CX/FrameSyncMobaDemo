@@ -1,0 +1,129 @@
+{
+  "id": "PLAN-0137",
+  "code": "0137",
+  "title": "单位动作仲裁迁移",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0137_unit-decision-arbitration-migration.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-022"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-022",
+      "title": "动作仲裁与固定执行器",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-022_action-arbitration.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "9a4264e9f13a823d3b15e73c056628fefa13b17d3c777a7e54eb08863a45f5f5"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0137_unit_decision_arbitration_migration_execplan.md",
+      "sha256": "cf147a5766055809b999ca344a3c215e3136b67a19bb6a0fa85f2c7828ea7581",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-022"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0137",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/BehaviorPlanner.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/ActionRuntimeSet.cs",
+      "Assets/Scripts/FrameSync/SharedGameplayChecksum.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/ActionRequest.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitActionStateView.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
+      "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/BehaviorPlanner.cs",
+      "sha256": "e7318a0240bc5a74d2d35744182f2d9063aa98071fe493579f124d5eec81eb04",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/ActionRuntimeSet.cs",
+      "sha256": "f124c4045bc8bdd935488aeb4c0f2d282919301a56afdcf13f56a7a72d198d0a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SharedGameplayChecksum.cs",
+      "sha256": "cbd90ab8a8cc3ee2a715d36ce74e5635e40e7df4b1e51be3837991d5f6851301",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/ActionRequest.cs",
+      "sha256": "4bdc15db6cacc4b69b216b8ccb67b7d0d30720cf400be62e74bc8c81d41fe297",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitActionStateView.cs",
+      "sha256": "60644257364ce914910325e5157ba2fd7301c9d309bd2e18779d48734efeb86c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "sha256": "c40b6b714223a33ea344cd9989fcc2aa969a59fb66a0ec130925e8bac21692c5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "sha256": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
+      "sha256": "4f869a40d5ba9f975ee0ca434782fbdb21aa1086d9c96141fed051f8e7241e6d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
+      "sha256": "8fbb68ca78c892da586961f12fecd60831dcf046082c6f41902abc13a61dffbc",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

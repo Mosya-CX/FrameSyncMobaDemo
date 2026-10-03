@@ -1,0 +1,1293 @@
+{
+  "id": "REQ-FEAT-028-PART-4",
+  "title": "生命周期稳定顺序与恢复",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "单位",
+  "path": "Docs/requirements/units/REQ-FEAT-028-PART-4_lifecycle-restore-order.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "五、`UnitWorldSnapshot`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.1 AI 主动生效",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.2 Unit 金字塔聚合",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.3 非英雄死亡后的管理状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md",
+      "sha256": "16f70ea30d2661a32e958a621ee057ef7f4d4df1598b4fd860d648fde1eb0cc2",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 UnitWorld 核心结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 UnitSpawnRequest 与同步 SpawnUnit",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 帧内单位生成序号",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 UnitRegistry",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5.1 AIController 分配、注册与唯一映射",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 UnitDisposePolicy 与 UnitRespawnConfig",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.7 LifeState 写权限和转换接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.8 致死、死亡回调与死亡清理",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.9 死亡表现与最终处置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.10 英雄死亡与复活",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.11 对象池单位的新生命周期",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.12 非死亡规则移除与回滚清场",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.13 多单位对象池",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.14 生命周期清理顺序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.15 帧同步关注点与统一回滚接缝",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.16 UnitWorld 类图",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1 开局初始化",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2 同步生成与 AIController 注册",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3 行为总流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4 攻击行为接缝",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5 UnitEventBus 即时结果流",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.6 死亡与复活总流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.6.1 非死亡规则清场总流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.7 与全局 Gameplay Pipeline 的关系",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.8 统一回滚接缝",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.9 最终边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitRegistry.cs",
+      "sha256": "42567a795f0d41c6417499f67887911f9d9f4e1ec42f5230dcc94f6fecfe2811",
+      "symbols": [
+        "UnitRegistry"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "symbols": [
+        "UnitWorld"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Prototype/UnitRespawnConfig.cs",
+      "sha256": "f8e70f8c21f42078de42dd66d3e5703f4009f1c82575f8f66d4f3cb8c821463c",
+      "symbols": [
+        "UnitRespawnConfig"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRegistryTests.cs",
+      "sha256": "f49d25a071a2d91dd27c2a2b01150cc7753fb808fed9e451312782d747bc00d8",
+      "testFunctions": [
+        "DuplicateUid_IsRejectedWithoutChangingRegisteredRuntime",
+        "MissingAndAliasUnregister_AreRejectedWithoutMutation",
+        "NullMutationInputs_AreRejected"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "testFunctions": [
+        "SpawnMultipleKinds_GetByKind",
+        "SpawnUnit_DoubleSnapshot_RoundTrip",
+        "ClearForDeath_PreservesCombatModifiersOwnedBySourceSystems",
+        "ClearForRespawn_DoesNotClearStatBaseValues",
+        "ResetForPool_ResetsAllDynamicState",
+        "ManyUnits_StableReadOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "sha256": "ad0df036c910fcb93318705c187af1906b6910a16c16e9d1494834fa0680b841",
+      "testFunctions": [
+        "InternalRegistration_PublicLookupReturnsSameRuntime",
+        "StableReadOrder_IsIndependentOfRegistrationOrder",
+        "SuccessfulUnregister_RemovesLookupAndAllowsReregistration"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs",
+      "sha256": "a2f653be8426d7386c4c5e83a40337cbd4137894ee105332515e5148b565f4b8",
+      "testFunctions": [
+        "RespawnDelay_UsesBasePlusElapsedMinutes",
+        "RespawnPosition_IsCapturedFromInitialSpawn",
+        "CompleteRespawn_TeleportsToHomeSpawnPosition"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "testFunctions": [
+        "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
+        "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/LocalAddressablesConfigurationTests.cs",
+      "sha256": "f63196c0904d4eecf87c2e99d9ab5e5b098f1d61695fca772f0caa48491abea8",
+      "testFunctions": [
+        "FormalSettingsAreLocalOnlyAndContainAllClientGroups",
+        "ClientRootEntries_HaveUniqueAddressesAndExistingAssets",
+        "InventoryClassificationIsStable"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ShopFoundationEditModeTests.cs",
+      "sha256": "d7e622eeb60c439d5f6136a2bdea5b58555a704595704a51f70ae05b2176d323",
+      "testFunctions": [
+        "Database_RegisterAndRetrieve",
+        "Database_AllDefinitions_Sorted",
+        "Capture_SnapshotsOwnTheirCreatedTradersList",
+        "ShopTrader_CreateAndRetrieve",
+        "GoldDelta_InitialZero",
+        "GoldDelta_AfterManualLog",
+        "Snapshot_RoundTrip_PreservesTrader",
+        "Snapshot_RoundTrip_PreservesOperationLog"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
+      "sha256": "fed06d326754867f9a05468c81b6f1aaa5428753e1230397310bbd4c54cde4e7",
+      "testFunctions": [
+        "RuntimePrefab_InstantiatesWithModelAndEditorGizmo",
+        "ClientUnitOutline_CoversEveryAatroxSubMesh",
+        "TetherArea_InstantiatesAsStationaryProjectile",
+        "AnimatorController_RoutesPassiveUltimateAndEmpoweredAttack",
+        "AnimatorController_LocomotionVariantsAdvanceWithoutSelfReentry",
+        "UnitAnimationDriver_UsesNewLocomotionStateOnChangeFrame",
+        "AnimatorController_UltimateEndPlaysExitClip",
+        "OutlineBakeRunsAfterWingVisibility",
+        "AttachedVfx_WorldDirectionDoesNotInheritLaterHostTurn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/BlightStackMarkStructurePlayModeTests.cs",
+      "sha256": "8ad04ea6ca0119045e15ebc8df4e8cb415740adce84c170ed169cabf9bc37ab9",
+      "testFunctions": [
+        "ExternalBlightOnStructure_CreatesNoPresentationMark"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "sha256": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "testFunctions": [
+        "ClientFixture_BindsAssignedUnitAndAdvances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/FrameworkSmokeScenePlayModeTests.cs",
+      "sha256": "6185caf6a2831505f0c984738be659d32e2836ca7e93d37b2acc1fca7036a559",
+      "testFunctions": [
+        "FrameworkSmokeScene_SpawnsNeutralUnitAndAdvancesTicks"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
+      "sha256": "b5f0f0db2f84c5509ee905806e49420e30f098eac52261e1fb2858750b0a1425",
+      "testFunctions": [
+        "GreaterWolf_AlertAndMoveRoutesPlayLoopedMotion",
+        "MiniWolf_AlertAndMoveRoutesPlayLoopedMotion",
+        "BoundDriver_AlertRouteUsesAuthoredTransitionClips"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/TowerTargetLinePresenterPlayModeTests.cs",
+      "sha256": "7006e57595f2b2cfa9bdba40096418a111df0dd4abba471e033bc9ac4a3c8ced",
+      "testFunctions": [
+        "DisplayTarget_SwitchesWithIntent_AndStopsForDeadTarget"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
+      "sha256": "b60a604cca4de59afa23f8c6126aa348d53667a37d5e410aaaf695eb6405f590",
+      "testFunctions": [
+        "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
+      "sha256": "4f869a40d5ba9f975ee0ca434782fbdb21aa1086d9c96141fed051f8e7241e6d",
+      "testFunctions": [
+        "Restore_UsesStableUnitUidAndRestoresRandomAndPhysicsState",
+        "Restore_RejectsNonCanonicalOrMissingUnitIdentity",
+        "Restore_RejectsDuplicateGameplayParticipantIdentity",
+        "Restore_RejectsMissingGameplayParticipantIdentity",
+        "SnapshotStore_WritesExplicitOuterSchemaAndNextTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AnimationSamplingTests.cs",
+      "sha256": "d17750eebd552668e56c39cbec34a02403d65b6b09089e635e3ced1f90ab1f9e",
+      "testFunctions": [
+        "PresentationTime_UsesConfiguredTickRateAndSubTickAlpha",
+        "PresentationClock_DoesNotLeakAcrossWorldsAtSameTickRate",
+        "Sampler_InterpolatesAtRateIndependentOfGameplayTickRate",
+        "Sampler_WhenInterpolationDisabled_HoldsUntilOwnBoundary",
+        "Sampler_FrameSkipResamplesAtObservedTime",
+        "Sampler_LinearProgressMatchesAcrossRenderCadences",
+        "LoopPhase_RateChangeRebuildsFromLogicEpochAndWraps",
+        "LoopPhase_DifferentObservationTimesShareLogicEpoch",
+        "LoopPhase_RateChangeImmediatelyRebuildsSampleSegment",
+        "Sampler_TimeRegressionResetsToRestoredProgress",
+        "Sampler_InvalidSynchronizationRateFailsVisibly",
+        "AttackMotionTime_MapsStartImpactAndReadyWithoutExitJump",
+        "AttackSampling_NonAlignedImpactBoundaryStaysContinuous"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "testFunctions": [
+        "CommandBundle_ProducesStablePerTickReplacementRelays",
+        "LateCommand_IsRetargetedToCurrentServerTick_NotRejected",
+        "AcceptedCommand_AfterTickFreeze_LateDuplicateIsIgnored",
+        "AcceptedCommand_AfterOwnerInvalidation_DuplicateSkipsAuthorization",
+        "DistinctCommandSequences_OnAdjacentTicks_AreBothAccepted",
+        "DirectionAim_CastAbility_RoundTripsCanonically",
+        "WireContracts_DoNotExposeCallerOwnedByteArrays",
+        "CanonicalCodec_RoundTripsEveryFormalCommandKind",
+        "Replicator_AndClientCoordinator_AcceptContinuousTick",
+        "AcceptedRelayReplacingExecutedLocalMove_ReplaysFromFrozenAnchor",
+        "AuthorityBeforePrediction_BuffersUntilLocalTickCompletes",
+        "AuthorityRuntime_ReleasesClientRollbackHistory",
+        "RestoreInitialSnapshot_SetsAuthorityBaseline",
+        "PredictionLeadLimit_PausesWithoutExecutingAnotherTick",
+        "Recovery_UsesRequestedSequenceAndDoesNotMutateResponseArray",
+        "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
+        "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
+      "sha256": "73a8797011fe50dc4481f2ae7edd731f442528cc0c5030e9c7a902418d195c4d",
+      "testFunctions": [
+        "ServerFirstTick_MatchesClientPredictionFirstTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/EquipmentShopViewTests.cs",
+      "sha256": "da66122a2c963fef39f47e517f4a411be1a1225a858993ff1f0ca463098146e1",
+      "testFunctions": [
+        "CurrentAvailableGold_UsesConfirmedIncomeAndEffectiveShopDelta"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
+      "sha256": "85cc4ebf2926faa8cf30e41772498c60ef9f0bdaab991be2e08cbdd2fd9fd7a2",
+      "testFunctions": [
+        "GameplayCommand_CreateMove_WritesCanonicalBytes",
+        "CommandCollector_MergeMove_LastWins",
+        "CommandCollector_ContentRevisionTracksCanonicalMutations",
+        "Pipeline_SingleUnit_MovesWithCommand",
+        "Checksum_SameState_SameHash",
+        "Checksum_DifferentState_DifferentHash",
+        "Pipeline_Deterministic_SameCommandsSameResult",
+        "ActivePointMove_RestoreReplayMatchesContinuousTick",
+        "ReplacedPredictedMove_RestoreThenAuthoritativeMoveMatchesCleanReplay",
+        "ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
+      "sha256": "c0ec6f80dd8f849f53b0a24afd3195ae2e95fafea96faa48609544f9cff3d023",
+      "testFunctions": [
+        "FutureCommand_IsRetainedAndConsumedOnlyAtTargetTick",
+        "CastIntentAndAction_PreserveCommitVerbAndDirectionAim",
+        "PlanCastIntent_UsesAbilityCastRange_NotHardcoded",
+        "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
+        "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchGoldRewardTests.cs",
+      "sha256": "81d83e401752ccf3bd00806a80fe7b6ffa0c91ff3f6a3553d1073341c506a52a",
+      "testFunctions": [
+        "GoldAllocation_UsesIntegerAmountContract",
+        "MinionLastHit_ConfirmsFullConfiguredGold",
+        "MonsterLastHit_UsesAuthoredCreepScoreValue",
+        "HeroKill_WithTwoAssistants_Splits300As180_60_60",
+        "HeroKill_WithoutAssistants_ConfirmsFull300ToKiller"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchRewardDistanceTests.cs",
+      "sha256": "268675be19d563b56f1e31cf74384a18b28a1bbcd360e0e082a7e79095a9d623",
+      "testFunctions": [
+        "MinionExperienceRadius_UsesStatToLogicDistanceScale"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchTopologyTests.cs",
+      "sha256": "71f3bc513efd71dc07f288ae233bd52dcffeac0f17fb39b2b25725d2dbd372f1",
+      "testFunctions": [
+        "InitialTopology_RegistersTwoStructureBasesInStableRoles",
+        "InitialAuthoritySnapshot_DiscardsClientAuthoringSpawnQueue",
+        "InitialTopology_RejectsBasesOnSameTeam"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+      "sha256": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+      "testFunctions": [
+        "EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat",
+        "EndOnFirstHit_RejectsLaterSameTickCandidate",
+        "EqualDistanceArbitration_UidRelabelKeepsParticipantWinner",
+        "PierceBudget_EndsAtConfiguredHitCount",
+        "ProjectileDamage_UsesCombatShieldPipeline",
+        "EnemyFilter_ExcludesFriendlyTarget",
+        "EnemyFilter_IncludesStructureTarget",
+        "MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp",
+        "MisconfiguredProjectileBuff_StructureHitStillFailsVisibly",
+        "MisconfiguredProjectileCC_StructureHitStillFailsVisibly",
+        "RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget",
+        "PendingTrackedTarget_SnapshotRoundTripPreservesLock",
+        "SnapshotRoundTrip_PreservesSourceAndHitMemory",
+        "Capture_PrunesHitMemoryForDisposedTargets",
+        "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
+        "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+      "sha256": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+      "testFunctions": [
+        "PiercingFalloff_ReducesDamagePerExtraHit",
+        "PiercingFalloff_OverridePath_MatchesStaticConfig",
+        "PiercingFalloff_ClampsAtMinDamageRatio"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+      "sha256": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+      "testFunctions": [
+        "AreaDamageStage_CentersOnAimTargetPoint",
+        "AreaDamageStage_DoesNotDamageEnemyStructure",
+        "SpawnProjectileStage_FiresTowardAimDirection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
+      "sha256": "8fbb68ca78c892da586961f12fecd60831dcf046082c6f41902abc13a61dffbc",
+      "testFunctions": [
+        "SessionStartCost_UsesLevelResourceAndHealth",
+        "FailedStage_DoesNotConsumeCost",
+        "HoldRelease_FirstCommitPaysOnceAndStoresAim",
+        "InvalidAimRange_ConsumesNothing",
+        "Snapshot_PreservesFirstCommitPayment",
+        "Toggle_FirstCommitActivatesAndSecondCommitTurnsOff",
+        "Toggle_TurnOffDoesNotStartCooldown"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "testFunctions": [
+        "LockedMainCast_AllowsAuthoredDashInBaseSlot",
+        "MovableHold_AllowsMove_ReleasePreemptsMove",
+        "HoldTimeout_ReconcilesReleaseResourcesAndRestores",
+        "SameAbilityStageTransition_MigratesMainToBaseSlot",
+        "AutomaticDashTransition_MigratesWithoutCancellingSession",
+        "SequentialRecastWindow_ReleasesMainRuntimeButKeepsSession",
+        "Planner_DoesNotResubmitEquivalentActiveMove",
+        "MoveReplacement_AtomicallyKeepsNewRoute",
+        "FailedLockingCast_DoesNotDestroyExistingMove",
+        "ToggleSecondCommit_EndsSessionWithoutOwningRuntime",
+        "ToggleActive_DoesNotBlockChargeStartAndIsConsumed",
+        "ToggleOnAndOffDuringHold_DoNotPreemptHold",
+        "MobilityBlock_InterruptsAbilityDash",
+        "ControlMove_PreemptsUninterruptibleMovementLockedCast"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
+      "sha256": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+      "testFunctions": [
+        "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
+        "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+      "sha256": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+      "testFunctions": [
+        "AbilityHit_DetonatesAndConsumesAllStacks",
+        "Detonation_DoesNotRecurse",
+        "Detonation_NonHero_CapsPerStackDamage",
+        "ExternalBlightAndAbilityDamage_DoNotAffectStructure",
+        "Detonation_Hero_GrantsCooldownReduction",
+        "AttackDamage_DoesNotDetonate",
+        "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
+        "WPassive_OnHit_DoesNotAffectStructure"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "sha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "testFunctions": [
+        "PeriodicDamage_DealsDamageEachInterval",
+        "PeriodicDamage_NoDamageWithoutCombatSystem",
+        "HealOverTime_RestoresHealthEachInterval",
+        "CurrentHealthOnHit_DealsThreePercentOfPreHitHealth",
+        "ShieldOverTime_GrantsShieldEachInterval",
+        "OnKillStat_GrantsStatOnKill",
+        "OnKillStat_StacksUpToMax"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+      "sha256": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+      "testFunctions": [
+        "Blackboard_StaticLayout_ReadWriteResetAndRoundTrip",
+        "FirstApply_FiresStackChanged_ZeroToInitial",
+        "Reapply_FiresReapplied_AndStackChangedOnChange",
+        "PeriodicReaction_FiresOnIntervalSlot",
+        "EventReactions_AbilityCastAndLevelUp_Fire",
+        "RemovedReaction_FiresOnRemove_ButNotOnDespawn",
+        "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
+        "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CapabilityStateTests.cs",
+      "sha256": "133c095e36def700619c3c6a005564d3dcf98f6760f5ad1e880af33fc3f67a4c",
+      "testFunctions": [
+        "NewlyConstructedUnit_HasAllCapabilitiesTrue",
+        "ConfirmUnitDeath_DisablesAllCapabilities",
+        "RequestEnterDying_DoesNotDisableCapabilities",
+        "BeginRespawn_KeepsCapabilitiesDisabled",
+        "CompleteRespawn_ResetsAllCapabilitiesToTrue",
+        "FullDeathRespawnCycle_RestoresCapabilities",
+        "DeathRespawnOnOneUnit_DoesNotAffectAnother",
+        "RequestRecoverFromDying_KeepsCapabilitiesEnabled"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
+      "sha256": "5455a608d93b019d84f6e22a06fe68984a5f8ba9739967a3493e7163b606f44c",
+      "testFunctions": [
+        "ChargeStage_RatioIncreasesWithElapsedTicks",
+        "ChargeStage_SelfSlowAppliesWhileChargingAndRemovesOnRelease",
+        "ChargeStage_TimeoutCancelsAndRefundsHalfCost",
+        "ChargeStage_ConsumesActiveToggleAndStartsCooldown",
+        "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
+        "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
+      "sha256": "424e317e0f6df5d81e79542dfa77e6478eb6b5f3a9bd17a94d3256c2ebb68e35",
+      "testFunctions": [
+        "CritRoll_RepeatedAndGlobalRandomInterleavingAreEquivalent",
+        "CritRoll_TechnicalUidRelabelDoesNotChangeResult",
+        "CombatCrit_TechnicalUidRelabelKeepsSettledResult",
+        "ProbabilisticCrit_InvalidIdentityOrOrdinalFails",
+        "ChildEffectOrdinal_DifferentParentEffectsDoNotCollide",
+        "ProjectileTie_SeedCorpusDoesNotPermanentlyFavorEitherParticipant",
+        "DeferredDamage_CaptureRestorePreservesActionIdentity",
+        "NegativeEffectOrdinal_IsRejectedAtDamageBoundaries"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatContributionEventLogTests.cs",
+      "sha256": "c17a765b96bd4f27bf5a1755942d7a0f0430aa7b1b4bf3f51c9260ed29287c39",
+      "testFunctions": [
+        "LastHit_IsMostRecentDamageEventContributor",
+        "PruneExpired_RemovesOldEventsAndClearsLastHitWhenEmpty",
+        "Capacity_DropsOldestEventFirst",
+        "ResolveAssistants_ExcludesKillerAndSortsAscending",
+        "SnapshotRoundTrip_PreservesEventsAndLastHit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+      "sha256": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+      "testFunctions": [
+        "Crit_100PercentChance_DoublesDamage",
+        "Crit_ZeroPercentChance_NoCrit",
+        "Crit_DamageEventData_IsCriticalFlag",
+        "Crit_OneHundredPercent_DoesNotRequireRandomService",
+        "ProbabilisticCrit_DoesNotConsumeGlobalRandomState",
+        "AttackSpeed_ModifiesCooldown",
+        "AttackSpeed_PositiveBase_StartsAttack"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs",
+      "sha256": "7ee2c1caf14ff0a5162297ef31715d349d13931f1fa4b8fc794ff83bff26e775",
+      "testFunctions": [
+        "HealAndDamage_AreIndependentOfSubmissionOrder",
+        "ShieldAndDamage_AreIndependentOfSubmissionOrder",
+        "LethalBatch_HighestEffectiveLifeDamageWins_AfterUidAndSubmissionMirror",
+        "LethalBatch_ExactTie_IsStableForSeedAndIndependentOfSubmissionOrder",
+        "ConfiguredMatchSeedOverridesCompositionFallbackForExactTie",
+        "ConfiguredMatchSeed_IsIdempotentButImmutable",
+        "LethalBatch_ExactTie_SeedCorpusDoesNotPermanentlyFavorOneUid",
+        "LethalBatch_ShieldOnlyDamageCannotWin",
+        "ShieldOnlyDamage_DoesNotGenerateDrainHealing",
+        "ProportionalLifeRemainder_NeverExceedsRequestCapacity",
+        "ProportionalHealRemainder_NeverExceedsRequestCapacity",
+        "DamageReactionHeal_EntersNextWaveAndRecoversTarget",
+        "SameTickMutualLethal_AllSealedAttacksRemainEffective",
+        "SameTickMutualLethal_DrainReactionsRecoverBothSources",
+        "MixedDamageAndSpecificShields_AreIndependentOfSubmissionOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "testFunctions": [
+        "SubmitDamage_ValidRequest_ReducesHealth",
+        "Omnivamp_HealsSourceForFractionOfSettledDamage",
+        "NaturalRegen_AppliesPerInterval_ForHealthAndCastResource",
+        "DamageFormula_ArmorReducesDamage",
+        "ZeroArmor_FullDamageApplied",
+        "CombatModifiers_ApplyOutgoingAndIncomingFinalPatches",
+        "FatalDamage_CompletesFormalDeathSettlement",
+        "FatalDamage_NonHeroIsDisposedAfterCombatConsumersFinish",
+        "FormalDeathResult_UsesHighestLethalBatchDamageAndUidSortedAssistants",
+        "DeadUnit_DoesNotTakeDamage",
+        "InvalidRequest_IsIgnored",
+        "CalculatePhysicalDamage_NegativeArmor_ClampedToZero",
+        "CalculatePhysicalDamage_HighArmor_ReducedHeavily",
+        "BeginTick_ClearsActiveQueue"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+      "sha256": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+      "testFunctions": [
+        "Spread_InfectsOnlyEnemyHeroesOfOriginalCaster",
+        "Spread_DoesNotReinfectAnInfectedHero",
+        "Spread_RequiresContinuousContactInsideRadius",
+        "Spread_AppliesSameRDamageAndRoot",
+        "SecondR_StartsAFreshSpread",
+        "SecondR_UsesADifferentTagUid",
+        "Blight_StacksAreAppliedAtConfiguredTicks"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "sha256": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "testFunctions": [
+        "Add_CreatesIndependentInstances_NoMerge",
+        "Immunity_BlocksLowMedium_ConsumesOneShot_BypassesHigh",
+        "Cleanse_RemovesMatchingNonHigh_RespectsCount",
+        "Unstoppable_SuppressesOutput_AndRejectsForcedMove",
+        "DamageTakenSignal_RemovesSleepInstance",
+        "Drowsy_OnNaturalExpire_AddsSleepWithConfiguredDuration",
+        "Tenacity_ShortensDefaultDuration_IgnoredByIgnoreRule",
+        "ForcedMove_PriorityArbitration_RejectsLower_ReplacesEqual",
+        "ForcedBehavior_WinnerSelected_AndConsumedByPlanner",
+        "ForcedMoveBehavior_BypassesVoluntaryCapabilityBlock",
+        "Snapshot_RoundTrip_PreservesInstancesAndState",
+        "Restore_ValidatesRestoredForcedMoveHandleNotPreRestoreHandle",
+        "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
+        "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRequestTests.cs",
+      "sha256": "4253fb056bef1d4d619321ada6a7505af39233970c360081573ac1dd0f83c48f",
+      "testFunctions": [
+        "RequestPurchase_Allowed_SubmitsCanonicalCommand",
+        "InitialRequestCheck_UsesPlayerSlotMappingWithoutCreatingTrader",
+        "RequestPurchase_InsufficientGold_RejectsWithoutSubmission",
+        "RequestSell_EmptySlot_RejectsWithoutSubmission",
+        "RequestSell_Allowed_SubmitsSlot",
+        "RequestUndo_AfterSettledSell_Allowed",
+        "RequestUndo_NoTransactions_Rejects",
+        "RequestPurchase_MissingIncomeView_Throws",
+        "RequestPurchase_MissingSubmitter_Throws"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRuntimeSnapshotTests.cs",
+      "sha256": "dcc995c3e3161b7539e4c692d4602935807fe2a9ea88656f98539ce3963c403b",
+      "testFunctions": [
+        "RestoreResolve_PreservesValidControlledUnitReference",
+        "Restore_RejectsNoncanonicalPlayerOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopTransactionTests.cs",
+      "sha256": "9080dbc8a898af58dfdf20eecbf85645ba18c417a22993bca9cb7210a4547cfa",
+      "testFunctions": [
+        "Purchase_UsesOwnedRecipePartAndFreedLowestSlot",
+        "SellUndo_RequiresReturnedGoldAndRestoresSlot",
+        "DuplicateRule_AllowsSmallItemsAndRejectsFinishedItems",
+        "SequentialPurchases_AfterSnapshotRestore_MatchContinuousState"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/EquipmentTagAndCatalogTests.cs",
+      "sha256": "8c5d038a6d6456121b0b702d752c8de8e5a2631912bd937a4fd4c53a007b6d82",
+      "testFunctions": [
+        "UniqueTagInTable_ConflictingPurchase_Rejected",
+        "NonUniqueTag_NotInTable_AllowsCoexistence",
+        "Catalog_Bake_SealsDefinitionsAndUniqueTags",
+        "Catalog_Bake_DuplicateId_Throws"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+      "sha256": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+      "testFunctions": [
+        "FormalCatalog_ContainsExpectedStatsRecipeAndModules",
+        "GameScene_UsesCorePartitionInsteadOfDirectEquipmentCatalog",
+        "SixRealHits_StackBuffAndRepeatThirdFullStackOnHitOnce",
+        "OnHitEquipmentEffects_DoNotApplyToStructure",
+        "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
+        "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "testFunctions": [
+        "LaneAdvance_SelectsTeamFlowField",
+        "Chase_FirstTickBuildsPathBeforeRepathCooldown",
+        "Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell",
+        "ChaseForCast_DoesNotCompleteAtAttackBoundaryDistance",
+        "PointMove_UsesDirectOrAStarByGrid",
+        "FlowFieldRvoMovement_ProducesRepeatableMotion",
+        "RadiusAwareLineOfSight_BlocksLargeUnit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/LifeStateMachineTests.cs",
+      "sha256": "4364911b515f219a5d3980fbcf5d6ec1f47e78ee9c65d20d125a7a5c6971f5c7",
+      "testFunctions": [
+        "NewlyConstructedUnit_HasLifeStateAlive",
+        "RequestEnterDying_TransitionsAliveToDying",
+        "RequestRecoverFromDying_TransitionsDyingToAlive",
+        "ConfirmUnitDeath_TransitionsDyingToDead",
+        "BeginRespawn_TransitionsDeadToRespawning",
+        "CompleteRespawn_TransitionsRespawningToAlive",
+        "FullDeathRespawnCycle_ReturnsToAlive",
+        "RequestEnterDying_FromDying_ThrowsAndLeavesStateUnchanged",
+        "RequestEnterDying_FromDead_ThrowsAndLeavesStateUnchanged",
+        "ConfirmUnitDeath_FromAlive_ThrowsAndLeavesStateUnchanged",
+        "RequestRecoverFromDying_FromAlive_ThrowsAndLeavesStateUnchanged",
+        "BeginRespawn_FromAlive_ThrowsAndLeavesStateUnchanged",
+        "CompleteRespawn_FromDead_ThrowsAndLeavesStateUnchanged",
+        "NullUnit_ThrowsArgumentNullException",
+        "TransitionOnOneUnit_DoesNotAffectAnother"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+      "sha256": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+      "testFunctions": [
+        "InitialBuffs_AppliedAutomaticallyFromPrototype",
+        "MeleeMinion_AttacksMinion_AddsTwoPercentCurrentHealth",
+        "RangedMinion_AttacksMinion_AddsThreePointFivePercentCurrentHealth",
+        "Minion_AttacksStructure_DealsSixtyPercent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
+      "sha256": "756d183174fddfdaf5eafaf15d3dcadfb35ba0c6d5f9e1f4e0718c362356d7fe",
+      "testFunctions": [
+        "Acquisition_SetsInitialThreat_AndPicksClosestUnclaimed",
+        "DamageTaken_AddsThreat_InverselyProportionalToDistance",
+        "HigherThreatTarget_SwitchesOnlyWhenNotInWindup",
+        "Acquisition_PairsAlliesWithDistinctTargets",
+        "ThreatTable_SnapshotRoundTrip_PreservesEntries",
+        "SnapshotRoundTrip_PreservesLastThreatRefreshTick",
+        "RestoreReplacement_UnsubscribesPreviousController",
+        "RestoredController_DoesNotReapplyStaleAttackThreat"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
+      "sha256": "4c9b9506a7f2a49aac9f93214d6d6d1355115a633adde9a71f89840bd549b560",
+      "testFunctions": [
+        "ForcedMove_OverridesRouteMove",
+        "EqualPriorityForcedMove_ReplacesAtomically",
+        "ForcedMoveSnapshot_RoundTripsWithControlOwner",
+        "Dash_RequiresPositiveDuration_AndOverridesRoute",
+        "MovementCollision_UsesPhysicsShapeRadius",
+        "RvoGrid_IncludesIdleUnitAsObstacle",
+        "RvoNeighborSelection_IsInputOrderIndependent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementIntegrationTests.cs",
+      "sha256": "b608bd7167479a86948b66863547cc8884d4fb07acef329e906dcabe2ca66ca9",
+      "testFunctions": [
+        "SpawnUnit_CreatesMovementHandlerWithDefaults",
+        "MoveSpeed_UsesWorldLogicVelocityScaleExactlyOnce",
+        "MovementHandler_MoveAndCheckSnapshot",
+        "TwoUnits_SameInput_SamePosition",
+        "TwoUnits_DifferentSpeeds_DifferentPositions",
+        "TwoUnits_DifferentDirections_Diverge",
+        "MoveCommand_StoresUnitIntentAndTick",
+        "MoveCommand_None_IsDefault",
+        "ClearForDeath_StopsMovement",
+        "ResetForPool_PreservesMovementComponentAndClearsRuntimeState",
+        "MovementHandler_ImplementsIRollback",
+        "MovementSnapshot_Default_HasExpectedValues",
+        "MovementHandler_ImplementsIMovementAgent",
+        "IdleUnit_DoesNotMove",
+        "TwoWorlds_SameSpawnAndMove_SameResult"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
+      "sha256": "6eda01992bdd94efe7e3e6d05d4b0c88b2d328e8293e3ff7300f67e3bfd7b730",
+      "testFunctions": [
+        "KillNonHero_GrantsAttackSpeedAndDerivedStats",
+        "KillHero_AppliesThreeTimesBonus",
+        "Kill_RefreshesBuffDurationToFiveSeconds",
+        "Cooldown_ResolvesPerAbilityLevel",
+        "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
+        "AssistHero_AppliesEmpoweredBonusToAssistant"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
+      "sha256": "e2427837e7915ce403f46f10b401818bb4ce883f366ff64fd75e1d903cc4aeee",
+      "testFunctions": [
+        "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
+        "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/RangeQueryServiceTests.cs",
+      "sha256": "bbcf9b27d3d7b1300f7ab4ac8598207d46c86dd762b1f26dffead28a436c32a6",
+      "testFunctions": [
+        "Query_EmptyGrid_ReturnsEmpty",
+        "Query_SingleUnitInRange_ReturnsIt",
+        "Query_UnitOutOfRange_ReturnsEmpty",
+        "Query_EnemyOnly_FiltersCorrectly",
+        "Query_AllyOnly_FiltersCorrectly",
+        "Query_SelfOnly_ReturnsOnlySelf",
+        "Query_LifeStateFilter_DeadUnitExcluded",
+        "Query_RequireTargetable_UntargetableExcluded",
+        "Query_UnitKindMask_FiltersHeroOnly",
+        "Query_SortByDistance_ClosestFirst",
+        "Query_MaxResultTruncation",
+        "Query_NoGrid_ReturnsEmpty",
+        "Query_Deterministic_SameInputSameResult",
+        "Query_GridDedup_SameEntityInMultipleCells_ReturnsOnce"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SkillPointAllocationTests.cs",
+      "sha256": "59d97714e5cf25f8dbf51497d29980501c39a2dc8a177dd7c28a26cd461ba251",
+      "testFunctions": [
+        "NormalSlot_AllocatesUpToMaxAndStops",
+        "Ultimate_RequiresLevelSixAndMaxThreeRanks",
+        "Ultimate_UnlocksAtLevelSix",
+        "GrantExperience_GrantsExactlyOneSkillPointPerLevel"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SpawnUnitTests.cs",
+      "sha256": "0e8f9f9e31ab339e950aa405d58517e189088936ee5980b2b64b597e72f66958",
+      "testFunctions": [
+        "SpawnUnit_ReturnsUnitWithCorrectIdentity",
+        "SpawnUnit_AllocatesDeterministicUid",
+        "SpawnUnit_SameInput_SameUid",
+        "SpawnUnit_DifferentTick_DifferentUid",
+        "SpawnUnit_InitializesStatHandler",
+        "SpawnUnit_StatHandlerLevelGrowth",
+        "SpawnUnit_CreatesEmptyCombatModifierSet",
+        "SpawnUnit_Registration_UnitIsFindable",
+        "SpawnUnit_GetAllUnits_ReturnsSpawnedUnits",
+        "SpawnUnit_WithNullPrototype_Throws",
+        "SpawnUnit_WithoutStatDefinitionTable_Throws",
+        "SpawnUnit_MultipleTeams_GetByTeamWorks",
+        "SpawnUnit_CanRunActiveGameplayThisTick_FalseDuringSpawnTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/StageDefBakeTests.cs",
+      "sha256": "1b694749bf4649f4aadbb37423eb035ae2cdc8370f6dd82c51282a748b4fef5e",
+      "testFunctions": [
+        "AreaDamageStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "SpawnProjectileStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "ApplyBuffStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "DashStageDef_OnEnter_WithValidConfig_ReturnsRunning",
+        "DashStageDef_OnTick_WithoutWorld_ReturnsFailed",
+        "AreaDamageAuthoring_Bake_ProducesValidStageDef",
+        "AreaDamageAuthoring_Bake_RejectsEmptyTargetMasks",
+        "UnitTargetFilter_JsonRoundTrip_PreservesMasks",
+        "SpawnProjectileAuthoring_Bake_ProducesValidStageDef",
+        "ApplyBuffAuthoring_Bake_ProducesValidStageDef",
+        "DashAuthoring_Bake_ProducesValidStageDef",
+        "AreaDamageStageDef_OnExit_DoesNotThrow",
+        "SpawnProjectileStageDef_OnExit_DoesNotThrow",
+        "ApplyBuffStageDef_OnExit_DoesNotThrow",
+        "DashStageDef_OnExit_DoesNotThrow"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
+      "sha256": "befe86e69278bfcf13ba35b6eac2dd97d539a160cb0c306560becdea828d8b58",
+      "testFunctions": [
+        "ExternalOrdinaryAttackDamage_IsAccepted",
+        "ExternalNonAttackDamage_IsRejected",
+        "AttackTypedNonBasicSource_IsRejected",
+        "ExternalHealAndShield_AreRejected",
+        "SelfOwnedStructureBuff_IsAllowedButExternalBuffIsRejected",
+        "ExternalCrowdControl_IsRejectedButSelfOwnedIsAllowed",
+        "ExternalBuffToHandlerlessTower_IsConsumedNoOp",
+        "ExternalCrowdControlToHandlerlessTower_IsConsumedNoOp",
+        "InvalidExternalCrowdControl_IsNotHiddenByStructureFilter",
+        "DeferredExternalEffects_AreFilteredBeforeSequenceAndSnapshot"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+      "sha256": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+      "testFunctions": [
+        "Catalog_ContainsSunderedSkyTreeWithStatsAndRecipes",
+        "EmpoweredStrike_Deals160PercentCritical_AndStartsCooldown",
+        "PerTargetCooldown_SecondHitOnSameHeroIsNormal",
+        "DifferentEnemyHero_StillTriggersEmpoweredStrike",
+        "HealRestoresMissingHealth_AndOverhealBecomesTempMaxHealth",
+        "RangedStrike_HealsWithRangedBaseAdRatio",
+        "MeleeWithProjectile_StillHealsWithMeleeRatio",
+        "FinishedItem_IsUnique_SecondPurchaseRejected",
+        "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/TeamIdAndRegistryTests.cs",
+      "sha256": "8f69728ddf7eeaa8236a1fb0d7b3c099b7927a3eab1cf3110973ef51fb52fd48",
+      "testFunctions": [
+        "TeamId_Default_IsNeutral",
+        "TeamId_ConstructedWithByte_StoresValue",
+        "TeamId_Equality",
+        "TeamId_GetHashCode_Stable",
+        "RegisterTeam_ThenTryGet_ReturnsInfo",
+        "RegisterTeam_DuplicateSameName_IsIdempotent",
+        "RegisterTeam_DuplicateDifferentName_Throws",
+        "TryGetTeam_Unregistered_ReturnsFalse",
+        "IsRegistered_ReflectsRegistration",
+        "Count_ReflectsNumberOfTeams",
+        "Unit_TeamId_IsSetAtConstruction",
+        "GetUnitsByTeam_ReturnsOnlyMatchingTeam",
+        "GetUnitsByTeam_StableUidOrder_IndependentOfRegistrationOrder",
+        "GetUnitsByTeam_NoMatchingTeam_ReturnsEmpty",
+        "GetUnitsByTeam_DoesNotMutateRegistry"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitKindQueryTests.cs",
+      "sha256": "451548f4b54cd1213a63aee65d77dbe40b6d3c79ddf2aaf3e59acb87717fa846",
+      "testFunctions": [
+        "GetUnitsByKind_ReturnsOnlyMatchingKind",
+        "GetUnitsBySubKind_ReturnsOnlyMatchingKindAndSubKind",
+        "GetUnitsByKind_ReturnsStableUidOrder_IndependentOfRegistrationOrder",
+        "GetUnitsByKind_WithNoMatchingUnits_ReturnsEmpty",
+        "GetUnitsBySubKind_WithNoMatchingUnits_ReturnsEmpty",
+        "Queries_DoNotMutateRegistryOrUnits",
+        "UnitKind_AndUnitSubKindId_AreImmutableAfterConstruction",
+        "GetUnitsByKind_AfterUnregister_ReflectsCurrentRegistry"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "sha256": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+      "testFunctions": [
+        "Bake_ConvertsFloatAuthoringToExistingRuntimeContracts",
+        "Bake_ReversedAuthoringOrderProducesSameStableTables",
+        "Bake_DuplicateStatDefinitionFailsInsteadOfOverwriting",
+        "Bake_DuplicatePrototypePresetStatFails",
+        "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitSpawnSequenceTests.cs",
+      "sha256": "01a69e9ccc5861a6918500b8d173c8e949aa649880240d4f64dd56db4c2996f8",
+      "testFunctions": [
+        "AllocateSpawnSequence_MonotonicWithinTick",
+        "AllocateSpawnSequence_Overflow_ThrowsDeterministicSimulationException",
+        "AllocateSpawnSequence_TickRollover_ResetsSequence",
+        "AllocateSpawnSequence_SameTickSameOrder_SameSequence",
+        "AllocateSpawnSequence_AfterTickCompletion_UsesLatestPublishedTick",
+        "UnitPrototypeId_ImmutableAfterConstruction",
+        "Unit_BaseGoldAndExperience_PreservedAfterConstruction",
+        "Unit_DefaultPrototypeAndReward_AreZero"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": [
+    "REQ-FEAT-028"
+  ],
+  "parent": "REQ-FEAT-028",
+  "provenance": [
+    {
+      "date": "2026-10-02",
+      "summary": "按具体功能进一步拆分过长附录"
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "id": "PLAN-0011",
+  "code": "0011",
+  "title": "单位生命状态权威状态机",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0011_unit-lifestate-authoritative-state-machine.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-028",
+    "REQ-FEAT-020",
+    "REQ-FEAT-068"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-028",
+      "title": "同步生成死亡复活与回池",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-028_unit-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "408ddd790bf8049c1e5efc380b43ad779d2955e586e0e9aed04862d2ef1ba925"
+    },
+    {
+      "id": "REQ-FEAT-020",
+      "title": "单位根与能力装配",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-020_unit-capability-composition.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a331b21f07e70d2828d43ac3f253b3e9700faeeb2779640537732c6beb16ac"
+    },
+    {
+      "id": "REQ-FEAT-068",
+      "title": "AI 注册调度与多态快照",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-068_ai-scheduling.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c9c5c43fb7a16313a9b0dd4db698869ff09bd9456e603c12c1527b1a659dc4d9"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0011_unit_lifestate_authoritative_state_machine_execplan.md",
+      "sha256": "7bca9096689d36038ab51c410608756698f61337f1cdc6cb292932b4b52bfc94",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "Approved — executing. Owner approved C->B->A as 0010/0011/0012 in one batch.",
+      "targets": [
+        "REQ-FEAT-028",
+        "REQ-FEAT-020",
+        "REQ-FEAT-068"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0011",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/LifeState.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/CapabilityState.cs",
+      "Assets/Scripts/Gameplay/Tests/CapabilityStateTests.cs",
+      "Assets/Scripts/Gameplay/Tests/LifeStateMachineTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/LifeState.cs",
+      "sha256": "bc3d1098e7232605c52e3794f847bc4843bcb5c54b31ba3ceb615cfdf4d69aad",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/CapabilityState.cs",
+      "sha256": "1ba21ec5bd62a55732fa00dca550c8f7921ac4841eb754dd148bc2725306b36e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CapabilityStateTests.cs",
+      "sha256": "133c095e36def700619c3c6a005564d3dcf98f6760f5ad1e880af33fc3f67a4c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/LifeStateMachineTests.cs",
+      "sha256": "4364911b515f219a5d3980fbcf5d6ec1f47e78ee9c65d20d125a7a5c6971f5c7",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

@@ -1,0 +1,125 @@
+{
+  "id": "REQ-FEAT-022",
+  "title": "动作仲裁与固定执行器",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "单位",
+  "path": "Docs/requirements/units/REQ-FEAT-022_action-arbitration.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md",
+      "sha256": "16f70ea30d2661a32e958a621ee057ef7f4d4df1598b4fd860d648fde1eb0cc2",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_4_action_arbitration_amendment.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/ActionArbiter.cs",
+      "sha256": "bf1bddc527d6d132e1b5c1e5a36e57ee68bea1a68b6a764e1b281906b560dd6c",
+      "symbols": [
+        "ActionArbiter"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/ActionContracts.cs",
+      "sha256": "a2c86f11428954c79350420cefd2150fde86eb2abfc605d6e31302586060922f",
+      "symbols": [
+        "ActionSubmitResult"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "testFunctions": [
+        "LockedMainCast_AllowsAuthoredDashInBaseSlot",
+        "MovableHold_AllowsMove_ReleasePreemptsMove",
+        "HoldTimeout_ReconcilesReleaseResourcesAndRestores",
+        "SameAbilityStageTransition_MigratesMainToBaseSlot",
+        "AutomaticDashTransition_MigratesWithoutCancellingSession",
+        "SequentialRecastWindow_ReleasesMainRuntimeButKeepsSession",
+        "Planner_DoesNotResubmitEquivalentActiveMove",
+        "MoveReplacement_AtomicallyKeepsNewRoute",
+        "FailedLockingCast_DoesNotDestroyExistingMove",
+        "ToggleSecondCommit_EndsSessionWithoutOwningRuntime",
+        "ToggleActive_DoesNotBlockChargeStartAndIsConsumed",
+        "ToggleOnAndOffDuringHold_DoNotPreemptHold",
+        "MobilityBlock_InterruptsAbilityDash",
+        "ControlMove_PreemptsUninterruptibleMovementLockedCast"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "sha256": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "testFunctions": [
+        "Add_CreatesIndependentInstances_NoMerge",
+        "Immunity_BlocksLowMedium_ConsumesOneShot_BypassesHigh",
+        "Cleanse_RemovesMatchingNonHigh_RespectsCount",
+        "Unstoppable_SuppressesOutput_AndRejectsForcedMove",
+        "DamageTakenSignal_RemovesSleepInstance",
+        "Drowsy_OnNaturalExpire_AddsSleepWithConfiguredDuration",
+        "Tenacity_ShortensDefaultDuration_IgnoredByIgnoreRule",
+        "ForcedMove_PriorityArbitration_RejectsLower_ReplacesEqual",
+        "ForcedBehavior_WinnerSelected_AndConsumedByPlanner",
+        "ForcedMoveBehavior_BypassesVoluntaryCapabilityBlock",
+        "Snapshot_RoundTrip_PreservesInstancesAndState",
+        "Restore_ValidatesRestoredForcedMoveHandleNotPreRestoreHandle",
+        "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
+        "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

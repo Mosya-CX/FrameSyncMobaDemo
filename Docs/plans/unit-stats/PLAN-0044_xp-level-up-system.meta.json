@@ -1,0 +1,123 @@
+{
+  "id": "PLAN-0044",
+  "code": "0044",
+  "title": "经验与升级系统",
+  "type": "plan",
+  "domain": "单位数值",
+  "status": "关闭",
+  "path": "Docs/plans/unit-stats/PLAN-0044_xp-level-up-system.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-025"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-025",
+      "title": "经验成长与技能点",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/unit-stats/REQ-FEAT-025_experience-levels.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "2a0ae1e666480b229865e4501bd8b03df4a7ba3335c5ccb1ca03e0e5d5673d34"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0044_xp_level_up_system.md",
+      "sha256": "58f7140e6340d476b0ce9447a6ce6a78c8030a8cd719a1c9a29d015026eba0af",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-025"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0044",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Gameplay/XP/LevelExperienceConfig.cs",
+      "Assets/Scripts/Gameplay/XP/XpRewardTable.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "Assets/Scripts/Gameplay/Combat/DeathEffectDispatcher.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/XP/LevelExperienceConfig.cs",
+      "sha256": "cbb8bf5cb8d200e3014e542440d85c9b5382785ffaffb98a4fc8ac0871fc72c6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/XP/XpRewardTable.cs",
+      "sha256": "b80580a5eeb2fb46af5560d62036116d889addb10b4818710fb3d0367f0d7281",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "sha256": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/DeathEffectDispatcher.cs",
+      "sha256": "808b424cbed121b99cb40b277b6bf5ea940811c7841c689ddc30aa0af3e3641b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "sha256": "ad0df036c910fcb93318705c187af1906b6910a16c16e9d1494834fa0680b841",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

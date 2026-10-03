@@ -1,0 +1,146 @@
+{
+  "id": "REQ-FEAT-021",
+  "title": "意图规划与输入 Order",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "单位",
+  "path": "Docs/requirements/units/REQ-FEAT-021_intent-planning.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.1 Command 与 Order",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.2 统一翻译器",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.3 Order 类型",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.4 Order 不携带寻路策略",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/BehaviorPlanner.cs",
+      "sha256": "e7318a0240bc5a74d2d35744182f2d9063aa98071fe493579f124d5eec81eb04",
+      "symbols": [
+        "BehaviorPlanner"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/OrderTranslator.cs",
+      "sha256": "fba46a8ac71d3331ccbcf3270eb8e44530be8fff4b7c3d5cb700c6b2e45be6c3",
+      "symbols": [
+        "OrderTranslator"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitIntent.cs",
+      "sha256": "3962948001bd3757949b746bace5f66a43e7ca111d15ab9d46cc2dc36c3c5af9",
+      "symbols": [
+        "UnitIntent"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
+      "sha256": "c0ec6f80dd8f849f53b0a24afd3195ae2e95fafea96faa48609544f9cff3d023",
+      "testFunctions": [
+        "FutureCommand_IsRetainedAndConsumedOnlyAtTargetTick",
+        "CastIntentAndAction_PreserveCommitVerbAndDirectionAim",
+        "PlanCastIntent_UsesAbilityCastRange_NotHardcoded",
+        "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
+        "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "testFunctions": [
+        "LockedMainCast_AllowsAuthoredDashInBaseSlot",
+        "MovableHold_AllowsMove_ReleasePreemptsMove",
+        "HoldTimeout_ReconcilesReleaseResourcesAndRestores",
+        "SameAbilityStageTransition_MigratesMainToBaseSlot",
+        "AutomaticDashTransition_MigratesWithoutCancellingSession",
+        "SequentialRecastWindow_ReleasesMainRuntimeButKeepsSession",
+        "Planner_DoesNotResubmitEquivalentActiveMove",
+        "MoveReplacement_AtomicallyKeepsNewRoute",
+        "FailedLockingCast_DoesNotDestroyExistingMove",
+        "ToggleSecondCommit_EndsSessionWithoutOwningRuntime",
+        "ToggleActive_DoesNotBlockChargeStartAndIsConsumed",
+        "ToggleOnAndOffDuringHold_DoNotPreemptHold",
+        "MobilityBlock_InterruptsAbilityDash",
+        "ControlMove_PreemptsUninterruptibleMovementLockedCast"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "testFunctions": [
+        "LaneAdvance_SelectsTeamFlowField",
+        "Chase_FirstTickBuildsPathBeforeRepathCooldown",
+        "Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell",
+        "ChaseForCast_DoesNotCompleteAtAttackBoundaryDistance",
+        "PointMove_UsesDirectOrAStarByGrid",
+        "FlowFieldRvoMovement_ProducesRepeatableMotion",
+        "RadiusAwareLineOfSight_BlocksLargeUnit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
+      "sha256": "756d183174fddfdaf5eafaf15d3dcadfb35ba0c6d5f9e1f4e0718c362356d7fe",
+      "testFunctions": [
+        "Acquisition_SetsInitialThreat_AndPicksClosestUnclaimed",
+        "DamageTaken_AddsThreat_InverselyProportionalToDistance",
+        "HigherThreatTarget_SwitchesOnlyWhenNotInWindup",
+        "Acquisition_PairsAlliesWithDistinctTargets",
+        "ThreatTable_SnapshotRoundTrip_PreservesEntries",
+        "SnapshotRoundTrip_PreservesLastThreatRefreshTick",
+        "RestoreReplacement_UnsubscribesPreviousController",
+        "RestoredController_DoesNotReapplyStaleAttackThreat"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

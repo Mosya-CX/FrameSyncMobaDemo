@@ -1,0 +1,103 @@
+{
+  "id": "PLAN-0017",
+  "code": "0017",
+  "title": "单位生成身份",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0017_unit-spawn-identity-core.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-028",
+    "REQ-FEAT-015"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-028",
+      "title": "同步生成死亡复活与回池",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-028_unit-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "408ddd790bf8049c1e5efc380b43ad779d2955e586e0e9aed04862d2ef1ba925"
+    },
+    {
+      "id": "REQ-FEAT-015",
+      "title": "稳定 UID 与参与者身份",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/determinism/REQ-FEAT-015_stable-unit-identity.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "718282fc75d36a2839106b8ecce3ed4a0388439d3093f8e194f83312144a5947"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0017_unit_spawn_identity_core_execplan.md",
+      "sha256": "6347c66991590f6ee448819ed68455ee0c8420e75faefb620dd1d824cfd72011",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed and verified (compile-pending).",
+      "targets": [
+        "REQ-FEAT-028",
+        "REQ-FEAT-015"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0017",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Deterministic/Core/DeterministicSimulationException.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Deterministic/Tests/DeterministicSimulationExceptionTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitSpawnSequenceTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Core/DeterministicSimulationException.cs",
+      "sha256": "a2fb3c5d9b99458034141683a99e4599fe3d7cf2688fbbefe9af236452114733",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicSimulationExceptionTests.cs",
+      "sha256": "c086e934a68f9aef92406f37935271ba5de3fa3437d23727b9b4656249db04f6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitSpawnSequenceTests.cs",
+      "sha256": "01a69e9ccc5861a6918500b8d173c8e949aa649880240d4f64dd56db4c2996f8",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

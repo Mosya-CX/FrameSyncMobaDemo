@@ -1,0 +1,105 @@
+{
+  "id": "PLAN-0014",
+  "code": "0014",
+  "title": "队伍身份与队伍查询",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0014_teamid-and-team-registry-and-getbyteam.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-020"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-020",
+      "title": "单位根与能力装配",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-020_unit-capability-composition.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a331b21f07e70d2828d43ac3f253b3e9700faeeb2779640537732c6beb16ac"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0014_teamid_and_team_registry_and_getbyteam_execplan.md",
+      "sha256": "6a916b5cab186fa2b6a0529e9f1807d1ba5376ff0d16c9b2f5e6cf1414748cbf",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "Approved — executed. Owner approved A->B->C as 0013/0014/0015.",
+      "targets": [
+        "REQ-FEAT-020"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0014",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Team/TeamId.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Team/TeamRegistry.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitRegistry.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "Assets/Scripts/Gameplay/Unit/Kind/UnitKind.cs",
+      "Assets/Scripts/Gameplay/Tests/TeamIdAndRegistryTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Team/TeamId.cs",
+      "sha256": "de192cf13550e6bcb23850fab132de4b83a5cae322cdcad10d0c7c853dda3427",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Team/TeamRegistry.cs",
+      "sha256": "c75df1996a0f9f1fb2db1d4ca333994113927956e326ed7e7aee38618569d3aa",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitRegistry.cs",
+      "sha256": "42567a795f0d41c6417499f67887911f9d9f4e1ec42f5230dcc94f6fecfe2811",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "sha256": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Kind/UnitKind.cs",
+      "sha256": "5189b942ca96da3ce2becb4c7621456a696639367c1b8e5c06de4688683c99cb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/TeamIdAndRegistryTests.cs",
+      "sha256": "8f69728ddf7eeaa8236a1fb0d7b3c099b7927a3eab1cf3110973ef51fb52fd48",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

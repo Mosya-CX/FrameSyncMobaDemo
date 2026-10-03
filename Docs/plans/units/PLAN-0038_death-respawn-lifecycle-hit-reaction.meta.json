@@ -1,0 +1,123 @@
+{
+  "id": "PLAN-0038",
+  "code": "0038",
+  "title": "死亡复活与命中反应",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0038_death-respawn-lifecycle-hit-reaction.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-027"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-027",
+      "title": "强类型单位事件与反应",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-027_unit-events.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "59ba2e21bfd484b594bb32435fa45f5606bd026276e10363665f653cdc7140f6"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0038_death_respawn_lifecycle_hit_reaction.md",
+      "sha256": "3d0b50a7172aa2f13f822d78114c247c3033117f51d3059c419a4cc0c0bd033f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-027"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0038",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/RespawnTimer.cs",
+      "Assets/Scripts/Gameplay/Combat/DeathEffectDispatcher.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "Assets/Scripts/Gameplay/Combat/HitReactionState.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/RespawnTimer.cs",
+      "sha256": "8c300344f0a18cbdb2cd80716d1f38cf6dbcf8ca739b52372a074f255d999bd4",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/DeathEffectDispatcher.cs",
+      "sha256": "808b424cbed121b99cb40b277b6bf5ea940811c7841c689ddc30aa0af3e3641b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/HitReactionState.cs",
+      "sha256": "61077a563bae99599659d14affb379de46aa8d088f57f92b5cf13a653088944c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "sha256": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "sha256": "ad0df036c910fcb93318705c187af1906b6910a16c16e9d1494834fa0680b841",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

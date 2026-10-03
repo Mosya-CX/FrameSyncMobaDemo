@@ -1,0 +1,133 @@
+{
+  "id": "PLAN-0009",
+  "code": "0009",
+  "title": "生成 Tick 的主动逻辑门禁",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0009_unit-spawn-tick-active-gameplay-gate.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-028",
+    "REQ-FEAT-015"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-028",
+      "title": "同步生成死亡复活与回池",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-028_unit-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "408ddd790bf8049c1e5efc380b43ad779d2955e586e0e9aed04862d2ef1ba925"
+    },
+    {
+      "id": "REQ-FEAT-015",
+      "title": "稳定 UID 与参与者身份",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/determinism/REQ-FEAT-015_stable-unit-identity.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "718282fc75d36a2839106b8ecce3ed4a0388439d3093f8e194f83312144a5947"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0009_unit_spawn_tick_active_gameplay_gate_execplan.md",
+      "sha256": "74c8dec657d9d82d9073ce655d6fdddf022386de5bea46fd640a4d8268d0dd46",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "待验收",
+      "reportedStatus": "Approved — executed; Unity compile/test verification pending (MCP approval-layer outage, code 1211).",
+      "targets": [
+        "REQ-FEAT-028",
+        "REQ-FEAT-015"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0009",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Bootstrap/AssemblyInfo.cs",
+      "Assets/Scripts/Deterministic/AssemblyInfo.cs",
+      "Assets/Scripts/FrameSync/AssemblyInfo.cs",
+      "Assets/Scripts/Gameplay/AssemblyInfo.cs",
+      "Assets/Scripts/Physics/AssemblyInfo.cs",
+      "Assets/Scripts/RuntimeConfig/AssemblyInfo.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitActiveGameplayGateTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitAssemblyBoundaryTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/AssemblyInfo.cs",
+      "sha256": "c691ebb060260ec62cad8d21555f780d80869af82e2a0fd11374fdd4af478254",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/AssemblyInfo.cs",
+      "sha256": "3cfa9dfcda7e34e29b5789d2d32f5906b33db561f9763058a657f990a843ecc3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/AssemblyInfo.cs",
+      "sha256": "dadcce87c1380ec2f94729d39952cec3eadef68c9f14f0a509d4bfc5add0b611",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/AssemblyInfo.cs",
+      "sha256": "be2158c90ee3d5dd45ed2fa071d9bbacb789560f6fa31e1a525192d7b442f5f9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/AssemblyInfo.cs",
+      "sha256": "92228514ee157f99a16dc3bf4b9b0198d8180e9ad7830cbf5c586a107745e81c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/AssemblyInfo.cs",
+      "sha256": "e1a5ac406732bc31ded5221710d9fa25bb668506919f1e6d6ef56845382f726e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "sha256": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitActiveGameplayGateTests.cs",
+      "sha256": "88bb5b493d113f68251b3f5d30e585ef43dcf86ac93ea243febe603c6c4ee2d7",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitAssemblyBoundaryTests.cs",
+      "sha256": "29711a25159499f04f6a4091299b4bb3adf63b20369e8b95b41d69b8871622a0",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

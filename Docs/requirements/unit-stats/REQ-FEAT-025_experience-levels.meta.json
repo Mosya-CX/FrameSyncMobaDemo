@@ -1,0 +1,69 @@
+{
+  "id": "REQ-FEAT-025",
+  "title": "经验成长与技能点",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "单位数值",
+  "path": "Docs/requirements/unit-stats/REQ-FEAT-025_experience-levels.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.6 等级、经验与属性成长",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/XP/LevelExperienceConfig.cs",
+      "sha256": "cbb8bf5cb8d200e3014e542440d85c9b5382785ffaffb98a4fc8ac0871fc72c6",
+      "symbols": [
+        "LevelExperienceConfig"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/XP/XpRewardTable.cs",
+      "sha256": "b80580a5eeb2fb46af5560d62036116d889addb10b4818710fb3d0367f0d7281",
+      "symbols": [
+        "XpRewardTable"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchRewardDistanceTests.cs",
+      "sha256": "268675be19d563b56f1e31cf74384a18b28a1bbcd360e0e082a7e79095a9d623",
+      "testFunctions": [
+        "MinionExperienceRadius_UsesStatToLogicDistanceScale"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SkillPointAllocationTests.cs",
+      "sha256": "59d97714e5cf25f8dbf51497d29980501c39a2dc8a177dd7c28a26cd461ba251",
+      "testFunctions": [
+        "NormalSlot_AllocatesUpToMaxAndStops",
+        "Ultimate_RequiresLevelSixAndMaxThreeRanks",
+        "Ultimate_UnlocksAtLevelSix",
+        "GrantExperience_GrantsExactlyOneSkillPointPerLevel"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "sha256": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+      "testFunctions": [
+        "Bake_ConvertsFloatAuthoringToExistingRuntimeContracts",
+        "Bake_ReversedAuthoringOrderProducesSameStableTables",
+        "Bake_DuplicateStatDefinitionFailsInsteadOfOverwriting",
+        "Bake_DuplicatePrototypePresetStatFails",
+        "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

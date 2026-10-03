@@ -1,0 +1,99 @@
+{
+  "id": "PLAN-0142",
+  "code": "0142",
+  "title": "核心层单位释放策略",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0142_core-owned-unit-dispose-policy.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-028"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-028",
+      "title": "同步生成死亡复活与回池",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-028_unit-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "408ddd790bf8049c1e5efc380b43ad779d2955e586e0e9aed04862d2ef1ba925"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0142_core_owned_unit_dispose_policy.md",
+      "sha256": "5daa7fdb244feda057ad9fd081a085a3eb94aba64a6f2a6ddaa6d4a8bf78ee20",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-028"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0142",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/Gameplay/Unit/Authoring/UnitRuntimeCatalogAsset.cs",
+      "Assets/Scripts/Gameplay/Unit/Prototype/UnitDisposePolicyTable.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/MatchScopedContentConfigurationTests.cs",
+      "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Authoring/UnitRuntimeCatalogAsset.cs",
+      "sha256": "0e2d2c5171c084f1b238ad190132f56721f41487380832287a8263d046dbb742",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Prototype/UnitDisposePolicyTable.cs",
+      "sha256": "13a36cc234f7012b23041f64ff64b4005633ca5beedd63e896c84b76208a2194",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "sha256": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchScopedContentConfigurationTests.cs",
+      "sha256": "11b58b5f73f1c05aa17f99d71e441dcc240e06c57796887e40b2a6fbb4417341",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
+      "sha256": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

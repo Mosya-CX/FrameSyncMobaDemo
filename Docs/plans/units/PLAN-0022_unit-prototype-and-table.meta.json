@@ -1,0 +1,115 @@
+{
+  "id": "PLAN-0022",
+  "code": "0022",
+  "title": "单位原型与定义表",
+  "type": "plan",
+  "domain": "单位",
+  "status": "关闭",
+  "path": "Docs/plans/units/PLAN-0022_unit-prototype-and-table.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-020",
+    "REQ-FEAT-018"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-020",
+      "title": "单位根与能力装配",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-020_unit-capability-composition.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a331b21f07e70d2828d43ac3f253b3e9700faeeb2779640537732c6beb16ac"
+    },
+    {
+      "id": "REQ-FEAT-018",
+      "title": "按对局加载内容闭包",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f8ded111ac8f777c33b80a3b065878902c19c32e157402f081a24b24dbc7ffcc"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0022_unit_prototype_and_table_execplan.md",
+      "sha256": "5954d1800ea814a9b404ec1def323ee2d868b31cab75c47a7608f1809d30b30d",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed and verified (compile-pending).",
+      "targets": [
+        "REQ-FEAT-020",
+        "REQ-FEAT-018"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0022",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Prototype/GlobalUnitPrototypeTable.cs",
+      "Assets/Scripts/Gameplay/Unit/Prototype/UnitPrototype.cs",
+      "Assets/Scripts/Gameplay/Stats/StatId.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Kind/UnitKind.cs",
+      "Assets/Scripts/Gameplay/Tests/GlobalUnitPrototypeTableTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitPrototypeTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Prototype/GlobalUnitPrototypeTable.cs",
+      "sha256": "43a58440a632f6c83229d913c2c7662fc98af4fdaef121d5fb9150ad3680386a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Prototype/UnitPrototype.cs",
+      "sha256": "63f26448cd0c4580132a2d296799fac56064f7fca0a72bc1b08a449b086bcc33",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Stats/StatId.cs",
+      "sha256": "fb3bd022a64012c7ca8d82f3b3f3552ed38ecf421c38e6401ab87e6af836d685",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Kind/UnitKind.cs",
+      "sha256": "5189b942ca96da3ce2becb4c7621456a696639367c1b8e5c06de4688683c99cb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/GlobalUnitPrototypeTableTests.cs",
+      "sha256": "043d20f904324f6b953ebecf1f1607cb3be08283922c6b1d16a85168670c0a82",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitPrototypeTests.cs",
+      "sha256": "12fcdc36863a4468f2509b99c1cc0d17fc564db8ac5217705b2cbde16184e9da",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

@@ -1,0 +1,150 @@
+{
+  "id": "REQ-FEAT-027",
+  "title": "强类型单位事件与反应",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "单位",
+  "path": "Docs/requirements/units/REQ-FEAT-027_unit-events.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 冻结事件清单",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 每种事件使用独立强类型结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 UnitEventBus 直接路由具体 Handler",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.5 Handler 回调与 Reaction 配置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.6 即时同步分发",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.7 事件生产接缝",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    },
+    {
+      "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
+      "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.8 生命周期与事件顺序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "sha256": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+      "symbols": [
+        "DamageEventData"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs",
+      "sha256": "b10d17906ddd900a03bb45d305e41d9870ffe2e2f29f6535ccfb58f6fe2a246d",
+      "symbols": [
+        "UnitEventBus"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+      "sha256": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+      "testFunctions": [
+        "Crit_100PercentChance_DoublesDamage",
+        "Crit_ZeroPercentChance_NoCrit",
+        "Crit_DamageEventData_IsCriticalFlag",
+        "Crit_OneHundredPercent_DoesNotRequireRandomService",
+        "ProbabilisticCrit_DoesNotConsumeGlobalRandomState",
+        "AttackSpeed_ModifiesCooldown",
+        "AttackSpeed_PositiveBase_StartsAttack"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "sha256": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "testFunctions": [
+        "Add_CreatesIndependentInstances_NoMerge",
+        "Immunity_BlocksLowMedium_ConsumesOneShot_BypassesHigh",
+        "Cleanse_RemovesMatchingNonHigh_RespectsCount",
+        "Unstoppable_SuppressesOutput_AndRejectsForcedMove",
+        "DamageTakenSignal_RemovesSleepInstance",
+        "Drowsy_OnNaturalExpire_AddsSleepWithConfiguredDuration",
+        "Tenacity_ShortensDefaultDuration_IgnoredByIgnoreRule",
+        "ForcedMove_PriorityArbitration_RejectsLower_ReplacesEqual",
+        "ForcedBehavior_WinnerSelected_AndConsumedByPlanner",
+        "ForcedMoveBehavior_BypassesVoluntaryCapabilityBlock",
+        "Snapshot_RoundTrip_PreservesInstancesAndState",
+        "Restore_ValidatesRestoredForcedMoveHandleNotPreRestoreHandle",
+        "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
+        "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
+      "sha256": "756d183174fddfdaf5eafaf15d3dcadfb35ba0c6d5f9e1f4e0718c362356d7fe",
+      "testFunctions": [
+        "Acquisition_SetsInitialThreat_AndPicksClosestUnclaimed",
+        "DamageTaken_AddsThreat_InverselyProportionalToDistance",
+        "HigherThreatTarget_SwitchesOnlyWhenNotInWindup",
+        "Acquisition_PairsAlliesWithDistinctTargets",
+        "ThreatTable_SnapshotRoundTrip_PreservesEntries",
+        "SnapshotRoundTrip_PreservesLastThreatRefreshTick",
+        "RestoreReplacement_UnsubscribesPreviousController",
+        "RestoredController_DoesNotReapplyStaleAttackThreat"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
+      "sha256": "6eda01992bdd94efe7e3e6d05d4b0c88b2d328e8293e3ff7300f67e3bfd7b730",
+      "testFunctions": [
+        "KillNonHero_GrantsAttackSpeedAndDerivedStats",
+        "KillHero_AppliesThreeTimesBonus",
+        "Kill_RefreshesBuffDurationToFiveSeconds",
+        "Cooldown_ResolvesPerAbilityLevel",
+        "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
+        "AssistHero_AppliesEmpoweredBonusToAssistant"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}
