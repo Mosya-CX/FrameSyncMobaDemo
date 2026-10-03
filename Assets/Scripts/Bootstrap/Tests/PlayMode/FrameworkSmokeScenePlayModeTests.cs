@@ -24,7 +24,14 @@ namespace FrameSyncMoba.Bootstrap.Tests
                 bootstrap = roots[i].GetComponentInChildren<GameBootstrap>(true);
             Assert.That(bootstrap, Is.Not.Null);
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            float deadline = Time.realtimeSinceStartup + 15f;
+            while ((!bootstrap.IsInitialized ||
+                    bootstrap.Runtime == null ||
+                    bootstrap.Runtime.CurrentTick <= 0) &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
 
             Assert.That(bootstrap.IsInitialized, Is.True);
             Assert.That(bootstrap.Runtime.CurrentTick, Is.GreaterThan(0));

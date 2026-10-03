@@ -495,6 +495,16 @@ namespace FrameSyncMoba.Bootstrap
                     BuildAuthoritativeBootstrapPayload(
                         fixtureConfig);
                 ApplyGameBootstrapPayload(payload);
+                if (!dedicatedServer &&
+                    !UsesNetworkSimulation &&
+                    fixtureConfig.PlayerSlots.Length > 0 &&
+                    !TryBindLocalPlayer(
+                        fixtureConfig.PlayerSlots[0]
+                            .ControllerClientId))
+                {
+                    throw new DeterministicSimulationException(
+                        "Local fixture failed to bind its first configured player.");
+                }
             }
 
             RegisterExternalFlowSession();

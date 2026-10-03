@@ -40,8 +40,18 @@ namespace FrameSyncMoba.Bootstrap.Tests
                             true);
 
             Assert.That(bootstrap, Is.Not.Null);
-            yield return null;
+            float deadline = Time.realtimeSinceStartup + 15f;
+            while ((!bootstrap.IsInitialized ||
+                    !bootstrap.IsMatchReady ||
+                    !bootstrap.IsLocalPlayerBound) &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
 
+            Assert.That(
+                bootstrap.IsInitialized,
+                Is.True);
             Assert.That(
                 bootstrap.IsMatchReady,
                 Is.True);

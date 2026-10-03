@@ -242,6 +242,8 @@ MonoBehaviour:
   deterministicMapConfig: {fileID: 11400000, guid: f1c4e69f4a5028647b5c47fb0408da9f,
     type: 2}
   equipmentCatalog: {fileID: 0}
+  buffCatalog: {fileID: 0}
+  crowdControlCatalog: {fileID: 0}
   dedicatedServer: 1
   driveSimulationFromUnityUpdate: 1
   enableOnlineApplicationFlow: 0
@@ -249,8 +251,6 @@ MonoBehaviour:
   autoApplyLocalFixturePayload: 1
   networkManager: {fileID: 0}
   frameSyncNetworkBridge: {fileID: 0}
-  uosMatchmakingConfigId: 
-  uosRegionId: 
   initialUnitSpawns:
   - StableSpawnOrder: 0
     UnitPrototypeId: 1001
@@ -269,13 +269,13 @@ MonoBehaviour:
     Position: {x: 0, y: 0}
     Forward: {x: 0, y: 1}
     UseMapSpawnPoint: 1
-    SpawnPointId: 1
+    SpawnPointId: 5
     MatchTopologyRole: 0
     EnableTowerAI: 0
     PlayerControlled: 1
     PlayerSlot: 1
   - StableSpawnOrder: 2
-    UnitPrototypeId: 1002
+    UnitPrototypeId: 3001
     TeamId: 1
     Position: {x: 0, y: 0}
     Forward: {x: 0, y: 1}
@@ -286,7 +286,7 @@ MonoBehaviour:
     PlayerControlled: 0
     PlayerSlot: 0
   - StableSpawnOrder: 3
-    UnitPrototypeId: 1002
+    UnitPrototypeId: 3002
     TeamId: 2
     Position: {x: 0, y: 0}
     Forward: {x: 0, y: 1}
@@ -306,14 +306,8 @@ MonoBehaviour:
   deathPresenter: {fileID: 0}
   luaBridge: {fileID: 0}
   uiManager: {fileID: 0}
-  shopPage: {fileID: 0}
-  scoreboardController: {fileID: 0}
   minimapController: {fileID: 0}
-  cooldownPresenter: {fileID: 0}
-  resultPageController: {fileID: 0}
   clientUiActionRouter: {fileID: 0}
-  lobbyPanelController: {fileID: 0}
-  heroSelectPageController: {fileID: 0}
   minionWaveConfig: {fileID: 0}
   laneAuthoring: []
   flowFieldAssets: []

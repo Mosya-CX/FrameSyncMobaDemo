@@ -69,10 +69,10 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     1,
                     new[] { 1001 });
                 root.SetActive(true);
-                int waitFrames = 0;
-                while (!bootstrap.IsInitialized && waitFrames < 600)
+                float deadline = Time.realtimeSinceStartup + 15f;
+                while (!bootstrap.IsInitialized &&
+                       Time.realtimeSinceStartup < deadline)
                 {
-                    waitFrames++;
                     yield return null;
                 }
 

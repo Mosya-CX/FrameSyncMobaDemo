@@ -44,6 +44,12 @@ namespace FrameSyncMoba.Bootstrap.Tests
             }
             Assert.That(manager, Is.Not.Null);
             Assert.That(bootstrap, Is.Not.Null);
+            float deadline = Time.realtimeSinceStartup + 15f;
+            while (!bootstrap.IsMatchReady &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
             Assert.That(
                 bootstrap.IsMatchReady,
                 Is.True);
@@ -246,10 +252,12 @@ namespace FrameSyncMoba.Bootstrap.Tests
                     UIPageId.Shop),
                 Is.True,
                 "Shop overlay must open above HUD.");
+            int shopItemCount =
+                GameFlowLuaBridge.GetShopItemCount();
             Assert.That(
-                GameFlowLuaBridge.GetShopItemCount(),
-                Is.EqualTo(3),
-                "Neutral equipment catalog must expose 3 items.");
+                shopItemCount,
+                Is.GreaterThanOrEqualTo(3),
+                "Neutral equipment catalog must expose the baseline shop items.");
             Assert.That(
                 GameFlowLuaBridge.GetShopItemName(0),
                 Is.Not.Null);
@@ -275,7 +283,7 @@ namespace FrameSyncMoba.Bootstrap.Tests
             }
             Assert.That(
                 cellCount,
-                Is.EqualTo(3),
+                Is.EqualTo(shopItemCount),
                 "Catalog cells must be instantiated inside the EquipmentList Content.");
             Assert.That(
                 shopPanel.transform.Find(

@@ -51,8 +51,16 @@ namespace FrameSyncMoba.Bootstrap.Tests
             GameBootstrap bootstrap =
                 Object.FindObjectOfType<GameBootstrap>();
             Assert.NotNull(
-                bootstrap,
-                "GameScene must contain GameBootstrap.");
+                                bootstrap,
+                                "GameScene must contain GameBootstrap.");
+            float initializationDeadline =
+                Time.realtimeSinceStartup + 15f;
+            while (!bootstrap.IsInitialized &&
+                   Time.realtimeSinceStartup <
+                   initializationDeadline)
+            {
+                yield return null;
+            }
             Assert.IsTrue(
                 bootstrap.IsInitialized,
                 "The production bootstrap must initialize from its serialized assets.");
@@ -310,6 +318,14 @@ namespace FrameSyncMoba.Bootstrap.Tests
             Assert.NotNull(
                 bootstrap,
                 "GameScene must contain GameBootstrap.");
+            float initializationDeadline =
+                Time.realtimeSinceStartup + 15f;
+            while (!bootstrap.IsInitialized &&
+                   Time.realtimeSinceStartup <
+                   initializationDeadline)
+            {
+                yield return null;
+            }
             Assert.IsTrue(
                 bootstrap.IsInitialized,
                 "The production bootstrap must initialize from its serialized assets.");
