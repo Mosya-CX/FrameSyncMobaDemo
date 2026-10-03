@@ -1,0 +1,219 @@
+{
+  "id": "PLAN-0114",
+  "code": "0114",
+  "title": "投射物战斗命中管线",
+  "type": "plan",
+  "domain": "投射物",
+  "status": "关闭",
+  "path": "Docs/plans/projectiles/PLAN-0114_projectile-combat-hit-pipeline.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-039",
+    "REQ-FEAT-040",
+    "REQ-FEAT-041",
+    "REQ-FEAT-029",
+    "REQ-FEAT-030",
+    "REQ-FEAT-034",
+    "REQ-FEAT-035"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-039",
+      "title": "定义与强类型生成黑板",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/projectiles/REQ-FEAT-039_projectile-definitions.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4b6a7eab2625865925a44c9893f633bc41866ab06683edf2f633defdbef915fd"
+    },
+    {
+      "id": "REQ-FEAT-040",
+      "title": "提交运动寿命与回收",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040_projectile-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "6531df16389be68dedbfb6c1e16663144719e831fd9a74c04f5359e610b30bf6"
+    },
+    {
+      "id": "REQ-FEAT-041",
+      "title": "命中过滤记忆与等距裁决",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/projectiles/REQ-FEAT-041_projectile-hit-order.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "5d36ab4d2b5846888a9fd8d79845ec6ceb252a00ac9c9bbcdff34a7e317a6a0f"
+    },
+    {
+      "id": "REQ-FEAT-029",
+      "title": "战斗请求封存与因果波次",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-029_combat-causal-waves.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "2c774a29d44f24cf5ce1dc11539e227810a3f374dadd8fcd584b2be0a9f1fa22"
+    },
+    {
+      "id": "REQ-FEAT-030",
+      "title": "伤害配方抗性与吸血",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-030_damage-resistance.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "3f22948328715752fac13814e44eea920bf6f22569ef181a73ffce844bdba251"
+    },
+    {
+      "id": "REQ-FEAT-034",
+      "title": "濒死批次与公平击杀归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-034_death-attribution.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c8714176a5670cee9d39a89059b55a3fd2d1b03558a4b56b3d9b1bef106165f7"
+    },
+    {
+      "id": "REQ-FEAT-035",
+      "title": "死亡奖励与贡献窗口",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "bfb31422561c563722d4853f12f79e62435cfcfb726d715f1ed24c277c9b507a"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0114_projectile_combat_hit_pipeline_execplan.md",
+      "sha256": "ede66978425a5af34fb4d2b52af80751209da6cd103ad8a36ce2ca87f7b33924",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Complete. Parent: `0109_design_conformance_remediation_program_execplan.md`, Gate 5.",
+      "targets": [
+        "REQ-FEAT-039",
+        "REQ-FEAT-040",
+        "REQ-FEAT-041",
+        "REQ-FEAT-029",
+        "REQ-FEAT-030",
+        "REQ-FEAT-034",
+        "REQ-FEAT-035"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0114",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/FrameSync/ProjectileHitResolver.cs",
+      "Assets/Scripts/Gameplay/Projectile/ProjectileDef.cs",
+      "Assets/Scripts/Gameplay/Projectile/ProjectileEffectDispatcher.cs",
+      "Assets/Scripts/Gameplay/Projectile/ProjectileUid.cs",
+      "Assets/Scripts/Gameplay/Projectile/ProjectileWorld.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Order.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitUidTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/ProjectileHitResolver.cs",
+      "sha256": "c954c8cd7c09669032b3691534facdcbc05d3d0e2edab1339a9f6673dce705c1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileDef.cs",
+      "sha256": "4b76de13a2b551f3899a09faf9e1cf50502bb6935a666e0f5660b2295918376d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileEffectDispatcher.cs",
+      "sha256": "35ccff832a7cd81bb9ba35505184bb5b9143f9a8789a025d925d0e37da031ec0",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileUid.cs",
+      "sha256": "e1549049351e32480e6a87bb01ebc2aa6843e28746f73e975121aa5313fbb064",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileWorld.cs",
+      "sha256": "7854d24e2ba48820146651edd099a46374762584ce9a6a005699d047bd91f4fd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Order.cs",
+      "sha256": "e3fe6fee1e4435e919119cdd1db7f6a6a825094912256f96a146c0529870cb29",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "sha256": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "sha256": "ad0df036c910fcb93318705c187af1906b6910a16c16e9d1494834fa0680b841",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitUidTests.cs",
+      "sha256": "387a080439a64a6073359b6c2219956e68b43a7a11b6652caea6d89aa1e17d8a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

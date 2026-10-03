@@ -1,0 +1,209 @@
+{
+  "id": "PLAN-0115",
+  "code": "0115",
+  "title": "通用技能创作与玩家输入",
+  "type": "plan",
+  "domain": "技能",
+  "status": "关闭",
+  "path": "Docs/plans/abilities/PLAN-0115_generic-ability-authoring-and-player-input.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-042",
+    "REQ-FEAT-043",
+    "REQ-FEAT-044",
+    "REQ-FEAT-045",
+    "REQ-FEAT-046",
+    "REQ-FEAT-078",
+    "REQ-FEAT-079",
+    "REQ-FEAT-080",
+    "REQ-FEAT-081"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-042",
+      "title": "技能信号与会话状态",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-042_ability-signal-session.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "149becb3967ccbe225ba66062ba6ec569051ff617847e7052cfefee0ddc67553"
+    },
+    {
+      "id": "REQ-FEAT-043",
+      "title": "施法模型与阶段推进",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-043_cast-stages.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "584749aa7c3e3f204182c1608a89ddfe937a53bc17c497a50cca48cb2c6f2a9b"
+    },
+    {
+      "id": "REQ-FEAT-044",
+      "title": "阶段效果与确定性黑板",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-044_stage-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a57f7694c7818e6c37da508533724d270cbfc2f632b036eb0587316adc0e89"
+    },
+    {
+      "id": "REQ-FEAT-045",
+      "title": "技能目录消耗冷却与升级",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-045_ability-catalog.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "a082d3c3e2959baa277017aab3e47c28b52d8ecdcc6d39ff6c6020ecb02a4851"
+    },
+    {
+      "id": "REQ-FEAT-046",
+      "title": "主动附带被动与固定被动",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-046_ability-passives.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "8c7efbf81e6c07ce70f7cb9652a0d9a7f49fb6ab562b1323715163aba1f2739b"
+    },
+    {
+      "id": "REQ-FEAT-078",
+      "title": "设备事件缓冲与 UI 门禁",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-078_input-event-buffer.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+    },
+    {
+      "id": "REQ-FEAT-079",
+      "title": "技能输入组合与提交去重",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-079_ability-input.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c0cc16f39dcdd166dcd0325bdba6886076e1d455d2e2e553687df782fca335f1"
+    },
+    {
+      "id": "REQ-FEAT-080",
+      "title": "世界鼠标 Aim 与类型化 Request",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-080_aim-requests.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "8f670def4c15d040441dc933293225b47f9b7a1b283fd4531a1425758790f71e"
+    },
+    {
+      "id": "REQ-FEAT-081",
+      "title": "技能指示器与本地生命周期",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-081_skill-indicator.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "5e58f31bb141ce8855cf2d9c367544ac1a662bff790cb78723d63c0a33d219d9"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0115_generic_ability_authoring_and_player_input_execplan.md",
+      "sha256": "dc9cba42bf95cc49fdddd1acf722a3e85d87d380f86181524241aec6b8b6b27f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Complete. Parent: `0109_design_conformance_remediation_program_execplan.md`, Gate 6.",
+      "targets": [
+        "REQ-FEAT-042",
+        "REQ-FEAT-043",
+        "REQ-FEAT-044",
+        "REQ-FEAT-045",
+        "REQ-FEAT-046",
+        "REQ-FEAT-078",
+        "REQ-FEAT-079",
+        "REQ-FEAT-080",
+        "REQ-FEAT-081"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0115",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Ability/AbilityDef.cs",
+      "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityDef.cs",
+      "sha256": "ffe20f6f35050a4e10d1c5006dd02cc144bee2695cf31088eedde98c79b05de5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

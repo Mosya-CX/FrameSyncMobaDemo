@@ -1,0 +1,271 @@
+{
+  "id": "REQ-FEAT-043",
+  "title": "施法模型与阶段推进",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "技能",
+  "path": "Docs/requirements/abilities/REQ-FEAT-043_cast-stages.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "三、CastModelDef：施法过程的状态机",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 删除 CastFlowDef 与 StageDriver",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 CastStage：CastModel 中统一的阶段位置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 CastStageKey：施法模型的位置标识",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.4 NotifyAbilityCastOnEnter：单位技能施放回调",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.5 StageDuration：所有阶段都有明确的时间边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.6 StageResult：Stage 可以提前报告完成或失败",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.7 每 Tick 的统一推进顺序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.8 Timeout 必须由具体 CastModel 处理",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.9 CommitCastModelDef：确认后开始的普通技能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.10 HoldReleaseCastModelDef：蓄力与释放",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.11 ChannelCastModelDef：持续引导",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.12 ActiveSignalCastModelDef：持续阶段内重复接受 Signal",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.13 CastModel 的扩展边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/CastModelDef.cs",
+      "sha256": "199afda4ce0dfb92ae5ee2db5f5f7d326f6ed414fa82251b0b2f9777b8c144f1",
+      "symbols": [
+        "CastModelDef",
+        "HoldReleaseCastModelDef",
+        "ToggleCastModelDef"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
+      "sha256": "5455a608d93b019d84f6e22a06fe68984a5f8ba9739967a3493e7163b606f44c",
+      "testFunctions": [
+        "ChargeStage_RatioIncreasesWithElapsedTicks",
+        "ChargeStage_SelfSlowAppliesWhileChargingAndRemovesOnRelease",
+        "ChargeStage_TimeoutCancelsAndRefundsHalfCost",
+        "ChargeStage_ConsumesActiveToggleAndStartsCooldown",
+        "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
+        "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
+      "sha256": "8fbb68ca78c892da586961f12fecd60831dcf046082c6f41902abc13a61dffbc",
+      "testFunctions": [
+        "SessionStartCost_UsesLevelResourceAndHealth",
+        "FailedStage_DoesNotConsumeCost",
+        "HoldRelease_FirstCommitPaysOnceAndStoresAim",
+        "InvalidAimRange_ConsumesNothing",
+        "Snapshot_PreservesFirstCommitPayment",
+        "Toggle_FirstCommitActivatesAndSecondCommitTurnsOff",
+        "Toggle_TurnOffDoesNotStartCooldown"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "testFunctions": [
+        "LockedMainCast_AllowsAuthoredDashInBaseSlot",
+        "MovableHold_AllowsMove_ReleasePreemptsMove",
+        "HoldTimeout_ReconcilesReleaseResourcesAndRestores",
+        "SameAbilityStageTransition_MigratesMainToBaseSlot",
+        "AutomaticDashTransition_MigratesWithoutCancellingSession",
+        "SequentialRecastWindow_ReleasesMainRuntimeButKeepsSession",
+        "Planner_DoesNotResubmitEquivalentActiveMove",
+        "MoveReplacement_AtomicallyKeepsNewRoute",
+        "FailedLockingCast_DoesNotDestroyExistingMove",
+        "ToggleSecondCommit_EndsSessionWithoutOwningRuntime",
+        "ToggleActive_DoesNotBlockChargeStartAndIsConsumed",
+        "ToggleOnAndOffDuringHold_DoNotPreemptHold",
+        "MobilityBlock_InterruptsAbilityDash",
+        "ControlMove_PreemptsUninterruptibleMovementLockedCast"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/AbilityInputMappingTests.cs",
+      "sha256": "38962aab968ade3ea59bdedcdadf6b004b5cc62c5a0bcc63dc24088bcdae2dc5",
+      "testFunctions": [
+        "HoldReleaseDefault_PressFocus_LeftCommit_ReleaseNone",
+        "Channel_DefaultsLikeHoldRelease",
+        "CommitNoAim_ReturnsPressCommit",
+        "ToggleNoAim_ReturnsImmediatePressCommit",
+        "CommitWithAim_ReturnsLocalAim",
+        "CommitWithSelfAim_ReturnsPressCommit",
+        "ActiveSignal_ReturnsPressCommit",
+        "NullCastModel_ReturnsPressCommit",
+        "Template_DuplicateTrigger_Throws",
+        "Template_TryGet_UnknownTrigger_ReturnsFalse",
+        "Validate_HoldReleaseWithoutCommit_ReportsError",
+        "Validate_CommitCaptureAimWithoutAimableKind_ReportsError",
+        "Provider_TryGetTemplate_ValidSlot_ReturnsTemplate",
+        "Provider_CreateEmpty_AllSlotsPressCommit",
+        "Provider_FromHandler_UsesFormalAimAndRange",
+        "SequentialRecastDirection_DefaultsToLeftClickCommit",
+        "DirectionalZoneResolver_FollowsSequentialRecastStage"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+      "sha256": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+      "testFunctions": [
+        "EventBuffer_AssignsStableSequenceAndRejectsOverflow",
+        "HoldRelease_AllocatesFocusBeforeCommitAtSameTargetTick",
+        "ControlledUnitChange_ClearsLocalAbilityState",
+        "TargetTickResolver_UsesFormalLeadFormulaAndBuildTick",
+        "ShopRequests_UseCanonicalCommandsAndSharedSequence",
+        "SkillPointRequest_UsesCanonicalCommandAndSharedSequence",
+        "HoldReleaseDefault_PressFocus_ReleaseNoOp_LeftClickCommitsAndDedups",
+        "LocalAimDefault_PressOpensAim_LeftCommits_RightAndEscapeCloseWithoutCancel",
+        "PressCommitDefault_PressCommitsImmediately",
+        "UnmappedReleaseEvent_DoesNothing",
+        "HoldRelease_RightClickMoveThenPrimaryClick_CommitIsPreserved",
+        "UnlearnedAbilityKey_ProducesNoIndicatorAndNoCommand",
+        "LocalAim_PressBlockedWhenRuntimeCannotOpenAim",
+        "SequentialRecast_CommitAcceptedMovesLocalStateBackToIdle",
+        "FocusRequested_ReturnsIdleAfterTargetReachedWithNoSession",
+        "FocusRequested_UsesCompletedGameplayTickInsteadOfStaticRollbackTick",
+        "ServerRetargetedFocus_RemainsCommitEligibleUntilAcceptedTickExecutes",
+        "AcceptedCommitAfterSameTickAlreadyExecuted_DoesNotRelatchLocalState",
+        "ServerRetargetedFocus_AfterRollbackRetiresState_AuthorityRestoresCommitEligibility",
+        "AcceptedRecovery_RequiresTrackedMissingIdentityAndLaterTick",
+        "FocusRequested_BecomesGameplayFocusingWhenSessionObserved",
+        "CommitRequested_RecoversToFocusingWhenSessionStillWaits",
+        "CanOpenLocalAim_SequentialRecast_GatesByReadyAndRecastLockout",
+        "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
+        "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+      "sha256": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+      "testFunctions": [
+        "HoldReleaseDefault_RightClickMoveThenLeftClickCommitsOnce",
+        "UiPointerBlocking_SimulatedClicks_ProduceNoWorldCommands",
+        "LocalAimDefault_SimulatedPressAimOnly_LeftCommit_RightClosesAim",
+        "ToggleNoAim_SimulatedWPressCommitsImmediately",
+        "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+      "sha256": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+      "testFunctions": [
+        "AbilityHit_DetonatesAndConsumesAllStacks",
+        "Detonation_DoesNotRecurse",
+        "Detonation_NonHero_CapsPerStackDamage",
+        "ExternalBlightAndAbilityDamage_DoNotAffectStructure",
+        "Detonation_Hero_GrantsCooldownReduction",
+        "AttackDamage_DoesNotDetonate",
+        "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
+        "WPassive_OnHit_DoesNotAffectStructure"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

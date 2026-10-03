@@ -1,0 +1,193 @@
+{
+  "id": "REQ-FEAT-044",
+  "title": "阶段效果与确定性黑板",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "技能",
+  "path": "Docs/requirements/abilities/REQ-FEAT-044_stage-effects.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "四、StageDef：施法阶段的内容逻辑",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 StageDef 生命周期与 StageResult",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 删除 EffectPlan 与 EffectStep",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 AbilityStageContext：Stage 的统一执行上下文",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 AbilityBlackboard：确定性单次施法数据",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 Stage 自己持有等级成长配置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.6 TargetingSpec：Stage 按需使用的目标描述",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.7 施法距离作为可选 Constraint",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.8 Stage 与外部战斗系统只通过 AbilityPorts 接入",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "七、典型技能如何落到当前模型",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 普通圆形范围技能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 韦鲁斯 Q 一类蓄力技能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 泽拉斯 R 一类持续确认技能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 卡特琳娜 R 一类引导技能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 拉克丝 E 一类创建区域后再触发的技能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 同一 Session 内的短阶段间隔",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.7 亚索 R、纳尔 R 等特殊施法条件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.8 技能施放回调示例",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityBlackboard.cs",
+      "sha256": "10fab4bd4f9e8e60219cb076259be39c199f4fcf9dd9a9c371ec3705a628b8a0",
+      "symbols": [
+        "AbilityBlackboard"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/StageDef.cs",
+      "sha256": "dcd0f5cad2e9471a31d9aadc4d346451ac3ba24c9b0691caebf34f40cab4e2af",
+      "symbols": [
+        "StageDef"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/StageDefBakeTests.cs",
+      "sha256": "1b694749bf4649f4aadbb37423eb035ae2cdc8370f6dd82c51282a748b4fef5e",
+      "testFunctions": [
+        "AreaDamageStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "SpawnProjectileStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "ApplyBuffStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "DashStageDef_OnEnter_WithValidConfig_ReturnsRunning",
+        "DashStageDef_OnTick_WithoutWorld_ReturnsFailed",
+        "AreaDamageAuthoring_Bake_ProducesValidStageDef",
+        "AreaDamageAuthoring_Bake_RejectsEmptyTargetMasks",
+        "UnitTargetFilter_JsonRoundTrip_PreservesMasks",
+        "SpawnProjectileAuthoring_Bake_ProducesValidStageDef",
+        "ApplyBuffAuthoring_Bake_ProducesValidStageDef",
+        "DashAuthoring_Bake_ProducesValidStageDef",
+        "AreaDamageStageDef_OnExit_DoesNotThrow",
+        "SpawnProjectileStageDef_OnExit_DoesNotThrow",
+        "ApplyBuffStageDef_OnExit_DoesNotThrow",
+        "DashStageDef_OnExit_DoesNotThrow"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
+      "sha256": "8fbb68ca78c892da586961f12fecd60831dcf046082c6f41902abc13a61dffbc",
+      "testFunctions": [
+        "SessionStartCost_UsesLevelResourceAndHealth",
+        "FailedStage_DoesNotConsumeCost",
+        "HoldRelease_FirstCommitPaysOnceAndStoresAim",
+        "InvalidAimRange_ConsumesNothing",
+        "Snapshot_PreservesFirstCommitPayment",
+        "Toggle_FirstCommitActivatesAndSecondCommitTurnsOff",
+        "Toggle_TurnOffDoesNotStartCooldown"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

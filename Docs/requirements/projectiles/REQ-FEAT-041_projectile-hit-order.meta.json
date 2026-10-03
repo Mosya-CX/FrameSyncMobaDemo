@@ -1,0 +1,192 @@
+{
+  "id": "REQ-FEAT-041",
+  "title": "命中过滤记忆与等距裁决",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "投射物",
+  "path": "Docs/requirements/projectiles/REQ-FEAT-041_projectile-hit-order.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_4_action_identity_fairness_amendment.md",
+      "sha256": "9b8fdc5bde9f3adede418d0d1e93730b5b572020890a856691f7367ce3d837c5",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_4_action_identity_fairness_amendment.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 系统边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 `UnitFinalGrid` 的使用规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 `ProjectileTargetFilter`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 `ProjectileHitPolicy`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 同目标命中策略",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 `ProjectileHitMemory`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.7 命中结果",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
+      "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.8 命中效果边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 最小协作协议",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 空间状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 HitCheck 调用",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 不写入投掷物系统的实现假设",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/ProjectileHitResolver.cs",
+      "sha256": "c954c8cd7c09669032b3691534facdcbc05d3d0e2edab1339a9f6673dce705c1",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileRuntime.cs",
+      "sha256": "a5af3457dde4d1b6c9c44e4dcc34ba764987e568b6668a0b568fe105ceaadb92",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+      "sha256": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+      "testFunctions": [
+        "EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat",
+        "EndOnFirstHit_RejectsLaterSameTickCandidate",
+        "EqualDistanceArbitration_UidRelabelKeepsParticipantWinner",
+        "PierceBudget_EndsAtConfiguredHitCount",
+        "ProjectileDamage_UsesCombatShieldPipeline",
+        "EnemyFilter_ExcludesFriendlyTarget",
+        "EnemyFilter_IncludesStructureTarget",
+        "MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp",
+        "MisconfiguredProjectileBuff_StructureHitStillFailsVisibly",
+        "MisconfiguredProjectileCC_StructureHitStillFailsVisibly",
+        "RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget",
+        "PendingTrackedTarget_SnapshotRoundTripPreservesLock",
+        "SnapshotRoundTrip_PreservesSourceAndHitMemory",
+        "Capture_PrunesHitMemoryForDisposedTargets",
+        "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
+        "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+      "sha256": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+      "testFunctions": [
+        "PiercingFalloff_ReducesDamagePerExtraHit",
+        "PiercingFalloff_OverridePath_MatchesStaticConfig",
+        "PiercingFalloff_ClampsAtMinDamageRatio"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+      "sha256": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+      "testFunctions": [
+        "AreaDamageStage_CentersOnAimTargetPoint",
+        "AreaDamageStage_DoesNotDamageEnemyStructure",
+        "SpawnProjectileStage_FiresTowardAimDirection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
+      "sha256": "5455a608d93b019d84f6e22a06fe68984a5f8ba9739967a3493e7163b606f44c",
+      "testFunctions": [
+        "ChargeStage_RatioIncreasesWithElapsedTicks",
+        "ChargeStage_SelfSlowAppliesWhileChargingAndRemovesOnRelease",
+        "ChargeStage_TimeoutCancelsAndRefundsHalfCost",
+        "ChargeStage_ConsumesActiveToggleAndStartsCooldown",
+        "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
+        "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

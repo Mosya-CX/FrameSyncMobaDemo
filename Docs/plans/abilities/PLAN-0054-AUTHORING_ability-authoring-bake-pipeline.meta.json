@@ -1,0 +1,175 @@
+{
+  "id": "PLAN-0054-AUTHORING",
+  "code": "0054-AUTHORING",
+  "title": "技能创作与烘焙创作管线",
+  "type": "plan",
+  "domain": "技能",
+  "status": "关闭",
+  "path": "Docs/plans/abilities/PLAN-0054-AUTHORING_ability-authoring-bake-pipeline.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-042",
+    "REQ-FEAT-043",
+    "REQ-FEAT-044",
+    "REQ-FEAT-045",
+    "REQ-FEAT-046"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-042",
+      "title": "技能信号与会话状态",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-042_ability-signal-session.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "149becb3967ccbe225ba66062ba6ec569051ff617847e7052cfefee0ddc67553"
+    },
+    {
+      "id": "REQ-FEAT-043",
+      "title": "施法模型与阶段推进",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-043_cast-stages.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "584749aa7c3e3f204182c1608a89ddfe937a53bc17c497a50cca48cb2c6f2a9b"
+    },
+    {
+      "id": "REQ-FEAT-044",
+      "title": "阶段效果与确定性黑板",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-044_stage-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a57f7694c7818e6c37da508533724d270cbfc2f632b036eb0587316adc0e89"
+    },
+    {
+      "id": "REQ-FEAT-045",
+      "title": "技能目录消耗冷却与升级",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-045_ability-catalog.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "a082d3c3e2959baa277017aab3e47c28b52d8ecdcc6d39ff6c6020ecb02a4851"
+    },
+    {
+      "id": "REQ-FEAT-046",
+      "title": "主动附带被动与固定被动",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-046_ability-passives.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "8c7efbf81e6c07ce70f7cb9652a0d9a7f49fb6ab562b1323715163aba1f2739b"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0054_ability_authoring_bake_pipeline_execplan.md",
+      "sha256": "7999b3ad6d7696de04af06c520c3f031c946acbc03184de7dedfcecd0412ea91",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-042",
+        "REQ-FEAT-043",
+        "REQ-FEAT-044",
+        "REQ-FEAT-045",
+        "REQ-FEAT-046"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0054-AUTHORING",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Ability/AbilityAsset.cs",
+      "Assets/Scripts/RuntimeConfig/Editor/AbilityAssetBakeValidator.cs",
+      "Assets/Scripts/Gameplay/Ability/AbilityDefinitionRegistry.cs",
+      "Assets/Scripts/RuntimeConfig/Editor/AbilityRegistryPopulator.cs",
+      "Assets/Scripts/Gameplay/Ability/StageDef.cs",
+      "Assets/Scripts/Gameplay/Ability/AbilityDef.cs",
+      "Assets/Scripts/Gameplay/Ability/CastModelDef.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/RuntimeConfig/Editor/Tests/AbilityBakeTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityAsset.cs",
+      "sha256": "a4f3e0ff4f4190af0981c3eb4d214e76c0dcc4165426f24b977d0437eba6f998",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/Editor/AbilityAssetBakeValidator.cs",
+      "sha256": "f2b76005b6d1cf7c3d38a622e99086005930bb4ce3edc8d35a6ca63be0677994",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityDefinitionRegistry.cs",
+      "sha256": "2a7768497ee34585dc374af6f4b9e5a13aa096559dd671f4064a9ef4ce6687cd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/Editor/AbilityRegistryPopulator.cs",
+      "sha256": "1a3525a09a98de8d6bb99545b732af0f1d05076b821d63ea6eac20b7db7ac404",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/StageDef.cs",
+      "sha256": "dcd0f5cad2e9471a31d9aadc4d346451ac3ba24c9b0691caebf34f40cab4e2af",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityDef.cs",
+      "sha256": "ffe20f6f35050a4e10d1c5006dd02cc144bee2695cf31088eedde98c79b05de5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/CastModelDef.cs",
+      "sha256": "199afda4ce0dfb92ae5ee2db5f5f7d326f6ed414fa82251b0b2f9777b8c144f1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/Editor/Tests/AbilityBakeTests.cs",
+      "sha256": "af96da6750bf1940cbdf968940d65b86df4277faa07b1cab8416c56b585c71f2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

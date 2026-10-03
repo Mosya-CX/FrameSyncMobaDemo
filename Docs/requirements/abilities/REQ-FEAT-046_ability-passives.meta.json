@@ -1,0 +1,206 @@
+{
+  "id": "REQ-FEAT-046",
+  "title": "主动附带被动与固定被动",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "技能",
+  "path": "Docs/requirements/abilities/REQ-FEAT-046_ability-passives.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "六、主动技能被动效果与固定被动技能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 主动技能附带的单个被动效果",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 主动技能被动最多响应一个单位事件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 主动技能被动的生命周期",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 主动技能被动的运行状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.5 PassiveAbilityDef：固定被动技能定义",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.6 固定被动可以响应多个单位事件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.7 PassiveAbilityRuntime：固定被动运行状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.8 固定被动冷却是可选的",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.9 强类型事件处理边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_ability_system_design_v15_2.md",
+      "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.10 被动状态的快照与恢复",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilityPassiveRuntime.cs",
+      "sha256": "e81743d5bcf2d45a40c49a84f3200e5d6819dccd2a73ca207790b639ad05b5ba",
+      "symbols": [
+        "AbilityPassiveRuntimeState",
+        "PassiveAbilityDef"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/ApplyBuffPassiveEffectDef.cs",
+      "sha256": "57178b3734bb9543356d3f5621eb337fe42a991c3da3e53ecf8798775d6acee5",
+      "symbols": [
+        "ApplyBuffPassiveEffectDef"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
+      "sha256": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+      "testFunctions": [
+        "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
+        "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
+      "sha256": "6eda01992bdd94efe7e3e6d05d4b0c88b2d328e8293e3ff7300f67e3bfd7b730",
+      "testFunctions": [
+        "KillNonHero_GrantsAttackSpeedAndDerivedStats",
+        "KillHero_AppliesThreeTimesBonus",
+        "Kill_RefreshesBuffDurationToFiveSeconds",
+        "Cooldown_ResolvesPerAbilityLevel",
+        "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
+        "AssistHero_AppliesEmpoweredBonusToAssistant"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
+      "sha256": "1e37183d31d9b782b58e0c8b2f6e9c221ab17bf5f26443111ae407d0566325aa",
+      "testFunctions": [
+        "BuildWorld_LoadsSelectedVarusPartition",
+        "BuildWorld_LoadsFormalEquipmentCatalogForShop",
+        "LocalTickShop_UsesFormalGoldPurchaseRecipeAndUndo"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ChecksumNewStateCoverageTests.cs",
+      "sha256": "6187290088a7ef1ee6a52055cde39c821ee21f6f10dfbec1a3947d2f3b914be3",
+      "testFunctions": [
+        "Checksum_ChangesWhenProjectileOnHitOverrideDiffers",
+        "Checksum_ChangesWhenPendingLifetimeOverrideDiffers",
+        "Checksum_ChangesWhenPassiveAbilityLevelDiffers",
+        "Checksum_ChangesWhenMinionThreatRefreshTickDiffers",
+        "Checksum_ChangesWhenMinionThreatTableDiffers",
+        "Checksum_ChangesWhenEquipmentTriggerCountDiffers",
+        "Checksum_ChangesWhenGameplayParticipantIdDiffers",
+        "Checksum_ChangesWhenProjectileOriginActionDiffers",
+        "Checksum_ChangesWhenDeferredDamageEffectOrdinalDiffers",
+        "Checksum_ChangesWhenJungleLeashPatienceDiffers"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}
