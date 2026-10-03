@@ -16,7 +16,6 @@ namespace FrameSyncMoba.Unit.Tests
         public void SetUp()
         {
             tickController = new SimulationTickContextController();
-            tickController.BeginTick(1, ExecutionMode.ServerAuthority);
 
             world = new UnitWorld();
             definitionTable = StatTestHelpers.CreateDefaultTable();
@@ -42,7 +41,8 @@ namespace FrameSyncMoba.Unit.Tests
         [TearDown]
         public void TearDown()
         {
-            tickController.EndTick();
+            if (tickController.IsTickActive)
+                tickController.EndTick();
         }
 
         [Test]
@@ -89,12 +89,16 @@ namespace FrameSyncMoba.Unit.Tests
         {
             Unit unit = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
             var moveHandler = unit.MovementHandler;
+            BeginActiveGameplayTick();
 
             moveHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
             moveHandler.TickUpdate();
 
             Assert.AreNotEqual(fp2.zero, moveHandler.Position);
-            Assert.AreEqual(new fp2(fp.one, fp.zero), moveHandler.Facing);
+            Assert.That(
+                (double)moveHandler.Facing.x,
+                Is.EqualTo(1d).Within(0.000001d));
+            Assert.AreEqual(fp.zero, moveHandler.Facing.y);
         }
 
         [Test]
@@ -102,6 +106,7 @@ namespace FrameSyncMoba.Unit.Tests
         {
             Unit u1 = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
             Unit u2 = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
+            BeginActiveGameplayTick();
 
             u1.MovementHandler.SetMoveSpeed(3m);
             u2.MovementHandler.SetMoveSpeed(3m);
@@ -125,6 +130,7 @@ namespace FrameSyncMoba.Unit.Tests
         {
             Unit fast = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
             Unit slow = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
+            BeginActiveGameplayTick();
 
             fast.MovementHandler.SetMoveSpeed(5m);
             slow.MovementHandler.SetMoveSpeed(2m);
@@ -148,6 +154,7 @@ namespace FrameSyncMoba.Unit.Tests
         {
             Unit right = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
             Unit up = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
+            BeginActiveGameplayTick();
 
             right.MovementHandler.SetMoveSpeed(3m);
             up.MovementHandler.SetMoveSpeed(3m);
@@ -160,8 +167,14 @@ namespace FrameSyncMoba.Unit.Tests
                 up.MovementHandler.TickUpdate();
             }
 
-            Assert.AreEqual(new fp2(fp.one, fp.zero), right.MovementHandler.Facing);
-            Assert.AreEqual(new fp2(fp.zero, fp.one), up.MovementHandler.Facing);
+            Assert.That(
+                (double)right.MovementHandler.Facing.x,
+                Is.EqualTo(1d).Within(0.000001d));
+            Assert.AreEqual(fp.zero, right.MovementHandler.Facing.y);
+            Assert.AreEqual(fp.zero, up.MovementHandler.Facing.x);
+            Assert.That(
+                (double)up.MovementHandler.Facing.y,
+                Is.EqualTo(1d).Within(0.000001d));
             Assert.AreNotEqual(
                 right.MovementHandler.Position,
                 up.MovementHandler.Position);
@@ -193,6 +206,7 @@ namespace FrameSyncMoba.Unit.Tests
         public void ClearForDeath_StopsMovement()
         {
             Unit unit = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
+            BeginActiveGameplayTick();
             unit.MovementHandler.ApplyMoveInput(new MoveIntent(new fp2(fp.one, fp.zero)));
             unit.MovementHandler.TickUpdate();
 
@@ -246,6 +260,7 @@ namespace FrameSyncMoba.Unit.Tests
         public void IdleUnit_DoesNotMove()
         {
             Unit unit = world.SpawnUnit(prototype, TeamId.Neutral, 1, 0m, 0m);
+            BeginActiveGameplayTick();
 
             for (int i = 0; i < 5; i++)
             {
@@ -276,6 +291,7 @@ namespace FrameSyncMoba.Unit.Tests
 
             Unit u1 = world.SpawnUnit(prototype, TeamId.Neutral, 10, 0m, 0m);
             Unit u2 = world2.SpawnUnit(proto2, TeamId.Neutral, 10, 0m, 0m);
+            BeginActiveGameplayTick(11);
 
             u1.MovementHandler.SetMoveSpeed(4m);
             u2.MovementHandler.SetMoveSpeed(4m);
@@ -298,6 +314,15 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.AreEqual(
                 u1.MovementHandler.Facing,
                 u2.MovementHandler.Facing);
+        }
+
+        private void BeginActiveGameplayTick(int tick = 2)
+        {
+            // D-008: units participate passively on their spawn Tick and may
+            // run voluntary movement only on a later Tick.
+            tickController.BeginTick(
+                tick,
+                ExecutionMode.ServerAuthority);
         }
     }
 }

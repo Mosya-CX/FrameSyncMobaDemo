@@ -207,8 +207,8 @@ namespace FrameSyncMoba.Unit.Tests
         public void AttackSpeed_ModifiesCooldown()
         {
             BeginTick(1);
-            Unit unit = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
-            Unit targetUnit = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
+            Unit unit = _world.SpawnUnit(_prototype, new TeamId(1), 1, 0m, 0m);
+            Unit targetUnit = _world.SpawnUnit(_prototype, new TeamId(2), 1, 0m, 0m);
 
             unit.StatHandler.AddModifier(
                 StatId.AttackSpeed, StatModifierOperation.FlatAdd, (fp)2);
@@ -224,15 +224,15 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void AttackSpeed_ZeroBase_NoAttack()
+        public void AttackSpeed_PositiveBase_StartsAttack()
         {
             BeginTick(1);
-            Unit unit = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
-            Unit targetUnit = _world.SpawnUnit(_prototype, TeamId.Neutral, 1, 0m, 0m);
+            Unit unit = _world.SpawnUnit(_prototype, new TeamId(1), 1, 0m, 0m);
+            Unit targetUnit = _world.SpawnUnit(_prototype, new TeamId(2), 1, 0m, 0m);
 
             // AttackSpeed base value from preset is 1 (100%).
-            // To make it zero, remove it. But the unit already has base 1 from preset.
-            // Test validates that attack cycle starts within current tick.
+            // Test validates that a legal hostile target starts the cycle in
+            // the current Tick.
             unit.AttackHandler.ApplyAttackInput(targetUnit.UnitUid);
 
             int startTick = unit.AttackHandler.Snapshot.AttackStartLogicTick;

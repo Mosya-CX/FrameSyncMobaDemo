@@ -91,13 +91,14 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void AllocateSpawnSequence_NoActiveTick_Throws()
+        public void AllocateSpawnSequence_AfterTickCompletion_UsesLatestPublishedTick()
         {
             var world = new UnitWorld();
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                world.AllocateSpawnSequence();
-            });
+            controller.BeginTick(1000, ExecutionMode.ServerAuthority);
+            controller.EndTick();
+
+            Assert.AreEqual(0, world.AllocateSpawnSequence());
+            Assert.AreEqual(1, world.AllocateSpawnSequence());
         }
 
         [Test]

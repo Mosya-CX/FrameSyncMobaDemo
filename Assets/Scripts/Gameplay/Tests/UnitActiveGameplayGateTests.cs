@@ -111,15 +111,17 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void OutsideActiveTick_ThrowsThroughContextOwnership()
+        public void CompletedTick_RetainsLatestPublishedContextForReadback()
         {
             var unit = UnitTestFactory.CreateUnit(new UnitUid(
                 spawnLogicTick: 1000,
                 runtimeEntityPrefabId: 1,
                 spawnSequenceInTick: 0), UnitKind.Hero, 0, TeamId.Neutral);
+            controller.BeginTick(1001, ExecutionMode.ServerAuthority);
+            controller.EndTick();
 
-            Assert.Throws<InvalidOperationException>(
-                () => _ = unit.CanRunActiveGameplayThisTick);
+            Assert.That(unit.CanRunActiveGameplayThisTick, Is.True);
+            Assert.That(SimulationTickContext.Current.Tick, Is.EqualTo(1001));
         }
 
         [Test]

@@ -284,8 +284,9 @@ namespace FrameSyncMoba.Unit.Tests
             Assert.AreEqual(
                 new fp2(fp.one, fp.zero),
                 runtime.Position);
-            // ratio = 20/45; range = 5 + 5 * 20/45 = 7.222... -> 7 ticks at speed 1.
-            Assert.AreEqual(7, runtime.RemainingLifetimeTicks);
+            // ratio = 20/45; range = 5 + 5 * 20/45 = 7.222...
+            // Lifetime rounds up so the projectile can cover its full range.
+            Assert.AreEqual(8, runtime.RemainingLifetimeTicks);
 
             Assert.IsNotNull(runtime.OnHitDamageOverride);
             Assert.AreEqual(1, runtime.OnHitDamageOverride.Length);
