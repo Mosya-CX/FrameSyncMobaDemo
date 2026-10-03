@@ -1,0 +1,157 @@
+{
+  "id": "REQ-FEAT-066",
+  "title": "确定性局部避让",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "寻路移动",
+  "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-066_local-avoidance.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.1 最小依赖边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.2 两个网格必须独立",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.3 注册规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.4 RVO 输入输出",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.5 RVO 主流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.6 确定性候选速度求解",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.7 帧同步定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/DeterministicRVOSystem.cs",
+      "sha256": "3f2cf2a45d2b4ee10041f55f8a5865cd9d353ae15ede18761efebaa7e835f28a",
+      "symbols": [
+        "DeterministicRVOSystem"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/RvoResult.cs",
+      "sha256": "d012cb39ebe3911fee52f636dbd2d4de1628e6cf9e1ba336543089e0ef72fca0",
+      "symbols": [
+        "RvoResult"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MapPathfindingAssetIntegrationTests.cs",
+      "sha256": "311d52935087deab49efeaeb64e700f4f141ba0e685029d35063d8cc91f495fb",
+      "testFunctions": [
+        "MapPrefab_OwnsGridLanesFieldsAndVisualizer",
+        "RotatedThinObstacle_DoesNotBecomeAabbSquare",
+        "MiddleLaneFlow_PullsTowardLaneProgressively",
+        "StraightLaneSkeletonCells_UseAuthoredTangents",
+        "FoundationJunctions_DistinguishDepartureFromArrivalTarget",
+        "LaneOwnershipBoundaries_HaveDirectionsAndBypassVisualizerStride",
+        "SixLaneDirections_FollowForwardWaypointsInOrder",
+        "AStar_TraversesEveryAuthoredLaneSegment",
+        "FlowFieldAndRvo_ProduceStableWalkableProgress"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
+      "sha256": "4c9b9506a7f2a49aac9f93214d6d6d1355115a633adde9a71f89840bd549b560",
+      "testFunctions": [
+        "ForcedMove_OverridesRouteMove",
+        "EqualPriorityForcedMove_ReplacesAtomically",
+        "ForcedMoveSnapshot_RoundTripsWithControlOwner",
+        "Dash_RequiresPositiveDuration_AndOverridesRoute",
+        "MovementCollision_UsesPhysicsShapeRadius",
+        "RvoGrid_IncludesIdleUnitAsObstacle",
+        "RvoNeighborSelection_IsInputOrderIndependent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PathfindingIntegrationTests.cs",
+      "sha256": "0d0461c99120ffaf8b96ff0aae2e731f2d9c9b265d16eb8a97f3840167a58ab7",
+      "testFunctions": [
+        "FiveAgents_ConvergingOnCenter_NoDeadlock",
+        "TwoUnitsHeadOn_VelocitiesDiverge",
+        "TenAgents_RandomSpread_CompletesWithoutError",
+        "RVO_Deterministic_SameInputProducesSameOutput",
+        "RVO_ZeroDesiredVelocity_ReturnsZero",
+        "FlowDirection_FromFarCell_PointsTowardTarget",
+        "FlowDirection_AtTarget_ReturnsZero",
+        "FlowField_BlockedCell_AvoidsObstacle",
+        "FlowField_AtEdgeOfGrid_HandlesBordersGracefully",
+        "AStar_FindsPath_InOpenGrid",
+        "AStar_BlockedPath_ReturnsEmpty",
+        "FlowField_Unavailable_FallbackToAStar",
+        "MinionWave_MultipleAgents_FollowFlowFieldTowardTarget",
+        "FlowFieldPlusRVO_AgentsAvoidEachOtherWhileMarching"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/RVOSystemTests.cs",
+      "sha256": "9624301cafa51a2ca75096aff0a4a7dc461fc82d9f96a9dac08cafab401574bc",
+      "testFunctions": [
+        "SolveAvoidance_TwoUnitsHeadOn_VelocitiesDiverge",
+        "SolveAvoidance_NoNeighbors_ReturnsDesired",
+        "SolveAvoidance_Deterministic_SameInputSameOutput",
+        "SolveAvoidance_ZeroDesiredVelocity_ReturnsZero",
+        "SolveAvoidance_StableOrdering_IndependentOfInputOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "testFunctions": [
+        "LaneAdvance_SelectsTeamFlowField",
+        "Chase_FirstTickBuildsPathBeforeRepathCooldown",
+        "Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell",
+        "ChaseForCast_DoesNotCompleteAtAttackBoundaryDistance",
+        "PointMove_UsesDirectOrAStarByGrid",
+        "FlowFieldRvoMovement_ProducesRepeatableMotion",
+        "RadiusAwareLineOfSight_BlocksLargeUnit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

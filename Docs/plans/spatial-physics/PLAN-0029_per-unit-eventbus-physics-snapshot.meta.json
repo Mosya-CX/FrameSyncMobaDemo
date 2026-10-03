@@ -1,0 +1,187 @@
+{
+  "id": "PLAN-0029",
+  "code": "0029",
+  "title": "单位事件总线与空间快照",
+  "type": "plan",
+  "domain": "空间物理",
+  "status": "关闭",
+  "path": "Docs/plans/spatial-physics/PLAN-0029_per-unit-eventbus-physics-snapshot.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-058",
+    "REQ-FEAT-059",
+    "REQ-FEAT-060",
+    "REQ-FEAT-012",
+    "REQ-FEAT-011"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-058",
+      "title": "空间实体注册与写入",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-058_spatial-registration.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "327b178b283df31640c1ed203b5ccaab46b8cfba65243897e44d085f0fbe4e2e"
+    },
+    {
+      "id": "REQ-FEAT-059",
+      "title": "定点形状与范围查询",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-059_spatial-geometry.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+    },
+    {
+      "id": "REQ-FEAT-060",
+      "title": "移动前后网格与碰撞事实",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-060_collision-facts.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "44fee7b9b6bf0b4d35e08bf9779fb8c6f96a1481fac8455ba0a57234e738c077"
+    },
+    {
+      "id": "REQ-FEAT-012",
+      "title": "快照树与字段归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-012_snapshot-ownership.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "db56882d50bc817ca7871c26b1757a0472bae91b06e211ca48dc500e3b1524c4"
+    },
+    {
+      "id": "REQ-FEAT-011",
+      "title": "预测回滚与逐帧重演",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-011_rollback-replay.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e972ae9ebc9de5852ccd0568d7256fc3904b371479500af3dff6991ac55c23c7"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0029_per_unit_eventbus_physics_snapshot.md",
+      "sha256": "b04f8fc290ee77b5b084f0e9cdea78e8a1f5937d951fb25e815588cdbe34ab97",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-058",
+        "REQ-FEAT-059",
+        "REQ-FEAT-060",
+        "REQ-FEAT-012",
+        "REQ-FEAT-011"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0029",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Physics/Core/PhysicsRuntimeSnapshot.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
+      "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+      "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsRuntimeSnapshot.cs",
+      "sha256": "fa594e39c9e6e7582ed1ad0897365302b40f90f3b10ef2af3a70774cc7438887",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs",
+      "sha256": "b10d17906ddd900a03bb45d305e41d9870ffe2e2f29f6535ccfb58f6fe2a246d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "sha256": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "sha256": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+      "sha256": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
+      "sha256": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+      "sha256": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

@@ -1,0 +1,205 @@
+{
+  "id": "REQ-FEAT-064",
+  "title": "A 星路径搜索与简化",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "寻路移动",
+  "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-064_astar-search.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 数据结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 OpenSet",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 A* 主流程伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 邻居访问伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 启发函数",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.7 目标不可走处理",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.8 路径简化",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.9 帧同步定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/AStarPathService.cs",
+      "sha256": "e6f5e524a9a16a46391f0fddc02a496dc89d536ea95560777acff3cd3f983e20",
+      "symbols": [
+        "AStarPathService"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/PathResult.cs",
+      "sha256": "6231cb1cdee4705bdab7cb5bb48519dd8fa0a9a555deafd922c68c6d62006bb4",
+      "symbols": [
+        "PathResult"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
+      "sha256": "bdc828b224a17d4b168347bfb3132f02bc133cf09827164bbd7ca5aae0e8e67a",
+      "testFunctions": [
+        "TickContext_InitializesWithCorrectTick",
+        "TickContext_AdvancesCorrectly",
+        "DeterministicRandom_ProducesSameSequenceForSameSeed",
+        "UnitUid_ComparisonAndSorting",
+        "PathGrid_Initialise_ProducesValidGrid",
+        "AStar_FindPath_ReturnsValidPath",
+        "FlowField_BuildAndQuery_ReturnsValidDirection",
+        "EquipmentDefinition_CreateFromConfig_Valid",
+        "CombatRequest_CreatesValidDamage",
+        "GoldIncome_BatchTracking_HasInitialState",
+        "EquipmentSlotSnapshot_EmptyByDefault"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AStarPathfindingTests.cs",
+      "sha256": "2af416599db7b7d0e82de45d5ab081d8b83dc9565171e56553300dac28b503aa",
+      "testFunctions": [
+        "AStar_OpenGrid_ReturnsCorrectPath",
+        "AStar_WalledCorridor_FindsPathAroundWall",
+        "AStar_BlockedTarget_NeighborExpansionFindsNearbyCell",
+        "AStar_EmptyOpenSet_ReturnsNoPath",
+        "AStar_MaxIterationReached_ReturnsMaxIterationReached",
+        "AStar_SameCellStartTarget_ReturnsSingleCell",
+        "AStar_LOS_Smoothing_ReducesNodeCountOnStraightLine",
+        "PathFollower_CursorAdvance_ReachesWaypoint",
+        "PathFollower_CorridorDetection_OutsideCorridor",
+        "PathFollower_FinalCursor_UsesIncomingSegmentAsCorridor",
+        "PathFollower_Arrival_AtFinalWaypoint",
+        "PathFollower_BuildLocomotionResult_ProducesDirection",
+        "PathFollower_RollbackRoundTrip_RestoresState",
+        "IndexedMinHeap_PushPop_ReturnsMinFCost",
+        "FpDiagnostic_ZeroDotProductAndComparison",
+        "FpDiagnostic_CellToWorldRoundTrip"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MapPathfindingAssetIntegrationTests.cs",
+      "sha256": "311d52935087deab49efeaeb64e700f4f141ba0e685029d35063d8cc91f495fb",
+      "testFunctions": [
+        "MapPrefab_OwnsGridLanesFieldsAndVisualizer",
+        "RotatedThinObstacle_DoesNotBecomeAabbSquare",
+        "MiddleLaneFlow_PullsTowardLaneProgressively",
+        "StraightLaneSkeletonCells_UseAuthoredTangents",
+        "FoundationJunctions_DistinguishDepartureFromArrivalTarget",
+        "LaneOwnershipBoundaries_HaveDirectionsAndBypassVisualizerStride",
+        "SixLaneDirections_FollowForwardWaypointsInOrder",
+        "AStar_TraversesEveryAuthoredLaneSegment",
+        "FlowFieldAndRvo_ProduceStableWalkableProgress"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PathfindingIntegrationTests.cs",
+      "sha256": "0d0461c99120ffaf8b96ff0aae2e731f2d9c9b265d16eb8a97f3840167a58ab7",
+      "testFunctions": [
+        "FiveAgents_ConvergingOnCenter_NoDeadlock",
+        "TwoUnitsHeadOn_VelocitiesDiverge",
+        "TenAgents_RandomSpread_CompletesWithoutError",
+        "RVO_Deterministic_SameInputProducesSameOutput",
+        "RVO_ZeroDesiredVelocity_ReturnsZero",
+        "FlowDirection_FromFarCell_PointsTowardTarget",
+        "FlowDirection_AtTarget_ReturnsZero",
+        "FlowField_BlockedCell_AvoidsObstacle",
+        "FlowField_AtEdgeOfGrid_HandlesBordersGracefully",
+        "AStar_FindsPath_InOpenGrid",
+        "AStar_BlockedPath_ReturnsEmpty",
+        "FlowField_Unavailable_FallbackToAStar",
+        "MinionWave_MultipleAgents_FollowFlowFieldTowardTarget",
+        "FlowFieldPlusRVO_AgentsAvoidEachOtherWhileMarching"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

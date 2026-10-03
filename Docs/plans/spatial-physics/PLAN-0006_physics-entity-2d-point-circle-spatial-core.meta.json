@@ -1,0 +1,155 @@
+{
+  "id": "PLAN-0006",
+  "code": "0006",
+  "title": "点圆空间实体基础",
+  "type": "plan",
+  "domain": "空间物理",
+  "status": "关闭",
+  "path": "Docs/plans/spatial-physics/PLAN-0006_physics-entity-2d-point-circle-spatial-core.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-058",
+    "REQ-FEAT-059",
+    "REQ-FEAT-060"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-058",
+      "title": "空间实体注册与写入",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-058_spatial-registration.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "327b178b283df31640c1ed203b5ccaab46b8cfba65243897e44d085f0fbe4e2e"
+    },
+    {
+      "id": "REQ-FEAT-059",
+      "title": "定点形状与范围查询",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-059_spatial-geometry.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+    },
+    {
+      "id": "REQ-FEAT-060",
+      "title": "移动前后网格与碰撞事实",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-060_collision-facts.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "44fee7b9b6bf0b4d35e08bf9779fb8c6f96a1481fac8455ba0a57234e738c077"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0006_physics_entity_2d_point_circle_spatial_core_execplan.md",
+      "sha256": "e064d247c0aa3350dbddf8ec585f4a69e6e342878ec87bc40f8610b46f636b36",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Complete — implemented and Unity-verified on 2026-07-20.",
+      "targets": [
+        "REQ-FEAT-058",
+        "REQ-FEAT-059",
+        "REQ-FEAT-060"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0006",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+      "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
+      "Assets/Scripts/Physics/Geometry/PhysicsTransform2D.cs",
+      "Assets/Scripts/Physics/Geometry/PhysicsBounds2D.cs",
+      "Assets/Scripts/Physics/Geometry/PhysicsShapeKind.cs",
+      "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
+      "Assets/Scripts/Bootstrap/AssemblyInfo.cs",
+      "Assets/Scripts/Deterministic/AssemblyInfo.cs",
+      "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
+      "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
+      "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+      "sha256": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
+      "sha256": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsTransform2D.cs",
+      "sha256": "842748b01f2044837ceb224776bbe4455eed83c6e066f852ad68f47b8c71da0e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsBounds2D.cs",
+      "sha256": "8a25fd6795092a98e40b933f40b3d2d2ae8d71edcba219e66803e8f7f2d5f152",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsShapeKind.cs",
+      "sha256": "d46f5a044df8b269e80916f8cf5325a76b8e925b120e0030733dfa8eccbf08bd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
+      "sha256": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/AssemblyInfo.cs",
+      "sha256": "c691ebb060260ec62cad8d21555f780d80869af82e2a0fd11374fdd4af478254",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/AssemblyInfo.cs",
+      "sha256": "3cfa9dfcda7e34e29b5789d2d32f5906b33db561f9763058a657f990a843ecc3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
+      "sha256": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
+      "sha256": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
+      "sha256": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

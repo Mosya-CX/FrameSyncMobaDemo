@@ -1,0 +1,419 @@
+{
+  "id": "REQ-FEAT-062",
+  "title": "旋转网格地图与半径通行",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "寻路移动",
+  "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-062_pathfinding-grid.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 地图中心 Transform 规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 核心数据",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 坐标系统",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 世界转局部伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.6 局部转格子伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.7 格子中心转世界伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.8 半径可走性",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.9 `IsWalkableForAgent` 伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.10 `IsCircleWalkable` 伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.11 帧同步定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/DeterministicMapConfig.cs",
+      "sha256": "d3959cd8bf6bbd3cc580bd3e0f2a9fa34787074a2ccf2c57784d1e84e2baea4c",
+      "symbols": [
+        "DeterministicMapConfig"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/DynamicNavigationFrame.cs",
+      "sha256": "7b68da2af561f8cafb3b3df8c0ddedff0c97d40e515b2d254c121c7d4fbbcaf3",
+      "symbols": [
+        "DynamicNavigationFrame"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/PathGridMap2D.cs",
+      "sha256": "9073dfebc908731f561df7f41bd8aa414bf16e6e19e177363810592fc912ab9a",
+      "symbols": [
+        "PathGridMap2D"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/DeterministicMapConfigTests.cs",
+      "sha256": "525a4d2345226b94fcd7f1fb75b38ae0110da6ab815d3f6549983eb04fa87c77",
+      "testFunctions": [
+        "FullMatchMap_BakesStableWalkabilityAndSpawnPoints"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "sha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "testFunctions": [
+        "UnitCatalog_ContainsAuthoredGreaterAndMiniWolfValues",
+        "GreaterWolf_OnHitBuff_IsPermanentThreePercentCurrentHealth",
+        "MapPrefab_AuthorsTwoVisualizedThreeWolfCamps",
+        "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
+        "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "testFunctions": [
+        "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
+        "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
+      "sha256": "bdc828b224a17d4b168347bfb3132f02bc133cf09827164bbd7ca5aae0e8e67a",
+      "testFunctions": [
+        "TickContext_InitializesWithCorrectTick",
+        "TickContext_AdvancesCorrectly",
+        "DeterministicRandom_ProducesSameSequenceForSameSeed",
+        "UnitUid_ComparisonAndSorting",
+        "PathGrid_Initialise_ProducesValidGrid",
+        "AStar_FindPath_ReturnsValidPath",
+        "FlowField_BuildAndQuery_ReturnsValidDirection",
+        "EquipmentDefinition_CreateFromConfig_Valid",
+        "CombatRequest_CreatesValidDamage",
+        "GoldIncome_BatchTracking_HasInitialState",
+        "EquipmentSlotSnapshot_EmptyByDefault"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "testFunctions": [
+        "CommandBundle_ProducesStablePerTickReplacementRelays",
+        "LateCommand_IsRetargetedToCurrentServerTick_NotRejected",
+        "AcceptedCommand_AfterTickFreeze_LateDuplicateIsIgnored",
+        "AcceptedCommand_AfterOwnerInvalidation_DuplicateSkipsAuthorization",
+        "DistinctCommandSequences_OnAdjacentTicks_AreBothAccepted",
+        "DirectionAim_CastAbility_RoundTripsCanonically",
+        "WireContracts_DoNotExposeCallerOwnedByteArrays",
+        "CanonicalCodec_RoundTripsEveryFormalCommandKind",
+        "Replicator_AndClientCoordinator_AcceptContinuousTick",
+        "AcceptedRelayReplacingExecutedLocalMove_ReplaysFromFrozenAnchor",
+        "AuthorityBeforePrediction_BuffersUntilLocalTickCompletes",
+        "AuthorityRuntime_ReleasesClientRollbackHistory",
+        "RestoreInitialSnapshot_SetsAuthorityBaseline",
+        "PredictionLeadLimit_PausesWithoutExecutingAnotherTick",
+        "Recovery_UsesRequestedSequenceAndDoesNotMutateResponseArray",
+        "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
+        "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
+      "sha256": "85cc4ebf2926faa8cf30e41772498c60ef9f0bdaab991be2e08cbdd2fd9fd7a2",
+      "testFunctions": [
+        "GameplayCommand_CreateMove_WritesCanonicalBytes",
+        "CommandCollector_MergeMove_LastWins",
+        "CommandCollector_ContentRevisionTracksCanonicalMutations",
+        "Pipeline_SingleUnit_MovesWithCommand",
+        "Checksum_SameState_SameHash",
+        "Checksum_DifferentState_DifferentHash",
+        "Pipeline_Deterministic_SameCommandsSameResult",
+        "ActivePointMove_RestoreReplayMatchesContinuousTick",
+        "ReplacedPredictedMove_RestoreThenAuthoritativeMoveMatchesCleanReplay",
+        "ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "testFunctions": [
+        "LockedMainCast_AllowsAuthoredDashInBaseSlot",
+        "MovableHold_AllowsMove_ReleasePreemptsMove",
+        "HoldTimeout_ReconcilesReleaseResourcesAndRestores",
+        "SameAbilityStageTransition_MigratesMainToBaseSlot",
+        "AutomaticDashTransition_MigratesWithoutCancellingSession",
+        "SequentialRecastWindow_ReleasesMainRuntimeButKeepsSession",
+        "Planner_DoesNotResubmitEquivalentActiveMove",
+        "MoveReplacement_AtomicallyKeepsNewRoute",
+        "FailedLockingCast_DoesNotDestroyExistingMove",
+        "ToggleSecondCommit_EndsSessionWithoutOwningRuntime",
+        "ToggleActive_DoesNotBlockChargeStartAndIsConsumed",
+        "ToggleOnAndOffDuringHold_DoNotPreemptHold",
+        "MobilityBlock_InterruptsAbilityDash",
+        "ControlMove_PreemptsUninterruptibleMovementLockedCast"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AStarPathfindingTests.cs",
+      "sha256": "2af416599db7b7d0e82de45d5ab081d8b83dc9565171e56553300dac28b503aa",
+      "testFunctions": [
+        "AStar_OpenGrid_ReturnsCorrectPath",
+        "AStar_WalledCorridor_FindsPathAroundWall",
+        "AStar_BlockedTarget_NeighborExpansionFindsNearbyCell",
+        "AStar_EmptyOpenSet_ReturnsNoPath",
+        "AStar_MaxIterationReached_ReturnsMaxIterationReached",
+        "AStar_SameCellStartTarget_ReturnsSingleCell",
+        "AStar_LOS_Smoothing_ReducesNodeCountOnStraightLine",
+        "PathFollower_CursorAdvance_ReachesWaypoint",
+        "PathFollower_CorridorDetection_OutsideCorridor",
+        "PathFollower_FinalCursor_UsesIncomingSegmentAsCorridor",
+        "PathFollower_Arrival_AtFinalWaypoint",
+        "PathFollower_BuildLocomotionResult_ProducesDirection",
+        "PathFollower_RollbackRoundTrip_RestoresState",
+        "IndexedMinHeap_PushPop_ReturnsMinFCost",
+        "FpDiagnostic_ZeroDotProductAndComparison",
+        "FpDiagnostic_CellToWorldRoundTrip"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/FlowFieldBuildTests.cs",
+      "sha256": "501992c3d7a0acd3ea2f1bdc973309b7c4ed461a7424db30ceac0719518a0dce",
+      "testFunctions": [
+        "BuildLaneCostField_SingleTarget_RadialCostsIncreaseOutward",
+        "BuildLaneCostField_BlockedTarget_FindsNearestWalkable",
+        "BuildTeamFlowField_MultiLane_CorrectOwnerLane",
+        "BuildTeamFlowField_UnwalkableCells_DirectionCodeNone",
+        "BuildTeamFlowField_CostDecreasingConstraint_NoUphillMove",
+        "GetFlowDirection_KnownCell_ReturnsCorrectDirection",
+        "GetFlowDirection_IsolatedCell_DirNoneReturnsZero",
+        "Dir8Helper_ToFP2_AllCardinalDirections",
+        "BuildLaneCostField_Deterministic_SameInputSameOutput"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "testFunctions": [
+        "LaneAdvance_SelectsTeamFlowField",
+        "Chase_FirstTickBuildsPathBeforeRepathCooldown",
+        "Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell",
+        "ChaseForCast_DoesNotCompleteAtAttackBoundaryDistance",
+        "PointMove_UsesDirectOrAStarByGrid",
+        "FlowFieldRvoMovement_ProducesRepeatableMotion",
+        "RadiusAwareLineOfSight_BlocksLargeUnit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/LocomotionSnapshotTests.cs",
+      "sha256": "acbb758de40792586b7ebb3c125d70be0fcdcc936aa0228f29b481891123a8fb",
+      "testFunctions": [
+        "CaptureRestore_ActiveRoute_RoundTripPreservesTask",
+        "CaptureRestore_IdleAgent_SnapshotHasNoActiveTask",
+        "CaptureRestore_AStarPath_PreservesDeepCopy",
+        "CaptureRestore_FlowFieldRoute_PreservesKind",
+        "Snapshot_AfterClearForDeath_HasNoActiveTask",
+        "RouteRuntime_Empty_DefaultValuesCorrect"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MapPathfindingAssetIntegrationTests.cs",
+      "sha256": "311d52935087deab49efeaeb64e700f4f141ba0e685029d35063d8cc91f495fb",
+      "testFunctions": [
+        "MapPrefab_OwnsGridLanesFieldsAndVisualizer",
+        "RotatedThinObstacle_DoesNotBecomeAabbSquare",
+        "MiddleLaneFlow_PullsTowardLaneProgressively",
+        "StraightLaneSkeletonCells_UseAuthoredTangents",
+        "FoundationJunctions_DistinguishDepartureFromArrivalTarget",
+        "LaneOwnershipBoundaries_HaveDirectionsAndBypassVisualizerStride",
+        "SixLaneDirections_FollowForwardWaypointsInOrder",
+        "AStar_TraversesEveryAuthoredLaneSegment",
+        "FlowFieldAndRvo_ProduceStableWalkableProgress"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PathfindingIntegrationTests.cs",
+      "sha256": "0d0461c99120ffaf8b96ff0aae2e731f2d9c9b265d16eb8a97f3840167a58ab7",
+      "testFunctions": [
+        "FiveAgents_ConvergingOnCenter_NoDeadlock",
+        "TwoUnitsHeadOn_VelocitiesDiverge",
+        "TenAgents_RandomSpread_CompletesWithoutError",
+        "RVO_Deterministic_SameInputProducesSameOutput",
+        "RVO_ZeroDesiredVelocity_ReturnsZero",
+        "FlowDirection_FromFarCell_PointsTowardTarget",
+        "FlowDirection_AtTarget_ReturnsZero",
+        "FlowField_BlockedCell_AvoidsObstacle",
+        "FlowField_AtEdgeOfGrid_HandlesBordersGracefully",
+        "AStar_FindsPath_InOpenGrid",
+        "AStar_BlockedPath_ReturnsEmpty",
+        "FlowField_Unavailable_FallbackToAStar",
+        "MinionWave_MultipleAgents_FollowFlowFieldTowardTarget",
+        "FlowFieldPlusRVO_AgentsAvoidEachOtherWhileMarching"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/WallPenetrationTests.cs",
+      "sha256": "f9de8a65e970253a4cb09af7fba23f22c80889e465ca466459cce247739dd161",
+      "testFunctions": [
+        "Detect_UnitInBlockedCell_ReturnsCorrection",
+        "Detect_UnitInWalkableCell_ReturnsNull",
+        "Detect_PushOutDir_PointsAwayFromBlockedArea",
+        "Detect_ClampedMagnitude",
+        "Detect_Deterministic_SameInputSameOutput"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

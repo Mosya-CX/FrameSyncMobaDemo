@@ -1,0 +1,389 @@
+{
+  "id": "REQ-FEAT-063",
+  "title": "路线选择与跟随状态",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "寻路移动",
+  "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-063_path-following.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.1 设计原则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.2 `MovePurpose`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.3 请求类型",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.4 `MoveTarget`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.5 分流伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 核心数据",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 `RouteKind`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 核心接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 路由选择伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.5 `CanUseDirect`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.6 每 Tick 寻路评估",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.7 A* 路线评估与偏离检测",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.8 Direct 与流场评估",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.9 控制打断与路线生命周期",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.10 帧同步定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2 A* 路径游标推进",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3 A* 当前 Tick 结果",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4 路径走廊偏离检测",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5 Direct 跟随",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.6 追踪重寻路",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.7 流场跟随",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.8 帧同步定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.1 `UnitUid`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.2 `RadiusClass`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.3 `MovementMode`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.4 `PathResult`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.5 `MovementTask`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.6 `RouteRuntime`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.7 `LocomotionResult`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.8 `RvoResult`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.9 `DashRuntime`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.10 `ResolvedForcedMove`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.11 `ForcedMoveRuntime`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/PathFollower2D.cs",
+      "sha256": "ea1315f39fec9c4eaeba91360709ae1de7c72baee171d88800a1ddf29bc5315e",
+      "symbols": [
+        "PathFollower2D"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/RouteRuntime.cs",
+      "sha256": "e387fa03ab83d549285be84fcee12ef5800cc6b58f55d5f9b8535648db46faf0",
+      "symbols": [
+        "RouteRuntime"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/UnitLocomotionAgent.cs",
+      "sha256": "50122059f4d83a4e9863ba81cc922ab72920a70df0b1e0f63e85b855c29a5267",
+      "symbols": [
+        "UnitLocomotionAgent"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/LocomotionSnapshotTests.cs",
+      "sha256": "acbb758de40792586b7ebb3c125d70be0fcdcc936aa0228f29b481891123a8fb",
+      "testFunctions": [
+        "CaptureRestore_ActiveRoute_RoundTripPreservesTask",
+        "CaptureRestore_IdleAgent_SnapshotHasNoActiveTask",
+        "CaptureRestore_AStarPath_PreservesDeepCopy",
+        "CaptureRestore_FlowFieldRoute_PreservesKind",
+        "Snapshot_AfterClearForDeath_HasNoActiveTask",
+        "RouteRuntime_Empty_DefaultValuesCorrect"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AStarPathfindingTests.cs",
+      "sha256": "2af416599db7b7d0e82de45d5ab081d8b83dc9565171e56553300dac28b503aa",
+      "testFunctions": [
+        "AStar_OpenGrid_ReturnsCorrectPath",
+        "AStar_WalledCorridor_FindsPathAroundWall",
+        "AStar_BlockedTarget_NeighborExpansionFindsNearbyCell",
+        "AStar_EmptyOpenSet_ReturnsNoPath",
+        "AStar_MaxIterationReached_ReturnsMaxIterationReached",
+        "AStar_SameCellStartTarget_ReturnsSingleCell",
+        "AStar_LOS_Smoothing_ReducesNodeCountOnStraightLine",
+        "PathFollower_CursorAdvance_ReachesWaypoint",
+        "PathFollower_CorridorDetection_OutsideCorridor",
+        "PathFollower_FinalCursor_UsesIncomingSegmentAsCorridor",
+        "PathFollower_Arrival_AtFinalWaypoint",
+        "PathFollower_BuildLocomotionResult_ProducesDirection",
+        "PathFollower_RollbackRoundTrip_RestoresState",
+        "IndexedMinHeap_PushPop_ReturnsMinFCost",
+        "FpDiagnostic_ZeroDotProductAndComparison",
+        "FpDiagnostic_CellToWorldRoundTrip"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "testFunctions": [
+        "LaneAdvance_SelectsTeamFlowField",
+        "Chase_FirstTickBuildsPathBeforeRepathCooldown",
+        "Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell",
+        "ChaseForCast_DoesNotCompleteAtAttackBoundaryDistance",
+        "PointMove_UsesDirectOrAStarByGrid",
+        "FlowFieldRvoMovement_ProducesRepeatableMotion",
+        "RadiusAwareLineOfSight_BlocksLargeUnit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

@@ -1,0 +1,467 @@
+{
+  "id": "REQ-FEAT-059",
+  "title": "定点形状与范围查询",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "空间物理",
+  "path": "Docs/requirements/spatial-physics/REQ-FEAT-059_spatial-geometry.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 支持形状",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 `PhysicsShape2D` 数据",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 Point 形状语义",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 形状世界参数计算",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 AABB 更新",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 通用单位目标过滤",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 输入输出",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 查询流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.5 形状精确测试",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.6 稳定排序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2 查询描述",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3 TeamQueryRule",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4 单位分类过滤",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5 完整过滤",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.6 查询顺序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.7 查询伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
+      "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.8 排序模式",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/ProjectileHitResolver.cs",
+      "sha256": "c954c8cd7c09669032b3691534facdcbc05d3d0e2edab1339a9f6673dce705c1",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs",
+      "sha256": "f69a9b3788c2084423eedd8cab7aa16971eaed6a88a037c97cbd4c8d32ff9e7f",
+      "symbols": [
+        "RangeQueryService"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
+      "sha256": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+      "symbols": [
+        "PhysicsGeometry2D"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
+      "sha256": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+      "symbols": [
+        "PhysicsShape2D"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/RangeQueryServiceTests.cs",
+      "sha256": "bbcf9b27d3d7b1300f7ab4ac8598207d46c86dd762b1f26dffead28a436c32a6",
+      "testFunctions": [
+        "Query_EmptyGrid_ReturnsEmpty",
+        "Query_SingleUnitInRange_ReturnsIt",
+        "Query_UnitOutOfRange_ReturnsEmpty",
+        "Query_EnemyOnly_FiltersCorrectly",
+        "Query_AllyOnly_FiltersCorrectly",
+        "Query_SelfOnly_ReturnsOnlySelf",
+        "Query_LifeStateFilter_DeadUnitExcluded",
+        "Query_RequireTargetable_UntargetableExcluded",
+        "Query_UnitKindMask_FiltersHeroOnly",
+        "Query_SortByDistance_ClosestFirst",
+        "Query_MaxResultTruncation",
+        "Query_NoGrid_ReturnsEmpty",
+        "Query_Deterministic_SameInputSameResult",
+        "Query_GridDedup_SameEntityInMultipleCells_ReturnsOnce"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
+      "sha256": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+      "testFunctions": [
+        "Facing_UsesFixedPointNormalizationAndClockwisePerpendicular",
+        "BelowThresholdFacing_IsRejectedWithoutDivision",
+        "PointBounds_UseOffsetAdjustedCurrentPoint",
+        "SweptPointBounds_UseFormalPrevPositionToCurrentWorldPoint",
+        "CircleBounds_ExpandOffsetAdjustedCenterByRadius",
+        "SweptCircleBounds_UnionExpandedSweepAndCurrentCircle",
+        "SegmentWorld_UsesOffsetCenterForwardLengthAndWidth",
+        "SegmentBounds_ExpandWorldEndpointsByHalfWidth",
+        "RectWorld_UsesOffsetCenterAndStoredBasis",
+        "OrientedRectBounds_UseAbsoluteRightAndForwardContributions",
+        "DegenerateSegmentAndRect_ProduceExactPointBounds",
+        "IdenticalInputs_ProduceIdenticalRawBounds"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
+      "sha256": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+      "testFunctions": [
+        "PointFactory_PreservesFormalFieldsAndZerosUnusedFields",
+        "CircleFactory_PreservesFormalFieldsAndZerosUnusedFields",
+        "NegativeCircleRadius_IsRejected",
+        "SegmentFactory_PreservesFormalFieldsAndZerosUnusedFields",
+        "RectFactory_PreservesFormalFieldsAndZerosUnusedFields",
+        "NegativeSegmentDimensions_AreRejected",
+        "NegativeRectHalfExtents_AreRejected",
+        "SegmentAndRectUnusedFields_MustRemainZero"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+      "sha256": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+      "testFunctions": [
+        "EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat",
+        "EndOnFirstHit_RejectsLaterSameTickCandidate",
+        "EqualDistanceArbitration_UidRelabelKeepsParticipantWinner",
+        "PierceBudget_EndsAtConfiguredHitCount",
+        "ProjectileDamage_UsesCombatShieldPipeline",
+        "EnemyFilter_ExcludesFriendlyTarget",
+        "EnemyFilter_IncludesStructureTarget",
+        "MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp",
+        "MisconfiguredProjectileBuff_StructureHitStillFailsVisibly",
+        "MisconfiguredProjectileCC_StructureHitStillFailsVisibly",
+        "RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget",
+        "PendingTrackedTarget_SnapshotRoundTripPreservesLock",
+        "SnapshotRoundTrip_PreservesSourceAndHitMemory",
+        "Capture_PrunesHitMemoryForDisposedTargets",
+        "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
+        "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+      "sha256": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+      "testFunctions": [
+        "PiercingFalloff_ReducesDamagePerExtraHit",
+        "PiercingFalloff_OverridePath_MatchesStaticConfig",
+        "PiercingFalloff_ClampsAtMinDamageRatio"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+      "sha256": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+      "testFunctions": [
+        "AreaDamageStage_CentersOnAimTargetPoint",
+        "AreaDamageStage_DoesNotDamageEnemyStructure",
+        "SpawnProjectileStage_FiresTowardAimDirection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/PhysicsCollisionResolverTests.cs",
+      "sha256": "38c7018a9610ac66af7edff48f4fb39c1c1dc89f237ef4409848154fc0d34f6a",
+      "testFunctions": [
+        "ClampPosition_DoesNotResolveMoverAgainstItself"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+      "sha256": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+      "testFunctions": [
+        "Spread_InfectsOnlyEnemyHeroesOfOriginalCaster",
+        "Spread_DoesNotReinfectAnInfectedHero",
+        "Spread_RequiresContinuousContactInsideRadius",
+        "Spread_AppliesSameRDamageAndRoot",
+        "SecondR_StartsAFreshSpread",
+        "SecondR_UsesADifferentTagUid",
+        "Blight_StacksAreAppliedAtConfiguredTicks"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "testFunctions": [
+        "LaneAdvance_SelectsTeamFlowField",
+        "Chase_FirstTickBuildsPathBeforeRepathCooldown",
+        "Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell",
+        "ChaseForCast_DoesNotCompleteAtAttackBoundaryDistance",
+        "PointMove_UsesDirectOrAStarByGrid",
+        "FlowFieldRvoMovement_ProducesRepeatableMotion",
+        "RadiusAwareLineOfSight_BlocksLargeUnit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
+      "sha256": "4c9b9506a7f2a49aac9f93214d6d6d1355115a633adde9a71f89840bd549b560",
+      "testFunctions": [
+        "ForcedMove_OverridesRouteMove",
+        "EqualPriorityForcedMove_ReplacesAtomically",
+        "ForcedMoveSnapshot_RoundTripsWithControlOwner",
+        "Dash_RequiresPositiveDuration_AndOverridesRoute",
+        "MovementCollision_UsesPhysicsShapeRadius",
+        "RvoGrid_IncludesIdleUnitAsObstacle",
+        "RvoNeighborSelection_IsInputOrderIndependent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsCircleTargetNarrowPhaseTests.cs",
+      "sha256": "01f91627a7250aa2f18f92e32dd913947a4729b97404a8180b9f7f12f302c7b8",
+      "testFunctions": [
+        "ClosestPoint_DegenerateSegment_ReturnsStart",
+        "ClosestPoint_ProjectionBeforeStart_ClampsToStart",
+        "ClosestPoint_ProjectionAfterEnd_ClampsToEnd",
+        "ClosestPoint_ProjectionInsideSegment_ReturnsProjectedPoint",
+        "Point_StrictlyInsideCircle_ReturnsTrue",
+        "Point_StrictlyOutsideCircle_ReturnsFalse",
+        "Point_OnCircleBoundary_TangentReturnsTrue",
+        "Point_AtCircleCenter_ReturnsTrue",
+        "PointOverlapsCircle_ZeroRadius_OnlyCenterOverlaps",
+        "PointOverlapsCircle_NegativeRadius_Throws",
+        "SweptPoint_CrossesCircle_ReturnsTrue",
+        "SweptPoint_MissesCircle_ReturnsFalse",
+        "SweptPoint_TangentToCircle_ReturnsTrue",
+        "SweptPoint_ZeroLength_EqualsPointBehavior",
+        "CircleOverlaps_OverlappingCircles_ReturnsTrue",
+        "CircleOverlaps_NonOverlappingCircles_ReturnsFalse",
+        "CircleOverlaps_TangentCircles_ReturnsTrue",
+        "CircleOverlaps_ZeroRadiusCircles_OnlyCentersOverlap",
+        "CircleOverlaps_NegativeRadius_Throws",
+        "Segment_PassesThroughCircle_ReturnsTrue",
+        "Segment_MissesCircle_ReturnsFalse",
+        "Segment_WidthParticipatesInCombinedRadius",
+        "Segment_TangentToCircle_ReturnsTrue",
+        "SegmentOverlaps_NegativeWidth_Throws",
+        "Rect_CircleInside_ReturnsTrue",
+        "Rect_CircleOutside_ReturnsFalse",
+        "Rect_CircleTangentToEdge_ReturnsTrue",
+        "Rect_Rotated45Degrees_CorrectOverlap",
+        "Rect_TranslatedEquivalent_ReturnsSameResult",
+        "RectOverlaps_NegativeHalfExtent_Throws",
+        "RepeatedCalls_ProduceIdenticalResults"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsSpatialGrid2DTests.cs",
+      "sha256": "60b0337fbc0f0685f55a93990108a187e8eb394262a5d81d47d810345bf67c34",
+      "testFunctions": [
+        "Insert_SingleEntity_CollectReturnsIt",
+        "Insert_MultipleEntities_CollectReturnsAll",
+        "Collect_CrossCellEntity_AppearsOnce",
+        "Collect_OutputSortedByUidSnapshot",
+        "Collect_Deterministic_DifferentInsertOrder_SameOutput",
+        "Collect_NoOverlap_ReturnsEmpty",
+        "Clear_RemovesAllEntities",
+        "Constructor_NonPositiveCellSize_Throws"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
+      "sha256": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+      "testFunctions": [
+        "OrdinaryPositionAndDelta_AdvancePreviousPosition",
+        "Teleport_SetsPreviousAndCurrentToSamePosition",
+        "PoseAndForward_NormalizeFacingAndRefreshOffsetBounds",
+        "ZeroFacing_PreservesPriorFacingWhilePoseStillMoves",
+        "ShapeChange_RefreshesBoundsWithoutChangingPose",
+        "SegmentShape_UsesLogicalPoseAndWidthExpandedBounds",
+        "RectBounds_RefreshAfterFacingAndPositionChanges",
+        "InvalidShapeAssignment_IsFailureAtomic",
+        "Restore_PreservesExactPoseAndRebuildsBounds",
+        "Restore_RectPreservesPoseAndRebuildsOrientedBounds",
+        "LogicalWrites_DoNotSynchronouslyWriteUnityTransform",
+        "PresentationSmoothing_InterpolatesWithoutChangingLogicPose",
+        "PresentationSmoothing_FacingChurnDoesNotRestartPositionInterpolation"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+      "sha256": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+      "testFunctions": [
+        "BuildUnitFinalGrid_AllRegisteredUnits_Inserted",
+        "BuildUnitFinalGrid_NullOwner_Skipped",
+        "BuildUnitFinalGrid_ClearsPreviousGrid",
+        "BuildUnitFinalGrid_Deterministic_SameRegistration_SameGridState",
+        "BuildUnitFinalGrid_DoesNotFilterByBusinessState"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/UnitCollisionEventBufferTests.cs",
+      "sha256": "3ee4fd83d4975ae43a52698f94fbe4b3d9cbe1417ebfbd64023788b135021c40",
+      "testFunctions": [
+        "DetectCaptureRestore_PreservesEnterExitSemantics"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

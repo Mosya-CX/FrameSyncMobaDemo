@@ -1,0 +1,149 @@
+{
+  "id": "PLAN-0035",
+  "code": "0035",
+  "title": "移动系统补全",
+  "type": "plan",
+  "domain": "寻路移动",
+  "status": "关闭",
+  "path": "Docs/plans/pathfinding-movement/PLAN-0035_movement-system-completion.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-067",
+    "REQ-FEAT-063",
+    "REQ-FEAT-066"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-067",
+      "title": "普通移动冲刺与强制位移",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067_movement-pipeline.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e71b30bbf96fa957977960591dfbda226e062174433922f75cf0eec94517f73a"
+    },
+    {
+      "id": "REQ-FEAT-063",
+      "title": "路线选择与跟随状态",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-063_path-following.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "2ead9f2d26e3ce44c44ba670ece89db9cc4256fa54502c26ca15fdcd7f1e46a6"
+    },
+    {
+      "id": "REQ-FEAT-066",
+      "title": "确定性局部避让",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-066_local-avoidance.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "fa21bcf47417ed253c87813a4b96189e00bf73dab22834044b4478d8d9d09f92"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0035_movement_system_completion.md",
+      "sha256": "208f421d89e8e47ffee228234e31a028786bc93e40ab1d659060e06efb10d5f8",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-067",
+        "REQ-FEAT-063",
+        "REQ-FEAT-066"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0035",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Movement/MovementHandler.cs",
+      "Assets/Scripts/Gameplay/Movement/MovementSnapshot.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Movement/MovementCollisionResolver.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Movement/MoveIntent.cs",
+      "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+      "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
+      "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
+      "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Movement/MovementHandler.cs",
+      "sha256": "d652d3e9a6be3d3d3e52e578e81f07758647deab0e6b8bb46ce9d5733f3336ce",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Movement/MovementSnapshot.cs",
+      "sha256": "9ce3c29be360ba5eb5befb81db1b9fc04d23e70555640512b78e2519574c0b54",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Movement/MovementCollisionResolver.cs",
+      "sha256": "9a57832548016157574c89545def073fa140cebc3fbae94f2c032449efb66afc",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Movement/MoveIntent.cs",
+      "sha256": "f16f7dafcfc8514a5591b1f3d2e06ea6d66fe094d7e6bd6cfcad811ab7d8a436",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+      "sha256": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
+      "sha256": "5bb4880768f9909859d6a9d1f78a8ca2f07f36f62cac5d2c21f955171787ca1a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
+      "sha256": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+      "sha256": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

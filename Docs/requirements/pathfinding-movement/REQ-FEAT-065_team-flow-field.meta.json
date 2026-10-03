@@ -1,0 +1,177 @@
+{
+  "id": "REQ-FEAT-065",
+  "title": "队伍流场与兵线引导",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "寻路移动",
+  "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-065_team-flow-field.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 队伍级合并流场",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 流场数据",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 构建流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.5 兵线成本场构建伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.6 队伍级合并伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.7 贴墙优化：成本递减约束下的候选评分",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.8 运行时读取方向",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
+      "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.9 帧同步定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/TeamFlowFieldService.cs",
+      "sha256": "f9b1ab7d7863eed363d6afc0ec7f33486dfa0133ed03bcf9df9d8cb4adc30971",
+      "symbols": [
+        "TeamFlowFieldService"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/FlowFieldBuildTests.cs",
+      "sha256": "501992c3d7a0acd3ea2f1bdc973309b7c4ed461a7424db30ceac0719518a0dce",
+      "testFunctions": [
+        "BuildLaneCostField_SingleTarget_RadialCostsIncreaseOutward",
+        "BuildLaneCostField_BlockedTarget_FindsNearestWalkable",
+        "BuildTeamFlowField_MultiLane_CorrectOwnerLane",
+        "BuildTeamFlowField_UnwalkableCells_DirectionCodeNone",
+        "BuildTeamFlowField_CostDecreasingConstraint_NoUphillMove",
+        "GetFlowDirection_KnownCell_ReturnsCorrectDirection",
+        "GetFlowDirection_IsolatedCell_DirNoneReturnsZero",
+        "Dir8Helper_ToFP2_AllCardinalDirections",
+        "BuildLaneCostField_Deterministic_SameInputSameOutput"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "testFunctions": [
+        "LaneAdvance_SelectsTeamFlowField",
+        "Chase_FirstTickBuildsPathBeforeRepathCooldown",
+        "Chase_DoesNotCompleteWhileOutsideAttackRange_AtPathDestinationCell",
+        "ChaseForCast_DoesNotCompleteAtAttackBoundaryDistance",
+        "PointMove_UsesDirectOrAStarByGrid",
+        "FlowFieldRvoMovement_ProducesRepeatableMotion",
+        "RadiusAwareLineOfSight_BlocksLargeUnit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
+      "sha256": "bdc828b224a17d4b168347bfb3132f02bc133cf09827164bbd7ca5aae0e8e67a",
+      "testFunctions": [
+        "TickContext_InitializesWithCorrectTick",
+        "TickContext_AdvancesCorrectly",
+        "DeterministicRandom_ProducesSameSequenceForSameSeed",
+        "UnitUid_ComparisonAndSorting",
+        "PathGrid_Initialise_ProducesValidGrid",
+        "AStar_FindPath_ReturnsValidPath",
+        "FlowField_BuildAndQuery_ReturnsValidDirection",
+        "EquipmentDefinition_CreateFromConfig_Valid",
+        "CombatRequest_CreatesValidDamage",
+        "GoldIncome_BatchTracking_HasInitialState",
+        "EquipmentSlotSnapshot_EmptyByDefault"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/LocomotionSnapshotTests.cs",
+      "sha256": "acbb758de40792586b7ebb3c125d70be0fcdcc936aa0228f29b481891123a8fb",
+      "testFunctions": [
+        "CaptureRestore_ActiveRoute_RoundTripPreservesTask",
+        "CaptureRestore_IdleAgent_SnapshotHasNoActiveTask",
+        "CaptureRestore_AStarPath_PreservesDeepCopy",
+        "CaptureRestore_FlowFieldRoute_PreservesKind",
+        "Snapshot_AfterClearForDeath_HasNoActiveTask",
+        "RouteRuntime_Empty_DefaultValuesCorrect"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PathfindingIntegrationTests.cs",
+      "sha256": "0d0461c99120ffaf8b96ff0aae2e731f2d9c9b265d16eb8a97f3840167a58ab7",
+      "testFunctions": [
+        "FiveAgents_ConvergingOnCenter_NoDeadlock",
+        "TwoUnitsHeadOn_VelocitiesDiverge",
+        "TenAgents_RandomSpread_CompletesWithoutError",
+        "RVO_Deterministic_SameInputProducesSameOutput",
+        "RVO_ZeroDesiredVelocity_ReturnsZero",
+        "FlowDirection_FromFarCell_PointsTowardTarget",
+        "FlowDirection_AtTarget_ReturnsZero",
+        "FlowField_BlockedCell_AvoidsObstacle",
+        "FlowField_AtEdgeOfGrid_HandlesBordersGracefully",
+        "AStar_FindsPath_InOpenGrid",
+        "AStar_BlockedPath_ReturnsEmpty",
+        "FlowField_Unavailable_FallbackToAStar",
+        "MinionWave_MultipleAgents_FollowFlowFieldTowardTarget",
+        "FlowFieldPlusRVO_AgentsAvoidEachOtherWhileMarching"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "REQ-WOLF-NAV",
+  "title": "同Tick动态占用与回营路线",
+  "type": "requirement",
+  "domain": "寻路移动",
+  "status": "激活",
+  "path": "Docs/requirements/pathfinding-movement/REQ-WOLF-NAV_wolf-return-navigation.md",
+  "version": 1,
+  "implementationState": "旧计划暂缓，工作树有部分改动；需逐项确认",
+  "sources": [
+    {
+      "path": "Docs/Implementation/Plans/0165_murk_wolf_leash_animation_and_dynamic_navigation.md",
+      "sha256": "f79edd3fe6160b14ba5444fcabc68708ca28348a7090fd6af1ccdb94bc03dc2e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Implementation/Plans/0165_murk_wolf_leash_animation_and_dynamic_navigation.md"
+    }
+  ]
+}

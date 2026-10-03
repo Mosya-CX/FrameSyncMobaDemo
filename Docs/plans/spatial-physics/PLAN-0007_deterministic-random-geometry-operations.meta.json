@@ -1,0 +1,109 @@
+{
+  "id": "PLAN-0007",
+  "code": "0007",
+  "title": "确定性随机几何操作",
+  "type": "plan",
+  "domain": "空间物理",
+  "status": "关闭",
+  "path": "Docs/plans/spatial-physics/PLAN-0007_deterministic-random-geometry-operations.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-059",
+    "REQ-FEAT-014"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-059",
+      "title": "定点形状与范围查询",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-059_spatial-geometry.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+    },
+    {
+      "id": "REQ-FEAT-014",
+      "title": "确定性随机与定点计算",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/determinism/REQ-FEAT-014_deterministic-random.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "ac21c9497b66e37c7b485e1f6eff5aba390aad71aa979254163e1527d24f3965"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0007_deterministic_random_geometry_operations_execplan.md",
+      "sha256": "1db8e95d63b23295f1e0e121107c9b6e7ce928a0af772e702647df91610b820d",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Complete — implemented and Unity-verified on 2026-07-20.",
+      "targets": [
+        "REQ-FEAT-059",
+        "REQ-FEAT-014"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0007",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs",
+      "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs",
+      "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+      "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+      "Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs",
+      "sha256": "6d49fae34c4e0b5b22c31cb5fdad8038d43388516e67a40cbcda22666e2f6025",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "sha256": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs",
+      "sha256": "f061cd1bf7b3e41c7003b82d7abade7840a5ec92d409d660e9f7c0153ef63c27",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+      "sha256": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+      "sha256": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs",
+      "sha256": "f4a30f46a30513cb1fc5671af345864b7929b1709723da0162e3de76d65e69ba",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}
