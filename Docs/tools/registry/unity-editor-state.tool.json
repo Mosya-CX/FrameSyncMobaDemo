@@ -1,0 +1,11 @@
+{
+  "id": "unity-editor-state",
+  "title": "Unity Editor状态",
+  "description": "读取已连接并核对的当前Unity工程。",
+  "kind": "unity-mcp",
+  "guideId": "TOOL-GUIDE-UNITY-INSPECT",
+  "toolName": "editor-application-get-state",
+  "defaultArguments": {},
+  "readOnly": true,
+  "timeoutSeconds": 60
+}

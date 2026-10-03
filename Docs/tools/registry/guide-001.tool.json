@@ -1,0 +1,9 @@
+{
+  "id": "guide-001",
+  "title": "打包 / 构建指南（Local NGO C/S 与 UOS）",
+  "description": "项目操作指南；阅读后在说明所述入口操作，尚未登记自动执行命令。",
+  "kind": "manual",
+  "guideId": "GUIDE-001",
+  "defaultArguments": {},
+  "readOnly": true
+}

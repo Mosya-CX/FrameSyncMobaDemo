@@ -1,0 +1,9 @@
+{
+  "id": "guide-003",
+  "title": "时间配置与 TickRate 使用说明",
+  "description": "项目操作指南；阅读后在说明所述入口操作，尚未登记自动执行命令。",
+  "kind": "manual",
+  "guideId": "GUIDE-003",
+  "defaultArguments": {},
+  "readOnly": true
+}

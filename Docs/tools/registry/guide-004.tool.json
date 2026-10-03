@@ -1,0 +1,9 @@
+{
+  "id": "guide-004",
+  "title": "异步诊断指南",
+  "description": "项目操作指南；阅读后在说明所述入口操作，尚未登记自动执行命令。",
+  "kind": "manual",
+  "guideId": "GUIDE-004",
+  "defaultArguments": {},
+  "readOnly": true
+}
