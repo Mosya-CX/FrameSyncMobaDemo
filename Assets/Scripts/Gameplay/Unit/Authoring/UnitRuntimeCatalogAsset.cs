@@ -4,9 +4,6 @@ using FrameSyncMoba.Physics;
 using FrameSyncMoba.RuntimeConfig;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace FrameSyncMoba.Unit
 {
@@ -342,28 +339,6 @@ namespace FrameSyncMoba.Unit
 
         public HeroDisplayTable HeroDisplayTableForSync =>
             heroDisplayTable;
-#endif
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (heroDisplayTable == null)
-                return;
-            EditorApplication.delayCall -=
-                DelaySyncHeroDisplay;
-            EditorApplication.delayCall +=
-                DelaySyncHeroDisplay;
-        }
-
-        private void DelaySyncHeroDisplay()
-        {
-            if (this == null ||
-                heroDisplayTable == null)
-                return;
-            HeroDisplayTableSync.Sync(
-                heroDisplayTable,
-                this);
-        }
 #endif
 
         public BakedUnitRuntimeCatalog BakeOrThrow(

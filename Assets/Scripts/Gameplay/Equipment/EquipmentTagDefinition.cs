@@ -38,39 +38,16 @@ namespace FrameSyncMoba.Unit
         }
 
 #if UNITY_EDITOR
-        private void OnValidate()
+        /// <summary>
+        /// Editor-assembly bridge used by the authoring synchronizer. Keeping
+        /// the UnityEditor API itself outside this runtime assembly preserves
+        /// the deterministic module boundary.
+        /// </summary>
+        public void AssignUidForEditor(int uidValue)
         {
             if (uid.IsValid)
                 return;
-            string path =
-                UnityEditor.AssetDatabase
-                    .GetAssetPath(this);
-            string guid =
-                UnityEditor.AssetDatabase
-                    .AssetPathToGUID(path);
-            if (!string.IsNullOrEmpty(guid))
-                uid = new EquipmentTagUid(
-                    StableHash32(guid));
-        }
-
-        private void Reset()
-        {
-            uid = default;
-            OnValidate();
-        }
-
-        private static int StableHash32(string value)
-        {
-            unchecked
-            {
-                uint hash = 2166136261u;
-                for (int i = 0; i < value.Length; i++)
-                {
-                    hash ^= value[i];
-                    hash *= 16777619u;
-                }
-                return (int)(hash & 0x7FFFFFFF);
-            }
+            uid = new EquipmentTagUid(uidValue);
         }
 #endif
     }
