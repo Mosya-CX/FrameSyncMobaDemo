@@ -295,4 +295,58 @@ namespace FrameSyncMoba.RuntimeConfig.Editor.Tests
                 () => table.ValidateOrThrow());
         }
     }
+
+    [TestFixture]
+    public sealed class GlobalPrefabSubTableReplacementTests
+    {
+        [Test]
+        public void ReplaceForTests_WhenInputsAliasBackingLists_PreservesContent()
+        {
+            var table =
+                ScriptableObject.CreateInstance<GlobalPrefabSubTableAsset>();
+            try
+            {
+                table.ReplaceForTests(
+                    GlobalPrefabPartitionKind.Core,
+                    0,
+                    1,
+                    1,
+                    new[]
+                    {
+                        new PrefabGroup(
+                            PrefabKind.Misc,
+                            new[]
+                            {
+                                new PrefabEntry(
+                                    1,
+                                    string.Empty,
+                                    clientViewAddress: "view/test"),
+                            }),
+                    },
+                    new[]
+                    {
+                        new MatchContentAssetAddress(
+                            MatchContentAssetKind.UnitRuntimeCatalog,
+                            "logic/catalog/test"),
+                    });
+
+                table.ReplaceForTests(
+                    GlobalPrefabPartitionKind.Core,
+                    0,
+                    2,
+                    2,
+                    table.PrefabGroups,
+                    table.ContentAssets);
+
+                Assert.That(table.PrefabGroups.Count, Is.EqualTo(1));
+                Assert.That(table.ContentAssets.Count, Is.EqualTo(1));
+                Assert.That(table.ContentVersion, Is.EqualTo(2));
+                Assert.That(table.ContentHash, Is.EqualTo(2));
+            }
+            finally
+            {
+                Object.DestroyImmediate(table);
+            }
+        }
+    }
 }

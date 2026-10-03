@@ -241,16 +241,27 @@ namespace FrameSyncMoba.RuntimeConfig
             IEnumerable<PrefabGroup> groups,
             IEnumerable<MatchContentAssetAddress> assets)
         {
+            // Callers commonly preserve one side of the table while replacing
+            // the other by passing PrefabGroups/ContentAssets back into this
+            // method. Snapshot both enumerables before clearing the backing
+            // lists so self-aliasing cannot erase authored content.
+            List<PrefabGroup> groupSnapshot = groups != null
+                ? new List<PrefabGroup>(groups)
+                : null;
+            List<MatchContentAssetAddress> assetSnapshot = assets != null
+                ? new List<MatchContentAssetAddress>(assets)
+                : null;
+
             partitionKind = kind;
             ownerConfigId = ownerId;
             contentVersion = version;
             contentHash = hash;
             prefabGroups.Clear();
-            if (groups != null)
-                prefabGroups.AddRange(groups);
+            if (groupSnapshot != null)
+                prefabGroups.AddRange(groupSnapshot);
             contentAssets.Clear();
-            if (assets != null)
-                contentAssets.AddRange(assets);
+            if (assetSnapshot != null)
+                contentAssets.AddRange(assetSnapshot);
         }
 
 #if UNITY_EDITOR
