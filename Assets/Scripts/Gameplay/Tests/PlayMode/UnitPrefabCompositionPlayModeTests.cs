@@ -18,15 +18,16 @@ namespace FrameSyncMoba.Unit.PlayModeTests
             GlobalPrefabTable prefabTable = ScriptableObject.CreateInstance<GlobalPrefabTable>();
             prefabTable.ReplaceGroupsForTests(new[]
             {
-                new PrefabGroup(PrefabKind.Unit, new[] { new PrefabEntry(9, template, 4) }),
+                new PrefabGroup(PrefabKind.Unit, new[] { new PrefabEntry(1009, template, 4) }),
             });
 
             var prototype = new UnitPrototype
             {
                 UnitPrototypeId = 4,
-                RuntimeEntityPrefabId = 9,
+                RuntimeEntityPrefabId = 1009,
                 UnitKind = UnitKind.Minion,
                 BaseStats = CreatePreset(),
+                Loadout = HandlerLoadout.DefaultHero,
             };
             var prototypes = new GlobalUnitPrototypeTable();
             prototypes.Add(prototype);

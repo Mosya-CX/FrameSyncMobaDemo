@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace FrameSyncMoba.ClientContent.Tests
         {
             var service = new AddressablesClientContentService();
             ClientProjectileViewBinder binder = null;
+            GlobalPrefabTable runtimeTable = null;
             try
             {
                 Task init = service.InitializeAsync(
@@ -36,10 +38,55 @@ namespace FrameSyncMoba.ClientContent.Tests
                 yield return WaitFor(init);
                 Assert.That(init.Exception, Is.Null);
 
-                GlobalPrefabTable table =
+                GlobalPrefabTable rootTable =
                     AssetDatabase.LoadAssetAtPath<GlobalPrefabTable>(
                         "Assets/Config/Formal/GlobalPrefabTable.asset");
-                Assert.That(table, Is.Not.Null);
+                Assert.That(rootTable, Is.Not.Null);
+                GlobalPrefabSubTableAsset[] subTables =
+                {
+                    AssetDatabase.LoadAssetAtPath<GlobalPrefabSubTableAsset>(
+                        "Assets/Config/Formal/MatchContent/CoreGlobalPrefabSubTable.asset"),
+                    AssetDatabase.LoadAssetAtPath<GlobalPrefabSubTableAsset>(
+                        "Assets/Config/Formal/MatchContent/VarusGlobalPrefabSubTable.asset"),
+                    AssetDatabase.LoadAssetAtPath<GlobalPrefabSubTableAsset>(
+                        "Assets/Config/Formal/MatchContent/AatroxGlobalPrefabSubTable.asset"),
+                };
+                var resolvedPrefabs =
+                    new Dictionary<string, GameObject>();
+                for (int tableIndex = 0;
+                     tableIndex < subTables.Length;
+                     tableIndex++)
+                {
+                    Assert.That(subTables[tableIndex], Is.Not.Null);
+                    IReadOnlyList<PrefabGroup> groups =
+                        subTables[tableIndex].PrefabGroups;
+                    for (int groupIndex = 0;
+                         groupIndex < groups.Count;
+                         groupIndex++)
+                    {
+                        IReadOnlyList<PrefabEntry> entries =
+                            groups[groupIndex].Entries;
+                        for (int entryIndex = 0;
+                             entryIndex < entries.Count;
+                             entryIndex++)
+                        {
+                            string address =
+                                entries[entryIndex].LogicAssetAddress;
+                            if (string.IsNullOrEmpty(address) ||
+                                resolvedPrefabs.ContainsKey(address))
+                            {
+                                continue;
+                            }
+                            GameObject prefab =
+                                AssetDatabase.LoadAssetAtPath<GameObject>(address);
+                            Assert.That(prefab, Is.Not.Null, address);
+                            resolvedPrefabs.Add(address, prefab);
+                        }
+                    }
+                }
+                runtimeTable = rootTable.CreateResolvedRuntimeTable(
+                    subTables,
+                    resolvedPrefabs);
                 ProjectileRuntimeCatalogAsset catalog =
                     AssetDatabase.LoadAssetAtPath<
                         ProjectileRuntimeCatalogAsset>(
@@ -49,7 +96,7 @@ namespace FrameSyncMoba.ClientContent.Tests
                 var projectileWorld = new ProjectileWorld
                 {
                     DefRegistry =
-                        catalog.BakeOrThrow(table),
+                        catalog.BakeOrThrow(runtimeTable),
                     PhysicsWorld =
                         new PhysicsWorld
                         {
@@ -60,17 +107,17 @@ namespace FrameSyncMoba.ClientContent.Tests
                                         (fp)1m,
                                 },
                         },
-                    PrefabTable = table,
+                    PrefabTable = runtimeTable,
                     LogicSecondsPerTick = fp.one,
                 };
                 binder = new ClientProjectileViewBinder(
                     projectileWorld,
-                    table,
+                    runtimeTable,
                     service);
 
                 ProjectileUid first = SpawnProjectile(
                     projectileWorld,
-                    table);
+                    runtimeTable);
                 binder.Reconcile();
                 yield return WaitForViews(1);
                 Assert.That(
@@ -95,7 +142,7 @@ namespace FrameSyncMoba.ClientContent.Tests
 
                 SpawnProjectile(
                     projectileWorld,
-                    table);
+                    runtimeTable);
                 binder.Reconcile();
                 yield return WaitForViews(1);
                 Assert.That(
@@ -111,6 +158,8 @@ namespace FrameSyncMoba.ClientContent.Tests
             {
                 binder?.Dispose();
                 service.Dispose();
+                if (runtimeTable != null)
+                    Object.Destroy(runtimeTable);
             }
         }
 
