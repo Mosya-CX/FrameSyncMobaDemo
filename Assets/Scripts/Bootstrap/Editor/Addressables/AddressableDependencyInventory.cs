@@ -107,8 +107,7 @@ namespace FrameSyncMoba.EditorTools.Addressables
                 extension.Equals(".cs", StringComparison.OrdinalIgnoreCase) ||
                 extension.Equals(".asmdef", StringComparison.OrdinalIgnoreCase))
                 return "EditorOrCode";
-            if (normalized.StartsWith("Assets/Archive/LegacyMonolithic", StringComparison.Ordinal) ||
-                normalized.StartsWith("Assets/Resources/Prefab/Unit/", StringComparison.Ordinal))
+            if (normalized.StartsWith("Assets/Resources/Prefab/Unit/", StringComparison.Ordinal))
                 return "LegacyMixed";
             if (normalized.StartsWith("Assets/ClientContent/", StringComparison.Ordinal) ||
                 normalized.StartsWith("Assets/Art/", StringComparison.Ordinal) ||

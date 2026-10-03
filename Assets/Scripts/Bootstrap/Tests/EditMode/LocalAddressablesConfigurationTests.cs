@@ -73,7 +73,6 @@ namespace FrameSyncMoba.Bootstrap.Tests
             Assert.That(rootCount, Is.EqualTo(63));
         }
 
-        [TestCase("Assets/Archive/LegacyMonolithicUnitPrefabs/VarusRuntime.prefab", "LegacyMixed")]
         [TestCase("Assets/ClientContent/Animation/Varus/VarusIdle.anim", "ClientPresentation")]
         [TestCase("Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs", "Logic")]
         public void InventoryClassificationIsStable(string path, string expected)

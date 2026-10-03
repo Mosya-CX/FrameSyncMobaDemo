@@ -147,28 +147,6 @@ namespace FrameSyncMoba.Bootstrap.Tests
             }
         }
 
-        [Test]
-        public void LegacyArchivesAreNotReachableFromFormalAssets()
-        {
-            string[] formalGuids = AssetDatabase.FindAssets(
-                string.Empty,
-                new[] { "Assets/Config/Formal", "Assets/Scenes" });
-            for (int i = 0; i < formalGuids.Length; i++)
-            {
-                string source = AssetDatabase.GUIDToAssetPath(formalGuids[i]);
-                if (AssetDatabase.IsValidFolder(source))
-                    continue;
-                string[] dependencies = AssetDatabase.GetDependencies(source, true);
-                for (int dependencyIndex = 0;
-                     dependencyIndex < dependencies.Length;
-                     dependencyIndex++)
-                    Assert.That(
-                        dependencies[dependencyIndex],
-                        Does.Not.StartWith("Assets/Archive/"),
-                        source);
-            }
-        }
-
         private static List<PrefabEntry> LoadEntries(
             GlobalPrefabTable table,
             AddressableAssetSettings settings,

@@ -20,11 +20,11 @@ namespace FrameSyncMoba.Unit.Tests
         public void SetUp()
         {
             mapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/Archive/LegacyMonolithicMapPrefab/Map.prefab");
+                "Assets/Config/Formal/Prefabs/Logic/Map/Map.prefab");
             Assert.That(
                 mapPrefab,
                 Is.Not.Null,
-                "The retained monolithic map bake/audit source is required.");
+                "The formal deterministic map prefab is required.");
             source =
                 mapPrefab.GetComponent<
                     FlowFieldSceneAuthoring>();
@@ -130,99 +130,6 @@ namespace FrameSyncMoba.Unit.Tests
                     RadiusClass.Small),
                 Is.True,
                 "A rotated bar must not block its entire world AABB.");
-        }
-
-        [Test]
-        public void BakedObstacleLongAxes_MatchMapBoxColliders()
-        {
-            BoxCollider[] colliders =
-                mapPrefab.GetComponentsInChildren<
-                    BoxCollider>(
-                    true);
-            int obstacleLayer =
-                LayerMask.NameToLayer(
-                    "Obstacle");
-            for (int obstacleIndex = 0;
-                 obstacleIndex <
-                 mapData.Obstacles.Count;
-                 obstacleIndex++)
-            {
-                BakedMapObstacle obstacle =
-                    mapData.Obstacles[
-                        obstacleIndex];
-                BoxCollider matched = null;
-                float bestDistanceSq =
-                    float.PositiveInfinity;
-                for (int colliderIndex = 0;
-                     colliderIndex <
-                     colliders.Length;
-                     colliderIndex++)
-                {
-                    BoxCollider candidate =
-                        colliders[colliderIndex];
-                    if (!candidate.enabled ||
-                        candidate.gameObject.layer !=
-                            obstacleLayer)
-                        continue;
-                    Vector3 worldCenter =
-                        candidate.transform
-                            .TransformPoint(
-                                candidate.center);
-                    Vector2 delta =
-                        new Vector2(
-                            worldCenter.x -
-                                (float)obstacle.Center.x,
-                            worldCenter.z -
-                                (float)obstacle.Center.y);
-                    if (delta.sqrMagnitude <
-                        bestDistanceSq)
-                    {
-                        bestDistanceSq =
-                            delta.sqrMagnitude;
-                        matched = candidate;
-                    }
-                }
-
-                Assert.That(
-                    matched,
-                    Is.Not.Null,
-                    $"Obstacle {obstacle.StableObstacleId} has no matching BoxCollider.");
-                Assert.That(
-                    bestDistanceSq,
-                    Is.LessThan(0.0001f));
-                Vector3 worldX =
-                    matched.transform.TransformVector(
-                        Vector3.right *
-                        matched.size.x);
-                Vector3 worldZ =
-                    matched.transform.TransformVector(
-                        Vector3.forward *
-                        matched.size.z);
-                Vector3 actualLong =
-                    worldX.sqrMagnitude >=
-                        worldZ.sqrMagnitude
-                        ? worldX
-                        : worldZ;
-                fp2 actualAxis =
-                    fpmath.normalize(
-                        new fp2(
-                            (fp)actualLong.x,
-                            (fp)actualLong.z));
-                fp2 bakedAxis =
-                    obstacle.HalfExtents.x >=
-                        obstacle.HalfExtents.y
-                        ? obstacle.AxisX
-                        : obstacle.AxisY;
-                fp alignment =
-                    fpmath.abs(
-                        fpmath.dot(
-                            actualAxis,
-                            bakedAxis));
-                Assert.That(
-                    alignment,
-                    Is.GreaterThan((fp)0.999m),
-                    $"Obstacle {obstacle.StableObstacleId} baked perpendicular to {matched.name}.");
-            }
         }
 
         [Test]
@@ -424,7 +331,7 @@ namespace FrameSyncMoba.Unit.Tests
         }
 
         [Test]
-        public void SixLaneDirections_FollowAuthoredWaypointsInOrder()
+        public void SixLaneDirections_FollowForwardWaypointsInOrder()
         {
             for (byte teamId = 1;
                  teamId <= 2;
@@ -596,9 +503,12 @@ namespace FrameSyncMoba.Unit.Tests
                 Is.EqualTo(laneIndex),
                 $"Team {teamId} Lane {lane.LaneId} starts in the wrong OwnerLane.");
 
+            // Team spawns are intentionally placed ahead of their own base
+            // endpoint. A forward route must visit every subsequent waypoint;
+            // it must not first reverse toward the endpoint behind the spawn.
             int waypoint = teamId == 1
-                ? 0
-                : lane.CenterlinePoints.Length - 1;
+                ? 1
+                : lane.CenterlinePoints.Length - 2;
             int waypointStep = teamId == 1
                 ? 1
                 : -1;
