@@ -1,0 +1,244 @@
+{
+  "id": "REQ-FEAT-033",
+  "title": "战斗公式修正与动态 Operand",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "战斗",
+  "path": "Docs/requirements/combat/REQ-FEAT-033_combat-operands.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2 CombatModifierRecord",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3 Id 与 Handle",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4 生命周期与事件驱动",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5 CombatModifierMatch",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.6 固定公式槽位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.7 Operation",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.8 CombatOperand：受限线性表达式",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.9 同一槽位的稳定合并规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.10 Damage 最终值公式",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.11 Heal 最终值公式",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.12 Shield 最终值公式",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.13 CombatPolicyPatch",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.14 Collector 查询流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.15 快照恢复与动态属性接缝",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierRecord.cs",
+      "sha256": "5491ccdf89dc3eb18db46689b554f472d2a5408542a6d17f5333430513d7090a",
+      "symbols": [
+        "CombatModifierRecord",
+        "CombatOperand"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierSet.cs",
+      "sha256": "ced978458335a59a6c0eeb2aa2e5d98cf8795e481d24d42ea8857ce82b279f13",
+      "symbols": [
+        "CombatModifierSet"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatModifierSetSnapshotTests.cs",
+      "sha256": "d65742c50be4e46b91be75dc9174c423d2bd1b1680859e06f413da5e2715c5c3",
+      "testFunctions": [
+        "CaptureRestore_RoundTrip_PreservesAllRecords",
+        "Capture_DeepCopiesFormulaAndPolicyContent",
+        "Restore_DoesNotCallAttachDetachClear",
+        "RestoreAfterDetach_PreservesOriginalSet",
+        "RollbackReplay_Equivalence",
+        "Determinism_SameSequence_SameSnapshot",
+        "Capture_EmptySet_ProducesEmptySnapshot",
+        "Restore_EmptySnapshot_ClearsSet",
+        "Capture_AfterDetach_OnlyCapturesRemaining",
+        "ResolveAndRebuild_AreNoOps"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatModifierSetTests.cs",
+      "sha256": "f81802453cec9dc6eadc5aa2bf2077a009e60a33cfc20aa1de26d76392a542f7",
+      "testFunctions": [
+        "Attach_ReturnsValidHandle",
+        "Attach_DuplicateId_ThrowsDeterministicSimulationException",
+        "Detach_ValidHandle_RemovesRecord",
+        "Detach_WrongOwnerUid_ReturnsFalse",
+        "Detach_AlreadyDetached_ReturnsFalse",
+        "Collect_OutputSortedByModifierId",
+        "Collect_Deterministic_InsertOrderInvariant",
+        "Clear_RemovesAll",
+        "Detach_SwapRemove_MaintainsIndexConsistency",
+        "CombatModifierId_SameTickSameKey_SameId",
+        "CombatModifierId_DifferentTick_DifferentId"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "testFunctions": [
+        "SubmitDamage_ValidRequest_ReducesHealth",
+        "Omnivamp_HealsSourceForFractionOfSettledDamage",
+        "NaturalRegen_AppliesPerInterval_ForHealthAndCastResource",
+        "DamageFormula_ArmorReducesDamage",
+        "ZeroArmor_FullDamageApplied",
+        "CombatModifiers_ApplyOutgoingAndIncomingFinalPatches",
+        "FatalDamage_CompletesFormalDeathSettlement",
+        "FatalDamage_NonHeroIsDisposedAfterCombatConsumersFinish",
+        "FormalDeathResult_UsesHighestLethalBatchDamageAndUidSortedAssistants",
+        "DeadUnit_DoesNotTakeDamage",
+        "InvalidRequest_IsIgnored",
+        "CalculatePhysicalDamage_NegativeArmor_ClampedToZero",
+        "CalculatePhysicalDamage_HighArmor_ReducedHeavily",
+        "BeginTick_ClearsActiveQueue"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+      "sha256": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+      "testFunctions": [
+        "InitialBuffs_AppliedAutomaticallyFromPrototype",
+        "MeleeMinion_AttacksMinion_AddsTwoPercentCurrentHealth",
+        "RangedMinion_AttacksMinion_AddsThreePointFivePercentCurrentHealth",
+        "Minion_AttacksStructure_DealsSixtyPercent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
+      "sha256": "01d291fac5c4ac3107fde051bb2e39a017248b44e2b0e309b5617bbdf8d1d457",
+      "testFunctions": [
+        "FactoryUnit_BindsEveryHandlerToSameComponentOwner",
+        "Death_PreservesGlobalStatAndCombatModifierOwnership",
+        "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "testFunctions": [
+        "SpawnMultipleKinds_GetByKind",
+        "SpawnUnit_DoubleSnapshot_RoundTrip",
+        "ClearForDeath_PreservesCombatModifiersOwnedBySourceSystems",
+        "ClearForRespawn_DoesNotClearStatBaseValues",
+        "ResetForPool_ResetsAllDynamicState",
+        "ManyUnits_StableReadOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

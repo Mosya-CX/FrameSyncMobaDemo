@@ -1,0 +1,379 @@
+{
+  "id": "REQ-FEAT-037",
+  "title": "攻击周期规划与 Commit",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "普通攻击",
+  "path": "Docs/requirements/basic-attacks/REQ-FEAT-037_attack-cycle.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.1 模块定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.3 职责边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.2 配置字段",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.3 运行时状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.4 最小公开接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.5 继承与可重写边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 AttackPlanStatus",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 Planner 自己计算追击",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 规划流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.4 朝向不是攻击前提",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 完整攻击周期",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 Tick 解析算法",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 用户示例",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 Commit",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 Commit 前取消",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.6 Commit 后取消后摇",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.7 计时未结束时重新进入攻击",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.8 攻击重置",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 模块结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_attack_module_design_v6_2.md",
+      "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 最终主流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "sha256": "c40b6b714223a33ea344cd9989fcc2aa969a59fb66a0ec130925e8bac21692c5",
+      "symbols": [
+        "AttackHandler",
+        "AttackPlanStatus"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/TowerAttackHandlerTests.cs",
+      "sha256": "8104bfe8cc441acf5ce69c4837278e7345e4c7f4304cbbd31b55c5967c9dd3bb",
+      "testFunctions": [
+        "HeroRamp_FirstHitIsBase_ThenMultipliesByOnePointFive",
+        "HeroRamp_CapsAtSixHundred",
+        "Ramp_WithZeroHits_ReturnsBaseEvenForSmallBase"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
+      "sha256": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+      "testFunctions": [
+        "FullMatchAnimationFixtures_HaveCompleteBindableControllers",
+        "RuntimeUnits_HaveCompleteRuntimeComposition",
+        "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
+        "FormalStructures_HaveNoAttackAnimation"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+      "sha256": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+      "testFunctions": [
+        "Crit_100PercentChance_DoublesDamage",
+        "Crit_ZeroPercentChance_NoCrit",
+        "Crit_DamageEventData_IsCriticalFlag",
+        "Crit_OneHundredPercent_DoesNotRequireRandomService",
+        "ProbabilisticCrit_DoesNotConsumeGlobalRandomState",
+        "AttackSpeed_ModifiesCooldown",
+        "AttackSpeed_PositiveBase_StartsAttack"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
+      "sha256": "756d183174fddfdaf5eafaf15d3dcadfb35ba0c6d5f9e1f4e0718c362356d7fe",
+      "testFunctions": [
+        "Acquisition_SetsInitialThreat_AndPicksClosestUnclaimed",
+        "DamageTaken_AddsThreat_InverselyProportionalToDistance",
+        "HigherThreatTarget_SwitchesOnlyWhenNotInWindup",
+        "Acquisition_PairsAlliesWithDistinctTargets",
+        "ThreatTable_SnapshotRoundTrip_PreservesEntries",
+        "SnapshotRoundTrip_PreservesLastThreatRefreshTick",
+        "RestoreReplacement_UnsubscribesPreviousController",
+        "RestoredController_DoesNotReapplyStaleAttackThreat"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
+      "sha256": "e2427837e7915ce403f46f10b401818bb4ce883f366ff64fd75e1d903cc4aeee",
+      "testFunctions": [
+        "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
+        "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+      "sha256": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+      "testFunctions": [
+        "Catalog_ContainsSunderedSkyTreeWithStatsAndRecipes",
+        "EmpoweredStrike_Deals160PercentCritical_AndStartsCooldown",
+        "PerTargetCooldown_SecondHitOnSameHeroIsNormal",
+        "DifferentEnemyHero_StillTriggersEmpoweredStrike",
+        "HealRestoresMissingHealth_AndOverhealBecomesTempMaxHealth",
+        "RangedStrike_HealsWithRangedBaseAdRatio",
+        "MeleeWithProjectile_StillHealsWithMeleeRatio",
+        "FinishedItem_IsUnique_SecondPurchaseRejected",
+        "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
+      "sha256": "01d291fac5c4ac3107fde051bb2e39a017248b44e2b0e309b5617bbdf8d1d457",
+      "testFunctions": [
+        "FactoryUnit_BindsEveryHandlerToSameComponentOwner",
+        "Death_PreservesGlobalStatAndCombatModifierOwnership",
+        "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "sha256": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+      "testFunctions": [
+        "Bake_ConvertsFloatAuthoringToExistingRuntimeContracts",
+        "Bake_ReversedAuthoringOrderProducesSameStableTables",
+        "Bake_DuplicateStatDefinitionFailsInsteadOfOverwriting",
+        "Bake_DuplicatePrototypePresetStatFails",
+        "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "testFunctions": [
+        "SpawnMultipleKinds_GetByKind",
+        "SpawnUnit_DoubleSnapshot_RoundTrip",
+        "ClearForDeath_PreservesCombatModifiersOwnedBySourceSystems",
+        "ClearForRespawn_DoesNotClearStatBaseValues",
+        "ResetForPool_ResetsAllDynamicState",
+        "ManyUnits_StableReadOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

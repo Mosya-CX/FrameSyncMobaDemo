@@ -1,0 +1,139 @@
+{
+  "id": "PLAN-0062",
+  "code": "0062",
+  "title": "攻击特效管线补全",
+  "type": "plan",
+  "domain": "普通攻击",
+  "status": "关闭",
+  "path": "Docs/plans/basic-attacks/PLAN-0062_onhit-pipeline.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-038",
+    "REQ-FEAT-054"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-038",
+      "title": "近战远程与攻击特效输出",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/basic-attacks/REQ-FEAT-038_attack-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "555211705b0465d73e572062b134387b1d9de68386d4dc259f7ea2be8e3570e8"
+    },
+    {
+      "id": "REQ-FEAT-054",
+      "title": "装备主动被动与可重复命中",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "33317ac180b0d875e3811316eb090e85a2901e0df115edfbe84ae297362dd26c"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0062_onhit_pipeline_execplan.md",
+      "sha256": "db065c949abb9459fa300d12e17faa6282b165abba999a410dc1ed5844e9b06b",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Complete — 2026-07-24",
+      "targets": [
+        "REQ-FEAT-038",
+        "REQ-FEAT-054"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0062",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffEffect.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentEffectDispatch.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs",
+      "Assets/Scripts/Gameplay/Equipment/EquipmentEffect.cs",
+      "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "sha256": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs",
+      "sha256": "43a7635662621e4b4cb4c01ff5214da3423a0fd87ae11c84e6c761d9791b3fa1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffEffect.cs",
+      "sha256": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "sha256": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentEffectDispatch.cs",
+      "sha256": "eda7adc7faa30dba7c9d3268ef184aabc7c4e7e93141c8b71c0aa6241f6a5fad",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs",
+      "sha256": "b10d17906ddd900a03bb45d305e41d9870ffe2e2f29f6535ccfb58f6fe2a246d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/EquipmentEffect.cs",
+      "sha256": "eb58a9d0ffc809eee74f0248b4c5623b3d5d9f5ce6fd1bdc971330b2c3f29a34",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "sha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+      "sha256": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

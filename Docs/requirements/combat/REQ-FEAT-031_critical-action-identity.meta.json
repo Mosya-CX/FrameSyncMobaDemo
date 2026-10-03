@@ -1,0 +1,236 @@
+{
+  "id": "REQ-FEAT-031",
+  "title": "动作键暴击与中性平局",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "战斗",
+  "path": "Docs/requirements/combat/REQ-FEAT-031_critical-action-identity.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_4_action_identity_fairness_amendment.md",
+      "sha256": "9b8fdc5bde9f3adede418d0d1e93730b5b572020890a856691f7367ce3d837c5",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_4_action_identity_fairness_amendment.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatActionIdentity.cs",
+      "sha256": "01ec1381f9b5067bf260ba61ed9248875e577f986140711a97b3dbcacaece735",
+      "symbols": [
+        "OriginActionId"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/GameplayParticipantId.cs",
+      "sha256": "c48c335d1262068b315843a427a01c2708ad199e768de5b31892a4a4a760ec18",
+      "symbols": [
+        "GameplayParticipantId"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
+      "sha256": "c1cdce263d6a4e33c0acb6c413a0b3be1e6981dd597fd1c2b4ba4fef75f9cafc",
+      "testFunctions": [
+        "ProjectileViewLeaseStaysResidentAcrossLifetimes"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ChecksumNewStateCoverageTests.cs",
+      "sha256": "6187290088a7ef1ee6a52055cde39c821ee21f6f10dfbec1a3947d2f3b914be3",
+      "testFunctions": [
+        "Checksum_ChangesWhenProjectileOnHitOverrideDiffers",
+        "Checksum_ChangesWhenPendingLifetimeOverrideDiffers",
+        "Checksum_ChangesWhenPassiveAbilityLevelDiffers",
+        "Checksum_ChangesWhenMinionThreatRefreshTickDiffers",
+        "Checksum_ChangesWhenMinionThreatTableDiffers",
+        "Checksum_ChangesWhenEquipmentTriggerCountDiffers",
+        "Checksum_ChangesWhenGameplayParticipantIdDiffers",
+        "Checksum_ChangesWhenProjectileOriginActionDiffers",
+        "Checksum_ChangesWhenDeferredDamageEffectOrdinalDiffers",
+        "Checksum_ChangesWhenJungleLeashPatienceDiffers"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+      "sha256": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+      "testFunctions": [
+        "EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat",
+        "EndOnFirstHit_RejectsLaterSameTickCandidate",
+        "EqualDistanceArbitration_UidRelabelKeepsParticipantWinner",
+        "PierceBudget_EndsAtConfiguredHitCount",
+        "ProjectileDamage_UsesCombatShieldPipeline",
+        "EnemyFilter_ExcludesFriendlyTarget",
+        "EnemyFilter_IncludesStructureTarget",
+        "MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp",
+        "MisconfiguredProjectileBuff_StructureHitStillFailsVisibly",
+        "MisconfiguredProjectileCC_StructureHitStillFailsVisibly",
+        "RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget",
+        "PendingTrackedTarget_SnapshotRoundTripPreservesLock",
+        "SnapshotRoundTrip_PreservesSourceAndHitMemory",
+        "Capture_PrunesHitMemoryForDisposedTargets",
+        "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
+        "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+      "sha256": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+      "testFunctions": [
+        "PiercingFalloff_ReducesDamagePerExtraHit",
+        "PiercingFalloff_OverridePath_MatchesStaticConfig",
+        "PiercingFalloff_ClampsAtMinDamageRatio"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
+      "sha256": "424e317e0f6df5d81e79542dfa77e6478eb6b5f3a9bd17a94d3256c2ebb68e35",
+      "testFunctions": [
+        "CritRoll_RepeatedAndGlobalRandomInterleavingAreEquivalent",
+        "CritRoll_TechnicalUidRelabelDoesNotChangeResult",
+        "CombatCrit_TechnicalUidRelabelKeepsSettledResult",
+        "ProbabilisticCrit_InvalidIdentityOrOrdinalFails",
+        "ChildEffectOrdinal_DifferentParentEffectsDoNotCollide",
+        "ProjectileTie_SeedCorpusDoesNotPermanentlyFavorEitherParticipant",
+        "DeferredDamage_CaptureRestorePreservesActionIdentity",
+        "NegativeEffectOrdinal_IsRejectedAtDamageBoundaries"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+      "sha256": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+      "testFunctions": [
+        "Crit_100PercentChance_DoublesDamage",
+        "Crit_ZeroPercentChance_NoCrit",
+        "Crit_DamageEventData_IsCriticalFlag",
+        "Crit_OneHundredPercent_DoesNotRequireRandomService",
+        "ProbabilisticCrit_DoesNotConsumeGlobalRandomState",
+        "AttackSpeed_ModifiesCooldown",
+        "AttackSpeed_PositiveBase_StartsAttack"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
+      "sha256": "4f869a40d5ba9f975ee0ca434782fbdb21aa1086d9c96141fed051f8e7241e6d",
+      "testFunctions": [
+        "Restore_UsesStableUnitUidAndRestoresRandomAndPhysicsState",
+        "Restore_RejectsNonCanonicalOrMissingUnitIdentity",
+        "Restore_RejectsDuplicateGameplayParticipantIdentity",
+        "Restore_RejectsMissingGameplayParticipantIdentity",
+        "SnapshotStore_WritesExplicitOuterSchemaAndNextTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
+      "sha256": "73a8797011fe50dc4481f2ae7edd731f442528cc0c5030e9c7a902418d195c4d",
+      "testFunctions": [
+        "ServerFirstTick_MatchesClientPredictionFirstTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchTopologyTests.cs",
+      "sha256": "71f3bc513efd71dc07f288ae233bd52dcffeac0f17fb39b2b25725d2dbd372f1",
+      "testFunctions": [
+        "InitialTopology_RegistersTwoStructureBasesInStableRoles",
+        "InitialAuthoritySnapshot_DiscardsClientAuthoringSpawnQueue",
+        "InitialTopology_RejectsBasesOnSameTeam"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs",
+      "sha256": "a2f653be8426d7386c4c5e83a40337cbd4137894ee105332515e5148b565f4b8",
+      "testFunctions": [
+        "RespawnDelay_UsesBasePlusElapsedMinutes",
+        "RespawnPosition_IsCapturedFromInitialSpawn",
+        "CompleteRespawn_TeleportsToHomeSpawnPosition"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
+      "sha256": "e2427837e7915ce403f46f10b401818bb4ce883f366ff64fd75e1d903cc4aeee",
+      "testFunctions": [
+        "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
+        "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SpawnUnitTests.cs",
+      "sha256": "0e8f9f9e31ab339e950aa405d58517e189088936ee5980b2b64b597e72f66958",
+      "testFunctions": [
+        "SpawnUnit_ReturnsUnitWithCorrectIdentity",
+        "SpawnUnit_AllocatesDeterministicUid",
+        "SpawnUnit_SameInput_SameUid",
+        "SpawnUnit_DifferentTick_DifferentUid",
+        "SpawnUnit_InitializesStatHandler",
+        "SpawnUnit_StatHandlerLevelGrowth",
+        "SpawnUnit_CreatesEmptyCombatModifierSet",
+        "SpawnUnit_Registration_UnitIsFindable",
+        "SpawnUnit_GetAllUnits_ReturnsSpawnedUnits",
+        "SpawnUnit_WithNullPrototype_Throws",
+        "SpawnUnit_WithoutStatDefinitionTable_Throws",
+        "SpawnUnit_MultipleTeams_GetByTeamWorks",
+        "SpawnUnit_CanRunActiveGameplayThisTick_FalseDuringSpawnTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+      "sha256": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+      "testFunctions": [
+        "Bake_ConvertsFloatAuthoringToExistingRuntimeContracts",
+        "Bake_ReversedAuthoringOrderProducesSameStableTables",
+        "Bake_DuplicateStatDefinitionFailsInsteadOfOverwriting",
+        "Bake_DuplicatePrototypePresetStatFails",
+        "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

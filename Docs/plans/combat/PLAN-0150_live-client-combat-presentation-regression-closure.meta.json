@@ -1,0 +1,225 @@
+{
+  "id": "PLAN-0150",
+  "code": "0150",
+  "title": "真实客户端战斗表现回归",
+  "type": "plan",
+  "domain": "战斗",
+  "status": "关闭",
+  "path": "Docs/plans/combat/PLAN-0150_live-client-combat-presentation-regression-closure.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-029",
+    "REQ-FEAT-030",
+    "REQ-FEAT-034",
+    "REQ-FEAT-035",
+    "REQ-FEAT-072",
+    "REQ-FEAT-073",
+    "REQ-FEAT-074"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-029",
+      "title": "战斗请求封存与因果波次",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-029_combat-causal-waves.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "2c774a29d44f24cf5ce1dc11539e227810a3f374dadd8fcd584b2be0a9f1fa22"
+    },
+    {
+      "id": "REQ-FEAT-030",
+      "title": "伤害配方抗性与吸血",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-030_damage-resistance.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "3f22948328715752fac13814e44eea920bf6f22569ef181a73ffce844bdba251"
+    },
+    {
+      "id": "REQ-FEAT-034",
+      "title": "濒死批次与公平击杀归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-034_death-attribution.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c8714176a5670cee9d39a89059b55a3fd2d1b03558a4b56b3d9b1bef106165f7"
+    },
+    {
+      "id": "REQ-FEAT-035",
+      "title": "死亡奖励与贡献窗口",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "bfb31422561c563722d4853f12f79e62435cfcfb726d715f1ed24c277c9b507a"
+    },
+    {
+      "id": "REQ-FEAT-072",
+      "title": "单位视图绑定与语义挂点",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-072_unit-view-binding.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "aca8e1fa1bcdf4b0ab277301052aa1b5fda5635349ed8f33cad8eaa6b162b36f"
+    },
+    {
+      "id": "REQ-FEAT-073",
+      "title": "攻击技能动画与插值采样",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-073_animation-sampling.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "18f13b0a6da76a9de5103f8b8ab09b8bfdeeef0d8fb8d72223806dd0f606e8e5"
+    },
+    {
+      "id": "REQ-FEAT-074",
+      "title": "特效音效与回滚账本",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-074_presentation-ledger.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "698ce3ccb29c96b1eccbc7511da65943e7c7d190576f5d818081732c71a93c4e"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0150_live_client_combat_presentation_regression_closure.md",
+      "sha256": "291ff48e6d159b5d71a5d59be9a42f56f011da3b625d0d89c4fbc650a3be9c3e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-029",
+        "REQ-FEAT-030",
+        "REQ-FEAT-034",
+        "REQ-FEAT-035",
+        "REQ-FEAT-072",
+        "REQ-FEAT-073",
+        "REQ-FEAT-074"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0150",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+      "Assets/Scripts/Bootstrap/CameraController.cs",
+      "Assets/Scripts/Bootstrap/MobaCameraPresentationConfig.cs",
+      "Assets/Scripts/FrameSync/ChecksumDiagnosticFormatter.cs",
+      "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/CameraControllerPlayModeTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
+      "Assets/Scripts/FrameSync/Tests/AnimationSamplingTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+      "sha256": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/CameraController.cs",
+      "sha256": "006410143cd507b54c6499f71f5a88470416aa46dab7ab4751d9100935cdf3a3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/MobaCameraPresentationConfig.cs",
+      "sha256": "4ab78fdb0e0d890f3780587018f33b3440a7672a346b6621cfbd42a6559252e4",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/ChecksumDiagnosticFormatter.cs",
+      "sha256": "5824545a6ae5e7c297943654714d75c65431e2c6404d56c62eb8756fa743f0fe",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "sha256": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+      "sha256": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/CameraControllerPlayModeTests.cs",
+      "sha256": "ad34bcf02d00763cf96ff01d33c54dd29cd5e87c332c5364e2db84983a2840bc",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+      "sha256": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
+      "sha256": "b60a604cca4de59afa23f8c6126aa348d53667a37d5e410aaaf695eb6405f590",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AnimationSamplingTests.cs",
+      "sha256": "d17750eebd552668e56c39cbec34a02403d65b6b09089e635e3ced1f90ab1f9e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

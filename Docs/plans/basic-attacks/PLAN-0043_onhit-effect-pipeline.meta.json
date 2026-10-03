@@ -1,0 +1,109 @@
+{
+  "id": "PLAN-0043",
+  "code": "0043",
+  "title": "攻击特效管线基础",
+  "type": "plan",
+  "domain": "普通攻击",
+  "status": "关闭",
+  "path": "Docs/plans/basic-attacks/PLAN-0043_onhit-effect-pipeline.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-038",
+    "REQ-FEAT-054"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-038",
+      "title": "近战远程与攻击特效输出",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/basic-attacks/REQ-FEAT-038_attack-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "555211705b0465d73e572062b134387b1d9de68386d4dc259f7ea2be8e3570e8"
+    },
+    {
+      "id": "REQ-FEAT-054",
+      "title": "装备主动被动与可重复命中",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-054_equipment-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "33317ac180b0d875e3811316eb090e85a2901e0df115edfbe84ae297362dd26c"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0043_onhit_effect_pipeline.md",
+      "sha256": "012e23b8b47b570c15198b708b9b282a58fb13899b1c88f506eab7c0e2790cad",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-038",
+        "REQ-FEAT-054"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0043",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "Assets/Scripts/Gameplay/Equipment/OnHitRepeatModule.cs",
+      "Assets/Scripts/Gameplay/Projectile/ProjectileSpawnRequest.cs",
+      "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "sha256": "c40b6b714223a33ea344cd9989fcc2aa969a59fb66a0ec130925e8bac21692c5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Equipment/OnHitRepeatModule.cs",
+      "sha256": "5ee3e8aa122afc9c8962a244f0c9446ed3f9ce9ba3569afd7fc97a18ff0d04b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileSpawnRequest.cs",
+      "sha256": "bd3fc4bfda8ac7e84ce1ca01baf69e1fef045018bdb4ee4633b6a5e5169a971d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+      "sha256": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

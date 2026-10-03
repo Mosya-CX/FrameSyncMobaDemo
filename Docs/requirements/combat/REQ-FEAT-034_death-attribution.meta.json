@@ -1,0 +1,41 @@
+{
+  "id": "REQ-FEAT-034",
+  "title": "濒死批次与公平击杀归属",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "战斗",
+  "path": "Docs/requirements/combat/REQ-FEAT-034_death-attribution.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_3_same_tick_fairness_amendment.md",
+      "sha256": "6bb6449a5e09b8b941e3fece2f4749d0ce4fab312b333b1f55567cebae6045eb",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_3_same_tick_fairness_amendment.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/Trackers/CombatContributionEventLog.cs",
+      "sha256": "ce69702dc8ff4c910cd6095ea5ddf14eeb46b0851ff05cf6683950c8e0abb610",
+      "symbols": [
+        "CombatContributionEventLog"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatContributionEventLogTests.cs",
+      "sha256": "c17a765b96bd4f27bf5a1755942d7a0f0430aa7b1b4bf3f51c9260ed29287c39",
+      "testFunctions": [
+        "LastHit_IsMostRecentDamageEventContributor",
+        "PruneExpired_RemovesOldEventsAndClearsLastHitWhenEmpty",
+        "Capacity_DropsOldestEventFirst",
+        "ResolveAssistants_ExcludesKillerAndSortsAscending",
+        "SnapshotRoundTrip_PreservesEventsAndLastHit"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

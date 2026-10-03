@@ -1,0 +1,124 @@
+{
+  "id": "REQ-FEAT-035",
+  "title": "死亡奖励与贡献窗口",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "战斗",
+  "path": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.14 CombatContributionEventLog：跨 Tick 战斗事件日志",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.1 总体定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.2 DeathRewardContext",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.3 全局奖励参数",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.4 小兵死亡奖励",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.5 英雄死亡奖励",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.6 野怪死亡奖励",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.7 防御塔死亡奖励",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.8 确定性整数分配",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.9 ExperienceSettlement：本地帧立即结算",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.10 GoldIncomeAllocation 与统一金币请求",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.11 FormalDeathResult",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.12 MatchStatisticsRuntime 与外部边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatTickResult.cs",
+      "sha256": "1e1f2bb1841401d96c6a643396d96dc87f4a23bc53cc993fbd265f2f429fa9ac",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchGoldRewardTests.cs",
+      "sha256": "81d83e401752ccf3bd00806a80fe7b6ffa0c91ff3f6a3553d1073341c506a52a",
+      "testFunctions": [
+        "GoldAllocation_UsesIntegerAmountContract",
+        "MinionLastHit_ConfirmsFullConfiguredGold",
+        "MonsterLastHit_UsesAuthoredCreepScoreValue",
+        "HeroKill_WithTwoAssistants_Splits300As180_60_60",
+        "HeroKill_WithoutAssistants_ConfirmsFull300ToKiller"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

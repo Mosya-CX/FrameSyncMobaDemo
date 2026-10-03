@@ -1,0 +1,484 @@
+{
+  "id": "REQ-FEAT-030",
+  "title": "伤害配方抗性与吸血",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "战斗",
+  "path": "Docs/requirements/combat/REQ-FEAT-030_damage-resistance.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 SourceDescriptor",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 DamageChannel 不是 Tag",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 DeliveryDescriptor",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.4 KeywordTags 只保留设计标签",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 DamagePipeline 总流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 DamageRequest",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 DamagePayload",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 DamageContext",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 DamageRecipe 与 DamageFormula",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 FormulaTerm",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.8 抗性阶段",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.9 护盾、生命与 PendingDying 处理",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.10 生命偷取",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.11 全能吸血",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.12 攻击特效与 DamageDealt Reaction",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_2.md",
+      "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.13 DamageResult 与单位事件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
+    },
+    {
+      "path": "Docs/Design/moba_combat_system_design_v13_3_same_tick_fairness_amendment.md",
+      "sha256": "6bb6449a5e09b8b941e3fece2f4749d0ce4fab312b333b1f55567cebae6045eb",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_3_same_tick_fairness_amendment.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "symbols": [],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/DamageContext.cs",
+      "sha256": "cc53ddb23f1d0c28d2590182ee9cb0f13181b16de3dd760429ea786294fa5a4e",
+      "symbols": [
+        "DamageContext"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "testFunctions": [
+        "SubmitDamage_ValidRequest_ReducesHealth",
+        "Omnivamp_HealsSourceForFractionOfSettledDamage",
+        "NaturalRegen_AppliesPerInterval_ForHealthAndCastResource",
+        "DamageFormula_ArmorReducesDamage",
+        "ZeroArmor_FullDamageApplied",
+        "CombatModifiers_ApplyOutgoingAndIncomingFinalPatches",
+        "FatalDamage_CompletesFormalDeathSettlement",
+        "FatalDamage_NonHeroIsDisposedAfterCombatConsumersFinish",
+        "FormalDeathResult_UsesHighestLethalBatchDamageAndUidSortedAssistants",
+        "DeadUnit_DoesNotTakeDamage",
+        "InvalidRequest_IsIgnored",
+        "CalculatePhysicalDamage_NegativeArmor_ClampedToZero",
+        "CalculatePhysicalDamage_HighArmor_ReducedHeavily",
+        "BeginTick_ClearsActiveQueue"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+      "sha256": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+      "testFunctions": [
+        "EqualDistanceHits_AreFairnessKeyOrderedAndUseCombat",
+        "EndOnFirstHit_RejectsLaterSameTickCandidate",
+        "EqualDistanceArbitration_UidRelabelKeepsParticipantWinner",
+        "PierceBudget_EndsAtConfiguredHitCount",
+        "ProjectileDamage_UsesCombatShieldPipeline",
+        "EnemyFilter_ExcludesFriendlyTarget",
+        "EnemyFilter_IncludesStructureTarget",
+        "MisconfiguredAbilityProjectile_StructureHitIsConsumedNoOp",
+        "MisconfiguredProjectileBuff_StructureHitStillFailsVisibly",
+        "MisconfiguredProjectileCC_StructureHitStillFailsVisibly",
+        "RestrictToTrackedTarget_IgnoresUnitsBetweenProjectileAndTarget",
+        "PendingTrackedTarget_SnapshotRoundTripPreservesLock",
+        "SnapshotRoundTrip_PreservesSourceAndHitMemory",
+        "Capture_PrunesHitMemoryForDisposedTargets",
+        "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
+        "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+      "sha256": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+      "testFunctions": [
+        "PiercingFalloff_ReducesDamagePerExtraHit",
+        "PiercingFalloff_OverridePath_MatchesStaticConfig",
+        "PiercingFalloff_ClampsAtMinDamageRatio"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+      "sha256": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+      "testFunctions": [
+        "AreaDamageStage_CentersOnAimTargetPoint",
+        "AreaDamageStage_DoesNotDamageEnemyStructure",
+        "SpawnProjectileStage_FiresTowardAimDirection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
+      "sha256": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+      "testFunctions": [
+        "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
+        "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "testFunctions": [
+        "FormalDeathInvalidation_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_ClearsChaseRouteAndAttackIntentBeforeSnapshot",
+        "DespawnTarget_AtomicallyClearsWindupAndMainRuntime",
+        "FormalDeathInvalidation_DoesNotRevokeCommittedAttack",
+        "DespawnTarget_DoesNotRevokeCommittedAttack",
+        "FormalDeathInvalidation_RejectsNonIncreasingSequence",
+        "BeginAndCancel_DoNotConsumeSequence",
+        "BeginAttack_LocksReadyEmpoweredPassiveIntoAnimationSnapshot",
+        "AttackCycle_CancelsChaseAndDoesNotResumeUntilCycleEnds",
+        "ReplaceIntent_WithMoveOrder_CancelsUncommittedAttackWindup",
+        "AttackRange_RetainsRawStatAndConvertsOnlyAtUseBoundary",
+        "AttackRange_IncludesTargetCollisionRadiusOnly",
+        "AttackSpeedOnePointTwo_AtThirtyTicks_ResolvesFormalTimeline",
+        "SuccessfulImpact_SubmitsCombatAndConsumesOneSequence",
+        "MissingCombatOutput_CancelsWithoutConsumingSequence",
+        "SuccessfulSequence_WrapsFromMaxValueToZero",
+        "SequenceReset_IsLazyAndOccursBeforeNextBegin",
+        "CaptureRestore_PreservesResolvedTimeline",
+        "AnimationSnapshot_AfterTickCompletion_UsesPublishedContext",
+        "AnimationSnapshot_AtReadyBoundary_KeepsCompletedRecovery",
+        "Resolve_RejectsMissingActiveTarget",
+        "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+      "sha256": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+      "testFunctions": [
+        "AbilityHit_DetonatesAndConsumesAllStacks",
+        "Detonation_DoesNotRecurse",
+        "Detonation_NonHero_CapsPerStackDamage",
+        "ExternalBlightAndAbilityDamage_DoNotAffectStructure",
+        "Detonation_Hero_GrantsCooldownReduction",
+        "AttackDamage_DoesNotDetonate",
+        "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
+        "WPassive_OnHit_DoesNotAffectStructure"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "sha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "testFunctions": [
+        "PeriodicDamage_DealsDamageEachInterval",
+        "PeriodicDamage_NoDamageWithoutCombatSystem",
+        "HealOverTime_RestoresHealthEachInterval",
+        "CurrentHealthOnHit_DealsThreePercentOfPreHitHealth",
+        "ShieldOverTime_GrantsShieldEachInterval",
+        "OnKillStat_GrantsStatOnKill",
+        "OnKillStat_StacksUpToMax"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+      "sha256": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+      "testFunctions": [
+        "Blackboard_StaticLayout_ReadWriteResetAndRoundTrip",
+        "FirstApply_FiresStackChanged_ZeroToInitial",
+        "Reapply_FiresReapplied_AndStackChangedOnChange",
+        "PeriodicReaction_FiresOnIntervalSlot",
+        "EventReactions_AbilityCastAndLevelUp_Fire",
+        "RemovedReaction_FiresOnRemove_ButNotOnDespawn",
+        "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
+        "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
+      "sha256": "424e317e0f6df5d81e79542dfa77e6478eb6b5f3a9bd17a94d3256c2ebb68e35",
+      "testFunctions": [
+        "CritRoll_RepeatedAndGlobalRandomInterleavingAreEquivalent",
+        "CritRoll_TechnicalUidRelabelDoesNotChangeResult",
+        "CombatCrit_TechnicalUidRelabelKeepsSettledResult",
+        "ProbabilisticCrit_InvalidIdentityOrOrdinalFails",
+        "ChildEffectOrdinal_DifferentParentEffectsDoNotCollide",
+        "ProjectileTie_SeedCorpusDoesNotPermanentlyFavorEitherParticipant",
+        "DeferredDamage_CaptureRestorePreservesActionIdentity",
+        "NegativeEffectOrdinal_IsRejectedAtDamageBoundaries"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+      "sha256": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+      "testFunctions": [
+        "Crit_100PercentChance_DoublesDamage",
+        "Crit_ZeroPercentChance_NoCrit",
+        "Crit_DamageEventData_IsCriticalFlag",
+        "Crit_OneHundredPercent_DoesNotRequireRandomService",
+        "ProbabilisticCrit_DoesNotConsumeGlobalRandomState",
+        "AttackSpeed_ModifiesCooldown",
+        "AttackSpeed_PositiveBase_StartsAttack"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs",
+      "sha256": "7ee2c1caf14ff0a5162297ef31715d349d13931f1fa4b8fc794ff83bff26e775",
+      "testFunctions": [
+        "HealAndDamage_AreIndependentOfSubmissionOrder",
+        "ShieldAndDamage_AreIndependentOfSubmissionOrder",
+        "LethalBatch_HighestEffectiveLifeDamageWins_AfterUidAndSubmissionMirror",
+        "LethalBatch_ExactTie_IsStableForSeedAndIndependentOfSubmissionOrder",
+        "ConfiguredMatchSeedOverridesCompositionFallbackForExactTie",
+        "ConfiguredMatchSeed_IsIdempotentButImmutable",
+        "LethalBatch_ExactTie_SeedCorpusDoesNotPermanentlyFavorOneUid",
+        "LethalBatch_ShieldOnlyDamageCannotWin",
+        "ShieldOnlyDamage_DoesNotGenerateDrainHealing",
+        "ProportionalLifeRemainder_NeverExceedsRequestCapacity",
+        "ProportionalHealRemainder_NeverExceedsRequestCapacity",
+        "DamageReactionHeal_EntersNextWaveAndRecoversTarget",
+        "SameTickMutualLethal_AllSealedAttacksRemainEffective",
+        "SameTickMutualLethal_DrainReactionsRecoverBothSources",
+        "MixedDamageAndSpecificShields_AreIndependentOfSubmissionOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+      "sha256": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+      "testFunctions": [
+        "Spread_InfectsOnlyEnemyHeroesOfOriginalCaster",
+        "Spread_DoesNotReinfectAnInfectedHero",
+        "Spread_RequiresContinuousContactInsideRadius",
+        "Spread_AppliesSameRDamageAndRoot",
+        "SecondR_StartsAFreshSpread",
+        "SecondR_UsesADifferentTagUid",
+        "Blight_StacksAreAppliedAtConfiguredTicks"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+      "sha256": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+      "testFunctions": [
+        "FormalCatalog_ContainsExpectedStatsRecipeAndModules",
+        "GameScene_UsesCorePartitionInsteadOfDirectEquipmentCatalog",
+        "SixRealHits_StackBuffAndRepeatThirdFullStackOnHitOnce",
+        "OnHitEquipmentEffects_DoNotApplyToStructure",
+        "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
+        "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs",
+      "sha256": "a2f653be8426d7386c4c5e83a40337cbd4137894ee105332515e5148b565f4b8",
+      "testFunctions": [
+        "RespawnDelay_UsesBasePlusElapsedMinutes",
+        "RespawnPosition_IsCapturedFromInitialSpawn",
+        "CompleteRespawn_TeleportsToHomeSpawnPosition"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+      "sha256": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+      "testFunctions": [
+        "InitialBuffs_AppliedAutomaticallyFromPrototype",
+        "MeleeMinion_AttacksMinion_AddsTwoPercentCurrentHealth",
+        "RangedMinion_AttacksMinion_AddsThreePointFivePercentCurrentHealth",
+        "Minion_AttacksStructure_DealsSixtyPercent"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
+      "sha256": "befe86e69278bfcf13ba35b6eac2dd97d539a160cb0c306560becdea828d8b58",
+      "testFunctions": [
+        "ExternalOrdinaryAttackDamage_IsAccepted",
+        "ExternalNonAttackDamage_IsRejected",
+        "AttackTypedNonBasicSource_IsRejected",
+        "ExternalHealAndShield_AreRejected",
+        "SelfOwnedStructureBuff_IsAllowedButExternalBuffIsRejected",
+        "ExternalCrowdControl_IsRejectedButSelfOwnedIsAllowed",
+        "ExternalBuffToHandlerlessTower_IsConsumedNoOp",
+        "ExternalCrowdControlToHandlerlessTower_IsConsumedNoOp",
+        "InvalidExternalCrowdControl_IsNotHiddenByStructureFilter",
+        "DeferredExternalEffects_AreFilteredBeforeSequenceAndSnapshot"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+      "sha256": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+      "testFunctions": [
+        "Catalog_ContainsSunderedSkyTreeWithStatsAndRecipes",
+        "EmpoweredStrike_Deals160PercentCritical_AndStartsCooldown",
+        "PerTargetCooldown_SecondHitOnSameHeroIsNormal",
+        "DifferentEnemyHero_StillTriggersEmpoweredStrike",
+        "HealRestoresMissingHealth_AndOverhealBecomesTempMaxHealth",
+        "RangedStrike_HealsWithRangedBaseAdRatio",
+        "MeleeWithProjectile_StillHealsWithMeleeRatio",
+        "FinishedItem_IsUnique_SecondPurchaseRejected",
+        "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

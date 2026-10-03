@@ -1,0 +1,153 @@
+{
+  "id": "PLAN-0021",
+  "code": "0021",
+  "title": "战斗 Modifier 集合",
+  "type": "plan",
+  "domain": "战斗",
+  "status": "关闭",
+  "path": "Docs/plans/combat/PLAN-0021_combat-modifier-set-core.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-029",
+    "REQ-FEAT-030",
+    "REQ-FEAT-034",
+    "REQ-FEAT-035"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-029",
+      "title": "战斗请求封存与因果波次",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-029_combat-causal-waves.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "2c774a29d44f24cf5ce1dc11539e227810a3f374dadd8fcd584b2be0a9f1fa22"
+    },
+    {
+      "id": "REQ-FEAT-030",
+      "title": "伤害配方抗性与吸血",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-030_damage-resistance.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "3f22948328715752fac13814e44eea920bf6f22569ef181a73ffce844bdba251"
+    },
+    {
+      "id": "REQ-FEAT-034",
+      "title": "濒死批次与公平击杀归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-034_death-attribution.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c8714176a5670cee9d39a89059b55a3fd2d1b03558a4b56b3d9b1bef106165f7"
+    },
+    {
+      "id": "REQ-FEAT-035",
+      "title": "死亡奖励与贡献窗口",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "bfb31422561c563722d4853f12f79e62435cfcfb726d715f1ed24c277c9b507a"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0021_combat_modifier_set_core_execplan.md",
+      "sha256": "a05b6ae77dc8d0515c19384c94da7f580cd0381084d6fc74716325186ef3d3d3",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed and verified (compile-pending).",
+      "targets": [
+        "REQ-FEAT-029",
+        "REQ-FEAT-030",
+        "REQ-FEAT-034",
+        "REQ-FEAT-035"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0021",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Deterministic/Serialization/DeterministicHash32.cs",
+      "Assets/Scripts/Gameplay/Modifiers/CombatModifierSet.cs",
+      "Assets/Scripts/Gameplay/Modifiers/CombatModifierHandle.cs",
+      "Assets/Scripts/Gameplay/Modifiers/CombatModifierId.cs",
+      "Assets/Scripts/Gameplay/Modifiers/CombatModifierRecord.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Deterministic/Tests/DeterministicHash32Tests.cs",
+      "Assets/Scripts/Gameplay/Tests/CombatModifierSetTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Deterministic/Serialization/DeterministicHash32.cs",
+      "sha256": "51689376301b852d6f11e6cda9fa8756b12fc00a013cd39aca5664f0833449fa",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierSet.cs",
+      "sha256": "ced978458335a59a6c0eeb2aa2e5d98cf8795e481d24d42ea8857ce82b279f13",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierHandle.cs",
+      "sha256": "274b2c2f3c98868e73405883a0c4792c6598a60d5c7ec7ef248e141e28f0b0f9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierId.cs",
+      "sha256": "815213dceb5b2795e976644eaa86271610e678abc3ee4c1c5dddbdbb1b68a229",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierRecord.cs",
+      "sha256": "5491ccdf89dc3eb18db46689b554f472d2a5408542a6d17f5333430513d7090a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicHash32Tests.cs",
+      "sha256": "63d381f2c8985fa2ed1caff334b9a1785fc05e9bd8eadc3b62c3f29e26479d52",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatModifierSetTests.cs",
+      "sha256": "f81802453cec9dc6eadc5aa2bf2077a009e60a33cfc20aa1de26d76392a542f7",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}
