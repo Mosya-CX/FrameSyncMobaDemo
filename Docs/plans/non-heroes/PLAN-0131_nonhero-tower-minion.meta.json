@@ -1,0 +1,165 @@
+{
+  "id": "PLAN-0131",
+  "code": "0131",
+  "title": "防御塔与小兵",
+  "type": "plan",
+  "domain": "非英雄",
+  "status": "关闭",
+  "path": "Docs/plans/non-heroes/PLAN-0131_nonhero-tower-minion.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-068",
+    "REQ-FEAT-069",
+    "REQ-FEAT-070",
+    "REQ-FEAT-071"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-068",
+      "title": "AI 注册调度与多态快照",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-068_ai-scheduling.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c9c5c43fb7a16313a9b0dd4db698869ff09bd9456e603c12c1527b1a659dc4d9"
+    },
+    {
+      "id": "REQ-FEAT-069",
+      "title": "小兵波次与兵线 AI",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-069_minion-waves.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f52c1dc04bb7a705f02e7122378c1f5f8a7ef25389ff768c32c103fc4818c156"
+    },
+    {
+      "id": "REQ-FEAT-070",
+      "title": "野怪营地刷新与共享仇恨",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-070_jungle-camps.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "d8269b42484018fe5a53793b9d177562b09b7cce28ed5d601b685d31feb89c5e"
+    },
+    {
+      "id": "REQ-FEAT-071",
+      "title": "防御塔目标优先级与攻击红线",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-071_tower-targeting.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cd566fc44703b33579b8848175745c6805317f8230ba63ac33ddc0f3c8b4ba53"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0131_nonhero_tower_minion_execplan.md",
+      "sha256": "8caeb8ab422361729e14eaa12e5880bca4ed67d109fc9c9644e05e32d6811f3e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed on 2026-08-07.",
+      "targets": [
+        "REQ-FEAT-068",
+        "REQ-FEAT-069",
+        "REQ-FEAT-070",
+        "REQ-FEAT-071"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0131",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/FrameSync/TowerTargetLinePresenter.cs",
+      "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "Assets/Scripts/Gameplay/Attack/AttackSnapshot.cs",
+      "Assets/Scripts/Gameplay/Attack/TowerAttackHandler.cs",
+      "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Gameplay/Unit/Kind/UnitKind.cs",
+      "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+      "Assets/Scripts/Gameplay/Tests/TowerAttackHandlerTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/TowerTargetLinePresenter.cs",
+      "sha256": "4f1f4c7baa72a60ca97df185d4589c4af9496d65f7cba603aba602a1282f4ddf",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "sha256": "c40b6b714223a33ea344cd9989fcc2aa969a59fb66a0ec130925e8bac21692c5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/AttackSnapshot.cs",
+      "sha256": "1e68d9471cd095d3ad7b3b2e41a0071cf7f4c63d225f4f1b5fe200dc31f75e3b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/TowerAttackHandler.cs",
+      "sha256": "e2a2759ed9529d3f69e374dd1d8086a40f11de8307f2936d96e396e1cac96ab5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "sha256": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Kind/UnitKind.cs",
+      "sha256": "5189b942ca96da3ce2becb4c7621456a696639367c1b8e5c06de4688683c99cb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+      "sha256": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/TowerAttackHandlerTests.cs",
+      "sha256": "8104bfe8cc441acf5ce69c4837278e7345e4c7f4304cbbd31b55c5967c9dd3bb",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

@@ -1,0 +1,714 @@
+{
+  "planId": "PLAN-WOLF-165",
+  "baselineKind": "事后整理（历史参考）",
+  "referenceCommit": "305c5bca1e10840e494d68cc2187d7b900cea0d0",
+  "description": "用户授权事后整理。候选文件以本地 HEAD 305c5bc 为历史参考，其它现有 Unity 文件以本次整理时内容为基线；没有真实任务开始快照，不能确认旧实现已丢失改动或全部作者归属。共享文件显示完整参考差异，可能包含其它任务修改；后续外部写入也不自动归因 Agent。",
+  "historicalCommits": [
+    "a7a061f 2026-08-24 战斗结算确定性流程改进",
+    "60c84fd 2026-08-20 移除本地UTC依赖 离线自由配置TickRate",
+    "f636f26 2026-07-28 Implement deterministic framework remediation and restore GameScene map"
+  ],
+  "oldImplementation": "用户确认曾实现并测试、有较大问题，丢失后重做；不能由当前本地提交历史还原。",
+  "files": [
+    {
+      "path": "Assets/AddressableAssetsData/AssetGroups/Logic-Core.asset",
+      "kind": "修改",
+      "beforeSha256": "c9eb76d26443ad5775c714c8c121ff81ac2bb71668ef9ac1e86adf26dd9de78d",
+      "afterSha256": "e79dadab6109fb2b8fc8307166ff84ad753a8f8075ca7bf6d04c2bc8977b0a43",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Art/Model/大型暗影狼.glb",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "946896e4b39174634bdb836f924834d5996b87f0644c58e39295c7fbca863d70",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Art/Model/大型暗影狼.glb.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "fcaa9e6966d7a88cee7d53a8d5b26e57224db95ecfe60aeca72c46d0b6511d2e",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Art/Model/暗影狼.glb",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "8c51f092db7ea1360df9efff55e441c4f4adfa220ac61543f2196d639cf1fdd1",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Art/Model/暗影狼.glb.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "d8951e9aca9e216caf7108ac50eb4d0fbea5952f19338ea76f7c4c5ecf0ca6c0",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "3a8214056db98aa08761b02c363b379f8292ea03887888910618e43a530c1f5a",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAnimationProfile.asset",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "06543e6fa7970a739e476835f12ad551a879131196d3440c2fa9b306af5e34d6",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAnimationProfile.asset.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "dbf7c647ed3c02dde899b6fd3afc72d7a99a5890032ebc812b52856bccf838bb",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAnimator.controller",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "7566eae287bff897cd846b7a2947220861dafde3aa48be85be91137fe493d71b",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAnimator.controller.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "bc3da2dd377fe16b336afc746629204443a2db3ee26fce5fd0acd9a9746fdd08",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAttack1.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "9faa122dc6265d28677d3f9669ac9663e737457b57fe156f4bd0431de1ae93b8",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAttack1.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "a769d635bf9f07383d9ec9f94aa3d6b9734e05572d17620e0bf95100c62f965f",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAttack2.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "c475a06af77df3f3fd4cf271a3a4d30ae5ee64ac1d8b37cab56558272f4131d7",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfAttack2.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "b7db6036090d9bede886083e108316af52e0825308f07296b73620bd7c87e41f",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfDeath.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "996faae340e508525feb102354fd03d9a185278995336db2623a6c18f50a81e6",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfDeath.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "fd430c941a730b28b3313804dce1957206396d27c7c88439e2ed5ab4825f0601",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleAlert.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "14ffa85e5ef237c6f9769a488bbfcdcf7c8592d4c89ecb758d0f31b310b3d92f",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleAlert.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "e8c052359e1b587b631ecca2c4737611f26b1da854b6d542712c0a9ae94891ad",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleAlertToNormal.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "5e42aafe9fd1ff9f4e19bf08e83dfaac1e5dc3ef49e5a602914f30ceec74e562",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleAlertToNormal.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "11cb21a9afcd28ed71213a1aff7fbe4cbd28f44a1ca1a8f071b007c8ae7c32ff",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleNormal.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "6f3e77ee85490d8fbffa439211b76f993ef5fb76b49a8d1b9e8f7abcac7498f7",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleNormal.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "928f46bdb1917e82e6bd7807c7ce487a595f682767ed1070a2e2ccd7d13e068b",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleNormalToAlert.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "4f7a07b7c7c74e6a763db4231e452ed93d14068d6c00c5616fc3487c5d2444d2",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfIdleNormalToAlert.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "e06729152c0aba5ce9d43c601198f1d6506a43b6fac48ee5da763197e045d3b9",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfWalk.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "1c4ba146ac10cbcaa8b5b848544791dac3e5d5b019145567b7b8d1284886e3e9",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/GreaterMurkWolfWalk.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "04fcd881ded2c0a7d63bbe64223a17937d10ead17ac288423aeb39b4a3bf1cc4",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "aecf21d252060c881b8c8dff4939b8c8bad196754ced74f4d1701b1ba1ee6891",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAnimationProfile.asset",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "9e5fe83c25e453a0a1e4d5fa4d463f996cb3c0d544413b34c9f2bac82c6ad6e5",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAnimationProfile.asset.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "22fba5f83b6d2db0d5e62ae67eb73cfe93630d781d23fe98030a6889fb897a45",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAnimator.controller",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "4d502799ead2772262e48bc600f6f6469b473fb5ba23910f8b28276e9cfc2f07",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAnimator.controller.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "3d849ace7e4444040344f85625022720b2e9de494135ff95b75e47b23dcaf7f3",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAttack1.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "97580610b6a3aca953805c8507d149e232e130e406d2e5feb8bffc620d17ff87",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAttack1.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "b802098ec41511abbc71e5415837e882b5484370cb6965cc615fd33f39eb4a39",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAttack2.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "466b831e1f2eb9be7aba1b689a8e4c4908ae5490eb8b19759d939cdbd2cbaa2b",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfAttack2.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "92c3ed463ead4f6d69ab7757f2bffd80255b5782f498f6fccf71323c8d71d1df",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfDeath.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "dafdbbc4857c43e1044a1c1100f088e05189b7e794a9647d85afd54dc9a110ec",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfDeath.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "58741c46816503b217ca43c859b433e55dc5f27a6846075c5dd55f91689cf218",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleAlert.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "4076fae53fdf5031c9595784f1027b57095797899451d7f5004b574c31b5f524",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleAlert.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "c6c51617a53d2a03c142ba0e07d5d8498207b5bdaf39abe393e014586dedcc24",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleAlertToNormal.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "7091cf027ee2f55b68d87f95a59af157040d0deaf77c8cecb2c5d27edf95ab1a",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleAlertToNormal.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "1f1614d3677a21a454742ea5f5c7b0d2c893ff880eec68577a4939bccbb0d586",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleNormal.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "ab39da137fdbc6ba877b17700c8bb0b172a4efb7cb06564f35651e60791b00e4",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleNormal.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "6dd8137c1c162fe21cc6ccd25669e6ac0cd3efeee1740a9bf9a2e5dac150edde",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleNormalToAlert.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "e0c3ed27ef272e43e32861780b87497f99167374869aa74705f1691311a6057a",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfIdleNormalToAlert.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "7c0197d75db00b6b0ef241630dc55167ba527b005e3e94cca9851a22f1d4c453",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfWalk.anim",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "ce68256b65c300e6b2d1153fb51a71c77baf4eb720a8af150619737a5f3e4dae",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Animation/Murkwolf/Mini/MurkWolfWalk.anim.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "1e3335758046682e6151c746a18a03b0de6dc99eaaae9f1b9726b3310ae14eeb",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Views/Unit/GreaterMurkWolfRuntimeView.prefab",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "c49a215fa7bc5c4a25ba0adfb73c07cb75fbd6a276287f5c0dae3754bd84866b",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Views/Unit/GreaterMurkWolfRuntimeView.prefab.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "b6fba8d09932d8805aa231c976c34d950c6066b39401b06305392eb8338889f3",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Views/Unit/MurkWolfRuntimeView.prefab",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "dafa9c6d4bf84a4a6fc344dc6594fa8e3648e1fde0a0b742c1fc58687ed13d16",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/ClientContent/Views/Unit/MurkWolfRuntimeView.prefab.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "3b674ea225a56492656c463fc2fba05f4a38797c8e42c5d2263d98f92a9bd49f",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/Buffs/FullMatchTestBuffCatalog.asset",
+      "kind": "修改",
+      "beforeSha256": "d5d330921143155eb8771e4b16a1a8bbbedc9600b94da1837dd9dd99906c8d6d",
+      "afterSha256": "40a8ae5be205096909adf621ca78cb76c5a984dfcfabbb2541337001b1652f23",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Config/Formal/Buffs/MurkWolf.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "1fdd341d7d37f9e2e89c203560b1f3dd7cd5f5725193a4600bca24e2d8048a72",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/Buffs/MurkWolf/GreaterMurkWolfCurrentHealthOnHit.asset",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "3195cbb497dc9c4c46adbbd0253b9f767f997160e9acd10f8a2feec0eb6bd1fe",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/Buffs/MurkWolf/GreaterMurkWolfCurrentHealthOnHit.asset.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "2564e29141fbe9fc8693df73a43c15aae1eef316fc69ee65307c84b7523b1536",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/FullMatchUnitRuntimeCatalog.asset",
+      "kind": "修改",
+      "beforeSha256": "694c37b21de67afbcf6f6b97d002afec76e3fbddd1a42bd2888d9c7e07cbe512",
+      "afterSha256": "40fc6b3a62161b3a0b6bec2138298f0fc36dc2512155b9d0a729a7d1ce9d7e6e",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Config/Formal/GlobalPrefabTable.asset",
+      "kind": "修改",
+      "beforeSha256": "241aa7c21dec48909ac85a028ef4dcbdc5ba4a2c0e60371626db98daca551a43",
+      "afterSha256": "bf96dcf64769382493e28f9cc2d8f81bc572929c7883af3ca766b131ca58b137",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Config/Formal/MatchContent/CoreBuffCatalog.asset",
+      "kind": "修改",
+      "beforeSha256": "8fb6759abf2ad37b94e984008cae8b1aba4a4174a1b39560eb2da2bfb58ddc8c",
+      "afterSha256": "c21540e162409d568424b1ed73c03485386370f5da8e84edb043814ce32794a9",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Config/Formal/MatchContent/CoreBuffCatalog.asset.meta",
+      "kind": "修改",
+      "beforeSha256": "d768d1135f58be4b9a0394307a21bb1dac86b64e41347cb70e9d2667b6bf9dc5",
+      "afterSha256": "d6720b16a51c83fc27de7068adedb9012177a0acb20283f5e6be5d18dcb8a27b",
+      "reason": "上述候选文件的 Unity GUID/导入设置伴随变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/MatchContent/CoreGlobalPrefabSubTable.asset",
+      "kind": "修改",
+      "beforeSha256": "e5e0183ec65006d720a48c5d096231e1b2a940aebb81f4a06c6f50bacebc92c5",
+      "afterSha256": "2bc7eea7c5097a4a875c699b3a54b4e4ad34bdaa27d0c673cf23fb15e8651c1a",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Config/Formal/MatchContent/CoreGlobalPrefabSubTable.asset.meta",
+      "kind": "修改",
+      "beforeSha256": "5869fdd23e6c02db680ba91592da1fc55d8435b0bbdb819675b6684d6a5980c6",
+      "afterSha256": "f2b33ffca785fc82b4ae6b8564b25ed4d48f69a5d6f17b6a2bb5b63c73ac8032",
+      "reason": "上述候选文件的 Unity GUID/导入设置伴随变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/MatchContent/CoreUnitRuntimeCatalog.asset",
+      "kind": "修改",
+      "beforeSha256": "c7749b69be9bac2eb940dd499ae63cb409c643ebad2249580db589e6e7c9fc33",
+      "afterSha256": "92e05a14dd1343934c20c0c41ccf093715fb906c9f5eeb9dc60db52841d8ba40",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Config/Formal/MatchContent/CoreUnitRuntimeCatalog.asset.meta",
+      "kind": "修改",
+      "beforeSha256": "7f4b68df117fafb7f3e18602ac37cd664732e945f002e9c26eb349a91c8fc33d",
+      "afterSha256": "ff9d56c8f91b60bb24fcdf2c5ee579c40c41eb1a8076332e0ea64b0468039b9c",
+      "reason": "上述候选文件的 Unity GUID/导入设置伴随变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/Prefabs/Logic/Map/Map.prefab",
+      "kind": "修改",
+      "beforeSha256": "6c3896ed5893c21346977d5bbce3d4ed5690d3121230a697aba7af72c9c30e73",
+      "afterSha256": "fab516542c1793b5926f93c0432bd0f25f1294ff1b953c22f254b0f701ffdda3",
+      "reason": "共享文件候选：MurkWolfCampContentSetup 明确写入的共享内容入口；包含营地/狼资源接线，也可能夹带其它改动。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Config/Formal/Prefabs/Logic/Unit/GreaterMurkWolfRuntime.prefab",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "be579fb1d8c68574c65a327f455dc7ab1ac7fc7f669d3a7c7df5c2391411df66",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/Prefabs/Logic/Unit/GreaterMurkWolfRuntime.prefab.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "92aabc98a9fa510126283149fff85b9b5cc7f5c7574f7a252ae9b57d6820f0c4",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/Prefabs/Logic/Unit/MurkWolfRuntime.prefab",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "7d15ed26fd3784d380884a5ea0f78627f32141167ac1d03e65e2bc5207f328d2",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Config/Formal/Prefabs/Logic/Unit/MurkWolfRuntime.prefab.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "54cb98cf5f654aa8f7a8d569d34771d1327a424c0a6959c27e26d610f58270b5",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Editor/MurkWolfCampContentSetup.cs",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "5f39964fedd46c2b6740150eff4a8162d2558af4a3aa67e4b2a47a6b5491d986",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Editor/MurkWolfCampContentSetup.cs.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "f6e974e7296008f1878003075797ea4974b2e01c659343ca80e94dffab5d1ed4",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "kind": "修改",
+      "beforeSha256": "2fef5f5e9ada2c6f9f313eb7d36a095755ce8c4ea0a26b55e5b5737058629ee1",
+      "afterSha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "reason": "共享文件候选：实际新增行包含三狼/营地关联符号：MurkWolf。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "cc7f34f72e4489acf2bda9b41aabc65f4cb3b05cfe7ed4114a5743d164dda3bc",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AddressableMatchContentPlayModeTests.cs",
+      "kind": "修改",
+      "beforeSha256": "d77ae1b3fab381c8b1a2ff3bf1f0606ca5d9ec9eef9086782f315c0f5b81e206",
+      "afterSha256": "700cd2a54ef137d9b6d8a0c31b8a80d4c1de91774160c0e89e25a7dec4aeed80",
+      "reason": "共享文件候选：实际新增行包含三狼/营地关联符号：MurkWolf。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AddressableMatchContentPlayModeTests.cs.meta",
+      "kind": "修改",
+      "beforeSha256": "7613f580c0a68043ab8b1782d57b7cf0c301fa4d597fc45a22bd82f6068b6d59",
+      "afterSha256": "6abed1dffbd4773c030cf07c42840cbdc807ce000717fe94da0d809f87c00b8d",
+      "reason": "上述候选文件的 Unity GUID/导入设置伴随变化。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "b5f0f0db2f84c5509ee905806e49420e30f098eac52261e1fb2858750b0a1425",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "58b370c08402bcf3dce1d59ad68cc4f7edfd84480fe2290d6c5cefdd3e6060f6",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "kind": "修改",
+      "beforeSha256": "c9f01feb89c4890ff759f1073b9cb7a6292ed4d96b4e863b1def5285a81e7b8b",
+      "afterSha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "reason": "共享文件候选：共享快照 schema25，需人工区分其它同文件变化。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SharedGameplayChecksum.cs",
+      "kind": "修改",
+      "beforeSha256": "aa7f4b6f2cf3e2287d6fa556901b5c957f3e0f1877e119a1c4f5b3fda53d1a8e",
+      "afterSha256": "cbd90ab8a8cc3ee2a715d36ce74e5635e40e7df4b1e51be3837991d5f6851301",
+      "reason": "共享文件候选：营地耐心进入规范校验流。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "kind": "修改",
+      "beforeSha256": "a6fc0e11fc5229682d16d07761b1be8d4d9b8bfb31f9344d67c898604168e44f",
+      "afterSha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "reason": "共享文件候选：locomotion 前重建当前 Tick 动态占用。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/ChecksumNewStateCoverageTests.cs",
+      "kind": "修改",
+      "beforeSha256": "015cf2c064ef75558cc8182d3b703c30b165b5d52b4855567936362915aa30b1",
+      "afterSha256": "6187290088a7ef1ee6a52055cde39c821ee21f6f10dfbec1a3947d2f3b914be3",
+      "reason": "共享文件候选：实际新增行包含三狼/营地关联符号：LeashPatienceDiffers, LeashPatienceRemainingTicks。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
+      "kind": "修改",
+      "beforeSha256": "97682578c1ef0a6390fc74ed0b50bcfb955239525fc2a24342960bde387ac556",
+      "afterSha256": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+      "reason": "共享文件候选：新增大小狼 Controller、View 和内容编号检查。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/UnitAnimationDriver.cs",
+      "kind": "修改",
+      "beforeSha256": "4cd6b91ea7d6902058f281bf655ef7efa784e5fac022b0a912b4a180c29a82d6",
+      "afterSha256": "63577cec7422f903ef9ff161024ce119aa5be11fe1485ab5ecc56215f3cce4a3",
+      "reason": "共享文件候选：新增 IsMonsterAlerted 表现参数和警戒过渡路由。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/CurrentHealthOnHitBuffEffect.cs",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "53cceea4254f4703b3954487438154dd84d23f9721bd61b465ae8f0e7ad66100",
+      "reason": "共享文件候选：大狼普攻当前生命比例伤害使用的效果实现。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/CurrentHealthOnHitBuffEffect.cs.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "bcba86302bfa407094963b4b43f703d5414fce7b041b0c1cfdeb88ccdeaad92d",
+      "reason": "上述候选文件的 Unity GUID/导入设置伴随变化。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "kind": "修改",
+      "beforeSha256": "b0c8c26e8cc22ecf0c375e9b28e84b6db256a1c87544bf2f3a06e204ed9d8438",
+      "afterSha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "reason": "共享文件候选：实际新增行包含三狼/营地关联符号：RecordHostileAction, RestoreJungleCampMemberToFullHealth。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/JungleCamp.cs",
+      "kind": "修改",
+      "beforeSha256": "874d80eb50ea27a1d385b0d73a74c8b8fc758d1b130887379f37aab08f530fc1",
+      "afterSha256": "f35b0316b98256e09523a14503b83c71cb18876e196dc3e693072080929a47a4",
+      "reason": "共享文件候选：共享耐心、警戒/恢复/绝对重置半径作者配置。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/MurkWolfContentIds.cs",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "2d244d9331d26404f992b903697270a8ea299ad98a481c684f1943433ac55f0e",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/MurkWolfContentIds.cs.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "d4f7c234c452797f84d50bc98dd43437b920f6980ed14b006874021725afa90f",
+      "reason": "三狼专用资源/脚本命名；当前有未提交变化。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/NonHeroSnapshot.cs",
+      "kind": "修改",
+      "beforeSha256": "4c41745c670bfcce9922964e408a7088d390c1c40097b56efdd25bfce70c7a8e",
+      "afterSha256": "d7f62d306d4e6640348fe82c164b682998a24ae7531bda2b78d186a12b8d846b",
+      "reason": "共享文件候选：新增 LeashPatienceRemainingTicks 快照字段。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/NonHeroUnitSubKindId.cs",
+      "kind": "修改",
+      "beforeSha256": "2f4b9185e54e1cf59ba3467633d7b0184ac4289f375568bc4e0769f72fd08380",
+      "afterSha256": "71fa543e8654513bdcc801427ccf63f1c46611b919c7ca4d4fd3464b072af58c",
+      "reason": "共享文件候选：新增 GreaterMurkWolf / MurkWolf 子类型编号。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/UnitAIController.cs",
+      "kind": "修改",
+      "beforeSha256": "684f6331b1a53f7fd7d54dd72d50620679ebe1c1d3ba1726c907ab4cf7a448e2",
+      "afterSha256": "b002b4c6ed183870e0edac79a7229e12c076b982a88f5845f8a05bf99b3a9bdd",
+      "reason": "共享文件候选：警戒保留与附近敌方英雄查找。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/AStarPathService.cs",
+      "kind": "修改",
+      "beforeSha256": "6d69c5883384f8ceccc7cad169125f294c9adb84c5832cdd10ca6f82f3a6228b",
+      "afterSha256": "e6f5e524a9a16a46391f0fddc02a496dc89d536ea95560777acff3cd3f983e20",
+      "reason": "共享文件候选：A* 新增 DynamicNavigationQuery 上下文入口。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/DynamicNavigationFrame.cs",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "7b68da2af561f8cafb3b3df8c0ddedff0c97d40e515b2d254c121c7d4fbbcaf3",
+      "reason": "共享文件候选：新增当前 Tick 动态占用、营地回营槽位预留实现。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/DynamicNavigationFrame.cs.meta",
+      "kind": "新增",
+      "beforeSha256": null,
+      "afterSha256": "3b30b0e504010299fbe78950a96cf8789fd7cc58cff8ef934c4d7c90d591f9fb",
+      "reason": "上述候选文件的 Unity GUID/导入设置伴随变化。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/PathFollower2D.cs",
+      "kind": "修改",
+      "beforeSha256": "dd4f78e21ebdd79a54b5031ba6cfdbeed8799de290210428ccb471d6a6a00f97",
+      "afterSha256": "ea1315f39fec9c4eaeba91360709ae1de7c72baee171d88800a1ddf29bc5315e",
+      "reason": "共享文件候选：实际新增行包含三狼/营地关联符号：DynamicNavigationQuery。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/UnitLocomotionAgent.cs",
+      "kind": "修改",
+      "beforeSha256": "a78537209db74bd8c7ae0c783db8a858cf9e24e23eda3dcb0cb0a44823770a02",
+      "afterSha256": "50122059f4d83a4e9863ba81cc922ab72920a70df0b1e0f63e85b855c29a5267",
+      "reason": "共享文件候选：动态导航查询与前方通道硬阻挡检查。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "kind": "修改",
+      "beforeSha256": "d216d50482d1e30b2c4613fc74e2137d94fd4fbc0cd6813fd59ab032baf26b9c",
+      "afterSha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "reason": "共享文件候选：新增大狼 3% 当前生命伤害断言。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "kind": "修改",
+      "beforeSha256": "38b09bfcdb7d2cc97e865133c222701b8a43ed47d517084fe4b6126a8f41d4fd",
+      "afterSha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "reason": "共享文件候选：新增营地警戒/耐心/快照/稳定 UID 动态导航断言。 整体差异不能全部归因三狼。"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "kind": "修改",
+      "beforeSha256": "9b4aa7a77be4b09450a7267eca5fb7556cc22883314b022c8a49b728f568cdab",
+      "afterSha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "reason": "共享文件候选：新增 DynamicNavigationFrame 持有和按 Tick 重建入口。 整体差异不能全部归因三狼。"
+    }
+  ]
+}

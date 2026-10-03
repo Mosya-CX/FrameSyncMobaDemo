@@ -1,0 +1,117 @@
+{
+  "id": "REQ-FEAT-047",
+  "title": "韦鲁斯测试套件与数值",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "具体内容",
+  "path": "Docs/requirements/game-content/REQ-FEAT-047_varus-test-content.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/ChargeProjectileStageDef.cs",
+      "sha256": "e476a7ef98a260fa991b4054ce5fdf86988017248d9befb1d3cae0d78df9209c",
+      "symbols": [
+        "ChargeProjectileStageDef"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/ChargeStageDef.cs",
+      "sha256": "f57ca434795df4af464f67779633201a130ef361c2fde442c52f43970fdfbde3",
+      "symbols": [
+        "ChargeStageDef"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/Effects/AbilityHitStackDetonationBuffEffect.cs",
+      "sha256": "17e09e2f2b360a4acb5a70e35028780c462ee2d64871ba484bf6fb201428d1bd",
+      "symbols": [
+        "AbilityHitStackDetonationBuffEffect"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/Effects/KillStatGrowthBuffEffect.cs",
+      "sha256": "569f18686af813e1d9e7d46a3af791691be4d686ebd4df6f7ffb8974a4573ad5",
+      "symbols": [
+        "KillStatGrowthBuffEffect"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
+      "sha256": "5455a608d93b019d84f6e22a06fe68984a5f8ba9739967a3493e7163b606f44c",
+      "testFunctions": [
+        "ChargeStage_RatioIncreasesWithElapsedTicks",
+        "ChargeStage_SelfSlowAppliesWhileChargingAndRemovesOnRelease",
+        "ChargeStage_TimeoutCancelsAndRefundsHalfCost",
+        "ChargeStage_ConsumesActiveToggleAndStartsCooldown",
+        "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
+        "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "testFunctions": [
+        "LockedMainCast_AllowsAuthoredDashInBaseSlot",
+        "MovableHold_AllowsMove_ReleasePreemptsMove",
+        "HoldTimeout_ReconcilesReleaseResourcesAndRestores",
+        "SameAbilityStageTransition_MigratesMainToBaseSlot",
+        "AutomaticDashTransition_MigratesWithoutCancellingSession",
+        "SequentialRecastWindow_ReleasesMainRuntimeButKeepsSession",
+        "Planner_DoesNotResubmitEquivalentActiveMove",
+        "MoveReplacement_AtomicallyKeepsNewRoute",
+        "FailedLockingCast_DoesNotDestroyExistingMove",
+        "ToggleSecondCommit_EndsSessionWithoutOwningRuntime",
+        "ToggleActive_DoesNotBlockChargeStartAndIsConsumed",
+        "ToggleOnAndOffDuringHold_DoNotPreemptHold",
+        "MobilityBlock_InterruptsAbilityDash",
+        "ControlMove_PreemptsUninterruptibleMovementLockedCast"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
+      "sha256": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+      "testFunctions": [
+        "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
+        "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+      "sha256": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+      "testFunctions": [
+        "AbilityHit_DetonatesAndConsumesAllStacks",
+        "Detonation_DoesNotRecurse",
+        "Detonation_NonHero_CapsPerStackDamage",
+        "ExternalBlightAndAbilityDamage_DoNotAffectStructure",
+        "Detonation_Hero_GrantsCooldownReduction",
+        "AttackDamage_DoesNotDetonate",
+        "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
+        "WPassive_OnHit_DoesNotAffectStructure"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
+      "sha256": "6eda01992bdd94efe7e3e6d05d4b0c88b2d328e8293e3ff7300f67e3bfd7b730",
+      "testFunctions": [
+        "KillNonHero_GrantsAttackSpeedAndDerivedStats",
+        "KillHero_AppliesThreeTimesBonus",
+        "Kill_RefreshesBuffDurationToFiveSeconds",
+        "Cooldown_ResolvesPerAbilityLevel",
+        "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
+        "AssistHero_AppliesEmpoweredBonusToAssistant"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

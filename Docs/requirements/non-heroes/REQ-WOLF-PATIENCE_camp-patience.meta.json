@@ -1,0 +1,18 @@
+{
+  "id": "REQ-WOLF-PATIENCE",
+  "title": "营地共享耐心与越界恢复",
+  "type": "requirement",
+  "domain": "非英雄",
+  "status": "激活",
+  "path": "Docs/requirements/non-heroes/REQ-WOLF-PATIENCE_camp-patience.md",
+  "version": 1,
+  "implementationState": "旧计划暂缓，字段和资源进度需核对",
+  "sources": [
+    {
+      "path": "Docs/Implementation/Plans/0165_murk_wolf_leash_animation_and_dynamic_navigation.md",
+      "sha256": "f79edd3fe6160b14ba5444fcabc68708ca28348a7090fd6af1ccdb94bc03dc2e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Implementation/Plans/0165_murk_wolf_leash_animation_and_dynamic_navigation.md"
+    }
+  ]
+}

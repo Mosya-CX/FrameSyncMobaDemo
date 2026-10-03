@@ -1,0 +1,202 @@
+{
+  "id": "REQ-FEAT-071",
+  "title": "防御塔目标优先级与攻击红线",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "非英雄",
+  "path": "Docs/requirements/non-heroes/REQ-FEAT-071_tower-targeting.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 定位与状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 固定索敌优先级",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 判断敌方英雄是否正在攻击己方英雄",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 合法目标过滤",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.5 与在途炮弹的目标锁定",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.6 核心索敌算法",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.7 不允许追击",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.8 多态快照与性能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1 定位和边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2 权威运行状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3 攻击规划和开始",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4 下一次攻击门控",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5 CommitAttack 的塔实现",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.6 红线逻辑状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.7 TowerTargetLinePresenter",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.8 恢复与性能关注点",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/TowerTargetLinePresenter.cs",
+      "sha256": "4f1f4c7baa72a60ca97df185d4589c4af9496d65f7cba603aba602a1282f4ddf",
+      "symbols": [
+        "TowerTargetLinePresenter"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/TowerAttackHandler.cs",
+      "sha256": "e2a2759ed9529d3f69e374dd1d8086a40f11de8307f2936d96e396e1cac96ab5",
+      "symbols": [
+        "TowerAttackHandler"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/UnitAIController.cs",
+      "sha256": "b002b4c6ed183870e0edac79a7229e12c076b982a88f5845f8a05bf99b3a9bdd",
+      "symbols": [
+        "TowerAIController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/TowerTargetLinePresenterPlayModeTests.cs",
+      "sha256": "7006e57595f2b2cfa9bdba40096418a111df0dd4abba471e033bc9ac4a3c8ced",
+      "testFunctions": [
+        "DisplayTarget_SwitchesWithIntent_AndStopsForDeadTarget"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/TowerAttackHandlerTests.cs",
+      "sha256": "8104bfe8cc441acf5ce69c4837278e7345e4c7f4304cbbd31b55c5967c9dd3bb",
+      "testFunctions": [
+        "HeroRamp_FirstHitIsBase_ThenMultipliesByOnePointFive",
+        "HeroRamp_CapsAtSixHundred",
+        "Ramp_WithZeroHits_ReturnsBaseEvenForSmallBase"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

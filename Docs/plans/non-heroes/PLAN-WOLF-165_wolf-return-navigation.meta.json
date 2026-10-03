@@ -1,0 +1,221 @@
+{
+  "id": "PLAN-WOLF-165",
+  "code": "0165",
+  "title": "三狼回营与动态导航改造",
+  "type": "plan",
+  "domain": "非英雄",
+  "status": "执行",
+  "path": "Docs/plans/non-heroes/PLAN-WOLF-165_wolf-return-navigation.md",
+  "version": 1,
+  "requirements": [
+    "REQ-WOLF-NAV",
+    "REQ-WOLF-PATIENCE",
+    "REQ-WOLF-ANIM"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-WOLF-NAV",
+      "title": "同Tick动态占用与回营路线",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/pathfinding-movement/REQ-WOLF-NAV_wolf-return-navigation.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "3390612d6522b4a89ce6d8712bc9b0b413fdcd7dafcbed0775ebef703446b082"
+    },
+    {
+      "id": "REQ-WOLF-PATIENCE",
+      "title": "营地共享耐心与越界恢复",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-WOLF-PATIENCE_camp-patience.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "6766b5e8c8ef3d3e0ff28499885ffbecb719d939a94bd974a324287f026f5692"
+    },
+    {
+      "id": "REQ-WOLF-ANIM",
+      "title": "三狼警戒进入退出过渡动画",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-WOLF-ANIM_wolf-alert-animation.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "40a507743c653e96e81194183c68bcf6b6476c87aa42aa82f5863dc4e726f375"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0165_murk_wolf_leash_animation_and_dynamic_navigation.md",
+      "sha256": "f79edd3fe6160b14ba5444fcabc68708ca28348a7090fd6af1ccdb94bc03dc2e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "暂缓",
+      "reportedStatus": "Deferred",
+      "targets": [
+        "REQ-WOLF-NAV",
+        "REQ-WOLF-PATIENCE",
+        "REQ-WOLF-ANIM"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-WOLF-165",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录",
+      "uncompletedTasksPreserved": true
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户确认：原三狼营地实现并测试过，但有较大问题；相关改动因个人原因丢失，完全重做，当前重做执行中断且未完成。",
+    "sourceEvidence": [
+      "Assets/Scripts/Bootstrap/Editor/MurkWolfCampContentSetup.cs",
+      "Assets/Scripts/FrameSync/PhysicsCollisionResolver.cs",
+      "Assets/Scripts/Gameplay/Pathfinding/AStarPathService.cs",
+      "Assets/Scripts/Gameplay/Pathfinding/DeterministicMapConfig.cs",
+      "Assets/Scripts/Gameplay/Pathfinding/DynamicNavigationFrame.cs",
+      "Assets/Scripts/Gameplay/Pathfinding/PathGridMap2D.cs",
+      "Assets/Scripts/Gameplay/Pathfinding/RouteRuntime.cs",
+      "Assets/Scripts/Gameplay/Pathfinding/RvoOrchestrator.cs",
+      "Assets/Scripts/Gameplay/Pathfinding/UnitLocomotionAgent.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
+      "Assets/Scripts/Gameplay/Tests/AStarPathfindingTests.cs",
+      "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "Assets/Scripts/Gameplay/Tests/LocomotionSnapshotTests.cs",
+      "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs"
+    ],
+    "conclusion": "纠正迁移时的准备/暂缓解释；当前 PLAN-WOLF-165 继续执行，未关闭，不要求为这次未结束重做另建计划。当前代码和资源存在不等于重做已验收。",
+    "unityTestsRerun": false,
+    "issues": []
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/Editor/MurkWolfCampContentSetup.cs",
+      "sha256": "5f39964fedd46c2b6740150eff4a8162d2558af4a3aa67e4b2a47a6b5491d986",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/PhysicsCollisionResolver.cs",
+      "sha256": "fac8fd3b0d2c80f0dee735ed345b34172812d942e3827a8920c6f034173a1f88",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/AStarPathService.cs",
+      "sha256": "e6f5e524a9a16a46391f0fddc02a496dc89d536ea95560777acff3cd3f983e20",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/DeterministicMapConfig.cs",
+      "sha256": "d3959cd8bf6bbd3cc580bd3e0f2a9fa34787074a2ccf2c57784d1e84e2baea4c",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/DynamicNavigationFrame.cs",
+      "sha256": "7b68da2af561f8cafb3b3df8c0ddedff0c97d40e515b2d254c121c7d4fbbcaf3",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/PathGridMap2D.cs",
+      "sha256": "9073dfebc908731f561df7f41bd8aa414bf16e6e19e177363810592fc912ab9a",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/RouteRuntime.cs",
+      "sha256": "e387fa03ab83d549285be84fcee12ef5800cc6b58f55d5f9b8535648db46faf0",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/RvoOrchestrator.cs",
+      "sha256": "166d28c556d86721b7b0e6190264efc443cddc9b349c8f35101320346dbb0864",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/UnitLocomotionAgent.cs",
+      "sha256": "50122059f4d83a4e9863ba81cc922ab72920a70df0b1e0f63e85b855c29a5267",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "sha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
+      "sha256": "b5f0f0db2f84c5509ee905806e49420e30f098eac52261e1fb2858750b0a1425",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AStarPathfindingTests.cs",
+      "sha256": "2af416599db7b7d0e82de45d5ab081d8b83dc9565171e56553300dac28b503aa",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/LocomotionSnapshotTests.cs",
+      "sha256": "acbb758de40792586b7ebb3c125d70be0fcdcc936aa0228f29b481891123a8fb",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "sha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
+      "sha256": "b5f0f0db2f84c5509ee905806e49420e30f098eac52261e1fb2858750b0a1425",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AStarPathfindingTests.cs",
+      "sha256": "2af416599db7b7d0e82de45d5ab081d8b83dc9565171e56553300dac28b503aa",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+      "sha256": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/LocomotionSnapshotTests.cs",
+      "sha256": "acbb758de40792586b7ebb3c125d70be0fcdcc936aa0228f29b481891123a8fb",
+      "kind": "当前源码定位，行为未重跑"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "kind": "当前源码定位，行为未重跑"
+    }
+  ],
+  "closedAt": null,
+  "executionNote": "历史暂缓，已转准备阶段；部分实现和未完成范围仍按 assessment 保留，不声明已重新执行。",
+  "executionState": "中断待续，重做未完成",
+  "reviewSelectionPath": "Docs/plans/non-heroes/PLAN-WOLF-165_review-selection.json",
+  "taskReviewId": "a09bef8b3a1f47b09b6bf99e4b3efcb9",
+  "taskReviewState": "待审批",
+  "updatedAt": "2026-10-02T21:43:46.260904+08:00"
+}

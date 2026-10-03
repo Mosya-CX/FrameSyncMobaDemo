@@ -1,0 +1,239 @@
+{
+  "id": "REQ-FEAT-070",
+  "title": "野怪营地刷新与共享仇恨",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "非英雄",
+  "path": "Docs/requirements/non-heroes/REQ-FEAT-070_jungle-camps.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 Inspector 字段与确定性初始化",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 营地运行状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 初次生成",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.5 战斗状态和共享目标",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.6 主野怪死亡与刷新",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.7 边界情况",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.8 史诗野怪边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.9 性能与恢复关注点",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 定位与状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 待机和开战",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 交战",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 回营",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 核心决策算法",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.6 技能型野怪",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    },
+    {
+      "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
+      "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.7 多态快照与性能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/JungleCamp.cs",
+      "sha256": "f35b0316b98256e09523a14503b83c71cb18876e196dc3e693072080929a47a4",
+      "symbols": [
+        "JungleCamp"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/MurkWolfContentIds.cs",
+      "sha256": "2d244d9331d26404f992b903697270a8ea299ad98a481c684f1943433ac55f0e",
+      "symbols": [
+        "MurkWolfContentIds"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/UnitAIController.cs",
+      "sha256": "b002b4c6ed183870e0edac79a7229e12c076b982a88f5845f8a05bf99b3a9bdd",
+      "symbols": [
+        "MonsterAIController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "sha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "testFunctions": [
+        "UnitCatalog_ContainsAuthoredGreaterAndMiniWolfValues",
+        "GreaterWolf_OnHitBuff_IsPermanentThreePercentCurrentHealth",
+        "MapPrefab_AuthorsTwoVisualizedThreeWolfCamps",
+        "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
+        "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AddressableMatchContentPlayModeTests.cs",
+      "sha256": "700cd2a54ef137d9b6d8a0c31b8a80d4c1de91774160c0e89e25a7dec4aeed80",
+      "testFunctions": [
+        "VarusSelection_LoadsOnlyVarusAndReleasesEveryHandle",
+        "AatroxSelection_LoadsItsQMetadataWithoutVarus",
+        "SelectedMap_CreatesOwnedSortedCampTopology"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
+      "sha256": "b5f0f0db2f84c5509ee905806e49420e30f098eac52261e1fb2858750b0a1425",
+      "testFunctions": [
+        "GreaterWolf_AlertAndMoveRoutesPlayLoopedMotion",
+        "MiniWolf_AlertAndMoveRoutesPlayLoopedMotion",
+        "BoundDriver_AlertRouteUsesAuthoredTransitionClips"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "testFunctions": [
+        "MinionWave_ExpandsCanonicalTeamLaneMemberOrder",
+        "MinionUnregister_RemovesUidWithoutLeavingTombstone",
+        "LaneNearestPoint_ProjectsOntoCenterlineSegment",
+        "MinionAI_BetweenDistantCenterlineNodes_RemainsInLaneAdvance",
+        "MinionAI_FarFromLane_ReturnStateStillUsesLaneFlowField",
+        "AIController_DoesNotTickOnSpawnTick",
+        "MinionAI_UsesLaneAdvanceOrderThroughPlanner",
+        "TowerAI_TargetIsOwnedByUnitIntentNotAISnapshot",
+        "TowerAI_UsesStableMinionPriorityAndNeverChases",
+        "MinionAI_SelectsEnemyMinionBeforeOrdinaryHero",
+        "MinionAI_FiltersNonEnemiesAndReacquiresAfterTargetInvalidates",
+        "MinionAI_LegalCurrentTargetIsNeverReplaced",
+        "RangedMinionAI_AcquiresBeyondAttackRangeWithinPadding",
+        "MinionAI_EqualPriorityAndDistanceUsesLowestUnitUid",
+        "JungleCamp_MainDeath_UnregistersAndRespawnsNewGeneration",
+        "JungleCamp_NearbyHero_AlertsWithoutStartingCombat",
+        "JungleCamp_HostileSettledDamage_StartsWholePackCombat",
+        "JungleCamp_KeepsFirstValidTargetUntilItLeavesWorld",
+        "JungleCamp_HardLeash_ReturnsToExactSpawnAndRestoresHealth",
+        "JungleCamp_LeashPatience_DrainsOnlyOutsideAndRecoversInside",
+        "JungleCamp_UsesAttackableHostileTeamInBothDirections",
+        "JungleCamp_EngagementPositions_AreStableAndDistinctBySlot",
+        "MonsterLocomotion_UsesDistinctCampSlotChaseDestinations",
+        "JungleCamp_HardLeashTransition_RepeatsAfterSnapshotRestore",
+        "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
+        "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "testFunctions": [
+        "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
+        "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "sha256": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "testFunctions": [
+        "PeriodicDamage_DealsDamageEachInterval",
+        "PeriodicDamage_NoDamageWithoutCombatSystem",
+        "HealOverTime_RestoresHealthEachInterval",
+        "CurrentHealthOnHit_DealsThreePercentOfPreHitHealth",
+        "ShieldOverTime_GrantsShieldEachInterval",
+        "OnKillStat_GrantsStatOnKill",
+        "OnKillStat_StacksUpToMax"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}
