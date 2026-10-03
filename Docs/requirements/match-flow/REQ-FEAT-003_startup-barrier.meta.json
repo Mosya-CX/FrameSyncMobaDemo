@@ -1,0 +1,158 @@
+{
+  "id": "REQ-FEAT-003",
+  "title": "加载确认与单调时钟开局屏障",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "比赛流程",
+  "path": "Docs/requirements/match-flow/REQ-FEAT-003_startup-barrier.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/FrameSyncNetworkBridge.cs",
+      "sha256": "f5e520aa97c077e9f6b3591f1de377141bbcad2285859a17902dc3d1b2720411",
+      "symbols": [
+        "FrameSyncNetworkBridge"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "symbols": [
+        "GameBootstrap"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LobbyNetworkBridge.cs",
+      "sha256": "d0f1583f9bf5ae29edc9bd94b7cd70d9a8bd297f6da11835009c3b6343eeff93",
+      "symbols": [
+        "LobbyNetworkBridge"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GameBootstrapPayloadContractTests.cs",
+      "sha256": "c3d8a461af2ce6e9d1a5d8c99b181e1b434410347fc12ab867df41dfd3c58f41",
+      "testFunctions": [
+        "Payload_PreservesFrozenPlayerSlotMappings",
+        "Payload_MappingTeamMismatch_FailsDeterministically",
+        "VersionHandshake_AnyCriticalMismatch_Fails"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
+      "sha256": "036a36534c091288c147776865aca1c193e223e00e62d3123a0038b308c75b33",
+      "testFunctions": [
+        "ClientBootstrap_TransitionsToLobbyAndBindsSession",
+        "ClientBootstrap_OnlineFlowOverride_SelectsUosSession",
+        "ServerBootstrap_TransitionsToLobbyAndStartsServer"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "testFunctions": [
+        "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
+        "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/LocalNgoSceneConfigurationTests.cs",
+      "sha256": "6302825d65d0d70ca14e83efde60b1f437f8d51a027a0c8fdcb78be8b83acfae",
+      "testFunctions": [
+        "EndpointScene_UsesApplicationOwnedSceneAndPlayerLifecycle",
+        "LocalServerSlots_MatchGameSceneInitialSpawns"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchScopedContentConfigurationTests.cs",
+      "sha256": "11b58b5f73f1c05aa17f99d71e441dcc240e06c57796887e40b2a6fbb4417341",
+      "testFunctions": [
+        "FormalRoot_SelectsOnlyCoreMapAndRequestedHeroes",
+        "FormalPartitions_ArePathOnlyAndCoverTwentyTwoEntries",
+        "SelectedHeroCatalogs_BakeWithoutOtherHero",
+        "UnitCatalogPartitions_CoreAloneOwnsSharedDisposePolicies",
+        "LogicAndHeroGroups_AreLocalAndPartitioned",
+        "SessionSelection_IsStableAndResettable",
+        "FormalGameScene_HasNoLegacyDirectCatalogReferences"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationPingTrackerTests.cs",
+      "sha256": "cf5eac7e031c3da17712af9f0291d35e14029e3058a6454bda6940dc055936ec",
+      "testFunctions": [
+        "TryBegin_UsesConfiguredHalfSecondCadence",
+        "TryComplete_IgnoresStaleReplyAndMeasuresLatestRoundTrip",
+        "CompletedSamples_UseIntegerSmoothedRttAndVariation",
+        "CommandTiming_RequiresFreshMinimumSamplesAndCeilsTicks",
+        "FiveSecondLaunchBarrier_WarmsFirstCommandTiming",
+        "ActivationScheduledBeforeBridgeBind_IsCachedSafely"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AddressableMatchContentPlayModeTests.cs",
+      "sha256": "700cd2a54ef137d9b6d8a0c31b8a80d4c1de91774160c0e89e25a7dec4aeed80",
+      "testFunctions": [
+        "VarusSelection_LoadsOnlyVarusAndReleasesEveryHandle",
+        "AatroxSelection_LoadsItsQMetadataWithoutVarus",
+        "SelectedMap_CreatesOwnedSortedCampTopology"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "sha256": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "testFunctions": [
+        "ClientFixture_BindsAssignedUnitAndAdvances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/FrameworkSmokeScenePlayModeTests.cs",
+      "sha256": "6185caf6a2831505f0c984738be659d32e2836ca7e93d37b2acc1fca7036a559",
+      "testFunctions": [
+        "FrameworkSmokeScene_SpawnsNeutralUnitAndAdvancesTicks"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/UiLuaPagesSmokeTests.cs",
+      "sha256": "33e9af214261d0e1cf130793abc40f0066067809cecebbbc51558fad5eabd9ce",
+      "testFunctions": [
+        "LuaPages_BootAndFlowRoutes"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

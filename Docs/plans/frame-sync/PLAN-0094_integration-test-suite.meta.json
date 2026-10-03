@@ -1,0 +1,96 @@
+{
+  "id": "PLAN-0094",
+  "code": "0094",
+  "title": "完整 Gameplay 链路集成测试",
+  "type": "plan",
+  "domain": "帧同步",
+  "status": "关闭",
+  "path": "Docs/plans/frame-sync/PLAN-0094_integration-test-suite.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-006"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-006",
+      "title": "全局阶段与同步 Tick 管线",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-006_simulation-pipeline.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cdb367db132a26f47dbeaddb1476b8fbdc5673dac1379d4f5f2f3ad672bb5c0f"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0094_integration_test_suite_execplan.md",
+      "sha256": "74157d82de0de3701e4d373edf33a48cb9bd50b7da5336433c771cb0f9eae7a9",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "in_progress | Started: 2026-07-24 | Priority: LOW (Testing)",
+      "targets": [
+        "REQ-FEAT-006"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0094",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "2026-10-02 用户明确：完整 Gameplay 链路集成测试和客户端与服务端资源构建两个计划应该关闭。",
+    "sourceEvidence": [
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "Assets/Scripts/Deterministic/Tests/SimulationTickContextTests.cs",
+      "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs"
+    ],
+    "conclusion": "用户本轮明确确认该计划应已关闭，按用户确认结束原执行批次。本轮仅核对记录，没有重跑 Unity 测试、资源构建或配套运行，不把本轮关闭登记当作新机器通过证据。",
+    "unityTestsRerun": false,
+    "issues": [
+      "现有 GameplayIntegrationTests 主要验证 Tick/随机/UID/路径和配置值，没有旧计划要求的生成→AI→寻路→战斗→死亡→表现完整链路测试。人工游玩正常不等价于这项测试系统已经实现。"
+    ],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "sha256": "32bfbdb6c1e9a977b8ae81f53ebc4f117b560190616f0445dd0d527b60342ab2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/SimulationTickContextTests.cs",
+      "sha256": "84bf58f82b2c1d45b0cd739e2a167698ed32b1a57eae5a8353635102c97b2b88",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "sha256": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02T21:34:27.130951+08:00",
+  "conclusion": "用户本轮明确确认该计划应已关闭，按用户确认结束原执行批次。本轮仅核对记录，没有重跑 Unity 测试、资源构建或配套运行，不把本轮关闭登记当作新机器通过证据。"
+}

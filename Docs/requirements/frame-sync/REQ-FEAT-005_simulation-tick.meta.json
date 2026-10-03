@@ -1,0 +1,317 @@
+{
+  "id": "REQ-FEAT-005",
+  "title": "逻辑时钟与 Tick 推进",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "帧同步",
+  "path": "Docs/requirements/frame-sync/REQ-FEAT-005_simulation-tick.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 服务端职责",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 客户端职责",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 固定逻辑 Tick",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 `ServerTick`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 `LatestAuthorityFrameTick`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 `LocalSimulationTick`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.5 `SimulationTickContext`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.6 预测暂停原因",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.7 最大预测领先",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.8 `MaxLogicTicksPerUnityFrame`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.9 Unity 推进伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "sha256": "32bfbdb6c1e9a977b8ae81f53ebc4f117b560190616f0445dd0d527b60342ab2",
+      "symbols": [
+        "SimulationTickContext"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "sha256": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "symbols": [
+        "FrameSyncGameRuntime"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/SimulationTickContextTests.cs",
+      "sha256": "84bf58f82b2c1d45b0cd739e2a167698ed32b1a57eae5a8353635102c97b2b88",
+      "testFunctions": [
+        "ExecutionMode_ValuesAreStable",
+        "BeginTick_PublishesImmutableRequestedContext",
+        "BeginTick_WhenAlreadyActive_RejectsNestedTickWithoutReplacingCurrent",
+        "SecondController_CannotReplaceActiveContext",
+        "EndTick_RetainsLatestPublishedContext",
+        "BeginTick_AfterCompletedTick_ReplacesPublishedContext",
+        "EndTick_WithoutOwnership_Throws"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
+      "sha256": "bdc828b224a17d4b168347bfb3132f02bc133cf09827164bbd7ca5aae0e8e67a",
+      "testFunctions": [
+        "TickContext_InitializesWithCorrectTick",
+        "TickContext_AdvancesCorrectly",
+        "DeterministicRandom_ProducesSameSequenceForSameSeed",
+        "UnitUid_ComparisonAndSorting",
+        "PathGrid_Initialise_ProducesValidGrid",
+        "AStar_FindPath_ReturnsValidPath",
+        "FlowField_BuildAndQuery_ReturnsValidDirection",
+        "EquipmentDefinition_CreateFromConfig_Valid",
+        "CombatRequest_CreatesValidDamage",
+        "GoldIncome_BatchTracking_HasInitialState",
+        "EquipmentSlotSnapshot_EmptyByDefault"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "testFunctions": [
+        "CommandBundle_ProducesStablePerTickReplacementRelays",
+        "LateCommand_IsRetargetedToCurrentServerTick_NotRejected",
+        "AcceptedCommand_AfterTickFreeze_LateDuplicateIsIgnored",
+        "AcceptedCommand_AfterOwnerInvalidation_DuplicateSkipsAuthorization",
+        "DistinctCommandSequences_OnAdjacentTicks_AreBothAccepted",
+        "DirectionAim_CastAbility_RoundTripsCanonically",
+        "WireContracts_DoNotExposeCallerOwnedByteArrays",
+        "CanonicalCodec_RoundTripsEveryFormalCommandKind",
+        "Replicator_AndClientCoordinator_AcceptContinuousTick",
+        "AcceptedRelayReplacingExecutedLocalMove_ReplaysFromFrozenAnchor",
+        "AuthorityBeforePrediction_BuffersUntilLocalTickCompletes",
+        "AuthorityRuntime_ReleasesClientRollbackHistory",
+        "RestoreInitialSnapshot_SetsAuthorityBaseline",
+        "PredictionLeadLimit_PausesWithoutExecutingAnotherTick",
+        "Recovery_UsesRequestedSequenceAndDoesNotMutateResponseArray",
+        "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
+        "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
+      "sha256": "73a8797011fe50dc4481f2ae7edd731f442528cc0c5030e9c7a902418d195c4d",
+      "testFunctions": [
+        "ServerFirstTick_MatchesClientPredictionFirstTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
+      "sha256": "85cc4ebf2926faa8cf30e41772498c60ef9f0bdaab991be2e08cbdd2fd9fd7a2",
+      "testFunctions": [
+        "GameplayCommand_CreateMove_WritesCanonicalBytes",
+        "CommandCollector_MergeMove_LastWins",
+        "CommandCollector_ContentRevisionTracksCanonicalMutations",
+        "Pipeline_SingleUnit_MovesWithCommand",
+        "Checksum_SameState_SameHash",
+        "Checksum_DifferentState_DifferentHash",
+        "Pipeline_Deterministic_SameCommandsSameResult",
+        "ActivePointMove_RestoreReplayMatchesContinuousTick",
+        "ReplacedPredictedMove_RestoreThenAuthoritativeMoveMatchesCleanReplay",
+        "ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchTopologyTests.cs",
+      "sha256": "71f3bc513efd71dc07f288ae233bd52dcffeac0f17fb39b2b25725d2dbd372f1",
+      "testFunctions": [
+        "InitialTopology_RegistersTwoStructureBasesInStableRoles",
+        "InitialAuthoritySnapshot_DiscardsClientAuthoringSpawnQueue",
+        "InitialTopology_RejectsBasesOnSameTeam"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+      "sha256": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+      "testFunctions": [
+        "Blackboard_StaticLayout_ReadWriteResetAndRoundTrip",
+        "FirstApply_FiresStackChanged_ZeroToInitial",
+        "Reapply_FiresReapplied_AndStackChangedOnChange",
+        "PeriodicReaction_FiresOnIntervalSlot",
+        "EventReactions_AbilityCastAndLevelUp_Fire",
+        "RemovedReaction_FiresOnRemove_ButNotOnDespawn",
+        "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
+        "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "sha256": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "testFunctions": [
+        "Add_CreatesIndependentInstances_NoMerge",
+        "Immunity_BlocksLowMedium_ConsumesOneShot_BypassesHigh",
+        "Cleanse_RemovesMatchingNonHigh_RespectsCount",
+        "Unstoppable_SuppressesOutput_AndRejectsForcedMove",
+        "DamageTakenSignal_RemovesSleepInstance",
+        "Drowsy_OnNaturalExpire_AddsSleepWithConfiguredDuration",
+        "Tenacity_ShortensDefaultDuration_IgnoredByIgnoreRule",
+        "ForcedMove_PriorityArbitration_RejectsLower_ReplacesEqual",
+        "ForcedBehavior_WinnerSelected_AndConsumedByPlanner",
+        "ForcedMoveBehavior_BypassesVoluntaryCapabilityBlock",
+        "Snapshot_RoundTrip_PreservesInstancesAndState",
+        "Restore_ValidatesRestoredForcedMoveHandleNotPreRestoreHandle",
+        "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
+        "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
+      "sha256": "756d183174fddfdaf5eafaf15d3dcadfb35ba0c6d5f9e1f4e0718c362356d7fe",
+      "testFunctions": [
+        "Acquisition_SetsInitialThreat_AndPicksClosestUnclaimed",
+        "DamageTaken_AddsThreat_InverselyProportionalToDistance",
+        "HigherThreatTarget_SwitchesOnlyWhenNotInWindup",
+        "Acquisition_PairsAlliesWithDistinctTargets",
+        "ThreatTable_SnapshotRoundTrip_PreservesEntries",
+        "SnapshotRoundTrip_PreservesLastThreatRefreshTick",
+        "RestoreReplacement_UnsubscribesPreviousController",
+        "RestoredController_DoesNotReapplyStaleAttackThreat"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
+      "sha256": "5bb4880768f9909859d6a9d1f78a8ca2f07f36f62cac5d2c21f955171787ca1a",
+      "testFunctions": [
+        "Constructor_SetsInitialPosition",
+        "Constructor_DefaultFacing_IsPositiveX",
+        "MoveIntent_Constructor_SetsDirectionAndHasInput",
+        "MoveIntent_None_HasNoInput",
+        "MoveIntent_FromDirection_Zero_ReturnsNone",
+        "MoveIntent_FromDirection_Normalizes",
+        "ApplyMoveInput_ThenTickUpdate_MovesPosition",
+        "TickUpdate_WithoutInput_StopsMovement",
+        "TickUpdate_WithDeltaTime_ScalesMovement",
+        "TickUpdate_MultipleTicks_AccumulatesPosition",
+        "TickUpdate_UpdatesFacing",
+        "TickUpdate_ZeroDirection_PreservesFacing",
+        "Dash_DuringLockedDirectionalCast_PreservesCastFacing",
+        "SetMoveSpeed_ChangesSpeed",
+        "ForceSetPosition_Teleports",
+        "CaptureRestore_RoundTrip_PreservesMovementOwnedStateOnly",
+        "Restore_ClearsPendingIntent",
+        "SameInput_SameResult",
+        "CaptureRestore_ThenReplay_ProducesSameResult"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitActiveGameplayGateTests.cs",
+      "sha256": "88bb5b493d113f68251b3f5d30e585ef43dcf86ac93ea243febe603c6c4ee2d7",
+      "testFunctions": [
+        "TickEqualToSpawnLogicTick_IsInactive",
+        "TickOneGreaterThanSpawnLogicTick_IsActive",
+        "TickBeforeSpawnLogicTick_IsInactive",
+        "TickFarAfterSpawnLogicTick_RemainsActive",
+        "AllThreeExecutionModes_AgreeForSameTickAndUid",
+        "RepeatedReads_DoNotMutateUnitOrContext",
+        "CompletedTick_RetainsLatestPublishedContextForReadback",
+        "DifferentSpawnLogicTicksAtSameCurrentTick_RespectIndividualGates"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitAssemblyBoundaryTests.cs",
+      "sha256": "29711a25159499f04f6a4091299b4bb3adf63b20369e8b95b41d69b8871622a0",
+      "testFunctions": [
+        "RuntimeAssembly_HasNoForbiddenDirectDependency",
+        "RuntimeAssembly_HasIntendedDeterministicDependency",
+        "RuntimeAssembly_HasRequiredUnityComponentDependency"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

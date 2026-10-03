@@ -1,0 +1,163 @@
+{
+  "id": "PLAN-0134",
+  "code": "0134",
+  "title": "UOS 回滚与客户端反馈",
+  "type": "plan",
+  "domain": "帧同步",
+  "status": "关闭",
+  "path": "Docs/plans/frame-sync/PLAN-0134_uos-rollback-and-client-feedback.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-011",
+    "REQ-FEAT-010",
+    "REQ-FEAT-004",
+    "REQ-FEAT-002",
+    "REQ-FEAT-003"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-011",
+      "title": "预测回滚与逐帧重演",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-011_rollback-replay.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e972ae9ebc9de5852ccd0568d7256fc3904b371479500af3dff6991ac55c23c7"
+    },
+    {
+      "id": "REQ-FEAT-010",
+      "title": "权威帧校验与恢复",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cfc3b0e057bede22a93ac28b6cdf533e7b80eac342021cb3412a61ec8b20cd4e"
+    },
+    {
+      "id": "REQ-FEAT-004",
+      "title": "UOS 配置与连接模式",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-004_uos-configuration.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "39ebb307e279916c5915ab4a04e82c927c5275a97b44cc9db24c3e21fd560c29"
+    },
+    {
+      "id": "REQ-FEAT-002",
+      "title": "大厅槽位与开局配置",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-002_lobby-slots.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "bd73a3b9e15eaf03aff1ac72eedf37cef2000ba43b488c935e9efd7851c09347"
+    },
+    {
+      "id": "REQ-FEAT-003",
+      "title": "加载确认与单调时钟开局屏障",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-003_startup-barrier.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "b257f06f289737596716fd46629b171515333b7870fe463b53812edf94d08dbc"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0134_uos_rollback_and_client_feedback_execplan.md",
+      "sha256": "26a3035314ad15383e5a5009084320d1e4ba350ad443e491c7cc66dcf111fb05",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Complete in source (updated 2026-08-14 with D-044 two-phase launch);",
+      "targets": [
+        "REQ-FEAT-011",
+        "REQ-FEAT-010",
+        "REQ-FEAT-004",
+        "REQ-FEAT-002",
+        "REQ-FEAT-003"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0134",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/FrameSync/NonHeroRestoreHelper.cs",
+      "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncDiagnosticBuildOptionsTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncLaunchScheduleTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/MatchLaunchProtocolTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/NonHeroRestoreHelper.cs",
+      "sha256": "3ba545a3af69471848784d29699f3a6f092d419290af312438760263836f4260",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "sha256": "d68ba882f228cf25f5553fb473302d3853d4cbf79ac21ebfbfc18b7f17da2b05",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncDiagnosticBuildOptionsTests.cs",
+      "sha256": "407d8d366fd29eeddfc7dc4fc3b6ee78da79cc74bb184fc9c88e4f22bd5f30fc",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncLaunchScheduleTests.cs",
+      "sha256": "72ea8439806b8a54cff8c611773ef41cb5dbc8401b5d0de65666115c5082106e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchLaunchProtocolTests.cs",
+      "sha256": "0fab846f748ce718a5e128203bc32740833f71e82f6d68dd2541c516ab176003",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

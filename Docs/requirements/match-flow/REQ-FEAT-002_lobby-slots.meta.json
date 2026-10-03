@@ -1,0 +1,198 @@
+{
+  "id": "REQ-FEAT-002",
+  "title": "大厅槽位与开局配置",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "比赛流程",
+  "path": "Docs/requirements/match-flow/REQ-FEAT-002_lobby-slots.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 玩家槽位状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 大厅状态机",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.4 开局条件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.5 `GameBootstrapPayload`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.6 不属于 GameplayCommand 的大厅消息",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 单一游戏开始人数",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 `PlayerSlotConfig`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 `GameStartConfig`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 匹配人数一致性",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/ApplicationFlow.cs",
+      "sha256": "9078ce46566b6d0ede3ceead03639f5853c94a77df714ae715b26ab68f4311c5",
+      "symbols": [
+        "LobbySessionFlowNetwork"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LobbyNetworkBridge.cs",
+      "sha256": "d0f1583f9bf5ae29edc9bd94b7cd70d9a8bd297f6da11835009c3b6343eeff93",
+      "symbols": [
+        "LobbyNetworkBridge"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/ApplicationFlowContracts.cs",
+      "sha256": "022d76aad529b63ad0cb82f902b57f613fe5fbb217ed102f36552aa8961fe1b5",
+      "symbols": [
+        "GameStartConfig",
+        "PlayerSlotConfig"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
+      "sha256": "e7d7a8844994b8161ffc0b3d3d904f1537d435c5927d4f9b4b53a8c3d2e6dda3",
+      "testFunctions": [
+        "TestAccount_CommandLineOverridesPersistedIdentity",
+        "Lobby_RequiresEveryAssignedPlayerAtFullReadyBarrier",
+        "VersionHandshake_RejectsAnyCriticalMismatch",
+        "ClientFlow_ReachesLobbyOnlyAfterNgoConnects",
+        "ClientConnectionLifecycle_HasExactlyOneOwnerPerFlowMode",
+        "ClientFlow_CancelWaitingAssignment_DeletesTicketAndReturnsMain",
+        "ClientFlow_CancelWhileTicketCreationIsPending_DeletesLateTicket",
+        "WireCodec_RoundTripsAuthorityAndRecoveryEnvelopes",
+        "DedicatedFlow_OrdersAllocationReadyAndShutdown",
+        "Lobby_SameTeamDuplicateHeroIsBlocked",
+        "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
+        "LobbyState_WireCodec_RoundTripsFullSelection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/BootstrapPayloadWireCodecTests.cs",
+      "sha256": "e1d359539112635e36a6277600a72ef863cf5287caffeeae7dc0ea857763c50e",
+      "testFunctions": [
+        "Payload_RoundTrip_IsCanonical",
+        "Payload_TrailingBytes_AreRejected"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
+      "sha256": "7b770df8ce4a239e396d904f513e0c7566b5799afbdee4422046649f15629f1d",
+      "testFunctions": [
+        "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
+        "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchLaunchProtocolTests.cs",
+      "sha256": "0fab846f748ce718a5e128203bc32740833f71e82f6d68dd2541c516ab176003",
+      "testFunctions": [
+        "Messages_RoundTripCanonically",
+        "Barrier_CompletesOnceAfterEveryFrozenClient",
+        "Barrier_RejectsWrongMatchOrUnknownClient"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GameBootstrapPayloadContractTests.cs",
+      "sha256": "c3d8a461af2ce6e9d1a5d8c99b181e1b434410347fc12ab867df41dfd3c58f41",
+      "testFunctions": [
+        "Payload_PreservesFrozenPlayerSlotMappings",
+        "Payload_MappingTeamMismatch_FailsDeterministically",
+        "VersionHandshake_AnyCriticalMismatch_Fails"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
+      "sha256": "036a36534c091288c147776865aca1c193e223e00e62d3123a0038b308c75b33",
+      "testFunctions": [
+        "ClientBootstrap_TransitionsToLobbyAndBindsSession",
+        "ClientBootstrap_OnlineFlowOverride_SelectsUosSession",
+        "ServerBootstrap_TransitionsToLobbyAndStartsServer"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

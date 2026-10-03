@@ -1,0 +1,131 @@
+{
+  "id": "REQ-FEAT-010",
+  "title": "权威帧校验与恢复",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "帧同步",
+  "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.1 `AuthorityFrame`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.2 服务端流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.3 `SharedGameplayChecksum`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.4 本地校验历史",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.5 AuthorityRecovery",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.6 传输策略",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "十四、`AuthorityRecovery` 与本地确认历史",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/AuthorityFrame.cs",
+      "sha256": "03a548909a6f6dc24c217d95e842192d65fb6d87cc218e755588427863603159",
+      "symbols": [
+        "AuthorityFrame"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/AuthorityReplication.cs",
+      "sha256": "51b551047ee075804ac5c517cec25b6f0b4e9fbc8b5f3033c8cde88de37dbb7a",
+      "symbols": [
+        "AuthorityFrameReplicator"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "sha256": "d68ba882f228cf25f5553fb473302d3853d4cbf79ac21ebfbfc18b7f17da2b05",
+      "symbols": [
+        "LocalFrameVerificationRecord"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "testFunctions": [
+        "CommandBundle_ProducesStablePerTickReplacementRelays",
+        "LateCommand_IsRetargetedToCurrentServerTick_NotRejected",
+        "AcceptedCommand_AfterTickFreeze_LateDuplicateIsIgnored",
+        "AcceptedCommand_AfterOwnerInvalidation_DuplicateSkipsAuthorization",
+        "DistinctCommandSequences_OnAdjacentTicks_AreBothAccepted",
+        "DirectionAim_CastAbility_RoundTripsCanonically",
+        "WireContracts_DoNotExposeCallerOwnedByteArrays",
+        "CanonicalCodec_RoundTripsEveryFormalCommandKind",
+        "Replicator_AndClientCoordinator_AcceptContinuousTick",
+        "AcceptedRelayReplacingExecutedLocalMove_ReplaysFromFrozenAnchor",
+        "AuthorityBeforePrediction_BuffersUntilLocalTickCompletes",
+        "AuthorityRuntime_ReleasesClientRollbackHistory",
+        "RestoreInitialSnapshot_SetsAuthorityBaseline",
+        "PredictionLeadLimit_PausesWithoutExecutingAnotherTick",
+        "Recovery_UsesRequestedSequenceAndDoesNotMutateResponseArray",
+        "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
+        "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
+      "sha256": "e7d7a8844994b8161ffc0b3d3d904f1537d435c5927d4f9b4b53a8c3d2e6dda3",
+      "testFunctions": [
+        "TestAccount_CommandLineOverridesPersistedIdentity",
+        "Lobby_RequiresEveryAssignedPlayerAtFullReadyBarrier",
+        "VersionHandshake_RejectsAnyCriticalMismatch",
+        "ClientFlow_ReachesLobbyOnlyAfterNgoConnects",
+        "ClientConnectionLifecycle_HasExactlyOneOwnerPerFlowMode",
+        "ClientFlow_CancelWaitingAssignment_DeletesTicketAndReturnsMain",
+        "ClientFlow_CancelWhileTicketCreationIsPending_DeletesLateTicket",
+        "WireCodec_RoundTripsAuthorityAndRecoveryEnvelopes",
+        "DedicatedFlow_OrdersAllocationReadyAndShutdown",
+        "Lobby_SameTeamDuplicateHeroIsBlocked",
+        "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
+        "LobbyState_WireCodec_RoundTripsFullSelection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

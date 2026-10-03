@@ -1,0 +1,683 @@
+{
+  "id": "PLAN-0109",
+  "code": "0109",
+  "title": "设计合同恢复总计划",
+  "type": "plan",
+  "domain": "比赛流程",
+  "status": "关闭",
+  "path": "Docs/plans/match-flow/PLAN-0109_design-conformance-remediation-program.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-003",
+    "REQ-FEAT-005",
+    "REQ-FEAT-006",
+    "REQ-FEAT-008",
+    "REQ-FEAT-010",
+    "REQ-FEAT-011",
+    "REQ-FEAT-012",
+    "REQ-FEAT-013",
+    "REQ-FEAT-015",
+    "REQ-FEAT-016",
+    "REQ-FEAT-017",
+    "REQ-FEAT-018",
+    "REQ-FEAT-020",
+    "REQ-FEAT-021",
+    "REQ-FEAT-023",
+    "REQ-FEAT-028",
+    "REQ-FEAT-029",
+    "REQ-FEAT-033",
+    "REQ-FEAT-037",
+    "REQ-FEAT-038",
+    "REQ-FEAT-039",
+    "REQ-FEAT-040",
+    "REQ-FEAT-042",
+    "REQ-FEAT-043",
+    "REQ-FEAT-044",
+    "REQ-FEAT-045",
+    "REQ-FEAT-057",
+    "REQ-FEAT-058",
+    "REQ-FEAT-060",
+    "REQ-FEAT-061",
+    "REQ-FEAT-066",
+    "REQ-FEAT-067",
+    "REQ-FEAT-068",
+    "REQ-FEAT-070",
+    "REQ-FEAT-074",
+    "REQ-FEAT-077"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-003",
+      "title": "加载确认与单调时钟开局屏障",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-003_startup-barrier.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "b257f06f289737596716fd46629b171515333b7870fe463b53812edf94d08dbc"
+    },
+    {
+      "id": "REQ-FEAT-005",
+      "title": "逻辑时钟与 Tick 推进",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-005_simulation-tick.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "11b0b591a9794d8ffcee3d8263233fb7edb45291d2580ccac57e78f420c46348"
+    },
+    {
+      "id": "REQ-FEAT-006",
+      "title": "全局阶段与同步 Tick 管线",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-006_simulation-pipeline.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cdb367db132a26f47dbeaddb1476b8fbdc5673dac1379d4f5f2f3ad672bb5c0f"
+    },
+    {
+      "id": "REQ-FEAT-008",
+      "title": "命令合并转发与幂等重发",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-008_command-forwarding.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "197b1e0911aedafe698fbc3430d703dfa07d6866f4133772419da6321a268b21"
+    },
+    {
+      "id": "REQ-FEAT-010",
+      "title": "权威帧校验与恢复",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cfc3b0e057bede22a93ac28b6cdf533e7b80eac342021cb3412a61ec8b20cd4e"
+    },
+    {
+      "id": "REQ-FEAT-011",
+      "title": "预测回滚与逐帧重演",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-011_rollback-replay.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e972ae9ebc9de5852ccd0568d7256fc3904b371479500af3dff6991ac55c23c7"
+    },
+    {
+      "id": "REQ-FEAT-012",
+      "title": "快照树与字段归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-012_snapshot-ownership.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "db56882d50bc817ca7871c26b1757a0472bae91b06e211ca48dc500e3b1524c4"
+    },
+    {
+      "id": "REQ-FEAT-013",
+      "title": "共享校验与分段诊断",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-013_shared-checksum.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "73c9b7e2826631e7c8d5084ae0d8d7a3e028f90bba006908b3c10936d459e015"
+    },
+    {
+      "id": "REQ-FEAT-015",
+      "title": "稳定 UID 与参与者身份",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/determinism/REQ-FEAT-015_stable-unit-identity.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "718282fc75d36a2839106b8ecce3ed4a0388439d3093f8e194f83312144a5947"
+    },
+    {
+      "id": "REQ-FEAT-016",
+      "title": "比赛结束与全端统计",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-016_match-statistics.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "249b911bb20bbbc7a6e684208969b52476c0768f2070ffd38a7bad0246cfbd4f"
+    },
+    {
+      "id": "REQ-FEAT-017",
+      "title": "全局配置与离线校验",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-017_configuration-validation.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "89c1bcfe69084ed4baf19c1004ce91d26cb32064452c7b1916996de2d3ef5b29"
+    },
+    {
+      "id": "REQ-FEAT-018",
+      "title": "按对局加载内容闭包",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f8ded111ac8f777c33b80a3b065878902c19c32e157402f081a24b24dbc7ffcc"
+    },
+    {
+      "id": "REQ-FEAT-020",
+      "title": "单位根与能力装配",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-020_unit-capability-composition.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a331b21f07e70d2828d43ac3f253b3e9700faeeb2779640537732c6beb16ac"
+    },
+    {
+      "id": "REQ-FEAT-021",
+      "title": "意图规划与输入 Order",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-021_intent-planning.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "d254ef89a245b020c5816c4d4793c8f05995d9f57da9afc70011527149c26d86"
+    },
+    {
+      "id": "REQ-FEAT-023",
+      "title": "属性公式与 Modifier 所有权",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/unit-stats/REQ-FEAT-023_stat-formulas.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e8b5440380ec79bd2f96924c37f2269f9a949a513b0437d7d808c9658bedbc03"
+    },
+    {
+      "id": "REQ-FEAT-028",
+      "title": "同步生成死亡复活与回池",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-028_unit-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "408ddd790bf8049c1e5efc380b43ad779d2955e586e0e9aed04862d2ef1ba925"
+    },
+    {
+      "id": "REQ-FEAT-029",
+      "title": "战斗请求封存与因果波次",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-029_combat-causal-waves.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "2c774a29d44f24cf5ce1dc11539e227810a3f374dadd8fcd584b2be0a9f1fa22"
+    },
+    {
+      "id": "REQ-FEAT-033",
+      "title": "战斗公式修正与动态 Operand",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/combat/REQ-FEAT-033_combat-operands.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f81460e6cbd155075ad621c0d73f5b4cda8fc95f3c91f16e2f94915a8ec24d8d"
+    },
+    {
+      "id": "REQ-FEAT-037",
+      "title": "攻击周期规划与 Commit",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/basic-attacks/REQ-FEAT-037_attack-cycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f123d05dbd3aeb4ecf9477c37043a413fdf2de88acc6455c62382f4435502882"
+    },
+    {
+      "id": "REQ-FEAT-038",
+      "title": "近战远程与攻击特效输出",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/basic-attacks/REQ-FEAT-038_attack-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "555211705b0465d73e572062b134387b1d9de68386d4dc259f7ea2be8e3570e8"
+    },
+    {
+      "id": "REQ-FEAT-039",
+      "title": "定义与强类型生成黑板",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/projectiles/REQ-FEAT-039_projectile-definitions.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4b6a7eab2625865925a44c9893f633bc41866ab06683edf2f633defdbef915fd"
+    },
+    {
+      "id": "REQ-FEAT-040",
+      "title": "提交运动寿命与回收",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/projectiles/REQ-FEAT-040_projectile-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "6531df16389be68dedbfb6c1e16663144719e831fd9a74c04f5359e610b30bf6"
+    },
+    {
+      "id": "REQ-FEAT-042",
+      "title": "技能信号与会话状态",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-042_ability-signal-session.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "149becb3967ccbe225ba66062ba6ec569051ff617847e7052cfefee0ddc67553"
+    },
+    {
+      "id": "REQ-FEAT-043",
+      "title": "施法模型与阶段推进",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-043_cast-stages.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "584749aa7c3e3f204182c1608a89ddfe937a53bc17c497a50cca48cb2c6f2a9b"
+    },
+    {
+      "id": "REQ-FEAT-044",
+      "title": "阶段效果与确定性黑板",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-044_stage-effects.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a57f7694c7818e6c37da508533724d270cbfc2f632b036eb0587316adc0e89"
+    },
+    {
+      "id": "REQ-FEAT-045",
+      "title": "技能目录消耗冷却与升级",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/abilities/REQ-FEAT-045_ability-catalog.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "a082d3c3e2959baa277017aab3e47c28b52d8ecdcc6d39ff6c6020ecb02a4851"
+    },
+    {
+      "id": "REQ-FEAT-057",
+      "title": "金币批次确认与可用余额",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/equipment-shop/REQ-FEAT-057_gold-accounting.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "65783dea1e1a6a8ba2eb81f1b2416f6691d5b98f22063d84c044cdc9552a029d"
+    },
+    {
+      "id": "REQ-FEAT-058",
+      "title": "空间实体注册与写入",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-058_spatial-registration.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "327b178b283df31640c1ed203b5ccaab46b8cfba65243897e44d085f0fbe4e2e"
+    },
+    {
+      "id": "REQ-FEAT-060",
+      "title": "移动前后网格与碰撞事实",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-060_collision-facts.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "44fee7b9b6bf0b4d35e08bf9779fb8c6f96a1481fac8455ba0a57234e738c077"
+    },
+    {
+      "id": "REQ-FEAT-061",
+      "title": "墙体异常挤出与表现同步",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/spatial-physics/REQ-FEAT-061_wall-recovery.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "ce1ad243e4b6dfb71b5168bf3021d57ba697599ec66b2216b9cc09635b905403"
+    },
+    {
+      "id": "REQ-FEAT-066",
+      "title": "确定性局部避让",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-066_local-avoidance.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "fa21bcf47417ed253c87813a4b96189e00bf73dab22834044b4478d8d9d09f92"
+    },
+    {
+      "id": "REQ-FEAT-067",
+      "title": "普通移动冲刺与强制位移",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067_movement-pipeline.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e71b30bbf96fa957977960591dfbda226e062174433922f75cf0eec94517f73a"
+    },
+    {
+      "id": "REQ-FEAT-068",
+      "title": "AI 注册调度与多态快照",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-068_ai-scheduling.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c9c5c43fb7a16313a9b0dd4db698869ff09bd9456e603c12c1527b1a659dc4d9"
+    },
+    {
+      "id": "REQ-FEAT-070",
+      "title": "野怪营地刷新与共享仇恨",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-070_jungle-camps.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "d8269b42484018fe5a53793b9d177562b09b7cce28ed5d601b685d31feb89c5e"
+    },
+    {
+      "id": "REQ-FEAT-074",
+      "title": "特效音效与回滚账本",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-074_presentation-ledger.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "698ce3ccb29c96b1eccbc7511da65943e7c7d190576f5d818081732c71a93c4e"
+    },
+    {
+      "id": "REQ-FEAT-077",
+      "title": "商店商品详情与余额刷新",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-077_shop-view.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "34ac06720038b4ea4d1e8f30081ae40dc2c164297977d7ed867e451208fb8645"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0109_design_conformance_remediation_program_execplan.md",
+      "sha256": "9c9f5bc9aac15b69770397d0461c269374c208b9c4f4ffa4bebd9f5b1fa58bbf",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed.",
+      "targets": [
+        "REQ-FEAT-003",
+        "REQ-FEAT-005",
+        "REQ-FEAT-006",
+        "REQ-FEAT-008",
+        "REQ-FEAT-010",
+        "REQ-FEAT-011",
+        "REQ-FEAT-012",
+        "REQ-FEAT-013",
+        "REQ-FEAT-015",
+        "REQ-FEAT-016",
+        "REQ-FEAT-017",
+        "REQ-FEAT-018",
+        "REQ-FEAT-020",
+        "REQ-FEAT-021",
+        "REQ-FEAT-023",
+        "REQ-FEAT-028",
+        "REQ-FEAT-029",
+        "REQ-FEAT-033",
+        "REQ-FEAT-037",
+        "REQ-FEAT-038",
+        "REQ-FEAT-039",
+        "REQ-FEAT-040",
+        "REQ-FEAT-042",
+        "REQ-FEAT-043",
+        "REQ-FEAT-044",
+        "REQ-FEAT-045",
+        "REQ-FEAT-057",
+        "REQ-FEAT-058",
+        "REQ-FEAT-060",
+        "REQ-FEAT-061",
+        "REQ-FEAT-066",
+        "REQ-FEAT-067",
+        "REQ-FEAT-068",
+        "REQ-FEAT-070",
+        "REQ-FEAT-074",
+        "REQ-FEAT-077"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0109",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Gameplay/Combat/DamageRequest.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/FrameSync/GoldIncomeRuntime.cs",
+      "Assets/Scripts/FrameSync/SharedGameplayChecksum.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Gameplay/Movement/MovementHandler.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/ActionRuntimeSet.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "Assets/Scripts/FrameSync/Tests/GoldIncomeRuntimeContractTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/DamageRequest.cs",
+      "sha256": "f0d399049445345c088b6da66c51bbe269dce928f3aed72cd5c1d7bd427c6864",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GoldIncomeRuntime.cs",
+      "sha256": "2715e9e96ef3b369ff07d84068079f80d66305cf36b628a0d904c09e517c3809",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SharedGameplayChecksum.cs",
+      "sha256": "cbd90ab8a8cc3ee2a715d36ce74e5635e40e7df4b1e51be3837991d5f6851301",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Movement/MovementHandler.cs",
+      "sha256": "d652d3e9a6be3d3d3e52e578e81f07758647deab0e6b8bb46ce9d5733f3336ce",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/ActionRuntimeSet.cs",
+      "sha256": "f124c4045bc8bdd935488aeb4c0f2d282919301a56afdcf13f56a7a72d198d0a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GoldIncomeRuntimeContractTests.cs",
+      "sha256": "08c9ce4d92a4939b729b175deb10a5d17cecfd2debdb9ae0430b3545733e055a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "sha256": "ad0df036c910fcb93318705c187af1906b6910a16c16e9d1494834fa0680b841",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

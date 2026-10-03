@@ -1,0 +1,225 @@
+{
+  "id": "REQ-FEAT-014",
+  "title": "确定性随机与定点计算",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "确定性基础",
+  "path": "Docs/requirements/determinism/REQ-FEAT-014_deterministic-random.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.1 单一逻辑随机源",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.2 状态与快照",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.3 常用函数",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.4 核心伪代码",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "十一、`DeterministicRandomSnapshot`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs",
+      "sha256": "6d49fae34c4e0b5b22c31cb5fdad8038d43388516e67a40cbcda22666e2f6025",
+      "symbols": [
+        "DeterministicRandomService"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs",
+      "sha256": "f061cd1bf7b3e41c7003b82d7abade7840a5ec92d409d660e9f7c0153ef63c27",
+      "symbols": [
+        "DeterministicRandomSnapshot"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs",
+      "sha256": "f4a30f46a30513cb1fc5671af345864b7929b1709723da0162e3de76d65e69ba",
+      "testFunctions": [
+        "SameSeedAndCalls_ProduceIdenticalSequence",
+        "SameSeedAndMixedPrimitiveCalls_ProduceIdenticalResults",
+        "CaptureRestore_ReplaysSubsequentSequence",
+        "CaptureRestore_ReplaysMixedPrimitiveSequence",
+        "ZeroSeed_IsRejected",
+        "ZeroRestoredState_IsRejectedWithoutChangingSequence",
+        "NextFp01_UsesOneUnsignedFractionalDrawWithinUnitRange",
+        "NextFp_StaysWithinRequestedRange",
+        "NextInt_StaysWithinRequestedExclusiveRange",
+        "RangedNextInt_UsesOneUnsignedDrawAndCanonicalModuloMapping",
+        "ClampedChance01_ConsumesExactlyOneDraw",
+        "ChancePercent_UsesTheSameOneDrawRule",
+        "MidRangeChance_UsesTheDrawAndPercentUsesTheSameScale",
+        "PickIndexAndPickOne_UseOneCanonicalRangedDraw",
+        "InvalidCollectionInputs_AreRejectedWithoutChangingState",
+        "ShuffleInPlace_IsDeterministicAndConsumesLengthMinusOneDraws",
+        "EmptyAndSingleValueShuffle_ConsumeNoDraw",
+        "CaptureRestore_ReplaysCollectionOperations",
+        "RandomDirection2D_UsesCanonicalAngleMappingAndOneDraw",
+        "RandomPointOnCircle_UsesCanonicalMappingAndOneDraw",
+        "RandomPointInsideCircle_UsesAngleThenAreaUniformRadialDraw",
+        "SameSeedAndGeometryCalls_ProduceRawIdenticalSequence",
+        "CaptureRestore_ReplaysMixedGeometryOperations",
+        "ZeroRadius_ReturnsZeroAndPreservesNormalDrawCounts",
+        "NegativeGeometryRadius_IsRejectedWithoutChangingState",
+        "RandomPointsInsideCircle_RemainWithinFixedPointRadius",
+        "ExecutionMode_DoesNotChangeRandomResults",
+        "InvalidExclusiveRanges_AreRejected"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+      "sha256": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+      "testFunctions": [
+        "Crit_100PercentChance_DoublesDamage",
+        "Crit_ZeroPercentChance_NoCrit",
+        "Crit_DamageEventData_IsCriticalFlag",
+        "Crit_OneHundredPercent_DoesNotRequireRandomService",
+        "ProbabilisticCrit_DoesNotConsumeGlobalRandomState",
+        "AttackSpeed_ModifiesCooldown",
+        "AttackSpeed_PositiveBase_StartsAttack"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/BootstrapPayloadWireCodecTests.cs",
+      "sha256": "e1d359539112635e36a6277600a72ef863cf5287caffeeae7dc0ea857763c50e",
+      "testFunctions": [
+        "Payload_RoundTrip_IsCanonical",
+        "Payload_TrailingBytes_AreRejected"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
+      "sha256": "bdc828b224a17d4b168347bfb3132f02bc133cf09827164bbd7ca5aae0e8e67a",
+      "testFunctions": [
+        "TickContext_InitializesWithCorrectTick",
+        "TickContext_AdvancesCorrectly",
+        "DeterministicRandom_ProducesSameSequenceForSameSeed",
+        "UnitUid_ComparisonAndSorting",
+        "PathGrid_Initialise_ProducesValidGrid",
+        "AStar_FindPath_ReturnsValidPath",
+        "FlowField_BuildAndQuery_ReturnsValidDirection",
+        "EquipmentDefinition_CreateFromConfig_Valid",
+        "CombatRequest_CreatesValidDamage",
+        "GoldIncome_BatchTracking_HasInitialState",
+        "EquipmentSlotSnapshot_EmptyByDefault"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicAssemblyBoundaryTests.cs",
+      "sha256": "d1fd781e1d7069f43bdf9a89ea1d59cca344e5f70a2a5535cd34f6ffaf11f2b9",
+      "testFunctions": [
+        "RuntimeAssembly_HasNoForbiddenDirectDependency"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
+      "sha256": "4f869a40d5ba9f975ee0ca434782fbdb21aa1086d9c96141fed051f8e7241e6d",
+      "testFunctions": [
+        "Restore_UsesStableUnitUidAndRestoresRandomAndPhysicsState",
+        "Restore_RejectsNonCanonicalOrMissingUnitIdentity",
+        "Restore_RejectsDuplicateGameplayParticipantIdentity",
+        "Restore_RejectsMissingGameplayParticipantIdentity",
+        "SnapshotStore_WritesExplicitOuterSchemaAndNextTick"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GameBootstrapPayloadContractTests.cs",
+      "sha256": "c3d8a461af2ce6e9d1a5d8c99b181e1b434410347fc12ab867df41dfd3c58f41",
+      "testFunctions": [
+        "Payload_PreservesFrozenPlayerSlotMappings",
+        "Payload_MappingTeamMismatch_FailsDeterministically",
+        "VersionHandshake_AnyCriticalMismatch_Fails"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
+      "sha256": "424e317e0f6df5d81e79542dfa77e6478eb6b5f3a9bd17a94d3256c2ebb68e35",
+      "testFunctions": [
+        "CritRoll_RepeatedAndGlobalRandomInterleavingAreEquivalent",
+        "CritRoll_TechnicalUidRelabelDoesNotChangeResult",
+        "CombatCrit_TechnicalUidRelabelKeepsSettledResult",
+        "ProbabilisticCrit_InvalidIdentityOrOrdinalFails",
+        "ChildEffectOrdinal_DifferentParentEffectsDoNotCollide",
+        "ProjectileTie_SeedCorpusDoesNotPermanentlyFavorEitherParticipant",
+        "DeferredDamage_CaptureRestorePreservesActionIdentity",
+        "NegativeEffectOrdinal_IsRejectedAtDamageBoundaries"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs",
+      "sha256": "7ee2c1caf14ff0a5162297ef31715d349d13931f1fa4b8fc794ff83bff26e775",
+      "testFunctions": [
+        "HealAndDamage_AreIndependentOfSubmissionOrder",
+        "ShieldAndDamage_AreIndependentOfSubmissionOrder",
+        "LethalBatch_HighestEffectiveLifeDamageWins_AfterUidAndSubmissionMirror",
+        "LethalBatch_ExactTie_IsStableForSeedAndIndependentOfSubmissionOrder",
+        "ConfiguredMatchSeedOverridesCompositionFallbackForExactTie",
+        "ConfiguredMatchSeed_IsIdempotentButImmutable",
+        "LethalBatch_ExactTie_SeedCorpusDoesNotPermanentlyFavorOneUid",
+        "LethalBatch_ShieldOnlyDamageCannotWin",
+        "ShieldOnlyDamage_DoesNotGenerateDrainHealing",
+        "ProportionalLifeRemainder_NeverExceedsRequestCapacity",
+        "ProportionalHealRemainder_NeverExceedsRequestCapacity",
+        "DamageReactionHeal_EntersNextWaveAndRecoversTarget",
+        "SameTickMutualLethal_AllSealedAttacksRemainEffective",
+        "SameTickMutualLethal_DrainReactionsRecoverBothSources",
+        "MixedDamageAndSpecificShields_AreIndependentOfSubmissionOrder"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+      "sha256": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+      "testFunctions": [
+        "Catalog_ContainsSunderedSkyTreeWithStatsAndRecipes",
+        "EmpoweredStrike_Deals160PercentCritical_AndStartsCooldown",
+        "PerTargetCooldown_SecondHitOnSameHeroIsNormal",
+        "DifferentEnemyHero_StillTriggersEmpoweredStrike",
+        "HealRestoresMissingHealth_AndOverhealBecomesTempMaxHealth",
+        "RangedStrike_HealsWithRangedBaseAdRatio",
+        "MeleeWithProjectile_StillHealsWithMeleeRatio",
+        "FinishedItem_IsUnique_SecondPurchaseRejected",
+        "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

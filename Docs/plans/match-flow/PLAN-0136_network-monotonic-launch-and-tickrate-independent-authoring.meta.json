@@ -1,0 +1,153 @@
+{
+  "id": "PLAN-0136",
+  "code": "0136",
+  "title": "单调时钟开局与 Tick率独立创作",
+  "type": "plan",
+  "domain": "比赛流程",
+  "status": "关闭",
+  "path": "Docs/plans/match-flow/PLAN-0136_network-monotonic-launch-and-tickrate-independent-authoring.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-003",
+    "REQ-FEAT-005",
+    "REQ-FEAT-010",
+    "REQ-FEAT-020"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-003",
+      "title": "加载确认与单调时钟开局屏障",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-003_startup-barrier.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "b257f06f289737596716fd46629b171515333b7870fe463b53812edf94d08dbc"
+    },
+    {
+      "id": "REQ-FEAT-005",
+      "title": "逻辑时钟与 Tick 推进",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-005_simulation-tick.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "11b0b591a9794d8ffcee3d8263233fb7edb45291d2580ccac57e78f420c46348"
+    },
+    {
+      "id": "REQ-FEAT-010",
+      "title": "权威帧校验与恢复",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cfc3b0e057bede22a93ac28b6cdf533e7b80eac342021cb3412a61ec8b20cd4e"
+    },
+    {
+      "id": "REQ-FEAT-020",
+      "title": "单位根与能力装配",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/units/REQ-FEAT-020_unit-capability-composition.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "17a331b21f07e70d2828d43ac3f253b3e9700faeeb2779640537732c6beb16ac"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0136_network_monotonic_launch_and_tickrate_independent_authoring_execplan.md",
+      "sha256": "f8559a1206f89f00dc1b79ce20cb9001d0b3eeba9fceb9dc6722ed5be3f4c350",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed — declared source/formal-asset scope implemented and",
+      "targets": [
+        "REQ-FEAT-003",
+        "REQ-FEAT-005",
+        "REQ-FEAT-010",
+        "REQ-FEAT-020"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0136",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Bootstrap/FrameSyncLaunchSchedule.cs",
+      "Assets/Scripts/FrameSync/AuthorityFrame.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncLaunchScheduleTests.cs",
+      "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "sha256": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/FrameSyncLaunchSchedule.cs",
+      "sha256": "389ad55ecb42e473d32df1248c43f13b64d096fa7eff530d3d40bd7a052a5d99",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/AuthorityFrame.cs",
+      "sha256": "03a548909a6f6dc24c217d95e842192d65fb6d87cc218e755588427863603159",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncLaunchScheduleTests.cs",
+      "sha256": "72ea8439806b8a54cff8c611773ef41cb5dbc8401b5d0de65666115c5082106e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
+      "sha256": "85cc4ebf2926faa8cf30e41772498c60ef9f0bdaab991be2e08cbdd2fd9fd7a2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

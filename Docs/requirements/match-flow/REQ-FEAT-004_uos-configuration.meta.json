@@ -1,0 +1,76 @@
+{
+  "id": "REQ-FEAT-004",
+  "title": "UOS 配置与连接模式",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "比赛流程",
+  "path": "Docs/requirements/match-flow/REQ-FEAT-004_uos-configuration.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/LobbyFlowController.cs",
+      "sha256": "94357c08e27284f158ef93daf1953081404827307526e3bcf642977b2b5bd794",
+      "symbols": [
+        "LobbyFlowController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UosApplicationConfig.cs",
+      "sha256": "be8383e03fb668d915eaf9efefc78537092cd904b85640f96a1860cb06ec901b",
+      "symbols": [
+        "UosApplicationConfig"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UosNgoApplicationAdapters.cs",
+      "sha256": "96ca74a3fc96a63d9fe233c9427ad21ddd8591fbbb0ac1f726b638eaaed89aa0",
+      "symbols": [
+        "UosClientSession"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UosApplicationConfigTests.cs",
+      "sha256": "60caf672efa264fc58eb2074c1bcf58e85f542fa96a702f904d07742abee3433",
+      "testFunctions": [
+        "IsProfileTestServer_RecognizesOnlyTrue",
+        "IsProfileTestServer_PrefersMultiverseServerInfo"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
+      "sha256": "e7d7a8844994b8161ffc0b3d3d904f1537d435c5927d4f9b4b53a8c3d2e6dda3",
+      "testFunctions": [
+        "TestAccount_CommandLineOverridesPersistedIdentity",
+        "Lobby_RequiresEveryAssignedPlayerAtFullReadyBarrier",
+        "VersionHandshake_RejectsAnyCriticalMismatch",
+        "ClientFlow_ReachesLobbyOnlyAfterNgoConnects",
+        "ClientConnectionLifecycle_HasExactlyOneOwnerPerFlowMode",
+        "ClientFlow_CancelWaitingAssignment_DeletesTicketAndReturnsMain",
+        "ClientFlow_CancelWhileTicketCreationIsPending_DeletesLateTicket",
+        "WireCodec_RoundTripsAuthorityAndRecoveryEnvelopes",
+        "DedicatedFlow_OrdersAllocationReadyAndShutdown",
+        "Lobby_SameTeamDuplicateHeroIsBlocked",
+        "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
+        "LobbyState_WireCodec_RoundTripsFullSelection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
+      "sha256": "036a36534c091288c147776865aca1c193e223e00e62d3123a0038b308c75b33",
+      "testFunctions": [
+        "ClientBootstrap_TransitionsToLobbyAndBindsSession",
+        "ClientBootstrap_OnlineFlowOverride_SelectsUosSession",
+        "ServerBootstrap_TransitionsToLobbyAndStartsServer"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

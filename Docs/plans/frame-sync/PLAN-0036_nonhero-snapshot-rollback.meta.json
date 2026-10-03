@@ -1,0 +1,219 @@
+{
+  "id": "PLAN-0036",
+  "code": "0036",
+  "title": "非英雄快照与回滚",
+  "type": "plan",
+  "domain": "帧同步",
+  "status": "关闭",
+  "path": "Docs/plans/frame-sync/PLAN-0036_nonhero-snapshot-rollback.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-012",
+    "REQ-FEAT-011",
+    "REQ-FEAT-010",
+    "REQ-FEAT-068",
+    "REQ-FEAT-069",
+    "REQ-FEAT-070",
+    "REQ-FEAT-071"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-012",
+      "title": "快照树与字段归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-012_snapshot-ownership.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "db56882d50bc817ca7871c26b1757a0472bae91b06e211ca48dc500e3b1524c4"
+    },
+    {
+      "id": "REQ-FEAT-011",
+      "title": "预测回滚与逐帧重演",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-011_rollback-replay.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e972ae9ebc9de5852ccd0568d7256fc3904b371479500af3dff6991ac55c23c7"
+    },
+    {
+      "id": "REQ-FEAT-010",
+      "title": "权威帧校验与恢复",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cfc3b0e057bede22a93ac28b6cdf533e7b80eac342021cb3412a61ec8b20cd4e"
+    },
+    {
+      "id": "REQ-FEAT-068",
+      "title": "AI 注册调度与多态快照",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-068_ai-scheduling.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c9c5c43fb7a16313a9b0dd4db698869ff09bd9456e603c12c1527b1a659dc4d9"
+    },
+    {
+      "id": "REQ-FEAT-069",
+      "title": "小兵波次与兵线 AI",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-069_minion-waves.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f52c1dc04bb7a705f02e7122378c1f5f8a7ef25389ff768c32c103fc4818c156"
+    },
+    {
+      "id": "REQ-FEAT-070",
+      "title": "野怪营地刷新与共享仇恨",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-070_jungle-camps.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "d8269b42484018fe5a53793b9d177562b09b7cce28ed5d601b685d31feb89c5e"
+    },
+    {
+      "id": "REQ-FEAT-071",
+      "title": "防御塔目标优先级与攻击红线",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/non-heroes/REQ-FEAT-071_tower-targeting.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cd566fc44703b33579b8848175745c6805317f8230ba63ac33ddc0f3c8b4ba53"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0036_nonhero_snapshot_rollback.md",
+      "sha256": "dac3c5d52e08a7097a2a2765a5def4b6d7f01747820af28f8eb33fe4d0b6c70c",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-012",
+        "REQ-FEAT-011",
+        "REQ-FEAT-010",
+        "REQ-FEAT-068",
+        "REQ-FEAT-069",
+        "REQ-FEAT-070",
+        "REQ-FEAT-071"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0036",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/NonHero/MinionSystem.cs",
+      "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "Assets/Scripts/FrameSync/NonHeroRestoreHelper.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/NonHero/UnitAIController.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/MinionSystem.cs",
+      "sha256": "ff015152ed323576a899597bf049f3741861b958527dc40621cfd4e550795b7d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "sha256": "d68ba882f228cf25f5553fb473302d3853d4cbf79ac21ebfbfc18b7f17da2b05",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/NonHeroRestoreHelper.cs",
+      "sha256": "3ba545a3af69471848784d29699f3a6f092d419290af312438760263836f4260",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/NonHero/UnitAIController.cs",
+      "sha256": "b002b4c6ed183870e0edac79a7229e12c076b982a88f5845f8a05bf99b3a9bdd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "sha256": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
+      "sha256": "52e9c09ffe823e05c8f741d81c10e956130e5ec0ce65d97d40fc8ffd32aa3a22",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
+      "sha256": "ad0df036c910fcb93318705c187af1906b6910a16c16e9d1494834fa0680b841",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+      "sha256": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

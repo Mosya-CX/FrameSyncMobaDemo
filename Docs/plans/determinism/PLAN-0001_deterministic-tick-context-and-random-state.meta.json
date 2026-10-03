@@ -1,0 +1,139 @@
+{
+  "id": "PLAN-0001",
+  "code": "0001",
+  "title": "逻辑 Tick 上下文与随机状态",
+  "type": "plan",
+  "domain": "确定性基础",
+  "status": "关闭",
+  "path": "Docs/plans/determinism/PLAN-0001_deterministic-tick-context-and-random-state.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-014",
+    "REQ-FEAT-005"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-014",
+      "title": "确定性随机与定点计算",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/determinism/REQ-FEAT-014_deterministic-random.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "ac21c9497b66e37c7b485e1f6eff5aba390aad71aa979254163e1527d24f3965"
+    },
+    {
+      "id": "REQ-FEAT-005",
+      "title": "逻辑时钟与 Tick 推进",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-005_simulation-tick.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "11b0b591a9794d8ffcee3d8263233fb7edb45291d2580ccac57e78f420c46348"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0001_deterministic_tick_context_and_random_state_execplan.md",
+      "sha256": "1019199b66802c426785925e8d12886175cd13cc0f390466aeeca3fef69c8e6c",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Complete — implemented on 2026-07-19 and independently accepted with fixes on 2026-07-20.",
+      "targets": [
+        "REQ-FEAT-014",
+        "REQ-FEAT-005"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0001",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Deterministic/Core/ExecutionMode.cs",
+      "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs",
+      "Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs",
+      "Assets/Scripts/Deterministic/Core/SimulationTickContextController.cs",
+      "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/Deterministic/Tests/DeterministicAssemblyBoundaryTests.cs",
+      "Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs",
+      "Assets/Scripts/Deterministic/Tests/SimulationTickContextTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Deterministic/Core/ExecutionMode.cs",
+      "sha256": "ee70010451360bb987d2792126629bb317f154e6afecb92859cfec0a92bf83b2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "sha256": "32bfbdb6c1e9a977b8ae81f53ebc4f117b560190616f0445dd0d527b60342ab2",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs",
+      "sha256": "f061cd1bf7b3e41c7003b82d7abade7840a5ec92d409d660e9f7c0153ef63c27",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs",
+      "sha256": "6d49fae34c4e0b5b22c31cb5fdad8038d43388516e67a40cbcda22666e2f6025",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Core/SimulationTickContextController.cs",
+      "sha256": "d254723a697355e19bf7d52ada259ff5a8270a9908ff2bea8c145ee49d103739",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "sha256": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicAssemblyBoundaryTests.cs",
+      "sha256": "d1fd781e1d7069f43bdf9a89ea1d59cca344e5f70a2a5535cd34f6ffaf11f2b9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs",
+      "sha256": "f4a30f46a30513cb1fc5671af345864b7929b1709723da0162e3de76d65e69ba",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/SimulationTickContextTests.cs",
+      "sha256": "84bf58f82b2c1d45b0cd739e2a167698ed32b1a57eae5a8353635102c97b2b88",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

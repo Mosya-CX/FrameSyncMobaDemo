@@ -1,0 +1,143 @@
+{
+  "id": "PLAN-0111",
+  "code": "0111",
+  "title": "快照与共享校验完整性",
+  "type": "plan",
+  "domain": "帧同步",
+  "status": "关闭",
+  "path": "Docs/plans/frame-sync/PLAN-0111_snapshot-and-shared-checksum-completeness.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-012",
+    "REQ-FEAT-011",
+    "REQ-FEAT-013"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-012",
+      "title": "快照树与字段归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-012_snapshot-ownership.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "db56882d50bc817ca7871c26b1757a0472bae91b06e211ca48dc500e3b1524c4"
+    },
+    {
+      "id": "REQ-FEAT-011",
+      "title": "预测回滚与逐帧重演",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-011_rollback-replay.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e972ae9ebc9de5852ccd0568d7256fc3904b371479500af3dff6991ac55c23c7"
+    },
+    {
+      "id": "REQ-FEAT-013",
+      "title": "共享校验与分段诊断",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-013_shared-checksum.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "73c9b7e2826631e7c8d5084ae0d8d7a3e028f90bba006908b3c10936d459e015"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0111_snapshot_and_shared_checksum_completeness_execplan.md",
+      "sha256": "dd0386bf2ed2688624e3bfbe512f61e024e08895696df31d794e808b84c021e4",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Implemented and MCP-validated; focused Test Runner pending dirty-scene resolution.",
+      "targets": [
+        "REQ-FEAT-012",
+        "REQ-FEAT-011",
+        "REQ-FEAT-013"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0111",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/FrameSync/SharedGameplayChecksum.cs",
+      "Assets/Scripts/Gameplay/Movement/MovementSnapshot.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/ActionRuntimeSet.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/UnitIntent.cs",
+      "Assets/Scripts/Bootstrap/ClientBootstrap.cs",
+      "Assets/Scripts/Gameplay/Modifiers/CombatModifierSet.cs",
+      "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SharedGameplayChecksum.cs",
+      "sha256": "cbd90ab8a8cc3ee2a715d36ce74e5635e40e7df4b1e51be3837991d5f6851301",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Movement/MovementSnapshot.cs",
+      "sha256": "9ce3c29be360ba5eb5befb81db1b9fc04d23e70555640512b78e2519574c0b54",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/ActionRuntimeSet.cs",
+      "sha256": "f124c4045bc8bdd935488aeb4c0f2d282919301a56afdcf13f56a7a72d198d0a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitIntent.cs",
+      "sha256": "3962948001bd3757949b746bace5f66a43e7ca111d15ab9d46cc2dc36c3c5af9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/ClientBootstrap.cs",
+      "sha256": "29775005d926a780d598c1264bd4da7911f7e3c00fcba7e456c6a782e5fd6720",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierSet.cs",
+      "sha256": "ced978458335a59a6c0eeb2aa2e5d98cf8795e481d24d42ea8857ce82b279f13",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

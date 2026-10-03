@@ -1,0 +1,137 @@
+{
+  "id": "PLAN-0152",
+  "code": "0152",
+  "title": "命令 Bundle 幂等与发送门禁",
+  "type": "plan",
+  "domain": "帧同步",
+  "status": "关闭",
+  "path": "Docs/plans/frame-sync/PLAN-0152_command-bundle-idempotency-and-send-gating.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-007",
+    "REQ-FEAT-008",
+    "REQ-FEAT-009"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-007",
+      "title": "命令序列化与类型化派发",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-007_command-dispatch.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f01c8a996c3009192fa6c554334a0cba3fa64d753949525d3f1817847f5f5cc8"
+    },
+    {
+      "id": "REQ-FEAT-008",
+      "title": "命令合并转发与幂等重发",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-008_command-forwarding.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "197b1e0911aedafe698fbc3430d703dfa07d6866f4133772419da6321a268b21"
+    },
+    {
+      "id": "REQ-FEAT-009",
+      "title": "自适应命令目标 Tick",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-009_command-timing.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "e7ee3b3238f46b72af330fdedd79618727f51b642ed277312ae3517fd4d27155"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0152_command_bundle_idempotency_and_send_gating.md",
+      "sha256": "f1b6e584e7315340f256c5193ed0df669bf32a81cadd4d98b1fd963638dc13eb",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-007",
+        "REQ-FEAT-008",
+        "REQ-FEAT-009"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0152",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/FrameSync/CommandCollector.cs",
+      "Assets/Scripts/Bootstrap/FrameSyncNetworkBridge.cs",
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/Bootstrap/GameplayCommandSendLedger.cs",
+      "Assets/Scripts/FrameSync/AuthorityFrame.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs",
+      "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+      "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/CommandCollector.cs",
+      "sha256": "6bf1e24634265bb3787d3d601c2ea666ba86d44622dcb0e8a9785261b0ef756b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/FrameSyncNetworkBridge.cs",
+      "sha256": "f5e520aa97c077e9f6b3591f1de377141bbcad2285859a17902dc3d1b2720411",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameplayCommandSendLedger.cs",
+      "sha256": "5ef6176952361ae9448f175bfcfa5ab73054220d2fe2fe623f0e422edad74aaf",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/AuthorityFrame.cs",
+      "sha256": "03a548909a6f6dc24c217d95e842192d65fb6d87cc218e755588427863603159",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs",
+      "sha256": "21ffef1a4240a25895f39783d71789faf4d895dfd613787a2bf87899fe7a7ef3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+      "sha256": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

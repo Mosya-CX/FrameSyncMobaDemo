@@ -1,0 +1,147 @@
+{
+  "id": "REQ-FEAT-001",
+  "title": "应用启动与跨场景流程",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "比赛流程",
+  "path": "Docs/requirements/match-flow/REQ-FEAT-001_application-flow.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.2 客户端状态机",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.3 Dedicated Server 状态机",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.4 自动测试账户",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.5 与帧同步的边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/ApplicationFlow.cs",
+      "sha256": "9078ce46566b6d0ede3ceead03639f5853c94a77df714ae715b26ab68f4311c5",
+      "symbols": [
+        "GameApplicationFlowManager"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameSessionContext.cs",
+      "sha256": "393230ca8865187f00d2ceb257bc4216ef8f870fb0e160258650305245d329e9",
+      "symbols": [
+        "GameSessionContext"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LocalNgoEndpointDriver.cs",
+      "sha256": "13f2d371cc45f74acd9e1614c9083ddb06d896f48bf2e50764a2bde23d03f061",
+      "symbols": [
+        "LocalNgoEndpointDriver"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
+      "sha256": "036a36534c091288c147776865aca1c193e223e00e62d3123a0038b308c75b33",
+      "testFunctions": [
+        "ClientBootstrap_TransitionsToLobbyAndBindsSession",
+        "ClientBootstrap_OnlineFlowOverride_SelectsUosSession",
+        "ServerBootstrap_TransitionsToLobbyAndStartsServer"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
+      "sha256": "e7d7a8844994b8161ffc0b3d3d904f1537d435c5927d4f9b4b53a8c3d2e6dda3",
+      "testFunctions": [
+        "TestAccount_CommandLineOverridesPersistedIdentity",
+        "Lobby_RequiresEveryAssignedPlayerAtFullReadyBarrier",
+        "VersionHandshake_RejectsAnyCriticalMismatch",
+        "ClientFlow_ReachesLobbyOnlyAfterNgoConnects",
+        "ClientConnectionLifecycle_HasExactlyOneOwnerPerFlowMode",
+        "ClientFlow_CancelWaitingAssignment_DeletesTicketAndReturnsMain",
+        "ClientFlow_CancelWhileTicketCreationIsPending_DeletesLateTicket",
+        "WireCodec_RoundTripsAuthorityAndRecoveryEnvelopes",
+        "DedicatedFlow_OrdersAllocationReadyAndShutdown",
+        "Lobby_SameTeamDuplicateHeroIsBlocked",
+        "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
+        "LobbyState_WireCodec_RoundTripsFullSelection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/LocalNgoSceneConfigurationTests.cs",
+      "sha256": "6302825d65d0d70ca14e83efde60b1f437f8d51a027a0c8fdcb78be8b83acfae",
+      "testFunctions": [
+        "EndpointScene_UsesApplicationOwnedSceneAndPlayerLifecycle",
+        "LocalServerSlots_MatchGameSceneInitialSpawns"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchScopedContentConfigurationTests.cs",
+      "sha256": "11b58b5f73f1c05aa17f99d71e441dcc240e06c57796887e40b2a6fbb4417341",
+      "testFunctions": [
+        "FormalRoot_SelectsOnlyCoreMapAndRequestedHeroes",
+        "FormalPartitions_ArePathOnlyAndCoverTwentyTwoEntries",
+        "SelectedHeroCatalogs_BakeWithoutOtherHero",
+        "UnitCatalogPartitions_CoreAloneOwnsSharedDisposePolicies",
+        "LogicAndHeroGroups_AreLocalAndPartitioned",
+        "SessionSelection_IsStableAndResettable",
+        "FormalGameScene_HasNoLegacyDirectCatalogReferences"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

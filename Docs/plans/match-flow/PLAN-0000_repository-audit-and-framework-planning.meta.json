@@ -1,0 +1,127 @@
+{
+  "id": "PLAN-0000",
+  "code": "0000",
+  "title": "工程基线调查与确定性框架规划",
+  "type": "plan",
+  "domain": "比赛流程",
+  "status": "关闭",
+  "path": "Docs/plans/match-flow/PLAN-0000_repository-audit-and-framework-planning.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-014",
+    "REQ-FEAT-015",
+    "REQ-FEAT-007",
+    "REQ-FEAT-012"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-014",
+      "title": "确定性随机与定点计算",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/determinism/REQ-FEAT-014_deterministic-random.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "ac21c9497b66e37c7b485e1f6eff5aba390aad71aa979254163e1527d24f3965"
+    },
+    {
+      "id": "REQ-FEAT-015",
+      "title": "稳定 UID 与参与者身份",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/determinism/REQ-FEAT-015_stable-unit-identity.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "718282fc75d36a2839106b8ecce3ed4a0388439d3093f8e194f83312144a5947"
+    },
+    {
+      "id": "REQ-FEAT-007",
+      "title": "命令序列化与类型化派发",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-007_command-dispatch.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "f01c8a996c3009192fa6c554334a0cba3fa64d753949525d3f1817847f5f5cc8"
+    },
+    {
+      "id": "REQ-FEAT-012",
+      "title": "快照树与字段归属",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-012_snapshot-ownership.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "db56882d50bc817ca7871c26b1757a0472bae91b06e211ca48dc500e3b1524c4"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0000_repository_audit_and_framework_planning_execplan.md",
+      "sha256": "6c59133cb3a56b66170a219c1e3f077890773055687f875fbc649bd2804defde",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Repository audit completed and synchronized after owner review on 2026-07-19. All legacy P0/P1/P2 findings are resolved or accepted as non-blocking. Formal 0001 subsequently completed with Unity verification.",
+      "targets": [
+        "REQ-FEAT-003",
+        "REQ-FEAT-012",
+        "REQ-FEAT-013",
+        "REQ-FEAT-020",
+        "REQ-FEAT-028",
+        "REQ-FEAT-042",
+        "REQ-FEAT-068",
+        "REQ-FEAT-074",
+        "REQ-FEAT-080"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0000",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Docs/rules/index/assembly-dependencies.json"
+    ],
+    "conclusion": "文档与工程基线调查当期完成；后续执行由独立计划承接，当前仅作关闭记录。",
+    "unityTestsRerun": false,
+    "issues": []
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "sha256": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "kind": "当前工程基线事实"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "当前工程基线事实"
+    },
+    {
+      "path": "Docs/rules/index/assembly-dependencies.json",
+      "sha256": "35e9386c16e80af40e5e567a329923972b14d816786d0cd46561357f286864bd",
+      "kind": "当前工程基线事实"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

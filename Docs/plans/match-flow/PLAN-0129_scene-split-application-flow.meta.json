@@ -1,0 +1,165 @@
+{
+  "id": "PLAN-0129",
+  "code": "0129",
+  "title": "场景拆分与应用流程",
+  "type": "plan",
+  "domain": "比赛流程",
+  "status": "关闭",
+  "path": "Docs/plans/match-flow/PLAN-0129_scene-split-application-flow.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-001",
+    "REQ-FEAT-002",
+    "REQ-FEAT-003",
+    "REQ-FEAT-004"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-001",
+      "title": "应用启动与跨场景流程",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-001_application-flow.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "d2014ac43a646870c09f1ff9da66228f860f8938930d9be8e32d31ff134429ce"
+    },
+    {
+      "id": "REQ-FEAT-002",
+      "title": "大厅槽位与开局配置",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-002_lobby-slots.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "bd73a3b9e15eaf03aff1ac72eedf37cef2000ba43b488c935e9efd7851c09347"
+    },
+    {
+      "id": "REQ-FEAT-003",
+      "title": "加载确认与单调时钟开局屏障",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-003_startup-barrier.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "b257f06f289737596716fd46629b171515333b7870fe463b53812edf94d08dbc"
+    },
+    {
+      "id": "REQ-FEAT-004",
+      "title": "UOS 配置与连接模式",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-004_uos-configuration.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "39ebb307e279916c5915ab4a04e82c927c5275a97b44cc9db24c3e21fd560c29"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0129_scene_split_application_flow_execplan.md",
+      "sha256": "10c058d0e27d94113ff074ea4abe456190a1f5feea9300ed8f0eba6bda37c79d",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed on 2026-08-04.",
+      "targets": [
+        "REQ-FEAT-001",
+        "REQ-FEAT-002",
+        "REQ-FEAT-003",
+        "REQ-FEAT-004"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0129",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Bootstrap/ServerBootstrap.cs",
+      "Assets/Scripts/Bootstrap/ClientBootstrap.cs",
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/Bootstrap/GameSessionContext.cs",
+      "Assets/Scripts/Bootstrap/LobbyFlowController.cs",
+      "Assets/Scripts/Bootstrap/LobbyNetworkBridge.cs",
+      "Assets/Scripts/Bootstrap/LocalNgoEndpointDriver.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/ServerBootstrap.cs",
+      "sha256": "07e155923631cd465aa142726e7b93ea86142293d134db86b3aeb1c0cd0cc1d6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/ClientBootstrap.cs",
+      "sha256": "29775005d926a780d598c1264bd4da7911f7e3c00fcba7e456c6a782e5fd6720",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameSessionContext.cs",
+      "sha256": "393230ca8865187f00d2ceb257bc4216ef8f870fb0e160258650305245d329e9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LobbyFlowController.cs",
+      "sha256": "94357c08e27284f158ef93daf1953081404827307526e3bcf642977b2b5bd794",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LobbyNetworkBridge.cs",
+      "sha256": "d0f1583f9bf5ae29edc9bd94b7cd70d9a8bd297f6da11835009c3b6343eeff93",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LocalNgoEndpointDriver.cs",
+      "sha256": "13f2d371cc45f74acd9e1614c9083ddb06d896f48bf2e50764a2bde23d03f061",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
+      "sha256": "036a36534c091288c147776865aca1c193e223e00e62d3123a0038b308c75b33",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

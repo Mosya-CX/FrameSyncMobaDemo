@@ -1,0 +1,169 @@
+{
+  "id": "REQ-FEAT-016",
+  "title": "比赛结束与全端统计",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "比赛流程",
+  "path": "Docs/requirements/match-flow/REQ-FEAT-016_match-statistics.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.2 比赛阶段",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.3 基地规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.4 客户端预测结束候选",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.5 对应权威帧到达",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.6 `MatchResultState`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
+      "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.7 Snapshot",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "四、`MatchRuleRuntimeSnapshot`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    },
+    {
+      "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
+      "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "十五、预测结束候选",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/ApplicationFlowContracts.cs",
+      "sha256": "022d76aad529b63ad0cb82f902b57f613fe5fbb217ed102f36552aa8961fe1b5",
+      "symbols": [
+        "MatchResultState"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/MatchRuleRuntime.cs",
+      "sha256": "9d283af1cd089cf7bd579382cf0ce240468f348624fdaf8f98f0d52d7dd7bc16",
+      "symbols": [
+        "MatchRuleRuntime",
+        "MatchStatisticsRuntime"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
+      "sha256": "e7d7a8844994b8161ffc0b3d3d904f1537d435c5927d4f9b4b53a8c3d2e6dda3",
+      "testFunctions": [
+        "TestAccount_CommandLineOverridesPersistedIdentity",
+        "Lobby_RequiresEveryAssignedPlayerAtFullReadyBarrier",
+        "VersionHandshake_RejectsAnyCriticalMismatch",
+        "ClientFlow_ReachesLobbyOnlyAfterNgoConnects",
+        "ClientConnectionLifecycle_HasExactlyOneOwnerPerFlowMode",
+        "ClientFlow_CancelWaitingAssignment_DeletesTicketAndReturnsMain",
+        "ClientFlow_CancelWhileTicketCreationIsPending_DeletesLateTicket",
+        "WireCodec_RoundTripsAuthorityAndRecoveryEnvelopes",
+        "DedicatedFlow_OrdersAllocationReadyAndShutdown",
+        "Lobby_SameTeamDuplicateHeroIsBlocked",
+        "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
+        "LobbyState_WireCodec_RoundTripsFullSelection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
+      "sha256": "c0ec6f80dd8f849f53b0a24afd3195ae2e95fafea96faa48609544f9cff3d023",
+      "testFunctions": [
+        "FutureCommand_IsRetainedAndConsumedOnlyAtTargetTick",
+        "CastIntentAndAction_PreserveCommitVerbAndDirectionAim",
+        "PlanCastIntent_UsesAbilityCastRange_NotHardcoded",
+        "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
+        "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchFlowStateMachineTests.cs",
+      "sha256": "c815a3a1397189bf0b88f01e48499bcb3f3996e515b4276703e2bf47735b69d5",
+      "testFunctions": [
+        "MatchFlow_InitialState_Preparing",
+        "MatchFlow_AfterCountdown_TransitionsToRunning",
+        "MatchFlow_CommandsGatedDuringCountdown",
+        "MatchResultSnapshot_DefaultIsEmpty",
+        "MatchResultSnapshot_StoresResult",
+        "MatchFlow_AcceptsCommands_OnlyRunningOrEnding"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchGoldRewardTests.cs",
+      "sha256": "81d83e401752ccf3bd00806a80fe7b6ffa0c91ff3f6a3553d1073341c506a52a",
+      "testFunctions": [
+        "GoldAllocation_UsesIntegerAmountContract",
+        "MinionLastHit_ConfirmsFullConfiguredGold",
+        "MonsterLastHit_UsesAuthoredCreepScoreValue",
+        "HeroKill_WithTwoAssistants_Splits300As180_60_60",
+        "HeroKill_WithoutAssistants_ConfirmsFull300ToKiller"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchRewardDistanceTests.cs",
+      "sha256": "268675be19d563b56f1e31cf74384a18b28a1bbcd360e0e082a7e79095a9d623",
+      "testFunctions": [
+        "MinionExperienceRadius_UsesStatToLogicDistanceScale"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchTopologyTests.cs",
+      "sha256": "71f3bc513efd71dc07f288ae233bd52dcffeac0f17fb39b2b25725d2dbd372f1",
+      "testFunctions": [
+        "InitialTopology_RegistersTwoStructureBasesInStableRoles",
+        "InitialAuthoritySnapshot_DiscardsClientAuthoringSpawnQueue",
+        "InitialTopology_RejectsBasesOnSameTeam"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

@@ -1,0 +1,111 @@
+{
+  "id": "PLAN-0119",
+  "code": "0119",
+  "title": "权威帧恢复与预测限制",
+  "type": "plan",
+  "domain": "帧同步",
+  "status": "关闭",
+  "path": "Docs/plans/frame-sync/PLAN-0119_authority-frame-recovery-and-prediction-limits.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-010"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-010",
+      "title": "权威帧校验与恢复",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "cfc3b0e057bede22a93ac28b6cdf533e7b80eac342021cb3412a61ec8b20cd4e"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0119_authority_frame_recovery_and_prediction_limits_execplan.md",
+      "sha256": "cab9b353717f6925e58bc3f43b25bcaf32e2138a6b0c80b49f03c8b9a3eb5cd0",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed.",
+      "targets": [
+        "REQ-FEAT-010"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0119",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/RuntimeConfig/GlobalGameplayData.cs",
+      "Assets/Scripts/FrameSync/AuthorityFrame.cs",
+      "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "Assets/Scripts/FrameSync/GameplayCommand.cs",
+      "Assets/Scripts/FrameSync/CommandCollector.cs",
+      "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/FrameSync/SnapshotStore.cs",
+      "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalGameplayData.cs",
+      "sha256": "1b0f7c44a40958748013b9b385f21c624b34804deb6147ca593d00e8283ec906",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/AuthorityFrame.cs",
+      "sha256": "03a548909a6f6dc24c217d95e842192d65fb6d87cc218e755588427863603159",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "sha256": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplayCommand.cs",
+      "sha256": "3351e9eb4c05ec46948e64433034939b80d27292e28e6ebb9a605355a7bd5650",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/CommandCollector.cs",
+      "sha256": "6bf1e24634265bb3787d3d601c2ea666ba86d44622dcb0e8a9785261b0ef756b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "sha256": "d68ba882f228cf25f5553fb473302d3853d4cbf79ac21ebfbfc18b7f17da2b05",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SnapshotStore.cs",
+      "sha256": "c18acf2e82249801e98892931d0fabcede8f07c5f5e32cd656466b11e6a33999",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}
