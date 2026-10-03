@@ -1,0 +1,9 @@
+{
+  "id": "FACT-9CD2F2F2C7BD",
+  "title": "待确认清单",
+  "type": "rule",
+  "domain": "工程事实",
+  "path": "Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.md",
+  "version": 1,
+  "section": "facts"
+}

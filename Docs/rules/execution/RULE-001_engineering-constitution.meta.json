@@ -1,0 +1,24 @@
+{
+  "id": "RULE-001",
+  "title": "工程宪法",
+  "type": "rule",
+  "domain": "工程规则",
+  "path": "Docs/rules/execution/RULE-001_engineering-constitution.md",
+  "version": 1,
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "kind": "已接受工程约束"
+    },
+    {
+      "kind": "用户本期十五项明确要求"
+    }
+  ],
+  "provenance": [
+    {
+      "date": "2026-10-02",
+      "summary": "从既有宪法/工作流和用户本期修订整合为独立中文规则"
+    }
+  ],
+  "section": "execution"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "FACT-KAR-001",
+  "title": "Karolina架构审查",
+  "type": "rule",
+  "domain": "工程事实",
+  "section": "facts",
+  "path": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.md",
+  "version": 1,
+  "updatedAt": "2026-10-03T00:47:25.605412+08:00"
+}

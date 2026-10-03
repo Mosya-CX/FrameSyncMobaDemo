@@ -1,0 +1,9 @@
+{
+  "id": "GUIDE-CONTENT",
+  "title": "资源边界与内容闭包",
+  "type": "rule",
+  "domain": "资源边界",
+  "path": "Docs/rules/facts/GUIDE-CONTENT_resource-content-boundaries.md",
+  "version": 1,
+  "section": "facts"
+}

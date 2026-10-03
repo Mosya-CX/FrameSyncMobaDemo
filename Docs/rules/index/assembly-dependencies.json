@@ -1,0 +1,390 @@
+{
+  "captured": "2026-10-02",
+  "source": "当前磁盘 asmdef，不代替 Unity 导入状态",
+  "assemblies": [
+    {
+      "path": "Assets/Scripts/Bootstrap/Editor/FrameSyncMoba.Bootstrap.Editor.asmdef",
+      "name": "FrameSyncMoba.Bootstrap.Editor",
+      "references": [
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.PlayerInput",
+        "Unity.Addressables.Editor",
+        "Unity.UGUI"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/FrameSyncMoba.Bootstrap.asmdef",
+      "name": "FrameSyncMoba.Bootstrap",
+      "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.PlayerInput",
+        "FrameSyncMoba.LuaBridge",
+        "XLua.Runtime",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.Collections",
+        "Unity.UOS.Common",
+        "Unity.UOS.Matchmaking.Runtime",
+        "Unity.UOS.Matchmaking.Server.Runtime",
+        "Unity.UOS.Multiverse.Runtime",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "Unity.TextMeshPro",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncMoba.Bootstrap.EditModeTests.asmdef",
+      "name": "FrameSyncMoba.Bootstrap.EditModeTests",
+      "references": [
+        "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.ClientContent",
+        "FrameSyncMoba.Bootstrap.Editor",
+        "FrameSyncMoba.LuaBridge",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.Deterministic",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint",
+        "Unity.Addressables.Editor"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/FrameSyncMoba.Bootstrap.PlayModeTests.asmdef",
+      "name": "FrameSyncMoba.Bootstrap.PlayModeTests",
+      "references": [
+        "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.ClientContent",
+        "FrameSyncMoba.LuaBridge",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.PlayerInput",
+        "FrameSyncMoba.Testing",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.Deterministic",
+        "Unity.Netcode.Runtime",
+        "UnityEditor",
+        "Unity.Mathematics.FixedPoint",
+        "Unity.InputSystem",
+        "Unity.InputSystem.TestFramework",
+        "Unity.TextMeshPro"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/FrameSyncMoba.ClientContent.asmdef",
+      "name": "FrameSyncMoba.ClientContent",
+      "references": [
+        "FrameSyncMoba.Bootstrap",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.PlayerInput",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/Tests/PlayMode/FrameSyncMoba.ClientContent.PlayModeTests.asmdef",
+      "name": "FrameSyncMoba.ClientContent.PlayModeTests",
+      "references": [
+        "FrameSyncMoba.ClientContent",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "Unity.Addressables",
+        "Unity.Mathematics.FixedPoint",
+        "Unity.ResourceManager",
+        "UnityEditor"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/FrameSyncMoba.Deterministic.asmdef",
+      "name": "FrameSyncMoba.Deterministic",
+      "references": [
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/FrameSyncMoba.Deterministic.Tests.asmdef",
+      "name": "FrameSyncMoba.Deterministic.Tests",
+      "references": [
+        "FrameSyncMoba.Deterministic",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncMoba.FrameSync.asmdef",
+      "name": "FrameSyncMoba.FrameSync",
+      "references": [
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/FrameSyncMoba.FrameSync.Tests.asmdef",
+      "name": "FrameSyncMoba.FrameSync.Tests",
+      "references": [
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Deterministic",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Testing"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/FrameSyncMoba.Unit.asmdef",
+      "name": "FrameSyncMoba.Unit",
+      "references": [
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Pathfinding/Editor/FrameSyncMoba.Unit.Editor.asmdef",
+      "name": "FrameSyncMoba.Unit.Editor",
+      "references": [
+        "FrameSyncMoba.Unit",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/FrameSyncMoba.Unit.Tests.asmdef",
+      "name": "FrameSyncMoba.Unit.Tests",
+      "references": [
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Testing",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/FrameSyncMoba.Unit.PlayModeTests.asmdef",
+      "name": "FrameSyncMoba.Unit.PlayModeTests",
+      "references": [
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/FrameSyncMoba.LuaBridge.asmdef",
+      "name": "FrameSyncMoba.LuaBridge",
+      "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.FrameSync",
+        "XLua.Runtime",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/FrameSyncMoba.LuaBridge.Tests.asmdef",
+      "name": "FrameSyncMoba.LuaBridge.Tests",
+      "references": [
+        "FrameSyncMoba.LuaBridge",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Deterministic",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Physics/FrameSyncMoba.Physics.asmdef",
+      "name": "FrameSyncMoba.Physics",
+      "references": [
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/FrameSyncMoba.Physics.Tests.asmdef",
+      "name": "FrameSyncMoba.Physics.Tests",
+      "references": [
+        "FrameSyncMoba.Physics",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/FrameSyncMoba.Physics.PlayModeTests.asmdef",
+      "name": "FrameSyncMoba.Physics.PlayModeTests",
+      "references": [
+        "FrameSyncMoba.Physics",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/FrameSyncMoba.PlayerInput.asmdef",
+      "name": "FrameSyncMoba.PlayerInput",
+      "references": [
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Unit",
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint",
+        "Unity.InputSystem"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/FrameSyncMoba.PlayerInput.Tests.asmdef",
+      "name": "FrameSyncMoba.PlayerInput.Tests",
+      "references": [
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.FrameSync",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.PlayerInput",
+        "FrameSyncMoba.Testing",
+        "FrameSyncMoba.Unit",
+        "Unity.InputSystem",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/Editor/FrameSyncMoba.RuntimeConfig.Editor.asmdef",
+      "name": "FrameSyncMoba.RuntimeConfig.Editor",
+      "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/Editor/Tests/FrameSyncMoba.RuntimeConfig.Editor.Tests.asmdef",
+      "name": "FrameSyncMoba.RuntimeConfig.Editor.Tests",
+      "references": [
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.RuntimeConfig.Editor",
+        "FrameSyncMoba.Unit",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [
+        "Editor"
+      ],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/FrameSyncMoba.RuntimeConfig.asmdef",
+      "name": "FrameSyncMoba.RuntimeConfig",
+      "references": [
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    },
+    {
+      "path": "Assets/Scripts/Testing/FrameSyncMoba.Testing.asmdef",
+      "name": "FrameSyncMoba.Testing",
+      "references": [
+        "FrameSyncMoba.Deterministic",
+        "FrameSyncMoba.Physics",
+        "FrameSyncMoba.RuntimeConfig",
+        "FrameSyncMoba.Unit",
+        "Unity.Mathematics",
+        "Unity.Mathematics.FixedPoint"
+      ],
+      "includePlatforms": [],
+      "excludePlatforms": []
+    }
+  ]
+}

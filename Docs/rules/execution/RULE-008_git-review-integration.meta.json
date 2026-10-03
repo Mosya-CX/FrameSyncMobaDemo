@@ -1,0 +1,25 @@
+{
+  "id": "RULE-008",
+  "title": "任务变更审批与集成规则",
+  "type": "rule",
+  "domain": "工程规则",
+  "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+  "version": 3,
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "kind": "已接受工程约束"
+    },
+    {
+      "kind": "用户本期十五项明确要求"
+    }
+  ],
+  "provenance": [
+    {
+      "date": "2026-10-02",
+      "summary": "从既有宪法/工作流和用户本期修订整合为独立中文规则"
+    }
+  ],
+  "updatedAt": "2026-10-02T21:05:07.839139+08:00",
+  "section": "execution"
+}
