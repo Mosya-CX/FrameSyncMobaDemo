@@ -1,0 +1,37 @@
+{
+  "id": "PLAN-KAR-003",
+  "code": "0168",
+  "title": "文档生命周期与工作台交互修订",
+  "type": "plan",
+  "status": "关闭",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
+  "version": 1,
+  "requirements": [
+    "REQ-KAR-004"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-004",
+      "title": "文档生命周期与工作台交互",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "85719ac68a08fd3e29a17cfe0bc497f2f7fff54f019a325b1545eeecf731294f"
+    }
+  ],
+  "closedAt": "2026-10-02",
+  "conclusion": "核心37/37、HTTP/DOM43/43、Release构建零错误零警告，独立审查闭合，无截图；Unity未开启，仅验证真实断连。",
+  "evidence": [
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
+      "kind": "本轮真实验收报告（原报告证据已归入计划）"
+    }
+  ]
+}

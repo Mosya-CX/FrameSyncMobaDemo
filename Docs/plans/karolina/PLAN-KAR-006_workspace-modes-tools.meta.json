@@ -1,0 +1,53 @@
+{
+  "id": "PLAN-KAR-006",
+  "title": "持久工作台、对话模式与拓展工具改造",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.md",
+  "version": 2,
+  "updatedAt": "2026-10-03T00:47:25.605412+08:00",
+  "status": "测试",
+  "code": "0171",
+  "requirements": [
+    "REQ-KAR-007",
+    "REQ-KAR-006"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-007",
+      "title": "工作模式、规则板块与拓展工具",
+      "path": "Docs/requirements/karolina/REQ-KAR-007_workspace-modes-tools.md",
+      "version": 1,
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "status": "激活",
+      "hash": "c4c4503431c8aa50438277fa876d93b17ede217fe21b9829cd49b922cf0a2c61"
+    },
+    {
+      "id": "REQ-KAR-006",
+      "title": "任务变更审批与反馈再执行",
+      "path": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.md",
+      "version": 3,
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "status": "激活",
+      "hash": "b0001ae3cbe1e57f53fbb9c9b4ce7bd9957d929818226be565c1ae320e99204c"
+    }
+  ],
+  "verification": {
+    "build": "Release 0错误0警告",
+    "javascript": "4个前端脚本语法检查通过",
+    "nativeReview": "真实原生API读到原三狼待审批条目、修订2、100文件",
+    "behavior": "本轮未新增或运行行为测试；模式、工具实际调用与人工验收待完成",
+    "screenshots": false,
+    "evidencePath": "Docs/plans/karolina/PLAN-KAR-006_workspace-inspection.json"
+  }
+}
