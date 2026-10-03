@@ -1,0 +1,161 @@
+{
+  "id": "PLAN-0126",
+  "code": "0126",
+  "title": "Lua 界面重建",
+  "type": "plan",
+  "domain": "表现界面",
+  "status": "关闭",
+  "path": "Docs/plans/presentation-ui/PLAN-0126_ui-lua-reconstruction.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-075",
+    "REQ-FEAT-076",
+    "REQ-FEAT-077"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-075",
+      "title": "页面层级与 Lua 实例生命周期",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-075_lua-ui-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c482c19896dd0253885d6a6657185fafa391c80e3b98eae72750e872ff9af453"
+    },
+    {
+      "id": "REQ-FEAT-076",
+      "title": "HUD 数值技能与小地图",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-076_hud-minimap.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4bff8c6d3da08ec37b3589546299bcd62016833b039ac863783c13bd0e1ac40a"
+    },
+    {
+      "id": "REQ-FEAT-077",
+      "title": "商店商品详情与余额刷新",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-077_shop-view.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "34ac06720038b4ea4d1e8f30081ae40dc2c164297977d7ed867e451208fb8645"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0126_ui_lua_reconstruction_execplan.md",
+      "sha256": "b317ba4e62407dd50787ac5d7c3e73188c7845a986823194284392520e7ad662",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "结果段明确报告完成（当前未重跑）",
+      "targets": [
+        "REQ-FEAT-075",
+        "REQ-FEAT-076",
+        "REQ-FEAT-077"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0126",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "Assets/Scripts/Bootstrap/UI/UIPanel.cs",
+      "Assets/Scripts/LuaBridge/LuaManager.cs",
+      "Assets/Scripts/LuaBridge/LuaHost.cs",
+      "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+      "Assets/Scripts/LuaBridge/UIRef.cs",
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "Assets/Scripts/LuaBridge/Tests/LuaHostAndManagerTests.cs",
+      "Assets/Scripts/LuaBridge/Tests/UIDisplayConvertTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/PlayMode/UIManagerPrefabPlayModeTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "sha256": "1e72619a82a73347049f630c5e2d21873f58c6efa57da31571cb57205f41f55e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIPanel.cs",
+      "sha256": "5154f571ebf53cddda21161beb5cbbe5b62acbe8299cd49fdd02115019ab71e1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaManager.cs",
+      "sha256": "7463c03f2d76a75b33066a0e9c37a3c0751aced2ac69109b60794b7b7fdaef7f",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaHost.cs",
+      "sha256": "ae3774f0bf81963e77cbbae867a7d1321a1d456513cbca80f88c68094ee1328d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+      "sha256": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/UIRef.cs",
+      "sha256": "4ebbd87469f4d3c6ad361b8186875ed97a405cab5298378bab997d14840cb99f",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "sha256": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/LuaHostAndManagerTests.cs",
+      "sha256": "c45d9b57fd30e8b905adcf26200cbd2d5467aef7f63192ffe8cae7a560a491aa",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/UIDisplayConvertTests.cs",
+      "sha256": "03f6b193a46aa898501d6e06aa404f62b63bc54eb37908aaa710e455b80657f3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "sha256": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/UIManagerPrefabPlayModeTests.cs",
+      "sha256": "3b7a4bbb55afda58a15b8e6cd986792475689e3de037c6cbff2ca533b9107573",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

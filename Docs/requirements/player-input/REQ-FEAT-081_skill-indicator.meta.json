@@ -1,0 +1,92 @@
+{
+  "id": "REQ-FEAT-081",
+  "title": "技能指示器与本地生命周期",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "玩家输入",
+  "path": "Docs/requirements/player-input/REQ-FEAT-081_skill-indicator.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "15.1 数据来源",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "15.2 不同本地状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "15.3 关闭规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/PlayerInput/AbilityIndicatorController.cs",
+      "sha256": "c34d1ee7ca4e1e7e480106f151656133e200f7b2c65a7ae2a8f90e44b2774f1f",
+      "symbols": [
+        "AbilityIndicatorController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
+      "sha256": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+      "symbols": [
+        "PlayerInputController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/SkillIndicatorDriver.cs",
+      "sha256": "63b7a8be04d3fa56b8205922462b2d7148d41ccbcc1f33906ba5e5a0f32d350a",
+      "symbols": [
+        "SkillIndicatorDriver"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+      "sha256": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+      "testFunctions": [
+        "HoldReleaseDefault_RightClickMoveThenLeftClickCommitsOnce",
+        "UiPointerBlocking_SimulatedClicks_ProduceNoWorldCommands",
+        "LocalAimDefault_SimulatedPressAimOnly_LeftCommit_RightClosesAim",
+        "ToggleNoAim_SimulatedWPressCommitsImmediately",
+        "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "sha256": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "testFunctions": [
+        "ClientFixture_BindsAssignedUnitAndAdvances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

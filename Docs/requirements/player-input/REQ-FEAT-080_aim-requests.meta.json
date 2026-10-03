@@ -1,0 +1,437 @@
+{
+  "id": "REQ-FEAT-080",
+  "title": "世界鼠标 Aim 与类型化 Request",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "玩家输入",
+  "path": "Docs/requirements/player-input/REQ-FEAT-080_aim-requests.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 输出",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 地面点",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 Unit 选择",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 本地预测差异",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 普通右键",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 本地攻击目标最小检查",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 不自动改写",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 不同技能状态下的右键",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.1 结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.2 规范字段",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.3 Direction Aim",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "12.4 不在输入层 Clamp 技能距离",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.1 类型化 Request",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.2 Request 回执",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.3 Request 层职责",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.4 同 Tick 顺序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "13.5 Request 失败",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "sha256": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+      "symbols": [
+        "AimSnapshot"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
+      "sha256": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+      "symbols": [
+        "PlayerInputController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "sha256": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "testFunctions": [
+        "ClientFixture_BindsAssignedUnitAndAdvances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs",
+      "sha256": "21ffef1a4240a25895f39783d71789faf4d895dfd613787a2bf87899fe7a7ef3",
+      "testFunctions": [
+        "UnchangedCollector_BuildsOnlyOneReliableBundleCandidate",
+        "AdjacentToggleInputs_SendTheirDistinctCommandSequences",
+        "RebuiltCollector_DoesNotResendSuccessfulIdentity"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+      "sha256": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+      "testFunctions": [
+        "HoldReleaseDefault_RightClickMoveThenLeftClickCommitsOnce",
+        "UiPointerBlocking_SimulatedClicks_ProduceNoWorldCommands",
+        "LocalAimDefault_SimulatedPressAimOnly_LeftCommit_RightClosesAim",
+        "ToggleNoAim_SimulatedWPressCommitsImmediately",
+        "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+      "sha256": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+      "testFunctions": [
+        "CommandBundle_ProducesStablePerTickReplacementRelays",
+        "LateCommand_IsRetargetedToCurrentServerTick_NotRejected",
+        "AcceptedCommand_AfterTickFreeze_LateDuplicateIsIgnored",
+        "AcceptedCommand_AfterOwnerInvalidation_DuplicateSkipsAuthorization",
+        "DistinctCommandSequences_OnAdjacentTicks_AreBothAccepted",
+        "DirectionAim_CastAbility_RoundTripsCanonically",
+        "WireContracts_DoNotExposeCallerOwnedByteArrays",
+        "CanonicalCodec_RoundTripsEveryFormalCommandKind",
+        "Replicator_AndClientCoordinator_AcceptContinuousTick",
+        "AcceptedRelayReplacingExecutedLocalMove_ReplaysFromFrozenAnchor",
+        "AuthorityBeforePrediction_BuffersUntilLocalTickCompletes",
+        "AuthorityRuntime_ReleasesClientRollbackHistory",
+        "RestoreInitialSnapshot_SetsAuthorityBaseline",
+        "PredictionLeadLimit_PausesWithoutExecutingAnotherTick",
+        "Recovery_UsesRequestedSequenceAndDoesNotMutateResponseArray",
+        "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
+        "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GameplayCommandContractTests.cs",
+      "sha256": "8ce6166eb891a4ba76c52d6cc2acce19d2c4b650401591a80042a986513c4cab",
+      "testFunctions": [
+        "AimFactories_ClearEveryUnusedPayloadField",
+        "CanonicalBytes_IncludeHeaderIdentityAndMinimalMovePayload",
+        "Collector_ProducesSameCanonicalOrderForDifferentInsertionOrder",
+        "MoveMerge_UsesHighestCommandSequenceForSameFormalKey"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
+      "sha256": "c0ec6f80dd8f849f53b0a24afd3195ae2e95fafea96faa48609544f9cff3d023",
+      "testFunctions": [
+        "FutureCommand_IsRetainedAndConsumedOnlyAtTargetTick",
+        "CastIntentAndAction_PreserveCommitVerbAndDirectionAim",
+        "PlanCastIntent_UsesAbilityCastRange_NotHardcoded",
+        "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
+        "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "testFunctions": [
+        "AggregateSnapshot_RestoresIntentDashAndLocomotion",
+        "SharedChecksum_ChangesForIntentDashAndLocomotionState",
+        "CombatModifierCapture_IsCanonicalAndDetachRepairsShiftedIndices",
+        "AggregateSnapshot_CapturesLiveActionRuntime",
+        "ExecuteTick_FormalDeathInvalidationCapturesRestorableBoundary",
+        "SharedChecksum_SerializesEveryActionRuntimeSlotMember",
+        "Restore_RejectsActionRuntimeWithoutOwningHandlerState",
+        "Restore_RejectsActionRuntimeOutsideFrozenMatrix",
+        "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
+        "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "sha256": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "testFunctions": [
+        "CombinedAbilityCatalog_BakesAatroxAndVarus",
+        "DarkinBlade_UsesExactThreeZonesAndRecastDelay",
+        "DarkinBlade_VfxDurationUsesConfiguredGameplayTickRate",
+        "WProjectile_FliesStraightAlongCastDirection_IgnoringTargetPosition",
+        "SequentialRecastSession_SnapshotRoundTripPreservesWindowState",
+        "SequentialRecastWindow_ExposesShortHudCooldown",
+        "FormalCatalogs_RegisterAatroxRuntimeContent",
+        "BasicAttackProjectiles_MeleeContentUsesDirectDamage",
+        "AatroxPrefabs_SeparateGameplayFromPresentationAndRetainEditorGizmo",
+        "InfernalChainsArea_ContainmentUsesAuthoredTrapezoid",
+        "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
+        "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+      "sha256": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+      "testFunctions": [
+        "AreaDamageStage_CentersOnAimTargetPoint",
+        "AreaDamageStage_DoesNotDamageEnemyStructure",
+        "SpawnProjectileStage_FiresTowardAimDirection"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
+      "sha256": "8fbb68ca78c892da586961f12fecd60831dcf046082c6f41902abc13a61dffbc",
+      "testFunctions": [
+        "SessionStartCost_UsesLevelResourceAndHealth",
+        "FailedStage_DoesNotConsumeCost",
+        "HoldRelease_FirstCommitPaysOnceAndStoresAim",
+        "InvalidAimRange_ConsumesNothing",
+        "Snapshot_PreservesFirstCommitPayment",
+        "Toggle_FirstCommitActivatesAndSecondCommitTurnsOff",
+        "Toggle_TurnOffDoesNotStartCooldown"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+      "sha256": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+      "testFunctions": [
+        "LockedMainCast_AllowsAuthoredDashInBaseSlot",
+        "MovableHold_AllowsMove_ReleasePreemptsMove",
+        "HoldTimeout_ReconcilesReleaseResourcesAndRestores",
+        "SameAbilityStageTransition_MigratesMainToBaseSlot",
+        "AutomaticDashTransition_MigratesWithoutCancellingSession",
+        "SequentialRecastWindow_ReleasesMainRuntimeButKeepsSession",
+        "Planner_DoesNotResubmitEquivalentActiveMove",
+        "MoveReplacement_AtomicallyKeepsNewRoute",
+        "FailedLockingCast_DoesNotDestroyExistingMove",
+        "ToggleSecondCommit_EndsSessionWithoutOwningRuntime",
+        "ToggleActive_DoesNotBlockChargeStartAndIsConsumed",
+        "ToggleOnAndOffDuringHold_DoNotPreemptHold",
+        "MobilityBlock_InterruptsAbilityDash",
+        "ControlMove_PreemptsUninterruptibleMovementLockedCast"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
+      "sha256": "5455a608d93b019d84f6e22a06fe68984a5f8ba9739967a3493e7163b606f44c",
+      "testFunctions": [
+        "ChargeStage_RatioIncreasesWithElapsedTicks",
+        "ChargeStage_SelfSlowAppliesWhileChargingAndRemovesOnRelease",
+        "ChargeStage_TimeoutCancelsAndRefundsHalfCost",
+        "ChargeStage_ConsumesActiveToggleAndStartsCooldown",
+        "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
+        "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
+      "sha256": "5bb4880768f9909859d6a9d1f78a8ca2f07f36f62cac5d2c21f955171787ca1a",
+      "testFunctions": [
+        "Constructor_SetsInitialPosition",
+        "Constructor_DefaultFacing_IsPositiveX",
+        "MoveIntent_Constructor_SetsDirectionAndHasInput",
+        "MoveIntent_None_HasNoInput",
+        "MoveIntent_FromDirection_Zero_ReturnsNone",
+        "MoveIntent_FromDirection_Normalizes",
+        "ApplyMoveInput_ThenTickUpdate_MovesPosition",
+        "TickUpdate_WithoutInput_StopsMovement",
+        "TickUpdate_WithDeltaTime_ScalesMovement",
+        "TickUpdate_MultipleTicks_AccumulatesPosition",
+        "TickUpdate_UpdatesFacing",
+        "TickUpdate_ZeroDirection_PreservesFacing",
+        "Dash_DuringLockedDirectionalCast_PreservesCastFacing",
+        "SetMoveSpeed_ChangesSpeed",
+        "ForceSetPosition_Teleports",
+        "CaptureRestore_RoundTrip_PreservesMovementOwnedStateOnly",
+        "Restore_ClearsPendingIntent",
+        "SameInput_SameResult",
+        "CaptureRestore_ThenReplay_ProducesSameResult"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/StageDefBakeTests.cs",
+      "sha256": "1b694749bf4649f4aadbb37423eb035ae2cdc8370f6dd82c51282a748b4fef5e",
+      "testFunctions": [
+        "AreaDamageStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "SpawnProjectileStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "ApplyBuffStageDef_OnEnter_WithoutWorld_ReturnsFailed",
+        "DashStageDef_OnEnter_WithValidConfig_ReturnsRunning",
+        "DashStageDef_OnTick_WithoutWorld_ReturnsFailed",
+        "AreaDamageAuthoring_Bake_ProducesValidStageDef",
+        "AreaDamageAuthoring_Bake_RejectsEmptyTargetMasks",
+        "UnitTargetFilter_JsonRoundTrip_PreservesMasks",
+        "SpawnProjectileAuthoring_Bake_ProducesValidStageDef",
+        "ApplyBuffAuthoring_Bake_ProducesValidStageDef",
+        "DashAuthoring_Bake_ProducesValidStageDef",
+        "AreaDamageStageDef_OnExit_DoesNotThrow",
+        "SpawnProjectileStageDef_OnExit_DoesNotThrow",
+        "ApplyBuffStageDef_OnExit_DoesNotThrow",
+        "DashStageDef_OnExit_DoesNotThrow"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/AbilityInputMappingTests.cs",
+      "sha256": "38962aab968ade3ea59bdedcdadf6b004b5cc62c5a0bcc63dc24088bcdae2dc5",
+      "testFunctions": [
+        "HoldReleaseDefault_PressFocus_LeftCommit_ReleaseNone",
+        "Channel_DefaultsLikeHoldRelease",
+        "CommitNoAim_ReturnsPressCommit",
+        "ToggleNoAim_ReturnsImmediatePressCommit",
+        "CommitWithAim_ReturnsLocalAim",
+        "CommitWithSelfAim_ReturnsPressCommit",
+        "ActiveSignal_ReturnsPressCommit",
+        "NullCastModel_ReturnsPressCommit",
+        "Template_DuplicateTrigger_Throws",
+        "Template_TryGet_UnknownTrigger_ReturnsFalse",
+        "Validate_HoldReleaseWithoutCommit_ReportsError",
+        "Validate_CommitCaptureAimWithoutAimableKind_ReportsError",
+        "Provider_TryGetTemplate_ValidSlot_ReturnsTemplate",
+        "Provider_CreateEmpty_AllSlotsPressCommit",
+        "Provider_FromHandler_UsesFormalAimAndRange",
+        "SequentialRecastDirection_DefaultsToLeftClickCommit",
+        "DirectionalZoneResolver_FollowsSequentialRecastStage"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+      "sha256": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+      "testFunctions": [
+        "EventBuffer_AssignsStableSequenceAndRejectsOverflow",
+        "HoldRelease_AllocatesFocusBeforeCommitAtSameTargetTick",
+        "ControlledUnitChange_ClearsLocalAbilityState",
+        "TargetTickResolver_UsesFormalLeadFormulaAndBuildTick",
+        "ShopRequests_UseCanonicalCommandsAndSharedSequence",
+        "SkillPointRequest_UsesCanonicalCommandAndSharedSequence",
+        "HoldReleaseDefault_PressFocus_ReleaseNoOp_LeftClickCommitsAndDedups",
+        "LocalAimDefault_PressOpensAim_LeftCommits_RightAndEscapeCloseWithoutCancel",
+        "PressCommitDefault_PressCommitsImmediately",
+        "UnmappedReleaseEvent_DoesNothing",
+        "HoldRelease_RightClickMoveThenPrimaryClick_CommitIsPreserved",
+        "UnlearnedAbilityKey_ProducesNoIndicatorAndNoCommand",
+        "LocalAim_PressBlockedWhenRuntimeCannotOpenAim",
+        "SequentialRecast_CommitAcceptedMovesLocalStateBackToIdle",
+        "FocusRequested_ReturnsIdleAfterTargetReachedWithNoSession",
+        "FocusRequested_UsesCompletedGameplayTickInsteadOfStaticRollbackTick",
+        "ServerRetargetedFocus_RemainsCommitEligibleUntilAcceptedTickExecutes",
+        "AcceptedCommitAfterSameTickAlreadyExecuted_DoesNotRelatchLocalState",
+        "ServerRetargetedFocus_AfterRollbackRetiresState_AuthorityRestoresCommitEligibility",
+        "AcceptedRecovery_RequiresTrackedMissingIdentityAndLaterTick",
+        "FocusRequested_BecomesGameplayFocusingWhenSessionObserved",
+        "CommitRequested_RecoversToFocusingWhenSessionStillWaits",
+        "CanOpenLocalAim_SequentialRecast_GatesByReadyAndRecastLockout",
+        "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
+        "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

@@ -1,0 +1,244 @@
+{
+  "id": "REQ-FEAT-079",
+  "title": "技能输入组合与提交去重",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "玩家输入",
+  "path": "Docs/requirements/player-input/REQ-FEAT-079_ability-input.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 不重复配置技能 Gameplay 数据",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 输入翻译组合（可组合的翻译层）",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 映射模板：配置数据 + 离线合法性检查（不做 Bake）",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 本版本默认组合与允许的组合",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 输入 → 施法意图 → Planner / Arbiter → 技能层语言",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1 状态",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2 为什么需要 `FocusRequested`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3 为什么需要 `CommitRequested`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.1 左键默认 Commit",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.2 `PressCommit`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.3 `LocalAimPrimaryCommit`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "10.4 默认蓄力组合（Focus + 左键 Commit）",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "十一、按下启用、左键提交",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.1 Q 按下",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.2 Q 松开（本版本默认组合下无操作）",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.3 左键",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.4 右键",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.5 Commit 执行",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.6 蓄力时间",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "11.7 Focus 与 Commit 同 Tick",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "21.1 移动与攻击",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "21.2 普通非智能施法",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "21.3 HoldRelease",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "21.4 Session 与指示器",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "21.5 AI",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "21.6 帧同步",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "21.7 性能",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
+      "sha256": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+      "symbols": [
+        "PlayerInputController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "sha256": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "testFunctions": [
+        "ClientFixture_BindsAssignedUnitAndAdvances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+      "sha256": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+      "testFunctions": [
+        "HoldReleaseDefault_RightClickMoveThenLeftClickCommitsOnce",
+        "UiPointerBlocking_SimulatedClicks_ProduceNoWorldCommands",
+        "LocalAimDefault_SimulatedPressAimOnly_LeftCommit_RightClosesAim",
+        "ToggleNoAim_SimulatedWPressCommitsImmediately",
+        "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

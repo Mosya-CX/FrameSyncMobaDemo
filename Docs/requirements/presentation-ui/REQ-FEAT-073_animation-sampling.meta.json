@@ -1,0 +1,198 @@
+{
+  "id": "REQ-FEAT-073",
+  "title": "攻击技能动画与插值采样",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "表现界面",
+  "path": "Docs/requirements/presentation-ui/REQ-FEAT-073_animation-sampling.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 动画状态来源",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 动画不是全局请求",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 动画决策优先级",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.4 行为状态与专项只读状态的两级解释",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.5 Unity Animator 与 Inspector 组织",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.6 完整攻击 Clip、序列空闲重置、剩余后摇恢复与强化攻击",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.7 技能动画：只读取 `AbilityCastView`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.8 Control 动画",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.9 Death 与 Respawn 动画",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.10 Animation Event 的使用边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/UnitAnimationDriver.cs",
+      "sha256": "63577cec7422f903ef9ff161024ce119aa5be11fe1485ab5ecc56215f3cce4a3",
+      "symbols": [
+        "UnitAnimationDriver"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Presentation/AttackAnimationPlan.cs",
+      "sha256": "31746d1f2f83e1ca8f1081a37784cf98e94c5b64ec552aa1bb339d5f38bf63d6",
+      "symbols": [
+        "AttackAnimationPlan"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+      "sha256": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+      "testFunctions": [
+        "UnitCatalog_ContainsAuthoredGreaterAndMiniWolfValues",
+        "GreaterWolf_OnHitBuff_IsPermanentThreePercentCurrentHealth",
+        "MapPrefab_AuthorsTwoVisualizedThreeWolfCamps",
+        "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
+        "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitAddressablesMigrationTests.cs",
+      "sha256": "a7a921a7d2b02b8523f57a1debda3eb7248596ce4be205207069510bee37ad08",
+      "testFunctions": [
+        "AllFormalUnitEntriesResolveLogicPrefabAndAddressableView",
+        "LogicPrefabsContainNoPresentationComponentsOrAssets",
+        "ClientViewsContainPresentationHostButNoGameplayRoot",
+        "ClientViewRootsAreAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitPrefabAnimatorTopologyTests.cs",
+      "sha256": "6f0f826f2088d4f446742d954f9fb7659d9dfca3b17b56572acf88af07e97613",
+      "testFunctions": [
+        "AttackSequence_MapsOntoAuthoredAnimationVariantCount",
+        "UnitPrefabs_DoNotEnterLoopingMovementFromAnyState"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
+      "sha256": "fed06d326754867f9a05468c81b6f1aaa5428753e1230397310bbd4c54cde4e7",
+      "testFunctions": [
+        "RuntimePrefab_InstantiatesWithModelAndEditorGizmo",
+        "ClientUnitOutline_CoversEveryAatroxSubMesh",
+        "TetherArea_InstantiatesAsStationaryProjectile",
+        "AnimatorController_RoutesPassiveUltimateAndEmpoweredAttack",
+        "AnimatorController_LocomotionVariantsAdvanceWithoutSelfReentry",
+        "UnitAnimationDriver_UsesNewLocomotionStateOnChangeFrame",
+        "AnimatorController_UltimateEndPlaysExitClip",
+        "OutlineBakeRunsAfterWingVisibility",
+        "AttachedVfx_WorldDirectionDoesNotInheritLaterHostTurn"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
+      "sha256": "b5f0f0db2f84c5509ee905806e49420e30f098eac52261e1fb2858750b0a1425",
+      "testFunctions": [
+        "GreaterWolf_AlertAndMoveRoutesPlayLoopedMotion",
+        "MiniWolf_AlertAndMoveRoutesPlayLoopedMotion",
+        "BoundDriver_AlertRouteUsesAuthoredTransitionClips"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
+      "sha256": "b60a604cca4de59afa23f8c6126aa348d53667a37d5e410aaaf695eb6405f590",
+      "testFunctions": [
+        "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/AnimationSamplingTests.cs",
+      "sha256": "d17750eebd552668e56c39cbec34a02403d65b6b09089e635e3ced1f90ab1f9e",
+      "testFunctions": [
+        "PresentationTime_UsesConfiguredTickRateAndSubTickAlpha",
+        "PresentationClock_DoesNotLeakAcrossWorldsAtSameTickRate",
+        "Sampler_InterpolatesAtRateIndependentOfGameplayTickRate",
+        "Sampler_WhenInterpolationDisabled_HoldsUntilOwnBoundary",
+        "Sampler_FrameSkipResamplesAtObservedTime",
+        "Sampler_LinearProgressMatchesAcrossRenderCadences",
+        "LoopPhase_RateChangeRebuildsFromLogicEpochAndWraps",
+        "LoopPhase_DifferentObservationTimesShareLogicEpoch",
+        "LoopPhase_RateChangeImmediatelyRebuildsSampleSegment",
+        "Sampler_TimeRegressionResetsToRestoredProgress",
+        "Sampler_InvalidSynchronizationRateFailsVisibly",
+        "AttackMotionTime_MapsStartImpactAndReadyWithoutExitJump",
+        "AttackSampling_NonAlignedImpactBoundaryStaysContinuous"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
+      "sha256": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+      "testFunctions": [
+        "FullMatchAnimationFixtures_HaveCompleteBindableControllers",
+        "RuntimeUnits_HaveCompleteRuntimeComposition",
+        "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
+        "FormalStructures_HaveNoAttackAnimation"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

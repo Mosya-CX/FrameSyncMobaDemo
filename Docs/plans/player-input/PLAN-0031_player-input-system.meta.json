@@ -1,0 +1,171 @@
+{
+  "id": "PLAN-0031",
+  "code": "0031",
+  "title": "玩家输入系统",
+  "type": "plan",
+  "domain": "玩家输入",
+  "status": "关闭",
+  "path": "Docs/plans/player-input/PLAN-0031_player-input-system.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-078",
+    "REQ-FEAT-079",
+    "REQ-FEAT-080",
+    "REQ-FEAT-081"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-078",
+      "title": "设备事件缓冲与 UI 门禁",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-078_input-event-buffer.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+    },
+    {
+      "id": "REQ-FEAT-079",
+      "title": "技能输入组合与提交去重",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-079_ability-input.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c0cc16f39dcdd166dcd0325bdba6886076e1d455d2e2e553687df782fca335f1"
+    },
+    {
+      "id": "REQ-FEAT-080",
+      "title": "世界鼠标 Aim 与类型化 Request",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-080_aim-requests.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "8f670def4c15d040441dc933293225b47f9b7a1b283fd4531a1425758790f71e"
+    },
+    {
+      "id": "REQ-FEAT-081",
+      "title": "技能指示器与本地生命周期",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/player-input/REQ-FEAT-081_skill-indicator.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "5e58f31bb141ce8855cf2d9c367544ac1a662bff790cb78723d63c0a33d219d9"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0031_player_input_system.md",
+      "sha256": "96215e59e1e6ad86760ce66ef255f03685df1b356f5e9932bd32527163de054c",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-078",
+        "REQ-FEAT-079",
+        "REQ-FEAT-080",
+        "REQ-FEAT-081"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0031",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/FrameSync/GameplayCommand.cs",
+      "Assets/Scripts/PlayerInput/LocalInputEventBuffer.cs",
+      "Assets/Scripts/FrameSync/CommandCollector.cs",
+      "Assets/Scripts/FrameSync/GameplayCommandKind.cs",
+      "Assets/Scripts/PlayerInput/GameplayInputGate.cs",
+      "Assets/Scripts/PlayerInput/MouseWorldResolver.cs",
+      "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+      "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+      "Assets/Scripts/FrameSync/Tests/GameplayCommandContractTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplayCommand.cs",
+      "sha256": "3351e9eb4c05ec46948e64433034939b80d27292e28e6ebb9a605355a7bd5650",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/LocalInputEventBuffer.cs",
+      "sha256": "03376183cb602a3b2fa8fe0d6223efef2045ce76d6b08ffbc1274000785be0c8",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/CommandCollector.cs",
+      "sha256": "6bf1e24634265bb3787d3d601c2ea666ba86d44622dcb0e8a9785261b0ef756b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplayCommandKind.cs",
+      "sha256": "98f8d116fa94e8ce6ba28984841e0d316ebaacf18bf75b40ebf904e1badaf4ad",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/GameplayInputGate.cs",
+      "sha256": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/MouseWorldResolver.cs",
+      "sha256": "b81cd656d9c92ace8d5321030179f52c0b94d6f9c95db4247db5254838894009",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+      "sha256": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+      "sha256": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/GameplayCommandContractTests.cs",
+      "sha256": "8ce6166eb891a4ba76c52d6cc2acce19d2c4b650401591a80042a986513c4cab",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs",
+      "sha256": "21ffef1a4240a25895f39783d71789faf4d895dfd613787a2bf87899fe7a7ef3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

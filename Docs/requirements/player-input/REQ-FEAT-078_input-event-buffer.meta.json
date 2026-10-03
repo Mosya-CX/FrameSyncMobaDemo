@@ -1,0 +1,333 @@
+{
+  "id": "REQ-FEAT-078",
+  "title": "设备事件缓冲与 UI 门禁",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "玩家输入",
+  "path": "Docs/requirements/player-input/REQ-FEAT-078_input-event-buffer.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.1 模块职责",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.2 当前输入范围",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.3 UI 边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "二、总体结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.1 核心对象",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.2 玩家与 AI 的分流",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 Action Map",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 技能键按下与松开都采集为事件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 显式订阅",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.1 回调只写事件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.2 事件结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.3 同帧顺序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.4 缓冲上限",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 普通阻断",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 松键语义由技能输入组合决定",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 门禁不是最终合法性",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.1 Gameplay Action Map 启用",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.2 禁用",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.3 ControlledUnit 变化",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.4 UI 阻断指针",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "16.5 UI 打开后的技能键",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.1 本地状态不参与 Gameplay 确定性",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.2 Command 是输入事实",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.3 Focus / Commit 的 Tick 决定蓄力",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "17.4 本地状态与 Gameplay Runtime 同步",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "18.1 本地诊断",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "18.2 离线检查错误",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "18.3 无每帧 GC",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "十九、当前版本明确不做",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "二十、推荐实现顺序",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "22.1 结论",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "22.2 编码时必须保持的三个跨模块契约",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
+      "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "22.3 不允许程序员自行改变",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/PlayerInput/GameplayInputGate.cs",
+      "sha256": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+      "symbols": [
+        "GameplayInputGate"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
+      "sha256": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+      "symbols": [
+        "PlayerInputController"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+      "sha256": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+      "testFunctions": [
+        "HoldReleaseDefault_RightClickMoveThenLeftClickCommitsOnce",
+        "UiPointerBlocking_SimulatedClicks_ProduceNoWorldCommands",
+        "LocalAimDefault_SimulatedPressAimOnly_LeftCommit_RightClosesAim",
+        "ToggleNoAim_SimulatedWPressCommitsImmediately",
+        "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "sha256": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "testFunctions": [
+        "ClientFixture_BindsAssignedUnitAndAdvances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+      "sha256": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+      "testFunctions": [
+        "EventBuffer_AssignsStableSequenceAndRejectsOverflow",
+        "HoldRelease_AllocatesFocusBeforeCommitAtSameTargetTick",
+        "ControlledUnitChange_ClearsLocalAbilityState",
+        "TargetTickResolver_UsesFormalLeadFormulaAndBuildTick",
+        "ShopRequests_UseCanonicalCommandsAndSharedSequence",
+        "SkillPointRequest_UsesCanonicalCommandAndSharedSequence",
+        "HoldReleaseDefault_PressFocus_ReleaseNoOp_LeftClickCommitsAndDedups",
+        "LocalAimDefault_PressOpensAim_LeftCommits_RightAndEscapeCloseWithoutCancel",
+        "PressCommitDefault_PressCommitsImmediately",
+        "UnmappedReleaseEvent_DoesNothing",
+        "HoldRelease_RightClickMoveThenPrimaryClick_CommitIsPreserved",
+        "UnlearnedAbilityKey_ProducesNoIndicatorAndNoCommand",
+        "LocalAim_PressBlockedWhenRuntimeCannotOpenAim",
+        "SequentialRecast_CommitAcceptedMovesLocalStateBackToIdle",
+        "FocusRequested_ReturnsIdleAfterTargetReachedWithNoSession",
+        "FocusRequested_UsesCompletedGameplayTickInsteadOfStaticRollbackTick",
+        "ServerRetargetedFocus_RemainsCommitEligibleUntilAcceptedTickExecutes",
+        "AcceptedCommitAfterSameTickAlreadyExecuted_DoesNotRelatchLocalState",
+        "ServerRetargetedFocus_AfterRollbackRetiresState_AuthorityRestoresCommitEligibility",
+        "AcceptedRecovery_RequiresTrackedMissingIdentityAndLaterTick",
+        "FocusRequested_BecomesGameplayFocusingWhenSessionObserved",
+        "CommitRequested_RecoversToFocusingWhenSessionStillWaits",
+        "CanOpenLocalAim_SequentialRecast_GatesByReadyAndRecastLockout",
+        "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
+        "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

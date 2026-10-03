@@ -1,0 +1,97 @@
+{
+  "id": "PLAN-0092",
+  "code": "0092",
+  "title": "结果界面",
+  "type": "plan",
+  "domain": "表现界面",
+  "status": "关闭",
+  "path": "Docs/plans/presentation-ui/PLAN-0092_result-screen-ui.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-075",
+    "REQ-FEAT-076"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-075",
+      "title": "页面层级与 Lua 实例生命周期",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-075_lua-ui-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c482c19896dd0253885d6a6657185fafa391c80e3b98eae72750e872ff9af453"
+    },
+    {
+      "id": "REQ-FEAT-076",
+      "title": "HUD 数值技能与小地图",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-076_hud-minimap.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4bff8c6d3da08ec37b3589546299bcd62016833b039ac863783c13bd0e1ac40a"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0092_result_screen_ui_execplan.md",
+      "sha256": "394d459e80e304357c5e10d5e7db56948355ad9aadf271728bf3e771437c41c1",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "in_progress",
+      "targets": [
+        "REQ-FEAT-075",
+        "REQ-FEAT-076"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0092",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/FrameSync/MatchFlowStateMachine.cs",
+      "Assets/Scripts/FrameSync/MatchResultSnapshot.cs",
+      "Assets/Scripts/FrameSync/Tests/MatchFlowStateMachineTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/MatchFlowStateMachine.cs",
+      "sha256": "af0dd3ece5aa4c21d4bd8c2511f5e7dde06be8045f05c4bd6ad9aab588e92fe9",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/MatchResultSnapshot.cs",
+      "sha256": "9ecb014de737ea9c35e6164c915156ae99c9059a34b7eff30d03237f20c6e50b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/MatchFlowStateMachineTests.cs",
+      "sha256": "c815a3a1397189bf0b88f01e48499bcb3f3996e515b4276703e2bf47735b69d5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

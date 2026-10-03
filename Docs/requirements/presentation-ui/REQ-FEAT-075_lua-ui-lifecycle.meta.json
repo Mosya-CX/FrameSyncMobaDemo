@@ -1,0 +1,531 @@
+{
+  "id": "REQ-FEAT-075",
+  "title": "页面层级与 Lua 实例生命周期",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "表现界面",
+  "path": "Docs/requirements/presentation-ui/REQ-FEAT-075_lua-ui-lifecycle.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.1 当前页面",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.2 页面层级",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.3 页面流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.4 UI 当前接触的 C# 内容",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.5 `EquipmentShopRuntime` 与 `GoldIncomeRuntime` 的定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.6 UI 与商店系统的边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.7 UI 不参与预测和回滚",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.8 不同 UI 操作走不同通路",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "1.9 总体结构",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.2 `UIPage`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.3 页面层级",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.4 页面根节点",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.5 核心接口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.6 显示主页面",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.7 显示 Overlay",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.8 固定刷新入口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "2.9 生命周期关系",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.1 `UIPanel` 的定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.2 `UIRef`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.3 页面创建",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.4 页面生命周期",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "3.5 `UIPanel` 接口示意",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 两者的区别",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 `LuaManager`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 模块原型与页面实例",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 `LuaHost` 的定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 为什么保留 `LuaHost`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.6 页面 Host 与 Cell Host",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.7 `LuaHost` 接口示意",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.1 基础 Lua 文件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.2 `LuaInit.lua`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.3 `UIBase.lua`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.4 `UICellBase.lua`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "6.5 `UIFormat.lua`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.1 当前使用列表的区域",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.2 `UIList` 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.3 `UICell` 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.4 列表刷新",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "7.5 Lua 构建 Cell 数据",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1.1 关键组件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1.2 数据来源",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.1.3 Lua",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2.1 关键组件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.2.2 Lua",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3.1 规则",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3.2 关键组件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3.3 Lua",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.3.4 `HeroCell.lua`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4.1 关键组件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.4.2 Lua",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5.1 关键组件",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "9.5.2 Lua",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.1 UI 关键外部依赖",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.2 UI Prefab 调整",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.3 删除旧接口和概念",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    },
+    {
+      "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
+      "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "14.5 最小验证闭环",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "sha256": "1e72619a82a73347049f630c5e2d21873f58c6efa57da31571cb57205f41f55e",
+      "symbols": [
+        "UIManager"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIPanel.cs",
+      "sha256": "5154f571ebf53cddda21161beb5cbbe5b62acbe8299cd49fdd02115019ab71e1",
+      "symbols": [
+        "UIPanel"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaHost.cs",
+      "sha256": "ae3774f0bf81963e77cbbae867a7d1321a1d456513cbca80f88c68094ee1328d",
+      "symbols": [
+        "LuaHost"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaManager.cs",
+      "sha256": "7463c03f2d76a75b33066a0e9c37a3c0751aced2ac69109b60794b7b7fdaef7f",
+      "symbols": [
+        "LuaManager"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/UI/UIList.cs",
+      "sha256": "8fb445d8f1956ed2cb86715af4834fed8f5fd48f09aa698c0f6b9a9d229abdbc",
+      "symbols": [
+        "UIList"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/LuaHostAndManagerTests.cs",
+      "sha256": "c45d9b57fd30e8b905adcf26200cbd2d5467aef7f63192ffe8cae7a560a491aa",
+      "testFunctions": [
+        "CreateDefault_ExecutesLuaInit_AndBecomesReady",
+        "PageHost_DrivesLuaLifecycle",
+        "TwoPageInstances_AreIndependent",
+        "CellHost_SetIndexAndBind_DriveLua",
+        "Dispose_Twice_IsSafe",
+        "ManagerDispose_ReleasesOutstandingHosts",
+        "MissingNew_Throws"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/UIManagerPrefabPlayModeTests.cs",
+      "sha256": "3b7a4bbb55afda58a15b8e6cd986792475689e3de037c6cbff2ca533b9107573",
+      "testFunctions": [
+        "SpriteClear_RejectsAnOlderAsyncGeneration",
+        "DesignApi_ShowShowOverlayHideAndFocus",
+        "PrefabOwnsPageLifecycleAndControllers"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/UiLuaPagesSmokeTests.cs",
+      "sha256": "33e9af214261d0e1cf130793abc40f0066067809cecebbbc51558fad5eabd9ce",
+      "testFunctions": [
+        "LuaPages_BootAndFlowRoutes"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs",
+      "sha256": "669146600ce73f40a9e22a078b633dd7e52999ae4ac13b4f6c5caf7e4efbb0cf",
+      "testFunctions": [
+        "ProjectilesAreSplitIntoLogicAndAddressableViews",
+        "ProjectileViewRootsAreAtWorldOrigin",
+        "MapLogicAndClientViewHaveDisjointResponsibilities",
+        "VfxAndAudioLibrariesContainAddressesNotDirectAssets",
+        "GameplayConfigurationsHaveNoDirectSpriteDependencies",
+        "UiPagesAndPresentationRootsAreAddressableAndOutsideResources",
+        "GenericSkillIndicatorsUseSupportedTransparentShader"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "sha256": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "testFunctions": [
+        "GameScene_FirstWaveUsesFlowFieldsAndMoves",
+        "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "sha256": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "testFunctions": [
+        "ClientComposition_InitializesFromProjectAssets",
+        "DestroyDuringContentLoad_ReleasesTransferredScope",
+        "ExternalFlow_PrimesLoadingBeforeContentInitialization",
+        "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
+        "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
+      "sha256": "036a36534c091288c147776865aca1c193e223e00e62d3123a0038b308c75b33",
+      "testFunctions": [
+        "ClientBootstrap_TransitionsToLobbyAndBindsSession",
+        "ClientBootstrap_OnlineFlowOverride_SelectsUosSession",
+        "ServerBootstrap_TransitionsToLobbyAndStartsServer"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}

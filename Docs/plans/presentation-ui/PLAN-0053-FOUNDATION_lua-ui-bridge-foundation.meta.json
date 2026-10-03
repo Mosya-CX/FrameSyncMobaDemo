@@ -1,0 +1,143 @@
+{
+  "id": "PLAN-0053-FOUNDATION",
+  "code": "0053-FOUNDATION",
+  "title": "Lua 界面桥接基础实现",
+  "type": "plan",
+  "domain": "表现界面",
+  "status": "关闭",
+  "path": "Docs/plans/presentation-ui/PLAN-0053-FOUNDATION_lua-ui-bridge-foundation.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-075",
+    "REQ-FEAT-076",
+    "REQ-FEAT-077"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-075",
+      "title": "页面层级与 Lua 实例生命周期",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-075_lua-ui-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c482c19896dd0253885d6a6657185fafa391c80e3b98eae72750e872ff9af453"
+    },
+    {
+      "id": "REQ-FEAT-076",
+      "title": "HUD 数值技能与小地图",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-076_hud-minimap.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4bff8c6d3da08ec37b3589546299bcd62016833b039ac863783c13bd0e1ac40a"
+    },
+    {
+      "id": "REQ-FEAT-077",
+      "title": "商店商品详情与余额刷新",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-077_shop-view.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "34ac06720038b4ea4d1e8f30081ae40dc2c164297977d7ed867e451208fb8645"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0053_lua_ui_bridge_foundation_execplan.md",
+      "sha256": "7045ce46a2e58625ba9b6ab5ee74c567d35f51e911f769f11c072f4758f6ce69",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "无明确状态字段",
+      "targets": [
+        "REQ-FEAT-075",
+        "REQ-FEAT-076",
+        "REQ-FEAT-077"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0053-FOUNDATION",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/LuaBridge/LuaBridge.cs",
+      "Assets/Scripts/Bootstrap/UiSnapshotDto.cs",
+      "Assets/Scripts/LuaBridge/UiSnapshotDto.cs",
+      "Assets/Scripts/LuaBridge/LuaRuntime.cs",
+      "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "Assets/Scripts/Bootstrap/LuaDataCache.cs",
+      "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "Assets/Scripts/LuaBridge/Tests/LuaBridgeTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaBridge.cs",
+      "sha256": "e14a771d54f544a2dda26c2de8e25bba73a71b264d607cd0a41f454ab09b4956",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UiSnapshotDto.cs",
+      "sha256": "973bff5067bb008b1119c1b170741748219c431ed3937e5b6d088ea9ff182b06",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/UiSnapshotDto.cs",
+      "sha256": "1ca2e5c184f8fa1ecdbdd24f05eaede9c7d1663ecb7ad1c4eb9a0b8633b4397e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaRuntime.cs",
+      "sha256": "6dbdb998e319bc575e54f48fa39e021b8a0a99ad965782c7ad26ad7847cfb1f0",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "sha256": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LuaDataCache.cs",
+      "sha256": "b6cf30f09548671b36dca67b079358ac96065aa3718d15f1b22cffc75f0e43bf",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "sha256": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "sha256": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/LuaBridgeTests.cs",
+      "sha256": "fc70a51e81bcebd8007926bb5bed4f2516619f4e63ca72286fb23593279ead45",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "REQ-WOLF-ANIM",
+  "title": "三狼警戒进入退出过渡动画",
+  "type": "requirement",
+  "domain": "表现界面",
+  "status": "激活",
+  "path": "Docs/requirements/presentation-ui/REQ-WOLF-ANIM_wolf-alert-animation.md",
+  "version": 1,
+  "implementationState": "旧计划暂缓；需检查实际生成资源和 PlayMode",
+  "sources": [
+    {
+      "path": "Docs/Implementation/Plans/0165_murk_wolf_leash_animation_and_dynamic_navigation.md",
+      "sha256": "f79edd3fe6160b14ba5444fcabc68708ca28348a7090fd6af1ccdb94bc03dc2e",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "recoveryEntry": "Docs/Implementation/Plans/0165_murk_wolf_leash_animation_and_dynamic_navigation.md"
+    }
+  ]
+}

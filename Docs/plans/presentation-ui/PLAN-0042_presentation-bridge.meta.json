@@ -1,0 +1,155 @@
+{
+  "id": "PLAN-0042",
+  "code": "0042",
+  "title": "表现事件桥接基础",
+  "type": "plan",
+  "domain": "表现界面",
+  "status": "关闭",
+  "path": "Docs/plans/presentation-ui/PLAN-0042_presentation-bridge.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-072",
+    "REQ-FEAT-073",
+    "REQ-FEAT-074"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-072",
+      "title": "单位视图绑定与语义挂点",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-072_unit-view-binding.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "aca8e1fa1bcdf4b0ab277301052aa1b5fda5635349ed8f33cad8eaa6b162b36f"
+    },
+    {
+      "id": "REQ-FEAT-073",
+      "title": "攻击技能动画与插值采样",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-073_animation-sampling.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "18f13b0a6da76a9de5103f8b8ab09b8bfdeeef0d8fb8d72223806dd0f606e8e5"
+    },
+    {
+      "id": "REQ-FEAT-074",
+      "title": "特效音效与回滚账本",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-074_presentation-ledger.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "698ce3ccb29c96b1eccbc7511da65943e7c7d190576f5d818081732c71a93c4e"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0042_presentation_bridge.md",
+      "sha256": "bc1ab5b548663bfccaffae5dbf3f440c9b39440bd0bcd28cbea215022efbcdb0",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "历史完成报告",
+      "reportedStatus": "Completed",
+      "targets": [
+        "REQ-FEAT-072",
+        "REQ-FEAT-073",
+        "REQ-FEAT-074"
+      ],
+      "unresolved": null,
+      "newPlan": "PLAN-0042",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/FrameSync/UnitPresentationHost.cs",
+      "Assets/Scripts/Gameplay/Presentation/SfxEvent.cs",
+      "Assets/Scripts/Gameplay/Presentation/VfxEvent.cs",
+      "Assets/Scripts/FrameSync/AudioManager.cs",
+      "Assets/Scripts/FrameSync/UnitAnimationDriver.cs",
+      "Assets/Scripts/FrameSync/VfxManager.cs",
+      "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "Assets/Scripts/FrameSync/Tests/VfxManagerPreloadTests.cs",
+      "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/UnitPresentationHost.cs",
+      "sha256": "f2bf026dbf113aecd4ee0ffd71898e09093dd61fd2de64a3d862a63a4ef3144e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Presentation/SfxEvent.cs",
+      "sha256": "81212ee11892db589ef5f02a1b8d3f441ebe329a80b1e0c586036f573e7bff4e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Presentation/VfxEvent.cs",
+      "sha256": "e517d0404a714181a6b5fb2e3febbd79bddd3b6374280b9f96bb4d3fd58c1159",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/AudioManager.cs",
+      "sha256": "ba3fb96c35db157e0bac3fb39a6fd62d0f2b510a75a1b5fd2eed1d5afe77534c",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/UnitAnimationDriver.cs",
+      "sha256": "63577cec7422f903ef9ff161024ce119aa5be11fe1485ab5ecc56215f3cce4a3",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/VfxManager.cs",
+      "sha256": "068e884c3aec64e63c7665e2802066dd740eee93d3ac29e88a803811b1960737",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "sha256": "c40b6b714223a33ea344cd9989fcc2aa969a59fb66a0ec130925e8bac21692c5",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "sha256": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+      "sha256": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/VfxManagerPreloadTests.cs",
+      "sha256": "21d46c6cc8dd94538a2f25a95a80321c0a5be82f7cd11e6f90ef44d402e75946",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "sha256": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

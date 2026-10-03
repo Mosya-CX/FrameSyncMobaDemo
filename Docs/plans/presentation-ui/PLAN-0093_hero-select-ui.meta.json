@@ -1,0 +1,119 @@
+{
+  "id": "PLAN-0093",
+  "code": "0093",
+  "title": "英雄选择界面",
+  "type": "plan",
+  "domain": "表现界面",
+  "status": "关闭",
+  "path": "Docs/plans/presentation-ui/PLAN-0093_hero-select-ui.md",
+  "version": 1,
+  "requirements": [
+    "REQ-FEAT-075",
+    "REQ-FEAT-076",
+    "REQ-FEAT-002"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-FEAT-075",
+      "title": "页面层级与 Lua 实例生命周期",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-075_lua-ui-lifecycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "c482c19896dd0253885d6a6657185fafa391c80e3b98eae72750e872ff9af453"
+    },
+    {
+      "id": "REQ-FEAT-076",
+      "title": "HUD 数值技能与小地图",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/presentation-ui/REQ-FEAT-076_hud-minimap.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "4bff8c6d3da08ec37b3589546299bcd62016833b039ac863783c13bd0e1ac40a"
+    },
+    {
+      "id": "REQ-FEAT-002",
+      "title": "大厅槽位与开局配置",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/match-flow/REQ-FEAT-002_lobby-slots.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "附录"
+      ],
+      "hash": "bd73a3b9e15eaf03aff1ac72eedf37cef2000ba43b488c935e9efd7851c09347"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Docs/Implementation/Plans/0093_hero_select_ui_execplan.md",
+      "sha256": "be214168dca521007f8cf43fced16281d9b5500b8321bbe3086bd6b1e1059c44",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "status": "状态待确认",
+      "reportedStatus": "in_progress | Started: 2026-07-24 | Priority: MEDIUM (UI)",
+      "targets": [
+        "REQ-FEAT-075",
+        "REQ-FEAT-076",
+        "REQ-FEAT-002"
+      ],
+      "unresolved": "原计划未提供可明确判定的最新完成状态",
+      "newPlan": "PLAN-0093",
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+    }
+  ],
+  "assessment": {
+    "date": "2026-10-02",
+    "manualEvidence": "用户本轮说明不能确认的功能已手动测试正常",
+    "sourceEvidence": [
+      "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "Assets/Scripts/Bootstrap/UI/UIPanel.cs",
+      "Assets/Scripts/LuaBridge/LuaHost.cs",
+      "Assets/Scripts/LuaBridge/Tests/LuaHostAndManagerTests.cs",
+      "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs"
+    ],
+    "conclusion": "用户本轮确认功能手动测试正常；当前对应文件、类型、入口与已有测试断言已核对。按本轮人工确认关闭历史执行记录；没有重跑 Unity 行为测试，源码定位不等于自动化验收通过。",
+    "unityTestsRerun": false,
+    "issues": [],
+    "scopeBasis": "原独立执行批次的具体文件/类型，后续接口扩展另有执行计划"
+  },
+  "evidence": [
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "sha256": "1e72619a82a73347049f630c5e2d21873f58c6efa57da31571cb57205f41f55e",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIPanel.cs",
+      "sha256": "5154f571ebf53cddda21161beb5cbbe5b62acbe8299cd49fdd02115019ab71e1",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaHost.cs",
+      "sha256": "ae3774f0bf81963e77cbbae867a7d1321a1d456513cbca80f88c68094ee1328d",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/LuaHostAndManagerTests.cs",
+      "sha256": "c45d9b57fd30e8b905adcf26200cbd2d5467aef7f63192ffe8cae7a560a491aa",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs",
+      "sha256": "669146600ce73f40a9e22a078b633dd7e52999ae4ac13b4f6c5caf7e4efbb0cf",
+      "kind": "原执行批次对应的当前源码，未重跑行为测试"
+    }
+  ],
+  "closedAt": "2026-10-02"
+}

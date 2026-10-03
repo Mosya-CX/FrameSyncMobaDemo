@@ -1,0 +1,170 @@
+{
+  "id": "REQ-FEAT-074",
+  "title": "特效音效与回滚账本",
+  "type": "requirement",
+  "status": "激活",
+  "domain": "表现界面",
+  "path": "Docs/requirements/presentation-ui/REQ-FEAT-074_presentation-ledger.md",
+  "version": 1,
+  "implementationState": "存在源码；尚未逐条行为复核",
+  "sources": [
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.2 `VfxDefinition`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.3 VFX 持续时间的三种来源",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.4 独立 `VfxEvent`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "4.5 Unity `ObjectPool`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.1 定位",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.2 `SfxDefinition`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.3 独立 `SfxEvent` 与正式提交入口",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.4 Unity `ObjectPool`",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "5.5 音效回滚边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.1 通用稳定事件身份",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.2 `EventSequence` 的权威来源",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.3 三种回滚播放策略",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.4 各管理器独立账本",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.5 回滚对账流程",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    },
+    {
+      "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
+      "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
+      "recovery": "20261002-document-revision/Docs.zip",
+      "section": "8.6 快照与重建边界",
+      "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "Assets/Scripts/FrameSync/AudioManager.cs",
+      "sha256": "ba3fb96c35db157e0bac3fb39a6fd62d0f2b510a75a1b5fd2eed1d5afe77534c",
+      "symbols": [
+        "AudioManager"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/VfxManager.cs",
+      "sha256": "068e884c3aec64e63c7665e2802066dd740eee93d3ac29e88a803811b1960737",
+      "symbols": [
+        "VfxManager"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Presentation/PresentationEventId.cs",
+      "sha256": "3ae90bbd3316f3fda1b20c4aef204c7f2d3667f34719e03ab6bbacff62979d2d",
+      "symbols": [
+        "PresentationEventId"
+      ],
+      "kind": "类型定义"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/VfxManagerPreloadTests.cs",
+      "sha256": "21d46c6cc8dd94538a2f25a95a80321c0a5be82f7cd11e6f90ef44d402e75946",
+      "testFunctions": [
+        "PreloadAsync_LoadsOnceAndCreatesOneInactivePoolInstance",
+        "PreloadAsync_SkipsVfxOwnedByUnselectedHeroes"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationEventDispatcherTests.cs",
+      "sha256": "0079c8f63fb4a12dbbf4c56bd0539c9e3bb017ec88a0855aea5b44882002ff94",
+      "testFunctions": [
+        "Replay_DoesNotDispatchCompletedEventAgain",
+        "CompleteIdentity_KeepsDistinctEvents",
+        "VfxAndSfx_UseIndependentHistories"
+      ],
+      "kind": "测试源码（未在本期运行）"
+    }
+  ],
+  "related": []
+}
