@@ -2,6 +2,10 @@
 
 ## 当前任务
 
+当前执行入口为 [前端视觉与可替换主题实施](../../plans/karolina/PLAN-KAR-007_visual-system-customization.md)：深空工作台、K 蝶、独立图标、HarmonyOS Sans、看板娘与手机几何表情已接入；组件 CSS 拆分，主题包支持图片/图标/字体/组件/Shader 的部分覆盖、导入导出与工程偏好恢复。Web 已改为 ES modules 和显式控制器依赖，不再由脚本共享隐式全局变量。应用服务及共享业务状态仍有进一步解耦空间。
+
+本轮 Release 0 错误 0 警告，主题核心 15/15、HTTP/DOM 39/39、真实原生鼠标键盘 14/14，通过范围见 PLAN-KAR-007；独立审查发现已修复并复查。没有截图验收、生产 Git 写入或 Unity 修改；人工视觉确认尚未完成。后面的「本轮」段落属于 PLAN-KAR-006 当时的事实，不代表当前视觉实施未执行测试。
+
 [持久工作台、对话模式与拓展工具改造](../../plans/karolina/PLAN-KAR-006_workspace-modes-tools.md)进入测试阶段：三种对话模式、审批持久状态、规则四板块及拓展工具入口已落地。架构七原则[审查结论](FACT-KAR-001_karolina-architecture-review.md)为部分符合；应用服务与前端状态边界仍需继续演进。
 
 本轮真实 current Release 编译0错误0警告，四个JS语法检查通过。真实原生API读到原三狼条目：待审批100文件、修订2；原文件有EFS属性，已读取内容重写到工程 .karolina/state，不继承加密属性。具体命令环境与GUI的旧路径可见性机制仍未知。审批默认隐藏.meta，可显示检查，完整任务范围不变。

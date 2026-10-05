@@ -401,3 +401,8 @@ ZIP 根目录直接包含 `FrameSyncMobaServer.x86_64`、`UnityPlayer.so` 和
 ```text
 Tools/PackageLatestUosServer.cmd
 ```
+
+
+## Karolina直接调用
+
+工具目录提供本地客户端、服务端、两者组合，以及UOS Windows客户端、Linux服务端与组合构建。发布客户端与CDN按钮打开Unity现有参数窗口。构建请求只发一次，Karolina暂停Unity连接/查询/调用，等待用户报告Unity结束；超时/未知回执不自动重试。

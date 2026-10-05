@@ -1387,22 +1387,57 @@
       "metadata": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.meta.json"
     },
     {
-      "id": "TOOL-GUIDE-UNITY-INSPECT",
-      "path": "Docs/tools/guides/TOOL-GUIDE-UNITY-INSPECT_usage.md",
-      "metadata": "Docs/tools/guides/TOOL-GUIDE-UNITY-INSPECT_usage.meta.json"
-    },
-    {
-      "id": "TOOL-GUIDE-DOTNET-INFO",
-      "path": "Docs/tools/guides/TOOL-GUIDE-DOTNET-INFO_usage.md",
-      "metadata": "Docs/tools/guides/TOOL-GUIDE-DOTNET-INFO_usage.meta.json"
-    },
-    {
       "id": "FACT-KAR-001",
       "path": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.md",
       "metadata": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.meta.json"
+    },
+    {
+      "id": "REQ-KAR-008",
+      "path": "Docs/requirements/karolina/REQ-KAR-008_visual-system-customization.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-008_visual-system-customization.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-007",
+      "path": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.meta.json"
+    },
+    {
+      "id": "REQ-KAR-009",
+      "path": "Docs/requirements/karolina/REQ-KAR-009_live2d-source-art.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-009_live2d-source-art.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-008",
+      "path": "Docs/plans/karolina/PLAN-KAR-008_live2d-material-separation.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-008_live2d-material-separation.meta.json"
+    },
+    {
+      "id": "REQ-KAR-010",
+      "path": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.meta.json"
+    },
+    {
+      "id": "REQ-KAR-011",
+      "path": "Docs/requirements/karolina/REQ-KAR-011_attributed-live-task-review.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-011_attributed-live-task-review.meta.json"
+    },
+    {
+      "id": "REQ-KAR-012",
+      "path": "Docs/requirements/karolina/REQ-KAR-012_build-and-launcher-tools.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-012_build-and-launcher-tools.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-009",
+      "path": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-010",
+      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.meta.json"
     }
   ],
-  "activePlan": "PLAN-KAR-006",
+  "activePlan": "PLAN-KAR-010",
   "authority": "当前用户指令优先；已接受需求与规则为现行约束；旧 ID 仅来源别名",
   "latestCompletedPlan": "PLAN-KAR-003"
 }

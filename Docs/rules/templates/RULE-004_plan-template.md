@@ -30,3 +30,8 @@
 ## 恢复与独立元数据
 
 保护任务开始前工作，说明撤销范围、schema/GUID 兼容与外部依赖。元数据：id/code/title/type/status/domain/path/version/requirements/requirementRefs/sources/evidence/assessment/closedAt/conclusion/outcome。没有 history/evolution。activePlan 定位本轮活动计划。
+
+
+## 文件预估与真实资源索引
+
+准备阶段在独立元数据 plannedChanges 登记规范路径、operation（add/modify/delete）和原因，进入执行前不可缺失。实施有偏差时更新预估与进度。resourceRefs 单独登记真实文件路径、关联依据、冻结哈希与任务审批编号（如有）；删除项保留路径及删除证据。旧关闭计划仅补充有证据的资源关联，不伪造事前预估或重启生命周期。机器精确路径扫描只证明文件关联与存在，不证明完成、作者或测试通过。无法确认列清单。所有案的 tags 最多10个、去空去重；标签/资料索引补充不形成需求演进。

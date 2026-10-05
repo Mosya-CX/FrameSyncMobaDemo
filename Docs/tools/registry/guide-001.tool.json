@@ -1,9 +1,94 @@
 {
   "id": "guide-001",
-  "title": "打包 / 构建指南（Local NGO C/S 与 UOS）",
-  "description": "项目操作指南；阅读后在说明所述入口操作，尚未登记自动执行命令。",
-  "kind": "manual",
+  "title": "项目构建",
+  "description": "本地与UOS客户端/服务端构建及发布配置，共用一份说明。",
+  "kind": "group",
   "guideId": "GUIDE-001",
   "defaultArguments": {},
-  "readOnly": true
+  "operations": [
+    {
+      "id": "build-local-client",
+      "title": "构建本地客户端",
+      "description": "调用Unity现有项目菜单。请求只发送一次，结果由Unity显示；确认结束后再恢复Unity操作。",
+      "kind": "unity-mcp",
+      "toolName": "script-execute",
+      "menuPath": "FrameSyncMoba/Build Local NGO/Build Client",
+      "defaultArguments": {},
+      "readOnly": false,
+      "unityBuild": true,
+      "timeoutSeconds": 3600
+    },
+    {
+      "id": "build-local-server",
+      "title": "构建本地服务端",
+      "description": "调用Unity现有项目菜单。请求只发送一次，结果由Unity显示；确认结束后再恢复Unity操作。",
+      "kind": "unity-mcp",
+      "toolName": "script-execute",
+      "menuPath": "FrameSyncMoba/Build Local NGO/Build Server",
+      "defaultArguments": {},
+      "readOnly": false,
+      "unityBuild": true,
+      "timeoutSeconds": 3600
+    },
+    {
+      "id": "build-local-both",
+      "title": "构建本地客户端与服务端",
+      "description": "调用Unity现有项目菜单。请求只发送一次，结果由Unity显示；确认结束后再恢复Unity操作。",
+      "kind": "unity-mcp",
+      "toolName": "script-execute",
+      "menuPath": "FrameSyncMoba/Build Local NGO/Build Both",
+      "defaultArguments": {},
+      "readOnly": false,
+      "unityBuild": true,
+      "timeoutSeconds": 3600
+    },
+    {
+      "id": "build-uos-client",
+      "title": "构建UOS Windows客户端",
+      "description": "调用Unity现有项目菜单。请求只发送一次，结果由Unity显示；确认结束后再恢复Unity操作。",
+      "kind": "unity-mcp",
+      "toolName": "script-execute",
+      "menuPath": "FrameSyncMoba/Build Local NGO/Build Client Windows (UOS)",
+      "defaultArguments": {},
+      "readOnly": false,
+      "unityBuild": true,
+      "timeoutSeconds": 3600
+    },
+    {
+      "id": "build-uos-server",
+      "title": "构建UOS Linux服务端及上传包",
+      "description": "调用Unity现有项目菜单。请求只发送一次，结果由Unity显示；确认结束后再恢复Unity操作。",
+      "kind": "unity-mcp",
+      "toolName": "script-execute",
+      "menuPath": "FrameSyncMoba/Build Local NGO/Build Server Linux (UOS)",
+      "defaultArguments": {},
+      "readOnly": false,
+      "unityBuild": true,
+      "timeoutSeconds": 3600
+    },
+    {
+      "id": "build-uos-both",
+      "title": "构建UOS客户端与服务端",
+      "description": "调用Unity现有项目菜单。请求只发送一次，结果由Unity显示；确认结束后再恢复Unity操作。",
+      "kind": "unity-mcp",
+      "toolName": "script-execute",
+      "menuPath": "FrameSyncMoba/Build Local NGO/Build Client + Server (UOS, Once)",
+      "defaultArguments": {},
+      "readOnly": false,
+      "unityBuild": true,
+      "timeoutSeconds": 3600
+    },
+    {
+      "id": "open-release-build",
+      "title": "打开发布客户端与CDN构建窗口",
+      "description": "调用Unity现有项目菜单。在Unity窗口填写版本与是否生成CDN包，再人工发起构建；窗口中开始构建后先等待完成。",
+      "kind": "unity-mcp",
+      "toolName": "script-execute",
+      "menuPath": "FrameSyncMoba/Build Local NGO/Build Release Client (Optional CDN Package)...",
+      "defaultArguments": {},
+      "readOnly": false,
+      "unityBuild": false,
+      "timeoutSeconds": 3600
+    }
+  ]
 }

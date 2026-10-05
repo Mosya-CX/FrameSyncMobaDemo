@@ -1,9 +1,22 @@
 {
   "id": "guide-006",
-  "title": "UOS 客户端 GUI 启动器（开发者工具）",
-  "description": "项目操作指南；阅读后在说明所述入口操作，尚未登记自动执行命令。",
-  "kind": "manual",
+  "title": "UOS客户端启动器",
+  "description": "打开UOS GUI，在启动器中配置与连接。",
+  "kind": "group",
   "guideId": "GUIDE-006",
   "defaultArguments": {},
-  "readOnly": true
+  "operations": [
+    {
+      "id": "open-uos-client-gui",
+      "title": "打开UOS客户端GUI启动器",
+      "description": "启动现有GUI，后续由你操作。若exe缺失按使用说明生成；不等待退出或在超时后杀GUI。",
+      "kind": "external",
+      "executable": "Builds/Tools/UosClientLauncher/FrameSyncMoba.UosClientLauncher.exe",
+      "arguments": [],
+      "launchMode": "gui",
+      "defaultArguments": {},
+      "readOnly": false,
+      "timeoutSeconds": 15
+    }
+  ]
 }

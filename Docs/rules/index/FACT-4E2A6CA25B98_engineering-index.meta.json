@@ -5,5 +5,8 @@
   "domain": "工程事实",
   "path": "Docs/rules/index/FACT-4E2A6CA25B98_engineering-index.md",
   "version": 1,
-  "section": "index"
+  "section": "index",
+  "tags": [
+    "工程事实"
+  ]
 }

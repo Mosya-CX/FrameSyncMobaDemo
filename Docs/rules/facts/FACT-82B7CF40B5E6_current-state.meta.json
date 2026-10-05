@@ -4,7 +4,10 @@
   "type": "rule",
   "domain": "工程事实",
   "path": "Docs/rules/facts/FACT-82B7CF40B5E6_current-state.md",
-  "version": 5,
-  "updatedAt": "2026-10-03T00:47:25.605412+08:00",
-  "section": "facts"
+  "version": 6,
+  "updatedAt": "2026-10-04T13:23:04.962610+08:00",
+  "section": "facts",
+  "tags": [
+    "工程事实"
+  ]
 }

@@ -300,3 +300,8 @@ Builds/Demo/Launcher/FrameSyncMobaLauncher.exe --self-test
 
 固定美术仍是 `Background.png`、`Banner.png`、`Logo.png` 和多尺寸
 `AppIcon.ico`；CDN 公钥和配置不属于美术目录。
+
+
+## Karolina启动GUI
+
+使用「打开游戏GUI启动器」，定位 `Builds/Demo/Launcher/FrameSyncMobaLauncher.exe`。缺失时按 `Tools/UosGameLauncher/BuildLauncher.cmd` 生成；回执只证明启动。

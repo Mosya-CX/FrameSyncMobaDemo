@@ -1,9 +1,22 @@
 {
   "id": "guide-005",
-  "title": "正式 Demo 游戏启动器与 UOS CDN 更新",
-  "description": "项目操作指南；阅读后在说明所述入口操作，尚未登记自动执行命令。",
-  "kind": "manual",
+  "title": "游戏启动器",
+  "description": "打开游戏GUI启动器，按使用说明配置与启动游戏。",
+  "kind": "group",
   "guideId": "GUIDE-005",
   "defaultArguments": {},
-  "readOnly": true
+  "operations": [
+    {
+      "id": "open-game-launcher-gui",
+      "title": "打开游戏GUI启动器",
+      "description": "启动现有GUI，后续由你操作。若exe缺失按使用说明生成；不等待退出或在超时后杀GUI。",
+      "kind": "external",
+      "executable": "Builds/Demo/Launcher/FrameSyncMobaLauncher.exe",
+      "arguments": [],
+      "launchMode": "gui",
+      "defaultArguments": {},
+      "readOnly": false,
+      "timeoutSeconds": 15
+    }
+  ]
 }

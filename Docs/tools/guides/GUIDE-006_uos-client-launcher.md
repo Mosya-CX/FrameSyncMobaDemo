@@ -96,3 +96,8 @@ Runtime，或将 `--self-contained false` 改成 `true` 重新发布。
 
 窗口标题不作为客户端命令行协议的一部分。启动器只修改属于目标客户端
 PID 的顶层 Windows 窗口，不依赖两个实例的启动先后顺序。
+
+
+## Karolina启动GUI
+
+使用「打开UOS客户端GUI启动器」，定位现有 `Builds/Tools/UosClientLauncher/FrameSyncMoba.UosClientLauncher.exe`。回执只表示进程创建。缺失时按 `Tools/UosClientLauncher/BuildLauncher.cmd` 生成，不由Karolina自动构建。

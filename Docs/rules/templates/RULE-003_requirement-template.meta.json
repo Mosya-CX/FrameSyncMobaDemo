@@ -20,5 +20,8 @@
       "summary": "从既有宪法/工作流和用户本期修订整合为独立中文规则"
     }
   ],
-  "section": "templates"
+  "section": "templates",
+  "tags": [
+    "工程规则"
+  ]
 }
