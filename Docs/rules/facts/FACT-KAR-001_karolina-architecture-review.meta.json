@@ -5,6 +5,12 @@
   "domain": "工程事实",
   "section": "facts",
   "path": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.md",
-  "version": 1,
-  "updatedAt": "2026-10-03T00:47:25.605412+08:00"
+  "version": 3,
+  "updatedAt": "2026-10-05T05:00:52.638030+00:00",
+  "tags": [
+    "Karolina",
+    "工程事实",
+    "架构",
+    "代码质量"
+  ]
 }

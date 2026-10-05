@@ -557,5 +557,8 @@
     "REQ-FEAT-042-PART-3",
     "REQ-FEAT-042-PART-4",
     "REQ-FEAT-042-PART-5"
+  ],
+  "tags": [
+    "技能"
   ]
 }

@@ -1286,5 +1286,8 @@
     "REQ-FEAT-028-PART-3",
     "REQ-FEAT-028-PART-4",
     "REQ-FEAT-028-PART-5"
+  ],
+  "tags": [
+    "单位"
   ]
 }

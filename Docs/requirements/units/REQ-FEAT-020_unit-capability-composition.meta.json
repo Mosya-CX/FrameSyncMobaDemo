@@ -2072,5 +2072,8 @@
     "REQ-FEAT-020-PART-2",
     "REQ-FEAT-020-PART-3",
     "REQ-FEAT-020-PART-4"
+  ],
+  "tags": [
+    "单位"
   ]
 }

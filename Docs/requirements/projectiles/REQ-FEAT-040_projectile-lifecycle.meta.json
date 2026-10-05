@@ -453,5 +453,8 @@
     "REQ-FEAT-040-PART-4",
     "REQ-FEAT-040-PART-5",
     "REQ-FEAT-040-PART-6"
+  ],
+  "tags": [
+    "投射物"
   ]
 }

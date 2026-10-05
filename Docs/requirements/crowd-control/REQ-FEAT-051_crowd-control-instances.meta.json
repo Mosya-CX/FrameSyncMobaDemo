@@ -670,5 +670,8 @@
     "REQ-FEAT-051-PART-4",
     "REQ-FEAT-051-PART-5",
     "REQ-FEAT-051-PART-6"
+  ],
+  "tags": [
+    "控制"
   ]
 }

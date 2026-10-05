@@ -1,54 +1,55 @@
 # Karolina 架构审查
 
-## 审查范围与结论
+## 当前结论与范围
 
-审查当前 Core、Desktop、前端与文档路由。当前架构**部分符合**七项要求，适合作为继续演进的 MVP；不能认定已全面达标。本轮修复持久身份、路径与并发边界，并为拓展工具引入接口；没有用文件拆分冒充应用层解耦。
+2026-10-05按用户提出的七项原则整理Karolina MVP代码。完成说明状态/存储服务、回复完成用例、Codex协议端口与前端纯政策/视图分离；原生窗口、主题和工程文件职责保留。当前是可继续演进的MVP，不能据此认定全部业务已经完全解耦或行为测试通过。
 
-## 当前组织
+## 当前模块与边界
 
-| 层次 | 主要职责 | 实际依赖 |
+|模块|职责与依赖|
+|---|---|
+|Workbench|工程组合入口、运行生命周期、锁与事件；使用ICodexSession协议端口及Core服务|
+|Workbench.Contracts / Routes|保留原HTTP合同和JSON字段；映射请求、状态/诊断与本机窗口操作|
+|Workbench.Chat / Unity / Tools / Reviews|宿主内的执行、Unity调用、工具和审批接线；仍是同一实例，partial不等于独立服务|
+|ReviewExplanationService|唯一拥有不可变说明进度；只依赖IReviewExplanationStore及TimeProvider，拒绝旧RunId及结束后迟到更新|
+|JsonReviewExplanationStore|进度JSON读取、工程路径核验、编号匹配及原子落盘；沿用原状态文件与字段|
+|ReviewCompletionService|完成执行回复、绑定有写入证明的文件说明、保存冻结差异说明；依赖既有TaskReviewStore，不拥有协议、运行锁或UI事件|
+|ICodexSession / CodexConnection|可替换app-server连接边界；具体实现负责stdio RPC与进程。保留Codex协议，不是已经完成跨Harness适配|
+|DocumentLibrary / TaskReviewStore|文档及审批快照、来源、意见、批准边界；当前仍是具体文件系统存储|
+|IExtensionToolRunner / IUnityToolClient|沿用既有外部/Unity适配器，未再建重复接口；工程互斥与构建pending继续生效|
+|Web core/model-policy|模型档位标签、说明低档默认政策；只处理数据，不访问DOM/API/本机存储|
+|Web ui/review-progress / tool-operations|纯进度文本及工具卡片视图；时间由调用者给入，视图将调用委托给控制器|
+|Web控制器 / 外观系统|控制器管理API、页面状态和错误；主题/原子CSS/表现特效保留，未把业务写入放到视觉模块|
+|DesktopWindow|WinForms、WebView2、托盘、窗口退出；不负责审批语义|
+
+依赖方向为Desktop与Web通过明确入口使用Core；Core不引用Desktop或Unity Gameplay。Core目前同时包含领域/应用用例和本地适配器，尚未拆成多个项目。只有实际外部依赖和状态持久化边界增加接口；不为每个类型增加一层接口/工厂。
+
+## 七项原则的实得与限制
+
+|原则|本轮改进|保留的限制|
 |---|---|---|
-| Web 前端 | 对话、Markdown、审批、工具、页面状态 | HTTP API；app/review/workspace/tools 仍共享全局状态 |
-| DesktopWindow | WinForms、WebView2、托盘、窗口退出 | Workbench 的窗口与运行状态 |
-| Workbench | 本机 API、会话/审批/Unity/工具接线与执行调度 | Core 的具体实现；Tools partial 是接线拆分 |
-| Core | 文档、工程身份、快照、工具定义与运行、协议客户端 | 文件系统、进程、HTTP 与 Codex app-server |
-| 工程内容 | Docs 与 Unity 文件 | Karolina 位于 Tools，不进入 Unity Gameplay 程序集 |
+|高内聚低耦合|进度状态、JSON读写、任务完成回复和工具绘制有各自模块及唯一职责|Workbench仍调度共享生命周期，前端context/actions仍跨控制器共享|
+|关注点分离|HTTP合同/映射与Chat/Unity流程分别组织；业务完成落库与宿主消息/锁分开；前端政策与绘制分开|宿主partials仍访问同一实例的私有字段；文件拆分不证明全部解耦|
+|依赖倒置|协议依赖ICodexSession，进度依赖IReviewExplanationStore；证据与时钟可注入；工具沿用现有端口|文档、审批和Unity宿主仍使用部分具体实现，不宣称统一跨Harness协议|
+|清晰边界|状态服务按ReviewId/RunId核对；开始/终态存储，事件在服务锁释放后发布；JSON路径和文件名核验|外部工具只读声明仍不是Windows沙箱，构建pending需要人工确认结束|
+|可测试可观测|进度可用内存存储和固定时钟隔离；模型政策/文本是纯函数；后台终态及不支持请求的RPC失败显示事件|本轮未新增/运行行为测试；现有运行日志尚非完整统一可观测平台|
+|简单实用|沿用.NET/WinForms/WebView2/Markdown/JSON，无新包、框架、数据库或通用服务总线|保持具体实现以便维护；避免未经真实需求驱动的过度抽象|
+|演进式设计|根据真实进度/审批/工具问题提取服务，原API、JSON、资源说明与交互不迁移|第二Harness、Jev、图谱、自有MCP等仍需独立需求与实施，当前未伪造可用|
 
-持久数据分开：Docs 存当前文档、元数据和工具声明；`.karolina/state` 存审批、快照、聊天入口、页面位置、工具结果和共享锁，由 Git 忽略。本机旧审批保留供恢复，不作为新的当前写入位置。WebView2 profile 和既有 Codex 运行日志仍在本机应用数据目录；它们不决定审批条目是否存在。
+## 兼容与所有权
 
-## 七项原则逐项审查
+- `.karolina/state/explanations/{reviewId}.json`路径及所有原字段保持。启动只恢复一次，无终态Active记录明确中断。说明开始存储失败向上抛出；终态落盘失败在内存与事件中可见，不阻止宿主释放执行锁。
+- 服务内没有宿主事件回调，避免持有进度锁时取得聊天/事件锁。快照是不可变记录数组，不暴露内部可变字典。
+- 原审批基线、Origin/Decision/Notes、写入证明、冻结哈希及批准规则保留。资源说明不变成原始YAML/二进制视图；人工模型和动画继续排除，.meta永远略过。
+- Workbench成功构造后拥有注入的会话并在DisposeAsync释放。证据目录、进度存储与TimeProvider可给入；不自动处置外部持久存储。ICodexSession的JSON消息必须有独立生命周期。
+- WorkbenchBuild从实际服务index.html的唯一build标记及文件字节派生版本/哈希，前后端不再重复写版本常量。
 
-| 要求 | 当前判断 | 具体依据与剩余问题 |
-|---|---|---|
-| 高内聚低耦合 | 部分符合 | 文档、审批、工程身份、工具服务各有类型；Workbench 同时调度多种用例，前端全局变量跨文件，耦合仍高。 |
-| 关注点分离 | 部分符合 | 原生窗口与页面、Unity 内容与工程工具分开；HTTP 接线与任务执行仍在同一宿主，不能把 partial 当独立模块。 |
-| 依赖倒置 | 部分符合 | 工具服务依赖 IExtensionToolRunner，Unity 适配器依赖 IUnityToolClient；宿主直接创建 CodexConnection、TaskReviewStore 等，其它用例尚无可替换端口。 |
-| 清晰边界 | 主要边界已有 | 规范工程身份、拒绝越界/链接、审批只覆盖 Unity 内容；文档模式限制 Docs 写入，Unity 调用串行并核对工程，构建后暂停。外部程序以 Windows 用户权限执行，只读声明不是沙箱。 |
-| 可测试可观测 | 部分符合 | 工具接口可替换，真实运行身份/状态/输出、审批修订和诊断可追查；大量文件系统和协议依赖仍需临时工程，尚无统一结构化日志/前端模块测试。本轮没有新增或运行行为测试。 |
-| 简单实用 | 符合当前范围 | 保留 .NET/WinForms/WebView2 与普通 Markdown/JSON，无新依赖；只提供必要模式、任务审批、工具注册与调用。尚未引入数据库、通用插件装载器或完整 Harness 调度。 |
-| 演进式设计 | 部分符合 | 从实际丢失记录问题提取 ProjectContext，从工具需求提取适配器接口；下一步应在具体用例变化时提取应用服务，不进行整仓框架替换。 |
+## 验证与交付边界
 
-## 本轮已修正的风险
+本轮对应[代码质量计划](../../plans/karolina/PLAN-KAR-010_code-quality-refinement.md)。隔离Release编译0警告0错误；独立只读审查已完成：两项P2故障处理缺口修正后复核无剩余P1/P2；诊断记录损坏容错增量也复核通过。6个修改/新增JS模块语法检查通过，58个HTTP路由声明与r3一致。未新增或执行行为测试，没有截图、真实Codex模型任务、Unity构建、启动器调用、生产审批或Git写入。说明保存的权限失败会结束当前进度并释放锁；后台审批同步对损坏JSON等数据错误可见、去重并重试，诊断可独立返回同步失败与记录读取错误。过去PLAN-KAR-007/009的测试数字仅代表当时所审版本，不能作为本轮回归通过的依据。
 
-1. 工程路径尾分隔符造成不同身份；现在统一规范路径。原生程序对本机旧路径曾返回空列表/找不到同名记录；旧文件有 EFS 加密属性，文件复制也真实报加密错误。恢复采用读取内容再写入工程状态目录，不继承旧加密属性。具体环境隔离机制仍未知，不把 EFS 属性等同于全部根因。
-2. 状态迁移拒绝嵌套链接、来源身份不符和同名不同内容冲突；保留原记录，首次恢复后使用工程当前状态。共享写锁和桌面实例锁也在同一工程目录。
-3. 工具参数、实际工具名与 Unity 身份在改变任务状态前核对；Unity 工具和原连接/操作共用闸门。构建标志在准备发出已解析的实际调用前写入；发送失败后的构建回执未知仍由用户确认，不自动重发。
-4. 外部工具挂起创建，加入 Windows 作业后再恢复，管道读取遵循取消且清理有界；不把停止按钮实现为仅停止父进程。
-5. 工具注册保护已有正文/元数据/声明，使用 CreateNew 和临时写入；同步目录入口、刷新文档缓存；失败回滚先核对本轮内容指纹，外部编辑保留并报出冲突。
+用户已完全退出r3后，实际bin/Release与artifacts/current均交付architecture-quality-r4；129份Web文件与源码逐字节相同，Core/Desktop程序集在两个输出相同。既有任务审批数据未在本轮代码质量改造中重置。
 
-## 后续演进顺序
+## 下一步应何时拆分
 
-1. 提取对话与任务执行应用服务：端口涵盖 Harness、审批存储、文档读取，Workbench 只映射请求/事件。
-2. 前端按对话、文档、审批、工具定义状态与动作入口，替换共享全局变量，优先处理跨页面草稿与异步切换。
-3. 统一结构化运行事件和恢复策略；在获测试请求后补工具超时/取消/注册故障及模式权限等行为证据。
-4. 第二个真实 Harness 或第二种 Unity 接入出现时再提取更通用的接口；当前不做 Jev、图谱、自动开对话/模型映射或完整 MCP 服务。
-
-## 取证与验证边界
-
-当前原生进程的真实 API 已读取原三狼任务：编号 `a09bef8b3a1f47b09b6bf99e4b3efcb9`，待审批，修订 2，100 文件；没有替用户批准、退回、重建基线或改写 Unity 内容。Release 编译和 JS 语法检查通过，行为测试与人工使用验收尚未完成。本报告只读审查不证明外部工具或 Codex 模式的真实运行已通过。
-
-本轮独立只读审查发现均已闭合，无剩余 P1/P2。实际通过托盘完全退出后重新启动 current，原生审批页显示60/全部100文件、隐藏40个.meta，恢复记录与原文件字节哈希一致。280篇当前资料零断链、路径均ASCII，2953个受保护Unity文件未变；这是读取与静态证据，不是新增工具行为测试通过。[诊断记录](../../plans/karolina/PLAN-KAR-006_workspace-inspection.json)保存本轮实际回执。
-
-实现入口：[ProjectContext](../../../Tools/Karolina/Karolina.Core/ProjectContext.cs)、[TaskReviews](../../../Tools/Karolina/Karolina.Core/TaskReviews.cs)、[ExtensionTools](../../../Tools/Karolina/Karolina.Core/ExtensionTools.cs)、[Workbench](../../../Tools/Karolina/Karolina.Desktop/Workbench.cs)、[工具接线](../../../Tools/Karolina/Karolina.Desktop/Workbench.Tools.cs)。
-
-进程实现依据：微软 [CreateProcessW](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessw)、[进程创建标志](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags)、[作业分配](https://learn.microsoft.com/en-us/windows/win32/api/jobapi2/nf-jobapi2-assignprocesstojobobject) 与 [句柄继承属性](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute)。
+当新的执行用例导致Workbench生命周期频繁变化时，再提取执行会话服务及专用状态所有者；当需要第二种审批存储或真实故障注入时，再形成具体审批存储端口；第二Harness接入时先明确统一输入/事件合同，再实现转换适配器。当前先保留小而直接的实现和可替换外部边界。

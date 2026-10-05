@@ -683,5 +683,8 @@
     "REQ-FEAT-067-PART-4",
     "REQ-FEAT-067-PART-5",
     "REQ-FEAT-067-PART-6"
+  ],
+  "tags": [
+    "寻路移动"
   ]
 }
