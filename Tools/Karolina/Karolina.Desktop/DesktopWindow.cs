@@ -10,6 +10,7 @@ internal sealed class DesktopWindow : Form
     private readonly Workbench host;
     private readonly string profile;
     private readonly NotifyIcon tray;
+    private readonly System.Drawing.Icon applicationIcon = LoadApplicationIcon();
     private readonly WebView2 view = new() { Dock = DockStyle.Fill, TabIndex = 0 };
     private Process? browser;
     private Task initialization = Task.CompletedTask;
@@ -18,7 +19,7 @@ internal sealed class DesktopWindow : Form
     public DesktopWindow(Workbench host, string root, string profile)
     {
         this.host = host; this.profile = profile;
-        Text = "Karolina · 工程工作台"; Icon = System.Drawing.SystemIcons.Application;
+        Text = "Karolina · 工程工作台"; Icon = applicationIcon;
         StartPosition = FormStartPosition.CenterScreen; Size = new(1380, 880); MinimumSize = new(900, 650);
         Controls.Add(view);
         var menu = new ContextMenuStrip();
@@ -38,6 +39,14 @@ internal sealed class DesktopWindow : Form
             if (!exiting && e.CloseReason == CloseReason.UserClosing) Hide();
             else OnUi(() => RequestExit(false));
         };
+    }
+
+    private static System.Drawing.Icon LoadApplicationIcon()
+    {
+        using var source = typeof(DesktopWindow).Assembly.GetManifestResourceStream("Karolina.Desktop.ApplicationIcon")
+            ?? throw new InvalidDataException("Karolina 图标资源缺失");
+        using var icon = new System.Drawing.Icon(source);
+        return (System.Drawing.Icon)icon.Clone();
     }
 
     protected override void WndProc(ref Message message)
@@ -89,6 +98,8 @@ internal sealed class DesktopWindow : Form
             core.Settings.AreDefaultContextMenusEnabled = false;
             core.Settings.AreDevToolsEnabled = false;
             core.Settings.AreBrowserAcceleratorKeysEnabled = false;
+            core.Settings.IsZoomControlEnabled = false;
+            view.ZoomFactor = 1;
             core.Settings.AreHostObjectsAllowed = false;
             core.Settings.IsWebMessageEnabled = false;
             core.Settings.IsGeneralAutofillEnabled = false;
@@ -151,5 +162,6 @@ internal sealed class DesktopWindow : Form
             }
         }
         base.Dispose(disposing);
+        if (disposing) applicationIcon.Dispose();
     }
 }

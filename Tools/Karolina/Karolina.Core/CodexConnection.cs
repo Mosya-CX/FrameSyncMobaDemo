@@ -8,7 +8,7 @@ namespace Karolina.Core;
 public sealed class CodexRpcException(string message) : IOException(message);
 
 /// <summary>本机 Codex app-server 的 stdio JSON-RPC 连接；不读取或转发凭据文件。</summary>
-public sealed class CodexConnection : IDisposable
+public sealed class CodexConnection : ICodexSession
 {
     private Process? process;
     private Task? readTask;

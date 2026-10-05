@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Karolina.Desktop;
 
-public sealed record ToolRegisterInput(ExtensionTool Definition,string Manual);
-public sealed record ToolRunInput(string Id,string Hash,JsonElement Arguments,string? PlanId=null,string? TaskId=null);
 public sealed partial class Workbench
 {
     private ExtensionToolCatalog toolCatalog=null!;
@@ -34,19 +32,18 @@ public sealed partial class Workbench
     }
     private async Task<IResult> RunExtensionTool(ToolRunInput input)
     {
-        await gate.WaitAsync();
+        if(!await gate.WaitAsync(0))throw new InvalidOperationException("当前工程操作正在处理，请稍后重试；工具不会在后台排队重复执行");
         bool unityHeld=false;
         try
         {
             if(busy||toolCancellation!=null)throw new InvalidOperationException("当前工程还有运行中的操作");
-            var descriptor=toolCatalog.Find(input.Id);var definition=descriptor.Definition;
+            var descriptor=toolCatalog.Resolve(input.Id,input.OperationId);var definition=descriptor.Definition;
             if(descriptor.Hash!=input.Hash)throw new InvalidOperationException("工具声明已更新，请重新选择工具");
             if(definition.Kind=="manual")throw new ArgumentException("此项只有指南，请先注册执行入口");
             toolService.ValidateExecution(descriptor,input.Arguments);
             if(definition.Kind=="unity-mcp"&&BuildPending)throw new InvalidOperationException("构建请求已经发送；请先确认Unity构建结束，期间禁止继续Unity操作");
             using var guard=WorkspaceLock.Acquire(root);
-            TaskReview? task=null;
-            var record=new ExtensionToolRun { ToolId=definition.Id };
+            var record=new ExtensionToolRun { ToolId=input.Id,OperationId=descriptor.OperationId };
             toolCancellation=CancellationTokenSource.CreateLinkedTokenSource(app!.Lifetime.ApplicationStopping);
             runningToolRecord=record;
             toolService.Save(record);
@@ -62,34 +59,9 @@ public sealed partial class Workbench
                     using var preflight=CancellationTokenSource.CreateLinkedTokenSource(toolCancellation.Token);preflight.CancelAfter(TimeSpan.FromSeconds(12));
                     await unity.VerifyProject(root,preflight.Token);
                 }
-                if(definition.RequiresTask)
-                {
-                    if(input.TaskId!=null)
-                    {
-                        var candidate=reviews.Get(input.TaskId);ReviewPlan(candidate.PlanId);
-                        if(candidate.State=="待再执行")candidate=reviews.Resume(candidate.Id,candidate.Revision);
-                        else if(candidate.State!="执行")throw new ArgumentException("审批中的任务先退回，再继续执行");
-                        task=candidate;
-                    }
-                    else
-                    {
-                        var plan=ReviewPlan(input.PlanId??throw new ArgumentException("写入工具需要选择执行计划或继续原任务"));
-                        var existing=reviews.List().SingleOrDefault(t=>t.State!="已通过");
-                        if(existing!=null&&(existing.PlanId!=plan.Id||existing.State!="执行"))throw new InvalidOperationException("请先处理已有未结束的任务审批");
-                        task=existing??await reviews.Start(plan.Id,plan.Title,toolCancellation.Token);
-                    }
-                    record.ReviewId=task.Id;reviews.RecordRun(task.Id,record.Id,null,"拓展工具执行");
-                }
                 await toolService.Execute(record,descriptor,input.Arguments,toolCancellation.Token);
             }
             catch(Exception e){record.State=e is OperationCanceledException?"已取消或超时":"失败";record.Output=e.Message;record.Ended=DateTimeOffset.Now;toolService.Save(record);}
-            if(task!=null)
-            {
-                reviews.RecordRun(task.Id,record.Id,null,"拓展工具："+record.State);
-                var latest=reviews.Get(task.Id);
-                await reviews.Submit(task.Id,latest.Revision,$"调用拓展工具：{definition.Title}。实际结果：{record.State}。\n{record.Output[..Math.Min(record.Output.Length,6000)]}\n审批不代替行为验收。",CancellationToken.None);
-                Emit(new {method="karolina/review-ready",@params=new {id=task.Id}});
-            }
             return Results.Json(record);
         }
         finally{if(unityHeld)unityGate.Release();runningToolRecord=null;toolCancellation?.Dispose();toolCancellation=null;gate.Release();}

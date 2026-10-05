@@ -2,10 +2,10 @@ using System.Text.Json;
 
 namespace Karolina.Core;
 
-public sealed record LibraryDocument(string Id, string Title, string Type, string? Status, string Domain, string Path, string MetadataPath, string Code, string Section = "");
+public sealed record LibraryDocument(string Id, string Title, string Type, string? Status, string Domain, string Path, string MetadataPath, string Code, string Section = "", string[]? Tags = null, ResourceReference[]? ResourceRefs = null);
 
 /// <summary>正文与元数据分开存储。目录只读中文分类，历史来源不参与当前合同解析。</summary>
-public sealed class DocumentLibrary : IDisposable
+public sealed partial class DocumentLibrary : IDisposable
 {
     private readonly object cacheGate = new();
     private LibraryDocument[]? cached;
@@ -45,7 +45,7 @@ public sealed class DocumentLibrary : IDisposable
                 if (!System.Text.RegularExpressions.Regex.IsMatch(entry.Id, "^[A-Za-z0-9][A-Za-z0-9_-]{0,119}$") || string.IsNullOrWhiteSpace(entry.Title) || entry.Type != "rule" && string.IsNullOrWhiteSpace(entry.Status)) throw new InvalidDataException("文档缺少有效编号、标题或状态：" + meta);
                 if (entry.Type == "requirement" && entry.Status is not ("激活" or "废弃") || entry.Type == "plan" && entry.Status is not ("准备" or "执行" or "测试" or "校正" or "验收" or "关闭")) throw new InvalidDataException("文档状态不属于此类别的生命周期：" + meta);
                 if(entry.Type=="rule"&&(entry.Section is not ("facts" or "execution" or "index" or "templates")||!entry.Path.StartsWith("Docs/rules/"+entry.Section+"/",StringComparison.Ordinal)))throw new InvalidDataException("规则正文与板块不一致："+meta);
-                result.Add(entry);
+                result.Add(entry with { Tags = e.TryGetProperty("tags", out var tags) ? NormalizeTags(JsonSerializer.Deserialize<string[]>(tags, Json) ?? []) : [], ResourceRefs = e.TryGetProperty("resourceRefs", out var resources) ? JsonSerializer.Deserialize<ResourceReference[]>(resources, Json) : [] });
             }
         if (result.Select(e => e.Id).Distinct(StringComparer.Ordinal).Count() != result.Count) throw new InvalidDataException("文档编号重复");
         loadedVersion = observed;
@@ -101,6 +101,8 @@ public sealed class DocumentLibrary : IDisposable
         try
         {
             var node = JsonSerializer.SerializeToNode(new { id, code, title, type, domain, path = relative, version = 1, createdAt = DateTimeOffset.Now }, Json)!.AsObject();
+            node["tags"] = JsonSerializer.SerializeToNode(new[] { domain }, Json);
+            if (type == "plan") { node["plannedChanges"] = new System.Text.Json.Nodes.JsonArray(); node["resourceRefs"] = new System.Text.Json.Nodes.JsonArray(); }
             if(type=="rule")node["section"]=folder;
             if (type != "rule") node["status"] = type == "requirement" ? "激活" : "准备";
             if (type == "plan") { node["requirements"] = JsonSerializer.SerializeToNode(requirements ?? []); node["requirementRefs"] = RequirementRefs(requirements ?? []); }
@@ -157,6 +159,7 @@ public sealed class DocumentLibrary : IDisposable
             { "准备" => ["执行"], "执行" => ["测试"], "测试" => ["校正", "验收"], "校正" => ["执行", "测试"], "验收" => ["校正", "关闭"], _ => [] };
             if (!allowed.Contains(status)) throw new ArgumentException("此生命周期不支持所选转换");
             if (entry.Type == "plan" && status == "执行" && obj["requirements"]!.AsArray().Count == 0) throw new InvalidOperationException("计划进入执行前必须引用具体需求");
+            if (entry.Type == "plan" && status == "执行" && obj["estimateStatus"] == null && (obj["plannedChanges"]?.AsArray().Count ?? 0) == 0) throw new InvalidOperationException("计划进入执行前必须在资料索引中预估新增/修改/删除文件");
             if (entry.Type == "plan" && status is "关闭")
             {
                 if (string.IsNullOrWhiteSpace(conclusion) || conclusion.Length > 4000) throw new ArgumentException("结束计划需要填写验收或取消结论");

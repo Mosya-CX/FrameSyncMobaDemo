@@ -82,18 +82,25 @@ public sealed class ProjectContext
         File.WriteAllText(identityTemp,JsonSerializer.Serialize(new { root=Root,key=Key },DocumentLibrary.Json));File.Move(identityTemp,identity,false);
     }
 }
-public sealed record WorkspaceView(string Page="chat",string? ReviewId=null,string? DocumentId=null,string Mode="discuss-requirement",string? ToolId=null,bool ShowMeta=false);
-public sealed class WorkspaceViewStore(ProjectContext project)
+public sealed record WorkspacePreferences(string Mode="discuss-requirement");
+public sealed class WorkspacePreferencesStore(ProjectContext project)
 {
     private readonly object gate=new();
-    private string PathForState => project.StatePath("view.json");
-    public WorkspaceView Read()
+    private string PathForState => project.StatePath("preferences.json");
+    private string LegacyViewPath => project.StatePath("view.json");
+    public WorkspacePreferences Read()
     {
-        lock(gate)return File.Exists(PathForState)?JsonSerializer.Deserialize<WorkspaceView>(File.ReadAllText(PathForState),DocumentLibrary.Json)??new():new();
+        lock(gate)
+        {
+            var preferences=File.Exists(PathForState)?JsonSerializer.Deserialize<WorkspacePreferences>(File.ReadAllText(PathForState),DocumentLibrary.Json)??new():File.Exists(LegacyViewPath)?JsonSerializer.Deserialize<WorkspacePreferences>(File.ReadAllText(LegacyViewPath),DocumentLibrary.Json)??new():new();
+            if(!File.Exists(PathForState) && File.Exists(LegacyViewPath))Save(preferences);
+            if(File.Exists(LegacyViewPath))File.Delete(LegacyViewPath);
+            return preferences;
+        }
     }
-    public void Save(WorkspaceView view)
+    public void Save(WorkspacePreferences preferences)
     {
-        if(view.Page is not ("chat" or "requirement" or "plan" or "rule" or "review" or "tools") || view.Mode is not ("discuss-requirement" or "formulate-plan" or "execute-task"))throw new ArgumentException("无效工作台页面或模式");
-        lock(gate){string temp=project.StatePath("view.json.tmp");File.WriteAllText(temp,JsonSerializer.Serialize(view,DocumentLibrary.Json));File.Move(temp,PathForState,true);}
+        if(preferences.Mode is not ("discuss-requirement" or "formulate-plan" or "execute-task"))throw new ArgumentException("无效工作模式");
+        lock(gate){string temp=project.StatePath("preferences.json.tmp");File.WriteAllText(temp,JsonSerializer.Serialize(preferences,DocumentLibrary.Json));File.Move(temp,PathForState,true);}
     }
 }

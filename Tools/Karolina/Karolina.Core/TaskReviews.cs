@@ -17,6 +17,10 @@ public sealed class ReviewFile
     public string Fingerprint { get; set; } = "";
     public string Decision { get; set; } = "待审批";
     public List<ReviewNote> Notes { get; set; } = [];
+    public string Origin { get; set; } = "unknown";
+    public string OriginEvidence { get; set; } = "尚无可核对的写入来源";
+    public string Brief { get; set; } = "";
+    public ReviewNarrative? Explanation { get; set; }
 }
 public sealed record ReviewAttempt(int Round, string Summary, string Feedback, DateTimeOffset ReturnedAt, ReviewFile[] Files);
 public sealed class TaskReview
@@ -41,10 +45,11 @@ public sealed class TaskReview
     public Dictionary<string, ReviewFileState> Baseline { get; set; } = new(StringComparer.Ordinal);
     public List<ReviewFile> Files { get; set; } = [];
     public List<ReviewAttempt> Attempts { get; set; } = [];
+    public Dictionary<string, ReviewFileState?> ProvenAgentVersions { get; set; } = new(StringComparer.Ordinal);
 }
 
 /// <summary>任务开始前的真实工作区快照；从不读取 HEAD、修改索引或回滚 Unity 文件。</summary>
-public sealed class TaskReviewStore
+public sealed partial class TaskReviewStore : IDisposable
 {
     private const int TextLimit = 2_000_000;
     private readonly string root, storage, blobs;
@@ -56,6 +61,7 @@ public sealed class TaskReviewStore
         root = context.Root;
         storage = context.StatePath("reviews");
         blobs = context.StatePath("reviews/text"); Directory.CreateDirectory(blobs);
+        WatchScopes();
     }
     private string RecordPath(string id)
     {
@@ -74,6 +80,7 @@ public sealed class TaskReviewStore
     }
     private string SafeFile(string relative)
     {
+        if (relative.Contains('\\') || relative.Contains(':') || relative.Split('/').Any(p => p is "" or "." or "..")) throw new ArgumentException("文件必须为规范项目相对路径");
         if (!(relative.StartsWith("Assets/", StringComparison.Ordinal) || relative.StartsWith("Packages/", StringComparison.Ordinal) || relative.StartsWith("ProjectSettings/", StringComparison.Ordinal))) throw new ArgumentException("文件不在 Unity 审批范围");
         string path = Path.GetFullPath(Path.Combine(root, relative));
         if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("文件路径越界");
@@ -194,11 +201,12 @@ public sealed class TaskReviewStore
         var changes = new List<ReviewFile>();
         foreach (string path in task.Baseline.Keys.Union(after.Keys, StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
+            if (path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)) continue;
             task.Baseline.TryGetValue(path, out var before); after.TryGetValue(path, out var current);
             if (before?.Hash == current?.Hash) continue;
             string fingerprint = RequirementStore.Hash(Encoding.UTF8.GetBytes(path + "\0" + before?.Hash + "\0" + current?.Hash));
             var previous = task.Files.Find(f => f.Path == path && f.Fingerprint == fingerprint);
-            changes.Add(new ReviewFile { Path = path, Before = before, After = current, Kind = before == null ? "新增" : current == null ? "删除" : "修改", Fingerprint = fingerprint, Decision = previous?.Decision ?? "待审批", Notes = previous?.Notes ?? [] });
+            changes.Add(new ReviewFile { Path = path, Before = before, After = current, Kind = before == null ? "新增" : current == null ? "删除" : "修改", Fingerprint = fingerprint, Decision = previous?.Decision ?? "待审批", Notes = previous?.Notes ?? [], Origin = previous?.Origin ?? "unknown", OriginEvidence = previous?.OriginEvidence ?? "尚无可核对的写入来源", Brief = previous?.Brief ?? "", Explanation=previous?.Explanation });
         }
         foreach(var added in changes.Where(f=>f.Before==null).ToArray())
         {
@@ -208,6 +216,8 @@ public sealed class TaskReviewStore
             added.Fingerprint=RequirementStore.Hash(Encoding.UTF8.GetBytes(deleted.Path+"\0"+added.Path+"\0"+added.Before?.Hash+"\0"+added.After?.Hash));
             var previous=task.Files.Find(f=>f.Path==added.Path&&f.Fingerprint==added.Fingerprint);
             added.Decision=previous?.Decision??"待审批";added.Notes=previous?.Notes??[];changes.Remove(deleted);
+            added.Origin=previous?.Origin??"unknown";added.OriginEvidence=previous?.OriginEvidence??"尚无可核对的写入来源";added.Brief=previous?.Brief??"";
+            added.Explanation=previous?.Explanation;
         }
         return changes;
     }
@@ -219,7 +229,7 @@ public sealed class TaskReviewStore
         {
             var task = Read(id); Expected(task, revision);
             if (task.State is "已通过" or "待再执行") throw new InvalidOperationException("已通过或已退回的任务不能提交旧版本");
-            task.Files = Changes(task, await Capture(ct)); task.Summary = summary.Trim(); task.State = "待审批"; task.Revision++; Save(task); return task;
+            task.Files = Summarize(Changes(task, await Capture(ct))); task.Summary = summary.Trim(); task.State = "待审批"; task.Revision++; Save(task); return task;
         }
         finally { gate.Release(); }
     }
@@ -231,8 +241,10 @@ public sealed class TaskReviewStore
             var task = Read(id); Expected(task, revision);
             if (task.State != "待审批") throw new InvalidOperationException("任务尚未提交审批");
             var file = task.Files.SingleOrDefault(f => f.Path == path) ?? throw new ArgumentException("文件不属于本任务变化");
+            if (file.Origin != "agent" || path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("只能审批确认属于Agent的文件；人工文件和来源待确认文件不进入审批");
             var latest=await Capture(ct);latest.TryGetValue(path,out var actual);
             if (fingerprint != file.Fingerprint || actual?.Hash != file.After?.Hash || file.OriginalPath!=null&&latest.ContainsKey(file.OriginalPath)) throw new InvalidOperationException("文件内容或路径已变化，请刷新并重新提交审批");
+            if(accept==true&&!HasExplanation(file))throw new InvalidOperationException("请先补齐当前版本的文件操作说明，再批准");
             if (notes.Length > 100 || notes.Any(n => string.IsNullOrWhiteSpace(n.Text) || n.Text.Length > 4000 || n.Side != null && n.Side is not ("before" or "after") || n.Line != null && (n.Line < 1 || n.Side == null))) throw new ArgumentException("注释无效：填写意见，行号必须为正数并指定变更前/后");
             if ((accept == false || accept == null && file.Decision == "不通过") && notes.Length == 0) throw new ArgumentException("驳回文件需要至少一条解释意见");
             foreach (var note in notes.Where(n => n.Line != null))
@@ -256,11 +268,14 @@ public sealed class TaskReviewStore
             if (feedback.Length > 12000) throw new ArgumentException("整体意见过长");
             task.Feedback = feedback.Trim();
             var fresh = Changes(task, await Capture(ct));
-            if (!fresh.Select(f => (f.Path, f.Fingerprint)).SequenceEqual(task.Files.Select(f => (f.Path, f.Fingerprint)))) throw new InvalidOperationException("审批期间工程内容已变化，请重新提交最新差异");
+            if (!fresh.Select(f => (f.Path, f.Fingerprint)).SequenceEqual(task.Files.Where(f => !f.Path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)).Select(f => (f.Path, f.Fingerprint)))) throw new InvalidOperationException("审批期间工程内容已变化，等待后台同步最新差异");
             if (accept)
             {
-                if (task.Files.Any(f => f.Decision == "不通过")) throw new InvalidOperationException("还有不通过的文件，请处理后再批准整体任务");
-                foreach (var file in task.Files) file.Decision = "通过";
+                if (fresh.Any(f => f.Origin == "unknown")) throw new InvalidOperationException("还有来源待确认的文件，请先确认人工/Agent归属");
+                if (fresh.Any(f => f.Origin == "agent" && f.Decision == "不通过")) throw new InvalidOperationException("还有不通过的文件，请处理后再批准整体任务");
+                if (fresh.Any(f => f.Origin == "agent" && !HasExplanation(f))) throw new InvalidOperationException("还有Agent文件缺少当前版本的操作说明，请先补齐再批准");
+                task.Files = fresh;
+                foreach (var file in task.Files.Where(f => f.Origin == "agent")) file.Decision = "通过";
                 task.State = "已通过";
             }
             else
@@ -292,22 +307,23 @@ public sealed class TaskReviewStore
         finally { gate.Release(); }
     }
     public string FeedbackPrompt(TaskReview task) => $"计划：{task.PlanId}，任务：{task.Title}，第 {task.Round + 1} 次执行。保留既有工作，不自动回滚。\n整体审批意见：{task.Feedback}\n" + string.Join('\n', task.Files.Where(f => f.Decision == "不通过").Select(f => f.Path + "：\n" + string.Join('\n', f.Notes.Select(n => (n.Line == null ? "文件" : $"{(n.Side == "before" ? "变更前" : "变更后")}第 {n.Line} 行") + "：" + n.Text))));
-    private string? Text(ReviewFileState? version)
+    private string? Text(ReviewFileState? version, bool trimBom = true)
     {
         if (version?.TextBlob == null) return null;
         if (!System.Text.RegularExpressions.Regex.IsMatch(version.TextBlob, "^[a-f0-9]{64}$")) throw new InvalidDataException("文本快照编号损坏");
         byte[] bytes = File.ReadAllBytes(context.StatePath("reviews/text/"+version.TextBlob));
         if (RequirementStore.Hash(bytes) != version.Hash) throw new InvalidDataException("文本快照内容损坏");
-        return Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF');
+        string text = Encoding.UTF8.GetString(bytes); return trimBom ? text.TrimStart('\uFEFF') : text;
     }
     public object Diff(string id, string path)
     {
         var task = Get(id); var file = task.Files.SingleOrDefault(f => f.Path == path) ?? throw new ArgumentException("文件不属于本次任务");
-        string? before = Text(file.Before), after = Text(file.After);
-        bool text = (file.Before == null || before != null) && (file.After == null || after != null);
+        if (path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("导入元数据不参与任务审批");
+        string? before = IsCodeFile(path)?Text(file.Before):null, after = IsCodeFile(path)?Text(file.After):null;
+        bool text = IsCodeFile(path) && (file.Before == null || before != null) && (file.After == null || after != null);
         bool tooManyLines = text && (before?.Count(c=>c=='\n') ?? 0) + (after?.Count(c=>c=='\n') ?? 0) > 6000;
         if(tooManyLines)text=false;
-        return new { file, text, lines = text ? LineDiff(before ?? "", after ?? "") : [], message = text ? "" : tooManyLines ? "文本行数超过内置差异容量（前后共 6000 行），请在编辑器检查并添加文件整体意见。内容指纹仍完整核验；没有截断后冒充完整差异。" : "二进制、非 UTF-8 或超过 2 MB 的资源：比较大小和 SHA-256，详细资源内容请在 Unity/对应编辑器检查。" };
+        return new { file, text, isCode=IsCodeFile(path), explanation=file.Explanation, lines = text ? LineDiff(before ?? "", after ?? "") : [], message = text ? "" : IsCodeFile(path) ? "代码超过差异展示容量；先阅读Agent说明。" : "资源审批仅展示Agent操作说明，不展示资源序列化内容。" };
     }
     // 有界 LCS；大文本按共同前后缀显示完整变化，避免二次复杂度冻结页面。
     private static object[] LineDiff(string before, string after)

@@ -6,8 +6,9 @@ if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
 $karolinaProject = Join-Path $PSScriptRoot 'Karolina.Desktop/Karolina.Desktop.csproj'
 $artifactRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'artifacts'))
 $karolinaOutput = Join-Path $artifactRoot 'current'
+$desktopRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'Karolina.Desktop'))
 $activeApps = @(Get-CimInstance Win32_Process -Filter "name='Karolina.Desktop.exe'" | Where-Object {
-    $_.ExecutablePath -and ([IO.Path]::GetFullPath($_.ExecutablePath)).StartsWith($artifactRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)
+    $_.ExecutablePath -and (([IO.Path]::GetFullPath($_.ExecutablePath)).StartsWith($artifactRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or ([IO.Path]::GetFullPath($_.ExecutablePath)).StartsWith($desktopRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase))
 })
 if ($activeApps.Count -gt 0) { throw 'Karolina 正在运行。请从系统托盘选择“完全退出”后重新运行启动入口；窗口 X 只收起到托盘，更新仍使用同一个 current 目录。' }
 & dotnet build $karolinaProject -c Release --output $karolinaOutput --nologo -v minimal
