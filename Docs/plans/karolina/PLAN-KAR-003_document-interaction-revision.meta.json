@@ -33,5 +33,27 @@
       "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
       "kind": "本轮真实验收报告（原报告证据已归入计划）"
     }
+  ],
+  "tags": [
+    "Karolina"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Tools/Karolina/Karolina.Core/DocumentLibrary.cs",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "15930328f305c2d07b6d1ff533b2bfb9cf50b2ca103c75d48086cc0cdd0dbc37"
+    },
+    {
+      "path": "Tools/Karolina/Karolina.Desktop/Web/features/documents.js",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "a539b59cf3375c77c7fb6f9db3cf1f739a01d44187d92ac14dfa3b40c45fc812"
+    },
+    {
+      "path": "Tools/Karolina/Karolina.Desktop/Web/ui/document-index.js",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "ab2b89162591fb36162386cfbd68c8f8855c0499d68991bce76317de546639ec"
+    }
   ]
 }

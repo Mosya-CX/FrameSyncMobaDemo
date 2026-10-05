@@ -115,5 +115,37 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "表现界面"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs",
+      "hash": "669146600ce73f40a9e22a078b633dd7e52999ae4ac13b4f6c5caf7e4efbb0cf",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "hash": "1e72619a82a73347049f630c5e2d21873f58c6efa57da31571cb57205f41f55e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIPanel.cs",
+      "hash": "5154f571ebf53cddda21161beb5cbbe5b62acbe8299cd49fdd02115019ab71e1",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaHost.cs",
+      "hash": "ae3774f0bf81963e77cbbae867a7d1321a1d456513cbca80f88c68094ee1328d",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/LuaHostAndManagerTests.cs",
+      "hash": "c45d9b57fd30e8b905adcf26200cbd2d5467aef7f63192ffe8cae7a560a491aa",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

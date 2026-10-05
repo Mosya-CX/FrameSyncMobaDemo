@@ -47,5 +47,27 @@
     "taskReviewMechanism": "13核心+18HTTP/DOM通过",
     "evidencePath": "Docs/plans/karolina/PLAN-KAR-005_review-mechanism-evidence.json",
     "pending": "真实Codex修复执行与用户人工验收；不关闭计划。"
-  }
+  },
+  "tags": [
+    "Karolina"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Tools/Karolina/Karolina.Core/TaskReviews.cs",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "2fecc90bc733cbeee452a35e04bf3fbabf1816e13a95232bc5386d1fedecea18"
+    },
+    {
+      "path": "Tools/Karolina/Karolina.Desktop/Workbench.Reviews.cs",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "6550630d46449bd9ae7bcbac3f02693105283882ad2b41095aab5ea9d352e1f6"
+    },
+    {
+      "path": "Tools/Karolina/Karolina.Desktop/Web/review.js",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "752fc91f284cb42e421ad10ea4dca3e578c313b4e40189ea4e728fe9c86905d1"
+    }
+  ]
 }

@@ -125,5 +125,72 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "配置资源"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Bootstrap/CameraController.cs",
+      "hash": "006410143cd507b54c6499f71f5a88470416aa46dab7ab4751d9100935cdf3a3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/ClientUnitOutline.cs",
+      "hash": "b09ee664b68b0d3f237997e9043b24e568f10b5224d32942bbafdc47201543f9",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitPrefabAnimatorTopologyTests.cs",
+      "hash": "6f0f826f2088d4f446742d954f9fb7659d9dfca3b17b56572acf88af07e97613",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
+      "hash": "fed06d326754867f9a05468c81b6f1aaa5428753e1230397310bbd4c54cde4e7",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
+      "hash": "1e37183d31d9b782b58e0c8b2f6e9c221ab17bf5f26443111ae407d0566325aa",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/BuffDrivenBoneVisibility.cs",
+      "hash": "2616789c635b104d3e8d2d109a9997cf63a1aa87b4c417baa01ae5ef97bc78d5",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AatroxAbilityZoneAuthoringGizmo.cs",
+      "hash": "8f0e869fa9d93fda201d424eb8dd5e3c8c57c377b75ea8c259d4bb29340967b0",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Attack/AttackHandler.cs",
+      "hash": "c40b6b714223a33ea344cd9989fcc2aa969a59fb66a0ec130925e8bac21692c5",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Presentation/UnitAnimationProfile.cs",
+      "hash": "f572e1a0b26fbfd93de4d15a079b68f2cf92382f6bd721598b5884459cb37078",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Presentation/VfxEvent.cs",
+      "hash": "e517d0404a714181a6b5fb2e3febbd79bddd3b6374280b9f96bb4d3fd58c1159",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Projectile/ProjectileContainmentZoneAuthoring.cs",
+      "hash": "625ccfc207ff6ced067a2efd0a30b3c4baeda19eb7d2016bea98e524319c6189",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+      "hash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

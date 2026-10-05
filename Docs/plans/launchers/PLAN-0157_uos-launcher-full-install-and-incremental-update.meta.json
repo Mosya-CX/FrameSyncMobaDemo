@@ -93,5 +93,32 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "启动器"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Tools/UosGameLauncher/CdnContracts.cs",
+      "hash": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Tools/UosGameLauncher/CdnUpdater.cs",
+      "hash": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+      "hash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Tools/UosGameLauncher/LauncherServices.cs",
+      "hash": "c50847dab2aa9cc32da4d002bfdb7de5c993c691ad9b2b72f2ab167533492b30",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

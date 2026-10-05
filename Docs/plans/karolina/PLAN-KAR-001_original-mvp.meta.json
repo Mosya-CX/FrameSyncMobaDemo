@@ -52,5 +52,32 @@
   "evidence": [],
   "closedAt": "2026-10-02",
   "outcome": "取消",
-  "conclusion": "历史计划已取消，由后续独立计划承接。"
+  "conclusion": "历史计划已取消，由后续独立计划承接。",
+  "tags": [
+    "Karolina"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Tools/Karolina/Karolina.Core/CodexConnection.cs",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "44fd324f59d1f25dab16fc5ef823a51532e043e1580ada0371190fe422d448d8"
+    },
+    {
+      "path": "Tools/Karolina/Karolina.Core/McpClient.cs",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "d9cf57b9e4881cb769d649c86f3121cc2254b3f0ec99ce958bdd6c169b55db5f"
+    },
+    {
+      "path": "Tools/Karolina/Karolina.Core/Processes.cs",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "d89d1e4632b8fc418bf172a04780b229fa689c8277efd9f59d6ca830aa40b92f"
+    },
+    {
+      "path": "Tools/Karolina/Karolina.Desktop/Workbench.cs",
+      "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
+      "hash": "6011dfd7fed51b5d662f0aa68c3d2049ba55d2f89ae1add5653caa03a69511c1"
+    }
+  ]
 }
