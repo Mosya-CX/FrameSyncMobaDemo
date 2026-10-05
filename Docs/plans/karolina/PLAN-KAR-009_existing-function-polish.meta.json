@@ -517,18 +517,6 @@
       "evidence": "r3实际源码/需求，编译与只读审查；不表示新增行为测试或人工验收通过"
     },
     {
-      "path": "Tools/Karolina/Karolina.Tests/FunctionPolishChecks.cs",
-      "hash": "366ad101e1413df8843ff778356488b40babf22f477045b8a0ba475ad72bcce6",
-      "operation": "add",
-      "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
-      "path": "Tools/Karolina/maintenance/document-resource-index.py",
-      "hash": "17e0412a9a7b67ffbae30e55d8d1d932a26641930c3c2c6345ea81b036396112",
-      "operation": "add",
-      "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
       "path": "Tools/Karolina/Karolina.Core/ReviewProvenance.cs",
       "hash": "92b34ce553fc496c55db1602d40f84dcda113be0858a483ca8fa3866da482134",
       "operation": "add",
@@ -544,24 +532,6 @@
       "path": "Tools/Karolina/Karolina.Desktop/Web/ui/application-zoom.js",
       "hash": "3ab4668ac7e2d01a4b8db8c5eb1255d7ca8718cd02a6315b010bae09cbcad19c",
       "operation": "add",
-      "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
-      "path": "Tools/Karolina/maintenance/verify_function_polish.py",
-      "hash": "6abd38fb7d4b3ab71c38f57f0277715bd97c496a775564752903dcb16c6a1535",
-      "operation": "add",
-      "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
-      "path": "Tools/Karolina/Karolina.Tests/TaskReviewChecks.cs",
-      "hash": "ef830c616a689ae76ccec14f85b7cc949947899a64affdb9f579e48e24ca01f9",
-      "operation": "modify",
-      "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
-      "path": "Tools/Karolina/Karolina.Tests/Program.cs",
-      "hash": "c293eaebe8de0c70381dcdbd5ee2d04043025998b08fe92b0f08a0fc6dbc7224",
-      "operation": "modify",
       "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
     },
     {
@@ -599,60 +569,6 @@
       "hash": "64a16f07db4bcce4641ed449fc98666aec05309d7caf1a351ec3afd2b738d55e",
       "operation": "modify",
       "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
-      "path": "Docs/tools/registry/build-local-both.tool.json",
-      "operation": "add",
-      "hash": "db01db71a6fff6cd32c2c1d5074eccc6201cd685393145e5e9349409299bb4ed",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/build-local-client.tool.json",
-      "operation": "add",
-      "hash": "3c21b294d76914fb0ec53f96f16965e6fdb0c37960dfaa3c16e19e67492d5607",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/build-local-server.tool.json",
-      "operation": "add",
-      "hash": "b7ce308700ab0b8e02afbe070e72f37f7e4652eec7664231c082c992010ffebf",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/build-uos-both.tool.json",
-      "operation": "add",
-      "hash": "b00b490701e390d7a82540e50e12a0300eb541e3d6740aac6499b78fd1f3396d",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/build-uos-client.tool.json",
-      "operation": "add",
-      "hash": "0f8d83d62943a8667b0afa8c8f1caa184ff19e35a0666bbc7991af95fddc057b",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/build-uos-server.tool.json",
-      "operation": "add",
-      "hash": "e5947dbcd685318dcd5cdd4a77973f6b1a5213a895530965df8e740a3fb4b24d",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/open-release-build.tool.json",
-      "operation": "add",
-      "hash": "7fc096dc438ebe21b582d086807f3214924a4211515db5e7275993ad6d36cc81",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/open-uos-client-gui.tool.json",
-      "operation": "add",
-      "hash": "405b99dee5322d7de8b1df130032910d50ba3f514f1855835a1f1154b5fd170a",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
-    },
-    {
-      "path": "Docs/tools/registry/open-game-launcher-gui.tool.json",
-      "operation": "add",
-      "hash": "33b4f583710cf8e985b729da49e1fcca1d482bc85e083e36a51c2ea771bdc012",
-      "evidence": "本计划落地功能所在文件，源码与临时夹具机器/Agent复核；该哈希为关联时快照，不是生产人工通过或整个文件作者声明"
     },
     {
       "path": "Docs/tools/registry/guide-001.tool.json",
@@ -693,18 +609,6 @@
     {
       "path": "Tools/Karolina/Karolina.Desktop/Web/ui/review-explanation.js",
       "hash": "5a6f40b7eae3866338b607eb12cd1a85cd60726d65061c8a795326ca44526fe9",
-      "operation": "add",
-      "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
-      "path": "Tools/Karolina/Karolina.Tests/FunctionReworkChecks.cs",
-      "hash": "02621075001aaed2eebf820ce3a2a34fb793463e8accfe2ed768bf01247b1054",
-      "operation": "add",
-      "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
-    },
-    {
-      "path": "Tools/Karolina/maintenance/verify_function_rework.py",
-      "hash": "916b17235db5578ee517899af42d8633af16fd89b49924e89bd24217dd711a46",
       "operation": "add",
       "evidence": "本轮功能校正实际源码/文档；机器证据另列，不表示人工验收已通过"
     },
