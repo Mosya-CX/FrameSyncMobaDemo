@@ -161,5 +161,62 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "战斗"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs",
+      "hash": "6d49fae34c4e0b5b22c31cb5fdad8038d43388516e67a40cbcda22666e2f6025",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "hash": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
+      "hash": "85cc4ebf2926faa8cf30e41772498c60ef9f0bdaab991be2e08cbdd2fd9fd7a2",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+      "hash": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "hash": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Presentation/SfxEvent.cs",
+      "hash": "81212ee11892db589ef5f02a1b8d3f441ebe329a80b1e0c586036f573e7bff4e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Stats/StatId.cs",
+      "hash": "fb3bd022a64012c7ca8d82f3b3f3552ed38ecf421c38e6401ab87e6af836d685",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+      "hash": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "hash": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalGameplayData.cs",
+      "hash": "1b0f7c44a40958748013b9b385f21c624b34804deb6147ca593d00e8283ec906",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

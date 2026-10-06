@@ -151,5 +151,67 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "空间物理"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+      "hash": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "hash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+      "hash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+      "hash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsBounds2D.cs",
+      "hash": "8a25fd6795092a98e40b933f40b3d2d2ae8d71edcba219e66803e8f7f2d5f152",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
+      "hash": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
+      "hash": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Geometry/PhysicsShapeKind.cs",
+      "hash": "d46f5a044df8b269e80916f8cf5325a76b8e925b120e0030733dfa8eccbf08bd",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
+      "hash": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
+      "hash": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
+      "hash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

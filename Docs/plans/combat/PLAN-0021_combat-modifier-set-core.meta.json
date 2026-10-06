@@ -149,5 +149,52 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "战斗"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Deterministic/Serialization/DeterministicHash32.cs",
+      "hash": "51689376301b852d6f11e6cda9fa8756b12fc00a013cd39aca5664f0833449fa",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/DeterministicHash32Tests.cs",
+      "hash": "63d381f2c8985fa2ed1caff334b9a1785fc05e9bd8eadc3b62c3f29e26479d52",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierHandle.cs",
+      "hash": "274b2c2f3c98868e73405883a0c4792c6598a60d5c7ec7ef248e141e28f0b0f9",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierId.cs",
+      "hash": "815213dceb5b2795e976644eaa86271610e678abc3ee4c1c5dddbdbb1b68a229",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierRecord.cs",
+      "hash": "5491ccdf89dc3eb18db46689b554f472d2a5408542a6d17f5333430513d7090a",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Modifiers/CombatModifierSet.cs",
+      "hash": "ced978458335a59a6c0eeb2aa2e5d98cf8795e481d24d42ea8857ce82b279f13",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatModifierSetTests.cs",
+      "hash": "f81802453cec9dc6eadc5aa2bf2077a009e60a33cfc20aa1de26d76392a542f7",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "hash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

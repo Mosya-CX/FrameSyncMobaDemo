@@ -161,5 +161,62 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "比赛流程"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Bootstrap/ClientBootstrap.cs",
+      "hash": "29775005d926a780d598c1264bd4da7911f7e3c00fcba7e456c6a782e5fd6720",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "hash": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/GameSessionContext.cs",
+      "hash": "393230ca8865187f00d2ceb257bc4216ef8f870fb0e160258650305245d329e9",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LobbyFlowController.cs",
+      "hash": "94357c08e27284f158ef93daf1953081404827307526e3bcf642977b2b5bd794",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LobbyNetworkBridge.cs",
+      "hash": "d0f1583f9bf5ae29edc9bd94b7cd70d9a8bd297f6da11835009c3b6343eeff93",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/LocalNgoEndpointDriver.cs",
+      "hash": "13f2d371cc45f74acd9e1614c9083ddb06d896f48bf2e50764a2bde23d03f061",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/ServerBootstrap.cs",
+      "hash": "07e155923631cd465aa142726e7b93ea86142293d134db86b3aeb1c0cd0cc1d6",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+      "hash": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "hash": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
+      "hash": "036a36534c091288c147776865aca1c193e223e00e62d3123a0038b308c75b33",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

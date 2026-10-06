@@ -159,5 +159,47 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "帧同步"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncDiagnosticBuildOptionsTests.cs",
+      "hash": "407d8d366fd29eeddfc7dc4fc3b6ee78da79cc74bb184fc9c88e4f22bd5f30fc",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameSyncLaunchScheduleTests.cs",
+      "hash": "72ea8439806b8a54cff8c611773ef41cb5dbc8401b5d0de65666115c5082106e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchLaunchProtocolTests.cs",
+      "hash": "0fab846f748ce718a5e128203bc32740833f71e82f6d68dd2541c516ab176003",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+      "hash": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/NonHeroRestoreHelper.cs",
+      "hash": "3ba545a3af69471848784d29699f3a6f092d419290af312438760263836f4260",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
+      "hash": "d68ba882f228cf25f5553fb473302d3853d4cbf79ac21ebfbfc18b7f17da2b05",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "hash": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

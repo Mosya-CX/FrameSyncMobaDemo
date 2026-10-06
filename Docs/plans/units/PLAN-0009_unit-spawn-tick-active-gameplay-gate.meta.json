@@ -129,5 +129,62 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "单位"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Bootstrap/AssemblyInfo.cs",
+      "hash": "c691ebb060260ec62cad8d21555f780d80869af82e2a0fd11374fdd4af478254",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/AssemblyInfo.cs",
+      "hash": "3cfa9dfcda7e34e29b5789d2d32f5906b33db561f9763058a657f990a843ecc3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/AssemblyInfo.cs",
+      "hash": "dadcce87c1380ec2f94729d39952cec3eadef68c9f14f0a509d4bfc5add0b611",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/AssemblyInfo.cs",
+      "hash": "be2158c90ee3d5dd45ed2fa071d9bbacb789560f6fa31e1a525192d7b442f5f9",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitActiveGameplayGateTests.cs",
+      "hash": "88bb5b493d113f68251b3f5d30e585ef43dcf86ac93ea243febe603c6c4ee2d7",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/UnitAssemblyBoundaryTests.cs",
+      "hash": "29711a25159499f04f6a4091299b4bb3adf63b20369e8b95b41d69b8871622a0",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "hash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "hash": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Physics/AssemblyInfo.cs",
+      "hash": "92228514ee157f99a16dc3bf4b9b0198d8180e9ad7830cbf5c586a107745e81c",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/AssemblyInfo.cs",
+      "hash": "e1a5ac406732bc31ded5221710d9fa25bb668506919f1e6d6ef56845382f726e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

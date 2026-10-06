@@ -151,5 +151,67 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "增益"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffBlackboard.cs",
+      "hash": "5f94f512eb62b58dace61529df69bff870c1f15578ae7feabdf3c007626413b5",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffConfigId.cs",
+      "hash": "d06debd1840fb3ad521cb6e39312312946a18fe8559279d33f6fa7cb58bd447e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffEffect.cs",
+      "hash": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+      "hash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffLifeRule.cs",
+      "hash": "a8b71953e9cee734ba9d93b3b930e73690021a4cc39ce082c37653bc8992097d",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffRuntime.cs",
+      "hash": "2356c459efa4d25efff15d22c8ca0d9d9b3826d0bec73ed0e94de53c73c6535a",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffSnapshot.cs",
+      "hash": "7e32b28e1d330ac3b3037a84504c362203fdfaaae8dd344b69457c0c0a7c7559",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+      "hash": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+      "hash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+      "hash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "hash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

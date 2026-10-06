@@ -157,5 +157,72 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "表现界面"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+      "hash": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+      "hash": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/UIManagerPrefabPlayModeTests.cs",
+      "hash": "3b7a4bbb55afda58a15b8e6cd986792475689e3de037c6cbff2ca533b9107573",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "hash": "1e72619a82a73347049f630c5e2d21873f58c6efa57da31571cb57205f41f55e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIPanel.cs",
+      "hash": "5154f571ebf53cddda21161beb5cbbe5b62acbe8299cd49fdd02115019ab71e1",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/FrameSyncGameRuntime.cs",
+      "hash": "adde5fb9fddeca5016b5ea38bd16762913d29d7d152938519de83a9c36c5345c",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaHost.cs",
+      "hash": "ae3774f0bf81963e77cbbae867a7d1321a1d456513cbca80f88c68094ee1328d",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/LuaManager.cs",
+      "hash": "7463c03f2d76a75b33066a0e9c37a3c0751aced2ac69109b60794b7b7fdaef7f",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/LuaHostAndManagerTests.cs",
+      "hash": "c45d9b57fd30e8b905adcf26200cbd2d5467aef7f63192ffe8cae7a560a491aa",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/Tests/UIDisplayConvertTests.cs",
+      "hash": "03f6b193a46aa898501d6e06aa404f62b63bc54eb37908aaa710e455b80657f3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/LuaBridge/UIRef.cs",
+      "hash": "4ebbd87469f4d3c6ad361b8186875ed97a405cab5298378bab997d14840cb99f",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+      "hash": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

@@ -92,5 +92,42 @@
     }
   ],
   "closedAt": "2026-10-02T21:34:27.130951+08:00",
-  "conclusion": "用户本轮明确确认该计划应已关闭，按用户确认结束原执行批次。本轮仅核对记录，没有重跑 Unity 测试、资源构建或配套运行，不把本轮关闭登记当作新机器通过证据。"
+  "conclusion": "用户本轮明确确认该计划应已关闭，按用户确认结束原执行批次。本轮仅核对记录，没有重跑 Unity 测试、资源构建或配套运行，不把本轮关闭登记当作新机器通过证据。",
+  "tags": [
+    "帧同步"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Deterministic/Core/SimulationTickContext.cs",
+      "hash": "32bfbdb6c1e9a977b8ae81f53ebc4f117b560190616f0445dd0d527b60342ab2",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Deterministic/Tests/SimulationTickContextTests.cs",
+      "hash": "84bf58f82b2c1d45b0cd739e2a167698ed32b1a57eae5a8353635102c97b2b88",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+      "hash": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+      "hash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+      "hash": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+      "hash": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

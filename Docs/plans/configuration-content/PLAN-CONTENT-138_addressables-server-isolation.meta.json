@@ -152,5 +152,42 @@
     }
   ],
   "closedAt": "2026-10-02T21:34:27.130951+08:00",
-  "conclusion": "用户本轮明确确认该计划应已关闭，按用户确认结束原执行批次。本轮仅核对记录，没有重跑 Unity 测试、资源构建或配套运行，不把本轮关闭登记当作新机器通过证据。"
+  "conclusion": "用户本轮明确确认该计划应已关闭，按用户确认结束原执行批次。本轮仅核对记录，没有重跑 Unity 测试、资源构建或配套运行，不把本轮关闭登记当作新机器通过证据。",
+  "tags": [
+    "配置资源"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/Bootstrap/UI/UIManager.cs",
+      "hash": "1e72619a82a73347049f630c5e2d21873f58c6efa57da31571cb57205f41f55e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/ClientContent/IClientContentService.cs",
+      "hash": "2af92dd89cd8c875c38708b6d8b0f5642003e3ffb119307fae0d653d8e720751",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+      "hash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+      "hash": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "hash": "8b22fb5d3631f619f80f7cfc1d6c49957956e4c267d5cc02a9368cdf5327347c",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/RuntimeConfig/GlobalPrefabTable.cs",
+      "hash": "33ad3646e1370759f84437c0b9e88324d557ca1696ff8c8a68e32981a37a2bc9",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }

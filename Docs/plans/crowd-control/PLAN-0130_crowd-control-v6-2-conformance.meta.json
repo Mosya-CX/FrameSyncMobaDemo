@@ -135,5 +135,67 @@
       "kind": "原执行批次对应的当前源码，未重跑行为测试"
     }
   ],
-  "closedAt": "2026-10-02"
+  "closedAt": "2026-10-02",
+  "tags": [
+    "控制"
+  ],
+  "plannedChanges": [],
+  "estimateStatus": "旧计划未记录事前文件预估",
+  "resourceRefs": [
+    {
+      "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+      "hash": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/PullStageDef.cs",
+      "hash": "01fa89a993f373f2e48b25483cbf38abd5b4e3079b06103228fc3932b4322eff",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Ability/Stages/StunStageDef.cs",
+      "hash": "6a43b460b91ec5c65780b4dd18b679853898e03653a0922843e75c80682b6e8d",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Buff/BuffCatalogAsset.cs",
+      "hash": "153d89ec0b8bedfbb3776eab6d67a457f6b0e78774281dd369ed7c125400ef6d",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlCatalogAsset.cs",
+      "hash": "1be35178d60e51341b5c4abe4c335e4cf39b2e2bf0756dbc3641743c4ee9f140",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlDefinition.cs",
+      "hash": "20dbab659d357865c924d0be133daf6efdd7471d593fdd4046b6dfe43cc4d39e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlDefinitionRegistry.cs",
+      "hash": "60a1db732afb3d0759459eae80d24abbfa851d3cf09519b94513c326f16a1207",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlTypes.cs",
+      "hash": "fe13b8e8b334aeaab7bdfea0cc9f27248fddb3fb9dfbebbcb5934572a2d41a6b",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlCatalogAssetTests.cs",
+      "hash": "81a87d71b20bed9a178c0379ccb9e23cb8fffabca0087d5c599dac1fbd4717fb",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
+      "hash": "907f2d57ca92516d8e43114d196384d4d26cdbeec603a2814b7716ee10016c8e",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
+      "hash": "4c9b9506a7f2a49aac9f93214d6d6d1355115a633adde9a71f89840bd549b560",
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+    }
+  ]
 }
