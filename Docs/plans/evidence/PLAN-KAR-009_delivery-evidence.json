@@ -9,13 +9,13 @@
   "sourceIndexHash": "57280890933d2c9960a0089e5494f36bf90eb7291f5b5d52cebbacca3b8e34ca",
   "outputs": [
     {
-      "path": "Tools/Karolina/Karolina.Desktop/bin/Release/net8.0-windows",
+      "path": "Karolina.Desktop/bin/Release/net8.0-windows",
       "webFiles": 126,
       "webMatchesSource": true,
       "desktopDllHash": "9ea494ff04bea3a796af39e328bbf0e7534759ca7bf7dc73353ebca747efa0db"
     },
     {
-      "path": "Tools/Karolina/artifacts/current",
+      "path": "artifacts/current",
       "webFiles": 126,
       "webMatchesSource": true,
       "desktopDllHash": "9ea494ff04bea3a796af39e328bbf0e7534759ca7bf7dc73353ebca747efa0db"

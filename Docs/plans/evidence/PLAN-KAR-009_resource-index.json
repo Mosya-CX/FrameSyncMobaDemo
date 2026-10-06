@@ -76,7 +76,7 @@
       "linked": 2,
       "needsConfirmation": [
         {
-          "path": "Tools/Karolina/Design/KarolinaCharacter/Live2D/OnlineInput",
+          "path": "Design/KarolinaCharacter/Live2D/OnlineInput",
           "reason": "目录或模式无法确认逐文件任务归属"
         }
       ]

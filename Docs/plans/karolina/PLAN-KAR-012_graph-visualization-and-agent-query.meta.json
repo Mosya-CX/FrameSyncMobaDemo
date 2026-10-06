@@ -1,0 +1,486 @@
+{
+  "id": "PLAN-KAR-012",
+  "code": "0177",
+  "title": "图谱可视化与 Agent 主动查询",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.md",
+  "status": "验收",
+  "version": 6,
+  "requirements": [
+    "REQ-KAR-013",
+    "REQ-KAR-016"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-013",
+      "title": "工程代码与 Unity 资源关系图谱",
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "version": 5,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "50196830b406c591bc37bfdf1a4d0158afea45532a4c94c6e74d80ca43d2ceb6"
+    },
+    {
+      "id": "REQ-KAR-016",
+      "title": "Karolina 独立源码仓库",
+      "path": "Docs/requirements/karolina/REQ-KAR-016_standalone-karolina-repository.md",
+      "version": 1,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "3847343047f06bb3d6c168bfb9481a97766e3e59299698187d5fff63f8b877f3"
+    }
+  ],
+  "tags": [
+    "Karolina",
+    "CodeGraph",
+    "ResourceGraph",
+    "MCP",
+    "图谱可视化"
+  ],
+  "plannedChanges": [
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.md",
+      "operation": "add",
+      "reason": "本批实施与验收"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.meta.json",
+      "operation": "add",
+      "reason": "计划独立元数据"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "reason": "登记本批计划"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "operation": "modify",
+      "reason": "用户批准目标演进"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.meta.json",
+      "operation": "modify",
+      "reason": "需求版本"
+    }
+  ],
+  "externalChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraph.cs",
+      "operation": "modify",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraph.Freshness.cs",
+      "operation": "add",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphQuery.cs",
+      "operation": "add",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphTools.cs",
+      "operation": "add",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "add",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph.js",
+      "operation": "modify",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-view.js",
+      "operation": "add",
+      "reason": "全量三维视图、独立详情、相机手势和错误恢复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/project-graph.css",
+      "operation": "modify",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphQueryChecks.cs",
+      "operation": "add",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "README.md",
+      "operation": "modify",
+      "reason": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "reason": "同源状态更新与图谱行为回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphSettingsChecks.cs",
+      "operation": "modify",
+      "reason": "同源状态更新与图谱行为回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ProjectGraphViewChecks.test.mjs",
+      "operation": "add",
+      "reason": "同源状态更新与图谱行为回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphFiles.cs",
+      "operation": "add",
+      "reason": "全量工程文件策略与覆盖统计"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "AGENTS.md",
+      "operation": "modify",
+      "reason": "真实工程全量索引检查范围说明"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-layout.js",
+      "operation": "add",
+      "reason": "实际关系三维分群及XYZ布局，不读取目录、路径或标题"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-layout-worker.js",
+      "operation": "add",
+      "reason": "后台计算布局、错误回执与终止生命周期"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-camera.js",
+      "operation": "add",
+      "reason": "透视相机、视平面平移、旋转、缩放与深度拾取"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-category.js",
+      "operation": "add",
+      "reason": "节点展示分类与布局和渲染分离"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-renderer.js",
+      "operation": "add",
+      "reason": "原生WebGL全量XYZ缓冲、深度测试与GPU生命周期"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.md",
+      "hash": "ca409f87edf606070b0b65f0e236ec47093f712749237acd6564d685f0b021c0",
+      "evidence": "本批文档落地"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "hash": "6c96d69567d60ca0df9530e1dbbbda31198d62f77724440c5e261a75b7cd56e1",
+      "evidence": "本批文档落地"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "hash": "50196830b406c591bc37bfdf1a4d0158afea45532a4c94c6e74d80ca43d2ceb6",
+      "evidence": "本批文档落地"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.meta.json",
+      "hash": "813c252d7ef5975abcd55e124efdf1f1086172554f40f8cb933343e1c48b50dc",
+      "evidence": "本批文档落地"
+    }
+  ],
+  "createdAt": "2026-10-05",
+  "updatedAt": "2026-10-05",
+  "externalRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraph.cs",
+      "hash": "15078629ebad529a4154af91ddead2283adac9addefe739b3669dc746bd2b455",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraph.Freshness.cs",
+      "hash": "88c62da9bb8e888fce07fe416e9ac4f7c0377cfe0dc64c8212a86e6ef330f02d",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphQuery.cs",
+      "hash": "71b960eec889264fc257637085e52b91a6c7eb6a893f24804193aa1b0af61f48",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphTools.cs",
+      "hash": "a3aaf5f9e6e9a5345dd6d7c2b8ebbbac7dfa750faffd5b1fea2c1082d970568d",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "hash": "9adef181a1715a469faabce4afc3adeb1e30f3eac3b4d45745d99941787e1f2d",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "hash": "69481f82eaa36953f29404976a94f8b4e82827d55f97b54f18004ce359174b93",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "hash": "cdfc83093dffffdddf3efa82e4d332e6b725acf39f789c5a456ed9ee6a822a6e",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "hash": "f77b9e8db752baeba66714ad1d80caf3d2dc241e6054bb1af03cd6ea46dcc241",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph.js",
+      "hash": "027dd8dab486729afac03565c784c988480acdd594615352c85c427ca66fed28",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-view.js",
+      "hash": "40335c7888d2c9fa92993cb1267ba86c8a3ee4ed035afba40b959279a20a95d7",
+      "evidence": "全量三维视图、独立详情、相机手势和错误恢复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/project-graph.css",
+      "hash": "ec06b518c91f2f33b3579a550fea91d708e902a16180c43b850b7c5f7dcf982e",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphQueryChecks.cs",
+      "hash": "705ddcee9b2a5eca97bae6c9ea8f7b55402d56c860c9bdfea359b400c97dcf00",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "README.md",
+      "hash": "c1ba9387e2eed298f126eeb5b8d4a8e063dd56603e78cf9ace870de63e9a7f02",
+      "evidence": "图谱可视化与只读查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "hash": "f41b65c8fded7ea4e2866bb03602aa947a1f34de3c852a07ba459c9d8cdb4cd4",
+      "evidence": "同源状态更新与图谱行为回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphSettingsChecks.cs",
+      "hash": "07920961c5b422c1c4758c189a827284380b03c631cad9570b6ccafc5e823900",
+      "evidence": "同源状态更新与图谱行为回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ProjectGraphViewChecks.test.mjs",
+      "hash": "c60deacf63857d7ab093777669cbf4d4e570691f4d3281f1f128939908988654",
+      "evidence": "同源状态更新与图谱行为回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphFiles.cs",
+      "hash": "f8363a4604ad5250a6800023af64535adc9e8ea0b61970f745175957579c793b",
+      "evidence": "全量工程文件策略与覆盖统计"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "AGENTS.md",
+      "hash": "f35dc95404e1435055ec055a22ba84c016ae3edbd48536b4e13afa7b674bdae8",
+      "evidence": "真实工程全量索引检查范围说明"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-layout.js",
+      "hash": "be7d7ba1b12d2249b74ed949de9d8fad308f37ef59245a9d14e6ee61ffa66143",
+      "evidence": "实际关系三维分群及XYZ布局，不读取目录、路径或标题"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-layout-worker.js",
+      "hash": "8f83c927f22d03b67d4e51aaa03481464d3c421c404c70b33456d846fb79e463",
+      "evidence": "后台计算布局、错误回执与终止生命周期"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-camera.js",
+      "hash": "b81dfb375e7828a9f314077efe3d43f4ea053ee3fc09eb2f686405fb7662330d",
+      "evidence": "透视相机、视平面平移、旋转、缩放与深度拾取"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-category.js",
+      "hash": "acfc09b64a014a64c04f59432512ef7720280ac713cd1839f30b8d768fefb9e0",
+      "evidence": "节点展示分类与布局和渲染分离"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-renderer.js",
+      "hash": "f5b9f47e713acbff15e52e09e039d5ae39d2e159ce02942043daf6f988150b79",
+      "evidence": "原生WebGL全量XYZ缓冲、深度测试与GPU生命周期"
+    }
+  ],
+  "evidence": {
+    "releaseBuild": "solution and original EXE: 0 warnings, 0 errors",
+    "graphSettings": "9/9",
+    "node": "10/10",
+    "taskReviews": "13/13",
+    "appearance": "15/15",
+    "realCodexGraphTools": [
+      "graph_search",
+      "graph_neighbors"
+    ],
+    "realModel": "gpt-6-luna",
+    "realEffort": "low",
+    "runId": "9ec04b55cc46498fa6955d1b40a535ac",
+    "nativeInput": {
+      "renderer": "WebGL",
+      "dimensions": 3,
+      "nodes": 3652,
+      "edges": 9667,
+      "rightRotate": true,
+      "leftPan": true,
+      "wheelDolly": true,
+      "searchClickKeepsCamera": true,
+      "nodeClickKeepsCamera": true,
+      "chineseInput": true,
+      "ui": {
+        "root": "FrameSyncMobaDemo",
+        "theme": "karolina",
+        "motion": "full",
+        "icons": 48,
+        "loadedIcons": 48,
+        "effects": "Shader · 动态夜空",
+        "mascot": true,
+        "codex": "Codex 已连接",
+        "unity": "Unity 已连接"
+      },
+      "errors": []
+    },
+    "screenshots": false,
+    "humanAcceptance": "pending",
+    "fullOverview": {
+      "nodes": 3652,
+      "edges": 9667,
+      "fileNodes": 2154,
+      "isolatedNodes": 1020
+    },
+    "relationLayout": {
+      "nodes": 3652,
+      "edges": 9667,
+      "dimensions": 3,
+      "method": "relations-3d",
+      "groups": 38,
+      "radius": 2141.341913747318,
+      "layoutMs": 1664.5797,
+      "edgeMedian": 196.05877837933147,
+      "directoryIndependent": true,
+      "closestNearbyPair": 19.99999999999997,
+      "overlapPairs": 0,
+      "zRange": [
+        -1974.614971154873,
+        1972.3548149783426
+      ]
+    },
+    "workerBrowser": {
+      "workerBackground": true,
+      "inputWhileLoading": true,
+      "navigationWhileLoading": true,
+      "readyOnReturn": true,
+      "workerErrorVisible": true,
+      "uiUsableAfterError": true,
+      "errors": []
+    },
+    "threeDBrowser": {
+      "nodes": 3652,
+      "edges": 9667,
+      "renderer": "WebGL",
+      "dimensions": 3,
+      "depthTest": true,
+      "loadMs": 1319,
+      "rightRotate": true,
+      "leftPan": true,
+      "wheelDolly": true,
+      "allGpuVerticesRetained": true,
+      "clickKeepsCamera": true,
+      "sameCanvas": true,
+      "noFolderDisplay": true,
+      "smallWindow": {
+        "x": 381,
+        "y": 329,
+        "width": 428,
+        "height": 321
+      },
+      "input": true,
+      "connections": true,
+      "errors": []
+    },
+    "webglLifecycle": {
+      "noWebglErrorVisible": true,
+      "uiUsableWithoutWebgl": true,
+      "retryAfterWebglRecovery": true,
+      "actualContextLostVisible": true,
+      "actualContextRestored": true,
+      "restoredCameraAndSelection": true,
+      "restoredAllBuffers": true,
+      "errors": []
+    }
+  }
+}

@@ -6,7 +6,7 @@
 
 ## 技术方案
 
-保持用户认可原画的角色身份、左右位置、服装、紫色特殊瞳孔、侧马尾、大蝴蝶结、单层白色中筒袜和手机几何表情。图像工具补绘被遮挡区域；像素切出与 PSD 组装的具体工具方式在实施计划记录，以当前用户授权为准。源素材与运行资源分开，当前仅写 `Tools/Karolina/Design/KarolinaCharacter/Live2D` 和本批次维护工具。
+保持用户认可原画的角色身份、左右位置、服装、紫色特殊瞳孔、侧马尾、大蝴蝶结、单层白色中筒袜和手机几何表情。图像工具补绘被遮挡区域；像素切出与 PSD 组装的具体工具方式在实施计划记录，以当前用户授权为准。源素材与运行资源分开，当前仅写 `Design/KarolinaCharacter/Live2D` 和本批次维护工具。
 
 脸部按底层、左右眼白/虹膜/睫毛/眉毛、嘴形拆分；头发按后发、刘海、侧发、马尾与饰品拆分。身体和服装保留完整形态并按实际第一版动作需求拆分。所有部件使用共同画布和明确绘制顺序。PSD 使用 RGB、8 位通道、sRGB、唯一图层名、普通混合模式；不保留未合并图层蒙版。
 
@@ -26,8 +26,8 @@ AI 补绘可能改变形状、位置或比例，必须对照原图，不能直�
 
 ## 附录
 
-- 定稿参考：`Tools/Karolina/Design/KarolinaCharacter/Final`。
-- 批准原画：`Tools/Karolina/Design/KarolinaCharacter/Live2D/Candidates/karolina-front-master-v001.png`，1024×1536。
+- 定稿参考：`Design/KarolinaCharacter/Final`。
+- 批准原画：`Design/KarolinaCharacter/Live2D/Candidates/karolina-front-master-v001.png`，1024×1536。
 - 用户接受范围：2026-10-04 明确回复“这版可以，继续拆层”。
 - Cubism 官方 [PSD 要求](https://docs.live2d.com/en/cubism-editor-manual/precautions-for-psd-data/)和 [素材拆分](https://docs.live2d.com/en/cubism-editor-manual/divide-the-material/)。
 

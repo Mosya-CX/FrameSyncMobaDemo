@@ -20,14 +20,14 @@
   },
   "outputs": [
     {
-      "path": "Tools/Karolina/Karolina.Desktop/bin/Release/net8.0-windows",
+      "path": "Karolina.Desktop/bin/Release/net8.0-windows",
       "webFiles": 129,
       "webMatchesSource": true,
       "desktopAssemblyHash": "c39dbde42eaffd60e0d03d5ff76381dc70bfe68446ce496502420b21b3d6ab6e",
       "coreAssemblyHash": "179b668700683069bfa0e2c741751e1dd6a98b48b786e2a1c5ff4f005910e4a3"
     },
     {
-      "path": "Tools/Karolina/artifacts/current",
+      "path": "artifacts/current",
       "webFiles": 129,
       "webMatchesSource": true,
       "desktopAssemblyHash": "c39dbde42eaffd60e0d03d5ff76381dc70bfe68446ce496502420b21b3d6ab6e",

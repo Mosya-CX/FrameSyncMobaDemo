@@ -1,6 +1,6 @@
 {
   "at": "2026-10-04T09:13:00.563Z",
-  "command": "dotnet build Tools/Karolina/Karolina.Desktop/Karolina.Desktop.csproj -c Release --output Tools/Karolina/artifacts/current --nologo --verbosity quiet",
+  "command": "dotnet build Karolina.Desktop/Karolina.Desktop.csproj -c Release --output artifacts/current --nologo --verbosity quiet",
   "chunk_id": "075213",
   "wall_time_seconds": 5.0342893,
   "exit_code": 0,

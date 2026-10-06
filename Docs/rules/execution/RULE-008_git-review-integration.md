@@ -2,7 +2,7 @@
 
 ## 界面范围
 
-Karolina 提供按计划任务的 Unity 文件差异与人工审批。旧 Git 产品功能全部退役；版本管理、账号登录、提交、推送、拉取和历史由用户外部 Git 工具操作。稳定规则编号保留，规则归入执行细则，现行需求见 REQ-KAR-006。
+独立 [Karolina 工作台](https://github.com/Mosya-CX/Karolina) 提供按计划任务的 Unity 文件差异与人工审批。其产品合同见工程文档 [REQ-KAR-006](../../requirements/karolina/REQ-KAR-006_task-change-approval.md)。旧 Git 产品功能全部退役；版本管理、账号登录、提交、推送、拉取和历史由用户外部 Git 工具操作。稳定规则编号保留，规则归入执行细则。
 
 ## 任务边界
 

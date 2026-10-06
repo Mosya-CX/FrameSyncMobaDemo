@@ -26,7 +26,7 @@
 
 ## 附录
 
-批准素材在 `Tools/Karolina/Design/KarolinaCharacter/Final`。此前生成的主视觉、品牌和图标控件样板是本轮制作依据，运行资源必须保存到工程，不能依赖用户个人缓存绝对路径。
+批准素材在 `Design/KarolinaCharacter/Final`。此前生成的主视觉、品牌和图标控件样板是本轮制作依据，运行资源必须保存到工程，不能依赖用户个人缓存绝对路径。
 
 ## 需求演进
 

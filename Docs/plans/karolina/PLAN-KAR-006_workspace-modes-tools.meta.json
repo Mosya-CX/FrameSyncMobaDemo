@@ -55,36 +55,43 @@
   ],
   "plannedChanges": [],
   "estimateStatus": "旧计划未记录事前文件预估",
-  "resourceRefs": [
+  "resourceRefs": [],
+  "externalRefs": [
     {
-      "path": "Tools/Karolina/Karolina.Core/ProjectContext.cs",
+      "path": "Karolina.Core/ProjectContext.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "087336f301e70a3306b9b46f0e559240f74fafa08e6979207ab21520a6cf4d29"
+      "hash": "087336f301e70a3306b9b46f0e559240f74fafa08e6979207ab21520a6cf4d29",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Core/WorkflowModes.cs",
+      "path": "Karolina.Core/WorkflowModes.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "8b8103c0c191b417f13297112b087a6f2b6fcea2f0fe0e6a2dd14e7cef4728ac"
+      "hash": "8b8103c0c191b417f13297112b087a6f2b6fcea2f0fe0e6a2dd14e7cef4728ac",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Core/ExtensionTools.cs",
+      "path": "Karolina.Core/ExtensionTools.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "10de8eb4a31fae53b5ce601f541b8c6f761336514b044cd14dab92eaf74cf5f3"
+      "hash": "10de8eb4a31fae53b5ce601f541b8c6f761336514b044cd14dab92eaf74cf5f3",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Desktop/Workbench.Tools.cs",
+      "path": "Karolina.Desktop/Workbench.Tools.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "42277790f42ff9dc49558d9d42972e69efb5b96844f5433179a6b52d33c5d747"
+      "hash": "42277790f42ff9dc49558d9d42972e69efb5b96844f5433179a6b52d33c5d747",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Desktop/Web/workspace.js",
+      "path": "Karolina.Desktop/Web/workspace.js",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "76c4e8eb37c6cd8aa882cca488d18ea9ba937c8999a88d345465c4463bbf8c05"
+      "hash": "76c4e8eb37c6cd8aa882cca488d18ea9ba937c8999a88d345465c4463bbf8c05",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Desktop/Web/tools.js",
+      "path": "Karolina.Desktop/Web/tools.js",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "8dc3d618969357571a9276cae3fc418e71ddbbf67e228833eb6fab9ccd025372"
+      "hash": "8dc3d618969357571a9276cae3fc418e71ddbbf67e228833eb6fab9ccd025372",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     }
   ]
 }

@@ -7,25 +7,8 @@
   "status": "关闭",
   "path": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.md",
   "version": 1,
-  "requirements": [
-    "REQ-FEAT-006"
-  ],
-  "requirementRefs": [
-    {
-      "id": "REQ-FEAT-006",
-      "title": "全局阶段与同步 Tick 管线",
-      "status": "激活",
-      "version": 1,
-      "path": "Docs/requirements/frame-sync/REQ-FEAT-006_simulation-pipeline.md",
-      "sections": [
-        "目标实现",
-        "技术方案",
-        "边界情况",
-        "附录"
-      ],
-      "hash": "cdb367db132a26f47dbeaddb1476b8fbdc5673dac1379d4f5f2f3ad672bb5c0f"
-    }
-  ],
+  "requirements": [],
+  "requirementRefs": [],
   "sources": [
     {
       "source": "Docs/Plans/PLAN-0166_karolina_mvp.md",
@@ -38,7 +21,7 @@
       ],
       "unresolved": null,
       "newPlan": "PLAN-KAR-001",
-      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录"
+      "disposition": "按功能整合为中文计划；旧完成与当前证据分别记录。REQ-FEAT-006 是母项目历史来源 ID，不是本仓库需求引用"
     }
   ],
   "assessment": {
@@ -58,26 +41,31 @@
   ],
   "plannedChanges": [],
   "estimateStatus": "旧计划未记录事前文件预估",
-  "resourceRefs": [
+  "resourceRefs": [],
+  "externalRefs": [
     {
-      "path": "Tools/Karolina/Karolina.Core/CodexConnection.cs",
+      "path": "Karolina.Core/CodexConnection.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "44fd324f59d1f25dab16fc5ef823a51532e043e1580ada0371190fe422d448d8"
+      "hash": "44fd324f59d1f25dab16fc5ef823a51532e043e1580ada0371190fe422d448d8",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Core/McpClient.cs",
+      "path": "Karolina.Core/McpClient.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "d9cf57b9e4881cb769d649c86f3121cc2254b3f0ec99ce958bdd6c169b55db5f"
+      "hash": "d9cf57b9e4881cb769d649c86f3121cc2254b3f0ec99ce958bdd6c169b55db5f",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Core/Processes.cs",
+      "path": "Karolina.Core/Processes.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "d89d1e4632b8fc418bf172a04780b229fa689c8277efd9f59d6ca830aa40b92f"
+      "hash": "d89d1e4632b8fc418bf172a04780b229fa689c8277efd9f59d6ca830aa40b92f",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Desktop/Workbench.cs",
+      "path": "Karolina.Desktop/Workbench.cs",
       "evidence": "2026-10-05按此计划正文的职责核对当前同名实现模块；关联的是后续演进后的现存源码，不证明它是历史批次原文件或当期验收/作者。",
-      "hash": "6011dfd7fed51b5d662f0aa68c3d2049ba55d2f89ae1add5653caa03a69511c1"
+      "hash": "6011dfd7fed51b5d662f0aa68c3d2049ba55d2f89ae1add5653caa03a69511c1",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     }
   ]
 }

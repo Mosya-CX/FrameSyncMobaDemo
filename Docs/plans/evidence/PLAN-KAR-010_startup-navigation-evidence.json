@@ -14,14 +14,14 @@
   },
   "outputs": [
     {
-      "path": "Tools/Karolina/artifacts/current",
+      "path": "artifacts/current",
       "webFiles": 129,
       "webMatchesSource": true,
       "desktopAssemblyHash": "c39dbde42eaffd60e0d03d5ff76381dc70bfe68446ce496502420b21b3d6ab6e",
       "coreAssemblyHash": "179b668700683069bfa0e2c741751e1dd6a98b48b786e2a1c5ff4f005910e4a3"
     },
     {
-      "path": "Tools/Karolina/Karolina.Desktop/bin/Release/net8.0-windows",
+      "path": "Karolina.Desktop/bin/Release/net8.0-windows",
       "webFiles": 129,
       "webMatchesSource": true,
       "desktopAssemblyHash": "c39dbde42eaffd60e0d03d5ff76381dc70bfe68446ce496502420b21b3d6ab6e",
@@ -30,15 +30,15 @@
   ],
   "sourceFiles": [
     {
-      "path": "Tools/Karolina/Karolina.Desktop/Web/workspace.js",
+      "path": "Karolina.Desktop/Web/workspace.js",
       "hash": "ae9f4660872de884e92ba2bebf76fdc742665bbe7a41d3d625b405497255d25d"
     },
     {
-      "path": "Tools/Karolina/Karolina.Desktop/Web/app.js",
+      "path": "Karolina.Desktop/Web/app.js",
       "hash": "59ac506b4bcbde21d881bc2d0b290ea1a07823ba917ae31f23775e30a6dabcda"
     },
     {
-      "path": "Tools/Karolina/Karolina.Desktop/Web/features/navigation.js",
+      "path": "Karolina.Desktop/Web/features/navigation.js",
       "hash": "edda051b7ac911c95815350d70140a2db8f256cedadf9ca66c949be4c08ea5be"
     }
   ],

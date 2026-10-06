@@ -1,5 +1,5 @@
 {
-  "command": "dotnet build Tools/Karolina/Karolina.Desktop/Karolina.Desktop.csproj -c Release --no-restore --output Tools/Karolina/artifacts/current --nologo -v minimal",
+  "command": "dotnet build Karolina.Desktop/Karolina.Desktop.csproj -c Release --no-restore --output artifacts/current --nologo -v minimal",
   "chunk_id": "3041d6",
   "wall_time_seconds": 4.037424,
   "exit_code": 0,

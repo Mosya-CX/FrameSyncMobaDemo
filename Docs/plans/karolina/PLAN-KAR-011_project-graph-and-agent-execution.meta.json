@@ -1,0 +1,726 @@
+{
+  "id": "PLAN-KAR-011",
+  "code": "0176",
+  "title": "工程图谱、Agent 执行闭环与统一设置页",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.md",
+  "status": "验收",
+  "version": 7,
+  "requirements": [
+    "REQ-KAR-013",
+    "REQ-KAR-014",
+    "REQ-KAR-015",
+    "REQ-KAR-016",
+    "REQ-KAR-010"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-013",
+      "title": "工程代码与 Unity 资源关系图谱",
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "version": 1,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件",
+        "附录"
+      ],
+      "hash": "08855b1d5f7ea09bfffe1ac52627745d8e64996c607e74fdb461ee5e4c71fa64"
+    },
+    {
+      "id": "REQ-KAR-014",
+      "title": "Agent 任务验证与有限修复闭环",
+      "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
+      "version": 2,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "b6b19f96b5cc2b438e3b750352d86616b1a15edd54e40d3878d2ca3aa7165c79"
+    },
+    {
+      "id": "REQ-KAR-015",
+      "title": "统一设置页与模型挡位预设",
+      "path": "Docs/requirements/karolina/REQ-KAR-015_unified-settings-and-model-profiles.md",
+      "version": 1,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件",
+        "附录"
+      ],
+      "hash": "991b8f454f9c84375763527e9d99afb6d886ea86f2e4468a2abdea7710e4b0ce"
+    },
+    {
+      "id": "REQ-KAR-016",
+      "title": "Karolina 独立源码仓库",
+      "path": "Docs/requirements/karolina/REQ-KAR-016_standalone-karolina-repository.md",
+      "version": 1,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件",
+        "附录"
+      ],
+      "hash": "d2d5c9028bd69d662945bad185ef46ed6bf7fdc254ef62663dd6fa242ac44070"
+    },
+    {
+      "id": "REQ-KAR-010",
+      "title": "文档参考与工程资源索引",
+      "path": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.md",
+      "version": 3,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "af7d7a1d5e9d76522bf5f0bd81ae81980fe3ff4848c49469f071d3c731ca0bb7"
+    }
+  ],
+  "tags": [
+    "Karolina",
+    "工程图谱",
+    "Agent验证",
+    "统一设置"
+  ],
+  "plannedChanges": [
+    {
+      "path": "Docs/catalog.json",
+      "operation": "add",
+      "reason": "注册 Karolina 专属需求、计划与规则。"
+    },
+    {
+      "path": "Docs/README.md",
+      "operation": "add",
+      "reason": "建立独立文档目录入口。"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-KAR-001_standalone-engineering.md",
+      "operation": "add",
+      "reason": "说明独立应用工程与 Unity 外部测试项目边界。"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.md",
+      "operation": "modify",
+      "reason": "用户验收反馈与文档归属边界"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.meta.json",
+      "operation": "modify",
+      "reason": "用户验收反馈与文档归属边界"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
+      "operation": "modify",
+      "reason": "用户验收反馈与文档归属边界"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.meta.json",
+      "operation": "modify",
+      "reason": "用户验收反馈与文档归属边界"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/catalog.json",
+      "operation": "add",
+      "hash": "d002c52de257450322365e67b1254eaf990b83268a908af1078aa80d4bb89613",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。"
+    },
+    {
+      "path": "Docs/README.md",
+      "operation": "add",
+      "hash": "f37a31640b063467b9a7801884eb1ab11f8d40c79e2715d7da70dcc586bc8363",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-KAR-001_standalone-engineering.md",
+      "operation": "add",
+      "hash": "5c3a471a67adc3b04965915437cd13a54e4dfaa73ca849337d76ae86e9710e0a",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.md",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "95aed832daf9436bf0398f8e668caea71386f82a93505bbbd9178f565c7fd837"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.meta.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "7a55ab54e8d1d9dc65403d84865209ac8643bda3d033b8a4d8a6bc8b77a416f3"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "d50cb4c7b314645afebdda90fd6f61d48c9ffe9172bf0e3b10e035b350dc9e8c"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.md",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "9a42d4ef3dfec75c7279dc7fff0bc4b670fce98b606f9cf0a26579a7e3df4512"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-016_standalone-karolina-repository.md",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "d2d5c9028bd69d662945bad185ef46ed6bf7fdc254ef62663dd6fa242ac44070"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-016_standalone-karolina-repository.meta.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "49c7d576f8332ee0643e5bb1b4afd7683b3b4a3ba89910e0ef04903c0450c10f"
+    },
+    {
+      "path": "Docs/plans/evidence/PLAN-KAR-011_implementation-evidence.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "95023cc2dc8abc62463b3dc74d02ad442c03ad84eaa34b0b67b3238f0ece8b7c"
+    },
+    {
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "add",
+      "hash": "fe39cbda3448d0809b36422fe7fd1a8a0a56012b98ce8effc3a3f6aafb51a3c1",
+      "evidence": "2026-10-05 前端启动故障校正；控制器注册、完整浏览器及实际桌面 WebView2 检查通过。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "add",
+      "hash": "f8eca0b46436b85c5a52b56d9a1c91ec86dbb6e7764e86a027014d0c3993c779",
+      "evidence": "2026-10-05 前端启动故障校正；控制器注册、完整浏览器及实际桌面 WebView2 检查通过。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/bootstrap.js",
+      "operation": "add",
+      "hash": "56ebfce75a0dd4c64d04d748cf2d1793eee75313cde3c0204d0b3e91f9f45890",
+      "evidence": "2026-10-05 前端启动故障校正；控制器注册、完整浏览器及实际桌面 WebView2 检查通过。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/FrontendRegistrationChecks.test.mjs",
+      "operation": "add",
+      "hash": "e2d10496f23ed6b4ca825828507aaed56bf9dbcf6186fe468080792d1c90a7dd",
+      "evidence": "2026-10-05 前端启动故障校正；控制器注册、完整浏览器及实际桌面 WebView2 检查通过。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "README.md",
+      "operation": "add",
+      "hash": "d708d3c3cc75cdc1c794dd712ac123c8e717206e9805c8f1f1153c19ee008cb9",
+      "evidence": "2026-10-05 前端启动故障校正；控制器注册、完整浏览器及实际桌面 WebView2 检查通过。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "AGENTS.md",
+      "operation": "add",
+      "hash": "98f73571e04022857b157467a74bbc57fb3f87c7ea6987d41119ef18f680d850",
+      "evidence": "2026-10-05 前端启动故障校正；控制器注册、完整浏览器及实际桌面 WebView2 检查通过。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.md",
+      "hash": "af7d7a1d5e9d76522bf5f0bd81ae81980fe3ff4848c49469f071d3c731ca0bb7",
+      "evidence": "用户本轮验收校正后的需求条款"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.meta.json",
+      "hash": "eafc10cfa156f1460023e0d4b44bac6ff4a91d235850aa247cd2e9d8df7e95db",
+      "evidence": "用户本轮验收校正后的需求条款"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
+      "hash": "b6b19f96b5cc2b438e3b750352d86616b1a15edd54e40d3878d2ca3aa7165c79",
+      "evidence": "用户本轮验收校正后的需求条款"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.meta.json",
+      "hash": "55c350f725c9667274ad5e7b08a259aff560c11765fa1753691ff904ed0a1e64",
+      "evidence": "用户本轮验收校正后的需求条款"
+    }
+  ],
+  "createdAt": "2026-10-05",
+  "updatedAt": "2026-10-06",
+  "assessment": {
+    "machine": "Karolina 私有仓库已推送；4个职责提交覆盖仓库文档、Core、桌面/Web 与测试，迁出后的帧同步项目副本和专属文档已清理。Release 构建、41项测试、38个JavaScript语法检查、帧同步只读图谱扫描、Docs链接与目录校验通过。",
+    "agent": "独立只读复核无剩余P1/P2。启动脚本的构建输出链接路径拒绝保护已补齐并通过PowerShell语法解析；未由启动脚本启动应用。",
+    "human": "等待用户实际运行与视觉验收；本轮没有截图验收。"
+  },
+  "evidence": [
+    "Docs/plans/evidence/PLAN-KAR-011_implementation-evidence.json"
+  ],
+  "externalChanges": [
+    {
+      "path": "Karolina.Core/ProjectGraph.cs",
+      "operation": "add",
+      "reason": "只读建立 C# 类型与 Unity GUID 图谱，并补充多命名空间和 record struct 解析。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "add",
+      "reason": "增加工程级模型预设与损坏设置备份恢复。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Core/McpClient.cs",
+      "operation": "modify",
+      "reason": "读取结构化测试回执并拒绝无效通过判定。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "按线程/轮次整理活动、公开摘要和真实验证回执",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "保留引用来源、可读反馈指引和summary请求，不升级模型",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "增加统一设置与损坏文件恢复 API。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/project-graph.js",
+      "operation": "add",
+      "reason": "工程图谱搜索与选择界面。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "add",
+      "reason": "统一设置、模型失效提示与恢复状态控制。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "加入图谱和设置页面、模型状态与恢复入口。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "沿用现有主题的进度卡样式",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/GraphSettingsChecks.cs",
+      "operation": "add",
+      "reason": "图谱、模型设置、恢复及真实测试回执的隔离验证。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "专项入口与无模型费用的真实JSONL协议夹具",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.sln",
+      "operation": "add",
+      "reason": "独立构建 Core、Desktop 和 Tests。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Start-Karolina.ps1",
+      "operation": "add",
+      "reason": "从独立仓库启动并显式选择 Unity 工程。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "AGENTS.md",
+      "operation": "add",
+      "reason": "为独立仓库定义工程边界、文档路由和测试命令。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "README.md",
+      "operation": "add",
+      "reason": "描述运行方式、功能边界及独立工程结构。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": ".gitignore",
+      "operation": "add",
+      "reason": "排除生成文件、运行态和本机美术源文件。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentResources.cs",
+      "operation": "modify",
+      "reason": "保留仓库身份、外部来源只描述、资源选择与审批关联"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentLibrary.cs",
+      "operation": "modify",
+      "reason": "合并工程内与外部引用，不复制产品文档"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/AgentActivity.cs",
+      "operation": "add",
+      "reason": "可读活动与真实测试终态约束"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Processes.cs",
+      "operation": "modify",
+      "reason": "运行记录保存公开摘要与步骤，兼容旧记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "reason": "资料发送与摘要卡、隐藏原始CLI，失败保留草稿"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "reason": "状态同步和发送期间禁用切换"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "operation": "modify",
+      "reason": "带仓库身份的资源勾选和未知存在性显示"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/chat-progress.js",
+      "operation": "add",
+      "reason": "纯状态归约与独立进度、公开摘要、历史恢复视图"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatFeedbackChecks.cs",
+      "operation": "add",
+      "reason": "资料解析、边界、测试真实终态及同名审批回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatProgressChecks.test.mjs",
+      "operation": "add",
+      "reason": "阶段、摘要与线程/终态隔离回归"
+    }
+  ],
+  "externalRefs": [
+    {
+      "path": "Karolina.Core/ProjectGraph.cs",
+      "operation": "add",
+      "hash": "5793aeac4e605c2f1d0d1890616517b83f0d19ee50a482673bbdf22f026920c7",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "add",
+      "hash": "be780c116f385a05ac8b9f27d70b0b9d840d331022e760bc50bf81bda961598b",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Core/McpClient.cs",
+      "operation": "modify",
+      "hash": "32584d35a46e33a4a279ca22198fccc6bb32a4e5ead6da8942c69b090cf6796d",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "hash": "30f4f8ce90817d48fb23febe037e706bc523de3e61e160cd3d9ef11cb6745051",
+      "evidence": "本轮聊天反馈校正：按线程/轮次整理活动、公开摘要和真实验证回执",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "hash": "56af31c28760adfa9100a89e4aacab21fdfe795a484e7f9b0892e8af9714f9d2",
+      "evidence": "本轮聊天反馈校正：保留引用来源、可读反馈指引和summary请求，不升级模型",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "hash": "ef7ab50372d037f20ea9215e18b1e155b06157ed222051902f960c2dcc0e52db",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/project-graph.js",
+      "operation": "add",
+      "hash": "dde9d469bf3b230047523fd134b65e8c7cfc7bdc79a64098a80ba9cbc10fe024",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "add",
+      "hash": "aaafa7df0fc40b30c44cac676b77ac9555460b4bf8241550f1cf48a21348d780",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "hash": "18ee1d87ab713145836dee3b1f3b89f591a9979159d7be888bfa2ecd261ccafd",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "hash": "ce9cea85adfad6e4c2356c99771762ba8856de3da27f0fcd32537bd148151e1f",
+      "evidence": "本轮聊天反馈校正：沿用现有主题的进度卡样式",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/GraphSettingsChecks.cs",
+      "operation": "add",
+      "hash": "124435ff6870f875bf8929efe8e8d318b21eb34e11a9c7c03011c7d0ef09e92f",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "e170e96180b8bc03e391b3f4916c0585b5c4b52970ab8d47a0086f3d66cd3471",
+      "evidence": "本轮聊天反馈校正：专项入口与无模型费用的真实JSONL协议夹具",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.sln",
+      "operation": "add",
+      "hash": "90f7ec72980c4c0ba96bd4c9ea45d481adfdc76424c52e9fe2fcf6d382f1e60b",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Start-Karolina.ps1",
+      "operation": "add",
+      "hash": "4363d1f234bc01cd2db2314ffb21dc0dd5cbbfcdba01ff603e176de3336c690e",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "AGENTS.md",
+      "operation": "add",
+      "hash": "f05b03d922f89cea217c99847b5d960a2ba6477e910bf293a8d2f335e3017e6c",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "README.md",
+      "operation": "add",
+      "hash": "24e0a91c28334ba75f6c3ce2d08c17398f47f5ca87c11256b37b2ac35ac51bf7",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": ".gitignore",
+      "operation": "add",
+      "hash": "92f821aeaa7ace9ec5e60033aaaebd37001e51aea80ad647fff9d61e754703a3",
+      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "maintenance/build_visual_assets.py",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "736a07d9132f1e26b00ca512a743db903d1502369a5bd932a98f0602486e22b1",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "THEMES.md",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "b38be3676492c0aa0326277830eef415f1fd9d945cfb55a041bb8c8cbab20787",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/interaction-art-prompts.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "44a92e0bc0a3e55e595786dbf54494c4ce428e3b4a5a6cf78f0c355889082102",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/VisualAssets/README.md",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "3623a3312a59a36e0196e49e1bba7424c5febe7dcac8c2b612e60750209b8141",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/KarolinaCharacter/Live2D/Separation-v001/layers.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "3a432e1e555c5713922b717490089c27b47851c82ec1cf1b51989bb1fa3ce06d",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/KarolinaCharacter/Live2D/Separation-v002/layers.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "b7a1e7d88bf37d16e5bdce22552ff753eb5e3436665b72d043e4e855534adb33",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/KarolinaCharacter/Live2D/Separation-v003/layers.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "d57dad43c8f7d63a5e366991f36c3e443b40f3356643231b00a07fcd92547058",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/KarolinaCharacter/Live2D/Separation-v004/layers.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "51e43186476a311d3ef052dedbf6ef2e6ce322f525e3b23224f73b9be3378dd6",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/KarolinaCharacter/Live2D/Separation-v005/layers.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "210ad694cb05f59ff560a652580e10ef788b41b4cfee70c005b48988745fcf51",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "path": "Design/KarolinaCharacter/Live2D/OnlineInput/karolina-seethrough-square-input-v001.json",
+      "evidence": "本轮独立仓库迁移、路径解耦与发布证据",
+      "hash": "5f26448bba8b81e350a11b813f87119655fe6883e40f40d7674b917c47d55908",
+      "repository": "https://github.com/Mosya-CX/Karolina"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentResources.cs",
+      "hash": "578129edc8945a7ee1ee9928ad9acb884adcbc721407515b8f72213131271963",
+      "evidence": "本轮聊天反馈校正：保留仓库身份、外部来源只描述、资源选择与审批关联"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentLibrary.cs",
+      "hash": "864f8ebc4aac51777847e9763a68b76df0dbf612c07356d885d404d619759647",
+      "evidence": "本轮聊天反馈校正：合并工程内与外部引用，不复制产品文档"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/AgentActivity.cs",
+      "hash": "56767734387a90ae6c1b0ff2e50284b0398f67e6602f85cb168bf79b9f07ff75",
+      "evidence": "本轮聊天反馈校正：可读活动与真实测试终态约束"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Processes.cs",
+      "hash": "1e0e0a81f03d25484e9d20f98150b32515fc43209a53465d0047722787799d13",
+      "evidence": "本轮聊天反馈校正：运行记录保存公开摘要与步骤，兼容旧记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "hash": "145a6bda9617fff48f1b58a581bcdff7c13659bb40b9df396da88a1830e7a3cd",
+      "evidence": "本轮聊天反馈校正：资料发送与摘要卡、隐藏原始CLI，失败保留草稿"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "hash": "80bbfa51a6419882b86e44e60e7baee69acd839acb24c01c0ad0d869b5f0d0e9",
+      "evidence": "本轮聊天反馈校正：状态同步和发送期间禁用切换"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "hash": "ae31ffdbbb749f9683343a255b027e7cacfb33d35d765309ef66269bcc168bca",
+      "evidence": "本轮聊天反馈校正：带仓库身份的资源勾选和未知存在性显示"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/chat-progress.js",
+      "hash": "b8e2b58479b91798a2c0fd460afe1eb64747b7214d8bca77ff91c86273c8d17d",
+      "evidence": "本轮聊天反馈校正：纯状态归约与独立进度、公开摘要、历史恢复视图"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatFeedbackChecks.cs",
+      "hash": "1550be5361e271457651e4ef7f358d224b10c3eb68a4a402fcd14ec917d865d0",
+      "evidence": "本轮聊天反馈校正：资料解析、边界、测试真实终态及同名审批回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatProgressChecks.test.mjs",
+      "hash": "3749c9f4fb4ef3619ff7a2658f1534084b6f2aa310cbaa7e0fbf74e2fbc1e656",
+      "evidence": "本轮聊天反馈校正：阶段、摘要与线程/终态隔离回归"
+    }
+  ],
+  "feedbackEvidence": {
+    "core": "10/10",
+    "node": "14/14",
+    "existingResourcesAndReview": "13/13",
+    "protocolBrowser": {
+      "references": 54,
+      "defaultExternalReferences": true,
+      "sendWithSelectedPlan": true,
+      "publicSummary": true,
+      "privateReasoningHidden": true,
+      "cliAndOutputHidden": true,
+      "humanProgress": true,
+      "operationFailureNotPass": true,
+      "terminalSaved": true,
+      "historyPublicSummary": true,
+      "automaticHistorySummary": true,
+      "newChatClean": true,
+      "threadId": "fixture-34424-1",
+      "errors": []
+    },
+    "realCodex": {
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "access": "read-only",
+      "references": 54,
+      "sendWithActualPlan": true,
+      "actualCodexCompleted": true,
+      "activityEvents": 23,
+      "publicSummaryAvailable": true,
+      "rawToolCards": 0,
+      "runId": "d735aa63cacd4e3e89196967b7217d1d",
+      "threadId": "01a10fec-c351-7c33-869b-638a94bfdf5a",
+      "errors": []
+    },
+    "releaseBuild": "0 warnings, 0 errors",
+    "independentReview": "two P2 fixed and reviewed, no remaining P1/P2",
+    "screenshots": false,
+    "humanAcceptance": "pending",
+    "documentOwner": "connected repository Docs only",
+    "nativeDesktop": {
+      "actualExe": true,
+      "nativeChineseInput": true,
+      "draftRestored": true,
+      "nativeReferenceSelection": true,
+      "defaultReferences": 54,
+      "nativeHistoryFeedback": true,
+      "historyPublicSummary": true,
+      "unavailableSummaryExplicit": false,
+      "rawToolCards": 0,
+      "newChatClean": true,
+      "ui": {
+        "root": "FrameSyncMobaDemo",
+        "theme": "karolina",
+        "motion": "full",
+        "icons": 48,
+        "loadedIcons": 48,
+        "effects": "Shader · 动态夜空",
+        "mascot": true,
+        "codex": "Codex 已连接",
+        "unity": "Unity 连接中… · 操作中"
+      },
+      "errors": []
+    }
+  }
+}

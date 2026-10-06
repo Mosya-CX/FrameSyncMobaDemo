@@ -1,6 +1,6 @@
 {
   "build": {
-    "command": "dotnet build Tools/Karolina/Karolina.Desktop/Karolina.Desktop.csproj -c Release --nologo --verbosity quiet",
+    "command": "dotnet build Karolina.Desktop/Karolina.Desktop.csproj -c Release --nologo --verbosity quiet",
     "chunk_id": "69cf4d",
     "wall_time_seconds": 1.9432136,
     "exit_code": 0,
@@ -181,7 +181,7 @@
     }
   ],
   "allDeclaredThemeAssetsExist": true,
-  "sleepRepairPrompt": "Tools/Karolina/Design/DesktopPet/Actions/sleep-fixed-v2.prompt.json",
+  "sleepRepairPrompt": "Design/DesktopPet/Actions/sleep-fixed-v2.prompt.json",
   "restartedRunningApplication": false,
   "activation": "完全退出 Karolina 再重新打开",
   "limitations": [

@@ -17,7 +17,7 @@
 
 ## 文件预估与数据流
 
-Core增加协议端口、进度状态服务与JSON存储；Desktop调整Workbench依赖和进度接线，拆分HTTP合同/Routes/Chat/Unity；Web增加政策模块和工具操作视图。仅变更Tools/Karolina、Docs；不迁移审批、改写Unity资源或清理已有实现。
+Core增加协议端口、进度状态服务与JSON存储；Desktop调整Workbench依赖和进度接线，拆分HTTP合同/Routes/Chat/Unity；Web增加政策模块和工具操作视图。当期仅变更 Karolina 源码与文档；不迁移审批、改写 Unity 资源或清理已有实现。
 
 Codex通知→Workbench核对当前thread/turn→说明服务按ReviewId/RunId更新→API读取快照→UI政策格式化。开始及终态→存储端口→原子JSON；存储失败在内存与事件中可见且不阻止执行锁释放。旧运行进度启动时恢复，Active无终态标为中断。存储不发布回调，避免状态锁与宿主聊天/事件锁互相调用。
 

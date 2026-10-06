@@ -14,11 +14,11 @@
 
 ## 环境与运行方式调查
 
-- 用户批准的输入：`Tools/Karolina/Design/KarolinaCharacter/Live2D/Candidates/karolina-front-master-v001.png`（1024×1536）。
+- 用户批准的输入：`Design/KarolinaCharacter/Live2D/Candidates/karolina-front-master-v001.png`（1024×1536）。
 - 不在本机安装 See-through，不占本机模型存储或显存；使用官方 README 列出的 ModelScope 在线演示。
-- 已准备上传输入 `Tools/Karolina/Design/KarolinaCharacter/Live2D/OnlineInput/karolina-seethrough-square-input-v001.png`：将批准的 1024×1536 原画原尺寸居中放进 1536×1536 白底画布，两侧各加 256 px 白边，不缩放、不裁切，适配可能要求方图的演示。
+- 已准备上传输入 `Design/KarolinaCharacter/Live2D/OnlineInput/karolina-seethrough-square-input-v001.png`：将批准的 1024×1536 原画原尺寸居中放进 1536×1536 白底画布，两侧各加 256 px 白边，不缩放、不裁切，适配可能要求方图的演示。
 - 图像仍未上传。自动审查阻止开启单独 Edge 窗口；需通过网站操作一次“上传、提交、下载”后检查结果。在线推理需将图像送至 ModelScope 服务。
-- 当前输入方图保存在 `Tools/Karolina/Design/KarolinaCharacter/Live2D/OnlineInput`。用户选择在线处理，但尚未在服务上提交原画。
+- 当前输入方图保存在 `Design/KarolinaCharacter/Live2D/OnlineInput`。用户选择在线处理，但尚未在服务上提交原画。
 - 本路线不安装第三方包，不触碰 Unity 依赖。在线演示地址为 `https://modelscope.cn/studios/ljsabc/See-Through`。
 
 ## 实施步骤

@@ -5,13 +5,15 @@
   "domain": "Karolina",
   "path": "Docs/requirements/karolina/REQ-KAR-010_document-context-and-resource-index.md",
   "status": "激活",
-  "version": 2,
+  "version": 3,
   "tags": [
     "Karolina",
     "参考资料",
     "标签检索",
     "资源关联",
-    "Markdown"
+    "Markdown",
+    "外部引用"
   ],
-  "createdAt": "2026-10-04"
+  "createdAt": "2026-10-04",
+  "updatedAt": "2026-10-06"
 }

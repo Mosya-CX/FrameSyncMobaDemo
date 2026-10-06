@@ -22,7 +22,7 @@ Karolina 只保留当前程序输出和统一启动入口。中文正文及界�
 
 ## 附录
 
-启动入口 Tools/Karolina/Start-Karolina.ps1，唯一输出 Tools/Karolina/artifacts/current。依赖 .NET 8、已授权 Microsoft.Web.WebView2 1.0.4258.31 SDK/Runtime、Codex、Unity MCP；Karolina 产品不依赖 Git CLI/GCM，版本操作用用户外部工具。
+启动入口 Start-Karolina.ps1，唯一输出 artifacts/current。依赖 .NET 8、已授权 Microsoft.Web.WebView2 1.0.4258.31 SDK/Runtime、Codex、Unity MCP；Karolina 产品不依赖 Git CLI/GCM，版本操作用用户外部工具。
 
 ## 需求演进
 

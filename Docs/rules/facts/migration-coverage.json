@@ -19433,7 +19433,8 @@
       ],
       "unresolved": null,
       "newPlan": "PLAN-KAR-001",
-      "disposition": "恢复独立执行批次及生命周期，具体需求版本与章节已登记"
+      "applicationRepository": "https://github.com/Mosya-CX/Karolina",
+      "disposition": "应用源码由独立 Karolina 仓库维护；其产品需求、计划和规则保存在当前连接工程 Docs 并登记在本目录 catalog；保留原始来源、哈希与历史 ID，不作为 FrameSync 活动计划"
     }
   ]
 }

@@ -13,9 +13,9 @@
 | 配置 | Assets/Scripts/RuntimeConfig | 静态配置、稳定目录、Bake 与版本 |
 | 客户端资源 | Assets/Scripts/ClientContent | 本地资源加载、视图与句柄生命周期 |
 | UI | Assets/Scripts/LuaBridge | Lua/C# 桥接、页面与只读查询 |
-| Karolina | Tools/Karolina | 独立 .NET 进程、本机服务与桌面前端 |
+| Karolina（独立外部工具） | [Mosya-CX/Karolina](https://github.com/Mosya-CX/Karolina) | Unity 项目工作台；源码由独立公开仓库管理，产品文档保存在当前工程 Docs |
 | 玩家启动器 | Tools/UosGameLauncher | 下载校验、完整/增量安装、签名发布 |
 
 先用 rg 检索真实类型与成员，再核对同层 asmdef 依赖和 Unity 的编译/序列化事实。每份功能需求元数据 evidence 保存本期检索的文件指纹与测试名；检索存在不等于完整行为通过。
 
-程序集依赖.json 是当前磁盘扫描；CodeGraph、ResourceGraph 还未实现，不能把这些列表称为完成的图谱。未知项见待确认清单。
+程序集依赖.json 是当前磁盘扫描；FrameSync Moba 自身的 CodeGraph、ResourceGraph 还未实现，不能把这些列表称为完成的图谱。独立 Karolina 工作台的静态索引不等同于本工程运行时依赖图。未知项见待确认清单。

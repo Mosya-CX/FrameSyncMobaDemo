@@ -1,6 +1,6 @@
 {
   "at": "2026-10-04T20:45:07.810727+08:00",
-  "command": "dotnet build Tools/Karolina/Karolina.Desktop/Karolina.Desktop.csproj -c Release --nologo --verbosity quiet",
+  "command": "dotnet build Karolina.Desktop/Karolina.Desktop.csproj -c Release --nologo --verbosity quiet",
   "exit_code": 0,
   "output": "已成功生成。0 个警告；0 个错误。已用时间 00:00:01.90",
   "javascriptSyntaxParsed": [

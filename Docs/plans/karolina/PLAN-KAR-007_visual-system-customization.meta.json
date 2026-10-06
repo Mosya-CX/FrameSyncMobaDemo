@@ -116,61 +116,73 @@
   ],
   "plannedChanges": [],
   "estimateStatus": "旧计划未记录事前文件预估",
-  "resourceRefs": [
+  "resourceRefs": [],
+  "externalRefs": [
     {
-      "path": "Tools/Karolina/Design/DesktopPet/B-flat-sticker.png",
+      "path": "Design/DesktopPet/B-flat-sticker.png",
       "hash": "58cc9e3033da3521337dce29e3303536555cb6f3d97fa08a94b9307bc6fcdb87",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Design/DesktopPet/README.md",
+      "path": "Design/DesktopPet/README.md",
       "hash": "a1f623a5e5ae81fe490f2f46eee08079b2b6405402ae027b556e0e0afb5cd0fa",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Design/VisualAssets/README.md",
+      "path": "Design/VisualAssets/README.md",
       "hash": "3623a3312a59a36e0196e49e1bba7424c5febe7dcac8c2b612e60750209b8141",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Design/WindowPortrait/A-side-thinking-no-window-v2.png",
+      "path": "Design/WindowPortrait/A-side-thinking-no-window-v2.png",
       "hash": "7de80a0921941b7e1a3e6f749158224b1d0eb53c2042ef846c3deb8cffaa7e39",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Design/WindowPortrait/A-side-thinking-no-window-v2.prompt.json",
+      "path": "Design/WindowPortrait/A-side-thinking-no-window-v2.prompt.json",
       "hash": "f348fcdb36819d20dfa8c4e0763f4292501b68c0781a644ba7521fffcdfe7053",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Design/WindowPortrait/A-side-thinking-v1.png",
+      "path": "Design/WindowPortrait/A-side-thinking-v1.png",
       "hash": "88375dde52227d7d33af08f8572f123eb77cdaa198e5b1d14eff1eaad0e978b1",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Design/WindowPortrait/README.md",
+      "path": "Design/WindowPortrait/README.md",
       "hash": "be6e0067db04ba4276555a7f810bfd5c637029f2ad4ae17d3c8a1e2a7f704850",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Design/interaction-art-prompts.json",
+      "path": "Design/interaction-art-prompts.json",
       "hash": "dee0fa673d6d93effc91ba7826c24175ae65f8698280a830bd51a158d9f09655",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Karolina.Tests/Karolina.Tests.csproj",
+      "path": "Karolina.Tests/Karolina.Tests.csproj",
       "hash": "245e81c78b1be695124b1ac603d4f6fb3376ffea9a19909f430a2cd194990dba",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/Start-Karolina.ps1",
+      "path": "Start-Karolina.ps1",
       "hash": "5e5a05618ded72f5d1cd34aac8cc0bcebf08061b4f15e99d1ea23c0f4655d111",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
-      "path": "Tools/Karolina/THEMES.md",
+      "path": "THEMES.md",
       "hash": "427e18ed41a766578b2065d2d701df88e66f5f6496bc8934f54a702e591fb41d",
-      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据"
+      "evidence": "正文/工程取证包含精确路径；迁移时核对文件存在和SHA-256，仅为资源关联，不补造执行/测试证据",
+      "repository": "https://github.com/Mosya-CX/Karolina"
     }
   ]
 }

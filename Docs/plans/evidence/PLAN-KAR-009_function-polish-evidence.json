@@ -31,18 +31,18 @@
   "core": {
     "passed": 13,
     "failed": 0,
-    "command": "dotnet run --project Tools/Karolina/Karolina.Tests/Karolina.Tests.csproj -- --function-polish"
+    "command": "dotnet run --project Karolina.Tests/Karolina.Tests.csproj -- --function-polish"
   },
   "reviewRegression": {
     "passed": 13,
     "failed": 0,
-    "command": "dotnet run --project Tools/Karolina/Karolina.Tests/Karolina.Tests.csproj --no-build -- --task-reviews"
+    "command": "dotnet run --project Karolina.Tests/Karolina.Tests.csproj --no-build -- --task-reviews"
   },
   "releaseBuild": {
     "warnings": 0,
     "errors": 0,
     "output": ".karolina/state/functional-polish/build",
-    "command": "dotnet build Tools/Karolina/Karolina.Desktop/Karolina.Desktop.csproj -c Release -o .karolina/state/functional-polish/build --nologo"
+    "command": "dotnet build Karolina.Desktop/Karolina.Desktop.csproj -c Release -o .karolina/state/functional-polish/build --nologo"
   },
   "agentReview": "独立只读复核通过：无剩余P1/P2阻断项；机器检查由主代理实际运行",
   "humanAcceptance": "pending"

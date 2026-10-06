@@ -57,21 +57,6 @@
       "metadata": "Docs/rules/execution/RULE-006_verification-evidence.meta.json"
     },
     {
-      "id": "PLAN-KAR-002",
-      "path": "Docs/plans/karolina/PLAN-KAR-002_workbench-reconstruction.md",
-      "metadata": "Docs/plans/karolina/PLAN-KAR-002_workbench-reconstruction.meta.json"
-    },
-    {
-      "id": "PLAN-KAR-003",
-      "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
-      "metadata": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.meta.json"
-    },
-    {
-      "id": "PLAN-KAR-001",
-      "path": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.md",
-      "metadata": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.meta.json"
-    },
-    {
       "id": "PLAN-0137",
       "path": "Docs/plans/units/PLAN-0137_unit-decision-arbitration-migration.md",
       "metadata": "Docs/plans/units/PLAN-0137_unit-decision-arbitration-migration.meta.json"
@@ -747,21 +732,6 @@
       "metadata": "Docs/tools/guides/GUIDE-005_game-launcher-cdn.meta.json"
     },
     {
-      "id": "REQ-KAR-001",
-      "path": "Docs/requirements/karolina/REQ-KAR-001_workbench-product.md",
-      "metadata": "Docs/requirements/karolina/REQ-KAR-001_workbench-product.meta.json"
-    },
-    {
-      "id": "REQ-KAR-004",
-      "path": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.md",
-      "metadata": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.meta.json"
-    },
-    {
-      "id": "REQ-KAR-003",
-      "path": "Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.md",
-      "metadata": "Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.meta.json"
-    },
-    {
       "id": "REQ-FEAT-047",
       "path": "Docs/requirements/game-content/REQ-FEAT-047_varus-test-content.md",
       "metadata": "Docs/requirements/game-content/REQ-FEAT-047_varus-test-content.meta.json"
@@ -1357,9 +1327,24 @@
       "metadata": "Docs/requirements/non-heroes/REQ-FEAT-071_tower-targeting.meta.json"
     },
     {
-      "id": "REQ-KAR-005",
-      "path": "Docs/requirements/karolina/REQ-KAR-005_current-version-git-workflow.md",
-      "metadata": "Docs/requirements/karolina/REQ-KAR-005_current-version-git-workflow.meta.json"
+      "id": "FACT-KAR-001",
+      "path": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.md",
+      "metadata": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-001",
+      "path": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-001_original-mvp.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-002",
+      "path": "Docs/plans/karolina/PLAN-KAR-002_workbench-reconstruction.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-002_workbench-reconstruction.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-003",
+      "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.meta.json"
     },
     {
       "id": "PLAN-KAR-004",
@@ -1367,19 +1352,9 @@
       "metadata": "Docs/plans/karolina/PLAN-KAR-004_current-version-git-implementation.meta.json"
     },
     {
-      "id": "REQ-KAR-006",
-      "path": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.md",
-      "metadata": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.meta.json"
-    },
-    {
       "id": "PLAN-KAR-005",
       "path": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.md",
       "metadata": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.meta.json"
-    },
-    {
-      "id": "REQ-KAR-007",
-      "path": "Docs/requirements/karolina/REQ-KAR-007_workspace-modes-tools.md",
-      "metadata": "Docs/requirements/karolina/REQ-KAR-007_workspace-modes-tools.meta.json"
     },
     {
       "id": "PLAN-KAR-006",
@@ -1387,9 +1362,59 @@
       "metadata": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.meta.json"
     },
     {
-      "id": "FACT-KAR-001",
-      "path": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.md",
-      "metadata": "Docs/rules/facts/FACT-KAR-001_karolina-architecture-review.meta.json"
+      "id": "PLAN-KAR-007",
+      "path": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-008",
+      "path": "Docs/plans/karolina/PLAN-KAR-008_live2d-material-separation.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-008_live2d-material-separation.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-009",
+      "path": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-010",
+      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-011",
+      "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.meta.json"
+    },
+    {
+      "id": "REQ-KAR-001",
+      "path": "Docs/requirements/karolina/REQ-KAR-001_workbench-product.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-001_workbench-product.meta.json"
+    },
+    {
+      "id": "REQ-KAR-003",
+      "path": "Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.meta.json"
+    },
+    {
+      "id": "REQ-KAR-004",
+      "path": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.meta.json"
+    },
+    {
+      "id": "REQ-KAR-005",
+      "path": "Docs/requirements/karolina/REQ-KAR-005_current-version-git-workflow.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-005_current-version-git-workflow.meta.json"
+    },
+    {
+      "id": "REQ-KAR-006",
+      "path": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.meta.json"
+    },
+    {
+      "id": "REQ-KAR-007",
+      "path": "Docs/requirements/karolina/REQ-KAR-007_workspace-modes-tools.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-007_workspace-modes-tools.meta.json"
     },
     {
       "id": "REQ-KAR-008",
@@ -1397,19 +1422,9 @@
       "metadata": "Docs/requirements/karolina/REQ-KAR-008_visual-system-customization.meta.json"
     },
     {
-      "id": "PLAN-KAR-007",
-      "path": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.md",
-      "metadata": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.meta.json"
-    },
-    {
       "id": "REQ-KAR-009",
       "path": "Docs/requirements/karolina/REQ-KAR-009_live2d-source-art.md",
       "metadata": "Docs/requirements/karolina/REQ-KAR-009_live2d-source-art.meta.json"
-    },
-    {
-      "id": "PLAN-KAR-008",
-      "path": "Docs/plans/karolina/PLAN-KAR-008_live2d-material-separation.md",
-      "metadata": "Docs/plans/karolina/PLAN-KAR-008_live2d-material-separation.meta.json"
     },
     {
       "id": "REQ-KAR-010",

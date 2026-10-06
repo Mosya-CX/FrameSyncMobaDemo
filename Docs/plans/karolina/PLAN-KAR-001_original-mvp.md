@@ -1,9 +1,8 @@
 # 首期工程工作台历史实施
 
-## 参考需求
+## 历史来源
 
-
-- [全局阶段与同步 Tick 管线](../../requirements/frame-sync/REQ-FEAT-006_simulation-pipeline.md)：目标实现、技术方案、边界情况与附录。引用版本 1。
+旧版计划曾将 FrameSync Moba 的全局阶段与同步 Tick 管线列为背景需求。该需求属于母项目，未迁入本仓库，也不是 Karolina 当前需求或依赖；此处仅保留迁移前的来源说明。
 
 ## 实施与结果
 
