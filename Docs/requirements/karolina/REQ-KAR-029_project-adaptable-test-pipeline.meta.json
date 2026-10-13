@@ -1,0 +1,43 @@
+{
+  "id": "REQ-KAR-029",
+  "title": "可定制项目测试与诊断流水线",
+  "type": "requirement",
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-029_project-adaptable-test-pipeline.md",
+  "version": 5,
+  "related": [
+    "REQ-KAR-014",
+    "REQ-KAR-021",
+    "REQ-KAR-026"
+  ],
+  "tags": [
+    "Karolina",
+    "自动测试",
+    "项目适配",
+    "PlayMode",
+    "异步诊断",
+    "Agent修复"
+  ],
+  "createdAt": "2026-10-11",
+  "updatedAt": "2026-10-13T22:10:41+08:00",
+  "sources": [],
+  "evidence": [
+    {
+      "batch": "prepared-runtime",
+      "planId": "PLAN-KAR-024",
+      "machineVerified": true,
+      "humanAccepted": false,
+      "path": ".karolina/state/evaluations/runtime-host-6C1DE6071D/result.json"
+    },
+    {
+      "batch": "standalone-testing-page",
+      "planId": "PLAN-KAR-024",
+      "machineVerified": true,
+      "humanAccepted": false,
+      "path": ".karolina/state/evaluations/testing-page-20261013/result.json"
+    }
+  ],
+  "implementationState": "独立测试主页面与无需计划复现已实现并机器验证，真实修复/复审/返工及Unity样本证据通过；UPM源码已发布并在云端工程固定Git版本，仍待人工验收。"
+}

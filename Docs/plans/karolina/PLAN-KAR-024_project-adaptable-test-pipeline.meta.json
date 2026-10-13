@@ -1,0 +1,1403 @@
+{
+  "id": "PLAN-KAR-024",
+  "code": "0189",
+  "title": "通用项目测试与诊断流水线实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-024_project-adaptable-test-pipeline.md",
+  "version": 1,
+  "status": "验收",
+  "createdAt": "2026-10-11",
+  "updatedAt": "2026-10-13T22:10:41+08:00",
+  "requirements": [
+    "REQ-KAR-029",
+    "REQ-KAR-014",
+    "REQ-KAR-021",
+    "REQ-KAR-026"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-029",
+      "title": "可定制项目测试与诊断流水线",
+      "status": "激活",
+      "version": 5,
+      "path": "Docs/requirements/karolina/REQ-KAR-029_project-adaptable-test-pipeline.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "e84b772aaa9ce2db9b8975e6821162ed88663d7d784c07beafe71e14c626e3b4"
+    },
+    {
+      "id": "REQ-KAR-014",
+      "title": "Agent 任务验证与有限修复闭环",
+      "status": "激活",
+      "version": 5,
+      "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件",
+        "附录"
+      ],
+      "hash": "70817ecc56de32596e7a318acdb24a7e36ea1a38769ea402be38591890f0034b"
+    },
+    {
+      "id": "REQ-KAR-021",
+      "title": "任务验证执行与修复追踪",
+      "status": "激活",
+      "version": 2,
+      "path": "Docs/requirements/karolina/REQ-KAR-021_traceable-verification-cycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件",
+        "附录"
+      ],
+      "hash": "e6eb98076ed06a7f1a86b2e14b53571c27e008cd235eac169c2064288a81b9ae"
+    },
+    {
+      "id": "REQ-KAR-026",
+      "title": "后台测试与测试对话清理",
+      "status": "激活",
+      "version": 2,
+      "path": "Docs/requirements/karolina/REQ-KAR-026_background-testing-and-test-session-cleanup.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "d088e9da4198698e27afef077fac6ce36c638936bbb4218b13bda32b76d56258"
+    }
+  ],
+  "plannedChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestSessionDiagnosticsChecks.cs",
+      "operation": "add",
+      "reason": "覆盖无 Tick、可选时间轴、队列溢出、刷新关闭和写入失败。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceChecks.cs",
+      "operation": "add",
+      "reason": "覆盖验证生命周期、复审前后输入版本门禁、诊断封存期间变化及修复预算。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "注册复审隔离与相关定向回归入口。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskVerification.cs",
+      "operation": "add",
+      "reason": "独立复审证据指纹在机器验证前后校验；验证日志封存后变化会使结果过期。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "reason": "将默认自动修复轮数设为 2，并保留既有限制。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/RepairReview.cs",
+      "operation": "add",
+      "reason": "实现独立只读 Codex 复审、结构化回执、凭据与嵌套 JSON 身份信息脱敏；无效字段或深度超限时停止发送。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "operation": "add",
+      "reason": "编排复审、持久化结构化意见，并在证据版本变化时阻止机器验证。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "reason": "登记新需求与执行计划并设置当前活动计划；保留其它现有目录改动。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/McpClient.cs",
+      "operation": "modify",
+      "reason": "区分Unity测试明确失败回执与缺失或不一致的回执。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "reason": "统一设置页将缺省修复轮数显示为两轮。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "阻塞状态与证据不完整状态使用清晰样式。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphSettingsChecks.cs",
+      "operation": "modify",
+      "reason": "验证Unity失败回执解析及两轮默认配置。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestSessionDiagnostics.cs",
+      "operation": "add",
+      "reason": "交付独立可引用的通用会话事件、可选时间轴和有界异步 JSONL 诊断。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/Karolina.Testing.asmdef",
+      "operation": "add",
+      "reason": "让 Unity 以 Karolina.Testing 独立程序集编译通用库。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/package.json",
+      "operation": "add",
+      "reason": "登记可由 UPM 引用的 Karolina 第一方测试诊断包。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Testing/Karolina.Testing.csproj",
+      "operation": "add",
+      "reason": "为同一份包源码提供 netstandard2.1 编译目标。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Karolina.Core.csproj",
+      "operation": "modify",
+      "reason": "让 Karolina.Core 通过项目引用复用可独立交付的测试诊断程序集。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Karolina.Tests.csproj",
+      "operation": "modify",
+      "reason": "让定向回归程序集直接验证通用测试诊断库。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.sln",
+      "operation": "modify",
+      "reason": "将 Karolina.Testing 加入桌面宿主解决方案。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/tools/guides/GUIDE-007_karolina-test-diagnostics-package.md",
+      "operation": "add",
+      "reason": "将UPM包安装方式、使用API、时间域、实例隔离及Unity主线程约束留在依附工程的操作指南。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/tools/guides/GUIDE-007_karolina-test-diagnostics-package.meta.json",
+      "operation": "add",
+      "reason": "为包使用指南登记独立元数据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestPipeline.cs",
+      "operation": "add",
+      "reason": "增加显式场景注册、通用阶段执行、机器断言、身份校验和并发隔离合同。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestPipeline.cs.meta",
+      "operation": "add",
+      "reason": "UPM 包 Runtime 源文件的 Unity 元数据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestPipelineChecks.cs",
+      "operation": "add",
+      "reason": "覆盖阶段顺序、身份错配、跨注册表单例与跨执行器并发隔离、取消清理和诊断完整性。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Packages/manifest.json",
+      "operation": "modify",
+      "reason": "为项目测试程序集接入 Karolina 第一方 UPM 包的本机工作区相对路径。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Packages/packages-lock.json",
+      "operation": "modify",
+      "reason": "由 Unity Package Manager 固定当前本机包来源和依赖关系。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/FrameSyncMoba.Unit.Tests.asmdef",
+      "operation": "modify",
+      "reason": "让项目 EditMode 测试程序集引用 Karolina.Testing。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/KarolinaBuffTestPipelineTests.cs",
+      "operation": "add",
+      "reason": "以现有 HealOverTime Buff 验证通用流水线的项目预置、输入、Tick 采样、断言和异步证据封存。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/KarolinaBuffTestPipelineTests.cs.meta",
+      "operation": "add",
+      "reason": "为 Unity 集成测试源码提供稳定 GUID。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "增加任务验证日志读取接口，不允许客户端指定磁盘路径。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "operation": "add",
+      "reason": "在对话与审批验证记录中提供安全转义后的本机诊断日志查看面板。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "覆盖浏览器日志入口与接口；并修复自动资料折叠区选择器歧义。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/CodexConnection.cs",
+      "operation": "modify",
+      "reason": "独立只读 Codex 复审隔离；关闭命令、插件、应用、浏览器、MCP 与内置 Web 搜索入口，未知 MCP 传输失败关闭。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewSynchronization.cs",
+      "operation": "modify",
+      "reason": "强制审批同步等待扫描闸门，基于版本戳重扫并在持续变更时失败关闭。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskReviews.cs",
+      "operation": "modify",
+      "reason": "为审批扫描提供稳定快照和文件系统版本检查。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RepairReviewChecks.cs",
+      "operation": "add",
+      "reason": "覆盖转义及前缀嵌入 JSON、无效/截断字段失败关闭、身份字段名/ID 别名与长行、深度上限、凭据、路径、电话、代码保真和扫描退化回归。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskReviewChecks.cs",
+      "operation": "modify",
+      "reason": "确定性覆盖扫描期间文件变化后的稳定重试。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RepairReviewPresentationChecks.test.mjs",
+      "operation": "add",
+      "reason": "覆盖验证面板复审意见、模型挡位展示、文本转义和阻塞状态。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectTestScenarios.cs",
+      "operation": "add",
+      "reason": "项目场景注册及冻结定义"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TestWorkflow.cs",
+      "operation": "add",
+      "reason": "真实回执驱动的有界调度和诊断升级"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ScenarioEvidence.cs",
+      "operation": "add",
+      "reason": "受限读取及封存、身份和样本核对"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewTextEvidence.cs",
+      "operation": "add",
+      "reason": "脱敏前的有界冻结文本材料"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewNarratives.cs",
+      "operation": "modify",
+      "reason": "复审使用冻结前后文本，资源不发送序列化正文"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.TestWorkflows.cs",
+      "operation": "add",
+      "reason": "场景调度、实际修复及独立复审、诊断、停止、恢复请求"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "受取消控制的轮次启动与宿主调度上下文"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "modify",
+      "reason": "流水线对话占用与删除、停止边界"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "流程存储、子会话终态和退出回收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "reason": "Agent只读项目场景查询"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/test-workflows.js",
+      "operation": "add",
+      "reason": "场景选择、状态及断言样本和诊断展示"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "reason": "注册测试前端控制器"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "状态栏入口和无进展设置"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/primitives/dialog.css",
+      "operation": "modify",
+      "reason": "项目测试抽屉布局"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestEvidenceExport.cs",
+      "operation": "add",
+      "reason": "可选独立证据导出及封存"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Unity/UnityTestEvidence.cs",
+      "operation": "add",
+      "reason": "Unity固定工程证据请求与域重载恢复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowChecks.cs",
+      "operation": "add",
+      "reason": "调度、无进展、持久化和证据回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowLiveChecks.cjs",
+      "operation": "add",
+      "reason": "后台页面与原生模型修复闭环测试"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowPresentationChecks.test.mjs",
+      "operation": "add",
+      "reason": "断言样本及诊断界面检查"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/tools/test-scenarios.json",
+      "operation": "add",
+      "reason": "登记Buff、Unity生命周期和预编排Gameplay入口"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/PlanTestDesign.cs",
+      "operation": "add",
+      "reason": "普通任务按计划设计自动测试、复审与有界修复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewCompletionService.cs",
+      "operation": "modify",
+      "reason": "普通任务按计划设计自动测试、复审与有界修复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkflowModes.cs",
+      "operation": "modify",
+      "reason": "普通任务按计划设计自动测试、复审与有界修复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.PlanExecution.cs",
+      "operation": "add",
+      "reason": "普通任务按计划设计自动测试、复审与有界修复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.PermissionRequests.cs",
+      "operation": "modify",
+      "reason": "普通任务按计划设计自动测试、复审与有界修复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PlanTestDesignChecks.cs",
+      "operation": "add",
+      "reason": "普通任务按计划设计自动测试、复审与有界修复"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PlanTestExecutionLiveChecks.cjs",
+      "operation": "add",
+      "reason": "普通任务按计划设计自动测试、复审与有界修复"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/rules/templates/RULE-004_plan-template.md",
+      "operation": "modify",
+      "reason": "计划测试模板及普通任务自动测试合同"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/rules/templates/RULE-004_plan-template.meta.json",
+      "operation": "modify",
+      "reason": "计划测试模板及普通任务自动测试合同"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/requirements/karolina/REQ-KAR-029_project-adaptable-test-pipeline.md",
+      "operation": "modify",
+      "reason": "计划测试模板及普通任务自动测试合同"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/requirements/karolina/REQ-KAR-029_project-adaptable-test-pipeline.meta.json",
+      "operation": "modify",
+      "reason": "计划测试模板及普通任务自动测试合同"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/PreparedRuntime.cs",
+      "operation": "add",
+      "reason": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PreparedRuntimeChecks.cs",
+      "operation": "add",
+      "reason": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/test-evidence.js",
+      "operation": "add",
+      "reason": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/KarolinaFrameSyncGameplayPipelineTests.cs",
+      "operation": "modify",
+      "reason": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TestCapabilitySource.cs",
+      "operation": "add",
+      "reason": "读取有界测试源码、方法身份与能力候选，不将静态候选当作执行证明。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewReceiptText.cs",
+      "operation": "add",
+      "reason": "完整机器回执先脱敏再传输，超限明确省略而不截成半段JSON。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewSourceText.cs",
+      "operation": "add",
+      "reason": "展示源码字符串安全脱敏，保留原始字节指纹和隐藏说明。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ReviewProjectSourceChecks.cs",
+      "operation": "add",
+      "reason": "覆盖五个真实项目测试输入的重复脱敏。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RuntimeUnityHostLiveChecks.cjs",
+      "operation": "add",
+      "reason": "普通任务自动调度真实Unity、证据导航及结束请求恢复联调，准确清理测试所有权。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Program.cs",
+      "operation": "modify",
+      "reason": "根宿主独占工程锁，持有至全部宿主关闭写入结束。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewRuntimeEvidence.cs",
+      "operation": "add",
+      "reason": "从身份已核对的真实事件生成复审索引，保留顺序、复现依赖、断言和关联样本及缺失标记。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewMethodText.cs",
+      "operation": "add",
+      "reason": "按登记提取完整方法、行号和原文件哈希；显式省略其他成员，超限/缺方法/版本漂移拒绝。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeMethods.cs",
+      "operation": "modify",
+      "reason": "复用既有词法方法范围识别提供声明行，支持有界复审取证。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/UnityEvidenceRelease.cs",
+      "operation": "add",
+      "reason": "仅重试精确编号的幂等证据释放并保留执行及释放两项异常。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/UnityEvidenceReleaseChecks.cs",
+      "operation": "add",
+      "reason": "覆盖域重载释放重试、次数上限、错误身份、取消及双异常。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowLaunchLiveChecks.cjs",
+      "operation": "add",
+      "reason": "后台真实浏览器验证缺计划/场景、请求状态、错误及xhigh转发，使用显式API夹具。"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/tools/test-scenarios.json",
+      "operation": "modify",
+      "evidence": "登记真实测试条目的模块、标签、清理、诊断与可选资料；说明主页面及无需计划复现。",
+      "hash": "fcc2ca776b0de2177d04cdfce9c7c9ec1b6c5525f0ab8ddf22d5b28f3f98d421"
+    },
+    {
+      "path": "Docs/tools/guides/GUIDE-007_karolina-test-diagnostics-package.md",
+      "operation": "modify",
+      "evidence": "登记真实测试条目的模块、标签、清理、诊断与可选资料；说明主页面及无需计划复现。",
+      "hash": "3650c1e3848d587f33e48cea4413e800de2f1d5a6c824b888308fbbdf8caadcc"
+    }
+  ],
+  "evidence": {
+    "approved": true,
+    "humanAccepted": false,
+    "machineVerified": true,
+    "current": {
+      "sourceAuditComplete": true,
+      "releaseBuildSucceeded": true,
+      "behaviorTestsRun": true,
+      "unityTestsRun": true,
+      "screenshots": false,
+      "runtimeUpdated": true,
+      "manualAcceptance": false,
+      "runtimeLaunched": true
+    },
+    "workflowBatch": {
+      "backendChecksPassed": 72,
+      "frontendChecksPassed": 5,
+      "liveRepairModel": "gpt-6-luna",
+      "liveRepairEffort": "low",
+      "liveRepairLoopPassed": true,
+      "testOnlyUiPassed": true,
+      "installedExeUiPassed": true,
+      "pageErrors": 0,
+      "unityBuffClassPassed": 6,
+      "unityBuffScenarioPassed": 1,
+      "unityExportEvents": 21,
+      "playModeHostIntegration": "待UnityMCP恢复后联调",
+      "residueRecoveryIntegration": "待UnityMCP恢复后联调",
+      "mouseUsed": false,
+      "screenshots": false,
+      "playerBuild": false,
+      "humanAccepted": false
+    },
+    "planExecutionBatch": {
+      "backendChecksPassed": 80,
+      "frontendChecksPassed": 7,
+      "releaseWarnings": 0,
+      "releaseErrors": 0,
+      "ordinaryTaskAutoTestPassed": true,
+      "ordinaryTaskRepairLoopPassed": true,
+      "initialIndependentReviewPassed": true,
+      "repairIndependentReviewPassed": true,
+      "sameTaskBaseline": true,
+      "manualTestingStartCalled": false,
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "installedExeUiPassed": true,
+      "pageErrors": 0,
+      "sourceAuditComplete": true,
+      "runtimeUpdated": true,
+      "desktopSha256": "3b92a5e9181eb7b95482b0548ca008e97574f2bf13177f9d2f36daf46547f7cb",
+      "testThreadsDeleted": true,
+      "unityTestsRunThisSupplement": false,
+      "playModeHostIntegration": "待联调",
+      "residueRecoveryIntegration": "待联调",
+      "humanAccepted": false,
+      "mouseUsed": false,
+      "screenshots": false,
+      "gitCommitted": false
+    },
+    "preparedRuntimeBatch": {
+      "backendChecksPassed": 102,
+      "frontendAndCleanupChecksPassed": 37,
+      "realSourceChecksPassed": 7,
+      "releaseWarnings": 0,
+      "releaseErrors": 0,
+      "passed": true,
+      "ordinaryTask": true,
+      "manualButton": false,
+      "realUnity": true,
+      "independentReview": true,
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "customCheckIds": true,
+      "pageErrors": 0,
+      "mouseUsed": false,
+      "taskId": "1ee7a992fbf64143814f09d7a4470c03",
+      "endedRequestRecovery": true,
+      "oldResidueRecovered": false,
+      "ordinaryTaskRepairLoopPassed": true,
+      "installedExeUiPassed": true,
+      "desktopSha256": "4fed5b96e896a15ebc515190e82d5f133be7f6ee222bbc554eed408c3a79b5ed",
+      "evidencePath": ".karolina/state/evaluations/runtime-host-6C1DE6071D",
+      "testThreadsDeleted": true,
+      "earlierInterruptedCleanup": "官方读取失败，保留准确登记夹具和记录",
+      "humanAccepted": false,
+      "playerBuild": false,
+      "screenshots": false,
+      "gitCommitted": false,
+      "gitPushed": false
+    },
+    "reproductionLaunchCorrection": {
+      "verifiedAt": "2026-10-12T23:12:42",
+      "backgroundBrowserPassed": true,
+      "installedFrontendPassed": true,
+      "frontendChecksPassed": 9,
+      "pageErrors": 0,
+      "releaseWarnings": 0,
+      "releaseErrors": 0,
+      "modelCalls": 0,
+      "unityCalls": 0,
+      "testChatsCreated": 0,
+      "currentWindowReloadRequired": true,
+      "humanAccepted": false
+    },
+    "standaloneTestingBatch": {
+      "verifiedAt": "2026-10-13T22:10:41+08:00",
+      "backendChecksPassed": 109,
+      "frontendAndCleanupChecksPassed": 37,
+      "realSourceChecksPassed": 7,
+      "releaseWarnings": 0,
+      "releaseErrors": 0,
+      "mainPage": true,
+      "statusBarEntryRemoved": true,
+      "noPlanRequired": true,
+      "pureTestDoesNotCreateApproval": true,
+      "pureSubmitBypassRejected": true,
+      "optionalMissingReferencesPassed": true,
+      "realUnityBuffPassed": true,
+      "unityEvidencePath": ".karolina/state/evaluations/runtime-host-9A3C8AF400",
+      "liveRepairLoopPassed": true,
+      "independentRepairReviewPassed": true,
+      "standaloneReturnAndRerunPassed": true,
+      "standaloneTaskId": "ec3ce50f6db04fb68291d59609f2a523",
+      "ordinaryPlanAutoTestPassed": true,
+      "ordinaryTaskId": "f3ec512e46ee44dc9e040ae39b584c7e",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "installedExeUiPassed": true,
+      "pageErrors": 0,
+      "loadedIcons": 51,
+      "codexConnected": true,
+      "unityConnected": true,
+      "desktopSha256": "6fe2d24f517952bf65718a521ff72228b29a5d6dea9ea00a910ee6926588df9b",
+      "sourceAuditComplete": true,
+      "newTestThreadsDeleted": true,
+      "mouseUsed": false,
+      "screenshots": false,
+      "playerBuild": false,
+      "gitCommitted": false,
+      "gitPushed": false,
+      "humanAccepted": false
+    },
+    "publication": {
+      "authorized": true,
+      "karolinaSourcePushed": true,
+      "packageCommit": "ae8735cd87c98b52a575e8f0fb839fd6163ffdd7",
+      "packageUrl": "https://github.com/Mosya-CX/Karolina.git?path=/Packages/com.karolina.test-pipeline#ae8735cd87c98b52a575e8f0fb839fd6163ffdd7",
+      "unityIndexUsesPinnedGit": true,
+      "localDevelopmentReferencePreserved": true,
+      "wolfChangesExcluded": true,
+      "humanAccepted": false
+    }
+  },
+  "tags": [
+    "Karolina",
+    "自动测试",
+    "项目适配",
+    "诊断流水线"
+  ],
+  "externalRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestSessionDiagnostics.cs",
+      "hash": "496804171ed12000216897d5b71e60a79e2de46054ff7dad66a69be8fa77b0f2",
+      "operation": "add",
+      "evidence": "Karolina.Testing 通用会话模型、有界异步 JSONL 写入和刷新/关闭实现。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/Karolina.Testing.asmdef",
+      "hash": "808918d66447a4177c3b6cf57087ea124aed44dc85125ec6e9030336a84702cf",
+      "operation": "add",
+      "evidence": "Unity 程序集定义；禁用 UnityEngine 引用。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/package.json",
+      "hash": "a42711b200fecd0ee6f00377b816777570311f305e383b2179d6b1ac29e8e168",
+      "operation": "add",
+      "evidence": "Unity 2022.3 UPM 包元数据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Testing/Karolina.Testing.csproj",
+      "hash": "ed593e7145af955f74f652df0c0f5e369b8d1d1ee252348e783dc7a3cb37eef8",
+      "operation": "add",
+      "evidence": "同一 Runtime 源码的 netstandard2.1 独立构建目标。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Karolina.Core.csproj",
+      "hash": "729b4774955c054c2207edac99da6bbf8df3558f17a2fdd8ff603f5e1de9c712",
+      "operation": "modify",
+      "evidence": "Core 使用 Karolina.Testing 项目引用。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestSessionDiagnosticsChecks.cs",
+      "hash": "7fbc6d4dd25e2f28dfb8564b8e275ef7219a1a2b66247ccfcf9ffa84fbb42bbd",
+      "operation": "add",
+      "evidence": "通用日志、JSON转义、队列溢出和刷新取消压力回归。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceChecks.cs",
+      "hash": "92880e7ece9a068110da3a0a80d3756bbfe348613f4952402fa08dad090dcfb8",
+      "operation": "add",
+      "evidence": "覆盖验证生命周期、复审前后输入版本门禁、诊断封存期间变化及修复预算。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphSettingsChecks.cs",
+      "hash": "92b43deec5d60b12b2a8ee1a351a1737f3b79c3590702ff8169db672658d7f87",
+      "operation": "modify",
+      "evidence": "Unity测试结果解析与默认预算回归。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Karolina.Tests.csproj",
+      "hash": "e0b16936010515e7614cc96ad0cd6131c56bcf998a085fd13986fb4fc23c9d39",
+      "operation": "modify",
+      "evidence": "引用独立测试诊断程序集。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.sln",
+      "hash": "5d9a419836ecd7c2b0189d88fdbf63f8361b5fab10acbf4407404a212f623fd7",
+      "operation": "modify",
+      "evidence": "包含 Karolina.Testing 项目。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "hash": "8cdbac3cad5a6ae1e71ce3c11abf59daddae4299053c0c8126a01bdb97ecd3c0",
+      "operation": "modify",
+      "evidence": "状态不明与证据不完整状态样式。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/McpClient.cs",
+      "hash": "88c9cfbf60288418655f5167de859853f55b4ec8910dcc4a270254dc1731c54d",
+      "operation": "modify",
+      "evidence": "区分 Unity 明确失败回执与不完整回执。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/catalog.json",
+      "hash": "e2eed58545f2ef748cd0679695947a1b2775301df44cbc825775da35f19f7318",
+      "operation": "modify",
+      "evidence": "GUIDE-007 已加入工具指南目录。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestPipelineChecks.cs",
+      "hash": "5e8fd4322c64dc9ebffd1217a247c092e5f944e421dc7f4cd0a2ed764f317c07",
+      "operation": "add",
+      "evidence": "阶段执行、注册表实例隔离、身份错配、并发拒绝、闸门释放、取消/失败与诊断完整性回归。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Packages/manifest.json",
+      "hash": "cdc6b845a29d119020d60832701087d535521dce3cbf624cdc0f8bab1e01145f",
+      "operation": "modify",
+      "evidence": "本机目录布局相对的 Karolina.Testing UPM 开发引用；发布前需转为固定远程版本。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Packages/packages-lock.json",
+      "hash": "751bcb7caf3567625e5e56fd7605453333ebd15a3bcf3a896ea95630eab18c2c",
+      "operation": "modify",
+      "evidence": "Unity Package Manager 解析成功后的本机相对 UPM 包锁定记录。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/FrameSyncMoba.Unit.Tests.asmdef",
+      "hash": "040d6be72e5089971c77c2770114cca1b43ab34d7e4e5eb4a64680f6228015e7",
+      "operation": "modify",
+      "evidence": "FrameSyncMoba 单位 EditMode 测试程序集直接引用 Karolina.Testing。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/KarolinaBuffTestPipelineTests.cs.meta",
+      "hash": "f710b7a6f3031a4eca7c11c1bb46f9bd1d99786f199eac3f294ef8563bfe07fb",
+      "operation": "add",
+      "evidence": "Unity 测试脚本稳定 GUID 元数据。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Testing/UnitTestFactory.cs",
+      "hash": "26eea9e82b2576f76b769885644ffd0ef12c37a783bb7cbf269f9040449b51c9",
+      "operation": "modify",
+      "evidence": "测试夹具按 World 清理，并保护外部 GlobalPrefabTable 的引用、快照和并发写入。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Unit/Core/UnitWorld.cs",
+      "hash": "cabacc4474d106d80fdc49fac54a549cc0f8760f70ca627d9e886184ffd50116",
+      "operation": "modify",
+      "evidence": "添加测试夹具专用目标状态解除入口，保留 rollback restore 的原清理语义。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/KarolinaUnityLifecyclePipelineTests.cs",
+      "hash": "e7aaabcf879cf95d24624a0a10e15bdc0dfb55be739e5f63167ec2f33a52ed60",
+      "operation": "add",
+      "evidence": "UnityFrameClock 生命周期用例覆盖帧等待、取消、组件禁用及 teardown 任务回收。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/CodexConnection.cs",
+      "hash": "b835341ebb2efc008b7e598865312c950b83d60d1a108cd780a6fd091a9d987d",
+      "operation": "modify",
+      "evidence": "独立只读 Codex 复审隔离；关闭命令、插件、应用、浏览器、MCP 与内置 Web 搜索入口，未知 MCP 传输失败关闭。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewSynchronization.cs",
+      "hash": "b36ef8a44b2433018c601b495d509d3114571a8d0259d28e30b933ce26ab7a5f",
+      "operation": "modify",
+      "evidence": "强制审批同步等待扫描闸门，基于版本戳重扫并在持续变更时失败关闭。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskReviews.cs",
+      "hash": "b80cb2f5b86ffe442c10ac1c7a087d4c32570c45222a44eb501536a69ef7c900",
+      "operation": "modify",
+      "evidence": "为审批扫描提供稳定快照和文件系统版本检查。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskReviewChecks.cs",
+      "hash": "932c0955ecc59379cefefeff73459b997d222a3ee79821f9f357c8df00f7f785",
+      "operation": "modify",
+      "evidence": "确定性覆盖扫描期间文件变化后的稳定重试。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RepairReviewPresentationChecks.test.mjs",
+      "hash": "8f296db938dfaede559b376cea7ac362b4672b109e13654e5db168c15c144a73",
+      "operation": "add",
+      "evidence": "覆盖验证面板复审意见、模型挡位展示、文本转义和阻塞状态。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectTestScenarios.cs",
+      "operation": "add",
+      "hash": "78bdd0af40a8a4633b8386484973c148830064d9e7f58b82cd36330f1e9587eb",
+      "evidence": "项目场景注册及冻结定义；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TestWorkflow.cs",
+      "operation": "add",
+      "hash": "8bc217f065cd2a524bd1c84efe53d7c5d1c2d81b30df62f9613a642c2753e9a6",
+      "evidence": "真实回执驱动的有界调度和诊断升级；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ScenarioEvidence.cs",
+      "operation": "add",
+      "hash": "1c407c6a6fede3e4d787a69d55c6beca904622f6a907d8f5e1540fcdc3248621",
+      "evidence": "受限读取及封存、身份和样本核对；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewTextEvidence.cs",
+      "operation": "add",
+      "hash": "5deaa8377b3aed5149d91704c3c83b95d4680b6976e591e47a0d8e110ad2d659",
+      "evidence": "脱敏前的有界冻结文本材料；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewNarratives.cs",
+      "operation": "modify",
+      "hash": "5b1cc086da988f74e347cf28e465e2af278c749501b804d540caea356fa67899",
+      "evidence": "复审使用冻结前后文本，资源不发送序列化正文；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/RepairReview.cs",
+      "operation": "add",
+      "hash": "59499806fdeca7c14845c969e903b746bd067ce72645dc1b5673cc9a384bb6cf",
+      "evidence": "无工具独立复审使用明确冻结原文和复测前语义；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskVerification.cs",
+      "operation": "add",
+      "hash": "00b7d969be9e506105ec9458a3ef945bfb0e0fcab9a0885510291584c60512b1",
+      "evidence": "接入冻结项目场景检查；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "hash": "e64460796809a88eb690c2f713fa957b3028e4f7eb863a46dc09e110603321e9",
+      "evidence": "无进展期限和修复预算设置；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.TestWorkflows.cs",
+      "operation": "add",
+      "hash": "d1082a221b0da6935104a3e0c7e745796ab8c6d152daca66736e606c4b60b423",
+      "evidence": "场景调度、实际修复及独立复审、诊断、停止、恢复请求；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "operation": "add",
+      "hash": "c7b454875a62b9191815d70fc500aa116abfebe42e2b82d872e6f8bf1eae8760",
+      "evidence": "多检查版本门禁、原文与场景声明、真实Unity及只读命令执行；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "hash": "8ceef138803cd764b0b0e0a55d8d22ff89198c95d987ea1f252c32ea10543016",
+      "evidence": "受取消控制的轮次启动与宿主调度上下文；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "modify",
+      "hash": "fe77b48b8c0155c2f06263bc87e8e09067966f71c68c3d73ae7e6a6ba86243cc",
+      "evidence": "流水线对话占用与删除、停止边界；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "hash": "4c6c5e36ec27390ef97dc074aba4a16285149d08669eae65a26c48af59698a2d",
+      "evidence": "流程存储、子会话终态和退出回收；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "hash": "248d8b7d979b397c20775bec7e439e834de51bf9c953e315645d269b6d666c70",
+      "evidence": "Agent只读项目场景查询；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "hash": "6b011fb6a77b4a1b7e7001289385fb593a06de38bab769ee9c1317784544f4de",
+      "evidence": "注册项目测试路由；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/test-workflows.js",
+      "operation": "add",
+      "hash": "0280e6a296096f5a621cd376004a7a46904b9fee5f2d07b55a199869bce6af3a",
+      "evidence": "场景选择、状态及断言样本和诊断展示；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "hash": "8f1e9291456a881935c1432260080b64505260a455f4f123979b84842a81bd40",
+      "evidence": "注册测试前端控制器；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "hash": "dd56bd28cc8a35610f1ecc3ba7e1ac56b51d5cc072126a027dce1832d802198e",
+      "evidence": "状态栏入口和无进展设置；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "hash": "f15e51097e7856e9ca9a5976a5edc64ddf2af815df14b3e8e5c848ba9dd67b89",
+      "evidence": "保留并编辑无进展期限；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "operation": "add",
+      "hash": "91d0b1b9af28385b24b650367c5b0fac70c70096984d24b3bfe45c588b2db230",
+      "evidence": "复用真实验证日志展示；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/primitives/dialog.css",
+      "operation": "modify",
+      "hash": "82351c8c45fddf8814baeed7f1b8513407e9951ee4c86bb3177b333d7667ce81",
+      "evidence": "项目测试抽屉布局；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestEvidenceExport.cs",
+      "operation": "add",
+      "hash": "d190b9365b1751732387f578329a1932bced0fb7fe11af5effd12775739e08bb",
+      "evidence": "可选独立证据导出及封存；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestPipeline.cs",
+      "operation": "add",
+      "hash": "9fbac2097f977f6a4643fdb78e2193e504ffa58522046833bc91c45ba58d55b6",
+      "evidence": "断言关联样本和可选证据封存；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Unity/UnityTestEvidence.cs",
+      "operation": "add",
+      "hash": "fae6a9348479dc24522b927de36ea9792a8188b5ca57ff546b2cc5892b780b0e",
+      "evidence": "Unity固定工程证据请求与域重载恢复；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowChecks.cs",
+      "operation": "add",
+      "hash": "264a23038cc625c07ee7739503b0b0f8e30fabc9ab9211607fbc27550037735a",
+      "evidence": "调度、无进展、持久化和证据回归；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowLiveChecks.cjs",
+      "operation": "add",
+      "hash": "b72f7bd3885c19a7e0d2f74f5a33d30565750635612be98b1e36830505695027",
+      "evidence": "后台页面与原生模型修复闭环测试；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowPresentationChecks.test.mjs",
+      "operation": "add",
+      "hash": "b77f74c6bb072108da72faf9d92c07b9e4d4997b86180b4acccf680d7c965237",
+      "evidence": "断言样本及诊断界面检查；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RepairReviewChecks.cs",
+      "operation": "add",
+      "hash": "03746e4608a53bc2107220dec55fd08da95e2acc7e69ec7f94035f4168484574",
+      "evidence": "复审材料和多检查门禁回归；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "bfa1da57ade4859e54991d44bb72e74d574f550a6a02f3f2dc9092eb084f9b43",
+      "evidence": "登记测试入口；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/tools/test-scenarios.json",
+      "operation": "add",
+      "hash": "e754fedc11d9d341d4ee9159eac32542128759132dce8e6792a2adb9a66a77f7",
+      "evidence": "登记Buff、Unity生命周期和预编排Gameplay入口；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/tools/guides/GUIDE-007_karolina-test-diagnostics-package.md",
+      "operation": "add",
+      "hash": "b2897334725eabbbad2cc7716e9a23df3d0ae2b872b0e7f9f05bc9466d4837b8",
+      "evidence": "项目测试注册、运行和恢复说明；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/KarolinaBuffTestPipelineTests.cs",
+      "operation": "add",
+      "hash": "3ad9012f83a063bab752b60c6c2fe7bc0d00c8434b15f84a18f007113383f9dc",
+      "evidence": "具体Tick样本与断言关联；本批定向检查及源码核对，Unity未完成联调项另见正文。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/PlanTestDesign.cs",
+      "operation": "add",
+      "hash": "7bf4b0e0158b53eaba8f27982e39f2dfb199b469ce904ee944aa964cc6a0be77",
+      "evidence": "本补充源码与定向测试；真实联调状态见正文，不代表人工验收通过。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewCompletionService.cs",
+      "operation": "modify",
+      "hash": "9d6e1fdc063a304fc70f8f26905fabc73c19ffee5905868afaf811f93deb1750",
+      "evidence": "本补充源码与定向测试；真实联调状态见正文，不代表人工验收通过。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkflowModes.cs",
+      "operation": "modify",
+      "hash": "6ab76e1fed07b958750e3b8fa563c3c9cd8f5b994f059c913ef080a5b0050b1c",
+      "evidence": "本补充源码与定向测试；真实联调状态见正文，不代表人工验收通过。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.PlanExecution.cs",
+      "operation": "add",
+      "hash": "5c50e3aba96b3f774069cedeaec38dff802c9dd755cb9ad16607aea3adc0d4c1",
+      "evidence": "本补充源码与定向测试；真实联调状态见正文，不代表人工验收通过。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.PermissionRequests.cs",
+      "operation": "modify",
+      "hash": "d9e173caac208bc33381cc65f4e7b2fe1cb85c1d7fc013e2212a24f61c845fd5",
+      "evidence": "本补充源码与定向测试；真实联调状态见正文，不代表人工验收通过。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PlanTestDesignChecks.cs",
+      "operation": "add",
+      "hash": "816144d573af8ebf9b4ede7234b234861e40f77a0feb4270e9be6d6817a64bf1",
+      "evidence": "本补充源码与定向测试；真实联调状态见正文，不代表人工验收通过。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PlanTestExecutionLiveChecks.cjs",
+      "operation": "add",
+      "hash": "87910ef7a9a3b627f21eccb2c19004f399a06988d7c50576292ebc36c5221cc3",
+      "evidence": "本补充源码与定向测试；真实联调状态见正文，不代表人工验收通过。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/TestPipeline.cs.meta",
+      "hash": "ec640e41ba9beb496ab6949ab4ce18a09db13817a4c202b1fcdd84badd563ab4",
+      "operation": "add",
+      "evidence": "UPM 包 Runtime 源文件的 Unity 元数据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "hash": "a35ee33d8d5bff83b2ade81b1eb19834ff7d3825cec16f07b9d185e5c6135b72",
+      "operation": "modify",
+      "evidence": "覆盖浏览器日志入口与接口；并修复自动资料折叠区选择器歧义。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/rules/templates/RULE-004_plan-template.md",
+      "hash": "27f621eb6b9d351ed7bb2f3c879769a20da34896229df223668b9652aaa0e594",
+      "operation": "modify",
+      "evidence": "计划测试模板及普通任务自动测试合同"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/requirements/karolina/REQ-KAR-029_project-adaptable-test-pipeline.md",
+      "hash": "d5c05ab3e3e5662c7778f0b94bb8214b7cc5010fbc24ee648d08774c88e365d1",
+      "operation": "modify",
+      "evidence": "计划测试模板及普通任务自动测试合同"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Packages/com.karolina.test-pipeline/Runtime/PreparedRuntime.cs",
+      "hash": "393115742d0c9456be981feae9f04f0b1d5f260075ec43fa8cbdebddd5961dc6",
+      "operation": "add",
+      "evidence": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PreparedRuntimeChecks.cs",
+      "hash": "4a3345aa06055232fc900dead86f84f14f94e7171b107e790ace0f4bb38cac52",
+      "operation": "add",
+      "evidence": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/test-evidence.js",
+      "hash": "1252f04887b4dea68921e935839cdacade0f67f805ffe994de25a9932b3f8352",
+      "operation": "add",
+      "evidence": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Assets/Scripts/Gameplay/Tests/PlayMode/KarolinaFrameSyncGameplayPipelineTests.cs",
+      "hash": "abf454ee1d778541ba96fa823d4ccd79a7b022fdd4950f29a1d5c2a8a4ba1fa6",
+      "operation": "modify",
+      "evidence": "本轮预编排运行器、能力检索与真实采样证据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TestCapabilitySource.cs",
+      "hash": "3f13d8b1974d9307e2df50b04da4e02e7643dc0b920a8e0d44670145b6672936",
+      "operation": "add",
+      "evidence": "读取有界测试源码、方法身份与能力候选，不将静态候选当作执行证明。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewReceiptText.cs",
+      "hash": "e05589a51064992aea8e12350b4a955e6c3c1117c06c06f6c03311117110dc46",
+      "operation": "add",
+      "evidence": "完整机器回执先脱敏再传输，超限明确省略而不截成半段JSON。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewSourceText.cs",
+      "hash": "eb4e41bac2ce2b2e6bcff22664dec10ef1615727c97704282e725c39442c2d5b",
+      "operation": "add",
+      "evidence": "展示源码字符串安全脱敏，保留原始字节指纹和隐藏说明。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ReviewProjectSourceChecks.cs",
+      "hash": "c990043f3998ed662e63994e1c5de11acb0ed3b4ff49b2fad142bfba843f3b75",
+      "operation": "add",
+      "evidence": "覆盖五个真实项目测试输入的重复脱敏。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RuntimeUnityHostLiveChecks.cjs",
+      "hash": "a15872f5641474c7c14ac464500158a38479b6d229280dc5c44246aa85edae39",
+      "operation": "add",
+      "evidence": "普通任务自动调度真实Unity、证据导航及结束请求恢复联调，准确清理测试所有权。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Program.cs",
+      "hash": "494b41761db69f051302f0d1c6e0d144caffc215362efd77f80e6a9355c9ab26",
+      "operation": "modify",
+      "evidence": "根宿主独占工程锁，持有至全部宿主关闭写入结束。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewRuntimeEvidence.cs",
+      "hash": "a86c17490d873f3f2f3c51d889faf20920f2888adef1449deb1073a60f033762",
+      "operation": "add",
+      "evidence": "从身份已核对的真实事件生成复审索引，保留顺序、复现依赖、断言和关联样本及缺失标记。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewMethodText.cs",
+      "operation": "add",
+      "hash": "4cbc584754433691774247a9858e8718f0a2ccd7509e7373ae4d04f11f2764af",
+      "evidence": "按登记提取完整方法、行号和原文件哈希；显式省略其他成员，超限/缺方法/版本漂移拒绝。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeMethods.cs",
+      "operation": "modify",
+      "hash": "c2ed1f0b553d3951581663b04a4e042d07ae166b0f03e07305d5a2fd35b3ccc8",
+      "evidence": "复用既有词法方法范围识别提供声明行，支持有界复审取证。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/UnityEvidenceRelease.cs",
+      "operation": "add",
+      "evidence": "仅重试精确编号的幂等证据释放并保留执行及释放两项异常。",
+      "hash": "b544a6a0d78e4f5eb47e4855f4b20d03e526e6e2f7fbd60ccf5fad035b3838b3"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/UnityEvidenceReleaseChecks.cs",
+      "operation": "add",
+      "evidence": "覆盖域重载释放重试、次数上限、错误身份、取消及双异常。",
+      "hash": "c42a4add8ca66ca8adabe33359149d0884b73607fa7deb13944771d06c23c656"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestWorkflowLaunchLiveChecks.cjs",
+      "operation": "add",
+      "hash": "36f33bcf6a64321da6bd9d8b08050ba8b4b44bded8afe3322f68b6d5eee44c92",
+      "evidence": "后台真实浏览器验证缺计划/场景、请求状态、错误及xhigh转发，使用显式API夹具。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/StandaloneTestingChecks.cs",
+      "operation": "add",
+      "evidence": "独立测试主页面、导航与无计划审批返工的实现或回归证据。",
+      "hash": "9533a6fde28bf4433f1764e55de86aaf428b85b641ba3ed2f7841000a6d5deb7"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/testing.css",
+      "operation": "add",
+      "evidence": "独立测试主页面、导航与无计划审批返工的实现或回归证据。",
+      "hash": "381d76043e49f8b4d97e8b01912d3b335c47170c65fa0e5113c8181437174946"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "operation": "modify",
+      "evidence": "独立测试主页面、导航与无计划审批返工的实现或回归证据。",
+      "hash": "bfdca12dcd42f8ceba65d9ed1139af9bc76173e28838038c42399e69864f3e8e"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/icon-registry.js",
+      "operation": "modify",
+      "evidence": "独立测试主页面、导航与无计划审批返工的实现或回归证据。",
+      "hash": "97fd0da4a61622903027dd707b2b971447b554f4aebe6a593dbdafb614cffed8"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "evidence": "独立测试主页面、导航与无计划审批返工的实现或回归证据。",
+      "hash": "ecf887776e7fa476d803d4dfea9bb9559f3e3faf60b7fe2039d458efab421fea"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/WorkbenchAppearanceLiveChecks.cjs",
+      "operation": "modify",
+      "evidence": "独立测试主页面、导航与无计划审批返工的实现或回归证据。",
+      "hash": "d24e96e4fb7d5bd3075657210a55ef512e79b622792f17f098d4e49cf924a2ad"
+    }
+  ]
+}
