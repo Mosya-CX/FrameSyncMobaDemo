@@ -4,9 +4,10 @@
   "type": "requirement",
   "domain": "Karolina",
   "path": "Docs/requirements/karolina/REQ-KAR-009_live2d-source-art.md",
-  "version": 1,
-  "updatedAt": "2026-10-04T13:34:49.207455+08:00",
+  "version": 2,
+  "updatedAt": "2026-10-10T22:00:20+08:00",
   "status": "激活",
+  "implementationStatus": "待实现",
   "related": [
     "REQ-KAR-008"
   ],

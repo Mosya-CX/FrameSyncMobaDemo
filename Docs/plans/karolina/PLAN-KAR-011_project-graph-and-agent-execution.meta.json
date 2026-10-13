@@ -5,14 +5,15 @@
   "type": "plan",
   "domain": "Karolina",
   "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.md",
-  "status": "验收",
-  "version": 7,
+  "status": "关闭",
+  "version": 9,
   "requirements": [
     "REQ-KAR-013",
     "REQ-KAR-014",
     "REQ-KAR-015",
     "REQ-KAR-016",
-    "REQ-KAR-010"
+    "REQ-KAR-010",
+    "REQ-KAR-011"
   ],
   "requirementRefs": [
     {
@@ -33,14 +34,14 @@
       "id": "REQ-KAR-014",
       "title": "Agent 任务验证与有限修复闭环",
       "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
-      "version": 2,
+      "version": 3,
       "status": "激活",
       "sections": [
         "技术方案",
         "边界情况",
         "验收条件"
       ],
-      "hash": "b6b19f96b5cc2b438e3b750352d86616b1a15edd54e40d3878d2ca3aa7165c79"
+      "hash": "70817ecc56de32596e7a318acdb24a7e36ea1a38769ea402be38591890f0034b"
     },
     {
       "id": "REQ-KAR-015",
@@ -82,6 +83,17 @@
         "验收条件"
       ],
       "hash": "af7d7a1d5e9d76522bf5f0bd81ae81980fe3ff4848c49469f071d3c731ca0bb7"
+    },
+    {
+      "id": "REQ-KAR-011",
+      "title": "有来源归属的自动任务审批",
+      "path": "Docs/requirements/karolina/REQ-KAR-011_attributed-live-task-review.md",
+      "version": 4,
+      "status": "激活",
+      "sections": [
+        "审批读取性能补充"
+      ],
+      "hash": "2f0360be9f4aa3f376709aca81fe50bfeffbbb7ce6b31ea0023d9daf8783a176"
     }
   ],
   "tags": [
@@ -119,12 +131,27 @@
     {
       "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
       "operation": "modify",
-      "reason": "用户验收反馈与文档归属边界"
+      "reason": "对话与审批体验校正条款、细节和实际检查"
     },
     {
       "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.meta.json",
       "operation": "modify",
-      "reason": "用户验收反馈与文档归属边界"
+      "reason": "对话与审批体验校正条款、细节和实际检查"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-011_attributed-live-task-review.md",
+      "operation": "modify",
+      "reason": "对话与审批体验校正条款、细节和实际检查"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-011_attributed-live-task-review.meta.json",
+      "operation": "modify",
+      "reason": "对话与审批体验校正条款、细节和实际检查"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.md",
+      "operation": "modify",
+      "reason": "对话与审批体验校正条款、细节和实际检查"
     }
   ],
   "resourceRefs": [
@@ -235,17 +262,32 @@
     },
     {
       "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
-      "hash": "b6b19f96b5cc2b438e3b750352d86616b1a15edd54e40d3878d2ca3aa7165c79",
-      "evidence": "用户本轮验收校正后的需求条款"
+      "hash": "70817ecc56de32596e7a318acdb24a7e36ea1a38769ea402be38591890f0034b",
+      "evidence": "本次对话与审批体验校正的关联工程文档"
     },
     {
       "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.meta.json",
-      "hash": "55c350f725c9667274ad5e7b08a259aff560c11765fa1753691ff904ed0a1e64",
-      "evidence": "用户本轮验收校正后的需求条款"
+      "hash": "79354c0619581544ec94462c877253a8f189f9e9ef46e17bf30eacef5da8b9e9",
+      "evidence": "本次对话与审批体验校正的关联工程文档"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-011_attributed-live-task-review.md",
+      "hash": "2f0360be9f4aa3f376709aca81fe50bfeffbbb7ce6b31ea0023d9daf8783a176",
+      "evidence": "本次对话与审批体验校正的关联工程文档"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-011_attributed-live-task-review.meta.json",
+      "hash": "457d37a8a82846c78a490f5f700a73aa8591c3db71b5d9a6ed8c2fc7fad580ee",
+      "evidence": "本次对话与审批体验校正的关联工程文档"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.md",
+      "hash": "bc21bae2c3bfd897c9db73430dd1d551f8f33f433a5429f36031f920a66f149a",
+      "evidence": "本次对话与审批体验校正的关联工程文档"
     }
   ],
   "createdAt": "2026-10-05",
-  "updatedAt": "2026-10-06",
+  "updatedAt": "2026-10-06T23:56:13.143680+08:00",
   "assessment": {
     "machine": "Karolina 私有仓库已推送；4个职责提交覆盖仓库文档、Core、桌面/Web 与测试，迁出后的帧同步项目副本和专属文档已清理。Release 构建、41项测试、38个JavaScript语法检查、帧同步只读图谱扫描、Docs链接与目录校验通过。",
     "agent": "独立只读复核无剩余P1/P2。启动脚本的构建输出链接路径拒绝保护已补齐并通过PowerShell语法解析；未由启动脚本启动应用。",
@@ -443,22 +485,22 @@
     {
       "path": "Karolina.Desktop/Workbench.cs",
       "operation": "modify",
-      "hash": "30f4f8ce90817d48fb23febe037e706bc523de3e61e160cd3d9ef11cb6745051",
-      "evidence": "本轮聊天反馈校正：按线程/轮次整理活动、公开摘要和真实验证回执",
+      "hash": "449508671f473bcf718bf63d399ec9470d4821f675d07f750dc70c303a086a55",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收",
       "repository": "E:/Github/Karolina"
     },
     {
       "path": "Karolina.Desktop/Workbench.Chat.cs",
       "operation": "modify",
-      "hash": "56af31c28760adfa9100a89e4aacab21fdfe795a484e7f9b0892e8af9714f9d2",
-      "evidence": "本轮聊天反馈校正：保留引用来源、可读反馈指引和summary请求，不升级模型",
+      "hash": "167aad60d0a671912ec9ade0c585bd2431f324dc2c0de3bcf202a9814a4f9f6b",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收",
       "repository": "E:/Github/Karolina"
     },
     {
       "path": "Karolina.Desktop/Workbench.Routes.cs",
       "operation": "modify",
-      "hash": "ef7ab50372d037f20ea9215e18b1e155b06157ed222051902f960c2dcc0e52db",
-      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "hash": "c6d1b6efa00eac1413135270aa1e1d48d803c8c4c7bfcff792126666fabf57ee",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收",
       "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
@@ -478,15 +520,15 @@
     {
       "path": "Karolina.Desktop/Web/index.html",
       "operation": "modify",
-      "hash": "18ee1d87ab713145836dee3b1f3b89f591a9979159d7be888bfa2ecd261ccafd",
-      "evidence": "独立仓库中的已存在文件；哈希用于锁定当前计划证据。",
+      "hash": "10cddb34b6ca36f5dc148dfc58f87c3b8f6772a9fea84d2267469fc5ce00b482",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收",
       "repository": "https://github.com/Mosya-CX/Karolina"
     },
     {
       "path": "Karolina.Desktop/Web/styles/pages/chat.css",
       "operation": "modify",
-      "hash": "ce9cea85adfad6e4c2356c99771762ba8856de3da27f0fcd32537bd148151e1f",
-      "evidence": "本轮聊天反馈校正：沿用现有主题的进度卡样式",
+      "hash": "509289a69f0614b166466021a312dd377b9294107981f20c61ae683bc49bc5c6",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收",
       "repository": "E:/Github/Karolina"
     },
     {
@@ -499,8 +541,8 @@
     {
       "path": "Karolina.Tests/Program.cs",
       "operation": "modify",
-      "hash": "e170e96180b8bc03e391b3f4916c0585b5c4b52970ab8d47a0086f3d66cd3471",
-      "evidence": "本轮聊天反馈校正：专项入口与无模型费用的真实JSONL协议夹具",
+      "hash": "0e651bf1f614f32719de768df5ac834ba8cdd0c7ee989fc1ac10fe2a2a5acb33",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收",
       "repository": "E:/Github/Karolina"
     },
     {
@@ -613,20 +655,20 @@
     {
       "repository": "E:/Github/Karolina",
       "path": "Karolina.Core/AgentActivity.cs",
-      "hash": "56767734387a90ae6c1b0ff2e50284b0398f67e6602f85cb168bf79b9f07ff75",
-      "evidence": "本轮聊天反馈校正：可读活动与真实测试终态约束"
+      "hash": "ccd84ee9c76714c61fdff48284c33f633c2698779c6a3463ee92085240b46fd5",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
     },
     {
       "repository": "E:/Github/Karolina",
       "path": "Karolina.Core/Processes.cs",
-      "hash": "1e0e0a81f03d25484e9d20f98150b32515fc43209a53465d0047722787799d13",
-      "evidence": "本轮聊天反馈校正：运行记录保存公开摘要与步骤，兼容旧记录"
+      "hash": "7b5ad48326f212af53898dc4a3434d806d02b53f82580f8b0ddf3171b132d34b",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
     },
     {
       "repository": "E:/Github/Karolina",
       "path": "Karolina.Desktop/Web/features/chat.js",
-      "hash": "145a6bda9617fff48f1b58a581bcdff7c13659bb40b9df396da88a1830e7a3cd",
-      "evidence": "本轮聊天反馈校正：资料发送与摘要卡、隐藏原始CLI，失败保留草稿"
+      "hash": "b07e92eae5b787537de02db56107c26abd93c0e258f37080ef0a6e861c33f070",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
     },
     {
       "repository": "E:/Github/Karolina",
@@ -643,20 +685,68 @@
     {
       "repository": "E:/Github/Karolina",
       "path": "Karolina.Desktop/Web/ui/chat-progress.js",
-      "hash": "b8e2b58479b91798a2c0fd460afe1eb64747b7214d8bca77ff91c86273c8d17d",
-      "evidence": "本轮聊天反馈校正：纯状态归约与独立进度、公开摘要、历史恢复视图"
+      "hash": "45b033ee852b02370fb9c50330287be780d27a94a1cb1327a5552875bf9d3b0d",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
     },
     {
       "repository": "E:/Github/Karolina",
       "path": "Karolina.Tests/ChatFeedbackChecks.cs",
-      "hash": "1550be5361e271457651e4ef7f358d224b10c3eb68a4a402fcd14ec917d865d0",
-      "evidence": "本轮聊天反馈校正：资料解析、边界、测试真实终态及同名审批回归"
+      "hash": "e2fbd62c71d88d0808ea50ee32c3352c2cbdc37bc4ad3e43a3ae025473ba51f4",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
     },
     {
       "repository": "E:/Github/Karolina",
       "path": "Karolina.Tests/ChatProgressChecks.test.mjs",
-      "hash": "3749c9f4fb4ef3619ff7a2658f1534084b6f2aa310cbaa7e0fbf74e2fbc1e656",
-      "evidence": "本轮聊天反馈校正：阶段、摘要与线程/终态隔离回归"
+      "hash": "bb8c2ef144e34e579a7c9ed8898c16e4be800f2e25bb26efea68ff57642a31fa",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskReviews.cs",
+      "hash": "945468578d83d892f16e743cf36c2c53881f6063f17bb698d934426658011cf7",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "hash": "fcb5d097659ccfe1084a566a30dfcd92682f6f64c90768f89f55a388ed29ad29",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/primitives/chat-portrait.css",
+      "hash": "af53c401a9fea3eb71a791a3398ea0759aaa332e31bf008bee131b950a6d1f25",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "hash": "4e912507ac07347bd12854f61de258e0c5689cb75a3df927fd898ff2a1a47787",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskReviewChecks.cs",
+      "hash": "b1a1df35ee7649e0bcb367f78622457965394d8ad5726511d6ab66a04c926316",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ChatPresentation.cs",
+      "hash": "2660a91ae76b3da9ae6fdba035359dae12a07ad3761259c525133f2c0c8a8788",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/chat-input.js",
+      "hash": "1f5b720a9d310c1fe5b2488ebf942da15690b1f746d16c355d9824f25e42f5de",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/public-summary.js",
+      "hash": "481d53faea933df12a5dd6d4959f75d8dd053c8f8ec9cb415a34f342eb7705d7",
+      "evidence": "本次对话与审批体验校正的真实源码；待人工验收"
     }
   ],
   "feedbackEvidence": {
@@ -722,5 +812,181 @@
       },
       "errors": []
     }
+  },
+  "plannedExternalChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/AgentActivity.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Processes.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskReviews.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/primitives/chat-portrait.css",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/chat-progress.js",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatFeedbackChecks.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatProgressChecks.test.mjs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskReviewChecks.cs",
+      "operation": "modify",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ChatPresentation.cs",
+      "operation": "add",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/chat-input.js",
+      "operation": "add",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/public-summary.js",
+      "operation": "add",
+      "reason": "对话原输入/中文公开摘要/右侧状态与审批加载校正"
+    }
+  ],
+  "chatReviewCorrectionEvidence": {
+    "core": "12/12",
+    "node": "7/7",
+    "review": "14/14",
+    "existingResourceReview": "13/13",
+    "releaseBuild": "0 warnings, 0 errors",
+    "approvalLoad": {
+      "listMs": [
+        55,
+        35,
+        29,
+        45,
+        26
+      ],
+      "openReviewMs": 241,
+      "lightweightList": true,
+      "files": 42,
+      "history": {
+        "input": "只读回归验证：我正在测试 Karolina 的“执行进度与状态反馈”。先用一句中文说明你理解我在验收哪项功能，再只读查看已选计划中有关执行反馈的条款，用两句中文说明应看到的状态和边界。可以读取该计划文",
+        "progressInChat": 0,
+        "statusCards": 1
+      },
+      "layout": {
+        "statusOnRight": true,
+        "mainWidth": 826,
+        "statusWidth": 320,
+        "padding": "0px"
+      },
+      "errors": [],
+      "screenshots": false
+    },
+    "screenshots": false,
+    "humanAcceptance": "pending",
+    "permissionProfiles": "discussion only, not implemented",
+    "ui": {
+      "icons": 48,
+      "loadedIcons": 48,
+      "motion": "full",
+      "effects": "dynamic night sky",
+      "mascot": true,
+      "codex": "connected",
+      "unity": "connected"
+    },
+    "independentReview": "最终只读复核无P1/P2；损坏运行记录及异步切换竞态已修复"
+  },
+  "closedAt": "2026-10-06T23:56:13.143680+08:00",
+  "conclusion": "按用户本轮明确授权，在核对现有实现、既有验证证据及远端历史后批量关闭。历史功能已有远端提交；本地后续修正不等于已推送。本次没有重新执行旧计划全部人工验收，也不虚构验收记录。后续改造由新计划承接。",
+  "closureEvidence": {
+    "authority": "用户本轮要求：帮我把应该关闭的关了，自动更新状态",
+    "checkedAt": "2026-10-06T23:56:13.143680+08:00",
+    "remoteBaseline": "Karolina origin/main dde33ee3ba27c65c715f7d7c01b794048527ef8a；关联工程 origin/master 397135fce01a99d03071364ea96e608d5d5070e1",
+    "publication": "历史功能已在远端；当前工作区差异须另经版本审批发布",
+    "manualRetest": "本轮未重新执行旧计划全部人工验收"
   }
 }

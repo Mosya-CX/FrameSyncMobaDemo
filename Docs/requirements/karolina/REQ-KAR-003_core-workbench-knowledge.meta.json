@@ -1,23 +1,35 @@
 {
   "id": "REQ-KAR-003",
-  "title": "核心工作台与中文工程知识",
+  "title": "\u6838\u5FC3\u5DE5\u4F5C\u53F0\u4E0E\u4E2D\u6587\u5DE5\u7A0B\u77E5\u8BC6",
   "type": "requirement",
-  "status": "激活",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
   "domain": "Karolina",
   "path": "Docs/requirements/karolina/REQ-KAR-003_core-workbench-knowledge.md",
-  "version": 3,
+  "version": 5,
   "related": [
     "REQ-KAR-001"
   ],
-  "implementationState": "本期核心功能已实现并验证，后续范围见验收记录",
+  "implementationState": "\u672C\u671F\u6838\u5FC3\u529F\u80FD\u5DF2\u5B9E\u73B0\u5E76\u9A8C\u8BC1\uFF0C\u540E\u7EED\u8303\u56F4\u89C1\u9A8C\u6536\u8BB0\u5F55",
   "evidence": [
     {
       "path": "Docs/plans/karolina/PLAN-KAR-002_workbench-reconstruction.md",
-      "kind": "本期验收（原报告证据已归入计划）"
+      "kind": "\u672C\u671F\u9A8C\u6536\uFF08\u539F\u62A5\u544A\u8BC1\u636E\u5DF2\u5F52\u5165\u8BA1\u5212\uFF09"
     }
   ],
-  "updatedAt": "2026-10-02T21:02:14.666044+08:00",
+  "updatedAt": "2026-10-10T23:35:09.9500708\u002B08:00",
   "tags": [
     "Karolina"
-  ]
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-10T23:35:09.9498307\u002B08:00",
+    "reasons": [
+      "\u5DF2\u5173\u95ED\u8BA1\u5212\u6CA1\u6709\u5F15\u7528\u5F53\u524D\u9700\u6C42\u6B63\u6587\u7248\u672C\uFF1B\u91CD\u65B0\u6807\u8BB0\u5DF2\u5B9E\u73B0\u524D\u9700\u66F4\u65B0\u8BA1\u5212\u7684\u53C2\u8003\u9700\u6C42\u3002",
+      "\u6CA1\u6709\u53EF\u6838\u9A8C\u7684\u6D4B\u8BD5\u4EE3\u7801\u5F15\u7528\u3002",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/DocumentLibrary.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/features/chat.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/features/documents.js"
+    ]
+  }
 }

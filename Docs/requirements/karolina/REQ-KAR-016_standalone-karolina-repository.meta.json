@@ -1,17 +1,57 @@
 {
   "id": "REQ-KAR-016",
-  "title": "Karolina 独立源码仓库",
+  "title": "Karolina \u72EC\u7ACB\u6E90\u7801\u4ED3\u5E93",
   "type": "requirement",
   "domain": "Karolina",
   "path": "Docs/requirements/karolina/REQ-KAR-016_standalone-karolina-repository.md",
-  "status": "激活",
-  "version": 1,
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "version": 5,
   "tags": [
     "Karolina",
-    "独立仓库",
+    "\u72EC\u7ACB\u4ED3\u5E93",
     "GitHub",
-    "工程隔离"
+    "\u5DE5\u7A0B\u9694\u79BB"
   ],
   "createdAt": "2026-10-05",
-  "updatedAt": "2026-10-05"
+  "updatedAt": "2026-10-11T17:52:32.2318958\u002B08:00",
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-11T17:52:32.2313555\u002B08:00",
+    "reasons": [
+      "\u6CA1\u6709\u53EF\u6838\u9A8C\u7684\u6D4B\u8BD5\u4EE3\u7801\u5F15\u7528\u3002",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/DocumentLibrary.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/McpClient.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/Processes.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/ProjectGraph.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/TaskReviews.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/WorkbenchSettings.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/bootstrap.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/features/chat.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/features/documents.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/features/providers.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/project-graph.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/review.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/settings.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/ui/chat-progress.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/ui/public-summary.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Workbench.Chat.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Workbench.Reviews.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Workbench.Routes.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Workbench.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Tests/GraphSettingsChecks.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Tests/Program.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Tests/TaskReviewChecks.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/ProjectGraph.Freshness.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/ProjectGraph.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/ProjectGraphFiles.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/ProjectGraphQuery.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Core/ProjectGraphTools.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/project-graph-view.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Web/project-graph.js",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Workbench.GraphMcp.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Desktop/Workbench.Routes.cs",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AKarolina.Tests/GraphSettingsChecks.cs"
+    ]
+  }
 }

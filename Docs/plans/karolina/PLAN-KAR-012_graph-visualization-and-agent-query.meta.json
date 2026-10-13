@@ -5,8 +5,8 @@
   "type": "plan",
   "domain": "Karolina",
   "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.md",
-  "status": "验收",
-  "version": 6,
+  "status": "关闭",
+  "version": 7,
   "requirements": [
     "REQ-KAR-013",
     "REQ-KAR-016"
@@ -236,7 +236,7 @@
     }
   ],
   "createdAt": "2026-10-05",
-  "updatedAt": "2026-10-05",
+  "updatedAt": "2026-10-06T23:56:13.143680+08:00",
   "externalRefs": [
     {
       "repository": "E:/Github/Karolina",
@@ -482,5 +482,14 @@
       "restoredAllBuffers": true,
       "errors": []
     }
+  },
+  "closedAt": "2026-10-06T23:56:13.143680+08:00",
+  "conclusion": "按用户本轮明确授权，在核对现有实现、既有验证证据及远端历史后批量关闭。历史功能已有远端提交；本地后续修正不等于已推送。本次没有重新执行旧计划全部人工验收，也不虚构验收记录。后续改造由新计划承接。",
+  "closureEvidence": {
+    "authority": "用户本轮要求：帮我把应该关闭的关了，自动更新状态",
+    "checkedAt": "2026-10-06T23:56:13.143680+08:00",
+    "remoteBaseline": "Karolina origin/main dde33ee3ba27c65c715f7d7c01b794048527ef8a；关联工程 origin/master 397135fce01a99d03071364ea96e608d5d5070e1",
+    "publication": "历史功能已在远端；当前工作区差异须另经版本审批发布",
+    "manualRetest": "本轮未重新执行旧计划全部人工验收"
   }
 }

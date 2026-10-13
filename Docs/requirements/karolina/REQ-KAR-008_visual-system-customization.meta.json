@@ -1,18 +1,28 @@
 {
   "id": "REQ-KAR-008",
-  "title": "前端视觉、交互与可替换主题系统",
+  "title": "\u524D\u7AEF\u89C6\u89C9\u3001\u4EA4\u4E92\u4E0E\u53EF\u66FF\u6362\u4E3B\u9898\u7CFB\u7EDF",
   "type": "requirement",
   "domain": "Karolina",
   "path": "Docs/requirements/karolina/REQ-KAR-008_visual-system-customization.md",
-  "version": 8,
-  "updatedAt": "2026-10-04T21:31:30.119298+08:00",
-  "status": "激活",
+  "version": 10,
+  "updatedAt": "2026-10-10T23:35:07.2530936\u002B08:00",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
   "related": [
     "REQ-KAR-006",
     "REQ-KAR-007"
   ],
-  "implementationState": "桌宠B基底六项互动和独立动作、三模式右侧立绘已接入；睡姿腿部已修订；编译通过，本轮未运行行为测试",
+  "implementationState": "\u684C\u5BA0B\u57FA\u5E95\u516D\u9879\u4E92\u52A8\u548C\u72EC\u7ACB\u52A8\u4F5C\u3001\u4E09\u6A21\u5F0F\u53F3\u4FA7\u7ACB\u7ED8\u5DF2\u63A5\u5165\uFF1B\u7761\u59FF\u817F\u90E8\u5DF2\u4FEE\u8BA2\uFF1B\u7F16\u8BD1\u901A\u8FC7\uFF0C\u672C\u8F6E\u672A\u8FD0\u884C\u884C\u4E3A\u6D4B\u8BD5",
   "tags": [
     "Karolina"
-  ]
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-10T23:35:07.2526935\u002B08:00",
+    "reasons": [
+      "\u5DF2\u5173\u95ED\u8BA1\u5212\u6CA1\u6709\u5F15\u7528\u5F53\u524D\u9700\u6C42\u6B63\u6587\u7248\u672C\uFF1B\u91CD\u65B0\u6807\u8BB0\u5DF2\u5B9E\u73B0\u524D\u9700\u66F4\u65B0\u8BA1\u5212\u7684\u53C2\u8003\u9700\u6C42\u3002",
+      "\u6CA1\u6709\u53EF\u6838\u9A8C\u7684\u6E90\u7801\u6587\u4EF6\u5F15\u7528\u3002",
+      "\u6CA1\u6709\u53EF\u6838\u9A8C\u7684\u6D4B\u8BD5\u4EE3\u7801\u5F15\u7528\u3002"
+    ]
+  }
 }

@@ -4,8 +4,9 @@
   "type": "requirement",
   "domain": "Karolina",
   "status": "激活",
+  "implementationStatus": "待实现",
   "path": "Docs/requirements/karolina/REQ-KAR-005_current-version-git-workflow.md",
-  "version": 5,
+  "version": 6,
   "createdAt": "2026-10-02",
   "related": [
     "REQ-KAR-004"
@@ -17,7 +18,7 @@
       "summary": "本轮七项修订"
     }
   ],
-  "updatedAt": "2026-10-02T21:02:14.666044+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00",
   "tags": [
     "Karolina"
   ]

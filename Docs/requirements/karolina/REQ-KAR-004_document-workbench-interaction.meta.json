@@ -1,11 +1,12 @@
 {
   "id": "REQ-KAR-004",
-  "title": "文档生命周期与工作台交互",
+  "title": "\u6587\u6863\u751F\u547D\u5468\u671F\u4E0E\u5DE5\u4F5C\u53F0\u4EA4\u4E92",
   "type": "requirement",
-  "status": "激活",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
   "domain": "Karolina",
   "path": "Docs/requirements/karolina/REQ-KAR-004_document-workbench-interaction.md",
-  "version": 4,
+  "version": 6,
   "related": [
     "REQ-KAR-003",
     "REQ-KAR-005"
@@ -13,19 +14,32 @@
   "sources": [
     {
       "kind": "user",
-      "summary": "本轮十三项反馈",
+      "summary": "\u672C\u8F6E\u5341\u4E09\u9879\u53CD\u9988",
       "date": "2026-10-02"
     }
   ],
-  "implementationState": "本轮工作台功能已实现并验证；真实Gameplay专项缺口独立保留",
+  "implementationState": "\u672C\u8F6E\u5DE5\u4F5C\u53F0\u529F\u80FD\u5DF2\u5B9E\u73B0\u5E76\u9A8C\u8BC1\uFF1B\u771F\u5B9EGameplay\u4E13\u9879\u7F3A\u53E3\u72EC\u7ACB\u4FDD\u7559",
   "evidence": [
     {
       "path": "Docs/plans/karolina/PLAN-KAR-003_document-interaction-revision.md",
-      "kind": "本轮行为与构建验收（原报告证据已归入计划）"
+      "kind": "\u672C\u8F6E\u884C\u4E3A\u4E0E\u6784\u5EFA\u9A8C\u6536\uFF08\u539F\u62A5\u544A\u8BC1\u636E\u5DF2\u5F52\u5165\u8BA1\u5212\uFF09"
     }
   ],
-  "updatedAt": "2026-10-02T21:02:14.666044+08:00",
+  "updatedAt": "2026-10-10T23:35:08.6560261\u002B08:00",
   "tags": [
     "Karolina"
-  ]
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-10T23:35:08.6556271\u002B08:00",
+    "reasons": [
+      "\u6CA1\u6709\u53EF\u6838\u9A8C\u7684\u6D4B\u8BD5\u4EE3\u7801\u5F15\u7528\u3002",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/DocumentLibrary.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/features/documents.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/ui/document-index.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/TaskReviews.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/review.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Workbench.Reviews.cs"
+    ]
+  }
 }

@@ -1,15 +1,32 @@
 {
   "id": "REQ-KAR-006",
-  "title": "任务变更审批与反馈再执行",
+  "title": "\u4EFB\u52A1\u53D8\u66F4\u5BA1\u6279\u4E0E\u53CD\u9988\u518D\u6267\u884C",
   "type": "requirement",
   "domain": "Karolina",
-  "status": "激活",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
   "path": "Docs/requirements/karolina/REQ-KAR-006_task-change-approval.md",
-  "version": 3,
+  "version": 5,
   "createdAt": "2026-10-02",
   "code": "REQ-KAR-006",
-  "updatedAt": "2026-10-03T00:47:25.605412+08:00",
+  "updatedAt": "2026-10-10T23:35:06.8071218\u002B08:00",
   "tags": [
     "Karolina"
-  ]
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-10T23:35:06.8067918\u002B08:00",
+    "reasons": [
+      "\u6CA1\u6709\u53EF\u6838\u9A8C\u7684\u6D4B\u8BD5\u4EE3\u7801\u5F15\u7528\u3002",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/TaskReviews.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/review.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Workbench.Reviews.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/ExtensionTools.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/ProjectContext.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Core/WorkflowModes.cs",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/tools.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Web/workspace.js",
+      "\u65E0\u6CD5\u6838\u9A8C\uFF1A\u5916\u90E8\u4ED3\u5E93\u4E0D\u5728\u672C\u673A\u53EF\u4FE1\u8303\u56F4\uFF1Ahttps://github.com/Mosya-CX/Karolina \u00B7 Karolina.Desktop/Workbench.Tools.cs"
+    ]
+  }
 }

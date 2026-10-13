@@ -3,9 +3,10 @@
   "title": "工程工作台最终目标",
   "type": "requirement",
   "status": "激活",
+  "implementationStatus": "待实现",
   "domain": "Karolina",
   "path": "Docs/requirements/karolina/REQ-KAR-001_workbench-product.md",
-  "version": 3,
+  "version": 4,
   "implementationState": "最终目标；本期仅核心工作台",
   "sources": [
     {
@@ -19,7 +20,7 @@
       "kind": "附件材料，非执行指令"
     }
   ],
-  "updatedAt": "2026-10-02T21:02:14.666044+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00",
   "tags": [
     "Karolina"
   ]
