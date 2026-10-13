@@ -1,0 +1,694 @@
+{
+  "id": "PLAN-KAR-013",
+  "code": "0178",
+  "title": "内容权限与 Agent 分批发布实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-013_permissions-and-agent-publication.md",
+  "status": "验收",
+  "version": 2,
+  "createdAt": "2026-10-06T23:56:13.143680+08:00",
+  "updatedAt": "2026-10-07T01:23:12.919079+08:00",
+  "tags": [
+    "Karolina",
+    "Git发布"
+  ],
+  "requirements": [
+    "REQ-KAR-017",
+    "REQ-KAR-018"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-017",
+      "title": "工程内容权限与任务临时授权",
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "version": 1,
+      "status": "激活",
+      "hash": "6205a70b7c341da3eb8d3ad0578ca0c9083da23ef3d8d92bca62a0903657a450",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    },
+    {
+      "id": "REQ-KAR-018",
+      "title": "状态栏 Agent 分批提交与推送",
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.md",
+      "version": 1,
+      "status": "激活",
+      "hash": "4656099ca9520a2f81b931b9b0d0f6ff2c979232b1a512f90513075a7008676f",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    }
+  ],
+  "plannedChanges": [
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-013_permissions-and-agent-publication.md",
+      "operation": "add",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-013_permissions-and-agent-publication.meta.json",
+      "operation": "add",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "operation": "add",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.meta.json",
+      "operation": "add",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.md",
+      "operation": "add",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.meta.json",
+      "operation": "add",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.meta.json",
+      "operation": "modify",
+      "reason": "接受的内容权限与发布合同、实施计划、文档索引或本轮授权旧计划结案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-013_verification-evidence.json",
+      "operation": "add",
+      "reason": "真实机器、Codex与界面验收证据；不代替人工验收"
+    }
+  ],
+  "plannedExternalChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Processes.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectPermissions.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TemporaryAuthorizations.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/PublicationPolicy.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/GitPublication.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/GitRollback.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/PublicationPlanner.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Publication.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/publication.js",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/permissions.js",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/settings.css",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PublicationChecks.cs",
+      "operation": "add",
+      "reason": "内容权限或 Agent 发布职责"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/CodexConnection.cs",
+      "operation": "modify",
+      "reason": "协议权限能力、到期实际回收、操作互斥、初始化兼容或真实协议验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "add",
+      "reason": "协议权限能力、到期实际回收、操作互斥、初始化兼容或真实协议验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Tools.cs",
+      "operation": "modify",
+      "reason": "协议权限能力、到期实际回收、操作互斥、初始化兼容或真实协议验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/workspace.js",
+      "operation": "modify",
+      "reason": "协议权限能力、到期实际回收、操作互斥、初始化兼容或真实协议验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PublicationLiveChecks.cs",
+      "operation": "add",
+      "reason": "协议权限能力、到期实际回收、操作互斥、初始化兼容或真实协议验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/DesktopWindow.cs",
+      "operation": "modify",
+      "reason": "原生窗口认证头传递，凭据不进入浏览器地址与历史"
+    }
+  ],
+  "estimateStatus": "已记录关联工程文档与外部 Karolina 源码范围；现存共享文件指纹仅说明当前内容，不认领此前改动",
+  "externalRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "hash": "3ad58cb91c18e681375883954e11b368e70dda87b60d39939a12c598b300681e",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Processes.cs",
+      "operation": "modify",
+      "hash": "9a8610264102c51de1625bbaab7588946f83f16b64224b21929e2bb972ac3561",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectPermissions.cs",
+      "operation": "add",
+      "hash": "957145f664b6132a47b0cd2159a7fa0d0190842a771fb883c15ec42f4d2d9f85",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TemporaryAuthorizations.cs",
+      "operation": "add",
+      "hash": "190e154af50556f8e97056d2fbbb4ed7f8de7984aa23944798189e0d7b8b9344",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/PublicationPolicy.cs",
+      "operation": "add",
+      "hash": "3d7c5e7fa892fdcb747c44eb0c7af10a2ae64505218f727525bb71fba24274c0",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/GitPublication.cs",
+      "operation": "add",
+      "hash": "fc21f3259788a5ab7f07cb2d28c440297e97a5e66f5a8e27bee4497dff572a99",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/GitRollback.cs",
+      "operation": "add",
+      "hash": "0aa53e8949359e851a32b7a930f8afa38508f22cb7a82a2ab8cb7a1af8a6e6d1",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/PublicationPlanner.cs",
+      "operation": "add",
+      "hash": "7f2da7379ddf75608d0953d64178edeb29f8c9c760f78f3efbccaf425b956422",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "hash": "1c6dd67ff4e04501a305d1e3bd9c6b3d364e6783df7e4cff62dbaf6c3a0b0dde",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "hash": "ea72557f54157f1bbec6f4eb3728214b5b0e7cc8bcf153c15d898f2989b60ce9",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "hash": "ec0d0f87ebac1f9773f7cb11381aafb7a015be0a68d890b46f6b8656464a673b",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "operation": "modify",
+      "hash": "949350c644351be862b162fbda69e9c53c9297e42a16edc83879b3f172fd58a4",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "hash": "00d92a2504ad9ab2a4d477ffb64077af6a966ea507b3cadfd29750804ccc94b0",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Publication.cs",
+      "operation": "add",
+      "hash": "5677d874f06c9838a7b022eee9239fb5064fccc4a3d655ced12f2e4965e93fd7",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "hash": "8de475d7db36a29f9f589dc49ab49a6f605f73bf4a508296fcce2dd37039d7a7",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "hash": "9eb62c60a54e3b422a90e4227d4fa4004da40aeea96880e3ba9ed8f06c0b5b33",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "hash": "1c51c13754ba2c0c73c1e96dc521130c82e16ef8b3b1f871e2d081aa1c280742",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/publication.js",
+      "operation": "add",
+      "hash": "d197e0e312b02b7d85da464a61ea0fcbc0676a3fd2745b4f68e26934d42fa896",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/permissions.js",
+      "operation": "add",
+      "hash": "2b64357755f2355c0c5e417abcf93da0b32a7d8e28e3ad2993a9b602c5645f72",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "hash": "c69038b42c4f157c2d6dad62b5533ae22756a5ad2fbc8c1c4dc3ac8e4adac7b9",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/settings.css",
+      "operation": "modify",
+      "hash": "defcf85b56a80a50ba40f805d06ff2458d60908bbe9200446063a5ebc05b64bc",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "69e8ddfb485c332d26cbf78c80625aa2f85ba5f81065c11b0b19363b5f731978",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PublicationChecks.cs",
+      "operation": "add",
+      "hash": "0791252ad5cb5ae189cfdb3b6fe7d31c1b67057830ef96911e9ed25ae8258621",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/CodexConnection.cs",
+      "operation": "modify",
+      "hash": "38e57c0369a0ed89e363ae64f54778659a17f21c65dc2219fb6abce0eb7bb613",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "add",
+      "hash": "9b48d286996acdd0d5be2858be94951aa23db1daa9a86147036f19bf41cbe4d1",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Tools.cs",
+      "operation": "modify",
+      "hash": "2b0991101c84ba997d85b1c73398d66136ad4ca695ca28de99712af9b42a6827",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/workspace.js",
+      "operation": "modify",
+      "hash": "f58219510b8de8423ceb52f3c614c33b81c9aecdf01979e93f52221fa9918c35",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PublicationLiveChecks.cs",
+      "operation": "add",
+      "hash": "4513e56cbe456cde8268fdbcb02b7afbcfefa8f36c51ad32d6e7cf75b28165a5",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/DesktopWindow.cs",
+      "operation": "modify",
+      "hash": "2b3b9babe0a7bb8b64f38eff67b9b3d911a86455fc0fc0631d890bb28607c9ef",
+      "evidence": "实际现存源码快照，经编译与定向测试；不代表人工发布批准，也不证明共享文件已有改动的作者。"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "hash": "b78a79a74255b4756df7b971b0338a2687a20afddddf5c85fd6003a03e49c986",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.md",
+      "operation": "modify",
+      "hash": "c2f9eea89e559272d63004b1e1b595d9bafce5d9e525ede57e415a01d0d7fdc7",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-005_task-change-approval-implementation.meta.json",
+      "operation": "modify",
+      "hash": "588cf7be1c24cb311ad35fc57847b5b7bd3f99b33a353e53c58a4afd0c55b465",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.md",
+      "operation": "modify",
+      "hash": "3a563a8f646156872b3a270ea0fd1a76dff6b97d171c33ed83c654513fb088fb",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-006_workspace-modes-tools.meta.json",
+      "operation": "modify",
+      "hash": "b5f5affb28dc9a54fcdace5b62a3683556f5d553ee11e4f7560800cc960b6c09",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.md",
+      "operation": "modify",
+      "hash": "b3c16d9f86c3af501023364a140e6afd6e3288e05f3ea5840a9e375869133462",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-007_visual-system-customization.meta.json",
+      "operation": "modify",
+      "hash": "695718cd4dffe531c3e50709747de3472d4111f7a56e342c9cb6b5f77bf6c7ee",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.md",
+      "operation": "modify",
+      "hash": "df0af990586dc8652a65f3d3b39d9a469ddb89d2605a4054ab631ecf828ee04e",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.meta.json",
+      "operation": "modify",
+      "hash": "c8856597f6a2729428cc01a0f41c15f22804adcfb070267f23ed6ee7ae5b4a53",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.md",
+      "operation": "modify",
+      "hash": "11f6d0bffeba00a379defe2549fd4be43a30fb0d5976c7879a3453911cba5b5c",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.meta.json",
+      "operation": "modify",
+      "hash": "9f39c05f4ba639f469ac49c3fc9619cafcf633295459d58c57b1d169f5cfbd43",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.md",
+      "operation": "modify",
+      "hash": "e838b3f83e3af8cd1028a72d02556d00d4fdf07b396cafa1b0a5624f7c979f5d",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-011_project-graph-and-agent-execution.meta.json",
+      "operation": "modify",
+      "hash": "2eb74c6c98a5a4b126e23b293413b3513c906ff6d01a164b20b8cc9f3cc9a18f",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.md",
+      "operation": "modify",
+      "hash": "6716f9f2e5211ba99e6099ebf6d8403d807bee19fd19af6172ced7e7b0c6ad6a",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.meta.json",
+      "operation": "modify",
+      "hash": "243b37f6ea7bb12a02e7b5103503500a9216bc2123894fe6976b01057f525e1b",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-013_permissions-and-agent-publication.md",
+      "operation": "add",
+      "hash": "5e5a646ed9c465f3fe3654e23e165500aebd3e1d51b51cafcaae991e241cb487",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "operation": "add",
+      "hash": "6205a70b7c341da3eb8d3ad0578ca0c9083da23ef3d8d92bca62a0903657a450",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.meta.json",
+      "operation": "add",
+      "hash": "4dbeee28e21b5dad97aa56453e8a6e8d44dcb658c4ffb705c716344723f9bf0c",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.md",
+      "operation": "add",
+      "hash": "4656099ca9520a2f81b931b9b0d0f6ff2c979232b1a512f90513075a7008676f",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.meta.json",
+      "operation": "add",
+      "hash": "e2585342e5ae10b982eca60a361bbc075f32187b18af890a0f90411e8aef4922",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+      "operation": "modify",
+      "hash": "666df4b5d4307fb13566c9b0d60f94a86f2e4cee61799f8d21e51074060edefe",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.meta.json",
+      "operation": "modify",
+      "hash": "a8ee079a92f18f407641e1a69640a939a8e2f3f8a1304b7adfce55b568bcc260",
+      "evidence": "本轮授权关联文档的实际内容；结案依据见各计划正文，本新计划仍待用户验收。"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-013_verification-evidence.json",
+      "operation": "add",
+      "evidence": "本轮真实验证汇总；不补造生产发布或人工验收",
+      "hash": "a6d5f3c35928f76177c57c99aa1b5c29ee7a616cde5a5b6b60870ebf7f138608"
+    }
+  ],
+  "verificationEvidence": "Docs/plans/karolina/PLAN-KAR-013_verification-evidence.json",
+  "verificationSummary": "69项定向测试及真实Codex/原生窗口验证通过，待人工验收；未生产提交推送"
+}

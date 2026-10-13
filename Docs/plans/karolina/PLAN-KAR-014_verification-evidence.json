@@ -1,0 +1,71 @@
+{
+  "plan": "PLAN-KAR-014",
+  "checkedAt": "2026-10-07T12:36:20.407714+08:00",
+  "status": "机器和独立审查通过，等待人工验收",
+  "build": {
+    "configuration": "Release",
+    "solution": "Karolina.sln",
+    "errors": 0,
+    "warnings": 0,
+    "publishedEntry": "E:/Github/Karolina/artifacts/current/Karolina.Desktop.exe"
+  },
+  "directedChecks": {
+    "folderConcurrency": 12,
+    "publication": 15,
+    "chatFeedback": 11,
+    "taskReviews": 14,
+    "functionPolish": 13,
+    "graphSettings": 9,
+    "node": 7,
+    "total": 81,
+    "failed": 0
+  },
+  "liveConversations": {
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "parallelConversations": 2,
+    "parallelOccupations": 2,
+    "independentStop": true,
+    "resumedWrite": true,
+    "independentReviewEvidence": true
+  },
+  "browser": {
+    "emptyStatusHidden": true,
+    "compactPublication": true,
+    "extraRulesLimit": 300,
+    "pageErrors": 0,
+    "theme": "karolina",
+    "motion": "full",
+    "loadedIcons": 48,
+    "codex": "已连接",
+    "unity": "连接失败，未验收"
+  },
+  "independentReview": {
+    "incrementalResult": "未发现新的P1/P2",
+    "readOnly": true
+  },
+  "cleanup": {
+    "artifactEntriesMoved": 89,
+    "remaining": [
+      "current"
+    ],
+    "recovery": "D:/Temp/Karolina-retired-artifacts-72eee95085d84dcb9dd4c4c3a9faafbf",
+    "reason": "批量删除被自动审批拒绝，采用可恢复移动"
+  },
+  "constraints": {
+    "noScreenshots": true,
+    "noProductionGitWrites": true,
+    "wolfResourcesUntouched": true,
+    "activePlanPreserved": "PLAN-WOLF-165",
+    "externalToolsEnforceOwnPermissions": true,
+    "externalWritersAtomicCAS": false
+  },
+  "protocolSource": "https://developers.openai.com/codex/config-reference",
+  "publishedHashes": {
+    "Karolina.Core.dll": "7c7d53e8f47425d558244ae0a59ff444283a102088cab95dcca17ee49c03e926",
+    "Karolina.Desktop.dll": "aa03cb8ee51370146cd3a1bbd2d5be4d3c9888bd6e46a1d486887c965bf75afb",
+    "Web/publication.js": "f9080aa909d389a01efd1973f24069db1504f595291e408d39cedb145b7f8a09",
+    "Web/features/chat.js": "642adebba9c31d16f58df7e34bf2f46079662c44c2cba2ba092a1aa983068bbf",
+    "Web/permissions.js": "7bd496c54fe2f2b3c990ee98180a01131c73511784b0335a8bc32aef799d862e"
+  }
+}

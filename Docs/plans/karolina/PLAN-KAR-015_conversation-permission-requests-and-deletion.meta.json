@@ -1,0 +1,541 @@
+{
+  "id": "PLAN-KAR-015",
+  "code": "0180",
+  "title": "对话权限申请与删除确认实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-015_conversation-permission-requests-and-deletion.md",
+  "version": 1,
+  "status": "验收",
+  "createdAt": "2026-10-07T13:14:46.284216+08:00",
+  "updatedAt": "2026-10-07T13:52:05.429189+08:00",
+  "tags": [
+    "Karolina",
+    "权限申请",
+    "对话删除"
+  ],
+  "requirements": [
+    "REQ-KAR-017",
+    "REQ-KAR-019"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-017",
+      "title": "工程内容权限与任务临时授权",
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "version": 3,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "57fb52f03dc440dd46cc3a901438973ff8af879aaa5acee3eaa61c5f5f47a57e"
+    },
+    {
+      "id": "REQ-KAR-019",
+      "title": "多对话并行与动态目录修改权",
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+      "version": 2,
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "64e7b89dfea222da785b257ea1d53b0cae1573ebc279fbd96c7414c773a884af"
+    }
+  ],
+  "plannedChanges": [
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "operation": "modify",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.meta.json",
+      "operation": "modify",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+      "operation": "modify",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.meta.json",
+      "operation": "modify",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+      "operation": "modify",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.meta.json",
+      "operation": "modify",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-015_conversation-permission-requests-and-deletion.md",
+      "operation": "add",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-015_conversation-permission-requests-and-deletion.meta.json",
+      "operation": "add",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-015_verification-evidence.json",
+      "operation": "add",
+      "reason": "统一设置与对话内临时授权、删除确认及验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/PermissionRequests.cs",
+      "operation": "add",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TemporaryAuthorizations.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/GitRollback.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectPermissions.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.PermissionRequests.cs",
+      "operation": "add",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Publication.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/permissions.js",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/workspace.js",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/choice-menu.js",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/PermissionRequestChecks.cs",
+      "operation": "add",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatPermissionLiveChecks.cjs",
+      "operation": "add",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "对话内权限批准、删除确认和定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RunWorkbenchBrowserChecks.cjs",
+      "operation": "modify",
+      "reason": "增加从已发布EXE加载真实页面的验证入口"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/CodexThreadArchive.cs",
+      "operation": "add",
+      "reason": "已归档旧会话删除兼容与真实零模型调用回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatDeletionChecks.cs",
+      "operation": "add",
+      "reason": "已归档旧会话删除兼容与真实零模型调用回归"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/LegacyChatDeletionLiveChecks.cjs",
+      "operation": "add",
+      "reason": "已归档旧会话删除兼容与真实零模型调用回归"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "operation": "modify",
+      "hash": "57fb52f03dc440dd46cc3a901438973ff8af879aaa5acee3eaa61c5f5f47a57e",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.meta.json",
+      "operation": "modify",
+      "hash": "bbf7978c854f0510d13dce8437a522ae32a9dc13f97c852357a15d6007955d5a",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+      "operation": "modify",
+      "hash": "64e7b89dfea222da785b257ea1d53b0cae1573ebc279fbd96c7414c773a884af",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.meta.json",
+      "operation": "modify",
+      "hash": "614ebdbddcc077dcd46b7406fe61251554435e9e0a6bd8ce248dffd3afaa9fc8",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+      "operation": "modify",
+      "hash": "8554f4b863530759523d6925260c9154c590cc44496a963427884ac516cc1ca8",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.meta.json",
+      "operation": "modify",
+      "hash": "503ef574529abbb01859c49180e18c5aac3250fd7ba98f489fae2bee024892fc",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "hash": "61f27608eb935905954fa6cbf3f97ac2e4e553a24b0b7b3330be838162541ab0",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-015_conversation-permission-requests-and-deletion.md",
+      "operation": "add",
+      "hash": "50bc4724e78ae10f2557c4cb4681f55aa58fb713049869beca2d305fc61cd2c4",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收"
+    },
+    {
+      "path": "Karolina.Core/PermissionRequests.cs",
+      "operation": "add",
+      "hash": "0a930a9dc816f3899d9764388dc58a944c61e1f0449f7205ba79676f11dad54a",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/TemporaryAuthorizations.cs",
+      "operation": "modify",
+      "hash": "ae588321d55474291c1d9f3a9d6e2af8b92a800a457fdd1d2d7175852b4517a0",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/GitRollback.cs",
+      "operation": "modify",
+      "hash": "e82af1df5aa00e27e9d349ba7f162ae3395712af471b11f4be44e86190a1be5a",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/ProjectPermissions.cs",
+      "operation": "modify",
+      "hash": "b0f318c3c7246ed536fc451c66c2b640e49120a94ca37b489c51b8bb38323638",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.PermissionRequests.cs",
+      "operation": "add",
+      "hash": "bbacf3324cad425b36666c4881399d7aa670302aa2cff234cbe6f985abe21cc8",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Publication.cs",
+      "operation": "modify",
+      "hash": "e429bc8c7e8c4c2bc0346152d97a5b9d075c630f8f6b2db43ff1412f79cc81f4",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "modify",
+      "hash": "9a7f300e40a16312612ff3fca0dce3bf35632ada7d70b179d5ea6d2b9a67c1ec",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "hash": "263850ff59aaeeba129666b9abadc29f56071a492bd1a436ae039ec523a6d226",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "hash": "4f2dc5fa974febeccaefac40f982d11ad8e58d48ae6d78424bbeac09f4bec2b8",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "operation": "modify",
+      "hash": "9928fe6c63bd9666fb5f790dd2cc0df5ba5e23eef1ffc2b3f054226c0a1564d9",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "modify",
+      "hash": "330ddb63bbb80d276fa5df0736c679fe9996f2d5f7fe0bedbe5b0ca176258d0b",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "hash": "c212b8e234ad078f95f6311db41905e36e0a16cde9ff4e6d8acb4a0c5f9e100e",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "hash": "1c7dbd6a4589e52088a6f4085ae49d43e77d0ba0336ea68408b134de109e0f22",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "hash": "edae2bce7266dc4f334ae4022b7ef278f8716c77d41803f35b47f33f393279c7",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "hash": "3a0a2d3ba929b37eb955b8d01c567b8c1c08a2b6c5aba4d53772daa15aee7010",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/permissions.js",
+      "operation": "modify",
+      "hash": "4a4c6cb9fb5826650e90c179873bbe270287cff9f4f54a92c46e794f7abe4bdf",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "hash": "7462f91de917dce04b909f662b9d3999edb66580d4cc973d706e379c4533f5e2",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "operation": "modify",
+      "hash": "8cd53f43f66725aec622b21d266ca396c73e8b639606dc02a0be2a3506e17c40",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "hash": "3cf9dc5e102de9a0a791b8350d6c1977873cdbba1c37e4c6435add70795270ed",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "hash": "cbca5317df0c4d7d7ef02afa1651e6bb73fc44b4d7b6ed97beafde162b4b7bf6",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/workspace.js",
+      "operation": "modify",
+      "hash": "7cf8a8e789e3ff9d505b7f8ee65ba164a76043d3c266ddeace370042af13e18f",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/ui/choice-menu.js",
+      "operation": "modify",
+      "hash": "0fc18bf9c39236b99207854ecb5168890ff6894845c761b34ed431f37c6ec878",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "hash": "1a9af3b6d18dbbbdd03fdc3f3ad52fc35f9951dce808301552b453801d55a4fa",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/PermissionRequestChecks.cs",
+      "operation": "add",
+      "hash": "4aab9a426889a659d43fddbdb7264fea39e0fe5a67c4e75fc45cb0a8bb022669",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/ChatPermissionLiveChecks.cjs",
+      "operation": "add",
+      "hash": "7ca47d6a4efb9c2680c97d542b7fbddb2ced41535b3d665f1e561d17d368c340",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "610ad625f3a815a7deae360d64bff89784eec1a10061fd2845999cd19cfdf431",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/RunWorkbenchBrowserChecks.cjs",
+      "operation": "modify",
+      "hash": "d5320408d7e9c33c02bfea582096bbc3c2d59d8c4d43ade7abf17c2eaa22867a",
+      "evidence": "本轮实际文件版本，机器检查和工具回执另见验证文件；非人工验收",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/CodexThreadArchive.cs",
+      "operation": "add",
+      "evidence": "旧会话删除校正，定向检查及真实Codex/发布EXE页面验证通过",
+      "hash": "a889501921d493126e04d573d67bc59ee3c16e198b77e46612dd234dea5afd81"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatDeletionChecks.cs",
+      "operation": "add",
+      "evidence": "旧会话删除校正，定向检查及真实Codex/发布EXE页面验证通过",
+      "hash": "167e6f9d0a3928bee30bc9aebd3c3c4101b6d3112463e68e2844a75161e4e628"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/LegacyChatDeletionLiveChecks.cjs",
+      "operation": "add",
+      "evidence": "旧会话删除校正，定向检查及真实Codex/发布EXE页面验证通过",
+      "hash": "49ade09c7665783e696c2c0f5a68823ccb14764a49196b5a98d0bed1e5f8f4c8"
+    }
+  ]
+}

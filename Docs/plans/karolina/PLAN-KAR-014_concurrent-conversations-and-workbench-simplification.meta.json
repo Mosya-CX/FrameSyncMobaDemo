@@ -1,0 +1,612 @@
+{
+  "id": "PLAN-KAR-014",
+  "code": "0179",
+  "title": "并行对话与工作台交互精简实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-014_concurrent-conversations-and-workbench-simplification.md",
+  "version": 1,
+  "status": "验收",
+  "createdAt": "2026-10-07T12:09:32.668673+08:00",
+  "updatedAt": "2026-10-07T12:36:20.407714+08:00",
+  "tags": [
+    "Karolina",
+    "并行对话",
+    "目录修改权"
+  ],
+  "requirements": [
+    "REQ-KAR-017",
+    "REQ-KAR-018",
+    "REQ-KAR-019"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-017",
+      "title": "工程内容权限与任务临时授权",
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "version": 2,
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "2ca2a86bc5d86030c603690175fce18ee14585554da9a006f0573dd9e14c16de",
+      "status": "激活"
+    },
+    {
+      "id": "REQ-KAR-018",
+      "title": "状态栏 Agent 分批提交与推送",
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.md",
+      "version": 2,
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "127f0d608a5c3087b374a467f883029d3510256e10900466fc31facfcdd34e84",
+      "status": "激活"
+    },
+    {
+      "id": "REQ-KAR-019",
+      "title": "多对话并行与动态目录修改权",
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+      "version": 1,
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "07e0ba0a19ad3e4fd17d1e2dad18a1c71c59564ef5db7cb107686616f87b68e7",
+      "status": "激活"
+    }
+  ],
+  "plannedChanges": [
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.meta.json",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.md",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.meta.json",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.meta.json",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-002_agent-execution-cycle.md",
+      "operation": "modify",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-002_agent-execution-cycle.meta.json",
+      "operation": "modify",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+      "operation": "modify",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.meta.json",
+      "operation": "modify",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-014_concurrent-conversations-and-workbench-simplification.meta.json",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-014_concurrent-conversations-and-workbench-simplification.md",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-014_verification-evidence.json",
+      "operation": "add",
+      "reason": "本轮接受的需求、规则、索引与验证证据"
+    }
+  ],
+  "plannedExternalChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/FolderEditCoordinator.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ScopedSandbox.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewOperations.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectPermissions.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskReviews.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Publication.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/publication.js",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/chat-progress.js",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/public-summary.js",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewSynchronization.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/permissions.js",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/FolderConcurrencyChecks.cs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ConcurrentWorkbenchChecks.cjs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/WorkbenchAppearanceLiveChecks.cjs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RunWorkbenchBrowserChecks.cjs",
+      "operation": "add",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatProgressChecks.test.mjs",
+      "operation": "modify",
+      "reason": "并行会话与子目录占用、精简交互或可重复验证"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "operation": "add",
+      "hash": "2ca2a86bc5d86030c603690175fce18ee14585554da9a006f0573dd9e14c16de",
+      "evidence": "本轮实际维护的关联工程文档"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.md",
+      "operation": "add",
+      "hash": "127f0d608a5c3087b374a467f883029d3510256e10900466fc31facfcdd34e84",
+      "evidence": "本轮实际维护的关联工程文档"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+      "operation": "add",
+      "hash": "07e0ba0a19ad3e4fd17d1e2dad18a1c71c59564ef5db7cb107686616f87b68e7",
+      "evidence": "本轮实际维护的关联工程文档"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-002_agent-execution-cycle.md",
+      "operation": "modify",
+      "hash": "9bd6b3ee5ed50571e0f9f047e73910da8afefcb14c420050bc72d59b3bfe7019",
+      "evidence": "本轮实际维护的关联工程文档"
+    },
+    {
+      "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
+      "operation": "modify",
+      "hash": "c6bc0c91e9a5400b7e503a0334c1cd158574b2fb9965b942fa1b01745e9641b5",
+      "evidence": "本轮实际维护的关联工程文档"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "hash": "7eacce7cd9b513839aa537cd1cad82b9d632907a6eec0f8c48d75cfc2fe48d37",
+      "evidence": "本轮实际维护的关联工程文档"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-014_concurrent-conversations-and-workbench-simplification.md",
+      "operation": "add",
+      "hash": "80b79b90bd7aa051f634ee13d2a7eadfb50ace5dddc48d8aa59e6fdcb6739023",
+      "evidence": "本轮实际维护的关联工程文档"
+    }
+  ],
+  "externalRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/FolderEditCoordinator.cs",
+      "operation": "add",
+      "hash": "6b78aa0f95da3c224075de7363a703de0ebb604edd3866738235eb1cc5ca6d76",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ScopedSandbox.cs",
+      "operation": "add",
+      "hash": "96f32d715b0612f4fe2ff5fb896566e18aac2f873243bcd5b85ae97994dcb3ca",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewOperations.cs",
+      "operation": "add",
+      "hash": "8b1ea8793cddd207fbc4a20be5fb8c75b4e9332c9e31aea81950bd8c91602489",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectPermissions.cs",
+      "operation": "add",
+      "hash": "47963174f667c0e1a7a4f3c79bb30884e4f8e7e5e9c1fde6304dae4e47c84ada",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskReviews.cs",
+      "operation": "modify",
+      "hash": "3a46b9c27d7c54888e7169cce87c359650768e73afb2ed1760a232e8f4618a58",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "hash": "0e252e26e34363db000da5dc72e973ba83dd08ea2665866edfd8c4b5f4c1e03e",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "add",
+      "hash": "45a4f2c77b8ee9a26ebe02900893def2bc8bbb9600dda780198610897bbaf2d5",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "add",
+      "hash": "25a47dba6509439c9c6f93e1b071d594d7daf5729a6e0e944bf862705f2249a6",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "hash": "c3e7b816b37ae45a11e3a9cf6478802a08eb90132f93931378fc06e6bbb0c71f",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "hash": "0870149ed6b292f0be9c69254efeaf22df0ff1be499214754e5ea0a7a8eca99b",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "operation": "modify",
+      "hash": "7d3ec9e3d44716d1002bbd7b23dde4cb8cae887dd3aa992c44a5abd1cc02c16b",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "hash": "e9e12baf1a602d7a26406c6debb439d5f5e87c98b7a9556727c2ef4c9aaa53bd",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "hash": "ffadc3d33f66ebde72897f55a3e835a6f3306ec9b0b35db4599a9157d2180331",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "operation": "modify",
+      "hash": "7c3fb4f4c4c24040f98d7d1afa8bf3ee44da39cd00b21dff0a5ebdcd000fe079",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "add",
+      "hash": "9b406fd9cf0082238b3709a18ff63a58133347efddd419d871c2e10137c4a710",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Publication.cs",
+      "operation": "add",
+      "hash": "b145ea3affaf5bb7977abb41d9945b6ace326b20c49df4830f8f9e3e24cfa697",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/publication.js",
+      "operation": "add",
+      "hash": "f9080aa909d389a01efd1973f24069db1504f595291e408d39cedb145b7f8a09",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "hash": "642adebba9c31d16f58df7e34bf2f46079662c44c2cba2ba092a1aa983068bbf",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "hash": "6ec2e0f14e0493990675150e49b253a6e8dc2dbed26d4afbd55ecc91c5969366",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "operation": "modify",
+      "hash": "38716bddf6835d6e6172ebfc7ae93ffc7b7a0f83989d93b483b8f2b8c5a3ae13",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "hash": "b9a3181e960e3bb9297bd6490a32f368e2450c0ce4220ba1ccdc09e14fcab899",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/chat-progress.js",
+      "operation": "modify",
+      "hash": "5c1b51ee7a557f4856f26e8284e29a29ab67ed5dd4df71808196d79685b7cabf",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/public-summary.js",
+      "operation": "add",
+      "hash": "c327db5e7ef6cc8d19f783daf2d2637dac2e2bf06376683c3cc0b3502974d3de",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "hash": "c2d40b00d2b4929fee9a84cfdf8cfddac6869ed4b56a229e7ea0c87fabd2fce0",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ReviewSynchronization.cs",
+      "operation": "modify",
+      "hash": "3782d67348c39db95d3f3217bbec9d1568804e99d8ea307fa6b2922187cb2bab",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/permissions.js",
+      "operation": "add",
+      "hash": "7bd496c54fe2f2b3c990ee98180a01131c73511784b0335a8bc32aef799d862e",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "hash": "9aeddfbc4f49ac7ae4fa8d0ed9349df43babef28a07c66bf1510b05dffdc48cd",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "2fd792f9fee14d74fb06cc1283c2065ebd44e4479da24fcfe315e5542c48b8c8",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/FolderConcurrencyChecks.cs",
+      "operation": "add",
+      "hash": "ae55a8562493dd9d2892e8942112b31142d22a5789eb0fb7ced3c73005a794cf",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ConcurrentWorkbenchChecks.cjs",
+      "operation": "add",
+      "hash": "65105e9368b2a0a0e17b691eccb17e157b5f70b4682e7e74fcb6437eca59d61d",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/WorkbenchAppearanceLiveChecks.cjs",
+      "operation": "add",
+      "hash": "4492d8b3008a8e0057af0ce533bb40255299292fde79e7da45ae698fbef73414",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/RunWorkbenchBrowserChecks.cjs",
+      "operation": "add",
+      "hash": "bcef9e4e01e4a54a50e0253c08225b945a9062ccc60d46d2fefae898355066ac",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatProgressChecks.test.mjs",
+      "operation": "modify",
+      "hash": "24aca5983cca763e7cd5242070be529b75c46d73293b8439a1a29de7a4047bd4",
+      "evidence": "本轮实现或定向验证的实际源码版本，不代表人工验收通过"
+    }
+  ]
+}

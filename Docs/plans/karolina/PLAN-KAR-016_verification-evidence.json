@@ -1,0 +1,62 @@
+{
+  "plan": "PLAN-KAR-016",
+  "checkedAt": "2026-10-07T13:43:00.332191+08:00",
+  "status": "机器、真实页面和独立只读审查通过，等待人工验收",
+  "build": {
+    "errors": 0,
+    "warnings": 0,
+    "configuration": "Release",
+    "entry": "E:/Github/Karolina/artifacts/current/Karolina.Desktop.exe"
+  },
+  "checks": {
+    "automaticGraphRefresh": 5,
+    "graphSettings": 9,
+    "graphViewAndRegistration": 10,
+    "total": 24,
+    "failed": 0
+  },
+  "browser": {
+    "automaticInitialBuild": true,
+    "automaticCodeAndResourceRefresh": true,
+    "manualIndexRequests": 0,
+    "cameraPreserved": true,
+    "backgroundOutsideGraphPage": true,
+    "draftPreserved": true,
+    "pageErrors": 0,
+    "checkedPublishedExe": true
+  },
+  "appearance": {
+    "theme": "karolina",
+    "motion": "full",
+    "loadedIcons": 48,
+    "input": true,
+    "codex": "已连接",
+    "unity": "连接尝试失败，未列为通过"
+  },
+  "scheduling": {
+    "debounceSeconds": 1.5,
+    "maxWaitSeconds": 15,
+    "pollMilliseconds": 500,
+    "failureBackoffSeconds": [
+      15,
+      30,
+      60,
+      120
+    ],
+    "singleBuild": true,
+    "oldSnapshotReadable": true,
+    "cancelAndWaitOnDispose": true
+  },
+  "review": {
+    "independentReadOnly": true,
+    "blockingFindings": 0
+  },
+  "limitations": [
+    "图谱仍是静态声明和GUID引用索引，不证明运行时行为",
+    "连续写入期间保留过期提示，成功后自动读取新快照",
+    "大工程当前按全量快照重建，增量解析不在本轮范围",
+    "不截图、不修改Unity资源、不运行Unity构建",
+    "三狼未修改，activePlan保留；未提交或推送"
+  ],
+  "manualAcceptance": "等待用户确认"
+}

@@ -1,0 +1,133 @@
+{
+  "plan": "PLAN-KAR-013",
+  "checkedAt": "2026-10-07T01:23:12.919079+08:00",
+  "status": "机器与独立审查通过，等待用户验收",
+  "build": {
+    "configuration": "Release",
+    "solution": "Karolina.sln",
+    "errors": 0,
+    "warnings": 0
+  },
+  "directedChecks": {
+    "publication": 15,
+    "chatFeedback": 11,
+    "taskReviews": 14,
+    "functionPolish": 13,
+    "graphSettings": 9,
+    "frontendNode": 7,
+    "totalPassed": 69,
+    "failed": 0
+  },
+  "liveCodex": {
+    "publicationModel": "gpt-6-luna",
+    "publicationEffort": "max",
+    "chineseGroups": 2,
+    "permissionModel": "gpt-6-luna",
+    "permissionEffort": "low",
+    "sameThreadDefaultGrantRevocation": true,
+    "privateAppDataReadDenied": {
+      "command": "Get-Content（测试创建的无敏感标记）",
+      "exitCode": 1,
+      "accessDenied": true,
+      "markerLeaked": false
+    },
+    "ordinaryCodeAndDocsWritable": true,
+    "rulesToolsAndGitDefaultWriteDenied": true
+  },
+  "actualUi": {
+    "nativeWinFormsWebView2Starts": true,
+    "entryHasNoCredentialQuery": true,
+    "statusBarPublication": true,
+    "bothRepositories": true,
+    "extraRules301Rejected": true,
+    "settingsLunaHighest": true,
+    "inputWorks": true,
+    "icons": 48,
+    "theme": "karolina",
+    "motion": "full",
+    "mascotPreserved": true,
+    "codexConnected": true,
+    "unityConnected": true,
+    "pageErrors": [],
+    "plainEntry403": true,
+    "unauthorizedGrant403": true,
+    "cacheControl": "no-store",
+    "referrerPolicy": "no-referrer"
+  },
+  "gitChecks": {
+    "fixture": "临时工程和真实本地裸远端",
+    "chineseBatchCommitsAndPush": true,
+    "preservesUserIndexAndWorktree": true,
+    "staleApprovalRejected": true,
+    "unapprovedSharedChangesBlocked": true,
+    "oneShotRollback": true,
+    "durableCommitRecovery": true,
+    "independentOrMultiplePushUrlsRejected": true,
+    "newDeletedBinaryFiles": true,
+    "productionCommits": false,
+    "productionPush": false
+  },
+  "independentReview": {
+    "mode": "独立只读源码审查",
+    "result": "已修复发现的阻断项；最后凭据隔离复核无可确认P1/P2",
+    "reviewerRanTests": false
+  },
+  "remoteReadOnlyVerification": {
+    "KarolinaOriginMain": "dde33ee3ba27c65c715f7d7c01b794048527ef8a",
+    "associatedOriginMaster": "397135fce01a99d03071364ea96e608d5d5070e1",
+    "historicalKarolinaCommit": "57dcfc5（已核对祖先关系）",
+    "historicalAssociatedCommit": "5c088eb（已核对祖先关系）"
+  },
+  "oldPlanClosures": [
+    {
+      "id": "PLAN-KAR-005",
+      "title": "任务变更审批与反馈再执行实施",
+      "status": "关闭"
+    },
+    {
+      "id": "PLAN-KAR-006",
+      "title": "持久工作台、对话模式与拓展工具改造",
+      "status": "关闭"
+    },
+    {
+      "id": "PLAN-KAR-007",
+      "title": "前端视觉与可替换主题实施",
+      "status": "关闭"
+    },
+    {
+      "id": "PLAN-KAR-009",
+      "title": "Karolina 现有功能打磨与资料关联",
+      "status": "关闭"
+    },
+    {
+      "id": "PLAN-KAR-010",
+      "title": "Karolina MVP代码质量与职责边界整理",
+      "status": "关闭"
+    },
+    {
+      "id": "PLAN-KAR-011",
+      "title": "工程图谱、Agent 执行闭环与统一设置页",
+      "status": "关闭"
+    },
+    {
+      "id": "PLAN-KAR-012",
+      "title": "图谱可视化与 Agent 主动查询",
+      "status": "关闭"
+    }
+  ],
+  "retained": {
+    "PLAN-KAR-008": "最终在线拆层PSD尚未交付，继续执行",
+    "PLAN-WOLF-165": "三狼未完成，不修改、不批准、不提交"
+  },
+  "limits": [
+    "当前Windows原生命令沙箱要求宿主文件系统根可读，读取范围广于关联工程；常见凭据、工程私有状态和Karolina本机私有数据目录显式拒绝。",
+    "单个既有文档文件允许直接写；只读父目录中不保证创建新旁路临时文件。工作台文档接口负责原子保存。",
+    "UnityMCP和拓展工具自行管理调用及文件权限，不声称它们受命令沙箱限制。",
+    "GitHub生产推送未执行；真实写操作与推送在临时本地裸远端验证。",
+    "历史远端已有功能不表示当前工作区修正已推送；关闭记录不代替当前文件版本人工发布批准。",
+    "诊断--serve启动链接属于凭据；不得提供给Agent。原生启动不使用查询令牌。",
+    "不重跑旧计划全部人工验收；旧计划结案依据用户本轮明确授权和核对证据。"
+  ],
+  "screenshots": false,
+  "unityCodeOrAssetsChanged": false
+}

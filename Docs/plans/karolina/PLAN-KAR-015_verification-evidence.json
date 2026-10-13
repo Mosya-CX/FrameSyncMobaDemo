@@ -1,0 +1,105 @@
+{
+  "plan": "PLAN-KAR-015",
+  "checkedAt": "2026-10-07T13:31:40.493041+08:00",
+  "status": "机器、真实模型、发布入口与独立只读审查通过，等待人工验收",
+  "build": {
+    "configuration": "Release",
+    "solution": "Karolina.sln",
+    "warnings": 0,
+    "errors": 0,
+    "publishedEntry": "E:/Github/Karolina/artifacts/current/Karolina.Desktop.exe",
+    "publishedMatchesReleaseHash": true
+  },
+  "directedChecks": {
+    "permissionRequests": 9,
+    "publication": 15,
+    "folderConcurrency": 12,
+    "chatFeedback": 11,
+    "taskReviews": 14,
+    "functionPolish": 13,
+    "graphSettings": 9,
+    "node": 7,
+    "total": 90,
+    "failed": 0
+  },
+  "livePermissions": {
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "approvalBeforeWrite": true,
+    "noFolderHeldWhileWaiting": true,
+    "sameTurnContinuation": true,
+    "turnEndRevoked": true,
+    "declineNoWrite": true,
+    "stopNoGrant": true,
+    "staleApprovalRefused": true,
+    "rollbackSpecificFile": true,
+    "rollbackIndexUnchanged": true,
+    "deleteConfirmationCancelAndAccept": true,
+    "runningDeleteRefused": true,
+    "foreignAndUnconfirmedDeleteRefused": true,
+    "deletionPersisted": true,
+    "documentsAndReviewsPreserved": true,
+    "pageErrors": 0,
+    "rollbackContinuedAfterEightSecondWait": true
+  },
+  "liveConcurrency": {
+    "parallelConversations": 2,
+    "parallelOccupations": 2,
+    "independentStop": true,
+    "resumedWrite": true,
+    "independentReviewEvidence": true
+  },
+  "browser": {
+    "theme": "karolina",
+    "motion": "full",
+    "loadedIcons": 48,
+    "input": true,
+    "pageErrors": 0,
+    "codex": "已连接",
+    "unity": "连接尝试失败，未列为通过",
+    "checkedPublishedEntry": true
+  },
+  "review": {
+    "status": "增量独立只读复查未发现新增P1/P2",
+    "corrections": [
+      "授权绑定thread/run且工具核对Broker批准状态，不复用旧授权",
+      "重启回收崩溃留下的孤立授权；回收失败拒绝启动",
+      "停止与批准串行且授予后复查取消，终态回收；双写盘失败工具亦不使用该授权",
+      "批准写授权直接登记监控ID，不以再次读盘成功为前提",
+      "批准结果携带Purpose，单次回滚消费不触发写权限到期误中断"
+    ]
+  },
+  "limitations": [
+    "底层Codex会话归档，不是物理抹除历史；关联审查证据保留",
+    "外部UnityMCP和拓展工具自行管理权限，不声称在文件沙箱控制内",
+    "不执行Unity行为测试或构建，不截图",
+    "未提交、未推送；三狼代码和资源未修改，activePlan仍为PLAN-WOLF-165",
+    "真实模型测试中曾有一轮未获得MCP工具而提前结束；该失败未写入文件，失败夹具保留在系统临时目录。最终隔离宿主复测另记录，不把此轮列为通过。"
+  ],
+  "manualAcceptance": "等待用户确认",
+  "legacyConversationDeletionCorrection": {
+    "checkedAt": "2026-10-07T13:52:05.429189+08:00",
+    "cause": "本地6条旧会话已在Codex归档，重复归档RPC失败使本地删除中断",
+    "build": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "directedChecks": {
+      "passed": 5,
+      "failed": 0
+    },
+    "live": {
+      "reproducedAlreadyArchivedError": true,
+      "legacyNullExecutionKey": true,
+      "confirmationCancelAndAccept": true,
+      "persistedAfterRestart": true,
+      "documentsPreserved": true,
+      "modelCalls": 0,
+      "pageErrors": 0,
+      "checkedPublishedEntry": true
+    },
+    "publishedEntry": "E:/Github/Karolina/artifacts/current/Karolina.Desktop.exe",
+    "realConversationsDeleted": 0,
+    "manualAcceptance": "等待用户确认"
+  }
+}

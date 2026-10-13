@@ -1,0 +1,17 @@
+{
+  "id": "REQ-KAR-017",
+  "code": "REQ-KAR-017",
+  "title": "工程内容权限与任务临时授权",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "version": 4,
+  "createdAt": "2026-10-06T23:56:13.143680+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00",
+  "tags": [
+    "Karolina",
+    "权限"
+  ]
+}

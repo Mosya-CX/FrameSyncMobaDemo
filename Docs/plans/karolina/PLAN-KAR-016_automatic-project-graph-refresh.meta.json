@@ -1,0 +1,229 @@
+{
+  "id": "PLAN-KAR-016",
+  "code": "0181",
+  "title": "工程图谱后台自动更新实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-016_automatic-project-graph-refresh.md",
+  "version": 1,
+  "status": "验收",
+  "createdAt": "2026-10-07T13:38:41.431707+08:00",
+  "updatedAt": "2026-10-07T13:43:00.332191+08:00",
+  "tags": [
+    "Karolina",
+    "工程图谱",
+    "自动索引"
+  ],
+  "requirements": [
+    "REQ-KAR-013"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-013",
+      "title": "工程代码与 Unity 资源关系图谱",
+      "version": 6,
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "status": "激活",
+      "sections": [
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "fa7f02ef5c10c9ebdf66e88093f4e8989f7da7b5f5391a9bf448c0da14835d37"
+    }
+  ],
+  "plannedChanges": [
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "operation": "modify",
+      "reason": "图谱自动刷新需求、计划和证据"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.meta.json",
+      "operation": "modify",
+      "reason": "图谱自动刷新需求、计划和证据"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-016_automatic-project-graph-refresh.md",
+      "operation": "add",
+      "reason": "图谱自动刷新需求、计划和证据"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-016_automatic-project-graph-refresh.meta.json",
+      "operation": "add",
+      "reason": "图谱自动刷新需求、计划和证据"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-016_verification-evidence.json",
+      "operation": "add",
+      "reason": "图谱自动刷新需求、计划和证据"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "reason": "图谱自动刷新需求、计划和证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraph.cs",
+      "operation": "modify",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraph.Freshness.cs",
+      "operation": "modify",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphFiles.cs",
+      "operation": "modify",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraph.Refresh.cs",
+      "operation": "add",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph.js",
+      "operation": "modify",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/project-graph-view.js",
+      "operation": "modify",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphRefreshChecks.cs",
+      "operation": "add",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/GraphRefreshLiveChecks.cjs",
+      "operation": "add",
+      "reason": "后台索引生命周期、视野保持和验证"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectGraphTools.cs",
+      "operation": "modify",
+      "reason": "提示Agent宿主自动更新，不忙等或要求人工重建"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "operation": "modify",
+      "hash": "fa7f02ef5c10c9ebdf66e88093f4e8989f7da7b5f5391a9bf448c0da14835d37",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.meta.json",
+      "operation": "modify",
+      "hash": "23f1ee0feacbc418cfd18a30944f825d93c648c5e996547cba9c59c196257f26",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-016_automatic-project-graph-refresh.md",
+      "operation": "add",
+      "hash": "15db91559116a335f3eadcc9ca56dcbf60de63388a782673d0e2b52e47623d03",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-016_verification-evidence.json",
+      "operation": "add",
+      "hash": "a86bb3407dc0707b5669246f4b3f0d9edc73a967c4374fc066046991d08d2426",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明"
+    },
+    {
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "hash": "61f27608eb935905954fa6cbf3f97ac2e4e553a24b0b7b3330be838162541ab0",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明"
+    },
+    {
+      "path": "Karolina.Core/ProjectGraph.cs",
+      "operation": "modify",
+      "hash": "9e883c4ca68c4e961cc19f22a875078adf1d4b915ca1829cfa467f23d4c42836",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/ProjectGraph.Freshness.cs",
+      "operation": "modify",
+      "hash": "4636f7c815de6673ec14b21f61413e831128b1adf750f3e7e1913c8d55eb4bc3",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/ProjectGraphFiles.cs",
+      "operation": "modify",
+      "hash": "e5412650b638b135626c797ea9c337361c9ea675fb7d04af9450cc1218f1db81",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/ProjectGraph.Refresh.cs",
+      "operation": "add",
+      "hash": "8ac046bcfa287a30abef36c047a5c27627456db16c509f5120d553016cb2ab25",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/project-graph.js",
+      "operation": "modify",
+      "hash": "f44797575e39bf1718ebea803ccbd8c1ff6122dd2b4ae718d48eb393f91d1a22",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/project-graph-view.js",
+      "operation": "modify",
+      "hash": "53df51370e10e69bc7e786dc032743aca6f19ad0255e24ffd4a0367f081da4e1",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "09cb9ab5ef0f0c314f71ffbc94c00d46cfd234146aa73041be08923a9dd1a4b1",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/GraphRefreshChecks.cs",
+      "operation": "add",
+      "hash": "332412933787ce9b1c88d5da4a4ee40e3d5021280911e02020456083c85103de",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Tests/GraphRefreshLiveChecks.cjs",
+      "operation": "add",
+      "hash": "c55abf5b0ce2ff3057d3a7d358cde402a1fb74c70b6fb7a3aded29338fe12436",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/ProjectGraphTools.cs",
+      "operation": "modify",
+      "hash": "4ef6026c35901259422187e0184e334034aecb9c980dfab8221fc1d0f8fa3c73",
+      "evidence": "本轮实际文件和机器验证关联，非人工验收证明",
+      "repository": "E:/Github/Karolina"
+    }
+  ]
+}

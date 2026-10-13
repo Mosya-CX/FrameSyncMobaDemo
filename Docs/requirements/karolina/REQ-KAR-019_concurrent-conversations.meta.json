@@ -1,0 +1,18 @@
+{
+  "id": "REQ-KAR-019",
+  "code": "REQ-KAR-019",
+  "title": "多对话并行与动态目录修改权",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+  "version": 3,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "createdAt": "2026-10-07T12:09:32.668673+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00",
+  "tags": [
+    "Karolina",
+    "并行对话",
+    "目录修改权"
+  ]
+}
