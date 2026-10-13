@@ -7,6 +7,7 @@
     "cn.unity.uos.multiverse": "https://cnb.cool/unity/uos/multiverse-sdk.git?path=/unity",
     "com.danielmansson.mathematics.fixedpoint": "https://github.com/danielmansson/Unity.Mathematics.FixedPoint.git",
     "com.ivanmurzak.unity.mcp": "0.84.3",
+    "com.karolina.test-pipeline": "https://github.com/Mosya-CX/Karolina.git?path=/Packages/com.karolina.test-pipeline#ae8735cd87c98b52a575e8f0fb839fd6163ffdd7",
     "com.siccity.gltfutility": "https://github.com/siccity/gltfutility.git",
     "com.unity.addressables": "1.22.3",
     "com.unity.collab-proxy": "2.7.1",

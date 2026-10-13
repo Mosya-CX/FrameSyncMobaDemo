@@ -6,6 +6,8 @@
     "FrameSyncMoba.Physics",
     "FrameSyncMoba.RuntimeConfig",
     "FrameSyncMoba.Unit",
+    "Karolina.Testing",
+    "Karolina.Testing.Unity",
     "Unity.Mathematics",
     "Unity.Mathematics.FixedPoint"
   ],

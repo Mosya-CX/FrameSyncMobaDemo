@@ -70,6 +70,13 @@
       },
       "url": "https://package.openupm.com"
     },
+    "com.karolina.test-pipeline": {
+      "version": "https://github.com/Mosya-CX/Karolina.git?path=/Packages/com.karolina.test-pipeline#ae8735cd87c98b52a575e8f0fb839fd6163ffdd7",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "ae8735cd87c98b52a575e8f0fb839fd6163ffdd7"
+    },
     "com.merry-yellow.code-assist": {
       "version": "file:com.merry-yellow.code-assist",
       "depth": 0,
