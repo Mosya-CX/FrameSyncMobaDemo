@@ -15,6 +15,13 @@ namespace FrameSyncMoba.Unit
         {
             public readonly List<PrefabEntry> Prefabs = new List<PrefabEntry>();
             public readonly HashSet<int> PrefabIds = new HashSet<int>();
+            public readonly List<GameObject> OwnedObjects = new List<GameObject>();
+            public readonly List<Unit> SpawnedUnits = new List<Unit>();
+            public GlobalPrefabTable OriginalPrefabTable;
+            public List<PrefabGroup> OriginalPrefabGroups;
+            public List<PrefabKindRangeConfig> OriginalPrefabRanges;
+            public GlobalPrefabTable OwnedPrefabTable;
+            public GlobalPrefabTable ActivePrefabTable;
         }
 
         private static readonly List<GameObject> createdObjects = new List<GameObject>();
@@ -229,6 +236,9 @@ namespace FrameSyncMoba.Unit
             if (world.GlobalPrefabTable == null)
                 throw new InvalidOperationException(
                     "Spawn at least one test Unit before adding a Projectile prefab.");
+            EnsureFixturePrefabTableIsStable(world);
+            EnsureCallerPrefabTableIsExclusive(world);
+            WorldFixture fixture = GetOrCreateWorldFixture(world);
 
             var prefab = new GameObject(
                 $"TestProjectilePrefab_{prefabId}")
@@ -236,6 +246,7 @@ namespace FrameSyncMoba.Unit
                 hideFlags = HideFlags.HideAndDontSave,
             };
             createdObjects.Add(prefab);
+            fixture.OwnedObjects.Add(prefab);
             prefab.SetActive(false);
             prefab.AddComponent<PhysicsEntity2D>();
 
@@ -308,6 +319,11 @@ namespace FrameSyncMoba.Unit
                     throw new InvalidOperationException($"Spawned test Unit {uid} was not registered.");
                 }
 
+                if (worldFixtures.TryGetValue(world, out WorldFixture fixture))
+                {
+                    fixture.SpawnedUnits.Add(unit);
+                }
+
                 return unit;
             }
             finally
@@ -318,6 +334,12 @@ namespace FrameSyncMoba.Unit
 
         public static void DestroyCreatedObjects()
         {
+            var trackedWorlds = new List<UnitWorld>(worldFixtures.Keys);
+            for (int i = trackedWorlds.Count - 1; i >= 0; i--)
+            {
+                DestroyWorldFixture(trackedWorlds[i]);
+            }
+
             for (int i = createdObjects.Count - 1; i >= 0; i--)
             {
                 if (createdObjects[i] != null)
@@ -335,7 +357,155 @@ namespace FrameSyncMoba.Unit
                 }
             }
             createdAssets.Clear();
-            worldFixtures.Clear();
+        }
+
+        /// <summary>
+        /// Destroys only the objects and spawned units owned by one test world.
+        /// This allows a test to clean up without invalidating fixtures belonging
+        /// to other tests in the same assembly.
+        /// </summary>
+        public static void DestroyWorldFixture(UnitWorld world)
+        {
+            if (world == null ||
+                !worldFixtures.TryGetValue(world, out WorldFixture fixture))
+            {
+                return;
+            }
+
+            worldFixtures.Remove(world);
+            var fixtureOwnedUnitUids = new HashSet<UnitUid>();
+            for (int i = 0; i < fixture.SpawnedUnits.Count; i++)
+            {
+                Unit fixtureUnit = fixture.SpawnedUnits[i];
+                if (fixtureUnit != null)
+                    fixtureOwnedUnitUids.Add(fixtureUnit.UnitUid);
+            }
+
+            for (int i = fixture.SpawnedUnits.Count - 1; i >= 0; i--)
+            {
+                Unit unit = fixture.SpawnedUnits[i];
+                if (unit == null)
+                {
+                    continue;
+                }
+
+                if (world.TryGetUnit(unit.UnitUid, out Unit registered) &&
+                    ReferenceEquals(registered, unit))
+                {
+                    world.RemoveUnitForTestFixture(
+                        unit,
+                        fixtureOwnedUnitUids);
+                }
+                else if (unit.gameObject != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(unit.gameObject);
+                }
+            }
+            fixture.SpawnedUnits.Clear();
+
+            for (int i = fixture.OwnedObjects.Count - 1; i >= 0; i--)
+            {
+                DestroyTrackedObject(fixture.OwnedObjects[i]);
+            }
+            fixture.OwnedObjects.Clear();
+
+            world.GlobalPrefabTable = fixture.OriginalPrefabTable;
+            if (fixture.OwnedPrefabTable != null)
+            {
+                DestroyTrackedAsset(fixture.OwnedPrefabTable);
+                fixture.OwnedPrefabTable = null;
+            }
+            if (fixture.OriginalPrefabTable != null)
+            {
+                fixture.OriginalPrefabTable.ReplaceGroupsForTests(
+                    fixture.OriginalPrefabGroups);
+                fixture.OriginalPrefabTable.ReplaceRangesForTests(
+                    fixture.OriginalPrefabRanges);
+            }
+            fixture.Prefabs.Clear();
+            fixture.PrefabIds.Clear();
+        }
+
+        private static void DestroyTrackedObject(GameObject instance)
+        {
+            for (int i = createdObjects.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(createdObjects[i], instance))
+                {
+                    createdObjects.RemoveAt(i);
+                }
+            }
+
+            if (instance != null)
+            {
+                UnityEngine.Object.DestroyImmediate(instance);
+            }
+        }
+
+        private static void DestroyTrackedAsset(ScriptableObject asset)
+        {
+            for (int i = createdAssets.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(createdAssets[i], asset))
+                {
+                    createdAssets.RemoveAt(i);
+                }
+            }
+
+            if (asset != null)
+            {
+                UnityEngine.Object.DestroyImmediate(asset);
+            }
+        }
+
+        private static void EnsureCallerPrefabTableIsExclusive(UnitWorld world)
+        {
+            GlobalPrefabTable candidate = world.GlobalPrefabTable;
+            if (candidate == null) return;
+
+            foreach (KeyValuePair<UnitWorld, WorldFixture> entry in worldFixtures)
+            {
+                if (ReferenceEquals(entry.Key, world)) continue;
+                GlobalPrefabTable active = entry.Value.ActivePrefabTable;
+                if (ReferenceEquals(active, candidate))
+                {
+                    throw new InvalidOperationException(
+                        "同一个 GlobalPrefabTable 不能同时由多个测试世界改写；请串行复用该表，或为每个世界提供独立表。");
+                }
+            }
+        }
+
+        private static void EnsureFixturePrefabTableIsStable(UnitWorld world)
+        {
+            if (worldFixtures.TryGetValue(world, out WorldFixture fixture) &&
+                !ReferenceEquals(
+                    world.GlobalPrefabTable,
+                    fixture.ActivePrefabTable))
+            {
+                throw new InvalidOperationException(
+                    "测试夹具存续期间不能替换 UnitWorld.GlobalPrefabTable；请先销毁夹具，再切换 Prefab 表。");
+            }
+        }
+
+        private static WorldFixture GetOrCreateWorldFixture(UnitWorld world)
+        {
+            if (worldFixtures.TryGetValue(world, out WorldFixture fixture))
+                return fixture;
+
+            fixture = new WorldFixture
+            {
+                OriginalPrefabTable = world.GlobalPrefabTable,
+                ActivePrefabTable = world.GlobalPrefabTable,
+            };
+            if (fixture.OriginalPrefabTable != null)
+            {
+                fixture.OriginalPrefabGroups = new List<PrefabGroup>(
+                    fixture.OriginalPrefabTable.PrefabGroups);
+                fixture.OriginalPrefabRanges = new List<PrefabKindRangeConfig>(
+                    fixture.OriginalPrefabTable.KindRanges);
+            }
+            worldFixtures.Add(world, fixture);
+            return fixture;
         }
 
         public static void ConfigureWorldForPrototype(
@@ -344,6 +514,11 @@ namespace FrameSyncMoba.Unit
             fp statGrowthC,
             fp statGrowthD)
         {
+            if (world == null) throw new ArgumentNullException(nameof(world));
+            if (prototype == null) throw new ArgumentNullException(nameof(prototype));
+            EnsureFixturePrefabTableIsStable(world);
+            EnsureCallerPrefabTableIsExclusive(world);
+
             // Test fixtures often omit the authored HandlerLoadout (default
             // all-false). The composed test prefab carries every handler, so
             // patch an all-default loadout to DefaultHero to keep the
@@ -373,16 +548,13 @@ namespace FrameSyncMoba.Unit
             world.StatGrowthD = statGrowthD;
             world.TickRate = 30;
 
-            if (!worldFixtures.TryGetValue(world, out WorldFixture fixture))
-            {
-                fixture = new WorldFixture();
-                worldFixtures.Add(world, fixture);
-            }
+            WorldFixture fixture = GetOrCreateWorldFixture(world);
 
             if (!fixture.PrefabIds.Contains(prototype.RuntimeEntityPrefabId))
             {
                 GameObject prefab = CreateComposedUnitObject(
                     $"TestUnitPrefab_{prototype.RuntimeEntityPrefabId}");
+                fixture.OwnedObjects.Add(prefab);
                 fixture.PrefabIds.Add(prototype.RuntimeEntityPrefabId);
                 fixture.Prefabs.Add(new PrefabEntry(
                     prototype.RuntimeEntityPrefabId,
@@ -394,6 +566,8 @@ namespace FrameSyncMoba.Unit
             {
                 world.GlobalPrefabTable = ScriptableObject.CreateInstance<GlobalPrefabTable>();
                 world.GlobalPrefabTable.hideFlags = HideFlags.HideAndDontSave;
+                fixture.OwnedPrefabTable = world.GlobalPrefabTable;
+                fixture.ActivePrefabTable = world.GlobalPrefabTable;
                 createdAssets.Add(world.GlobalPrefabTable);
             }
 

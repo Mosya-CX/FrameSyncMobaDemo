@@ -561,6 +561,29 @@ namespace FrameSyncMoba.Unit
             runtimeRevision++;
         }
 
+        /// <summary>
+        /// Removes a test-owned unit while clearing any surviving units that
+        /// still reference its UID. Rollback restoration intentionally uses
+        /// RemoveUnitForRollbackRestore directly because the snapshot restores
+        /// those relationships afterward.
+        /// </summary>
+        internal void RemoveUnitForTestFixture(
+            Unit unit,
+            ISet<UnitUid> fixtureOwnedUnitUids)
+        {
+            if (unit == null ||
+                !TryGetUnit(unit.UnitUid, out Unit registered) ||
+                !ReferenceEquals(registered, unit))
+            {
+                return;
+            }
+
+            CancelAttacksTargeting(
+                unit.UnitUid,
+                fixtureOwnedUnitUids);
+            RemoveUnitForRollbackRestore(unit);
+        }
+
         internal void RestoreRuntimeRevision(int revision)
         {
             if (revision < 0)
@@ -807,11 +830,20 @@ namespace FrameSyncMoba.Unit
 
         private void CancelAttacksTargeting(UnitUid invalidTargetUid)
         {
+            CancelAttacksTargeting(invalidTargetUid, null);
+        }
+
+        private void CancelAttacksTargeting(
+            UnitUid invalidTargetUid,
+            ISet<UnitUid> excludedUnitUids)
+        {
             IReadOnlyList<Unit> units = GetAllUnits();
             for (int i = 0; i < units.Count; i++)
             {
                 Unit unit = units[i];
-                if (unit == null)
+                if (unit == null ||
+                    (excludedUnitUids != null &&
+                     excludedUnitUids.Contains(unit.UnitUid)))
                     continue;
 
                 // Invalidate every owner of the same stable target in one
