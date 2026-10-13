@@ -1,0 +1,24 @@
+{
+  "id": "REQ-KAR-028",
+  "title": "需求实现证据追踪与过期复核",
+  "type": "requirement",
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-028_implementation-evidence-tracking.md",
+  "version": 1,
+  "related": [
+    "REQ-KAR-027",
+    "REQ-KAR-023"
+  ],
+  "tags": [
+    "Karolina",
+    "需求实现",
+    "证据追踪"
+  ],
+  "createdAt": "2026-10-10T23:18:42+08:00",
+  "updatedAt": "2026-10-10T23:18:42+08:00",
+  "sources": [],
+  "evidence": [],
+  "implementationState": "尚未实现；需要关联已关闭计划、源码/测试引用和文件指纹。"
+}

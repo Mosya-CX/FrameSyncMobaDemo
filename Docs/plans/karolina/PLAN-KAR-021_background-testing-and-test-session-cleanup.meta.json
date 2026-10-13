@@ -1,0 +1,347 @@
+{
+  "id": "PLAN-KAR-021",
+  "title": "后台测试与测试对话清理实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-021_background-testing-and-test-session-cleanup.md",
+  "version": 1,
+  "status": "验收",
+  "tags": [
+    "Karolina",
+    "测试",
+    "后台输入",
+    "对话清理"
+  ],
+  "createdAt": "2026-10-09T22:24:28.912122+08:00",
+  "updatedAt": "2026-10-09T22:51:57.278943+08:00",
+  "code": "0186",
+  "requirements": [
+    "REQ-KAR-026",
+    "REQ-KAR-025"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-026",
+      "title": "后台测试与测试对话清理",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-026_background-testing-and-test-session-cleanup.md",
+      "hash": "d088e9da4198698e27afef077fac6ce36c638936bbb4218b13bda32b76d56258",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    },
+    {
+      "id": "REQ-KAR-025",
+      "title": "方法取证与检索效率",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-025_method-evidence-and-retrieval-efficiency.md",
+      "hash": "0de2edfccd79385052b88a46774622bef0b0cda99a19ff0b184cc740b777cf5b",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    }
+  ],
+  "plannedChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "AGENTS.md",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Program.cs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/DesktopWindow.cs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/BackgroundUiTest.cs",
+      "operation": "add",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestConversationCleanup.cjs",
+      "operation": "add",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestConversationCleanupChecks.cjs",
+      "operation": "add",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestThreadStateSnapshot.py",
+      "operation": "add",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/DesktopInputObserver.py",
+      "operation": "add",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/BackgroundInputChecks.cjs",
+      "operation": "add",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/BackgroundStopFailureChecks.cjs",
+      "operation": "add",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeNativeInputChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeModelChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceModelChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatPermissionLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ConcurrentWorkbenchChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/LegacyChatDeletionLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeSessionLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatHistoryLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeComparisonChecks.cs",
+      "operation": "modify",
+      "reason": "本批测试清理与后台输入实现范围"
+    }
+  ],
+  "resourceRefs": [],
+  "evidence": {
+    "approved": true,
+    "humanAccepted": false,
+    "machineVerified": true,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "guardChecks": 28,
+    "frontendRegistrationChecks": 1,
+    "oldCodexThreadsDeleted": 40,
+    "unpersistedEvaluationThreads": 82,
+    "oldKarolinaRunsDeleted": 163,
+    "evaluationFilesSanitized": 96,
+    "modelCalls": 0,
+    "backgroundInput": true,
+    "shutdownFailureCleanup": true,
+    "independentReadonlyReview": true
+  },
+  "externalRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "AGENTS.md",
+      "hash": "5a9d582ba8a33c5b36bcc725ce332259481ff72b8a0166049997aa440eff0eb6",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Program.cs",
+      "hash": "4f909c96a2c5dffa67ef0e1e0911bea889141406fc78bcaf718028556220ccb7",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/DesktopWindow.cs",
+      "hash": "5f3b1f1d0eb0c5869430686a58fc61f0514f14440fbcf8962f07dfe608393a74",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/BackgroundUiTest.cs",
+      "hash": "fe3ef087cd5023dc8eaf40ab6af251220eec99674f2bafb546419638e0366f7e",
+      "operation": "add",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestConversationCleanup.cjs",
+      "hash": "8b8e4a7bcb5047a6f647490e74184542d97c0e4c14cec1ab28d88334f97e9144",
+      "operation": "add",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestConversationCleanupChecks.cjs",
+      "hash": "8eaf52d4c75e095c009495c27dbf19f63a9c477c15249973a31d381e45a9a440",
+      "operation": "add",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TestThreadStateSnapshot.py",
+      "hash": "f182ddc4cfa59b30a91ede3a42d539d9ca7d7542eee253ea194650dc28bd8fad",
+      "operation": "add",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/DesktopInputObserver.py",
+      "hash": "2fb8490f1fe1812c705622e4ba34ffec7ad6259c7810b09e2db7f3390c8ba7af",
+      "operation": "add",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/BackgroundInputChecks.cjs",
+      "hash": "c8b0a2c83dc814cc2bf4c419da70457461dd501b333011a69a4cd12e0e29ded9",
+      "operation": "add",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/BackgroundStopFailureChecks.cjs",
+      "hash": "6dc3c964e9eb079273f0223cb1334e61bd0c1048d4e5737b1a07f708a4df7f25",
+      "operation": "add",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeNativeInputChecks.cjs",
+      "hash": "196ce14f1f63ec6f44fbe2cf43f396a592081a3f83686e646fee47714d903feb",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeModelChecks.cjs",
+      "hash": "d2e4d0bd0b7e41695da5d3d82073841fba94e164dbfdb1bc0d67615de0c54352",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceModelChecks.cjs",
+      "hash": "e027727bc8e86a29348f632235dbdc7063398ca5e8f0c96d8ea530a71181e30c",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatPermissionLiveChecks.cjs",
+      "hash": "10f4cba33e1fc0c6366edc7143941c8c87912553abf4adf7d3acd5132a39d18a",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ConcurrentWorkbenchChecks.cjs",
+      "hash": "2d096944905d6c3f50dc6d6295fd94b44176fd4c9f839b7495b4e4d38680b76b",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/LegacyChatDeletionLiveChecks.cjs",
+      "hash": "09ed3e0a30ed55c84fa01480cca5ace91ec44039965981bfd9e94ec773e66caf",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeLiveChecks.cjs",
+      "hash": "098887507111d6f694620a4f5f421ce82b70516c07517568c4f2e2d174579fb1",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeSessionLiveChecks.cjs",
+      "hash": "539932edb4d3743c518c4372e8e857d3970809d84badb8f35f5079e0c5ae4949",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ChatHistoryLiveChecks.cjs",
+      "hash": "84ab039fc919c89241ac55adc24c29108d6a2b8530154f3bd7ce657889ff4928",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "hash": "a4853c54570b7656cd3ea69796785960aba932b016c5651b513fda47652f9927",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeComparisonChecks.cs",
+      "hash": "d0330c4702cb4fcae1fa531f8bb5fffade66cdddfe6006a226df1a964badcb36",
+      "operation": "modify",
+      "evidence": ".karolina/state/test-cleanup-20261009/assessment.json"
+    }
+  ]
+}

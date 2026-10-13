@@ -1,0 +1,18 @@
+{
+  "id": "REQ-KAR-027",
+  "title": "需求实现状态与参考资料筛选",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-027_requirement-implementation-and-reference-filters.md",
+  "version": 2,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "需求实现",
+    "参考资料",
+    "筛选"
+  ],
+  "createdAt": "2026-10-10T21:32:52+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}

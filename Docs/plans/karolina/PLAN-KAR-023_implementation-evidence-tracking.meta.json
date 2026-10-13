@@ -1,0 +1,166 @@
+{
+  "id": "PLAN-KAR-023",
+  "code": "0188",
+  "title": "需求实现证据追踪与过期复核实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-023_implementation-evidence-tracking.md",
+  "version": 1,
+  "status": "执行",
+  "createdAt": "2026-10-10T23:18:42+08:00",
+  "updatedAt": "2026-10-10T23:33:55+08:00",
+  "requirements": [
+    "REQ-KAR-028"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-028",
+      "title": "需求实现证据追踪与过期复核",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-028_implementation-evidence-tracking.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "30d2711208a94940137bfeb84e08e8e357e4297fb6ca0b9e1935760c64c07ebc"
+    }
+  ],
+  "plannedChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentLibrary.ImplementationEvidence.cs",
+      "operation": "add",
+      "reason": "负责证据汇总、指纹采集、基线和失效判断。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentLibrary.cs",
+      "operation": "modify",
+      "reason": "需求正文演进时清除快照，格式编辑时同步正文指纹。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.ImplementationEvidence.cs",
+      "operation": "add",
+      "reason": "受限源码仓库定位、后台周期审计和失效事件。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "管理后台审计任务生命周期。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "暴露实现依据查询及状态更新接口。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "operation": "modify",
+      "reason": "需求详情呈现计划、源码和测试依据。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "reason": "接收失效事件并通知文档工作台。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/document.css",
+      "operation": "modify",
+      "reason": "实现依据卡片的轻量样式。"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/catalog.json",
+      "operation": "modify",
+      "reason": "登记本需求案和本计划，不改变 activePlan。"
+    }
+  ],
+  "resourceRefs": [],
+  "evidence": {
+    "approved": true,
+    "humanAccepted": false,
+    "machineVerified": false,
+    "current": {
+      "sourceAuditComplete": true,
+      "releaseBuildSucceeded": true,
+      "behaviorTestsRun": false,
+      "unityTestsRun": false,
+      "screenshots": false,
+      "runtimeUpdated": true,
+      "manualAcceptance": false,
+      "runtimeLaunched": false
+    }
+  },
+  "tags": [
+    "Karolina",
+    "证据追踪",
+    "需求状态"
+  ],
+  "externalRefs": [
+    {
+      "path": "Karolina.Core/DocumentLibrary.ImplementationEvidence.cs",
+      "hash": "fd6f648456adb46c2dff4ff75717b6bc3dfc85a382a3bd811cf29bace9f76a5b",
+      "operation": "add",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Core/DocumentLibrary.cs",
+      "hash": "335f63a4d99db6cf45298e23fca14482500fcb108b279d3e75858ea71ce7044b",
+      "operation": "modify",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.ImplementationEvidence.cs",
+      "hash": "16e8c961827258c03a05d875327e525ca52df50057411ac3cfa1abc8a075fe9c",
+      "operation": "add",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.cs",
+      "hash": "86a95218e3e29284b5110d793c1de01a137efbd4d9e3da199f4f7f9ceb2e290d",
+      "operation": "modify",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "hash": "eab6c014c649f4feacd62b07725418acfa84c938fb7981b50df3b86bc2664871",
+      "operation": "modify",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "hash": "45f5861e84d3dcb7f5fb7aea066b605ec18e41b735595c4d83af4742aec3a373",
+      "operation": "modify",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "hash": "8ade8749dcee494a0ff7a3212b16fe58341c6576698e84ecf660fa42eb043c3e",
+      "operation": "modify",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    },
+    {
+      "path": "Karolina.Desktop/Web/styles/pages/document.css",
+      "hash": "2e37ed9f708abf4f7049104dd5ae595d1c13251aa7db68b30b17671c1b671000",
+      "operation": "modify",
+      "evidence": "本计划实际实现文件；SHA-256 仅用于核对当前内容，不代表测试通过。",
+      "repository": "E:/Github/Karolina"
+    }
+  ]
+}

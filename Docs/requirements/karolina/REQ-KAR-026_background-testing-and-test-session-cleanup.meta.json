@@ -1,0 +1,18 @@
+{
+  "id": "REQ-KAR-026",
+  "title": "后台测试与测试对话清理",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-026_background-testing-and-test-session-cleanup.md",
+  "version": 2,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "测试",
+    "后台输入",
+    "对话清理"
+  ],
+  "createdAt": "2026-10-09T22:24:28.912122+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}

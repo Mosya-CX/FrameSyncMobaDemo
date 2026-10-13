@@ -1,0 +1,367 @@
+{
+  "id": "PLAN-KAR-022",
+  "code": "0187",
+  "title": "需求实现状态与参考资料筛选实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-022_requirement-implementation-and-reference-filters.md",
+  "version": 2,
+  "status": "校正",
+  "tags": [
+    "Karolina",
+    "需求实现",
+    "参考资料筛选",
+    "RAG"
+  ],
+  "createdAt": "2026-10-10T21:32:52+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00",
+  "requirements": [
+    "REQ-KAR-027",
+    "REQ-KAR-023"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-027",
+      "title": "需求实现状态与参考资料筛选",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-027_requirement-implementation-and-reference-filters.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "5f5827443df1fb43b9084ff043ec7143b3f3dfddf3274dafd9c34c56ac67d070"
+    },
+    {
+      "id": "REQ-KAR-023",
+      "title": "工程知识检索与关联取证",
+      "status": "激活",
+      "version": 4,
+      "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件",
+        "附录",
+        "需求演进"
+      ],
+      "hash": "83ee6f3697e1fff1d603b96f3d9a121a0ab2b217617bdd1f7ac5cb730b1d74b4"
+    }
+  ],
+  "plannedChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentLibrary.cs",
+      "operation": "modify",
+      "reason": "需求实现状态、元数据校验与演进重置"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeChunks.cs",
+      "operation": "modify",
+      "reason": "为检索索引保存独立实现状态"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectKnowledgeIndex.cs",
+      "operation": "modify",
+      "reason": "把结构化实现状态加入索引条目"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "operation": "modify",
+      "reason": "校验状态变化并输出结构化证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "operation": "modify",
+      "reason": "区分生命周期状态和实现状态"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "operation": "modify",
+      "reason": "定义需求实现状态接口合同"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "暴露带元数据指纹校验的状态更新接口"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "增加需求实现操作和组合筛选控件"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "operation": "modify",
+      "reason": "实现需求标记和参考筛选交互"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/reference-picker.js",
+      "operation": "modify",
+      "reason": "集中实现文本、标签、状态和资源过滤"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/function-polish.css",
+      "operation": "modify",
+      "reason": "呈现筛选面板与实现状态"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/DocumentImplementationChecks.cs",
+      "operation": "add",
+      "reason": "覆盖实现状态和演进边界"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeCorrectionChecks.cs",
+      "operation": "modify",
+      "reason": "覆盖 RAG 对实现状态的结构化证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ReferencePickerChecks.test.mjs",
+      "operation": "add",
+      "reason": "覆盖参考资料筛选组合"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/BackgroundInputChecks.cjs",
+      "operation": "modify",
+      "reason": "通过后台真实 WebView2 验证筛选和操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "注册需求实现状态定向检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "设置整个参考资料内容区高度上限并移除列表独立滚动"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/requirements/**/*.meta.json",
+      "operation": "modify",
+      "reason": "为145份现有需求元数据补齐独立实现状态并递增版本"
+    },
+    {
+      "repository": "E:/Unity/Item/FrameSyncMobaDemo",
+      "path": "Docs/requirements/karolina/REQ-KAR-027_requirement-implementation-and-reference-filters.md",
+      "operation": "modify",
+      "reason": "记录参考资料整体滚动的目标与验收条件"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "hash": "cad2e4a1e139dcc6734dd19971c6b4f6e0be67b54994029dd4a8be1873c8cfab",
+      "evidence": "参考资料整体滚动改造；完整修改与验证状态见本计划校正记录。"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "hash": "b69e65b1a26d8ec3c25d6fb264d83e2beb08589a86e9912d5a35d28c6165af59",
+      "evidence": "参考资料整体滚动改造；完整修改与验证状态见本计划校正记录。"
+    }
+  ],
+  "evidence": {
+    "approved": true,
+    "humanAccepted": false,
+    "previousBatchVerification": {
+      "approved": true,
+      "humanAccepted": false,
+      "machineVerified": true,
+      "buildWarnings": 0,
+      "buildErrors": 0,
+      "implementationChecks": 3,
+      "knowledgeChecks": 36,
+      "frontendChecks": 5,
+      "backgroundWebView2": true,
+      "foregroundSamples": 157,
+      "publishedExecutable": true,
+      "publishedForegroundSamples": 149,
+      "systemMouseInput": false,
+      "screenshots": false,
+      "realModelCalls": 0,
+      "realUnityIntegration": false
+    },
+    "machineVerified": false,
+    "currentCorrection": {
+      "referencePanelScrollImplemented": true,
+      "runtimeWebView2Verified": false,
+      "automatedTestsRun": false,
+      "screenshots": false,
+      "requirementStatusAudit": {
+        "total": 145,
+        "lifecycleUnchanged": true,
+        "lifecycleCounts": {
+          "激活": 145,
+          "废弃": 0
+        },
+        "implementationStatusCounts": {
+          "已实现": 123,
+          "待实现": 22
+        },
+        "pendingIds": [
+          "REQ-FEAT-031",
+          "REQ-FEAT-036",
+          "REQ-FEAT-047",
+          "REQ-FEAT-065",
+          "REQ-KAR-001",
+          "REQ-KAR-005",
+          "REQ-KAR-009",
+          "REQ-KAR-013",
+          "REQ-KAR-017",
+          "REQ-KAR-018",
+          "REQ-KAR-019",
+          "REQ-KAR-020",
+          "REQ-KAR-021",
+          "REQ-KAR-022",
+          "REQ-KAR-023",
+          "REQ-KAR-024",
+          "REQ-KAR-025",
+          "REQ-KAR-026",
+          "REQ-KAR-027",
+          "REQ-WOLF-ANIM",
+          "REQ-WOLF-NAV",
+          "REQ-WOLF-PATIENCE"
+        ],
+        "auditBasis": "已实现须有当前源码/测试证据与已关闭计划；无法确认或计划未关闭则待实现。",
+        "unityTestsRun": false
+      }
+    }
+  },
+  "externalRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DocumentLibrary.cs",
+      "hash": "feb131254557065f2e5321c6c14f9584bbd8cf9a84c3ea48cfd7d1380250273c",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeChunks.cs",
+      "hash": "d6630ba3d49aefdcbaa4ca11edf71d10f08d3dff30286fdef513119def455631",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectKnowledgeIndex.cs",
+      "hash": "9cec029aba93a2b6b4a05b8d260e4d1c528bf01f8bae87cd050903247a68929a",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "hash": "f1a8290fa868083fbad9c274148de4bb8bc9e7b3a11343ddaedad282203f09c3",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "hash": "020b80f9976f9a7f270a57a29e2c01ac40a64175fc5097feb0402fa63c7d1253",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "hash": "b25dbfac5153d519b2fa1473ad8dcd8228d7c0688142b3377c6f47e0480d2f5d",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "hash": "c46d941d8f073bec4bf1b1ef3e086feacccbcfecc9de05586c2d1ccd8148d8f7",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "hash": "80c72e5d9cdf967d5a540988ad774a0ad738d88402ffecfd2b6c70e683f90d1b",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "hash": "0eb0c9cb099f96b3674491082b9f99e1ff8158344a19f91e3b9e67fdb998ee92",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/ui/reference-picker.js",
+      "hash": "d76a61dd0915f0b9079a9959936a9a6ccc4227014c591b67f8035e886db4d53a",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/function-polish.css",
+      "hash": "60e6383308caac74f0b5dfd41bbf66a270c4b0612ae2d5a9f06952b140f7d973",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/DocumentImplementationChecks.cs",
+      "hash": "946cd7a462e232f5e2829b6933590c7d72b22a02158f42065fc7b2c42d6cd850",
+      "operation": "add",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeCorrectionChecks.cs",
+      "hash": "95d11a1089b1e21cf1b35e465dc6db0332257ab7284266a6784d637838d3fc1d",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/ReferencePickerChecks.test.mjs",
+      "hash": "11927a178e6b1b9b0f64449576ec6ee2fb1bf72f3c376b9d48f77950e646c8af",
+      "operation": "add",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/BackgroundInputChecks.cjs",
+      "hash": "6d33f8bcc20553e322ca4a64345dfad1c548115883765af5dce91b8c97d4b997",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "hash": "a689241fe23656c3be61ab780ee35664fa4497c8e317786b2844fe2af977c610",
+      "operation": "modify",
+      "evidence": "PLAN-KAR-022 实施与机器验收记录"
+    }
+  ]
+}
