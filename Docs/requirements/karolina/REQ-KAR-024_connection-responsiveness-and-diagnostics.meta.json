@@ -1,0 +1,19 @@
+{
+  "id": "REQ-KAR-024",
+  "code": "REQ-KAR-024",
+  "title": "连接响应与耗时诊断",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-024_connection-responsiveness-and-diagnostics.md",
+  "version": 2,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "连接",
+    "性能",
+    "诊断"
+  ],
+  "createdAt": "2026-10-08T23:29:45.153805+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}

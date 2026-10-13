@@ -1,0 +1,1224 @@
+{
+  "id": "PLAN-KAR-018",
+  "code": "0183",
+  "title": "工程知识检索增强实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-018_project-knowledge-retrieval.md",
+  "version": 1,
+  "status": "校正",
+  "tags": [
+    "Karolina",
+    "RAG",
+    "工程检索",
+    "图谱关联",
+    "本地索引"
+  ],
+  "createdAt": "2026-10-07T19:11:05.988845+08:00",
+  "updatedAt": "2026-10-08T22:19:34+08:00",
+  "requirements": [
+    "REQ-KAR-023",
+    "REQ-KAR-020",
+    "REQ-KAR-013",
+    "REQ-KAR-017"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-023",
+      "title": "工程知识检索与关联取证",
+      "status": "激活",
+      "version": 3,
+      "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "3a5960590fb7f6311f9c566b75c0692fb7ad25b98c82db0530dfa9249d35a829"
+    },
+    {
+      "id": "REQ-KAR-020",
+      "title": "工程资料自动检索",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-020_automatic-project-retrieval.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "d0ea0608d22646a491f5bdfc553f38caaad5d113f4e8a38466f5433b893c322c"
+    },
+    {
+      "id": "REQ-KAR-013",
+      "title": "工程代码与 Unity 资源关系图谱",
+      "status": "激活",
+      "version": 6,
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "fa7f02ef5c10c9ebdf66e88093f4e8989f7da7b5f5391a9bf448c0da14835d37"
+    },
+    {
+      "id": "REQ-KAR-017",
+      "title": "工程内容权限与任务临时授权",
+      "status": "激活",
+      "version": 3,
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "57fb52f03dc440dd46cc3a901438973ff8af879aaa5acee3eaa61c5f5f47a57e"
+    }
+  ],
+  "plannedChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeChunks.cs",
+      "operation": "add",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeSearch.cs",
+      "operation": "add",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectKnowledgeIndex.cs",
+      "operation": "add",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeRetrievalChecks.cs",
+      "operation": "add",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "工程知识检索增强本批实现"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DeepSeekRetrieval.cs",
+      "operation": "add",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/DeepSeekCredential.cs",
+      "operation": "add",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/knowledge.js",
+      "operation": "add",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/settings.css",
+      "operation": "modify",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeLiveChecks.cjs",
+      "operation": "add",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceChecks.cs",
+      "operation": "modify",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "operation": "modify",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceModelChecks.cjs",
+      "operation": "modify",
+      "reason": "本批DeepSeek查询理解、安全凭据与UI接线/检查"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeModelChecks.cjs",
+      "operation": "add",
+      "reason": "复用当前Codex账号的真实语义理解与只读检索联调"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeComparisonChecks.cs",
+      "operation": "add",
+      "reason": "真实RAG与常规检索对照评测工具、分析和预登记题目，不改产品行为"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/AnalyzeKnowledgeComparison.py",
+      "operation": "add",
+      "reason": "真实RAG与常规检索对照评测工具、分析和预登记题目，不改产品行为"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Fixtures/knowledge-comparison-cases.json",
+      "operation": "add",
+      "reason": "真实RAG与常规检索对照评测工具、分析和预登记题目，不改产品行为"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "operation": "add",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeProtocol.cs",
+      "operation": "add",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeQuery.cs",
+      "operation": "add",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeText.cs",
+      "operation": "add",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeCorrectionChecks.cs",
+      "operation": "add",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeSessionLiveChecks.cjs",
+      "operation": "add",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgePresentationChecks.test.mjs",
+      "operation": "add",
+      "reason": "已批准的RAG取证、过滤、预算、编码及复测校正"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/AgentToolJson.cs",
+      "operation": "add",
+      "reason": "本轮配置与图谱/RAG效率校正及定向证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeNavigation.cs",
+      "operation": "add",
+      "reason": "本轮配置与图谱/RAG效率校正及定向证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeEfficiencyChecks.cs",
+      "operation": "add",
+      "reason": "本轮配置与图谱/RAG效率校正及定向证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeEfficiencyRegressionChecks.cs",
+      "operation": "add",
+      "reason": "本轮配置与图谱/RAG效率校正及定向证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeNativeInputChecks.cjs",
+      "operation": "add",
+      "reason": "本轮配置与图谱/RAG效率校正及定向证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/NativeInputHelper.py",
+      "operation": "add",
+      "reason": "本轮配置与图谱/RAG效率校正及定向证据"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Fixtures/knowledge-efficiency-cases.json",
+      "operation": "add",
+      "reason": "本轮配置与图谱/RAG效率校正及定向证据"
+    }
+  ],
+  "externalRefs": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeChunks.cs",
+      "operation": "add",
+      "hash": "079547fdc0a70ab9244aa74d90edde104ec12c1493218992af0d6d47ac678daf",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeSearch.cs",
+      "operation": "add",
+      "hash": "c9bb5cb106b18a8697bf6b5e29e9bf7496b16cd621782b0fcd8b1bae7adcf09e",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectKnowledgeIndex.cs",
+      "operation": "add",
+      "hash": "a5b788f5f32a918e068d5375d0171894b9be64a37c02d13d7e681a041763b00a",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "operation": "modify",
+      "hash": "5a7901f94c738d6a0f8e7fd55132e862e15aae9778ad391afe84434080ebd152",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/WorkbenchSettings.cs",
+      "operation": "modify",
+      "hash": "945811e7b3adc7ef228dab1e9a707a1de8b87fb23249a04fcd592c717aae4c12",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "hash": "c929a323d0acf07f126a786553961d2add29b6ecc68ab67e9ba3836fc7554caf",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "operation": "modify",
+      "hash": "44132283070745b59901225039cfcd2efb6dc2fda3246ce3e094c2911331240e",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "hash": "bf9cfed7ca48db88d2e9b5ac771aabfa4271c1208d405de62de90d5feec3707b",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "hash": "0405db5f78e07789d471150a96b3d145bc32ba7e03a00e7ce9c142f32c141f5e",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "operation": "modify",
+      "hash": "18d0cfe7b738cabe9775d4e69b81d9cae8221c4c082da0d919f025458e95d1f5",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/documents.js",
+      "operation": "modify",
+      "hash": "b799f9be738d03f2f8b4d1d71d1211ee1dc368d3bb82b4375ffb4be9e57b55d5",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/settings.js",
+      "operation": "modify",
+      "hash": "d93e4d1fb0bf26c7f8593adf3c03e484df40bee046ba86a7ab2bba521f267efc",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "hash": "575d9bb9627c888f9e005c482bbd5f3a0997ca4630a67f74f9e51a0a4c924c74",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeRetrievalChecks.cs",
+      "operation": "add",
+      "hash": "54b190f56e4527b923cadc057ed9bd92fd57422c445853ca4bbcee6d5d2147e8",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "3bd78ff809e25e4234205042e508c277501db48dddb24ba3072675ec474627cc",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/DeepSeekRetrieval.cs",
+      "operation": "add",
+      "hash": "9524971d8d7504c0cf722b693c3e513fab4dfa9f5e89709fffe72803e5b03c78",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/DeepSeekCredential.cs",
+      "operation": "add",
+      "hash": "8597d086c950a94c1707ffe87045d612d1402acc82964ddb4b5331bcf41c0a51",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/knowledge.js",
+      "operation": "add",
+      "hash": "2c511427b916cf14937ec8f5c8a5fe8d4391379a9b7bf892548215bd234f3a98",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/settings.css",
+      "operation": "modify",
+      "hash": "5adbb81d79a020a9ba6b1a59ed2acf59bd73618d7124cf57929bfe287ac43a70",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "hash": "e8b7128cf39b4523be4f598b9bd24ee79d0a0679be98bdd0a3454c9d900e3f7d",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "hash": "1a664a54b2ed968f534a59b33a60c034dabd9faa29ea6ce5361939adc4b09e4e",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeLiveChecks.cjs",
+      "operation": "add",
+      "hash": "c752718087a399b148a8431f583d475821e9c971b3ff80669bced44a4ce8e932",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceChecks.cs",
+      "operation": "modify",
+      "hash": "922255f8c38327cbbc36aee01a530daca220dc82d022d77513648f87a65247af",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "operation": "modify",
+      "hash": "3bb833ba2831bd87ed00f6e37b168237ac0c801fa3387b5feaa8367fa21e9879",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceModelChecks.cjs",
+      "operation": "modify",
+      "hash": "8f35214d01c75d1350616a8f6b12a14c7762ca89bbc3d98587043068e84ea33b",
+      "evidence": "本批涉及的真实实现/接线/测试文件；保留此前改动，不据此认领全部文件内容，机器证据不代替人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeModelChecks.cjs",
+      "operation": "add",
+      "hash": "8f61908e7443e5f20f79979cbeab453a29e0154038a55e9b7f99cbc35430f90b",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeComparisonChecks.cs",
+      "operation": "add",
+      "hash": "6e6722b8b9c024b788df40690e149b0902ee9c3bd09bdb3a0834e14ee2a1b0de",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/AnalyzeKnowledgeComparison.py",
+      "operation": "add",
+      "hash": "a1a5a53eb82705150e3d1f0d88f403f73fceb01c10099d434ce541ad5c0119a0",
+      "evidence": "本轮真实对照评测，可重复运行；不是人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Fixtures/knowledge-comparison-cases.json",
+      "operation": "add",
+      "hash": "b9b8898b6cd6514235fdcb00a8a81bc64cdee242a97dfee5fe44e42404bae371",
+      "evidence": "本轮真实对照评测，可重复运行；不是人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "operation": "add",
+      "hash": "a0d236639825687011fc9301412fe8633efac5723dbd0d660be475b3dff4e802",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeProtocol.cs",
+      "operation": "add",
+      "hash": "1287aec929e7219b8ddc04e8e3994c35cd6760c4fde5718d4bb08439bc26227f",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeQuery.cs",
+      "operation": "add",
+      "hash": "cfa37631674d0a0621b45e00d244ce18e5c6da994a8c67f48bc0ad3a4efaa67d",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeText.cs",
+      "operation": "add",
+      "hash": "998de230350746921028a858967d22667e98e6fe4c9e643b6fdc3fc9a7fbcd04",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "hash": "e1b250a843e0cb8145d20983141032de6ecd26a2bbbd89de269c8b0fe82a42d8",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeCorrectionChecks.cs",
+      "operation": "add",
+      "hash": "56c8692f231ae8e9bbf6dfb62086e8daa203f5eb97562b60f1372b32d638f646",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeSessionLiveChecks.cjs",
+      "operation": "add",
+      "hash": "568ac9bd044f1648bb11d2e93ff63b39718d044dbf6bb1290a8e83a5acb76fe0",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgePresentationChecks.test.mjs",
+      "operation": "add",
+      "hash": "b4ea1691b5b4097b9db10171630602f8649580befe8b524701a3351e70ac1731",
+      "evidence": "本轮RAG校正实际实现/接线/回归文件；保留既有改动，不据此认领整个文件，机器检查不替代人工验收"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.meta.json",
+      "operation": "add",
+      "hash": "35850b4b9f2659ea6ef11bd9b4b9e05e0bf2b62defe1b045d5f116d2cd0f9a57",
+      "evidence": "本批需求独立元数据"
+    },
+    {
+      "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.md",
+      "operation": "add",
+      "hash": "3a5960590fb7f6311f9c566b75c0692fb7ad25b98c82db0530dfa9249d35a829",
+      "evidence": "本批已接受目标与技术方案"
+    },
+    {
+      "path": "Docs/plans/karolina/PLAN-KAR-018_project-knowledge-retrieval.md",
+      "operation": "add",
+      "hash": "7931e02f15878d0b5452091b6b28b3e322a1a066e5ad09b39555a8020b100480",
+      "evidence": "本批实施步骤、实际机器结果与待验收范围"
+    },
+    {
+      "path": "Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.md",
+      "operation": "modify",
+      "evidence": "本轮仅登记已确认Unity缺陷并延期，不修改Unity实现；详细修复及测试方案在事实正文",
+      "hash": "794b0d98a90b527d5cf5bc52191be1dbb63f90f7073a1deeb8529b2c06466d20"
+    },
+    {
+      "path": "Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.meta.json",
+      "operation": "modify",
+      "evidence": "本轮仅登记已确认Unity缺陷并延期，不修改Unity实现；详细修复及测试方案在事实正文",
+      "hash": "b49f596e3c3e25d68f9a9417139c616379cfb9e8fbfd7fe211bd8ffec02b435c"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/AgentToolJson.cs",
+      "operation": "add",
+      "evidence": "本轮实现/回归文件",
+      "hash": "1a5365b03b85587c2e0553b4331a231a79724bb6574e4a115d32fd323ff90f52"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/KnowledgeNavigation.cs",
+      "operation": "add",
+      "evidence": "本轮实现/回归文件",
+      "hash": "6e3893fc582beb21a8fd4d6e4121fc4269e2cc3a449b8eadecd00c5889be7865"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeEfficiencyChecks.cs",
+      "operation": "add",
+      "evidence": "本轮实现/回归文件",
+      "hash": "669801d0913cea5a1f0df3eaab4130a4385438b628869fd4a2532fc9ac3d1e68"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeEfficiencyRegressionChecks.cs",
+      "operation": "add",
+      "evidence": "本轮实现/回归文件",
+      "hash": "acd8ca4a22b6591fd452557b1aa1dadf89fe7270ceb35705b25553900796b67e"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/KnowledgeNativeInputChecks.cjs",
+      "operation": "add",
+      "evidence": "本轮实现/回归文件",
+      "hash": "b1392487cbfa850f1d627d12ac8067f0688bae9a29a4d02d02b11eb5f7cd75dd"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/NativeInputHelper.py",
+      "operation": "add",
+      "evidence": "本轮实现/回归文件",
+      "hash": "b4e006db4dc1dac4ca20a41be7a3ee0f2f0cef854d627800a7dbd53417d99107"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Fixtures/knowledge-efficiency-cases.json",
+      "operation": "add",
+      "evidence": "本轮实现/回归文件",
+      "hash": "398d41c382ad54f17c57ace6d73c50abcee36bbbfb02ce8c2579b4e0f946bd85"
+    }
+  ],
+  "evidence": {
+    "recordedAt": "2026-10-07T22:04:49.815937+08:00",
+    "build": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "checks": {
+      "knowledge": {
+        "passed": 26,
+        "failed": 0
+      },
+      "taskAssistance": {
+        "passed": 13,
+        "failed": 0
+      },
+      "frontend": {
+        "passed": 18,
+        "failed": 0
+      }
+    },
+    "browser": {
+      "passed": true,
+      "deployedEntryVerified": true,
+      "manualBodyCodeTagSearch": true,
+      "sourceReading": true,
+      "closedDeprecatedHidden": true,
+      "settingsSave": true,
+      "automaticReferencesCollapsed": true,
+      "userTextClean": true,
+      "staleSourceRejected": true,
+      "pageErrors": 0,
+      "screenshots": false,
+      "nativeWindowInputRetested": false
+    },
+    "hostVerification": {
+      "passed": true,
+      "realReadonlySandbox": true,
+      "states": [
+        "未运行",
+        "失败",
+        "通过"
+      ],
+      "evidenceRevalidatedOnOpen": true,
+      "untrustedToolWritesBlocked": true,
+      "modelCalls": 0
+    },
+    "realCodex": {
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "passed": true,
+      "runId": "80b0fd3073b44859b7f4928bc53819cf",
+      "threadId": "01a116a9-bd12-7341-aad5-360f945147c1",
+      "originalQueryNoMatch": true,
+      "projectSearchCalls": 4,
+      "chapterAndCodeEvidence": true,
+      "extraApi": false,
+      "commands": 0,
+      "fileChanges": 0,
+      "unityGameplayTested": false
+    },
+    "realProject": {
+      "root": "E:/Unity/Item/FrameSyncMobaDemo",
+      "readOnlySource": true,
+      "indexMs": 6797,
+      "files": 1177,
+      "chunks": 18927,
+      "queries": [
+        {
+          "query": "三狼 耐心 回归",
+          "ms": 525,
+          "sampleHits": 5
+        },
+        {
+          "query": "RecoveryGate",
+          "ms": 16,
+          "sampleHits": 3
+        },
+        {
+          "query": "任务 授权 回收",
+          "ms": 339,
+          "sampleHits": 5
+        },
+        {
+          "query": "工程资料 检索",
+          "ms": 628,
+          "sampleHits": 5
+        },
+        {
+          "query": "技能 冷却",
+          "ms": 651,
+          "sampleHits": 5
+        },
+        {
+          "query": "PLAN-KAR-017",
+          "ms": 57,
+          "sampleHits": 5
+        },
+        {
+          "query": "#图谱",
+          "ms": 73,
+          "sampleHits": 5
+        }
+      ],
+      "warnings": [
+        "Assets/3rd/XLua/XLua/Src/LuaEnv.cs：未读取（Unable to translate bytes [BC] at index 12770 from specified code page to Unicode.）",
+        "Assets/3rd/XLua/XLua/Src/Editor/Report.cs：未读取（Unable to translate bytes [CE] at index 342 from specified code page to Unicode.）",
+        "Assets/Editor/CodeMergerWindow.cs：未读取（Unable to translate bytes [BD] at index 221 from specified code page to Unicode.）",
+        "Assets/Scripts/Gameplay/Combat/DamageRecipe.cs：未读取（Unable to translate bytes [E2][80] at index 147 from specified code page to Unicode.）",
+        "Assets/Scripts/Tools/NetworkSingleton.cs：未读取（Unable to translate bytes [CA] at index 201 from specified code page to Unicode.）",
+        "Packages/com.merry-yellow.code-assist/CHANGELOG.md：未读取（Unable to translate bytes [FD] at index 5535 from specified code page to Unicode.）"
+      ]
+    },
+    "deepSeek": {
+      "optional": true,
+      "enabledByDefault": false,
+      "officialProtocolFixturePassed": true,
+      "liveApiVerified": false,
+      "reason": "未提供用户API密钥"
+    },
+    "appearance": {
+      "theme": "karolina",
+      "motion": "full",
+      "loadedIcons": 48,
+      "mascot": true,
+      "dynamicShader": true,
+      "pageErrors": 0,
+      "codexConnected": true,
+      "unityConnected": false,
+      "unityError": "操作失败"
+    },
+    "independentReview": "独立只读审查发现的问题已修复；验证字段大小写问题另以真实宿主、有检查项的计划检索与打开来源回归通过。",
+    "deployment": {
+      "recordedAt": "2026-10-07T23:42:01.839415+08:00",
+      "entry": "E:/Github/Karolina/artifacts/current/Karolina.Desktop.exe",
+      "coreHash": "45e3771039b4f90c449234803791528135dfba509b2a0e162409a803e1f2f8e6",
+      "desktopHash": "45d3b71ef06134bdcb2f6e09445f76c9bbf1b0293eb032beaf383601108e63a8",
+      "documentsCopied": false,
+      "files": 162,
+      "hashMismatches": 0,
+      "originalEntryBrowserPassed": true,
+      "browserFixture": "D:/Temp/karolina-knowledge-JRO8Hp",
+      "nativeWindowHumanAccepted": false
+    },
+    "pending": [
+      "自然补查采用率、源码入口定位和模型自由引文仍需校正",
+      "六个未明确编码的实际工程文件仍未索引",
+      "可选DeepSeek真实API联调需用户配置",
+      "用户人工验收"
+    ],
+    "humanAccepted": false,
+    "committed": false,
+    "pushed": false,
+    "ragComparison": {
+      "recordedAt": "2026-10-07T22:41:45.534499+08:00",
+      "primaryQuestions": 8,
+      "primaryCalls": 16,
+      "diagnosticCalls": 3,
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "summary": {
+        "baseline": {
+          "runs": 8,
+          "completed": 8,
+          "meanSeconds": 52.44,
+          "medianSeconds": 50.09,
+          "toolCalls": 27,
+          "inputTokens": 1062591,
+          "cachedInputTokens": 818176,
+          "uncachedInputTokens": 244415,
+          "outputTokens": 6012,
+          "tokenUsagePresent": 8,
+          "factsCovered": 18,
+          "factsTotal": 22,
+          "expectedSourcesCovered": 6,
+          "expectedSourcesTotal": 9,
+          "citations": 24,
+          "validLineRanges": 24,
+          "literalQuotesMatched": 19,
+          "quotesMatchedIncludingExplicitOmissions": 21
+        },
+        "rag": {
+          "runs": 8,
+          "completed": 8,
+          "meanSeconds": 47.37,
+          "medianSeconds": 47.51,
+          "toolCalls": 22,
+          "inputTokens": 938437,
+          "cachedInputTokens": 752128,
+          "uncachedInputTokens": 186309,
+          "outputTokens": 5917,
+          "tokenUsagePresent": 8,
+          "factsCovered": 20,
+          "factsTotal": 22,
+          "expectedSourcesCovered": 7,
+          "expectedSourcesTotal": 9,
+          "citations": 24,
+          "validLineRanges": 24,
+          "literalQuotesMatched": 16,
+          "quotesMatchedIncludingExplicitOmissions": 18
+        }
+      },
+      "assessmentPath": ".karolina/state/evaluations/rag-20261007-222134/assessment.json",
+      "assessmentHash": "c04be91e7ab508bee5b69dc207cb244bae5cbdc95a2aac8bb84dae943c138b8e",
+      "allPrimaryTurnsCompleted": true,
+      "allAnswersCorrect": false,
+      "sourceChangesDuringRuns": [],
+      "repeatProvesStableSpeedup": false,
+      "toolAvailabilityVerified": true,
+      "naturalFollowupProjectSearchCalls": 0,
+      "sourceAuditCompleted": true,
+      "productCodeChanged": false,
+      "exeUpdated": false,
+      "unityTested": false,
+      "build": {
+        "warnings": 0,
+        "errors": 0
+      },
+      "knowledgeChecks": {
+        "passed": 16,
+        "failed": 0
+      },
+      "pendingCorrections": [
+        "状态与引文精度",
+        "历史元数据资源关联过滤",
+        "口语/跨模块召回及低置信度处理",
+        "上下文预算",
+        "非UTF-8索引遗漏"
+      ],
+      "humanAccepted": false
+    },
+    "clarification": {
+      "recordedAt": "2026-10-07T22:49:01.485440+08:00",
+      "documentsOnly": true,
+      "productImplementationStarted": false,
+      "unityDefectDeferredByUser": true,
+      "issueDocument": "Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.md",
+      "proposalSection": "校正方案细化（提案，未执行）",
+      "scope": "说明状态和引用、口语召回、有界补查、历史及上下文、编码覆盖、复测的具体流程与用户可见结果；调用次数是建议值",
+      "testsRunThisTurn": false
+    },
+    "correction": {
+      "approvedByUser": true,
+      "recordedAt": "2026-10-07T23:39:54.210548+08:00",
+      "implemented": true,
+      "status": "校正",
+      "comparison": {
+        "recordedAt": "2026-10-07T23:39:54.210548+08:00",
+        "comparisonCalls": 30,
+        "completed": 29,
+        "failedOrTimedOut": [
+          {
+            "trial": "rag-20261007-232355",
+            "question": "gold",
+            "rag": false,
+            "status": "timeout",
+            "failure": "A task was canceled."
+          }
+        ],
+        "primary": {
+          "baseline": {
+            "runs": 8,
+            "completed": 8,
+            "meanSeconds": 48.39,
+            "medianSeconds": 48.38,
+            "toolCalls": 30,
+            "inputTokens": 1149721,
+            "cachedInputTokens": 977152,
+            "uncachedInputTokens": 172569,
+            "outputTokens": 7054,
+            "tokenUsagePresent": 8,
+            "factsCovered": 22,
+            "factsTotal": 22,
+            "expectedSourcesCovered": 8,
+            "expectedSourcesTotal": 9,
+            "citations": 26,
+            "validLineRanges": 26,
+            "literalQuotesMatched": 19,
+            "quotesMatchedIncludingExplicitOmissions": 21
+          },
+          "rag": {
+            "runs": 8,
+            "completed": 8,
+            "meanSeconds": 49.42,
+            "medianSeconds": 51.22,
+            "toolCalls": 28,
+            "inputTokens": 1080165,
+            "cachedInputTokens": 835584,
+            "uncachedInputTokens": 244581,
+            "outputTokens": 6093,
+            "tokenUsagePresent": 8,
+            "factsCovered": 19,
+            "factsTotal": 22,
+            "expectedSourcesCovered": 8,
+            "expectedSourcesTotal": 9,
+            "citations": 26,
+            "validLineRanges": 26,
+            "literalQuotesMatched": 22,
+            "quotesMatchedIncludingExplicitOmissions": 22
+          }
+        },
+        "keyRepeats": [
+          {
+            "question": "colloquial",
+            "rag": false,
+            "attempts": 3,
+            "completed": 3,
+            "medianCompletedSeconds": 58.24,
+            "searchCalls": 0,
+            "evidenceReads": 0,
+            "literalQuotes": 11,
+            "quotes": 14
+          },
+          {
+            "question": "colloquial",
+            "rag": true,
+            "attempts": 3,
+            "completed": 3,
+            "medianCompletedSeconds": 68.12,
+            "searchCalls": 0,
+            "evidenceReads": 0,
+            "literalQuotes": 14,
+            "quotes": 14
+          },
+          {
+            "question": "gold",
+            "rag": false,
+            "attempts": 3,
+            "completed": 2,
+            "medianCompletedSeconds": 73.64,
+            "searchCalls": 0,
+            "evidenceReads": 0,
+            "literalQuotes": 7,
+            "quotes": 10
+          },
+          {
+            "question": "gold",
+            "rag": true,
+            "attempts": 3,
+            "completed": 3,
+            "medianCompletedSeconds": 68.37,
+            "searchCalls": 3,
+            "evidenceReads": 11,
+            "literalQuotes": 7,
+            "quotes": 15
+          },
+          {
+            "question": "verification",
+            "rag": false,
+            "attempts": 3,
+            "completed": 3,
+            "medianCompletedSeconds": 53.36,
+            "searchCalls": 0,
+            "evidenceReads": 0,
+            "literalQuotes": 6,
+            "quotes": 13
+          },
+          {
+            "question": "verification",
+            "rag": true,
+            "attempts": 3,
+            "completed": 3,
+            "medianCompletedSeconds": 33.09,
+            "searchCalls": 0,
+            "evidenceReads": 2,
+            "literalQuotes": 6,
+            "quotes": 9
+          }
+        ],
+        "finalGold": {
+          "baseline": {
+            "runs": 1,
+            "completed": 1,
+            "meanSeconds": 117.47,
+            "medianSeconds": 117.47,
+            "toolCalls": 7,
+            "inputTokens": 275998,
+            "cachedInputTokens": 249856,
+            "uncachedInputTokens": 26142,
+            "outputTokens": 1489,
+            "tokenUsagePresent": 1,
+            "factsCovered": 2,
+            "factsTotal": 3,
+            "expectedSourcesCovered": 0,
+            "expectedSourcesTotal": 2,
+            "citations": 5,
+            "validLineRanges": 5,
+            "literalQuotesMatched": 1,
+            "quotesMatchedIncludingExplicitOmissions": 1
+          },
+          "rag": {
+            "runs": 1,
+            "completed": 1,
+            "meanSeconds": 112.31,
+            "medianSeconds": 112.31,
+            "toolCalls": 18,
+            "inputTokens": 815708,
+            "cachedInputTokens": 772352,
+            "uncachedInputTokens": 43356,
+            "outputTokens": 2859,
+            "tokenUsagePresent": 1,
+            "factsCovered": 2,
+            "factsTotal": 3,
+            "expectedSourcesCovered": 2,
+            "expectedSourcesTotal": 2,
+            "citations": 5,
+            "validLineRanges": 5,
+            "literalQuotesMatched": 5,
+            "quotesMatchedIncludingExplicitOmissions": 5
+          }
+        },
+        "naturalSearchCalls": 5,
+        "naturalEvidenceReads": 18,
+        "sourceChanges": [],
+        "records": [
+          "rag-20261007-231413",
+          "rag-20261007-232355",
+          "rag-20261007-232405",
+          "rag-20261007-233220"
+        ],
+        "sourceAudit": "逐题复核状态、证据身份及引文；关键词覆盖不作为正确率。金币题多次未点明ConfirmAcceptedTick；编码题RAG未读取当前源码，只援引此前已登记的问题。",
+        "limits": [
+          "小样本、非盲测：旧问题及评测结论已进入当前计划和事实，可能成为召回材料。",
+          "关键题重复测试有并发模型请求，耗时及缓存受排队和先后影响，不推断因果提速或节省费用。",
+          "前28次对照发生在补强三查询文档/代码交错前；最后2次金币对照使用最终补强版本，单独列出。",
+          "8次通用工具调用是评测提示，并非硬预算；最终RAG金币题实际18次原生命令。project_search的2轮额度由宿主强制。",
+          "模型自由正文和quote仍可出错；已核对原文卡片由宿主取真实文件，不表示模型自由正文已经验证。",
+          "六个无BOM的非UTF8文件编码未获明确依据，继续显示遗漏；未改其字节。"
+        ]
+      },
+      "assessmentPath": ".karolina/state/evaluations/rag-20261007-231413/correction-assessment.json",
+      "assessmentHash": "3b2693ea698c09d103f87281aab146e63e235fed01d44acef12b67d0ad840268",
+      "checks": {
+        "knowledge": {
+          "passed": 26,
+          "failed": 0
+        },
+        "taskAssistance": {
+          "passed": 13,
+          "failed": 0
+        },
+        "frontend": {
+          "passed": 18,
+          "failed": 0
+        }
+      },
+      "realHostProtocol": {
+        "concurrentStateAndProgress": true,
+        "roundCredentialIsolation": true,
+        "delayedOldRequestRejected": true,
+        "newBudgetIntact": true,
+        "fixture": "D:/Temp/karolina-knowledge-session-fSy6GJ"
+      },
+      "realCodex": {
+        "model": "gpt-6-luna",
+        "effort": "low",
+        "passed": true,
+        "searchCalls": 1,
+        "evidenceRead": true,
+        "commands": 0,
+        "fileChanges": 0,
+        "initialDeadlockFailureRetained": true
+      },
+      "review": "独立只读复核轮次凭据、锁顺序、批量查询和文档/代码分配，无新阻断",
+      "browser": {
+        "preparedRelease": true,
+        "pageErrors": 0,
+        "encodingSettingsAndAsyncIndex": true,
+        "metadataStatusAndExactQuote": true,
+        "screenshots": false
+      },
+      "unityImplementationChanged": false,
+      "unityTested": false,
+      "damageDefectDeferred": true,
+      "humanAccepted": false,
+      "deepSeekCalled": false,
+      "preparedRelease": {
+        "directory": "D:/Temp/karolina-rag-corrected-release",
+        "coreHash": "45e3771039b4f90c449234803791528135dfba509b2a0e162409a803e1f2f8e6",
+        "desktopHash": "45d3b71ef06134bdcb2f6e09445f76c9bbf1b0293eb032beaf383601108e63a8",
+        "deployed": true
+      },
+      "deployedAt": "2026-10-07T23:42:01.839415+08:00",
+      "originalEntryBrowserPassed": true
+    },
+    "efficiencyCorrection": {
+      "recordedAt": "2026-10-08T22:19:34+08:00",
+      "implemented": true,
+      "checks": {
+        "knowledge": 35,
+        "graphSettings": 9,
+        "graphRefresh": 5,
+        "taskAssistance": 13,
+        "frontend": 19
+      },
+      "build": {
+        "warnings": 0,
+        "errors": 0
+      },
+      "assessmentPath": ".karolina/state/evaluations/retrieval-optimization-20261008/assessment.json",
+      "assessmentHash": "0e49cd4cb2bc16f2c9d39132d67479cc072b9ee6cb23a854b1437fbe09b7fd34",
+      "comparisonRecords": [
+        "rag-20261008-215856",
+        "rag-20261008-220950",
+        "rag-20261008-221612"
+      ],
+      "realModelCalls": 13,
+      "browserPassed": true,
+      "nativeInputVerified": false,
+      "nativeInputLimitationPath": ".karolina/state/evaluations/retrieval-optimization-20261008/native-input-limitation.json",
+      "deepSeekRealApiCalled": false,
+      "manualAccepted": false,
+      "crossModuleCompletenessVerified": false,
+      "independentReadOnlyReview": "新增权限缓存、ID简化及别名、源码有界读取、文档历史边界、图谱邻接、JSON等值三次独立只读复核无阻断",
+      "deployment": {
+        "directory": "D:/Temp/karolina-rag-corrected-release",
+        "entry": "E:/Github/Karolina/artifacts/current/Karolina.Desktop.exe",
+        "deployed": true,
+        "Karolina.Core.dll": "6e6c612eb19d737786923be1c4df3469d2fcca9b9aac22d1c3162b0c54577bc8",
+        "Karolina.Desktop.dll": "f62662ea12099dc9e9d08782622bd08442d975568251bc39be7e2082261da5f4",
+        "deployedAt": "2026-10-08T22:25:39.237916+08:00",
+        "filesCopied": 161,
+        "allFileHashesMatched": true,
+        "originalEntryBrowserPassed": true,
+        "pageErrors": 0,
+        "screenshots": false,
+        "docsPresent": false,
+        "browserFixture": "D:/Temp/karolina-knowledge-PIdRxx"
+      },
+      "unitySourceChanged": false,
+      "committed": false,
+      "pushed": false
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "REQ-KAR-023",
+  "code": "REQ-KAR-023",
+  "title": "工程知识检索与关联取证",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.md",
+  "version": 5,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "RAG",
+    "工程检索",
+    "图谱关联",
+    "本地索引"
+  ],
+  "createdAt": "2026-10-07T19:11:05.988845+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}

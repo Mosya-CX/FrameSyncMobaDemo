@@ -1,0 +1,615 @@
+{
+  "id": "PLAN-KAR-017",
+  "code": "0182",
+  "title": "自动检索、验证追踪与任务待处理实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-017_retrieval-verification-and-task-attention.md",
+  "version": 1,
+  "status": "验收",
+  "tags": [
+    "Karolina",
+    "自动检索",
+    "机器验证",
+    "对话管理",
+    "任务授权"
+  ],
+  "requirements": [
+    "REQ-KAR-020",
+    "REQ-KAR-021",
+    "REQ-KAR-022"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-020",
+      "title": "工程资料自动检索",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-020_automatic-project-retrieval.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "d0ea0608d22646a491f5bdfc553f38caaad5d113f4e8a38466f5433b893c322c"
+    },
+    {
+      "id": "REQ-KAR-021",
+      "title": "任务验证执行与修复追踪",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-021_traceable-verification-cycle.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "e6eb98076ed06a7f1a86b2e14b53571c27e008cd235eac169c2064288a81b9ae"
+    },
+    {
+      "id": "REQ-KAR-022",
+      "title": "对话查找与任务待处理入口",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-022_conversation-and-task-attention.md",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ],
+      "hash": "4b95d6caefca4352c93f82836765c812f19bf06fc2b9bdc6f6bea20f7f265f3a"
+    }
+  ],
+  "createdAt": "2026-10-07T14:05:19.941875+08:00",
+  "updatedAt": "2026-10-07T18:34:10.526749+08:00",
+  "plannedChanges": [
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "operation": "add",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/TaskVerification.cs",
+      "operation": "add",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/ConversationSearch.cs",
+      "operation": "add",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Core/Processes.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "operation": "add",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "operation": "add",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceChecks.cs",
+      "operation": "add",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "operation": "add",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "reason": "本批检索、验证和任务操作"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.PermissionRequests.cs",
+      "operation": "modify",
+      "reason": "受控回滚验证预算与人工授权撤销"
+    },
+    {
+      "repository": "E:/Github/Karolina",
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "modify",
+      "reason": "受控回滚验证预算与人工授权撤销"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/PublicationPolicy.cs",
+      "operation": "modify",
+      "reason": "独立审查校正追加：共享文件哈希改流式，避免大型资源整文件分配",
+      "estimateStage": "校正追加"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/CodexRuntime.cs",
+      "operation": "add",
+      "reason": "校正Codex运行时与真实MCP执行链路"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/CodexConnection.cs",
+      "operation": "modify",
+      "reason": "校正Codex运行时与真实MCP执行链路"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/Karolina.Core.csproj",
+      "operation": "modify",
+      "reason": "校正Codex运行时与真实MCP执行链路"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/ScopedSandbox.cs",
+      "operation": "modify",
+      "reason": "校正Codex运行时与真实MCP执行链路"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/CodexRuntimeChecks.cs",
+      "operation": "add",
+      "reason": "校正Codex运行时与真实MCP执行链路"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/TaskAssistanceModelChecks.cjs",
+      "operation": "add",
+      "reason": "校正Codex运行时与真实MCP执行链路"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/CodexThreadHistory.cs",
+      "operation": "add",
+      "reason": "校正新对话首次历史读取时序与暂空重读"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/CodexHistoryChecks.cs",
+      "operation": "add",
+      "reason": "校正新对话首次历史读取时序与暂空重读"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/ChatHistoryLiveChecks.cjs",
+      "operation": "add",
+      "reason": "校正新对话首次历史读取时序与暂空重读"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "operation": "add",
+      "hash": "c39741831d826547566955ce0c9c3325b24365cfc42593e19ad44a51d9c03042",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/TaskVerification.cs",
+      "operation": "add",
+      "hash": "bbd3fbce4d71d6ffe43cdeae6453d01e401bda01d1951cabb9fd04d00e6293cf",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/ConversationSearch.cs",
+      "operation": "add",
+      "hash": "1deeeedbdc52fc1cc932a8e4311f9c61e9dfe3d44c85cbc33f077ee71c4aef59",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/Processes.cs",
+      "operation": "modify",
+      "hash": "3ba8c307e41d2ea6e142e497a169fd43160b1d110ad9597cdddd22ec07877908",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "operation": "add",
+      "hash": "ea63a95ee4bfe9404613a1c604ec1181c58a4d52331eb83f59183472808492fb",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "operation": "modify",
+      "hash": "ca6d15ccfbd1d9f899ac665226a5a7e4f13d2075980d421183db524c44ab518e",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "operation": "modify",
+      "hash": "98bdd925bea6c33f0c31025ecd4806f90f093f37c61407da80b2005c76170899",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.GraphMcp.cs",
+      "operation": "modify",
+      "hash": "1554c9b28c8212dcd8da3c13bbd4b8d700c6307e9dfa60a7088ef94a72056bb9",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "operation": "modify",
+      "hash": "a83adc251c4a35110509de887c10da71e4275103ad1de856dc1b1b303f67f432",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.cs",
+      "operation": "modify",
+      "hash": "23ef122ce5296cff7bd92a1896b3aefb9469c80ee3de8ea9349094a5e3a85afe",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.Reviews.cs",
+      "operation": "modify",
+      "hash": "8aeb81c61a151c416f6693e6a1ca5e45b524e5e5c6c2afa80a9ad1cc801f76ed",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "operation": "modify",
+      "hash": "0de98ca15b2905aa5798704452c5f90772ca278b29c4355d5889489b8e6482bc",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.Contracts.cs",
+      "operation": "modify",
+      "hash": "341b696cf8c6a6a08396fff11212e64ef41dd1befd9ba62b0deedb0fd3b1539c",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "operation": "add",
+      "hash": "27d15f3e063529744ff6a81c5f7171ba935717312792a103c363c29b6130fdf6",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "operation": "modify",
+      "hash": "86464610a926d0047dc52247a0bdcc88e68b20301fdbfab018e39b7eafcfac77",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "operation": "modify",
+      "hash": "231ffc6d18234f085c2eaa9ee3b594bbe4b965b81a87b4b23109fdbaebf42303",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "operation": "modify",
+      "hash": "8fc4d05c4f3cdb4a745a3da6e1e4da4b85367d43cfce3787e166ddba69f3c4a6",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/app.js",
+      "operation": "modify",
+      "hash": "b8e22b9fafa5070d06e5eac12353933b34b9382d86c46a60320d725bcc1171bc",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/index.html",
+      "operation": "modify",
+      "hash": "693d3541e06a099f52bf1a4e9b9fa0220a23eb3f7b10c85ba7f75ed54f96b0dc",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/review.js",
+      "operation": "modify",
+      "hash": "75673c89d2e4fc5686c38507828b54f90fb8a0eb2b66e120cb00f59ac6072b1a",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Web/styles/pages/chat.css",
+      "operation": "modify",
+      "hash": "8b6207cec2fae098754db5bed110b0676a1b39f988e5bb2c4b47a168c762c4fd",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/TaskAssistanceChecks.cs",
+      "operation": "add",
+      "hash": "f75917c5c7729a492b7245b5cc688bb40f8c4ecdec81d3bd3c0cb7e5c2e15647",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/TaskAssistanceLiveChecks.cjs",
+      "operation": "add",
+      "hash": "b7b1ebe6963f402cc2d70842a684525da6a57383591037b3e295027173665e0f",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/Program.cs",
+      "operation": "modify",
+      "hash": "f129755f01960bb99eb2d0d53c12dd9044113a3ed5692ec399de6b685bfc70a1",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.PermissionRequests.cs",
+      "operation": "modify",
+      "hash": "9c70c48af32fb935986441c4f7e7a19dfbbf60f05e305a2bbe56af097d7cd205",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Desktop/Workbench.Permissions.cs",
+      "operation": "modify",
+      "hash": "7b5d07e4d5383659eb65808e609a714c31a55519ccba0a3dd00e8346a65bb293",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/PublicationPolicy.cs",
+      "operation": "modify",
+      "hash": "7cf5d8ca847872df9cf4f1cf21508e5964d61acfa19111f19566c1e2019d9823",
+      "evidence": "本批实现与定向机器验证，非人工验收证明"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/CodexRuntime.cs",
+      "operation": "add",
+      "evidence": "本批实际源码、原生权限及真实低成本模型联调，非人工验收证明",
+      "hash": "064555bf8561aac9b1c855368caef1c76bd607d7b8cdb0d82a3e4fbd29a48003"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/CodexConnection.cs",
+      "operation": "modify",
+      "evidence": "本批实际源码、原生权限及真实低成本模型联调，非人工验收证明",
+      "hash": "30fafb8a284239e332747ee7a244235188214f5c5f9d72db4455dbbcc2e50bd4"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/Karolina.Core.csproj",
+      "operation": "modify",
+      "evidence": "本批实际源码、原生权限及真实低成本模型联调，非人工验收证明",
+      "hash": "e2c810caf34ade339e28fb347181d4cfd2a718868b6b824654ea3f84c593ff76"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/ScopedSandbox.cs",
+      "operation": "modify",
+      "evidence": "本批实际源码、原生权限及真实低成本模型联调，非人工验收证明",
+      "hash": "2c1068f84331935ada090764e34c3d36e2c5b67703b76e862213bdff6c05cef8"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/CodexRuntimeChecks.cs",
+      "operation": "add",
+      "evidence": "本批实际源码、原生权限及真实低成本模型联调，非人工验收证明",
+      "hash": "82986ad332f0a146552c9fe2ebc851919bb4817d6f1fbad8f4bdbe311f56a531"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/TaskAssistanceModelChecks.cjs",
+      "operation": "add",
+      "evidence": "本批实际源码、原生权限及真实低成本模型联调，非人工验收证明",
+      "hash": "a4797ca6468a62a8bcb0a6683fa4f15a724470f6e651c2850d406093031bf789"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Core/CodexThreadHistory.cs",
+      "operation": "add",
+      "evidence": "源码与历史读取定向/浏览器协议夹具检查，非人工验收证明",
+      "hash": "a4e3d10cfd8db0ffbc73e3a978a92f4431036525430ca6b869a2e15bac825aec"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/CodexHistoryChecks.cs",
+      "operation": "add",
+      "evidence": "源码与历史读取定向/浏览器协议夹具检查，非人工验收证明",
+      "hash": "7d69d9cdb47a6a364711834ef4df016c22526fe664b5ecdd724c592b6f5d1bc9"
+    },
+    {
+      "repository": "E:\\Github\\Karolina",
+      "path": "Karolina.Tests/ChatHistoryLiveChecks.cjs",
+      "operation": "add",
+      "evidence": "源码与历史读取定向/浏览器协议夹具检查，非人工验收证明",
+      "hash": "0e8226a8315e18295474a5fed7325c214bd342586a78f15cf55d1bac2a76570a"
+    }
+  ],
+  "verificationEvidence": {
+    "build": {
+      "configuration": "Release",
+      "warnings": 0,
+      "errors": 0
+    },
+    "targetedChecks": 102,
+    "browser": {
+      "pageErrors": 0,
+      "protocolFixture": true,
+      "modelCalls": 0,
+      "realReadonlySandbox": true,
+      "repairCycle": true,
+      "untrustedReadonlyToolBlocked": true,
+      "deployedEntryVerified": true
+    },
+    "pending": [
+      "用户人工验收"
+    ],
+    "independentReview": "独立只读复核完成：运行时安装、权限及工具接线无剩余P1/P2；修正根MCP公布不可调用验证工具的问题。已校验运行时文件的长度/mtime缓存边界明确，不抵抗同用户恶意篡改。",
+    "deployment": {
+      "entry": "E:/Github/Karolina/artifacts/current/Karolina.Desktop.exe",
+      "documentsCopied": false,
+      "coreHash": "d63582f37349865b47212a7e0ae7c5aad06e148c547d5985cb9b380f4c10763d",
+      "desktopHash": "1848b9c6f24a7ee47da3c531d8a617dca9039874d749d5f30ca950836fa3d700"
+    },
+    "codexRuntime": {
+      "version": "0.160.1",
+      "platform": "windows-x64",
+      "packageIntegrity": "sha512-yyqykHtHNhm0ZViofGozz9a4ffUyXDsiyRu9Q2hPNg/cu4uzSsovNr5kDmzBXPFWAilmlZuNkwpw1W7uae2nlg==",
+      "managedPath": "%LOCALAPPDATA%/Karolina/codex-runtime/0.160.1",
+      "nativeProfileApplied": true,
+      "permissionsWeakened": false,
+      "desktopRuntimeUnmodified": true
+    },
+    "realModel": {
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "nativePermissionGrantRevokePassed": true,
+      "automaticRetrieval": true,
+      "realMcpTools": [
+        "project_search",
+        "project_verification_list",
+        "project_verification_run",
+        "project_write_files",
+        "project_verification_run"
+      ],
+      "verificationAttempts": [
+        "失败",
+        "通过"
+      ],
+      "repairRound": 1,
+      "taskState": "待审批",
+      "unityGameplayTested": false
+    },
+    "chatHistoryCorrection": {
+      "checks": 5,
+      "relatedChatFeedback": 11,
+      "relatedFrontend": 7,
+      "browser": {
+        "protocolFixture": true,
+        "modelCalls": 0,
+        "initialHistoryReadAvoided": true,
+        "earlyReplyPreserved": true,
+        "otherThreadExcluded": true,
+        "emptyHistoryRetried": true,
+        "corruptHistoryStillFails": true,
+        "draftPreserved": true,
+        "pageErrors": 0
+      },
+      "deployedEntryVerified": true,
+      "humanAccepted": false
+    }
+  }
+}

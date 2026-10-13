@@ -1,0 +1,17 @@
+{
+  "id": "REQ-KAR-022",
+  "code": "REQ-KAR-022",
+  "title": "对话查找与任务待处理入口",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-022_conversation-and-task-attention.md",
+  "version": 2,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "对话查找与任务待处理入口"
+  ],
+  "createdAt": "2026-10-07T14:05:19.941875+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}

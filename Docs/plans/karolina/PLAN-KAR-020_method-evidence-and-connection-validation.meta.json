@@ -1,0 +1,347 @@
+{
+  "id": "PLAN-KAR-020",
+  "code": "0185",
+  "title": "方法取证与连接联调实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-020_method-evidence-and-connection-validation.md",
+  "version": 1,
+  "status": "测试",
+  "tags": [
+    "Karolina",
+    "RAG",
+    "取证",
+    "连接",
+    "性能"
+  ],
+  "createdAt": "2026-10-09T21:15:08.512624+08:00",
+  "updatedAt": "2026-10-09T22:00:59.6647665+08:00",
+  "requirements": [
+    "REQ-KAR-025",
+    "REQ-KAR-023",
+    "REQ-KAR-024"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-025",
+      "title": "方法取证与检索效率",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-025_method-evidence-and-retrieval-efficiency.md",
+      "hash": "0de2edfccd79385052b88a46774622bef0b0cda99a19ff0b184cc740b777cf5b",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    },
+    {
+      "id": "REQ-KAR-023",
+      "title": "工程知识检索与关联取证",
+      "status": "激活",
+      "version": 4,
+      "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.md",
+      "hash": "83ee6f3697e1fff1d603b96f3d9a121a0ab2b217617bdd1f7ac5cb730b1d74b4",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    },
+    {
+      "id": "REQ-KAR-024",
+      "title": "连接响应与耗时诊断",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-024_connection-responsiveness-and-diagnostics.md",
+      "hash": "48cc31619dcd913d1dbd56aed1488246371752f43324600c7be0deefeefa5788",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    }
+  ],
+  "plannedChanges": [
+    {
+      "path": "Karolina.Core/KnowledgeMethods.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeProtocol.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Core/RetrievalUsage.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/ui/retrieval-usage.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Tests/MethodEvidenceChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeNativeInputChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeComparisonChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionProfileChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Tests/UnityConnectionLiveChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的本批实现与验证预估"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的本批实现与验证预估"
+    }
+  ],
+  "resourceRefs": [],
+  "evidence": {
+    "approved": true,
+    "humanAccepted": false,
+    "assessmentPath": ".karolina/state/retrieval-efficiency-20261009/assessment.json",
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "targetedChecksPassed": 95,
+    "realUnityIntegration": true,
+    "nativeInput": true,
+    "nativeTrayRestore": true,
+    "independentReviewBlockingFindings": 0,
+    "ragSavingsProven": false,
+    "modelFinalCitationsFullyVerified": false,
+    "originalExecutableUpdated": true,
+    "intermittentUnityFailureResolved": false,
+    "deploymentPath": ".karolina/state/retrieval-efficiency-20261009/deployment.json"
+  },
+  "externalRefs": [
+    {
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "878c7ff3614d331fe2ec65420eb91fc383f54a976e571378e23744eed07e3935",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeMethods.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "083cf1087c37498e4ef70584452ddb6d476d1c401889a3e1ff7e1334602f619c",
+      "operation": "add",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeProtocol.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "6b9681045960780a9db50e8a16751f91a07701d3667863b55793cd9922c89014",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "51171e79bc2963c894e7b9955adf8b927db375a648e9be455b353c3c3201e75a",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Core/RetrievalUsage.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "061125679f4362914e9dad225bb3f6da3c3e9ea938bcdb501d143b9dca939359",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "418b255a027b9b079727e47d5f651250e86e83d07c4bc6bbf8fd381b185501da",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Desktop/Web/ui/retrieval-usage.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "4c9d36aed286d8f218fe12695595f3b7268ee9481e47afa3802a43d671b5ced4",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "bd978de8ad4394594956e397ff563b42199a0dc73e9396a18a1edec86fe91947",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "c12fe24944bd2066ec3c44a956fc369dba1bd2a5aecf0a2ffe79c9f8561bb9ab",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.FolderTools.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "b33cc0139173245d521bde05702b9dc9dd7a6efc14dcf8a516b8d60104fdca31",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "5b72c5bf0c235ec3aaaf72a49829be055d57aecc0a308eefe4aa5a323cb68840",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionPresentationChecks.test.mjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "1cd8b0d258bf2c77bdd5349bb1ef0d97a7e3292fd143bc7aa5283edc80092c0b",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionProfileChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "07492579e43670806f72370a7348fb3dda0090dae88c33d90cf22e5cefe41b8f",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeComparisonChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "947de27422fcb7af7d3c868da858cde0f32bb265901b0e104b09f4af9ce69545",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "92ab26fc47b6446b2f3c6a03466f2f0502dd07c0ec051ef624e582daeb64df1e",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeModelChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "4bdbd5a1cd2f311613853ad8db7b16fff01d5429d35996b5f54efb3315c0ded1",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeNativeInputChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "257b375c91183652179e24f7e37cc9b8c9ede8cab483f5854ef85b78827c5373",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeSessionLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "b2c058aae623b168eeb85beb27a65af50780e5f752573631c995120a4c8f7237",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/MethodEvidenceChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "03af8e2389e2817bab0d43ffec59089cfac2fb278834b7efe4ecbd508e052d9e",
+      "operation": "add",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/NativeInputHelper.py",
+      "repository": "E:/Github/Karolina",
+      "hash": "8a3f69ef9690e21634793b635ff646eb17e9d9f8cb8176ebbc248f7d7a5bc87b",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/NativeTrayHelper.ps1",
+      "repository": "E:/Github/Karolina",
+      "hash": "aeaceb22535264c72f0f8442c8e0d5c80448e88a4421150d0d198daba89e3787",
+      "operation": "add",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "56d97304c9d0438b5aa5114b4cf6cbbcc8442fbdce0ebc1bdce24f9bb016f8a6",
+      "operation": "modify",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    },
+    {
+      "path": "Karolina.Tests/UnityConnectionLiveChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "736cc67400db67061c3c98fbea0a978788017d38c10279c98adb633cb4366f34",
+      "operation": "add",
+      "evidence": "本批实施后真实源码指纹；.karolina/state/retrieval-efficiency-20261009/assessment.json"
+    }
+  ]
+}

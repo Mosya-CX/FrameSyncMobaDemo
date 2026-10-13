@@ -1,0 +1,17 @@
+{
+  "id": "REQ-KAR-020",
+  "code": "REQ-KAR-020",
+  "title": "工程资料自动检索",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-020_automatic-project-retrieval.md",
+  "version": 2,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "工程资料自动检索"
+  ],
+  "createdAt": "2026-10-07T14:05:19.941875+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}

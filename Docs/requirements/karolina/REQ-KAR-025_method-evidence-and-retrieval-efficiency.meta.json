@@ -1,0 +1,20 @@
+{
+  "id": "REQ-KAR-025",
+  "code": "REQ-KAR-025",
+  "title": "方法取证与检索效率",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-025_method-evidence-and-retrieval-efficiency.md",
+  "version": 2,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "RAG",
+    "取证",
+    "连接",
+    "性能"
+  ],
+  "createdAt": "2026-10-09T21:15:08.512624+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}

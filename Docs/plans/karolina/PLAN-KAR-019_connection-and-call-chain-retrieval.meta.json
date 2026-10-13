@@ -1,0 +1,498 @@
+{
+  "id": "PLAN-KAR-019",
+  "code": "0184",
+  "title": "连接体验与调用链检索实施",
+  "type": "plan",
+  "domain": "Karolina",
+  "path": "Docs/plans/karolina/PLAN-KAR-019_connection-and-call-chain-retrieval.md",
+  "version": 1,
+  "status": "测试",
+  "tags": [
+    "Karolina",
+    "RAG",
+    "连接",
+    "调用链",
+    "性能"
+  ],
+  "createdAt": "2026-10-08T23:29:45.153805+08:00",
+  "updatedAt": "2026-10-09T21:53:35.998372+08:00",
+  "requirements": [
+    "REQ-KAR-024",
+    "REQ-KAR-023"
+  ],
+  "requirementRefs": [
+    {
+      "id": "REQ-KAR-024",
+      "title": "连接响应与耗时诊断",
+      "status": "激活",
+      "version": 1,
+      "path": "Docs/requirements/karolina/REQ-KAR-024_connection-responsiveness-and-diagnostics.md",
+      "hash": "48cc31619dcd913d1dbd56aed1488246371752f43324600c7be0deefeefa5788",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    },
+    {
+      "id": "REQ-KAR-023",
+      "title": "工程知识检索与关联取证",
+      "status": "激活",
+      "version": 4,
+      "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.md",
+      "hash": "83ee6f3697e1fff1d603b96f3d9a121a0ab2b217617bdd1f7ac5cb730b1d74b4",
+      "sections": [
+        "目标实现",
+        "技术方案",
+        "边界情况",
+        "验收条件"
+      ]
+    }
+  ],
+  "plannedChanges": [
+    {
+      "path": "Karolina.Core/ConnectionDiagnostics.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/CodexConnection.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/McpClient.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeCalls.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/ProjectKnowledgeIndex.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeProtocol.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/RetrievalUsage.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Core/Processes.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Connections.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Usage.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Unity.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/app.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/ui/connection-diagnostics.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Desktop/Web/ui/retrieval-usage.js",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/CallChainChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionProfileChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionPresentationChecks.test.mjs",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeModelChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeSessionLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/Fixtures/knowledge-call-chain-cases.json",
+      "repository": "E:/Github/Karolina",
+      "operation": "add",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "repository": "E:/Github/Karolina",
+      "operation": "modify",
+      "reason": "已批准的连接、调用线索、用量及对应验证；按实际实施更新预估"
+    }
+  ],
+  "resourceRefs": [
+    {
+      "path": "Karolina.Core/ConnectionDiagnostics.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "e68a0a9084211fc7c9bf399d3784b598d9be47ab05f9b6f345b9b82fdcc61738",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/CodexConnection.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "742c022bc6f782272850f21a18b45dc0277146de8b0046da1e6c13416888a550",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/McpClient.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "9448a96baf30c71308e0792251a0a9262b70c52f5f10144adc9eb3af840a5082",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeCalls.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "f2a24f0bb891cb7184549437941103291ea81f21617bd045e97a808340e36107",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/ProjectKnowledgeIndex.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "b4869210d9759267808cc82ec636602221b3106ae56ec53059d16a22f0f53fa5",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/ProjectRetrieval.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "b3d35a567fae60a98623ab059c1071f84771c2bef85f74b278f1a7162e5e1646",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeProtocol.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "4a072085578d7ba3191f8c726723a705030365e5471739247f4900a0e34a976e",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/KnowledgeEvidence.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "4f53110a1bb33673f677ffabff681d6242489e9f7af71d1f8610b03a841b49f5",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/RetrievalUsage.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "9463270836ee16795b97c7bb3e27f6a2bb069aa88c91d31490b40d2ef1163d0a",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Core/Processes.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "18955d60f4387e33a786090d241b1678f82a91ec6cd841d57e4c48bc92475b84",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Connections.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "04c50249e2ed78ce18055e9573d384189a1776addfe22dc9fd499e392880f688",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Routes.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "2a1ff7c68133ef5be6ad34dc2454f871d5235004bd03c1da0600da258aa9728e",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Conversations.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "adb82165f58285d8e0a16692b8e955d83c089c3997640aaf325605b0f6ba6af1",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Chat.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "a819f9a8626f699b74bcb54574d8863c92bef12ea83b3d8b7e9214995ec8b45b",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Intelligence.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "82fa8ac0c1e8048867bda1c5315cab4e1da8242ec4dc9572ee5bfd12a3cf58f4",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Usage.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "49cff2cb12269b2018daa10971357ce822e16efc57c136a97bad3c2b0cb9bc1a",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.Unity.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "57076c6098d3e3e7475d3e933d3af77ddb9d05c2e6fb6705902febf8c2f2f8ef",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Workbench.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "b32eea8cc67911b8a03e443288e11a8b131256ccb77eae5d2ea8e1f33115e06c",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/providers.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "706c908fccade6cb36da562d4da46f1f6688c9715f3790084c295061ba6a7ab5",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/navigation.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "c53b406de1fde94f0954fe7d2fb862fdedf3157377cddaad858579c441c05ddf",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Web/features/chat.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "f6aefb5178e575eb8c8fb89e54b7bd04f3613af8842116ade5548bc357641d77",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Web/task-assistance.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "38df836869bc93b5776afb3d9b7830a9d4b8ef7bf389eb4bb3417109c6481313",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Web/app.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "deba4891708527378d229b15813b3effdc69cef403ab3eb30cc6cb2ffbc1de5d",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Web/ui/connection-diagnostics.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "a31dfdfc72a71c4e16a7bcc0fc98c0c849638bc3e00d9770be1e3d2dcb640170",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Desktop/Web/ui/retrieval-usage.js",
+      "repository": "E:/Github/Karolina",
+      "hash": "2b13f435a049cebf677245237c74ed17ad62fb2955669ee20264d74a13ec2610",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "74295e504aef62fb40a9207783ceeea5cae9495ee670936041f59a8292a3e5c6",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/CallChainChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "ad3fbd837ed423e9c0b99cb19f29c01fbcc858188e47a5b0e1073e1ef26545b8",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "32f779298464dda85546785f17ec87533b9597ace214be66f469c5bcacd35144",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionProfileChecks.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "13dfa60e0659116dac2a77778453e9279f732d1aa5399776883606852653b82a",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/ConnectionPresentationChecks.test.mjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "57d4292c1bfdd98800f58e333eeaa06214a6a7603ee33be8f43d493df6d2de37",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "ba7f09218dcbe22ba3e7008cb772c83dc571e29860f3d6607696f7ef825e6c9e",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeModelChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "95fb4307e1f7076d40cd715b5a1e34e558672a95abcde04ca99ddab429d4e503",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/KnowledgeSessionLiveChecks.cjs",
+      "repository": "E:/Github/Karolina",
+      "hash": "e4e21f6b5d780ea2978b6f6fe2692cc5f82b76231c7fa21e498a019f8f287faf",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/Fixtures/knowledge-call-chain-cases.json",
+      "repository": "E:/Github/Karolina",
+      "hash": "f531e19c2f0d0bba36adc30d4a4eb64d9ee50e8a2837085da1d859cef179d05a",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    },
+    {
+      "path": "Karolina.Tests/Program.cs",
+      "repository": "E:/Github/Karolina",
+      "hash": "14f3f5cfd5e7787fb64491491f1aaf1c08af17499cd0eb8d840bbc9670b752af",
+      "reason": "本批源码或检查文件；冻结关联不代表人工验收"
+    }
+  ],
+  "evidence": {
+    "approved": true,
+    "humanAccepted": false,
+    "assessmentPath": ".karolina/state/evaluations/connection-retrieval-20261008/assessment.json",
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "targetedChecksPassed": 87,
+    "realUnityIntegration": "用户推迟",
+    "nativeInput": "未验证",
+    "originalExecutableUpdated": true,
+    "independentReviewBlockingFindings": 0,
+    "currentSupplement": {
+      "planId": "PLAN-KAR-020",
+      "realUnityIntegration": true,
+      "nativeInput": true,
+      "nativeTrayRestore": true,
+      "assessmentPath": ".karolina/state/retrieval-efficiency-20261009/assessment.json",
+      "humanAccepted": false,
+      "oldConnectionRawReceiptOverwritten": true
+    }
+  }
+}

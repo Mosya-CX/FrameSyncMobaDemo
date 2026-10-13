@@ -1,0 +1,17 @@
+{
+  "id": "REQ-KAR-021",
+  "code": "REQ-KAR-021",
+  "title": "任务验证执行与修复追踪",
+  "type": "requirement",
+  "domain": "Karolina",
+  "path": "Docs/requirements/karolina/REQ-KAR-021_traceable-verification-cycle.md",
+  "version": 2,
+  "status": "激活",
+  "implementationStatus": "待实现",
+  "tags": [
+    "Karolina",
+    "任务验证执行与修复追踪"
+  ],
+  "createdAt": "2026-10-07T14:05:19.941875+08:00",
+  "updatedAt": "2026-10-10T22:00:20+08:00"
+}
