@@ -3,9 +3,11 @@
   "title": "队伍流场与兵线引导",
   "type": "requirement",
   "status": "激活",
+  "implementationStatus": "待实现",
   "domain": "寻路移动",
   "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-065_team-flow-field.md",
-  "version": 1,
+  "version": 2,
+  "updatedAt": "2026-10-10T22:00:20+08:00",
   "implementationState": "存在源码；尚未逐条行为复核",
   "sources": [
     {

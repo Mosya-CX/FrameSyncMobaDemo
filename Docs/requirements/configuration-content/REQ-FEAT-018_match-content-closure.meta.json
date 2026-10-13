@@ -1,39 +1,41 @@
 {
   "id": "REQ-FEAT-018",
-  "title": "按对局加载内容闭包",
+  "title": "\u6309\u5BF9\u5C40\u52A0\u8F7D\u5185\u5BB9\u95ED\u5305",
   "type": "requirement",
-  "status": "激活",
-  "domain": "配置资源",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u914D\u7F6E\u8D44\u6E90",
   "path": "Docs/requirements/configuration-content/REQ-FEAT-018_match-content-closure.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:56.7933694\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "七、`GlobalPrefabTable`：运行时引用边界",
+      "section": "\u4E03\u3001\u0060GlobalPrefabTable\u0060\uFF1A\u8FD0\u884C\u65F6\u5F15\u7528\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.1 表现层使用的最小运行时语义",
+      "section": "7.1 \u8868\u73B0\u5C42\u4F7F\u7528\u7684\u6700\u5C0F\u8FD0\u884C\u65F6\u8BED\u4E49",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.2 表现定义与 PrefabId 分离",
+      "section": "7.2 \u8868\u73B0\u5B9A\u4E49\u4E0E PrefabId \u5206\u79BB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.3 职责边界",
+      "section": "7.3 \u804C\u8D23\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     }
   ],
@@ -44,7 +46,7 @@
       "symbols": [
         "GlobalPrefabSubTableAsset"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/RuntimeConfig/GlobalPrefabTable.cs",
@@ -52,7 +54,7 @@
       "symbols": [
         "GlobalPrefabTable"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
@@ -61,7 +63,7 @@
         "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
         "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MatchScopedContentConfigurationTests.cs",
@@ -75,7 +77,7 @@
         "SessionSelection_IsStableAndResettable",
         "FormalGameScene_HasNoLegacyDirectCatalogReferences"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs",
@@ -89,7 +91,7 @@
         "UiPagesAndPresentationRootsAreAddressableAndOutsideResources",
         "GenericSkillIndicatorsUseSupportedTransparentShader"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitAddressablesMigrationTests.cs",
@@ -100,7 +102,7 @@
         "ClientViewsContainPresentationHostButNoGameplayRoot",
         "ClientViewRootsAreAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
@@ -108,7 +110,7 @@
       "testFunctions": [
         "ProjectileViewLeaseStaysResidentAcrossLifetimes"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
@@ -116,7 +118,7 @@
       "testFunctions": [
         "ServerFirstTick_MatchesClientPredictionFirstTick"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -135,7 +137,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/RuntimeConfig/Editor/Tests/HeroDisplayAndPrefabRangeTests.cs",
@@ -153,7 +155,7 @@
         "OverlappingKindRanges_AreRejected",
         "ReplaceForTests_WhenInputsAliasBackingLists_PreservesContent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AddressableMatchContentPlayModeTests.cs",
@@ -163,7 +165,7 @@
         "AatroxSelection_LoadsItsQMetadataWithoutVarus",
         "SelectedMap_CreatesOwnedSortedCampTopology"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
@@ -173,7 +175,7 @@
         "BuildWorld_LoadsFormalEquipmentCatalogForShop",
         "LocalTickShop_UsesFormalGoldPurchaseRecipeAndUndo"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -196,7 +198,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
@@ -206,7 +208,7 @@
         "PiercingFalloff_OverridePath_MatchesStaticConfig",
         "PiercingFalloff_ClampsAtMinDamageRatio"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
@@ -216,7 +218,7 @@
         "AreaDamageStage_DoesNotDamageEnemyStructure",
         "SpawnProjectileStage_FiresTowardAimDirection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
@@ -229,7 +231,7 @@
         "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
         "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
@@ -242,7 +244,7 @@
         "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
         "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -251,7 +253,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -263,11 +265,18 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "配置资源"
-  ]
+    "\u914D\u7F6E\u8D44\u6E90"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:56.7929107\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

@@ -1,186 +1,188 @@
 {
   "id": "REQ-FEAT-039",
-  "title": "定义与强类型生成黑板",
+  "title": "\u5B9A\u4E49\u4E0E\u5F3A\u7C7B\u578B\u751F\u6210\u9ED1\u677F",
   "type": "requirement",
-  "status": "激活",
-  "domain": "投射物",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u6295\u5C04\u7269",
   "path": "Docs/requirements/projectiles/REQ-FEAT-039_projectile-definitions.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:18.6405961\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.1 定位",
+      "section": "2.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.2 核心字段",
+      "section": "2.2 \u6838\u5FC3\u5B57\u6BB5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.3 为什么内部字段叫 `PrefabId`",
+      "section": "2.3 \u4E3A\u4EC0\u4E48\u5185\u90E8\u5B57\u6BB5\u53EB \u0060PrefabId\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.4 `Id` 与 `PrefabId` 不合并",
+      "section": "2.4 \u0060Id\u0060 \u4E0E \u0060PrefabId\u0060 \u4E0D\u5408\u5E76",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.5 `Tags` 的严格边界",
+      "section": "2.5 \u0060Tags\u0060 \u7684\u4E25\u683C\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.6 明确删除的字段",
+      "section": "2.6 \u660E\u786E\u5220\u9664\u7684\u5B57\u6BB5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.7 空间形状来源",
+      "section": "2.7 \u7A7A\u95F4\u5F62\u72B6\u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.1 定位",
+      "section": "4.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.2 黑板不是任意对象字典",
+      "section": "4.2 \u9ED1\u677F\u4E0D\u662F\u4EFB\u610F\u5BF9\u8C61\u5B57\u5178",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.3 字段生命周期",
+      "section": "4.3 \u5B57\u6BB5\u751F\u547D\u5468\u671F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.4 常见稳定字段",
+      "section": "4.4 \u5E38\u89C1\u7A33\u5B9A\u5B57\u6BB5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.5 与 `PhysicsEntity2D` 的关系",
+      "section": "4.5 \u4E0E \u0060PhysicsEntity2D\u0060 \u7684\u5173\u7CFB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.6 初始化请求与提交",
+      "section": "4.6 \u521D\u59CB\u5316\u8BF7\u6C42\u4E0E\u63D0\u4EA4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.1 模块组织原则",
+      "section": "6.1 \u6A21\u5757\u7EC4\u7EC7\u539F\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 阶段模块表",
+      "section": "6.2 \u9636\u6BB5\u6A21\u5757\u8868",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 不存在独立 HitCheck 模块",
+      "section": "6.3 \u4E0D\u5B58\u5728\u72EC\u7ACB HitCheck \u6A21\u5757",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.4 不再设计的阶段",
+      "section": "6.4 \u4E0D\u518D\u8BBE\u8BA1\u7684\u9636\u6BB5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.5 模块运行状态",
+      "section": "6.5 \u6A21\u5757\u8FD0\u884C\u72B6\u6001",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.1 远程普攻飞弹",
+      "section": "10.1 \u8FDC\u7A0B\u666E\u653B\u98DE\u5F39",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.2 普通直线技能弹",
+      "section": "10.2 \u666E\u901A\u76F4\u7EBF\u6280\u80FD\u5F39",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.3 跟踪投掷物",
+      "section": "10.3 \u8DDF\u8E2A\u6295\u63B7\u7269",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.4 静止矩形区域",
+      "section": "10.4 \u9759\u6B62\u77E9\u5F62\u533A\u57DF",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.5 飞行投掷物命中后生成框形区域",
+      "section": "10.5 \u98DE\u884C\u6295\u63B7\u7269\u547D\u4E2D\u540E\u751F\u6210\u6846\u5F62\u533A\u57DF",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.6 大范围落地区域或天瀑类效果",
+      "section": "10.6 \u5927\u8303\u56F4\u843D\u5730\u533A\u57DF\u6216\u5929\u7011\u7C7B\u6548\u679C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md",
       "sha256": "ebe2b7ec882023cde03b93cdda921a6622efff4b7fe17b41e90769ca7a607637",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.7 弹跳投掷物",
+      "section": "10.7 \u5F39\u8DF3\u6295\u63B7\u7269",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Unity_Projectile_System_Design_v19.md"
     }
   ],
@@ -191,7 +193,7 @@
       "symbols": [
         "ProjectileDef"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Projectile/ProjectileSpawnRequest.cs",
@@ -199,7 +201,7 @@
       "symbols": [
         "ProjectileSpawnRequest"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -222,7 +224,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
@@ -232,7 +234,7 @@
         "PiercingFalloff_OverridePath_MatchesStaticConfig",
         "PiercingFalloff_ClampsAtMinDamageRatio"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -251,7 +253,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
@@ -259,7 +261,7 @@
       "testFunctions": [
         "ProjectileViewLeaseStaysResidentAcrossLifetimes"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
@@ -269,7 +271,7 @@
         "AreaDamageStage_DoesNotDamageEnemyStructure",
         "SpawnProjectileStage_FiresTowardAimDirection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
@@ -282,11 +284,18 @@
         "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
         "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "投射物"
-  ]
+    "\u6295\u5C04\u7269"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:18.6398804\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

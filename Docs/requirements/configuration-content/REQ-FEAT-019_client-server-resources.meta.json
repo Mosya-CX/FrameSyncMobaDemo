@@ -1,25 +1,27 @@
 {
   "id": "REQ-FEAT-019",
-  "title": "客户端视图与服务器资源隔离",
+  "title": "\u5BA2\u6237\u7AEF\u89C6\u56FE\u4E0E\u670D\u52A1\u5668\u8D44\u6E90\u9694\u79BB",
   "type": "requirement",
-  "status": "激活",
-  "domain": "配置资源",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u914D\u7F6E\u8D44\u6E90",
   "path": "Docs/requirements/configuration-content/REQ-FEAT-019_client-server-resources.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:55.6484717\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [],
   "evidence": [
     {
       "path": "Assets/Scripts/ClientContent/AddressablesClientContentService.cs",
       "sha256": "ecc4c5957efd2ca8a3a137ac1b842187149f20da386cb0dabbe3a453fe082435",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/ClientContent/ClientUnitViewBinder.cs",
       "sha256": "7af5c529a4a72e21044e16101e00a72c4e67649e99622486dd8b45caf074c70f",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/ClientContent/Tests/PlayMode/AddressablesClientContentServicePlayModeTests.cs",
@@ -27,7 +29,7 @@
       "testFunctions": [
         "RepresentativeClientRoots_LoadAndReleaseAsynchronously"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/LocalAddressablesConfigurationTests.cs",
@@ -37,7 +39,7 @@
         "ClientRootEntries_HaveUniqueAddressesAndExistingAssets",
         "InventoryClassificationIsStable"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
@@ -45,11 +47,18 @@
       "testFunctions": [
         "ProjectileViewLeaseStaysResidentAcrossLifetimes"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "配置资源"
-  ]
+    "\u914D\u7F6E\u8D44\u6E90"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:55.6481719\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

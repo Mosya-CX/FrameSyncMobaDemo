@@ -1,32 +1,34 @@
 {
   "id": "REQ-FEAT-032",
-  "title": "治疗护盾与再生结算",
+  "title": "\u6CBB\u7597\u62A4\u76FE\u4E0E\u518D\u751F\u7ED3\u7B97",
   "type": "requirement",
-  "status": "激活",
-  "domain": "战斗",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "domain": "\u6218\u6597",
   "path": "Docs/requirements/combat/REQ-FEAT-032_healing-settlement.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 4,
+  "updatedAt": "2026-10-10T23:47:08.5466348\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 定位",
+      "section": "5.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 执行流程",
+      "section": "5.2 \u6267\u884C\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 特殊资源接入",
+      "section": "5.3 \u7279\u6B8A\u8D44\u6E90\u63A5\u5165",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
@@ -40,14 +42,14 @@
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 ShieldPipeline 流程",
+      "section": "6.2 ShieldPipeline \u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 PendingDying 状态下的护盾请求",
+      "section": "6.3 PendingDying \u72B6\u6001\u4E0B\u7684\u62A4\u76FE\u8BF7\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
@@ -61,21 +63,21 @@
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.2 HealPipeline 流程",
+      "section": "8.2 HealPipeline \u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.3 治疗解除 PendingDying",
+      "section": "8.3 \u6CBB\u7597\u89E3\u9664 PendingDying",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.4 HealResult 与单位事件",
+      "section": "8.4 HealResult \u4E0E\u5355\u4F4D\u4E8B\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     }
   ],
@@ -84,19 +86,19 @@
       "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
       "sha256": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Combat/Requests/HealRequest.cs",
       "sha256": "16027e78f93a98b92752b9fe620bb09d4e1dc1ab44fb8d6216c3108767c04149",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Combat/Requests/ShieldRequest.cs",
       "sha256": "c77bd2a1d007afbab17134923bf68475b0e419e395bb1472769f3a4ebcc660dc",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
@@ -117,7 +119,7 @@
         "CalculatePhysicalDamage_HighArmor_ReducedHeavily",
         "BeginTick_ClearsActiveQueue"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs",
@@ -139,7 +141,7 @@
         "SameTickMutualLethal_DrainReactionsRecoverBothSources",
         "MixedDamageAndSpecificShields_AreIndependentOfSubmissionOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
@@ -156,7 +158,7 @@
         "InvalidExternalCrowdControl_IsNotHiddenByStructureFilter",
         "DeferredExternalEffects_AreFilteredBeforeSequenceAndSnapshot"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
@@ -165,7 +167,7 @@
         "GameScene_FirstWaveUsesFlowFieldsAndMoves",
         "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -188,7 +190,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
@@ -198,7 +200,7 @@
         "PiercingFalloff_OverridePath_MatchesStaticConfig",
         "PiercingFalloff_ClampsAtMinDamageRatio"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -215,7 +217,7 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
@@ -225,7 +227,7 @@
         "AreaDamageStage_DoesNotDamageEnemyStructure",
         "SpawnProjectileStage_FiresTowardAimDirection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
@@ -234,7 +236,7 @@
         "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
         "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
@@ -263,7 +265,7 @@
         "Resolve_RejectsMissingActiveTarget",
         "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
@@ -278,7 +280,7 @@
         "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
         "WPassive_OnHit_DoesNotAffectStructure"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
@@ -292,7 +294,7 @@
         "OnKillStat_GrantsStatOnKill",
         "OnKillStat_StacksUpToMax"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
@@ -307,7 +309,7 @@
         "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
         "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
@@ -322,7 +324,7 @@
         "DeferredDamage_CaptureRestorePreservesActionIdentity",
         "NegativeEffectOrdinal_IsRejectedAtDamageBoundaries"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
@@ -336,7 +338,7 @@
         "AttackSpeed_ModifiesCooldown",
         "AttackSpeed_PositiveBase_StartsAttack"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
@@ -350,7 +352,7 @@
         "SecondR_UsesADifferentTagUid",
         "Blight_StacksAreAppliedAtConfiguredTicks"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
@@ -363,7 +365,7 @@
         "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
         "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs",
@@ -373,7 +375,7 @@
         "RespawnPosition_IsCapturedFromInitialSpawn",
         "CompleteRespawn_TeleportsToHomeSpawnPosition"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
@@ -384,7 +386,7 @@
         "RangedMinion_AttacksMinion_AddsThreePointFivePercentCurrentHealth",
         "Minion_AttacksStructure_DealsSixtyPercent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
@@ -417,7 +419,7 @@
         "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
         "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
@@ -433,11 +435,455 @@
         "FinishedItem_IsUnique_SecondPurchaseRejected",
         "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "战斗"
-  ]
+    "\u6218\u6597"
+  ],
+  "implementationEvidenceSnapshot": {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-10T23:42:06.2785239\u002B08:00",
+    "requirementBodyHash": "c4d550cd0cdfd92515cca1dfb5788631538d3b24ffe408a4b8f85fff7cd3b7ee",
+    "requirementEvidenceHash": "26b5ca8c778427d957a891596e47ee977eff1121603489c16b40befc988f24a8",
+    "plans": [
+      {
+        "id": "PLAN-0027",
+        "status": "\u5173\u95ED",
+        "bodyHash": "017a43a2cf73e04f8f83f7e4fe1f5aaf0b8b9a77f5b490e8b2928860b8b7a060",
+        "evidenceHash": "31fce69045a8690c9b0bd9fdba3bf9d90a181c3088412a768c128d00fe6cb3c6",
+        "requirementHash": "97b29d3dd416a15d905fb998c8d29b61f4cb99c1b903d63beaa2486ecda6128a"
+      }
+    ],
+    "files": [
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+        "currentHash": "5e34682cb3eaa3e91da6910d388ccdf58a52170b6ba1c50802037a2485c05c38",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "currentHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+        "currentHash": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "currentHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Combat/CombatSystem.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+        "currentHash": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Combat/Requests/HealRequest.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Gameplay/Combat/Requests/HealRequest.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "16027e78f93a98b92752b9fe620bb09d4e1dc1ab44fb8d6216c3108767c04149",
+        "currentHash": "16027e78f93a98b92752b9fe620bb09d4e1dc1ab44fb8d6216c3108767c04149",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Combat/Requests/ShieldRequest.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Gameplay/Combat/Requests/ShieldRequest.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "c77bd2a1d007afbab17134923bf68475b0e419e395bb1472769f3a4ebcc660dc",
+        "currentHash": "c77bd2a1d007afbab17134923bf68475b0e419e395bb1472769f3a4ebcc660dc",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+        "currentHash": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+        "currentHash": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+        "currentHash": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+        "currentHash": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "currentHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+        "currentHash": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "424e317e0f6df5d81e79542dfa77e6478eb6b5f3a9bd17a94d3256c2ebb68e35",
+        "currentHash": "424e317e0f6df5d81e79542dfa77e6478eb6b5f3a9bd17a94d3256c2ebb68e35",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+        "currentHash": "a6155fcb6bcdf8d537b95701295590a07c8682bef3782ae2a40c307fa68ca4a2",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "7ee2c1caf14ff0a5162297ef31715d349d13931f1fa4b8fc794ff83bff26e775",
+        "currentHash": "7ee2c1caf14ff0a5162297ef31715d349d13931f1fa4b8fc794ff83bff26e775",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+        "currentHash": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "currentHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+        "currentHash": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "a2f653be8426d7386c4c5e83a40337cbd4137894ee105332515e5148b565f4b8",
+        "currentHash": "a2f653be8426d7386c4c5e83a40337cbd4137894ee105332515e5148b565f4b8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+        "currentHash": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+        "currentHash": "c5a2d22af8c1957f5d263682924d7cf9b619ac0959a4e361396ab26b1913cefd",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "befe86e69278bfcf13ba35b6eac2dd97d539a160cb0c306560becdea828d8b58",
+        "currentHash": "befe86e69278bfcf13ba35b6eac2dd97d539a160cb0c306560becdea828d8b58",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+        "currentHash": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/GameplaySnapshot.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+        "currentHash": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/SimulationTickPipeline.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/FrameSync/SimulationTickPipeline.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+        "currentHash": "523aef1ab112a63807c51bbc4fdcf666bf8d41b877e21812adfa48bcb9f08193",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs|PLAN-0027|test",
+        "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+        "currentHash": "624bdcc28f9ce563baf11b059779b2a86a17e8a073daab80545f8a3147b8fa81",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs|PLAN-0027|test",
+        "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "currentHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs|PLAN-0027|test",
+        "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "currentHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Combat/CombatSnapshot.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/Gameplay/Combat/CombatSnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "9caa96e5111d925e55c8b7dcffda48bc28632a851cfde3b393633fdf90ac3b99",
+        "currentHash": "9caa96e5111d925e55c8b7dcffda48bc28632a851cfde3b393633fdf90ac3b99",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Projectile/ProjectileRuntime.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/Gameplay/Projectile/ProjectileRuntime.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a5af3457dde4d1b6c9c44e4dcc34ba764987e568b6668a0b568fe105ceaadb92",
+        "currentHash": "a5af3457dde4d1b6c9c44e4dcc34ba764987e568b6668a0b568fe105ceaadb92",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Projectile/ProjectileSnapshot.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/Gameplay/Projectile/ProjectileSnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "00e255cd0174093f4b1297b4d2863d001707ec457ef66416f423b6197bbe3dcc",
+        "currentHash": "00e255cd0174093f4b1297b4d2863d001707ec457ef66416f423b6197bbe3dcc",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Projectile/ProjectileWorld.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/Gameplay/Projectile/ProjectileWorld.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "7854d24e2ba48820146651edd099a46374762584ce9a6a005699d047bd91f4fd",
+        "currentHash": "7854d24e2ba48820146651edd099a46374762584ce9a6a005699d047bd91f4fd",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsRuntimeSnapshot.cs|PLAN-0027|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsRuntimeSnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0027",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "fa594e39c9e6e7582ed1ad0897365302b40f90f3b10ef2af3a70774cc7438887",
+        "currentHash": "fa594e39c9e6e7582ed1ad0897365302b40f90f3b10ef2af3a70774cc7438887",
+        "state": "\u5DF2\u6838\u9A8C"
+      }
+    ]
+  },
+  "implementationEvidenceCheck": {
+    "state": "\u6709\u6548",
+    "checkedAt": "2026-10-10T23:47:08.5462914\u002B08:00",
+    "reasons": [
+      "\u5F53\u524D\u9700\u6C42\u6B63\u6587\u3001\u5173\u8054\u8BA1\u5212\u8BC1\u636E\u548C\u5DF2\u767B\u8BB0\u6587\u4EF6\u6307\u7EB9\u4E0E\u5FEB\u7167\u4E00\u81F4\u3002"
+    ]
+  }
 }

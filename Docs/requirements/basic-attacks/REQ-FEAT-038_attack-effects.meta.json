@@ -1,25 +1,27 @@
 {
   "id": "REQ-FEAT-038",
-  "title": "近战远程与攻击特效输出",
+  "title": "\u8FD1\u6218\u8FDC\u7A0B\u4E0E\u653B\u51FB\u7279\u6548\u8F93\u51FA",
   "type": "requirement",
-  "status": "激活",
-  "domain": "普通攻击",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u666E\u901A\u653B\u51FB",
   "path": "Docs/requirements/basic-attacks/REQ-FEAT-038_attack-effects.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:26.8030426\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.1 正式接缝",
+      "section": "4.1 \u6B63\u5F0F\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.2 普攻 Commit 链路",
+      "section": "4.2 \u666E\u653B Commit \u94FE\u8DEF",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
@@ -33,77 +35,77 @@
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.4 攻击特效伤害",
+      "section": "4.4 \u653B\u51FB\u7279\u6548\u4F24\u5BB3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5. Commit 的 Gameplay 输出",
+      "section": "5. Commit \u7684 Gameplay \u8F93\u51FA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 直接攻击",
+      "section": "5.1 \u76F4\u63A5\u653B\u51FB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 远程攻击",
+      "section": "5.2 \u8FDC\u7A0B\u653B\u51FB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 Commit 后的远程攻击",
+      "section": "5.3 Commit \u540E\u7684\u8FDC\u7A0B\u653B\u51FB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 强化攻击与攻击特效",
+      "section": "5.4 \u5F3A\u5316\u653B\u51FB\u4E0E\u653B\u51FB\u7279\u6548",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6. 外部系统接缝（精简）",
+      "section": "6. \u5916\u90E8\u7CFB\u7EDF\u63A5\u7F1D\uFF08\u7CBE\u7B80\uFF09",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.1 表现层接缝",
+      "section": "6.1 \u8868\u73B0\u5C42\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 单位框架接缝",
+      "section": "6.2 \u5355\u4F4D\u6846\u67B6\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 帧同步关注标记",
+      "section": "6.3 \u5E27\u540C\u6B65\u5173\u6CE8\u6807\u8BB0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_attack_module_design_v6_2.md",
       "sha256": "7b9e6dd57f1539d928c1ab532aac6946085a763d1ebd8392e88aaac2784db936",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.4 关键验收条件",
+      "section": "6.4 \u5173\u952E\u9A8C\u6536\u6761\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_attack_module_design_v6_2.md"
     }
   ],
@@ -114,7 +116,7 @@
       "symbols": [
         "AttackHandler"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Equipment/OnHitRepeatModule.cs",
@@ -122,7 +124,7 @@
       "symbols": [
         "OnHitRepeatModule"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Projectile/ProjectileSpawnRequest.cs",
@@ -130,7 +132,7 @@
       "symbols": [
         "ProjectileSpawnRequest"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
@@ -159,7 +161,7 @@
         "Resolve_RejectsMissingActiveTarget",
         "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/TowerAttackHandlerTests.cs",
@@ -169,7 +171,7 @@
         "HeroRamp_CapsAtSixHundred",
         "Ramp_WithZeroHits_ReturnsBaseEvenForSmallBase"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -188,7 +190,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
@@ -196,7 +198,7 @@
       "testFunctions": [
         "ProjectileViewLeaseStaysResidentAcrossLifetimes"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -219,7 +221,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
@@ -229,7 +231,7 @@
         "PiercingFalloff_OverridePath_MatchesStaticConfig",
         "PiercingFalloff_ClampsAtMinDamageRatio"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -246,7 +248,7 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -257,7 +259,7 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
@@ -271,7 +273,7 @@
         "AttackSpeed_ModifiesCooldown",
         "AttackSpeed_PositiveBase_StartsAttack"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
@@ -284,7 +286,7 @@
         "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
         "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
@@ -299,7 +301,7 @@
         "RestoreReplacement_UnsubscribesPreviousController",
         "RestoredController_DoesNotReapplyStaleAttackThreat"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
@@ -332,7 +334,7 @@
         "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
         "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -341,7 +343,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
@@ -357,7 +359,7 @@
         "FinishedItem_IsUnique_SecondPurchaseRejected",
         "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
@@ -367,7 +369,7 @@
         "Death_PreservesGlobalStatAndCombatModifierOwnership",
         "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -379,7 +381,7 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
@@ -392,11 +394,18 @@
         "ResetForPool_ResetsAllDynamicState",
         "ManyUnits_StableReadOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "普通攻击"
-  ]
+    "\u666E\u901A\u653B\u51FB"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:26.8026339\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

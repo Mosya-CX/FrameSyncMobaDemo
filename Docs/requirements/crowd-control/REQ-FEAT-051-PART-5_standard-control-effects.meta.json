@@ -1,67 +1,69 @@
 {
   "id": "REQ-FEAT-051-PART-5",
-  "title": "标准控制效果与复合实例",
+  "title": "\u6807\u51C6\u63A7\u5236\u6548\u679C\u4E0E\u590D\u5408\u5B9E\u4F8B",
   "type": "requirement",
-  "status": "激活",
-  "domain": "控制",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "domain": "\u63A7\u5236",
   "path": "Docs/requirements/crowd-control/REQ-FEAT-051-PART-5_standard-control-effects.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 3,
+  "updatedAt": "2026-10-10T23:42:27.8454119\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
       "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10. 与 CrowdControlHandler 的边界",
+      "section": "10. \u4E0E CrowdControlHandler \u7684\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "0.1 一句话结构",
+      "section": "0.1 \u4E00\u53E5\u8BDD\u7ED3\u6784",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "0.5 控制系统的硬边界",
+      "section": "0.5 \u63A7\u5236\u7CFB\u7EDF\u7684\u786C\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.1 Unity 角色",
+      "section": "1.1 Unity \u89D2\u8272",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.2 推荐类轮廓",
+      "section": "1.2 \u63A8\u8350\u7C7B\u8F6E\u5ED3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.3 Handler 的重要字段",
+      "section": "1.3 Handler \u7684\u91CD\u8981\u5B57\u6BB5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.4 UnitHandler 生命周期与真实单位事件",
+      "section": "1.4 UnitHandler \u751F\u547D\u5468\u671F\u4E0E\u771F\u5B9E\u5355\u4F4D\u4E8B\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.5 全局配置访问",
+      "section": "1.5 \u5168\u5C40\u914D\u7F6E\u8BBF\u95EE",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
@@ -96,77 +98,77 @@
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.10 轻量信号模块",
+      "section": "1.10 \u8F7B\u91CF\u4FE1\u53F7\u6A21\u5757",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.11 查询接口",
+      "section": "1.11 \u67E5\u8BE2\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.1 只保留一套 Definition",
+      "section": "2.1 \u53EA\u4FDD\u7559\u4E00\u5957 Definition",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.2 CrowdControlDefinition 字段",
+      "section": "2.2 CrowdControlDefinition \u5B57\u6BB5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.3 为什么仍然需要 Bake",
+      "section": "2.3 \u4E3A\u4EC0\u4E48\u4ECD\u7136\u9700\u8981 Bake",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.4 为什么不需要 Kind",
+      "section": "2.4 \u4E3A\u4EC0\u4E48\u4E0D\u9700\u8981 Kind",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.5 为什么不保存软控、硬控",
+      "section": "2.5 \u4E3A\u4EC0\u4E48\u4E0D\u4FDD\u5B58\u8F6F\u63A7\u3001\u786C\u63A7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.6 Bake 流程",
+      "section": "2.6 Bake \u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.1 模块的定位",
+      "section": "3.1 \u6A21\u5757\u7684\u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.2 四个生命周期 Hook",
+      "section": "3.2 \u56DB\u4E2A\u751F\u547D\u5468\u671F Hook",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.3 Inspector 中的模块配置",
+      "section": "3.3 Inspector \u4E2D\u7684\u6A21\u5757\u914D\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
@@ -180,14 +182,14 @@
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.5 静态执行函数表",
+      "section": "3.5 \u9759\u6001\u6267\u884C\u51FD\u6570\u8868",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.6 为什么不用每实例模块对象",
+      "section": "3.6 \u4E3A\u4EC0\u4E48\u4E0D\u7528\u6BCF\u5B9E\u4F8B\u6A21\u5757\u5BF9\u8C61",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
@@ -201,56 +203,56 @@
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.8 建议的标准模块",
+      "section": "3.8 \u5EFA\u8BAE\u7684\u6807\u51C6\u6A21\u5757",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.9 自定义模块的最小边界",
+      "section": "3.9 \u81EA\u5B9A\u4E49\u6A21\u5757\u7684\u6700\u5C0F\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.10 模块命令与重入",
+      "section": "3.10 \u6A21\u5757\u547D\u4EE4\u4E0E\u91CD\u5165",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.11 模块性能",
+      "section": "3.11 \u6A21\u5757\u6027\u80FD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.1 Instance 的最小字段",
+      "section": "4.1 Instance \u7684\u6700\u5C0F\u5B57\u6BB5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.2 为什么不保存来源",
+      "section": "4.2 \u4E3A\u4EC0\u4E48\u4E0D\u4FDD\u5B58\u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.3 不合并，也不修改既有实例",
+      "section": "4.3 \u4E0D\u5408\u5E76\uFF0C\u4E5F\u4E0D\u4FEE\u6539\u65E2\u6709\u5B9E\u4F8B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.4 对外按 Key，内部按 Offset",
+      "section": "4.4 \u5BF9\u5916\u6309 Key\uFF0C\u5185\u90E8\u6309 Offset",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
@@ -264,14 +266,14 @@
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.6 支持的数据类型",
+      "section": "4.6 \u652F\u6301\u7684\u6570\u636E\u7C7B\u578B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.7 ParameterSchema 与 ParamLayout",
+      "section": "4.7 ParameterSchema \u4E0E ParamLayout",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
@@ -285,21 +287,21 @@
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.9 Add 时物化参数块",
+      "section": "4.9 Add \u65F6\u7269\u5316\u53C2\u6570\u5757",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.10 模块读取",
+      "section": "4.10 \u6A21\u5757\u8BFB\u53D6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.11 容量规则",
+      "section": "4.11 \u5BB9\u91CF\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
@@ -397,63 +399,63 @@
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.14 Drowsy 到 Sleep",
+      "section": "9.14 Drowsy \u5230 Sleep",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.15 复合效果何时拆实例",
+      "section": "9.15 \u590D\u5408\u6548\u679C\u4F55\u65F6\u62C6\u5B9E\u4F8B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.1 Inspector 精度边界",
+      "section": "10.1 Inspector \u7CBE\u5EA6\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.2 运行时数字规则",
+      "section": "10.2 \u8FD0\u884C\u65F6\u6570\u5B57\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.3 全局 Tick 访问",
+      "section": "10.3 \u5168\u5C40 Tick \u8BBF\u95EE",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.4 统一回滚接口与帧同步关注数据",
+      "section": "10.4 \u7EDF\u4E00\u56DE\u6EDA\u63A5\u53E3\u4E0E\u5E27\u540C\u6B65\u5173\u6CE8\u6570\u636E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.1 最终核心类关系",
+      "section": "11.1 \u6700\u7EC8\u6838\u5FC3\u7C7B\u5173\u7CFB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.2 建议文件数量",
+      "section": "11.2 \u5EFA\u8BAE\u6587\u4EF6\u6570\u91CF",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     },
     {
       "path": "Docs/Design/moba_crowd_control_system_design_v6_2.md",
       "sha256": "00e8bbbefe246aa49c5fa4c7d3178874e46aa33ca47ef143d4424e8d510130fe",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.3 最终数据流",
+      "section": "11.3 \u6700\u7EC8\u6570\u636E\u6D41",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_crowd_control_system_design_v6_2.md"
     }
   ],
@@ -464,7 +466,7 @@
       "symbols": [
         "CrowdControlDefinition"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlHandler.cs",
@@ -472,7 +474,7 @@
       "symbols": [
         "CrowdControlHandler"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/CrowdControl/CrowdControlInstance.cs",
@@ -480,7 +482,7 @@
       "symbols": [
         "CrowdControlInstance"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
@@ -501,7 +503,7 @@
         "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
         "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -524,7 +526,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -535,7 +537,7 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
@@ -556,7 +558,7 @@
         "MobilityBlock_InterruptsAbilityDash",
         "ControlMove_PreemptsUninterruptibleMovementLockedCast"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
@@ -585,7 +587,7 @@
         "Resolve_RejectsMissingActiveTarget",
         "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
@@ -599,7 +601,7 @@
         "SecondR_UsesADifferentTagUid",
         "Blight_StacksAreAppliedAtConfiguredTicks"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CrowdControlCatalogAssetTests.cs",
@@ -608,7 +610,7 @@
         "CatalogDefinitions_AreBakedAndValid_OnDisk",
         "CatalogRegisterAll_Succeeds_WithAllDefinitionsResolvable"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
@@ -622,7 +624,7 @@
         "RvoGrid_IncludesIdleUnitAsObstacle",
         "RvoNeighborSelection_IsInputOrderIndependent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -631,7 +633,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
@@ -648,7 +650,7 @@
         "InvalidExternalCrowdControl_IsNotHiddenByStructureFilter",
         "DeferredExternalEffects_AreFilteredBeforeSequenceAndSnapshot"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -660,7 +662,7 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [
@@ -670,10 +672,17 @@
   "provenance": [
     {
       "date": "2026-10-02",
-      "summary": "按具体功能进一步拆分过长附录"
+      "summary": "\u6309\u5177\u4F53\u529F\u80FD\u8FDB\u4E00\u6B65\u62C6\u5206\u8FC7\u957F\u9644\u5F55"
     }
   ],
   "tags": [
-    "控制"
-  ]
+    "\u63A7\u5236"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-10T23:42:27.8451834\u002B08:00",
+    "reasons": [
+      "\u6CA1\u6709\u5173\u8054\u7684\u5DF2\u5173\u95ED\u8BA1\u5212\u3002"
+    ]
+  }
 }

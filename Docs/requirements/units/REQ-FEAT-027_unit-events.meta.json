@@ -1,67 +1,69 @@
 {
   "id": "REQ-FEAT-027",
-  "title": "强类型单位事件与反应",
+  "title": "\u5F3A\u7C7B\u578B\u5355\u4F4D\u4E8B\u4EF6\u4E0E\u53CD\u5E94",
   "type": "requirement",
-  "status": "激活",
-  "domain": "单位",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u5355\u4F4D",
   "path": "Docs/requirements/units/REQ-FEAT-027_unit-events.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:14:32.025965\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.1 定位",
+      "section": "6.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 冻结事件清单",
+      "section": "6.2 \u51BB\u7ED3\u4E8B\u4EF6\u6E05\u5355",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 每种事件使用独立强类型结构",
+      "section": "6.3 \u6BCF\u79CD\u4E8B\u4EF6\u4F7F\u7528\u72EC\u7ACB\u5F3A\u7C7B\u578B\u7ED3\u6784",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.4 UnitEventBus 直接路由具体 Handler",
+      "section": "6.4 UnitEventBus \u76F4\u63A5\u8DEF\u7531\u5177\u4F53 Handler",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.5 Handler 回调与 Reaction 配置",
+      "section": "6.5 Handler \u56DE\u8C03\u4E0E Reaction \u914D\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.6 即时同步分发",
+      "section": "6.6 \u5373\u65F6\u540C\u6B65\u5206\u53D1",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.7 事件生产接缝",
+      "section": "6.7 \u4E8B\u4EF6\u751F\u4EA7\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.8 生命周期与事件顺序",
+      "section": "6.8 \u751F\u547D\u5468\u671F\u4E0E\u4E8B\u4EF6\u987A\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     }
   ],
@@ -72,7 +74,7 @@
       "symbols": [
         "DamageEventData"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs",
@@ -80,7 +82,7 @@
       "symbols": [
         "UnitEventBus"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
@@ -94,7 +96,7 @@
         "AttackSpeed_ModifiesCooldown",
         "AttackSpeed_PositiveBase_StartsAttack"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
@@ -115,7 +117,7 @@
         "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
         "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
@@ -130,7 +132,7 @@
         "RestoreReplacement_UnsubscribesPreviousController",
         "RestoredController_DoesNotReapplyStaleAttackThreat"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
@@ -143,11 +145,18 @@
         "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
         "AssistHero_AppliesEmpoweredBonusToAssistant"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "单位"
-  ]
+    "\u5355\u4F4D"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:14:32.0250995\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

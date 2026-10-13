@@ -1,18 +1,20 @@
 {
   "id": "REQ-FEAT-025",
-  "title": "经验成长与技能点",
+  "title": "\u7ECF\u9A8C\u6210\u957F\u4E0E\u6280\u80FD\u70B9",
   "type": "requirement",
-  "status": "激活",
-  "domain": "单位数值",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u5355\u4F4D\u6570\u503C",
   "path": "Docs/requirements/unit-stats/REQ-FEAT-025_experience-levels.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:14:41.4811054\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.6 等级、经验与属性成长",
+      "section": "5.6 \u7B49\u7EA7\u3001\u7ECF\u9A8C\u4E0E\u5C5E\u6027\u6210\u957F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     }
   ],
@@ -23,7 +25,7 @@
       "symbols": [
         "LevelExperienceConfig"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/XP/XpRewardTable.cs",
@@ -31,7 +33,7 @@
       "symbols": [
         "XpRewardTable"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/MatchRewardDistanceTests.cs",
@@ -39,7 +41,7 @@
       "testFunctions": [
         "MinionExperienceRadius_UsesStatToLogicDistanceScale"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SkillPointAllocationTests.cs",
@@ -50,7 +52,7 @@
         "Ultimate_UnlocksAtLevelSix",
         "GrantExperience_GrantsExactlyOneSkillPointPerLevel"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -62,11 +64,18 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "单位数值"
-  ]
+    "\u5355\u4F4D\u6570\u503C"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:14:41.4805501\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

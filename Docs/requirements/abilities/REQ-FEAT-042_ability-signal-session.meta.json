@@ -1,165 +1,167 @@
 {
   "id": "REQ-FEAT-042",
-  "title": "技能信号与会话状态",
+  "title": "\u6280\u80FD\u4FE1\u53F7\u4E0E\u4F1A\u8BDD\u72B6\u6001",
   "type": "requirement",
-  "status": "激活",
-  "domain": "技能",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u6280\u80FD",
   "path": "Docs/requirements/abilities/REQ-FEAT-042_ability-signal-session.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:11.4214292\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "一、AbilityHandler：技能系统总入口",
+      "section": "\u4E00\u3001AbilityHandler\uFF1A\u6280\u80FD\u7CFB\u7EDF\u603B\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.1 AbilitySignal：技能系统内部的最小语言",
+      "section": "1.1 AbilitySignal\uFF1A\u6280\u80FD\u7CFB\u7EDF\u5185\u90E8\u7684\u6700\u5C0F\u8BED\u8A00",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.2 HandleSignal：只返回是否接受 Signal",
+      "section": "1.2 HandleSignal\uFF1A\u53EA\u8FD4\u56DE\u662F\u5426\u63A5\u53D7 Signal",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.3 AbilitySession 的结束回传",
+      "section": "1.3 AbilitySession \u7684\u7ED3\u675F\u56DE\u4F20",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.4 外部打断接口",
+      "section": "1.4 \u5916\u90E8\u6253\u65AD\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.5 AbilityIndicatorController：本地指示器如何接入",
+      "section": "1.5 AbilityIndicatorController\uFF1A\u672C\u5730\u6307\u793A\u5668\u5982\u4F55\u63A5\u5165",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.6 AbilityHandler 只提供轻量的指示器查询接缝",
+      "section": "1.6 AbilityHandler \u53EA\u63D0\u4F9B\u8F7B\u91CF\u7684\u6307\u793A\u5668\u67E5\u8BE2\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.7 CastModelDef 只决定当前指示器应该参考哪个 Stage",
+      "section": "1.7 CastModelDef \u53EA\u51B3\u5B9A\u5F53\u524D\u6307\u793A\u5668\u5E94\u8BE5\u53C2\u8003\u54EA\u4E2A Stage",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.8 Indicator 直接读取 StageDef、Runtime 和可选 Blackboard",
+      "section": "1.8 Indicator \u76F4\u63A5\u8BFB\u53D6 StageDef\u3001Runtime \u548C\u53EF\u9009 Blackboard",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.9 Local Indicator Resolver：由本地模块适配 Stage 类型",
+      "section": "1.9 Local Indicator Resolver\uFF1A\u7531\u672C\u5730\u6A21\u5757\u9002\u914D Stage \u7C7B\u578B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.10 AbilityCastView：外部系统读取当前施法状态",
+      "section": "1.10 AbilityCastView\uFF1A\u5916\u90E8\u7CFB\u7EDF\u8BFB\u53D6\u5F53\u524D\u65BD\u6CD5\u72B6\u6001",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.11 UI 读取槽位技能状态",
+      "section": "1.11 UI \u8BFB\u53D6\u69FD\u4F4D\u6280\u80FD\u72B6\u6001",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.12 PendingSkillPoints：待分配技能点与槽位升级",
+      "section": "1.12 PendingSkillPoints\uFF1A\u5F85\u5206\u914D\u6280\u80FD\u70B9\u4E0E\u69FD\u4F4D\u5347\u7EA7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.13 SupportedUnitEvents：AbilityHandler 的固定事件契约",
+      "section": "1.13 SupportedUnitEvents\uFF1AAbilityHandler \u7684\u56FA\u5B9A\u4E8B\u4EF6\u5951\u7EA6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "二、AbilityRuntime 与 AbilitySession：技能运行状态",
+      "section": "\u4E8C\u3001AbilityRuntime \u4E0E AbilitySession\uFF1A\u6280\u80FD\u8FD0\u884C\u72B6\u6001",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.1 AbilityBook：一槽多技能的主动技能目录",
+      "section": "2.1 AbilityBook\uFF1A\u4E00\u69FD\u591A\u6280\u80FD\u7684\u4E3B\u52A8\u6280\u80FD\u76EE\u5F55",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.2 AbilityRuntime：始终存在的主动技能实例",
+      "section": "2.2 AbilityRuntime\uFF1A\u59CB\u7EC8\u5B58\u5728\u7684\u4E3B\u52A8\u6280\u80FD\u5B9E\u4F8B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.3 AbilitySession：单次施法的最小临时状态",
+      "section": "2.3 AbilitySession\uFF1A\u5355\u6B21\u65BD\u6CD5\u7684\u6700\u5C0F\u4E34\u65F6\u72B6\u6001",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.4 AbilitySession 只保存状态，不决定流程",
+      "section": "2.4 AbilitySession \u53EA\u4FDD\u5B58\u72B6\u6001\uFF0C\u4E0D\u51B3\u5B9A\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.5 AbilityHandlerSnapshot 与 IRollback",
+      "section": "2.5 AbilityHandlerSnapshot \u4E0E IRollback",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.6 SimulationTickContext：统一当前 Tick 来源",
+      "section": "2.6 SimulationTickContext\uFF1A\u7EDF\u4E00\u5F53\u524D Tick \u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "八、最终核心结构",
+      "section": "\u516B\u3001\u6700\u7EC8\u6838\u5FC3\u7ED3\u6784",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     }
   ],
@@ -170,7 +172,7 @@
       "symbols": [
         "AbilityCastView"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Ability/AbilityHandler.cs",
@@ -178,7 +180,7 @@
       "symbols": [
         "AbilityHandler"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Ability/AbilityRuntime.cs",
@@ -186,7 +188,7 @@
       "symbols": [
         "AbilitySession"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
@@ -194,7 +196,7 @@
       "symbols": [
         "AbilitySignal"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -213,7 +215,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
@@ -223,7 +225,7 @@
         "AreaDamageStage_DoesNotDamageEnemyStructure",
         "SpawnProjectileStage_FiresTowardAimDirection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
@@ -237,7 +239,7 @@
         "Toggle_FirstCommitActivatesAndSecondCommitTurnsOff",
         "Toggle_TurnOffDoesNotStartCooldown"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
@@ -245,7 +247,7 @@
       "testFunctions": [
         "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
@@ -258,7 +260,7 @@
         "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
         "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
@@ -284,7 +286,7 @@
         "SameInput_SameResult",
         "CaptureRestore_ThenReplay_ProducesSameResult"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/PlayerInput/Tests/AbilityInputMappingTests.cs",
@@ -308,7 +310,7 @@
         "SequentialRecastDirection_DefaultsToLeftClickCommit",
         "DirectionalZoneResolver_FollowsSequentialRecastStage"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
@@ -340,7 +342,7 @@
         "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
         "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/CooldownPipelineTests.cs",
@@ -353,7 +355,7 @@
         "LuaDataCache_HasValidData_TrueWhenMaxHealthPositive",
         "KnockBackArc_IsHalfKnockUpArc"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
@@ -369,7 +371,7 @@
         "OutlineBakeRunsAfterWingVisibility",
         "AttachedVfx_WorldDirectionDoesNotInheritLaterHostTurn"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
@@ -379,7 +381,7 @@
         "BuildWorld_LoadsFormalEquipmentCatalogForShop",
         "LocalTickShop_UsesFormalGoldPurchaseRecipeAndUndo"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
@@ -391,7 +393,7 @@
         "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
         "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -408,7 +410,7 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -419,7 +421,7 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
@@ -440,7 +442,7 @@
         "MobilityBlock_InterruptsAbilityDash",
         "ControlMove_PreemptsUninterruptibleMovementLockedCast"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
@@ -449,7 +451,7 @@
         "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
         "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
@@ -478,7 +480,7 @@
         "Resolve_RejectsMissingActiveTarget",
         "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
@@ -493,7 +495,7 @@
         "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
         "WPassive_OnHit_DoesNotAffectStructure"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
@@ -506,7 +508,7 @@
         "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
         "AssistHero_AppliesEmpoweredBonusToAssistant"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -515,7 +517,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SkillPointAllocationTests.cs",
@@ -526,7 +528,7 @@
         "Ultimate_UnlocksAtLevelSix",
         "GrantExperience_GrantsExactlyOneSkillPointPerLevel"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
@@ -536,7 +538,7 @@
         "Death_PreservesGlobalStatAndCombatModifierOwnership",
         "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -548,7 +550,7 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [
@@ -559,6 +561,13 @@
     "REQ-FEAT-042-PART-5"
   ],
   "tags": [
-    "技能"
-  ]
+    "\u6280\u80FD"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:11.4203173\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

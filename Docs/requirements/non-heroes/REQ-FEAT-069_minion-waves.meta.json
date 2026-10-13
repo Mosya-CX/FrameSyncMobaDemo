@@ -1,123 +1,125 @@
 {
   "id": "REQ-FEAT-069",
-  "title": "小兵波次与兵线 AI",
+  "title": "\u5C0F\u5175\u6CE2\u6B21\u4E0E\u5175\u7EBF AI",
   "type": "requirement",
-  "status": "激活",
-  "domain": "非英雄",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u975E\u82F1\u96C4",
   "path": "Docs/requirements/non-heroes/REQ-FEAT-069_minion-waves.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:16:00.009477\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.1 定位与成员",
+      "section": "4.1 \u5B9A\u4F4D\u4E0E\u6210\u5458",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.2 波次配置",
+      "section": "4.2 \u6CE2\u6B21\u914D\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.3 兵线场景数据",
+      "section": "4.3 \u5175\u7EBF\u573A\u666F\u6570\u636E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.4 生成票据",
+      "section": "4.4 \u751F\u6210\u7968\u636E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.5 核心波次算法",
+      "section": "4.5 \u6838\u5FC3\u6CE2\u6B21\u7B97\u6CD5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.6 单个小兵的同步生成",
+      "section": "4.6 \u5355\u4E2A\u5C0F\u5175\u7684\u540C\u6B65\u751F\u6210",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.7 正式死亡与管理注销",
+      "section": "4.7 \u6B63\u5F0F\u6B7B\u4EA1\u4E0E\u7BA1\u7406\u6CE8\u9500",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.8 性能与恢复关注点",
+      "section": "4.8 \u6027\u80FD\u4E0E\u6062\u590D\u5173\u6CE8\u70B9",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 定位与状态",
+      "section": "5.1 \u5B9A\u4F4D\u4E0E\u72B6\u6001",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 推进和回线",
+      "section": "5.2 \u63A8\u8FDB\u548C\u56DE\u7EBF",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 目标选择",
+      "section": "5.3 \u76EE\u6807\u9009\u62E9",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 英雄协防",
+      "section": "5.4 \u82F1\u96C4\u534F\u9632",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.5 追击边界",
+      "section": "5.5 \u8FFD\u51FB\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.6 核心决策算法",
+      "section": "5.6 \u6838\u5FC3\u51B3\u7B56\u7B97\u6CD5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.7 多态快照实现",
+      "section": "5.7 \u591A\u6001\u5FEB\u7167\u5B9E\u73B0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     },
     {
       "path": "Docs/Design/moba_non_hero_unit_modules_design_v5.md",
       "sha256": "4fe9a58d8d2015dd18e2743f0e9156d71a9a8c3443db9b198ff37c526f75b382",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.8 性能约束",
+      "section": "5.8 \u6027\u80FD\u7EA6\u675F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_non_hero_unit_modules_design_v5.md"
     }
   ],
@@ -128,7 +130,7 @@
       "symbols": [
         "LaneAuthoring"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/NonHero/MinionSystem.cs",
@@ -136,7 +138,7 @@
       "symbols": [
         "MinionSystem"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/NonHero/UnitAIController.cs",
@@ -144,7 +146,7 @@
       "symbols": [
         "MinionAIController"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
@@ -153,7 +155,7 @@
         "GameScene_FirstWaveUsesFlowFieldsAndMoves",
         "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
@@ -168,7 +170,7 @@
         "RestoreReplacement_UnsubscribesPreviousController",
         "RestoredController_DoesNotReapplyStaleAttackThreat"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
@@ -201,11 +203,18 @@
         "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
         "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "非英雄"
-  ]
+    "\u975E\u82F1\u96C4"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:16:00.008605\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

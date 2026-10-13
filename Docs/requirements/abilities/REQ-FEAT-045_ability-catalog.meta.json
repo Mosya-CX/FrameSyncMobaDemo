@@ -1,67 +1,69 @@
 {
   "id": "REQ-FEAT-045",
-  "title": "技能目录消耗冷却与升级",
+  "title": "\u6280\u80FD\u76EE\u5F55\u6D88\u8017\u51B7\u5374\u4E0E\u5347\u7EA7",
   "type": "requirement",
-  "status": "激活",
-  "domain": "技能",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u6280\u80FD",
   "path": "Docs/requirements/abilities/REQ-FEAT-045_ability-catalog.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:13.8418845\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "五、AbilityDef：主动技能配置与通用规则",
+      "section": "\u4E94\u3001AbilityDef\uFF1A\u4E3B\u52A8\u6280\u80FD\u914D\u7F6E\u4E0E\u901A\u7528\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 AbilityRankUpEffectDef：技能升级瞬间模块",
+      "section": "5.1 AbilityRankUpEffectDef\uFF1A\u6280\u80FD\u5347\u7EA7\u77AC\u95F4\u6A21\u5757",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 技能级与 Stage 级等级成长严格分开",
+      "section": "5.2 \u6280\u80FD\u7EA7\u4E0E Stage \u7EA7\u7B49\u7EA7\u6210\u957F\u4E25\u683C\u5206\u5F00",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 CastConditions：通用开始检查与英雄特殊条件",
+      "section": "5.3 CastConditions\uFF1A\u901A\u7528\u5F00\u59CB\u68C0\u67E5\u4E0E\u82F1\u96C4\u7279\u6B8A\u6761\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 CostPlan：通用施法资源和生命消耗",
+      "section": "5.4 CostPlan\uFF1A\u901A\u7528\u65BD\u6CD5\u8D44\u6E90\u548C\u751F\u547D\u6D88\u8017",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.5 Cooldown：只保留默认冷却",
+      "section": "5.5 Cooldown\uFF1A\u53EA\u4FDD\u7559\u9ED8\u8BA4\u51B7\u5374",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.6 AbilityDef 与 CastModel 的最终所有权",
+      "section": "5.6 AbilityDef \u4E0E CastModel \u7684\u6700\u7EC8\u6240\u6709\u6743",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.7 AbilityDatabase：技能槽、主动与固定被动定义注册入口",
+      "section": "5.7 AbilityDatabase\uFF1A\u6280\u80FD\u69FD\u3001\u4E3B\u52A8\u4E0E\u56FA\u5B9A\u88AB\u52A8\u5B9A\u4E49\u6CE8\u518C\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     }
   ],
@@ -72,7 +74,7 @@
       "symbols": [
         "AbilityDef"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Ability/AbilityHandler.cs",
@@ -80,7 +82,7 @@
       "symbols": [
         "AbilityBook"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
@@ -88,7 +90,7 @@
       "testFunctions": [
         "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
@@ -100,7 +102,7 @@
         "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
         "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -117,7 +119,7 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -136,7 +138,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
@@ -146,7 +148,7 @@
         "AreaDamageStage_DoesNotDamageEnemyStructure",
         "SpawnProjectileStage_FiresTowardAimDirection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
@@ -160,7 +162,7 @@
         "Toggle_FirstCommitActivatesAndSecondCommitTurnsOff",
         "Toggle_TurnOffDoesNotStartCooldown"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
@@ -181,7 +183,7 @@
         "MobilityBlock_InterruptsAbilityDash",
         "ControlMove_PreemptsUninterruptibleMovementLockedCast"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
@@ -196,7 +198,7 @@
         "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
         "WPassive_OnHit_DoesNotAffectStructure"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ChargeAbilityTests.cs",
@@ -209,7 +211,7 @@
         "ChargeProjectileStage_InterpolatesDamageRangeAndOverride",
         "ChargeProjectile_SnapshotRoundTrip_PreservesOverride"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
@@ -241,7 +243,7 @@
         "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
         "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
@@ -267,7 +269,7 @@
         "SameInput_SameResult",
         "CaptureRestore_ThenReplay_ProducesSameResult"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
@@ -280,7 +282,7 @@
         "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
         "AssistHero_AppliesEmpoweredBonusToAssistant"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SkillPointAllocationTests.cs",
@@ -291,7 +293,7 @@
         "Ultimate_UnlocksAtLevelSix",
         "GrantExperience_GrantsExactlyOneSkillPointPerLevel"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StageDefBakeTests.cs",
@@ -313,7 +315,7 @@
         "ApplyBuffStageDef_OnExit_DoesNotThrow",
         "DashStageDef_OnExit_DoesNotThrow"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/PlayerInput/Tests/AbilityInputMappingTests.cs",
@@ -337,11 +339,18 @@
         "SequentialRecastDirection_DefaultsToLeftClickCommit",
         "DirectionalZoneResolver_FollowsSequentialRecastStage"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "技能"
-  ]
+    "\u6280\u80FD"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:13.8409146\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

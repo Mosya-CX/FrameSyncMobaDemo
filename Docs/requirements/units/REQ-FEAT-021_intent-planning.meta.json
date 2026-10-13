@@ -1,39 +1,41 @@
 {
   "id": "REQ-FEAT-021",
-  "title": "意图规划与输入 Order",
+  "title": "\u610F\u56FE\u89C4\u5212\u4E0E\u8F93\u5165 Order",
   "type": "requirement",
-  "status": "激活",
-  "domain": "单位",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u5355\u4F4D",
   "path": "Docs/requirements/units/REQ-FEAT-021_intent-planning.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:14:33.1327894\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.1 Command 与 Order",
+      "section": "2.1 Command \u4E0E Order",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.2 统一翻译器",
+      "section": "2.2 \u7EDF\u4E00\u7FFB\u8BD1\u5668",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.3 Order 类型",
+      "section": "2.3 Order \u7C7B\u578B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     },
     {
       "path": "Docs/Design/unit_behavior_framework_design_v27_3.md",
       "sha256": "d4feb32e282eddecdce307a826301594cb6e9dfe30868e2b6536ec68044b25ef",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.4 Order 不携带寻路策略",
+      "section": "2.4 Order \u4E0D\u643A\u5E26\u5BFB\u8DEF\u7B56\u7565",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/unit_behavior_framework_design_v27_3.md"
     }
   ],
@@ -44,7 +46,7 @@
       "symbols": [
         "BehaviorPlanner"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Unit/Core/OrderTranslator.cs",
@@ -52,7 +54,7 @@
       "symbols": [
         "OrderTranslator"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Unit/Core/UnitIntent.cs",
@@ -60,7 +62,7 @@
       "symbols": [
         "UnitIntent"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
@@ -72,7 +74,7 @@
         "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
         "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -89,7 +91,7 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
@@ -110,7 +112,7 @@
         "MobilityBlock_InterruptsAbilityDash",
         "ControlMove_PreemptsUninterruptibleMovementLockedCast"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
@@ -124,7 +126,7 @@
         "FlowFieldRvoMovement_ProducesRepeatableMotion",
         "RadiusAwareLineOfSight_BlocksLargeUnit"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
@@ -139,11 +141,18 @@
         "RestoreReplacement_UnsubscribesPreviousController",
         "RestoredController_DoesNotReapplyStaleAttackThreat"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "单位"
-  ]
+    "\u5355\u4F4D"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:14:33.1324154\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

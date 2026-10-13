@@ -1,25 +1,27 @@
 {
   "id": "REQ-FEAT-007",
-  "title": "命令序列化与类型化派发",
+  "title": "\u547D\u4EE4\u5E8F\u5217\u5316\u4E0E\u7C7B\u578B\u5316\u6D3E\u53D1",
   "type": "requirement",
-  "status": "激活",
-  "domain": "帧同步",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u5E27\u540C\u6B65",
   "path": "Docs/requirements/frame-sync/REQ-FEAT-007_command-dispatch.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:14:58.3055927\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.1 当前命令范围",
+      "section": "9.1 \u5F53\u524D\u547D\u4EE4\u8303\u56F4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.2 `CommandHeader`",
+      "section": "9.2 \u0060CommandHeader\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
@@ -33,35 +35,35 @@
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.1 普通单位行为命令",
+      "section": "11.1 \u666E\u901A\u5355\u4F4D\u884C\u4E3A\u547D\u4EE4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.2 技能点分配直接调用 AbilityHandler",
+      "section": "11.2 \u6280\u80FD\u70B9\u5206\u914D\u76F4\u63A5\u8C03\u7528 AbilityHandler",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.3 商店 Command",
+      "section": "11.3 \u5546\u5E97 Command",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.4 交换槽位",
+      "section": "11.4 \u4EA4\u6362\u69FD\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.5 Request 与 Process 分离",
+      "section": "11.5 Request \u4E0E Process \u5206\u79BB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     }
   ],
@@ -72,7 +74,7 @@
       "symbols": [
         "CanonicalByteWriter"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/GameplayCommand.cs",
@@ -81,7 +83,7 @@
         "CommandHeader",
         "GameplayCommand"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/GameplayCommandContractTests.cs",
@@ -92,7 +94,7 @@
         "Collector_ProducesSameCanonicalOrderForDifferentInsertionOrder",
         "MoveMerge_UsesHighestCommandSequenceForSameFormalKey"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs",
@@ -102,7 +104,7 @@
         "AdjacentToggleInputs_SendTheirDistinctCommandSequences",
         "RebuiltCollector_DoesNotResendSuccessfulIdentity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Deterministic/Tests/CanonicalByteWriterTests.cs",
@@ -114,7 +116,7 @@
         "InsufficientCapacity_LeavesCursorAndBufferUnchanged",
         "NullBuffer_IsRejected"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
@@ -131,7 +133,7 @@
         "ReplacedPredictedMove_RestoreThenAuthoritativeMoveMatchesCleanReplay",
         "ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
@@ -150,7 +152,7 @@
         "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
         "LobbyState_WireCodec_RoundTripsFullSelection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
@@ -174,7 +176,7 @@
         "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
         "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
@@ -186,7 +188,7 @@
         "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
         "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
@@ -218,7 +220,7 @@
         "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
         "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
@@ -230,7 +232,7 @@
         "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
         "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
@@ -242,7 +244,7 @@
         "ToggleNoAim_SimulatedWPressCommitsImmediately",
         "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ChecksumNewStateCoverageTests.cs",
@@ -259,7 +261,7 @@
         "Checksum_ChangesWhenDeferredDamageEffectOrdinalDiffers",
         "Checksum_ChangesWhenJungleLeashPatienceDiffers"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -276,11 +278,18 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "帧同步"
-  ]
+    "\u5E27\u540C\u6B65"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:14:58.3051006\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

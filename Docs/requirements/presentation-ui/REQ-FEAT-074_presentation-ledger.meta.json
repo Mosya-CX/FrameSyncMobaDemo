@@ -1,123 +1,125 @@
 {
   "id": "REQ-FEAT-074",
-  "title": "特效音效与回滚账本",
+  "title": "\u7279\u6548\u97F3\u6548\u4E0E\u56DE\u6EDA\u8D26\u672C",
   "type": "requirement",
-  "status": "激活",
-  "domain": "表现界面",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u8868\u73B0\u754C\u9762",
   "path": "Docs/requirements/presentation-ui/REQ-FEAT-074_presentation-ledger.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:48.8350443\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.1 定位",
+      "section": "4.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.2 `VfxDefinition`",
+      "section": "4.2 \u0060VfxDefinition\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.3 VFX 持续时间的三种来源",
+      "section": "4.3 VFX \u6301\u7EED\u65F6\u95F4\u7684\u4E09\u79CD\u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.4 独立 `VfxEvent`",
+      "section": "4.4 \u72EC\u7ACB \u0060VfxEvent\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.5 Unity `ObjectPool`",
+      "section": "4.5 Unity \u0060ObjectPool\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 定位",
+      "section": "5.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 `SfxDefinition`",
+      "section": "5.2 \u0060SfxDefinition\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 独立 `SfxEvent` 与正式提交入口",
+      "section": "5.3 \u72EC\u7ACB \u0060SfxEvent\u0060 \u4E0E\u6B63\u5F0F\u63D0\u4EA4\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 Unity `ObjectPool`",
+      "section": "5.4 Unity \u0060ObjectPool\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.5 音效回滚边界",
+      "section": "5.5 \u97F3\u6548\u56DE\u6EDA\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.1 通用稳定事件身份",
+      "section": "8.1 \u901A\u7528\u7A33\u5B9A\u4E8B\u4EF6\u8EAB\u4EFD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.2 `EventSequence` 的权威来源",
+      "section": "8.2 \u0060EventSequence\u0060 \u7684\u6743\u5A01\u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.3 三种回滚播放策略",
+      "section": "8.3 \u4E09\u79CD\u56DE\u6EDA\u64AD\u653E\u7B56\u7565",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.4 各管理器独立账本",
+      "section": "8.4 \u5404\u7BA1\u7406\u5668\u72EC\u7ACB\u8D26\u672C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.5 回滚对账流程",
+      "section": "8.5 \u56DE\u6EDA\u5BF9\u8D26\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.6 快照与重建边界",
+      "section": "8.6 \u5FEB\u7167\u4E0E\u91CD\u5EFA\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     }
   ],
@@ -128,7 +130,7 @@
       "symbols": [
         "AudioManager"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/VfxManager.cs",
@@ -136,7 +138,7 @@
       "symbols": [
         "VfxManager"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Presentation/PresentationEventId.cs",
@@ -144,7 +146,7 @@
       "symbols": [
         "PresentationEventId"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/VfxManagerPreloadTests.cs",
@@ -153,7 +155,7 @@
         "PreloadAsync_LoadsOnceAndCreatesOneInactivePoolInstance",
         "PreloadAsync_SkipsVfxOwnedByUnselectedHeroes"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationEventDispatcherTests.cs",
@@ -163,11 +165,18 @@
         "CompleteIdentity_KeepsDistinctEvents",
         "VfxAndSfx_UseIndependentHistories"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "表现界面"
-  ]
+    "\u8868\u73B0\u754C\u9762"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:48.834479\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

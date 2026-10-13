@@ -1,12 +1,14 @@
 {
   "id": "REQ-FEAT-004",
-  "title": "UOS 配置与连接模式",
+  "title": "UOS \u914D\u7F6E\u4E0E\u8FDE\u63A5\u6A21\u5F0F",
   "type": "requirement",
-  "status": "激活",
-  "domain": "比赛流程",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u6BD4\u8D5B\u6D41\u7A0B",
   "path": "Docs/requirements/match-flow/REQ-FEAT-004_uos-configuration.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:28.3232387\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [],
   "evidence": [
     {
@@ -15,7 +17,7 @@
       "symbols": [
         "LobbyFlowController"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/UosApplicationConfig.cs",
@@ -23,7 +25,7 @@
       "symbols": [
         "UosApplicationConfig"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/UosNgoApplicationAdapters.cs",
@@ -31,7 +33,7 @@
       "symbols": [
         "UosClientSession"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UosApplicationConfigTests.cs",
@@ -40,7 +42,7 @@
         "IsProfileTestServer_RecognizesOnlyTrue",
         "IsProfileTestServer_PrefersMultiverseServerInfo"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
@@ -59,7 +61,7 @@
         "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
         "LobbyState_WireCodec_RoundTripsFullSelection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/LocalNgoEndpointSceneTests.cs",
@@ -69,11 +71,18 @@
         "ClientBootstrap_OnlineFlowOverride_SelectsUosSession",
         "ServerBootstrap_TransitionsToLobbyAndStartsServer"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "比赛流程"
-  ]
+    "\u6BD4\u8D5B\u6D41\u7A0B"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:28.322624\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

@@ -1,88 +1,90 @@
 {
   "id": "REQ-FEAT-076",
-  "title": "HUD 数值技能与小地图",
+  "title": "HUD \u6570\u503C\u6280\u80FD\u4E0E\u5C0F\u5730\u56FE",
   "type": "requirement",
-  "status": "激活",
-  "domain": "表现界面",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u8868\u73B0\u754C\u9762",
   "path": "Docs/requirements/presentation-ui/REQ-FEAT-076_hud-minimap.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:43.3223823\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 不增加 UI 数据中间层",
+      "section": "5.1 \u4E0D\u589E\u52A0 UI \u6570\u636E\u4E2D\u95F4\u5C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 xLua 导出类型",
+      "section": "5.2 xLua \u5BFC\u51FA\u7C7B\u578B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 获取当前 Runtime、商店视图和 Unit",
+      "section": "5.3 \u83B7\u53D6\u5F53\u524D Runtime\u3001\u5546\u5E97\u89C6\u56FE\u548C Unit",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 装备配置查询",
+      "section": "5.4 \u88C5\u5907\u914D\u7F6E\u67E5\u8BE2",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.5 商店 Request",
+      "section": "5.5 \u5546\u5E97 Request",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.6 技能升级 Request",
+      "section": "5.6 \u6280\u80FD\u5347\u7EA7 Request",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.7 当前可用金币",
+      "section": "5.7 \u5F53\u524D\u53EF\u7528\u91D1\u5E01",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.8 动态购买价格",
+      "section": "5.8 \u52A8\u6001\u8D2D\u4E70\u4EF7\u683C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.9 卖出金额",
+      "section": "5.9 \u5356\u51FA\u91D1\u989D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.10 撤销查询",
+      "section": "5.10 \u64A4\u9500\u67E5\u8BE2",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.11 Unit 和 Handler 查询",
+      "section": "5.11 Unit \u548C Handler \u67E5\u8BE2",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
@@ -96,168 +98,168 @@
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.13 Revision、金币确认与恢复边界",
+      "section": "5.13 Revision\u3001\u91D1\u5E01\u786E\u8BA4\u4E0E\u6062\u590D\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.1 三层数值类型",
+      "section": "8.1 \u4E09\u5C42\u6570\u503C\u7C7B\u578B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.2 UI 可以在哪里转换 `fp`",
+      "section": "8.2 UI \u53EF\u4EE5\u5728\u54EA\u91CC\u8F6C\u6362 \u0060fp\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.3 `UIDisplayConvert`",
+      "section": "8.3 \u0060UIDisplayConvert\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.4 显示规则",
+      "section": "8.4 \u663E\u793A\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.5 取整",
+      "section": "8.5 \u53D6\u6574",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.6 百分比",
+      "section": "8.6 \u767E\u5206\u6BD4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.1 HUD 组成",
+      "section": "10.1 HUD \u7EC4\u6210",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.2 HUD 数据来源",
+      "section": "10.2 HUD \u6570\u636E\u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.3 关键组件",
+      "section": "10.3 \u5173\u952E\u7EC4\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.4 HUD 本地 UI 状态",
+      "section": "10.4 HUD \u672C\u5730 UI \u72B6\u6001",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.5 按住 C",
+      "section": "10.5 \u6309\u4F4F C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.6 技能介绍",
+      "section": "10.6 \u6280\u80FD\u4ECB\u7ECD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.7 技能点查询与升级按钮",
+      "section": "10.7 \u6280\u80FD\u70B9\u67E5\u8BE2\u4E0E\u5347\u7EA7\u6309\u94AE",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.8 技能点 Command Request 边界",
+      "section": "10.8 \u6280\u80FD\u70B9 Command Request \u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.9 装备格交互",
+      "section": "10.9 \u88C5\u5907\u683C\u4EA4\u4E92",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.10 HUD Lua 主结构",
+      "section": "10.10 HUD Lua \u4E3B\u7ED3\u6784",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.11 HUD 金币刷新",
+      "section": "10.11 HUD \u91D1\u5E01\u5237\u65B0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.12 HUD 英雄数据查询",
+      "section": "10.12 HUD \u82F1\u96C4\u6570\u636E\u67E5\u8BE2",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.13 完整属性刷新",
+      "section": "10.13 \u5B8C\u6574\u5C5E\u6027\u5237\u65B0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.14 技能栏刷新",
+      "section": "10.14 \u6280\u80FD\u680F\u5237\u65B0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.15 `SkillCell.lua`",
+      "section": "10.15 \u0060SkillCell.lua\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.16 `EquipCell.lua`",
+      "section": "10.16 \u0060EquipCell.lua\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     },
     {
       "path": "Docs/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md",
       "sha256": "04315451afa75496c35281b907bc8c2d1fa937a3b6eb56003de049aa80f0154e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.17 帧同步层提供的技能点请求入口",
+      "section": "10.17 \u5E27\u540C\u6B65\u5C42\u63D0\u4F9B\u7684\u6280\u80FD\u70B9\u8BF7\u6C42\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UI_Lua_System_Design_v9_1_GoldIncomeRuntime_Aligned.md"
     }
   ],
@@ -268,7 +270,7 @@
       "symbols": [
         "GameFlowLuaBridge"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Presentation/HudSnapshotDto.cs",
@@ -276,7 +278,7 @@
       "symbols": [
         "HudSnapshotDto"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/LuaBridge/UIDisplayConvert.cs",
@@ -284,7 +286,7 @@
       "symbols": [
         "UIDisplayConvert"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/RuntimeConfig/HeroDisplayTable.cs",
@@ -292,7 +294,7 @@
       "symbols": [
         "HeroDisplayTable"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/LuaBridge/Tests/UIDisplayConvertTests.cs",
@@ -304,7 +306,7 @@
         "PercentInt_MultipliesByHundred",
         "Rate01_ClampsAndHandlesZeroMax"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs",
@@ -318,7 +320,7 @@
         "UiPagesAndPresentationRootsAreAddressableAndOutsideResources",
         "GenericSkillIndicatorsUseSupportedTransparentShader"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestSceneEquipmentPlayModeTests.cs",
@@ -328,7 +330,7 @@
         "BuildWorld_LoadsFormalEquipmentCatalogForShop",
         "LocalTickShop_UsesFormalGoldPurchaseRecipeAndUndo"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/UiLuaPagesSmokeTests.cs",
@@ -336,7 +338,7 @@
       "testFunctions": [
         "LuaPages_BootAndFlowRoutes"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/RuntimeConfig/Editor/Tests/HeroDisplayAndPrefabRangeTests.cs",
@@ -354,11 +356,18 @@
         "OverlappingKindRanges_AreRejected",
         "ReplaceForTests_WhenInputsAliasBackingLists_PreservesContent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "表现界面"
-  ]
+    "\u8868\u73B0\u754C\u9762"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:43.3210044\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

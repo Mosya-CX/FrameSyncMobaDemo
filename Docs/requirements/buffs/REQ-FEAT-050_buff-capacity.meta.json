@@ -1,46 +1,48 @@
 {
   "id": "REQ-FEAT-050",
-  "title": "Buff 上限优先级与驱逐",
+  "title": "Buff \u4E0A\u9650\u4F18\u5148\u7EA7\u4E0E\u9A71\u9010",
   "type": "requirement",
-  "status": "激活",
-  "domain": "增益",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "domain": "\u589E\u76CA",
   "path": "Docs/requirements/buffs/REQ-FEAT-050_buff-capacity.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 4,
+  "updatedAt": "2026-10-10T23:46:41.5272308\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
       "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13A. Buff 上限与优先级驱逐（正式扩展）",
+      "section": "13A. Buff \u4E0A\u9650\u4E0E\u4F18\u5148\u7EA7\u9A71\u9010\uFF08\u6B63\u5F0F\u6269\u5C55\uFF09",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
     },
     {
       "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
       "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13A.1 定位",
+      "section": "13A.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
     },
     {
       "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
       "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13A.2 配置",
+      "section": "13A.2 \u914D\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
     },
     {
       "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
       "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13A.3 驱逐规则",
+      "section": "13A.3 \u9A71\u9010\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
     },
     {
       "path": "Docs/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md",
       "sha256": "08cae79751918298c06b39a243f88aecc55cd3e37381bfbd890e2d93705cf47e",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13A.4 确定性要求",
+      "section": "13A.4 \u786E\u5B9A\u6027\u8981\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/BuffSystem_Design_v14_2_PermanentBuffRespawnPatch.md"
     }
   ],
@@ -51,7 +53,7 @@
       "symbols": [
         "BuffDefinition"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
@@ -59,7 +61,7 @@
       "symbols": [
         "BuffHandler"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/BlightStackMarkStructurePlayModeTests.cs",
@@ -67,7 +69,7 @@
       "testFunctions": [
         "ExternalBlightOnStructure_CreatesNoPresentationMark"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -90,7 +92,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -109,7 +111,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
@@ -118,7 +120,7 @@
         "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
         "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
@@ -133,7 +135,7 @@
         "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
         "WPassive_OnHit_DoesNotAffectStructure"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
@@ -147,7 +149,7 @@
         "OnKillStat_GrantsStatOnKill",
         "OnKillStat_StacksUpToMax"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
@@ -162,7 +164,7 @@
         "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
         "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
@@ -176,7 +178,7 @@
         "SecondR_UsesADifferentTagUid",
         "Blight_StacksAreAppliedAtConfiguredTicks"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
@@ -189,7 +191,7 @@
         "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
         "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
@@ -200,7 +202,7 @@
         "RangedMinion_AttacksMinion_AddsThreePointFivePercentCurrentHealth",
         "Minion_AttacksStructure_DealsSixtyPercent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
@@ -213,7 +215,7 @@
         "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
         "AssistHero_AppliesEmpoweredBonusToAssistant"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
@@ -230,7 +232,7 @@
         "InvalidExternalCrowdControl_IsNotHiddenByStructureFilter",
         "DeferredExternalEffects_AreFilteredBeforeSequenceAndSnapshot"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
@@ -246,7 +248,7 @@
         "FinishedItem_IsUnique_SecondPurchaseRejected",
         "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
@@ -258,7 +260,7 @@
         "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
         "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -269,7 +271,7 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -278,7 +280,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
@@ -288,7 +290,7 @@
         "Death_PreservesGlobalStatAndCombatModifierOwnership",
         "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -300,11 +302,740 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "增益"
-  ]
+    "\u589E\u76CA"
+  ],
+  "implementationEvidenceSnapshot": {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-10T23:41:45.7656314\u002B08:00",
+    "requirementBodyHash": "1d451ec631978d37e82afb64efd3829c19b0950c9e01dc6c192f1caea8451043",
+    "requirementEvidenceHash": "da91770ee700cf0f4c8056ed76aafc38a9423e4823b4c6387ab24e460274daac",
+    "plans": [
+      {
+        "id": "PLAN-0023",
+        "status": "\u5173\u95ED",
+        "bodyHash": "1d4b4d0d5769e10cf2be8e2fe6fe333b892a7eb82b8aa11fe96d9a71fcf8c894",
+        "evidenceHash": "d6d15701f568949adb752daebef21dafc2afe63d6f5586cd80daeeb947c8dbc2",
+        "requirementHash": "21d08e6f78c0189eede5207183aee26c6a09e1234953e4fe7887b84b2faf3470"
+      },
+      {
+        "id": "PLAN-0037",
+        "status": "\u5173\u95ED",
+        "bodyHash": "e3943c3919782a069012cc83e6fbef16e6d768d6487dd71ad2783c71cfe2c99f",
+        "evidenceHash": "6c202620946066c92b9aade1fb7f99367b503703da340ce1ed3103e06ff443f9",
+        "requirementHash": "21d08e6f78c0189eede5207183aee26c6a09e1234953e4fe7887b84b2faf3470"
+      },
+      {
+        "id": "PLAN-0058",
+        "status": "\u5173\u95ED",
+        "bodyHash": "1f9ba0c60b6a76d77347d6492e1294065e3403ecc6a0632050619425cb6fb718",
+        "evidenceHash": "46f6cd7fed3763044f81b40e816213db7e51694cb99e2792e0b7105d479b9ec8",
+        "requirementHash": "21d08e6f78c0189eede5207183aee26c6a09e1234953e4fe7887b84b2faf3470"
+      },
+      {
+        "id": "PLAN-0128",
+        "status": "\u5173\u95ED",
+        "bodyHash": "38c3c0bcd93d496f8caa423171f44c909912bb9df85168c85fcdadb2551f8654",
+        "evidenceHash": "de636658fa310b8f49d5ed2e9e06045ab29b895f8a1eedd49868dc50e6bf51c3",
+        "requirementHash": "21d08e6f78c0189eede5207183aee26c6a09e1234953e4fe7887b84b2faf3470"
+      }
+    ],
+    "files": [
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+        "currentHash": "b792c6c410bddb0a70c855b9fe624077f5a0d521e8b1e527a1c419f4752531f1",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/BlightStackMarkStructurePlayModeTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/BlightStackMarkStructurePlayModeTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "8ad04ea6ca0119045e15ebc8df4e8cb415740adce84c170ed169cabf9bc37ab9",
+        "currentHash": "8ad04ea6ca0119045e15ebc8df4e8cb415740adce84c170ed169cabf9bc37ab9",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "currentHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+        "currentHash": "e9e6678c5545f4e705ed1228d8dc836dcdd04217a0360a3d914e91879c2d6dc6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffDefinition.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffDefinition.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "a212995e7004ad81b7458faf29bef709d9043b609f9a199913ccd8c559ea4fa7",
+        "currentHash": "a212995e7004ad81b7458faf29bef709d9043b609f9a199913ccd8c559ea4fa7",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffHandler.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "currentHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "currentHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+        "currentHash": "f0486d48ea9f3dde736d168d396fea2ca595da2c4de4c632a4e4b4b7daf9fea8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+        "currentHash": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "currentHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+        "currentHash": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "currentHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+        "currentHash": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+        "currentHash": "33f4aa46286ce958b6751207d81083f05c47e8e56cc9d860af45188bc7ef094a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "6eda01992bdd94efe7e3e6d05d4b0c88b2d328e8293e3ff7300f67e3bfd7b730",
+        "currentHash": "6eda01992bdd94efe7e3e6d05d4b0c88b2d328e8293e3ff7300f67e3bfd7b730",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "e2427837e7915ce403f46f10b401818bb4ce883f366ff64fd75e1d903cc4aeee",
+        "currentHash": "e2427837e7915ce403f46f10b401818bb4ce883f366ff64fd75e1d903cc4aeee",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "befe86e69278bfcf13ba35b6eac2dd97d539a160cb0c306560becdea828d8b58",
+        "currentHash": "befe86e69278bfcf13ba35b6eac2dd97d539a160cb0c306560becdea828d8b58",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+        "currentHash": "73ce35e676fa558b444381fd25bca8c9702ffffbd88afdb853b4096831db4d41",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "01d291fac5c4ac3107fde051bb2e39a017248b44e2b0e309b5617bbdf8d1d457",
+        "currentHash": "01d291fac5c4ac3107fde051bb2e39a017248b44e2b0e309b5617bbdf8d1d457",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+        "currentHash": "f9295aab846ed88ae6d5855e79a73c0445f1e4a3e9914c62de9d1ce02df6eec2",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffBlackboard.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffBlackboard.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "5f94f512eb62b58dace61529df69bff870c1f15578ae7feabdf3c007626413b5",
+        "currentHash": "5f94f512eb62b58dace61529df69bff870c1f15578ae7feabdf3c007626413b5",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffConfigId.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffConfigId.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d06debd1840fb3ad521cb6e39312312946a18fe8559279d33f6fa7cb58bd447e",
+        "currentHash": "d06debd1840fb3ad521cb6e39312312946a18fe8559279d33f6fa7cb58bd447e",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffEffect.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+        "currentHash": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffHandler.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "currentHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffLifeRule.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffLifeRule.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a8b71953e9cee734ba9d93b3b930e73690021a4cc39ce082c37653bc8992097d",
+        "currentHash": "a8b71953e9cee734ba9d93b3b930e73690021a4cc39ce082c37653bc8992097d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffRuntime.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffRuntime.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "2356c459efa4d25efff15d22c8ca0d9d9b3826d0bec73ed0e94de53c73c6535a",
+        "currentHash": "2356c459efa4d25efff15d22c8ca0d9d9b3826d0bec73ed0e94de53c73c6535a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffSnapshot.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffSnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "7e32b28e1d330ac3b3037a84504c362203fdfaaae8dd344b69457c0c0a7c7559",
+        "currentHash": "7e32b28e1d330ac3b3037a84504c362203fdfaaae8dd344b69457c0c0a7c7559",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs|PLAN-0023|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+        "currentHash": "76acb569bf351a63438e84463602f92a9da0bc75a59b9245e3337766a07b8753",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs|PLAN-0023|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "currentHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs|PLAN-0023|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "currentHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0023|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0023",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffEffect.cs|PLAN-0037|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0037",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+        "currentHash": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffHandler.cs|PLAN-0037|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+        "repository": null,
+        "planId": "PLAN-0037",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "currentHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs|PLAN-0037|source",
+        "path": "Assets/Scripts/Gameplay/Equipment/EquipmentHandler.cs",
+        "repository": null,
+        "planId": "PLAN-0037",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "43a7635662621e4b4cb4c01ff5214da3423a0fd87ae11c84e6c761d9791b3fa1",
+        "currentHash": "43a7635662621e4b4cb4c01ff5214da3423a0fd87ae11c84e6c761d9791b3fa1",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs|PLAN-0037|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+        "repository": null,
+        "planId": "PLAN-0037",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "currentHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs|PLAN-0037|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+        "repository": null,
+        "planId": "PLAN-0037",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "currentHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs|PLAN-0037|test",
+        "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
+        "repository": null,
+        "planId": "PLAN-0037",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+        "currentHash": "b4ea3914ce38d8acbe5a99609edc955455108b0f02b713d996b7383a8e7621e0",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0037|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0037",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffEffect.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+        "currentHash": "d3cd616fcba925d5451cebada3ef9640c54dcc71dc30d377467a9e220166f701",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffHandler.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "currentHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffRuntime.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffRuntime.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "2356c459efa4d25efff15d22c8ca0d9d9b3826d0bec73ed0e94de53c73c6535a",
+        "currentHash": "2356c459efa4d25efff15d22c8ca0d9d9b3826d0bec73ed0e94de53c73c6535a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/Effects/HealOverTimeBuffEffect.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/Effects/HealOverTimeBuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "c96d35045a95fc30da195c44671fc3363cfd1f0cef8c44abcceb3bbb3f0b6991",
+        "currentHash": "c96d35045a95fc30da195c44671fc3363cfd1f0cef8c44abcceb3bbb3f0b6991",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/Effects/OnDeathExplosionBuffEffect.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/Effects/OnDeathExplosionBuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "f77d60c8a11e72b197653ef06c0533456d5cdf3360bb2fb9ba44f9d75b829d6f",
+        "currentHash": "f77d60c8a11e72b197653ef06c0533456d5cdf3360bb2fb9ba44f9d75b829d6f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/Effects/OnKillStatBuffEffect.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/Effects/OnKillStatBuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d5d7c8978e333209806fc8f681d11367ca5db8fa6260f035157247b4acc99d90",
+        "currentHash": "d5d7c8978e333209806fc8f681d11367ca5db8fa6260f035157247b4acc99d90",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/Effects/PeriodicDamageBuffEffect.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/Effects/PeriodicDamageBuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "7852684b1b0a0caa8e99ec3ad4764d3a2feb865f37ecc32a28c4d61eff1c2a95",
+        "currentHash": "7852684b1b0a0caa8e99ec3ad4764d3a2feb865f37ecc32a28c4d61eff1c2a95",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/Effects/ShieldOverTimeBuffEffect.cs|PLAN-0058|source",
+        "path": "Assets/Scripts/Gameplay/Buff/Effects/ShieldOverTimeBuffEffect.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a4748de755c87be42c2e69bece2872bdaa60040b9aa8615522dfb1a2842099e6",
+        "currentHash": "a4748de755c87be42c2e69bece2872bdaa60040b9aa8615522dfb1a2842099e6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs|PLAN-0058|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+        "repository": null,
+        "planId": "PLAN-0058",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "currentHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/AbilityHandler.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Ability/AbilityHandler.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "cba899eb50f7cc4011625d424ca4e210a0c6bc8ecd7f16699f68fd7365648050",
+        "currentHash": "cba899eb50f7cc4011625d424ca4e210a0c6bc8ecd7f16699f68fd7365648050",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/Stages/ApplyBuffStageDef.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Ability/Stages/ApplyBuffStageDef.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "e90152af2fb54e7a81218100212083b4f53fcfd752181a4951607f224c1159e7",
+        "currentHash": "e90152af2fb54e7a81218100212083b4f53fcfd752181a4951607f224c1159e7",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffBlackboard.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffBlackboard.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "5f94f512eb62b58dace61529df69bff870c1f15578ae7feabdf3c007626413b5",
+        "currentHash": "5f94f512eb62b58dace61529df69bff870c1f15578ae7feabdf3c007626413b5",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffDefinition.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffDefinition.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a212995e7004ad81b7458faf29bef709d9043b609f9a199913ccd8c559ea4fa7",
+        "currentHash": "a212995e7004ad81b7458faf29bef709d9043b609f9a199913ccd8c559ea4fa7",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffInfo.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffInfo.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "452a6153480c0ad8b8e292530269b0564608ec36df7e98d6c391883f718a11d1",
+        "currentHash": "452a6153480c0ad8b8e292530269b0564608ec36df7e98d6c391883f718a11d1",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Equipment/BuffEquipmentModule.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Equipment/BuffEquipmentModule.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "c614dea429a2ed869158d75a0b03bfca5153f7b77ccea52a4a60992645f8a229",
+        "currentHash": "c614dea429a2ed869158d75a0b03bfca5153f7b77ccea52a4a60992645f8a229",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Projectile/ProjectileEffectDispatcher.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Projectile/ProjectileEffectDispatcher.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "35ccff832a7cd81bb9ba35505184bb5b9143f9a8789a025d925d0e37da031ec0",
+        "currentHash": "35ccff832a7cd81bb9ba35505184bb5b9143f9a8789a025d925d0e37da031ec0",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Stats/StatHandler.cs|PLAN-0128|source",
+        "path": "Assets/Scripts/Gameplay/Stats/StatHandler.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "61fefc93a6d2a59998fa2d5501a42fd12e70db6335ea966eb159055f43a033bd",
+        "currentHash": "61fefc93a6d2a59998fa2d5501a42fd12e70db6335ea966eb159055f43a033bd",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs|PLAN-0128|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "currentHash": "3a3e38ae389bd6d9e70e5e96f8080ad4a76b4e5e52d76547a4acd742720edeee",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs|PLAN-0128|test",
+        "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
+        "repository": null,
+        "planId": "PLAN-0128",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+        "currentHash": "6ae647b65c5cbedd9f36dc262b36d0d83ed2a9a2bfccdcc5fabfb704e00ca803",
+        "state": "\u5DF2\u6838\u9A8C"
+      }
+    ]
+  },
+  "implementationEvidenceCheck": {
+    "state": "\u6709\u6548",
+    "checkedAt": "2026-10-10T23:46:41.5269019\u002B08:00",
+    "reasons": [
+      "\u5F53\u524D\u9700\u6C42\u6B63\u6587\u3001\u5173\u8054\u8BA1\u5212\u8BC1\u636E\u548C\u5DF2\u767B\u8BB0\u6587\u4EF6\u6307\u7EB9\u4E0E\u5FEB\u7167\u4E00\u81F4\u3002"
+    ]
+  }
 }

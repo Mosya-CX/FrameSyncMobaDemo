@@ -1,39 +1,41 @@
 {
   "id": "REQ-FEAT-015",
-  "title": "稳定 UID 与参与者身份",
+  "title": "\u7A33\u5B9A UID \u4E0E\u53C2\u4E0E\u8005\u8EAB\u4EFD",
   "type": "requirement",
-  "status": "激活",
-  "domain": "确定性基础",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u786E\u5B9A\u6027\u57FA\u7840",
   "path": "Docs/requirements/determinism/REQ-FEAT-015_stable-unit-identity.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:38.0048565\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.1 UID 公共要求",
+      "section": "6.1 UID \u516C\u5171\u8981\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 序列归属",
+      "section": "6.2 \u5E8F\u5217\u5F52\u5C5E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 确定性要求",
+      "section": "6.3 \u786E\u5B9A\u6027\u8981\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.4 快照边界",
+      "section": "6.4 \u5FEB\u7167\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
@@ -50,7 +52,7 @@
       "symbols": [
         "OriginActionId"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Projectile/ProjectileUid.cs",
@@ -58,7 +60,7 @@
       "symbols": [
         "ProjectileUid"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Unit/Core/GameplayParticipantId.cs",
@@ -66,7 +68,7 @@
       "symbols": [
         "GameplayParticipantId"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
@@ -74,7 +76,7 @@
       "symbols": [
         "UnitUid"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitUidTests.cs",
@@ -85,7 +87,7 @@
         "CompareTo_UsesFormalLexicographicOrder",
         "SortingSameValues_IsIndependentOfInsertionOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/ClientContent/Tests/PlayMode/ProjectileViewBinderPlayModeTests.cs",
@@ -93,7 +95,7 @@
       "testFunctions": [
         "ProjectileViewLeaseStaysResidentAcrossLifetimes"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ChecksumNewStateCoverageTests.cs",
@@ -110,7 +112,7 @@
         "Checksum_ChangesWhenDeferredDamageEffectOrdinalDiffers",
         "Checksum_ChangesWhenJungleLeashPatienceDiffers"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -133,7 +135,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
@@ -143,7 +145,7 @@
         "PiercingFalloff_OverridePath_MatchesStaticConfig",
         "PiercingFalloff_ClampsAtMinDamageRatio"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -162,7 +164,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
@@ -177,7 +179,7 @@
         "DeferredDamage_CaptureRestorePreservesActionIdentity",
         "NegativeEffectOrdinal_IsRejectedAtDamageBoundaries"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
@@ -191,7 +193,7 @@
         "AttackSpeed_ModifiesCooldown",
         "AttackSpeed_PositiveBase_StartsAttack"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
@@ -203,7 +205,7 @@
         "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
         "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
@@ -211,7 +213,7 @@
       "testFunctions": [
         "ServerFirstTick_MatchesClientPredictionFirstTick"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs",
@@ -221,7 +223,7 @@
         "RespawnPosition_IsCapturedFromInitialSpawn",
         "CompleteRespawn_TeleportsToHomeSpawnPosition"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -230,7 +232,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SpawnUnitTests.cs",
@@ -250,7 +252,7 @@
         "SpawnUnit_MultipleTeams_GetByTeamWorks",
         "SpawnUnit_CanRunActiveGameplayThisTick_FalseDuringSpawnTick"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -262,7 +264,7 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
@@ -281,7 +283,7 @@
         "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
         "LobbyState_WireCodec_RoundTripsFullSelection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/BootstrapPayloadWireCodecTests.cs",
@@ -290,7 +292,7 @@
         "Payload_RoundTrip_IsCanonical",
         "Payload_TrailingBytes_AreRejected"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/FrameworkSmokeBootstrapTests.cs",
@@ -299,7 +301,7 @@
         "Bootstrap_BakesAssetsSpawnsUnitAndBoundsCatchUpTicks",
         "Bootstrap_BindsSelectedHeroPrototypeToPlayerSpawn"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs",
@@ -309,7 +311,7 @@
         "AdjacentToggleInputs_SendTheirDistinctCommandSequences",
         "RebuiltCollector_DoesNotResendSuccessfulIdentity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
@@ -327,7 +329,7 @@
         "GoldIncome_BatchTracking_HasInitialState",
         "EquipmentSlotSnapshot_EmptyByDefault"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationEventDispatcherTests.cs",
@@ -337,7 +339,7 @@
         "CompleteIdentity_KeepsDistinctEvents",
         "VfxAndSfx_UseIndependentHistories"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ShopFoundationEditModeTests.cs",
@@ -352,7 +354,7 @@
         "Snapshot_RoundTrip_PreservesTrader",
         "Snapshot_RoundTrip_PreservesOperationLog"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/BlightStackMarkStructurePlayModeTests.cs",
@@ -360,7 +362,7 @@
       "testFunctions": [
         "ExternalBlightOnStructure_CreatesNoPresentationMark"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
@@ -369,7 +371,7 @@
         "GameScene_FirstWaveUsesFlowFieldsAndMoves",
         "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
@@ -377,7 +379,7 @@
       "testFunctions": [
         "ClientFixture_BindsAssignedUnitAndAdvances"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
@@ -387,7 +389,7 @@
         "MiniWolf_AlertAndMoveRoutesPlayLoopedMotion",
         "BoundDriver_AlertRouteUsesAuthoredTransitionClips"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
@@ -399,7 +401,7 @@
         "ToggleNoAim_SimulatedWPressCommitsImmediately",
         "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/TowerTargetLinePresenterPlayModeTests.cs",
@@ -407,7 +409,7 @@
       "testFunctions": [
         "DisplayTarget_SwitchesWithIntent_AndStopsForDeadTarget"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
@@ -415,7 +417,7 @@
       "testFunctions": [
         "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
@@ -427,7 +429,7 @@
         "Restore_RejectsMissingGameplayParticipantIdentity",
         "SnapshotStore_WritesExplicitOuterSchemaAndNextTick"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
@@ -451,7 +453,7 @@
         "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
         "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/EquipmentShopViewTests.cs",
@@ -459,7 +461,7 @@
       "testFunctions": [
         "CurrentAvailableGold_UsesConfirmedIncomeAndEffectiveShopDelta"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
@@ -476,7 +478,7 @@
         "ReplacedPredictedMove_RestoreThenAuthoritativeMoveMatchesCleanReplay",
         "ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/GameBootstrapPayloadContractTests.cs",
@@ -486,7 +488,7 @@
         "Payload_MappingTeamMismatch_FailsDeterministically",
         "VersionHandshake_AnyCriticalMismatch_Fails"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/GameplayCommandContractTests.cs",
@@ -497,7 +499,7 @@
         "Collector_ProducesSameCanonicalOrderForDifferentInsertionOrder",
         "MoveMerge_UsesHighestCommandSequenceForSameFormalKey"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
@@ -509,7 +511,7 @@
         "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
         "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/MatchGoldRewardTests.cs",
@@ -521,7 +523,7 @@
         "HeroKill_WithTwoAssistants_Splits300As180_60_60",
         "HeroKill_WithoutAssistants_ConfirmsFull300ToKiller"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/MatchRewardDistanceTests.cs",
@@ -529,7 +531,7 @@
       "testFunctions": [
         "MinionExperienceRadius_UsesStatToLogicDistanceScale"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/MatchTopologyTests.cs",
@@ -539,7 +541,7 @@
         "InitialAuthoritySnapshot_DiscardsClientAuthoringSpawnQueue",
         "InitialTopology_RejectsBasesOnSameTeam"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/PhysicsCollisionResolverTests.cs",
@@ -547,7 +549,7 @@
       "testFunctions": [
         "ClampPosition_DoesNotResolveMoverAgainstItself"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -564,7 +566,7 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
@@ -574,7 +576,7 @@
         "AreaDamageStage_DoesNotDamageEnemyStructure",
         "SpawnProjectileStage_FiresTowardAimDirection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AssistEventIntegrationTests.cs",
@@ -583,7 +585,7 @@
         "HeroDeath_RaisesAssistOnce_AndEmpowersAssistantRevenge",
         "Killer_IsHighestEffectiveLifeDamageContributorInLethalBatch"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AStarPathfindingTests.cs",
@@ -606,7 +608,7 @@
         "FpDiagnostic_ZeroDotProductAndComparison",
         "FpDiagnostic_CellToWorldRoundTrip"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
@@ -635,7 +637,7 @@
         "Resolve_RejectsMissingActiveTarget",
         "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BlightDetonationAndOnHitPassiveTests.cs",
@@ -650,7 +652,7 @@
         "WPassive_OnHitDealsBonusDamageAndAppliesBlight",
         "WPassive_OnHit_DoesNotAffectStructure"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BuffEffectLibraryTests.cs",
@@ -664,7 +666,7 @@
         "OnKillStat_GrantsStatOnKill",
         "OnKillStat_StacksUpToMax"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/BuffReactionAndInfoTests.cs",
@@ -679,7 +681,7 @@
         "BuffInfo_ExposesReadOnlyFields_AndTagQuery",
         "StatModifierEffect_ValuePerStack_UpdatesOnStackChange"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CapabilityStateTests.cs",
@@ -694,7 +696,7 @@
         "DeathRespawnOnOneUnit_DoesNotAffectAnother",
         "RequestRecoverFromDying_KeepsCapabilitiesEnabled"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatContributionEventLogTests.cs",
@@ -706,7 +708,7 @@
         "ResolveAssistants_ExcludesKillerAndSortsAscending",
         "SnapshotRoundTrip_PreservesEventsAndLastHit"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatModifierSetSnapshotTests.cs",
@@ -723,7 +725,7 @@
         "Capture_AfterDetach_OnlyCapturesRemaining",
         "ResolveAndRebuild_AreNoOps"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatModifierSetTests.cs",
@@ -741,7 +743,7 @@
         "CombatModifierId_SameTickSameKey_SameId",
         "CombatModifierId_DifferentTick_DifferentId"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs",
@@ -763,7 +765,7 @@
         "SameTickMutualLethal_DrainReactionsRecoverBothSources",
         "MixedDamageAndSpecificShields_AreIndependentOfSubmissionOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
@@ -784,7 +786,7 @@
         "CalculatePhysicalDamage_HighArmor_ReducedHeavily",
         "BeginTick_ClearsActiveQueue"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
@@ -798,7 +800,7 @@
         "SecondR_UsesADifferentTagUid",
         "Blight_StacksAreAppliedAtConfiguredTicks"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CrowdControlHandlerTests.cs",
@@ -819,7 +821,7 @@
         "Restore_ThrowsWhenSnapshotForcedMoveHandleMissingFromInstances",
         "Lifecycle_DeathClearsButKeepsIds_InitResetsIds"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRequestTests.cs",
@@ -835,7 +837,7 @@
         "RequestPurchase_MissingIncomeView_Throws",
         "RequestPurchase_MissingSubmitter_Throws"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopRuntimeSnapshotTests.cs",
@@ -844,7 +846,7 @@
         "RestoreResolve_PreservesValidControlledUnitReference",
         "Restore_RejectsNoncanonicalPlayerOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/EquipmentShopTransactionTests.cs",
@@ -855,7 +857,7 @@
         "DuplicateRule_AllowsSmallItemsAndRejectsFinishedItems",
         "SequentialPurchases_AfterSnapshotRestore_MatchContinuousState"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/EquipmentTagAndCatalogTests.cs",
@@ -866,7 +868,7 @@
         "Catalog_Bake_SealsDefinitionsAndUniqueTags",
         "Catalog_Bake_DuplicateId_Throws"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/GuinsoosRagebladeEquipmentTests.cs",
@@ -879,7 +881,7 @@
         "TriggerCounter_RestoreReplaysSameRepeatedOnHit",
         "EquipmentModuleState_SurvivesDeathRespawnHandleRebuild"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
@@ -893,7 +895,7 @@
         "FlowFieldRvoMovement_ProducesRepeatableMotion",
         "RadiusAwareLineOfSight_BlocksLargeUnit"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/LifeStateMachineTests.cs",
@@ -915,7 +917,7 @@
         "NullUnit_ThrowsArgumentNullException",
         "TransitionOnOneUnit_DoesNotAffectAnother"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MapPathfindingAssetIntegrationTests.cs",
@@ -931,7 +933,7 @@
         "AStar_TraversesEveryAuthoredLaneSegment",
         "FlowFieldAndRvo_ProduceStableWalkableProgress"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionInitialBuffTests.cs",
@@ -942,7 +944,7 @@
         "RangedMinion_AttacksMinion_AddsThreePointFivePercentCurrentHealth",
         "Minion_AttacksStructure_DealsSixtyPercent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MinionThreatSystemTests.cs",
@@ -957,7 +959,7 @@
         "RestoreReplacement_UnsubscribesPreviousController",
         "RestoredController_DoesNotReapplyStaleAttackThreat"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
@@ -971,7 +973,7 @@
         "RvoGrid_IncludesIdleUnitAsObstacle",
         "RvoNeighborSelection_IsInputOrderIndependent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementIntegrationTests.cs",
@@ -993,7 +995,7 @@
         "IdleUnit_DoesNotMove",
         "TwoWorlds_SameSpawnAndMove_SameResult"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/NonHeroTopologyTests.cs",
@@ -1026,7 +1028,7 @@
         "JungleCamp_SnapshotRoundTrip_PreservesRuntimeState",
         "DynamicNavigation_CurrentTickOccupancy_DetoursByStableUidPriority"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PassivePAbilityTests.cs",
@@ -1039,7 +1041,7 @@
         "EmpoweredExpiry_ReappliesOneNormalBuffAfterNonHeroKills",
         "AssistHero_AppliesEmpoweredBonusToAssistant"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PathfindingIntegrationTests.cs",
@@ -1060,7 +1062,7 @@
         "MinionWave_MultipleAgents_FollowFlowFieldTowardTarget",
         "FlowFieldPlusRVO_AgentsAvoidEachOtherWhileMarching"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/RangeQueryServiceTests.cs",
@@ -1081,7 +1083,7 @@
         "Query_Deterministic_SameInputSameResult",
         "Query_GridDedup_SameEntityInMultipleCells_ReturnsOnce"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/RVOSystemTests.cs",
@@ -1093,7 +1095,7 @@
         "SolveAvoidance_ZeroDesiredVelocity_ReturnsZero",
         "SolveAvoidance_StableOrdering_IndependentOfInputOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SkillPointAllocationTests.cs",
@@ -1104,7 +1106,7 @@
         "Ultimate_UnlocksAtLevelSix",
         "GrantExperience_GrantsExactlyOneSkillPointPerLevel"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StageDefBakeTests.cs",
@@ -1126,7 +1128,7 @@
         "ApplyBuffStageDef_OnExit_DoesNotThrow",
         "DashStageDef_OnExit_DoesNotThrow"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StatHandlerModifierTests.cs",
@@ -1142,7 +1144,7 @@
         "TryGetModifier_ReturnsCorrectView",
         "ClearModifiers_RemovesAll"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StructureExternalEffectPolicyTests.cs",
@@ -1159,7 +1161,7 @@
         "InvalidExternalCrowdControl_IsNotHiddenByStructureFilter",
         "DeferredExternalEffects_AreFilteredBeforeSequenceAndSnapshot"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
@@ -1175,7 +1177,7 @@
         "FinishedItem_IsUnique_SecondPurchaseRejected",
         "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/TeamIdAndRegistryTests.cs",
@@ -1197,7 +1199,7 @@
         "GetUnitsByTeam_NoMatchingTeam_ReturnsEmpty",
         "GetUnitsByTeam_DoesNotMutateRegistry"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitActiveGameplayGateTests.cs",
@@ -1212,7 +1214,7 @@
         "CompletedTick_RetainsLatestPublishedContextForReadback",
         "DifferentSpawnLogicTicksAtSameCurrentTick_RespectIndividualGates"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitAssemblyBoundaryTests.cs",
@@ -1222,7 +1224,7 @@
         "RuntimeAssembly_HasIntendedDeterministicDependency",
         "RuntimeAssembly_HasRequiredUnityComponentDependency"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitKindQueryTests.cs",
@@ -1237,7 +1239,7 @@
         "UnitKind_AndUnitSubKindId_AreImmutableAfterConstruction",
         "GetUnitsByKind_AfterUnregister_ReflectsCurrentRegistry"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
@@ -1247,7 +1249,7 @@
         "Death_PreservesGlobalStatAndCombatModifierOwnership",
         "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRegistryTests.cs",
@@ -1257,7 +1259,7 @@
         "MissingAndAliasUnregister_AreRejectedWithoutMutation",
         "NullMutationInputs_AreRejected"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitSpawnSequenceTests.cs",
@@ -1272,7 +1274,7 @@
         "Unit_BaseGoldAndExperience_PreservedAfterConstruction",
         "Unit_DefaultPrototypeAndReward_AreZero"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
@@ -1285,7 +1287,7 @@
         "ResetForPool_ResetsAllDynamicState",
         "ManyUnits_StableReadOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitWorldTests.cs",
@@ -1295,7 +1297,7 @@
         "StableReadOrder_IsIndependentOfRegistrationOrder",
         "SuccessfulUnregister_RemovesLookupAndAllowsReregistration"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/WallPenetrationTests.cs",
@@ -1307,7 +1309,7 @@
         "Detect_ClampedMagnitude",
         "Detect_Deterministic_SameInputSameOutput"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
@@ -1339,11 +1341,18 @@
         "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
         "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "确定性基础"
-  ]
+    "\u786E\u5B9A\u6027\u57FA\u7840"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:38.0041864\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

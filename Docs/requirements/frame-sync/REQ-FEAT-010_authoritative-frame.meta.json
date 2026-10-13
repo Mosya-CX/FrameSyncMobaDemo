@@ -1,39 +1,41 @@
 {
   "id": "REQ-FEAT-010",
-  "title": "权威帧校验与恢复",
+  "title": "\u6743\u5A01\u5E27\u6821\u9A8C\u4E0E\u6062\u590D",
   "type": "requirement",
-  "status": "激活",
-  "domain": "帧同步",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u5E27\u540C\u6B65",
   "path": "Docs/requirements/frame-sync/REQ-FEAT-010_authoritative-frame.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:01.2388817\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.1 `AuthorityFrame`",
+      "section": "12.1 \u0060AuthorityFrame\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.2 服务端流程",
+      "section": "12.2 \u670D\u52A1\u7AEF\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.3 `SharedGameplayChecksum`",
+      "section": "12.3 \u0060SharedGameplayChecksum\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.4 本地校验历史",
+      "section": "12.4 \u672C\u5730\u6821\u9A8C\u5386\u53F2",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
@@ -47,14 +49,14 @@
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.6 传输策略",
+      "section": "12.6 \u4F20\u8F93\u7B56\u7565",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
       "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "十四、`AuthorityRecovery` 与本地确认历史",
+      "section": "\u5341\u56DB\u3001\u0060AuthorityRecovery\u0060 \u4E0E\u672C\u5730\u786E\u8BA4\u5386\u53F2",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
     }
   ],
@@ -65,7 +67,7 @@
       "symbols": [
         "AuthorityFrame"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/AuthorityReplication.cs",
@@ -73,7 +75,7 @@
       "symbols": [
         "AuthorityFrameReplicator"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/PredictionRollbackCoordinator.cs",
@@ -81,7 +83,7 @@
       "symbols": [
         "LocalFrameVerificationRecord"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
@@ -105,7 +107,7 @@
         "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
         "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/ApplicationFlowTests.cs",
@@ -124,11 +126,18 @@
         "Lobby_SelectionSnapshot_ReflectsHeroAndFlags",
         "LobbyState_WireCodec_RoundTripsFullSelection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "帧同步"
-  ]
+    "\u5E27\u540C\u6B65"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:01.2380018\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

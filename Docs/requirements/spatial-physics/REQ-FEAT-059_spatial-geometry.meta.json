@@ -1,102 +1,104 @@
 {
   "id": "REQ-FEAT-059",
-  "title": "定点形状与范围查询",
+  "title": "\u5B9A\u70B9\u5F62\u72B6\u4E0E\u8303\u56F4\u67E5\u8BE2",
   "type": "requirement",
-  "status": "激活",
-  "domain": "空间物理",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "domain": "\u7A7A\u95F4\u7269\u7406",
   "path": "Docs/requirements/spatial-physics/REQ-FEAT-059_spatial-geometry.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 4,
+  "updatedAt": "2026-10-10T23:47:48.3846174\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.1 支持形状",
+      "section": "4.1 \u652F\u6301\u5F62\u72B6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.2 `PhysicsShape2D` 数据",
+      "section": "4.2 \u0060PhysicsShape2D\u0060 \u6570\u636E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.3 Point 形状语义",
+      "section": "4.3 Point \u5F62\u72B6\u8BED\u4E49",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.4 形状世界参数计算",
+      "section": "4.4 \u5F62\u72B6\u4E16\u754C\u53C2\u6570\u8BA1\u7B97",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.5 AABB 更新",
+      "section": "4.5 AABB \u66F4\u65B0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.1 定位",
+      "section": "8.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.2 通用单位目标过滤",
+      "section": "8.2 \u901A\u7528\u5355\u4F4D\u76EE\u6807\u8FC7\u6EE4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.3 输入输出",
+      "section": "8.3 \u8F93\u5165\u8F93\u51FA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.4 查询流程",
+      "section": "8.4 \u67E5\u8BE2\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.5 形状精确测试",
+      "section": "8.5 \u5F62\u72B6\u7CBE\u786E\u6D4B\u8BD5",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "8.6 稳定排序",
+      "section": "8.6 \u7A33\u5B9A\u6392\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.1 定位",
+      "section": "9.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.2 查询描述",
+      "section": "9.2 \u67E5\u8BE2\u63CF\u8FF0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
@@ -110,35 +112,35 @@
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.4 单位分类过滤",
+      "section": "9.4 \u5355\u4F4D\u5206\u7C7B\u8FC7\u6EE4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.5 完整过滤",
+      "section": "9.5 \u5B8C\u6574\u8FC7\u6EE4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.6 查询顺序",
+      "section": "9.6 \u67E5\u8BE2\u987A\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.7 查询伪代码",
+      "section": "9.7 \u67E5\u8BE2\u4F2A\u4EE3\u7801",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.8 排序模式",
+      "section": "9.8 \u6392\u5E8F\u6A21\u5F0F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     }
   ],
@@ -147,7 +149,7 @@
       "path": "Assets/Scripts/FrameSync/ProjectileHitResolver.cs",
       "sha256": "c954c8cd7c09669032b3691534facdcbc05d3d0e2edab1339a9f6673dce705c1",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs",
@@ -155,7 +157,7 @@
       "symbols": [
         "RangeQueryService"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
@@ -163,7 +165,7 @@
       "symbols": [
         "PhysicsGeometry2D"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
@@ -171,7 +173,7 @@
       "symbols": [
         "PhysicsShape2D"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/RangeQueryServiceTests.cs",
@@ -192,7 +194,7 @@
         "Query_Deterministic_SameInputSameResult",
         "Query_GridDedup_SameEntityInMultipleCells_ReturnsOnce"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
@@ -211,7 +213,7 @@
         "DegenerateSegmentAndRect_ProduceExactPointBounds",
         "IdenticalInputs_ProduceIdenticalRawBounds"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
@@ -226,7 +228,7 @@
         "NegativeRectHalfExtents_AreRejected",
         "SegmentAndRectUnusedFields_MustRemainZero"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
@@ -249,7 +251,7 @@
         "Restore_PreservesLogicSecondsPerTick_SoMotionKeepsAuthoredSpeed",
         "InfernalChainsHit_SpawnsStationaryContainmentProjectile"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
@@ -259,7 +261,7 @@
         "PiercingFalloff_OverridePath_MatchesStaticConfig",
         "PiercingFalloff_ClampsAtMinDamageRatio"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
@@ -269,7 +271,7 @@
         "AreaDamageStage_DoesNotDamageEnemyStructure",
         "SpawnProjectileStage_FiresTowardAimDirection"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/PhysicsCollisionResolverTests.cs",
@@ -277,7 +279,7 @@
       "testFunctions": [
         "ClampPosition_DoesNotResolveMoverAgainstItself"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -296,7 +298,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
@@ -325,7 +327,7 @@
         "Resolve_RejectsMissingActiveTarget",
         "Taunt_ControlAttackBypassesOnlyVoluntaryAttackBlock"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
@@ -339,7 +341,7 @@
         "SecondR_UsesADifferentTagUid",
         "Blight_StacksAreAppliedAtConfiguredTicks"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
@@ -353,7 +355,7 @@
         "FlowFieldRvoMovement_ProducesRepeatableMotion",
         "RadiusAwareLineOfSight_BlocksLargeUnit"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
@@ -367,7 +369,7 @@
         "RvoGrid_IncludesIdleUnitAsObstacle",
         "RvoNeighborSelection_IsInputOrderIndependent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PhysicsCircleTargetNarrowPhaseTests.cs",
@@ -405,7 +407,7 @@
         "RectOverlaps_NegativeHalfExtent_Throws",
         "RepeatedCalls_ProduceIdenticalResults"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PhysicsSpatialGrid2DTests.cs",
@@ -420,7 +422,7 @@
         "Clear_RemovesAllEntities",
         "Constructor_NonPositiveCellSize_Throws"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
@@ -440,7 +442,7 @@
         "PresentationSmoothing_InterpolatesWithoutChangingLogicPose",
         "PresentationSmoothing_FacingChurnDoesNotRestartPositionInterpolation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
@@ -452,7 +454,7 @@
         "BuildUnitFinalGrid_Deterministic_SameRegistration_SameGridState",
         "BuildUnitFinalGrid_DoesNotFilterByBusinessState"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/UnitCollisionEventBufferTests.cs",
@@ -460,11 +462,1056 @@
       "testFunctions": [
         "DetectCaptureRestore_PreservesEnterExitSemantics"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "空间物理"
-  ]
+    "\u7A7A\u95F4\u7269\u7406"
+  ],
+  "implementationEvidenceSnapshot": {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-10T23:42:42.315592\u002B08:00",
+    "requirementBodyHash": "c8a220e9f7dfcf84a53eb3af80afcc04e25f3624acc7450bc9c819f0e79a891d",
+    "requirementEvidenceHash": "e3c6de36afbe8c17774072e02669f8ec4ba899b065baf886ede250b42e3d0135",
+    "plans": [
+      {
+        "id": "PLAN-0006",
+        "status": "\u5173\u95ED",
+        "bodyHash": "e8193282f67a2fba043efc7d49f301609b1bc7c73cbdde16cd266ed7d5260b93",
+        "evidenceHash": "41f55bb4d563ce73a3aef61761ffd521f1332c2e1647c5283dfb27c46223a2e3",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      },
+      {
+        "id": "PLAN-0007",
+        "status": "\u5173\u95ED",
+        "bodyHash": "7cc0ebe798d8bf1332595c33b66cf016e831cf881128b606d97be9ac162f2a6c",
+        "evidenceHash": "c756d9b58e8e79b75989bb4468710ac40d2b3fcb674476516183129f30298d7e",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      },
+      {
+        "id": "PLAN-0008",
+        "status": "\u5173\u95ED",
+        "bodyHash": "e64b0510689f848348fc99ce1a0bf6e5735c8361db3cbe32927e1a0adcdd46e5",
+        "evidenceHash": "884c6d340e2589e3898fbcbbf25d9615f57cf70f7689a4fa68470b9ee2156fae",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      },
+      {
+        "id": "PLAN-0012",
+        "status": "\u5173\u95ED",
+        "bodyHash": "7704a4fe0d85fe4240b04f36e1bc663afaca72329c3f9870512f2e7cdf46a968",
+        "evidenceHash": "ebf57b43e751bd4740641f80fd28a974cac01bed63e07dbe63af86bab58c515a",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      },
+      {
+        "id": "PLAN-0015",
+        "status": "\u5173\u95ED",
+        "bodyHash": "ead78d473ce44eaf4d115b24b5ce6b2b053a8bc5a0a6d5d52e40ebc93e2fb345",
+        "evidenceHash": "271534a1de244efc437e1c791e607069ab4e58541a2ecfa6db6fc03a74e48a25",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      },
+      {
+        "id": "PLAN-0016",
+        "status": "\u5173\u95ED",
+        "bodyHash": "19945c6dbbd3606f518d8d124c93e9e8efdab523d82ec3fe34ac194c67f278bb",
+        "evidenceHash": "ea603cb91ca32733e2877b9b764b6029532204c17f38c49300568d06b71b8e53",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      },
+      {
+        "id": "PLAN-0019",
+        "status": "\u5173\u95ED",
+        "bodyHash": "32380a8ca9d72450418b89e25396cd4cf0edaa125b35fa46421553a5480dc2a0",
+        "evidenceHash": "2e465531028724cdce3ac67ee92d7ef69788e450ba0fe114d1f39302ddb18576",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      },
+      {
+        "id": "PLAN-0029",
+        "status": "\u5173\u95ED",
+        "bodyHash": "b80fad84d06f7e3d20f6d9b56b10a6bc1e12a1c2c06985ee46b134251aee683f",
+        "evidenceHash": "9a2cda0ebeb680c840ee533c0de07ec93a6104bacdf6f0c69452e270eafacaf0",
+        "requirementHash": "404e5ff4798cd5ee09efa0d041b9fdf07941124b6e7ef97a43ed7e9086e9cfac"
+      }
+    ],
+    "files": [
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/ProjectileHitResolver.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/FrameSync/ProjectileHitResolver.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "c954c8cd7c09669032b3691534facdcbc05d3d0e2edab1339a9f6673dce705c1",
+        "currentHash": "c954c8cd7c09669032b3691534facdcbc05d3d0e2edab1339a9f6673dce705c1",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/PhysicsCollisionResolverTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/PhysicsCollisionResolverTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "38c7018a9610ac66af7edff48f4fb39c1c1dc89f237ef4409848154fc0d34f6a",
+        "currentHash": "38c7018a9610ac66af7edff48f4fb39c1c1dc89f237ef4409848154fc0d34f6a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/ProjectileCombatPipelineTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "currentHash": "e8fa2a325c967fb5ddc63b7b13222bf0c6d5eddd4158b80719945b2a80840668",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/FrameSync/Tests/ProjectileFalloffTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+        "currentHash": "8a842866fd03784a1ab5561ffe5a0a199e1f20c6c20fbf043c64d8839c5f391f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "f69a9b3788c2084423eedd8cab7aa16971eaed6a88a037c97cbd4c8d32ff9e7f",
+        "currentHash": "f69a9b3788c2084423eedd8cab7aa16971eaed6a88a037c97cbd4c8d32ff9e7f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "currentHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AbilityAimStageTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+        "currentHash": "52d896463e44a810aa55bd0637dcb2565df052562f3a4676756654c48469c193",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AttackHandlerTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+        "currentHash": "ff43fdbf0944c8c2299bce7deaa21d3fec4abb0506e81071a0d212ccdec10d8a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CorruptionVineSpreadTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "currentHash": "167407e67ef49280237d7cbe662ab640a26f90b6fc4982ca0614fbe9a7032eaf",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+        "currentHash": "ddb4f3cabd33fc2687c20ae746236f66143ee401b05e2f8b3d9e8aa772b60131",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "4c9b9506a7f2a49aac9f93214d6d6d1355115a633adde9a71f89840bd549b560",
+        "currentHash": "4c9b9506a7f2a49aac9f93214d6d6d1355115a633adde9a71f89840bd549b560",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/RangeQueryServiceTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Gameplay/Tests/RangeQueryServiceTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "bbcf9b27d3d7b1300f7ab4ac8598207d46c86dd762b1f26dffead28a436c32a6",
+        "currentHash": "bbcf9b27d3d7b1300f7ab4ac8598207d46c86dd762b1f26dffead28a436c32a6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+        "currentHash": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+        "currentHash": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsCircleTargetNarrowPhaseTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsCircleTargetNarrowPhaseTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "01f91627a7250aa2f18f92e32dd913947a4729b97404a8180b9f7f12f302c7b8",
+        "currentHash": "01f91627a7250aa2f18f92e32dd913947a4729b97404a8180b9f7f12f302c7b8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+        "currentHash": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+        "currentHash": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsSpatialGrid2DTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsSpatialGrid2DTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "60b0337fbc0f0685f55a93990108a187e8eb394262a5d81d47d810345bf67c34",
+        "currentHash": "60b0337fbc0f0685f55a93990108a187e8eb394262a5d81d47d810345bf67c34",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "currentHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "currentHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/UnitCollisionEventBufferTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Physics/Tests/UnitCollisionEventBufferTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "3ee4fd83d4975ae43a52698f94fbe4b3d9cbe1417ebfbd64023788b135021c40",
+        "currentHash": "3ee4fd83d4975ae43a52698f94fbe4b3d9cbe1417ebfbd64023788b135021c40",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/AssemblyInfo.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Bootstrap/AssemblyInfo.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "c691ebb060260ec62cad8d21555f780d80869af82e2a0fd11374fdd4af478254",
+        "currentHash": "c691ebb060260ec62cad8d21555f780d80869af82e2a0fd11374fdd4af478254",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Deterministic/AssemblyInfo.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Deterministic/AssemblyInfo.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3cfa9dfcda7e34e29b5789d2d32f5906b33db561f9763058a657f990a843ecc3",
+        "currentHash": "3cfa9dfcda7e34e29b5789d2d32f5906b33db561f9763058a657f990a843ecc3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntity2D.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "currentHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsBounds2D.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsBounds2D.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "8a25fd6795092a98e40b933f40b3d2d2ae8d71edcba219e66803e8f7f2d5f152",
+        "currentHash": "8a25fd6795092a98e40b933f40b3d2d2ae8d71edcba219e66803e8f7f2d5f152",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+        "currentHash": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+        "currentHash": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsShapeKind.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsShapeKind.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d46f5a044df8b269e80916f8cf5325a76b8e925b120e0030733dfa8eccbf08bd",
+        "currentHash": "d46f5a044df8b269e80916f8cf5325a76b8e925b120e0030733dfa8eccbf08bd",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsTransform2D.cs|PLAN-0006|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsTransform2D.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "842748b01f2044837ceb224776bbe4455eed83c6e066f852ad68f47b8c71da0e",
+        "currentHash": "842748b01f2044837ceb224776bbe4455eed83c6e066f852ad68f47b8c71da0e",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs|PLAN-0006|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+        "currentHash": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs|PLAN-0006|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+        "currentHash": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs|PLAN-0006|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
+        "repository": null,
+        "planId": "PLAN-0006",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "currentHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs|PLAN-0007|source",
+        "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomService.cs",
+        "repository": null,
+        "planId": "PLAN-0007",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "6d49fae34c4e0b5b22c31cb5fdad8038d43388516e67a40cbcda22666e2f6025",
+        "currentHash": "6d49fae34c4e0b5b22c31cb5fdad8038d43388516e67a40cbcda22666e2f6025",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs|PLAN-0007|source",
+        "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0007",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "f061cd1bf7b3e41c7003b82d7abade7840a5ec92d409d660e9f7c0153ef63c27",
+        "currentHash": "f061cd1bf7b3e41c7003b82d7abade7840a5ec92d409d660e9f7c0153ef63c27",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs|PLAN-0007|test",
+        "path": "Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs",
+        "repository": null,
+        "planId": "PLAN-0007",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "f4a30f46a30513cb1fc5671af345864b7929b1709723da0162e3de76d65e69ba",
+        "currentHash": "f4a30f46a30513cb1fc5671af345864b7929b1709723da0162e3de76d65e69ba",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/AbilitySignal.cs|PLAN-0007|source",
+        "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+        "repository": null,
+        "planId": "PLAN-0007",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+        "currentHash": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntity2D.cs|PLAN-0007|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+        "repository": null,
+        "planId": "PLAN-0007",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "currentHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsWorld.cs|PLAN-0007|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+        "repository": null,
+        "planId": "PLAN-0007",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "currentHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/AbilitySignal.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+        "currentHash": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntity2D.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "currentHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsWorld.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "currentHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsBounds2D.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsBounds2D.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "8a25fd6795092a98e40b933f40b3d2d2ae8d71edcba219e66803e8f7f2d5f152",
+        "currentHash": "8a25fd6795092a98e40b933f40b3d2d2ae8d71edcba219e66803e8f7f2d5f152",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsGeometry2D.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+        "currentHash": "026f26d6c50e04d3132f7af364182e7e95388dce250ea16dbb12c35e9e769db6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsShape2D.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+        "currentHash": "e85349255a12f48a49871f83f05e39c8b5c6a4eb3cc2bdae204faab9dd95fc2a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Geometry/PhysicsShapeKind.cs|PLAN-0008|source",
+        "path": "Assets/Scripts/Physics/Geometry/PhysicsShapeKind.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d46f5a044df8b269e80916f8cf5325a76b8e925b120e0030733dfa8eccbf08bd",
+        "currentHash": "d46f5a044df8b269e80916f8cf5325a76b8e925b120e0030733dfa8eccbf08bd",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs|PLAN-0008|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsGeometry2DTests.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+        "currentHash": "988073a9f4775bdab402b92a61bfb0eecf29c2a7daa756f010f76febd1222315",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs|PLAN-0008|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsShape2DTests.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+        "currentHash": "dfa0b3d47d0e71b62cc379085e085b74eb59364e1b08fd64c31e960b642e7f37",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs|PLAN-0008|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
+        "repository": null,
+        "planId": "PLAN-0008",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "currentHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs|PLAN-0012|test",
+        "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+        "repository": null,
+        "planId": "PLAN-0012",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "currentHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsWorld.cs|PLAN-0012|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+        "repository": null,
+        "planId": "PLAN-0012",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "currentHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs|PLAN-0012|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+        "repository": null,
+        "planId": "PLAN-0012",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "currentHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs|PLAN-0012|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
+        "repository": null,
+        "planId": "PLAN-0012",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+        "currentHash": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs|PLAN-0015|source",
+        "path": "Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs",
+        "repository": null,
+        "planId": "PLAN-0015",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "f69a9b3788c2084423eedd8cab7aa16971eaed6a88a037c97cbd4c8d32ff9e7f",
+        "currentHash": "f69a9b3788c2084423eedd8cab7aa16971eaed6a88a037c97cbd4c8d32ff9e7f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0015|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0015",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntity2D.cs|PLAN-0015|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+        "repository": null,
+        "planId": "PLAN-0015",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "currentHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntityKind.cs|PLAN-0015|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntityKind.cs",
+        "repository": null,
+        "planId": "PLAN-0015",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "9f65a46299a30f4595f1f29b4a9aeaa5b43d65827bb0ac57c8309afee1932486",
+        "currentHash": "9f65a46299a30f4595f1f29b4a9aeaa5b43d65827bb0ac57c8309afee1932486",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntityQueryInfo.cs|PLAN-0015|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntityQueryInfo.cs",
+        "repository": null,
+        "planId": "PLAN-0015",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "c3c15850dcef86f0ed4d3fd91e8285f9f572e03c8755998ab4b0c6fff8211069",
+        "currentHash": "c3c15850dcef86f0ed4d3fd91e8285f9f572e03c8755998ab4b0c6fff8211069",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/RuntimeUidQueryValue.cs|PLAN-0015|source",
+        "path": "Assets/Scripts/Physics/Core/RuntimeUidQueryValue.cs",
+        "repository": null,
+        "planId": "PLAN-0015",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "59bcf2cb75a4f990e4a93b071b2e3a2856c71cb528231b49f0f1f49383ec5f69",
+        "currentHash": "59bcf2cb75a4f990e4a93b071b2e3a2856c71cb528231b49f0f1f49383ec5f69",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsEntityQueryInfoTests.cs|PLAN-0015|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsEntityQueryInfoTests.cs",
+        "repository": null,
+        "planId": "PLAN-0015",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "ff9ce1c22ae480d19f17aa997a9abd787bc2af3489ab4d2f71ce2bc0ebf49194",
+        "currentHash": "ff9ce1c22ae480d19f17aa997a9abd787bc2af3489ab4d2f71ce2bc0ebf49194",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntity2D.cs|PLAN-0016|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+        "repository": null,
+        "planId": "PLAN-0016",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "currentHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsWorld.cs|PLAN-0016|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+        "repository": null,
+        "planId": "PLAN-0016",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "currentHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs|PLAN-0016|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
+        "repository": null,
+        "planId": "PLAN-0016",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+        "currentHash": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs|PLAN-0019|source",
+        "path": "Assets/Scripts/Gameplay/TargetFilter/RangeQueryService.cs",
+        "repository": null,
+        "planId": "PLAN-0019",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "f69a9b3788c2084423eedd8cab7aa16971eaed6a88a037c97cbd4c8d32ff9e7f",
+        "currentHash": "f69a9b3788c2084423eedd8cab7aa16971eaed6a88a037c97cbd4c8d32ff9e7f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsSpatialGrid2D.cs|PLAN-0019|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsSpatialGrid2D.cs",
+        "repository": null,
+        "planId": "PLAN-0019",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "8285fd5130ccdedced59760f45a4b09b2033c08a8a3ab93979283dda7baf5202",
+        "currentHash": "8285fd5130ccdedced59760f45a4b09b2033c08a8a3ab93979283dda7baf5202",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsWorld.cs|PLAN-0019|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+        "repository": null,
+        "planId": "PLAN-0019",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "currentHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsWorldSettings.cs|PLAN-0019|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsWorldSettings.cs",
+        "repository": null,
+        "planId": "PLAN-0019",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "10948d73f78f08c70ec50f89c68ef308c088ab975424da94fec2938340d0a6dc",
+        "currentHash": "10948d73f78f08c70ec50f89c68ef308c088ab975424da94fec2938340d0a6dc",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/RuntimeUidQueryValue.cs|PLAN-0019|source",
+        "path": "Assets/Scripts/Physics/Core/RuntimeUidQueryValue.cs",
+        "repository": null,
+        "planId": "PLAN-0019",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "59bcf2cb75a4f990e4a93b071b2e3a2856c71cb528231b49f0f1f49383ec5f69",
+        "currentHash": "59bcf2cb75a4f990e4a93b071b2e3a2856c71cb528231b49f0f1f49383ec5f69",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PhysicsSpatialGrid2DTests.cs|PLAN-0019|test",
+        "path": "Assets/Scripts/Physics/Tests/PhysicsSpatialGrid2DTests.cs",
+        "repository": null,
+        "planId": "PLAN-0019",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "60b0337fbc0f0685f55a93990108a187e8eb394262a5d81d47d810345bf67c34",
+        "currentHash": "60b0337fbc0f0685f55a93990108a187e8eb394262a5d81d47d810345bf67c34",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs|PLAN-0019|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+        "repository": null,
+        "planId": "PLAN-0019",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "currentHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/GameplaySnapshot.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/FrameSync/GameplaySnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+        "currentHash": "68ea7fd51c27f5fc56bdaa20c30c6590cb9b032e9a9fe9a72a292581b2ce0e30",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Buff/BuffHandler.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/Gameplay/Buff/BuffHandler.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "currentHash": "080aeb4abbe2734b3a742dd56bb03fb3daee2ee0bba66604697ce3b1353b773f",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Combat/CombatEvents.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/Gameplay/Combat/CombatEvents.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+        "currentHash": "6ba4dcd2eb5d25652408a97c89e3236d7b64ced2b97592a261a0aa53ea7ae4bb",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Combat/CombatSystem.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+        "currentHash": "fd3feb517981dfd8b82ea000fcd8b940a9bec3ed94df047254ee39b180b37b48",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs|PLAN-0029|test",
+        "path": "Assets/Scripts/Gameplay/Tests/CombatSystemTests.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+        "currentHash": "be9305dca53f08663927e10820e4db955aac6caf9746324300c2bf984416a801",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/UnitEventBus.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b10d17906ddd900a03bb45d305e41d9870ffe2e2f29f6535ccfb58f6fe2a246d",
+        "currentHash": "b10d17906ddd900a03bb45d305e41d9870ffe2e2f29f6535ccfb58f6fe2a246d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsRuntimeSnapshot.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsRuntimeSnapshot.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "fa594e39c9e6e7582ed1ad0897365302b40f90f3b10ef2af3a70774cc7438887",
+        "currentHash": "fa594e39c9e6e7582ed1ad0897365302b40f90f3b10ef2af3a70774cc7438887",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsWorld.cs|PLAN-0029|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsWorld.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "currentHash": "a69123843c80c2dfd67b47f0b8f354f87708bd1ffa50e426bf710bcc99fc299d",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs|PLAN-0029|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "currentHash": "3147ad5afaf2963c61f692fd52b3738be9744551604b124c03f2351a0ecd8735",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs|PLAN-0029|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
+        "repository": null,
+        "planId": "PLAN-0029",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+        "currentHash": "88131e40958c2a9d0d5f1097da170392c3f18a5b96366c1ddef4290275613bae",
+        "state": "\u5DF2\u6838\u9A8C"
+      }
+    ]
+  },
+  "implementationEvidenceCheck": {
+    "state": "\u6709\u6548",
+    "checkedAt": "2026-10-10T23:47:48.3840827\u002B08:00",
+    "reasons": [
+      "\u5F53\u524D\u9700\u6C42\u6B63\u6587\u3001\u5173\u8054\u8BA1\u5212\u8BC1\u636E\u548C\u5DF2\u767B\u8BB0\u6587\u4EF6\u6307\u7EB9\u4E0E\u5FEB\u7167\u4E00\u81F4\u3002"
+    ]
+  }
 }

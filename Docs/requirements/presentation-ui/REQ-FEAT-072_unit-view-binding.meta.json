@@ -1,179 +1,181 @@
 {
   "id": "REQ-FEAT-072",
-  "title": "单位视图绑定与语义挂点",
+  "title": "\u5355\u4F4D\u89C6\u56FE\u7ED1\u5B9A\u4E0E\u8BED\u4E49\u6302\u70B9",
   "type": "requirement",
-  "status": "激活",
-  "domain": "表现界面",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u8868\u73B0\u754C\u9762",
   "path": "Docs/requirements/presentation-ui/REQ-FEAT-072_unit-view-binding.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:44.6320286\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.1 表现层负责什么",
+      "section": "1.1 \u8868\u73B0\u5C42\u8D1F\u8D23\u4EC0\u4E48",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.2 三个表现模块彼此独立",
+      "section": "1.2 \u4E09\u4E2A\u8868\u73B0\u6A21\u5757\u5F7C\u6B64\u72EC\u7ACB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.3 与 `PhysicsEntity2D` 的边界",
+      "section": "1.3 \u4E0E \u0060PhysicsEntity2D\u0060 \u7684\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.4 数据恢复标记",
+      "section": "1.4 \u6570\u636E\u6062\u590D\u6807\u8BB0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.5 `SimulationTickContext` 的使用规则",
+      "section": "1.5 \u0060SimulationTickContext\u0060 \u7684\u4F7F\u7528\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.1 定位",
+      "section": "2.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.2 `UnitPresentationRegistry`",
+      "section": "2.2 \u0060UnitPresentationRegistry\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.3 Host 不做的事",
+      "section": "2.3 Host \u4E0D\u505A\u7684\u4E8B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.1 定位",
+      "section": "6.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 语义挂点",
+      "section": "6.2 \u8BED\u4E49\u6302\u70B9",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 挂点缺失处理",
+      "section": "6.3 \u6302\u70B9\u7F3A\u5931\u5904\u7406",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.4 `SocketProfile`",
+      "section": "6.4 \u0060SocketProfile\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.1 攻击序列空闲重置、后摇恢复与新攻击流程",
+      "section": "9.1 \u653B\u51FB\u5E8F\u5217\u7A7A\u95F2\u91CD\u7F6E\u3001\u540E\u6447\u6062\u590D\u4E0E\u65B0\u653B\u51FB\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.2 多阶段技能流程",
+      "section": "9.2 \u591A\u9636\u6BB5\u6280\u80FD\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.3 动态蓄力表现",
+      "section": "9.3 \u52A8\u6001\u84C4\u529B\u8868\u73B0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.4 Buff 持续特效与音效",
+      "section": "9.4 Buff \u6301\u7EED\u7279\u6548\u4E0E\u97F3\u6548",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.5 Control 动画流程",
+      "section": "9.5 Control \u52A8\u753B\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "9.6 死亡与复活表现流程",
+      "section": "9.6 \u6B7B\u4EA1\u4E0E\u590D\u6D3B\u8868\u73B0\u6D41\u7A0B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.1 单位框架 v20 侧",
+      "section": "10.1 \u5355\u4F4D\u6846\u67B6 v20 \u4FA7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.2 技能系统 v14 侧",
+      "section": "10.2 \u6280\u80FD\u7CFB\u7EDF v14 \u4FA7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.3 攻击系统 v6.1 侧最小接缝",
+      "section": "10.3 \u653B\u51FB\u7CFB\u7EDF v6.1 \u4FA7\u6700\u5C0F\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.4 VFX 与 SFX 事件接口",
+      "section": "10.4 VFX \u4E0E SFX \u4E8B\u4EF6\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.5 公共 `GlobalPrefabTable` 运行时接缝",
+      "section": "10.5 \u516C\u5171 \u0060GlobalPrefabTable\u0060 \u8FD0\u884C\u65F6\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "10.6 帧同步审查清单",
+      "section": "10.6 \u5E27\u540C\u6B65\u5BA1\u67E5\u6E05\u5355",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     }
   ],
@@ -184,7 +186,7 @@
       "symbols": [
         "PresentationSocketSet"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/UnitPresentationHost.cs",
@@ -192,7 +194,7 @@
       "symbols": [
         "UnitPresentationHost"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/UnitPresentationRegistry.cs",
@@ -200,7 +202,7 @@
       "symbols": [
         "UnitPresentationRegistry"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
@@ -212,7 +214,7 @@
         "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
         "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitAddressablesMigrationTests.cs",
@@ -223,7 +225,7 @@
         "ClientViewsContainPresentationHostButNoGameplayRoot",
         "ClientViewRootsAreAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
@@ -239,7 +241,7 @@
         "OutlineBakeRunsAfterWingVisibility",
         "AttachedVfx_WorldDirectionDoesNotInheritLaterHostTurn"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
@@ -249,7 +251,7 @@
         "MiniWolf_AlertAndMoveRoutesPlayLoopedMotion",
         "BoundDriver_AlertRouteUsesAuthoredTransitionClips"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
@@ -257,7 +259,7 @@
       "testFunctions": [
         "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -268,11 +270,18 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "表现界面"
-  ]
+    "\u8868\u73B0\u754C\u9762"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:44.6271681\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

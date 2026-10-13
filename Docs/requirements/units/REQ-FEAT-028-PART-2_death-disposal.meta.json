@@ -3,10 +3,11 @@
   "title": "\u6B63\u5F0F\u6B7B\u4EA1\u6E05\u7406\u4E0E\u5904\u7F6E",
   "type": "requirement",
   "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
   "domain": "\u5355\u4F4D",
   "path": "Docs/requirements/units/REQ-FEAT-028-PART-2_death-disposal.md",
-  "version": 2,
-  "implementationState": "\u5B58\u5728\u6E90\u7801\uFF1B\u5C1A\u672A\u9010\u6761\u884C\u4E3A\u590D\u6838",
+  "version": 5,
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
@@ -1293,5 +1294,13 @@
   "tags": [
     "\u5355\u4F4D"
   ],
-  "updatedAt": "2026-10-04T23:36:01.0078171\u002B08:00"
+  "updatedAt": "2026-10-11T15:14:34.2574503\u002B08:00",
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-11T15:14:34.2568849\u002B08:00",
+    "reasons": [
+      "\u6CA1\u6709\u5173\u8054\u7684\u5DF2\u5173\u95ED\u8BA1\u5212\u3002",
+      "\u8BB0\u5F55\u7684\u6587\u4EF6\u6307\u7EB9\u5DF2\u4E0E\u5F53\u524D\u6587\u4EF6\u4E0D\u540C\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

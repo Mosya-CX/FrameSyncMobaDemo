@@ -1,46 +1,48 @@
 {
   "id": "REQ-FEAT-014",
-  "title": "确定性随机与定点计算",
+  "title": "\u786E\u5B9A\u6027\u968F\u673A\u4E0E\u5B9A\u70B9\u8BA1\u7B97",
   "type": "requirement",
-  "status": "激活",
-  "domain": "确定性基础",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u786E\u5B9A\u6027\u57FA\u7840",
   "path": "Docs/requirements/determinism/REQ-FEAT-014_deterministic-random.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:36.6377297\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.1 单一逻辑随机源",
+      "section": "16.1 \u5355\u4E00\u903B\u8F91\u968F\u673A\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.2 状态与快照",
+      "section": "16.2 \u72B6\u6001\u4E0E\u5FEB\u7167",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.3 常用函数",
+      "section": "16.3 \u5E38\u7528\u51FD\u6570",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.4 核心伪代码",
+      "section": "16.4 \u6838\u5FC3\u4F2A\u4EE3\u7801",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
       "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "十一、`DeterministicRandomSnapshot`",
+      "section": "\u5341\u4E00\u3001\u0060DeterministicRandomSnapshot\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
     }
   ],
@@ -51,7 +53,7 @@
       "symbols": [
         "DeterministicRandomService"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Deterministic/Random/DeterministicRandomSnapshot.cs",
@@ -59,7 +61,7 @@
       "symbols": [
         "DeterministicRandomSnapshot"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Deterministic/Tests/DeterministicRandomServiceTests.cs",
@@ -94,7 +96,7 @@
         "ExecutionMode_DoesNotChangeRandomResults",
         "InvalidExclusiveRanges_AreRejected"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatEnhancementTests.cs",
@@ -108,7 +110,7 @@
         "AttackSpeed_ModifiesCooldown",
         "AttackSpeed_PositiveBase_StartsAttack"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/BootstrapPayloadWireCodecTests.cs",
@@ -117,7 +119,7 @@
         "Payload_RoundTrip_IsCanonical",
         "Payload_TrailingBytes_AreRejected"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
@@ -135,7 +137,7 @@
         "GoldIncome_BatchTracking_HasInitialState",
         "EquipmentSlotSnapshot_EmptyByDefault"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Deterministic/Tests/DeterministicAssemblyBoundaryTests.cs",
@@ -143,7 +145,7 @@
       "testFunctions": [
         "RuntimeAssembly_HasNoForbiddenDirectDependency"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
@@ -155,7 +157,7 @@
         "Restore_RejectsMissingGameplayParticipantIdentity",
         "SnapshotStore_WritesExplicitOuterSchemaAndNextTick"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/GameBootstrapPayloadContractTests.cs",
@@ -165,7 +167,7 @@
         "Payload_MappingTeamMismatch_FailsDeterministically",
         "VersionHandshake_AnyCriticalMismatch_Fails"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatActionIdentityTests.cs",
@@ -180,7 +182,7 @@
         "DeferredDamage_CaptureRestorePreservesActionIdentity",
         "NegativeEffectOrdinal_IsRejectedAtDamageBoundaries"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/CombatSameTickFairnessTests.cs",
@@ -202,7 +204,7 @@
         "SameTickMutualLethal_DrainReactionsRecoverBothSources",
         "MixedDamageAndSpecificShields_AreIndependentOfSubmissionOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/SunderedSkyEquipmentTests.cs",
@@ -218,11 +220,18 @@
         "FinishedItem_IsUnique_SecondPurchaseRejected",
         "MaxHealthItem_EquipAndUnequip_SyncCurrentHealth"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "确定性基础"
-  ]
+    "\u786E\u5B9A\u6027\u57FA\u7840"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:36.6369363\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

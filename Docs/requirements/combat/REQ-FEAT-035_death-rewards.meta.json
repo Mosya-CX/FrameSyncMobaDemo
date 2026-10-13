@@ -1,25 +1,27 @@
 {
   "id": "REQ-FEAT-035",
-  "title": "死亡奖励与贡献窗口",
+  "title": "\u6B7B\u4EA1\u5956\u52B1\u4E0E\u8D21\u732E\u7A97\u53E3",
   "type": "requirement",
-  "status": "激活",
-  "domain": "战斗",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u6218\u6597",
   "path": "Docs/requirements/combat/REQ-FEAT-035_death-rewards.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:08.5083116\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.14 CombatContributionEventLog：跨 Tick 战斗事件日志",
+      "section": "7.14 CombatContributionEventLog\uFF1A\u8DE8 Tick \u6218\u6597\u4E8B\u4EF6\u65E5\u5FD7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.1 总体定位",
+      "section": "11.1 \u603B\u4F53\u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
@@ -33,56 +35,56 @@
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.3 全局奖励参数",
+      "section": "11.3 \u5168\u5C40\u5956\u52B1\u53C2\u6570",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.4 小兵死亡奖励",
+      "section": "11.4 \u5C0F\u5175\u6B7B\u4EA1\u5956\u52B1",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.5 英雄死亡奖励",
+      "section": "11.5 \u82F1\u96C4\u6B7B\u4EA1\u5956\u52B1",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.6 野怪死亡奖励",
+      "section": "11.6 \u91CE\u602A\u6B7B\u4EA1\u5956\u52B1",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.7 防御塔死亡奖励",
+      "section": "11.7 \u9632\u5FA1\u5854\u6B7B\u4EA1\u5956\u52B1",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.8 确定性整数分配",
+      "section": "11.8 \u786E\u5B9A\u6027\u6574\u6570\u5206\u914D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.9 ExperienceSettlement：本地帧立即结算",
+      "section": "11.9 ExperienceSettlement\uFF1A\u672C\u5730\u5E27\u7ACB\u5373\u7ED3\u7B97",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.10 GoldIncomeAllocation 与统一金币请求",
+      "section": "11.10 GoldIncomeAllocation \u4E0E\u7EDF\u4E00\u91D1\u5E01\u8BF7\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     },
     {
@@ -96,7 +98,7 @@
       "path": "Docs/Design/moba_combat_system_design_v13_2.md",
       "sha256": "61645c34f1e9fd4f47445796ea9d4665a3a4c1a8474442fb1cf4ace21fdc0bc3",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.12 MatchStatisticsRuntime 与外部边界",
+      "section": "11.12 MatchStatisticsRuntime \u4E0E\u5916\u90E8\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_combat_system_design_v13_2.md"
     }
   ],
@@ -105,7 +107,7 @@
       "path": "Assets/Scripts/Gameplay/Combat/CombatTickResult.cs",
       "sha256": "1e1f2bb1841401d96c6a643396d96dc87f4a23bc53cc993fbd265f2f429fa9ac",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/MatchGoldRewardTests.cs",
@@ -117,11 +119,18 @@
         "HeroKill_WithTwoAssistants_Splits300As180_60_60",
         "HeroKill_WithoutAssistants_ConfirmsFull300ToKiller"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "战斗"
-  ]
+    "\u6218\u6597"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:08.5078919\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

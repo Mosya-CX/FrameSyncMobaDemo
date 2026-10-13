@@ -1,207 +1,209 @@
 {
   "id": "REQ-FEAT-057",
-  "title": "金币批次确认与可用余额",
+  "title": "\u91D1\u5E01\u6279\u6B21\u786E\u8BA4\u4E0E\u53EF\u7528\u4F59\u989D",
   "type": "requirement",
-  "status": "激活",
-  "domain": "装备商店",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u88C5\u5907\u5546\u5E97",
   "path": "Docs/requirements/equipment-shop/REQ-FEAT-057_gold-accounting.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:52.5480199\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 唯一职责边界",
+      "section": "5.1 \u552F\u4E00\u804C\u8D23\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 对外接口",
+      "section": "5.2 \u5BF9\u5916\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 初始化",
+      "section": "5.3 \u521D\u59CB\u5316",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 Tick 构建与固定请求顺序",
+      "section": "5.4 Tick \u6784\u5EFA\u4E0E\u56FA\u5B9A\u8BF7\u6C42\u987A\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.5 记录与摘要",
+      "section": "5.5 \u8BB0\u5F55\u4E0E\u6458\u8981",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.6 AuthorityFrame 确认",
+      "section": "5.6 AuthorityFrame \u786E\u8BA4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.7 金币确认不触发主动回滚",
+      "section": "5.7 \u91D1\u5E01\u786E\u8BA4\u4E0D\u89E6\u53D1\u4E3B\u52A8\u56DE\u6EDA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.8 收入可用时机",
+      "section": "5.8 \u6536\u5165\u53EF\u7528\u65F6\u673A",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.9 商店可用金币",
+      "section": "5.9 \u5546\u5E97\u53EF\u7528\u91D1\u5E01",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.10 普通回滚",
+      "section": "5.10 \u666E\u901A\u56DE\u6EDA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md",
       "sha256": "655ba86307ff1d6317469362bb1819da8386a9e15eb823fd82118a5183490843",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.11 服务端持久化",
+      "section": "5.11 \u670D\u52A1\u7AEF\u6301\u4E45\u5316",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Flow_Integrated_System_Design_v10_2.md"
     },
     {
       "path": "Docs/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md",
       "sha256": "bd275c3ed9e51548e067b391bbc93dbc2d36686ffabb5d6e5aec9b6aecbcb71f",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "九、`GoldIncomeRuntime` 与快照边界",
+      "section": "\u4E5D\u3001\u0060GoldIncomeRuntime\u0060 \u4E0E\u5FEB\u7167\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/FrameSync_Snapshot_Contents_Appendix_v7_2.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.1 定位",
+      "section": "6.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 对外接口",
+      "section": "6.2 \u5BF9\u5916\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 主体结构与唯一所有权",
+      "section": "6.3 \u4E3B\u4F53\u7ED3\u6784\u4E0E\u552F\u4E00\u6240\u6709\u6743",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.4 初始化与初始金币",
+      "section": "6.4 \u521D\u59CB\u5316\u4E0E\u521D\u59CB\u91D1\u5E01",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.5 所有金币来源必须请求总控",
+      "section": "6.5 \u6240\u6709\u91D1\u5E01\u6765\u6E90\u5FC5\u987B\u8BF7\u6C42\u603B\u63A7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.6 金币记录与稳定请求顺序",
+      "section": "6.6 \u91D1\u5E01\u8BB0\u5F55\u4E0E\u7A33\u5B9A\u8BF7\u6C42\u987A\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.7 BeginTick、Request 与 Seal",
+      "section": "6.7 BeginTick\u3001Request \u4E0E Seal",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.8 批次、摘要与正式查询",
+      "section": "6.8 \u6279\u6B21\u3001\u6458\u8981\u4E0E\u6B63\u5F0F\u67E5\u8BE2",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.9 已接受 Tick 的金币确认",
+      "section": "6.9 \u5DF2\u63A5\u53D7 Tick \u7684\u91D1\u5E01\u786E\u8BA4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.10 客户端与服务端统一确认",
+      "section": "6.10 \u5BA2\u6237\u7AEF\u4E0E\u670D\u52A1\u7AEF\u7EDF\u4E00\u786E\u8BA4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.11 收入可用时机",
+      "section": "6.11 \u6536\u5165\u53EF\u7528\u65F6\u673A",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.12 累计金币与账户职责移交",
+      "section": "6.12 \u7D2F\u8BA1\u91D1\u5E01\u4E0E\u8D26\u6237\u804C\u8D23\u79FB\u4EA4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.13 服务端账户持久化",
+      "section": "6.13 \u670D\u52A1\u7AEF\u8D26\u6237\u6301\u4E45\u5316",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.14 出售金币不进入 GoldIncomeRuntime",
+      "section": "6.14 \u51FA\u552E\u91D1\u5E01\u4E0D\u8FDB\u5165 GoldIncomeRuntime",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.15 普通回滚",
+      "section": "6.15 \u666E\u901A\u56DE\u6EDA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.16 金币确认不主动触发商店重演",
+      "section": "6.16 \u91D1\u5E01\u786E\u8BA4\u4E0D\u4E3B\u52A8\u89E6\u53D1\u5546\u5E97\u91CD\u6F14",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     },
     {
@@ -215,7 +217,7 @@
       "path": "Docs/Design/moba_equipment_shop_gold_system_design_v12.md",
       "sha256": "0b0e73a327cfe3f64cb3a47861e8d6d9a49482c615adba363dad14212cb0b81a",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.18 生命周期约束",
+      "section": "6.18 \u751F\u547D\u5468\u671F\u7EA6\u675F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_equipment_shop_gold_system_design_v12.md"
     }
   ],
@@ -228,7 +230,7 @@
         "GoldIncomeRecordBatch",
         "GoldIncomeRuntime"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/GoldIncomeRuntimeContractTests.cs",
@@ -237,7 +239,7 @@
         "EmptyAndNonemptyTicks_SealDigestAndConfirmContinuously",
         "Restore_RejectsTamperedDigest"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
@@ -249,7 +251,7 @@
         "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
         "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayIntegrationTests.cs",
@@ -267,7 +269,7 @@
         "GoldIncome_BatchTracking_HasInitialState",
         "EquipmentSlotSnapshot_EmptyByDefault"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/BootstrapDeterminismProbeTests.cs",
@@ -275,7 +277,7 @@
       "testFunctions": [
         "ServerFirstTick_MatchesClientPredictionFirstTick"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/EquipmentShopViewTests.cs",
@@ -283,7 +285,7 @@
       "testFunctions": [
         "CurrentAvailableGold_UsesConfirmedIncomeAndEffectiveShopDelta"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/MatchGoldRewardTests.cs",
@@ -295,11 +297,18 @@
         "HeroKill_WithTwoAssistants_Splits300As180_60_60",
         "HeroKill_WithoutAssistants_ConfirmsFull300ToKiller"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "装备商店"
-  ]
+    "\u88C5\u5907\u5546\u5E97"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:52.5476639\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

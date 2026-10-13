@@ -1,19 +1,21 @@
 {
   "id": "REQ-FEAT-083",
-  "title": "增量更新与内容寻址分片",
+  "title": "\u589E\u91CF\u66F4\u65B0\u4E0E\u5185\u5BB9\u5BFB\u5740\u5206\u7247",
   "type": "requirement",
-  "status": "激活",
-  "domain": "启动器",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u542F\u52A8\u5668",
   "path": "Docs/requirements/launchers/REQ-FEAT-083_content-updates.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:14:42.6078811\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [],
   "evidence": [
     {
       "path": "Tools/UosGameLauncher/CdnContracts.cs",
       "sha256": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Tools/UosGameLauncher/CdnPackageBuilder.cs",
@@ -21,17 +23,24 @@
       "symbols": [
         "CdnPackageBuilder"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
       "sha256": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
       "testFunctions": [],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "启动器"
-  ]
+    "\u542F\u52A8\u5668"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:14:42.6073908\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

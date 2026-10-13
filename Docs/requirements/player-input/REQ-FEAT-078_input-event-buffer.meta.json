@@ -1,53 +1,55 @@
 {
   "id": "REQ-FEAT-078",
-  "title": "设备事件缓冲与 UI 门禁",
+  "title": "\u8BBE\u5907\u4E8B\u4EF6\u7F13\u51B2\u4E0E UI \u95E8\u7981",
   "type": "requirement",
-  "status": "激活",
-  "domain": "玩家输入",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "domain": "\u73A9\u5BB6\u8F93\u5165",
   "path": "Docs/requirements/player-input/REQ-FEAT-078_input-event-buffer.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 4,
+  "updatedAt": "2026-10-10T23:47:43.1306328\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.1 模块职责",
+      "section": "1.1 \u6A21\u5757\u804C\u8D23",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.2 当前输入范围",
+      "section": "1.2 \u5F53\u524D\u8F93\u5165\u8303\u56F4",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.3 UI 边界",
+      "section": "1.3 UI \u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "二、总体结构",
+      "section": "\u4E8C\u3001\u603B\u4F53\u7ED3\u6784",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.1 核心对象",
+      "section": "2.1 \u6838\u5FC3\u5BF9\u8C61",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.2 玩家与 AI 的分流",
+      "section": "2.2 \u73A9\u5BB6\u4E0E AI \u7684\u5206\u6D41",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
@@ -61,189 +63,189 @@
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.2 技能键按下与松开都采集为事件",
+      "section": "3.2 \u6280\u80FD\u952E\u6309\u4E0B\u4E0E\u677E\u5F00\u90FD\u91C7\u96C6\u4E3A\u4E8B\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.3 显式订阅",
+      "section": "3.3 \u663E\u5F0F\u8BA2\u9605",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 回调只写事件",
+      "section": "5.1 \u56DE\u8C03\u53EA\u5199\u4E8B\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 事件结构",
+      "section": "5.2 \u4E8B\u4EF6\u7ED3\u6784",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 同帧顺序",
+      "section": "5.3 \u540C\u5E27\u987A\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 缓冲上限",
+      "section": "5.4 \u7F13\u51B2\u4E0A\u9650",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.1 接口",
+      "section": "6.1 \u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.2 普通阻断",
+      "section": "6.2 \u666E\u901A\u963B\u65AD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.3 松键语义由技能输入组合决定",
+      "section": "6.3 \u677E\u952E\u8BED\u4E49\u7531\u6280\u80FD\u8F93\u5165\u7EC4\u5408\u51B3\u5B9A",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "6.4 门禁不是最终合法性",
+      "section": "6.4 \u95E8\u7981\u4E0D\u662F\u6700\u7EC8\u5408\u6CD5\u6027",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.1 Gameplay Action Map 启用",
+      "section": "16.1 Gameplay Action Map \u542F\u7528",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.2 禁用",
+      "section": "16.2 \u7981\u7528",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.3 ControlledUnit 变化",
+      "section": "16.3 ControlledUnit \u53D8\u5316",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.4 UI 阻断指针",
+      "section": "16.4 UI \u963B\u65AD\u6307\u9488",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.5 UI 打开后的技能键",
+      "section": "16.5 UI \u6253\u5F00\u540E\u7684\u6280\u80FD\u952E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "17.1 本地状态不参与 Gameplay 确定性",
+      "section": "17.1 \u672C\u5730\u72B6\u6001\u4E0D\u53C2\u4E0E Gameplay \u786E\u5B9A\u6027",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "17.2 Command 是输入事实",
+      "section": "17.2 Command \u662F\u8F93\u5165\u4E8B\u5B9E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "17.3 Focus / Commit 的 Tick 决定蓄力",
+      "section": "17.3 Focus / Commit \u7684 Tick \u51B3\u5B9A\u84C4\u529B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "17.4 本地状态与 Gameplay Runtime 同步",
+      "section": "17.4 \u672C\u5730\u72B6\u6001\u4E0E Gameplay Runtime \u540C\u6B65",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "18.1 本地诊断",
+      "section": "18.1 \u672C\u5730\u8BCA\u65AD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "18.2 离线检查错误",
+      "section": "18.2 \u79BB\u7EBF\u68C0\u67E5\u9519\u8BEF",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "18.3 无每帧 GC",
+      "section": "18.3 \u65E0\u6BCF\u5E27 GC",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "十九、当前版本明确不做",
+      "section": "\u5341\u4E5D\u3001\u5F53\u524D\u7248\u672C\u660E\u786E\u4E0D\u505A",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "二十、推荐实现顺序",
+      "section": "\u4E8C\u5341\u3001\u63A8\u8350\u5B9E\u73B0\u987A\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "22.1 结论",
+      "section": "22.1 \u7ED3\u8BBA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "22.2 编码时必须保持的三个跨模块契约",
+      "section": "22.2 \u7F16\u7801\u65F6\u5FC5\u987B\u4FDD\u6301\u7684\u4E09\u4E2A\u8DE8\u6A21\u5757\u5951\u7EA6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     },
     {
       "path": "Docs/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md",
       "sha256": "2b9b255c33e753806c494d46862807c3413818a0013e4ee7231a53961b34fc00",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "22.3 不允许程序员自行改变",
+      "section": "22.3 \u4E0D\u5141\u8BB8\u7A0B\u5E8F\u5458\u81EA\u884C\u6539\u53D8",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_Player_Input_Command_Module_Design_v1_1.md"
     }
   ],
@@ -254,7 +256,7 @@
       "symbols": [
         "GameplayInputGate"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
@@ -262,7 +264,7 @@
       "symbols": [
         "PlayerInputController"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
@@ -274,7 +276,7 @@
         "ToggleNoAim_SimulatedWPressCommitsImmediately",
         "VarusWThenQ_PendingFocusKeepsIndicatorAndBothCommands"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
@@ -282,7 +284,7 @@
       "testFunctions": [
         "ClientFixture_BindsAssignedUnitAndAdvances"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
@@ -294,7 +296,7 @@
         "GenericSkillIndicators_BindDedicatedRuntimeMaterials",
         "GenericSkillIndicators_RebindBeforeLeaseRelease_ReplacesOwnedInstances"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
@@ -326,11 +328,730 @@
         "InputGate_DuringMovableCastSession_MoveAllowedButAttackBlocked",
         "InputGate_DuringPureToggleSession_AttackRemainsAllowed"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "玩家输入"
-  ]
+    "\u73A9\u5BB6\u8F93\u5165"
+  ],
+  "implementationEvidenceSnapshot": {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-10T23:42:37.6858518\u002B08:00",
+    "requirementBodyHash": "3552384bd99d4d83a87a529c25f3056bb35e64ded630bd888a899588d673c2b4",
+    "requirementEvidenceHash": "ecb1443e6d26b31db5fcd1bb9afa080106095a66fb52f6dfc1b8a58308fb7c16",
+    "plans": [
+      {
+        "id": "PLAN-0031",
+        "status": "\u5173\u95ED",
+        "bodyHash": "6656f23f016de7c8908706d00b9d79d8a1efcefdd0b419b4051224510075b2d4",
+        "evidenceHash": "c1d7f6d1dee5db5bc554649e70de018a5e49b266af46c4aaff2c96e1c83df4c0",
+        "requirementHash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+      },
+      {
+        "id": "PLAN-0048",
+        "status": "\u5173\u95ED",
+        "bodyHash": "26c4d5fff8de4bb9708c7197fa30f4b66304c3d0128005b828b9dd67aaec487a",
+        "evidenceHash": "9721e762536ba515e6b210fd97a4b4c4f6c04410daaf5108c100e29c23764b11",
+        "requirementHash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+      },
+      {
+        "id": "PLAN-0115",
+        "status": "\u5173\u95ED",
+        "bodyHash": "695c9418040dd4e3935e5ff3c69e636ff6e19c18c29311cccfd950f753433722",
+        "evidenceHash": "e379e5622fe1e6a9aa0324419a88203af284dbc34c124dc38c74f48c8de7f260",
+        "requirementHash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+      },
+      {
+        "id": "PLAN-0135",
+        "status": "\u5173\u95ED",
+        "bodyHash": "2e55b1e459d5ebc0ff831c94fd26d246524ddbad1f57c319121791dcdea9f039",
+        "evidenceHash": "7d3b019745eadd24d92e8e7779fd92e105bafa6f940cb5b9f78adba0ec8f0f3a",
+        "requirementHash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+      },
+      {
+        "id": "PLAN-0149",
+        "status": "\u5173\u95ED",
+        "bodyHash": "099afb0b3aa2fc1b1428c4fb48d3ded4ff4c4d3f25ece8c6210d7840def157ae",
+        "evidenceHash": "8d98a29dde15b02ed86fd2e729ad3836920bfb692e9bf8f4739c605d85b35ef6",
+        "requirementHash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+      },
+      {
+        "id": "PLAN-0151",
+        "status": "\u5173\u95ED",
+        "bodyHash": "de4769d82e46c82720cf3f471128e3aa161831661e7ab6ddb6a4b6296c40a56e",
+        "evidenceHash": "7bf2678e6062ce838d3fdaf185e8e39bd42f98fc6137fb0503826a75cab0afaf",
+        "requirementHash": "8ab495e51bf6e9f437f41f7c84d9ee8e2600f50f9a56e7761bcdd32f31860dfe"
+      }
+    ],
+    "files": [
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientFrameworkSmokeSceneTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+        "currentHash": "86671afe3c988ca9e68ef6a277409d669d6f3d173003d88c0336118dc8ae5d94",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/GameBootstrapPlayModeTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+        "currentHash": "ffe20319619d0145b398ffe4c23f3195908257a9be04168a4b4401d2d9b2ab03",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/PlayerInputSimulationPlayModeTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+        "currentHash": "41dc07cab6389ac40b6424fca7720da76444f0cff31e5f4f2c83297964cf9b2c",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/GameplayInputGate.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/PlayerInput/GameplayInputGate.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+        "currentHash": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/PlayerInputController.cs|\u003Crequirement\u003E|source",
+        "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+        "currentHash": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs|\u003Crequirement\u003E|test",
+        "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+        "currentHash": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs|PLAN-0031|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/EditMode/GameplayCommandSendLedgerTests.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "21ffef1a4240a25895f39783d71789faf4d895dfd613787a2bf87899fe7a7ef3",
+        "currentHash": "21ffef1a4240a25895f39783d71789faf4d895dfd613787a2bf87899fe7a7ef3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/CommandCollector.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/FrameSync/CommandCollector.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "6bf1e24634265bb3787d3d601c2ea666ba86d44622dcb0e8a9785261b0ef756b",
+        "currentHash": "6bf1e24634265bb3787d3d601c2ea666ba86d44622dcb0e8a9785261b0ef756b",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/GameplayCommand.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/FrameSync/GameplayCommand.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "3351e9eb4c05ec46948e64433034939b80d27292e28e6ebb9a605355a7bd5650",
+        "currentHash": "3351e9eb4c05ec46948e64433034939b80d27292e28e6ebb9a605355a7bd5650",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/GameplayCommandKind.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/FrameSync/GameplayCommandKind.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "98f8d116fa94e8ce6ba28984841e0d316ebaacf18bf75b40ebf904e1badaf4ad",
+        "currentHash": "98f8d116fa94e8ce6ba28984841e0d316ebaacf18bf75b40ebf904e1badaf4ad",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/GameplayCommandContractTests.cs|PLAN-0031|test",
+        "path": "Assets/Scripts/FrameSync/Tests/GameplayCommandContractTests.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "8ce6166eb891a4ba76c52d6cc2acce19d2c4b650401591a80042a986513c4cab",
+        "currentHash": "8ce6166eb891a4ba76c52d6cc2acce19d2c4b650401591a80042a986513c4cab",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/GameplayInputGate.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/PlayerInput/GameplayInputGate.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+        "currentHash": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/LocalInputEventBuffer.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/PlayerInput/LocalInputEventBuffer.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "03376183cb602a3b2fa8fe0d6223efef2045ce76d6b08ffbc1274000785be0c8",
+        "currentHash": "03376183cb602a3b2fa8fe0d6223efef2045ce76d6b08ffbc1274000785be0c8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/MouseWorldResolver.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/PlayerInput/MouseWorldResolver.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b81cd656d9c92ace8d5321030179f52c0b94d6f9c95db4247db5254838894009",
+        "currentHash": "b81cd656d9c92ace8d5321030179f52c0b94d6f9c95db4247db5254838894009",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/PlayerCommandRequester.cs|PLAN-0031|source",
+        "path": "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+        "currentHash": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs|PLAN-0031|test",
+        "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+        "repository": null,
+        "planId": "PLAN-0031",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+        "currentHash": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/GameBootstrap.cs|PLAN-0048|source",
+        "path": "Assets/Scripts/Bootstrap/GameBootstrap.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+        "currentHash": "782c9677ba104d89a0f1ffa629a9ad7ff188f2a0e74548803e30a32ed2014b12",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/AbilityDef.cs|PLAN-0048|source",
+        "path": "Assets/Scripts/Gameplay/Ability/AbilityDef.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "ffe20f6f35050a4e10d1c5006dd02cc144bee2695cf31088eedde98c79b05de5",
+        "currentHash": "ffe20f6f35050a4e10d1c5006dd02cc144bee2695cf31088eedde98c79b05de5",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/AbilityDefinitionRegistry.cs|PLAN-0048|source",
+        "path": "Assets/Scripts/Gameplay/Ability/AbilityDefinitionRegistry.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "2a7768497ee34585dc374af6f4b9e5a13aa096559dd671f4064a9ef4ce6687cd",
+        "currentHash": "2a7768497ee34585dc374af6f4b9e5a13aa096559dd671f4064a9ef4ce6687cd",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/CastModelDef.cs|PLAN-0048|source",
+        "path": "Assets/Scripts/Gameplay/Ability/CastModelDef.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "199afda4ce0dfb92ae5ee2db5f5f7d326f6ed414fa82251b0b2f9777b8c144f1",
+        "currentHash": "199afda4ce0dfb92ae5ee2db5f5f7d326f6ed414fa82251b0b2f9777b8c144f1",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs|PLAN-0048|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "currentHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs|PLAN-0048|test",
+        "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+        "currentHash": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0048|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/PlayerCommandRequester.cs|PLAN-0048|source",
+        "path": "Assets/Scripts/PlayerInput/PlayerCommandRequester.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+        "currentHash": "6a8f74397b66f60296a0202fd76bd0ddeed4f37f260129e823e746640a13d4b6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/PlayerInputController.cs|PLAN-0048|source",
+        "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+        "currentHash": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs|PLAN-0048|test",
+        "path": "Assets/Scripts/PlayerInput/Tests/PlayerCommandRequesterTests.cs",
+        "repository": null,
+        "planId": "PLAN-0048",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+        "currentHash": "2f372a32f58e61f940f55e38b6129fb4b8c331976bba24901168e44fdf39b035",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs|PLAN-0115|test",
+        "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
+        "repository": null,
+        "planId": "PLAN-0115",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "currentHash": "dcb857e7b5e7aef68ad679b7fefa1f21a8a967271fccfef5d4c6caaa08a0605b",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/AbilityDef.cs|PLAN-0115|source",
+        "path": "Assets/Scripts/Gameplay/Ability/AbilityDef.cs",
+        "repository": null,
+        "planId": "PLAN-0115",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "ffe20f6f35050a4e10d1c5006dd02cc144bee2695cf31088eedde98c79b05de5",
+        "currentHash": "ffe20f6f35050a4e10d1c5006dd02cc144bee2695cf31088eedde98c79b05de5",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs|PLAN-0115|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+        "repository": null,
+        "planId": "PLAN-0115",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "currentHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs|PLAN-0115|test",
+        "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
+        "repository": null,
+        "planId": "PLAN-0115",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+        "currentHash": "45e192541f2749df0b4a3784598ffe2f2853d3bee4bfa9d5aff48d1731e1d1e6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/CameraController.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Bootstrap/CameraController.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "006410143cd507b54c6499f71f5a88470416aa46dab7ab4751d9100935cdf3a3",
+        "currentHash": "006410143cd507b54c6499f71f5a88470416aa46dab7ab4751d9100935cdf3a3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/CameraDebugPointerProbe.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Bootstrap/CameraDebugPointerProbe.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "775c07a7fa0acb0ec39aafbb955ebfec0be72ef381f03c29bb92b76c5006a936",
+        "currentHash": "775c07a7fa0acb0ec39aafbb955ebfec0be72ef381f03c29bb92b76c5006a936",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/CameraDebugWorkbench.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Bootstrap/CameraDebugWorkbench.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "4b0958fbedc17f648519e37b8abf5c1c6eab80657ca2d0dc9be1522939108df6",
+        "currentHash": "4b0958fbedc17f648519e37b8abf5c1c6eab80657ca2d0dc9be1522939108df6",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/MobaCameraPresentationConfig.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Bootstrap/MobaCameraPresentationConfig.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "4ab78fdb0e0d890f3780587018f33b3440a7672a346b6621cfbd42a6559252e4",
+        "currentHash": "4ab78fdb0e0d890f3780587018f33b3440a7672a346b6621cfbd42a6559252e4",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs|PLAN-0135|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "fed06d326754867f9a05468c81b6f1aaa5428753e1230397310bbd4c54cde4e7",
+        "currentHash": "fed06d326754867f9a05468c81b6f1aaa5428753e1230397310bbd4c54cde4e7",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/CameraControllerPlayModeTests.cs|PLAN-0135|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/CameraControllerPlayModeTests.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "ad34bcf02d00763cf96ff01d33c54dd29cd5e87c332c5364e2db84983a2840bc",
+        "currentHash": "ad34bcf02d00763cf96ff01d33c54dd29cd5e87c332c5364e2db84983a2840bc",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/CameraDebugPointerProbePlayModeTests.cs|PLAN-0135|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/CameraDebugPointerProbePlayModeTests.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "a583d3e57fbc1c132ceef7c7c37b9de383d79f839c7b3d1c00bfbd8e9a5ecc02",
+        "currentHash": "a583d3e57fbc1c132ceef7c7c37b9de383d79f839c7b3d1c00bfbd8e9a5ecc02",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs|PLAN-0135|test",
+        "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "currentHash": "492103707d39298cb1504c8b500b6f6da44bc7859b71145b069fabda95218cac",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/UnitUid.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+        "currentHash": "b4e9b1ab2a76c5529d31b6eff43678bcda82af92e7cd8e12d89b356cfdfbc510",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntity2D.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "currentHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsPresentationSettings.cs|PLAN-0135|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsPresentationSettings.cs",
+        "repository": null,
+        "planId": "PLAN-0135",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "cc26a18abbefe9f68a0b4e47c7c5bf3908de35c6700894c93676dd998376c8c4",
+        "currentHash": "cc26a18abbefe9f68a0b4e47c7c5bf3908de35c6700894c93676dd998376c8c4",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/CameraControllerPlayModeTests.cs|PLAN-0149|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/CameraControllerPlayModeTests.cs",
+        "repository": null,
+        "planId": "PLAN-0149",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "ad34bcf02d00763cf96ff01d33c54dd29cd5e87c332c5364e2db84983a2840bc",
+        "currentHash": "ad34bcf02d00763cf96ff01d33c54dd29cd5e87c332c5364e2db84983a2840bc",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/UnitAnimationDriver.cs|PLAN-0149|source",
+        "path": "Assets/Scripts/FrameSync/UnitAnimationDriver.cs",
+        "repository": null,
+        "planId": "PLAN-0149",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "63577cec7422f903ef9ff161024ce119aa5be11fe1485ab5ecc56215f3cce4a3",
+        "currentHash": "63577cec7422f903ef9ff161024ce119aa5be11fe1485ab5ecc56215f3cce4a3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0149|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0149",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Core/PhysicsEntity2D.cs|PLAN-0149|source",
+        "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
+        "repository": null,
+        "planId": "PLAN-0149",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "currentHash": "211630943aefde894f170604f0ba38db6044cd9f46c2dd68c1e01932b47bb81a",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs|PLAN-0149|test",
+        "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
+        "repository": null,
+        "planId": "PLAN-0149",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "currentHash": "8ca9cf0298427be430d5fae29288a2171a9d06af0234c6072be3694072423e23",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/PlayerInputController.cs|PLAN-0149|source",
+        "path": "Assets/Scripts/PlayerInput/PlayerInputController.cs",
+        "repository": null,
+        "planId": "PLAN-0149",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+        "currentHash": "0dd60972ca29a68f2a59409b390e45d007609a3fbf435420ab9366b45a72eeea",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestDriver.cs|PLAN-0151|test",
+        "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/HeroTestDriver.cs",
+        "repository": null,
+        "planId": "PLAN-0151",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "2a704ac5043abb91b73abda485465395b34491fbadaae54d905ac1768bcd96cc",
+        "currentHash": "2a704ac5043abb91b73abda485465395b34491fbadaae54d905ac1768bcd96cc",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/FrameSync/CommandCollector.cs|PLAN-0151|source",
+        "path": "Assets/Scripts/FrameSync/CommandCollector.cs",
+        "repository": null,
+        "planId": "PLAN-0151",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "6bf1e24634265bb3787d3d601c2ea666ba86d44622dcb0e8a9785261b0ef756b",
+        "currentHash": "6bf1e24634265bb3787d3d601c2ea666ba86d44622dcb0e8a9785261b0ef756b",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Ability/AbilitySignal.cs|PLAN-0151|source",
+        "path": "Assets/Scripts/Gameplay/Ability/AbilitySignal.cs",
+        "repository": null,
+        "planId": "PLAN-0151",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+        "currentHash": "14449d560746a8f2f9144b7de75059bea18ab2fad13fc6f91bc1e1f9381cacb4",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/Gameplay/Unit/Core/Unit.cs|PLAN-0151|source",
+        "path": "Assets/Scripts/Gameplay/Unit/Core/Unit.cs",
+        "repository": null,
+        "planId": "PLAN-0151",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "currentHash": "b7647c23d68b37e816090a99fd79c5f4957226111bd1ab76caa0913d58b4f6b3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/GameplayInputGate.cs|PLAN-0151|source",
+        "path": "Assets/Scripts/PlayerInput/GameplayInputGate.cs",
+        "repository": null,
+        "planId": "PLAN-0151",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+        "currentHash": "1842640b104c65b26a8a820b73ea67675bf51153b197111e0e7a2107d0a5e544",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Assets/Scripts/PlayerInput/SkillIndicatorDriver.cs|PLAN-0151|source",
+        "path": "Assets/Scripts/PlayerInput/SkillIndicatorDriver.cs",
+        "repository": null,
+        "planId": "PLAN-0151",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "63b7a8be04d3fa56b8205922462b2d7148d41ccbcc1f33906ba5e5a0f32d350a",
+        "currentHash": "63b7a8be04d3fa56b8205922462b2d7148d41ccbcc1f33906ba5e5a0f32d350a",
+        "state": "\u5DF2\u6838\u9A8C"
+      }
+    ]
+  },
+  "implementationEvidenceCheck": {
+    "state": "\u6709\u6548",
+    "checkedAt": "2026-10-10T23:47:43.1301883\u002B08:00",
+    "reasons": [
+      "\u5F53\u524D\u9700\u6C42\u6B63\u6587\u3001\u5173\u8054\u8BA1\u5212\u8BC1\u636E\u548C\u5DF2\u767B\u8BB0\u6587\u4EF6\u6307\u7EB9\u4E0E\u5FEB\u7167\u4E00\u81F4\u3002"
+    ]
+  }
 }

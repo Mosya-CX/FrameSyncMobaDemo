@@ -1,165 +1,167 @@
 {
   "id": "REQ-FEAT-061",
-  "title": "墙体异常挤出与表现同步",
+  "title": "\u5899\u4F53\u5F02\u5E38\u6324\u51FA\u4E0E\u8868\u73B0\u540C\u6B65",
   "type": "requirement",
-  "status": "激活",
-  "domain": "空间物理",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u7A7A\u95F4\u7269\u7406",
   "path": "Docs/requirements/spatial-physics/REQ-FEAT-061_wall-recovery.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:39.1313185\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.1 定位",
+      "section": "11.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.2 触发、跳过与 Tick 读取",
+      "section": "11.2 \u89E6\u53D1\u3001\u8DF3\u8FC7\u4E0E Tick \u8BFB\u53D6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.3 单位侧修正入口",
+      "section": "11.3 \u5355\u4F4D\u4FA7\u4FEE\u6B63\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.4 全局参数",
+      "section": "11.4 \u5168\u5C40\u53C2\u6570",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.1 定位",
+      "section": "12.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.2 `PresentationDirty`",
+      "section": "12.2 \u0060PresentationDirty\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.3 `LateUpdate` 唯一同步入口",
+      "section": "12.3 \u0060LateUpdate\u0060 \u552F\u4E00\u540C\u6B65\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.4 回滚与多 Tick 重演",
+      "section": "12.4 \u56DE\u6EDA\u4E0E\u591A Tick \u91CD\u6F14",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.5 编辑器初始化",
+      "section": "12.5 \u7F16\u8F91\u5668\u521D\u59CB\u5316",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.6 Inspector 同步设置",
+      "section": "12.6 Inspector \u540C\u6B65\u8BBE\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.7 边界总结",
+      "section": "12.7 \u8FB9\u754C\u603B\u7ED3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.1 定位",
+      "section": "13.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.2 绘制姿态来源",
+      "section": "13.2 \u7ED8\u5236\u59FF\u6001\u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.3 显示内容",
+      "section": "13.3 \u663E\u793A\u5185\u5BB9",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.4 Inspector 参数",
+      "section": "13.4 Inspector \u53C2\u6570",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.5 Point 绘制",
+      "section": "13.5 Point \u7ED8\u5236",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.6 Rect / Segment 绘制",
+      "section": "13.6 Rect / Segment \u7ED8\u5236",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.1 定位",
+      "section": "12.1 \u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.2 触发时机",
+      "section": "12.2 \u89E6\u53D1\u65F6\u673A",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.3 修正请求",
+      "section": "12.3 \u4FEE\u6B63\u8BF7\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.4 与寻路状态协作",
+      "section": "12.4 \u4E0E\u5BFB\u8DEF\u72B6\u6001\u534F\u4F5C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "12.5 帧同步定位",
+      "section": "12.5 \u5E27\u540C\u6B65\u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     }
   ],
@@ -170,7 +172,7 @@
       "symbols": [
         "WallPenetrationResolver"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Physics/Core/PhysicsEntity2D.cs",
@@ -178,7 +180,7 @@
       "symbols": [
         "PhysicsEntity2D"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsEntity2DPlayModeTests.cs",
@@ -198,7 +200,7 @@
         "PresentationSmoothing_InterpolatesWithoutChangingLogicPose",
         "PresentationSmoothing_FacingChurnDoesNotRestartPositionInterpolation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/PresentationAddressablesMigrationTests.cs",
@@ -212,7 +214,7 @@
         "UiPagesAndPresentationRootsAreAddressableAndOutsideResources",
         "GenericSkillIndicatorsUseSupportedTransparentShader"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitAddressablesMigrationTests.cs",
@@ -223,7 +225,7 @@
         "ClientViewsContainPresentationHostButNoGameplayRoot",
         "ClientViewRootsAreAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
@@ -239,7 +241,7 @@
         "OutlineBakeRunsAfterWingVisibility",
         "AttachedVfx_WorldDirectionDoesNotInheritLaterHostTurn"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/CameraControllerPlayModeTests.cs",
@@ -250,7 +252,7 @@
         "LockedGameplayTarget_SmoothlyFollowsProjectedPose",
         "LockedGameplayTarget_FacingChurnDoesNotStallFollowPosition"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
@@ -259,7 +261,7 @@
         "GameScene_FirstWaveUsesFlowFieldsAndMoves",
         "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -270,7 +272,7 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AatroxFormalContentTests.cs",
@@ -289,7 +291,7 @@
         "ProjectileWorld_RequestEnd_CancelsPendingAreaProjectile",
         "EmpoweredFixedPassive_RollbackRebuild_DoesNotDuplicateReadyBuffModifier"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
@@ -315,7 +317,7 @@
         "SameInput_SameResult",
         "CaptureRestore_ThenReplay_ProducesSameResult"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -324,7 +326,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/RangeQueryServiceTests.cs",
@@ -345,7 +347,7 @@
         "Query_Deterministic_SameInputSameResult",
         "Query_GridDedup_SameEntityInMultipleCells_ReturnsOnce"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -357,7 +359,7 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/WallPenetrationTests.cs",
@@ -369,7 +371,7 @@
         "Detect_ClampedMagnitude",
         "Detect_Deterministic_SameInputSameOutput"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PhysicsEntityQueryInfoTests.cs",
@@ -387,7 +389,7 @@
         "PhysicsEntity2D_SetQueryInfo_StoresAndExposesReadonly",
         "PhysicsEntity2D_QueryInfo_IsDefaultBeforeSet"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PhysicsSpatialGrid2DTests.cs",
@@ -402,7 +404,7 @@
         "Clear_RemovesAllEntities",
         "Constructor_NonPositiveCellSize_Throws"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldBuildFinalGridTests.cs",
@@ -414,7 +416,7 @@
         "BuildUnitFinalGrid_Deterministic_SameRegistration_SameGridState",
         "BuildUnitFinalGrid_DoesNotFilterByBusinessState"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/PlayMode/PhysicsWorldRegistrationTests.cs",
@@ -435,7 +437,7 @@
         "ClearRuntime_ResetsTransformShapeBoundsQueryInfo",
         "UnitEntities_And_ProjectileEntities_AreIndependent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Physics/Tests/UnitCollisionEventBufferTests.cs",
@@ -443,11 +445,18 @@
       "testFunctions": [
         "DetectCaptureRestore_PreservesEnterExitSemantics"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "空间物理"
-  ]
+    "\u7A7A\u95F4\u7269\u7406"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:39.1309994\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

@@ -1,81 +1,83 @@
 {
   "id": "REQ-FEAT-073",
-  "title": "攻击技能动画与插值采样",
+  "title": "\u653B\u51FB\u6280\u80FD\u52A8\u753B\u4E0E\u63D2\u503C\u91C7\u6837",
   "type": "requirement",
-  "status": "激活",
-  "domain": "表现界面",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u8868\u73B0\u754C\u9762",
   "path": "Docs/requirements/presentation-ui/REQ-FEAT-073_animation-sampling.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:47.0462055\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.1 动画状态来源",
+      "section": "3.1 \u52A8\u753B\u72B6\u6001\u6765\u6E90",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.2 动画不是全局请求",
+      "section": "3.2 \u52A8\u753B\u4E0D\u662F\u5168\u5C40\u8BF7\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.3 动画决策优先级",
+      "section": "3.3 \u52A8\u753B\u51B3\u7B56\u4F18\u5148\u7EA7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.4 行为状态与专项只读状态的两级解释",
+      "section": "3.4 \u884C\u4E3A\u72B6\u6001\u4E0E\u4E13\u9879\u53EA\u8BFB\u72B6\u6001\u7684\u4E24\u7EA7\u89E3\u91CA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.5 Unity Animator 与 Inspector 组织",
+      "section": "3.5 Unity Animator \u4E0E Inspector \u7EC4\u7EC7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.6 完整攻击 Clip、序列空闲重置、剩余后摇恢复与强化攻击",
+      "section": "3.6 \u5B8C\u6574\u653B\u51FB Clip\u3001\u5E8F\u5217\u7A7A\u95F2\u91CD\u7F6E\u3001\u5269\u4F59\u540E\u6447\u6062\u590D\u4E0E\u5F3A\u5316\u653B\u51FB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.7 技能动画：只读取 `AbilityCastView`",
+      "section": "3.7 \u6280\u80FD\u52A8\u753B\uFF1A\u53EA\u8BFB\u53D6 \u0060AbilityCastView\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.8 Control 动画",
+      "section": "3.8 Control \u52A8\u753B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.9 Death 与 Respawn 动画",
+      "section": "3.9 Death \u4E0E Respawn \u52A8\u753B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     },
     {
       "path": "Docs/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md",
       "sha256": "707211462f8c55c3b4764c6b7bfb1b4e1e2f9b350102b5db6dd054bba87cdd81",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "3.10 Animation Event 的使用边界",
+      "section": "3.10 Animation Event \u7684\u4F7F\u7528\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_presentation_layer_integrated_design_v13_2_fifth_round_audio_entry.md"
     }
   ],
@@ -86,7 +88,7 @@
       "symbols": [
         "UnitAnimationDriver"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Presentation/AttackAnimationPlan.cs",
@@ -94,7 +96,7 @@
       "symbols": [
         "AttackAnimationPlan"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/MurkWolfFormalContentTests.cs",
@@ -106,7 +108,7 @@
         "MapPrefab_AllWolfSpawnSlotsAreWalkableForTheirRadius",
         "MapCampUpsert_PreservesVisualAuthoringAndOtherCamps"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitAddressablesMigrationTests.cs",
@@ -117,7 +119,7 @@
         "ClientViewsContainPresentationHostButNoGameplayRoot",
         "ClientViewRootsAreAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/EditMode/UnitPrefabAnimatorTopologyTests.cs",
@@ -126,7 +128,7 @@
         "AttackSequence_MapsOntoAuthoredAnimationVariantCount",
         "UnitPrefabs_DoNotEnterLoopingMovementFromAnyState"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
@@ -142,7 +144,7 @@
         "OutlineBakeRunsAfterWingVisibility",
         "AttachedVfx_WorldDirectionDoesNotInheritLaterHostTurn"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/MurkWolfPrefabPlayModeTests.cs",
@@ -152,7 +154,7 @@
         "MiniWolf_AlertAndMoveRoutesPlayLoopedMotion",
         "BoundDriver_AlertRouteUsesAuthoredTransitionClips"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
@@ -160,7 +162,7 @@
       "testFunctions": [
         "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AnimationSamplingTests.cs",
@@ -180,7 +182,7 @@
         "AttackMotionTime_MapsStartImpactAndReadyWithoutExitJump",
         "AttackSampling_NonAlignedImpactBoundaryStaysContinuous"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -191,11 +193,18 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "表现界面"
-  ]
+    "\u8868\u73B0\u754C\u9762"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:47.045778\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

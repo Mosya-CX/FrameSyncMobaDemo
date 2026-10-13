@@ -1,137 +1,139 @@
 {
   "id": "REQ-FEAT-044",
-  "title": "阶段效果与确定性黑板",
+  "title": "\u9636\u6BB5\u6548\u679C\u4E0E\u786E\u5B9A\u6027\u9ED1\u677F",
   "type": "requirement",
-  "status": "激活",
-  "domain": "技能",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5F85\u5B9E\u73B0",
+  "domain": "\u6280\u80FD",
   "path": "Docs/requirements/abilities/REQ-FEAT-044_stage-effects.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 5,
+  "updatedAt": "2026-10-11T15:15:16.4276488\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "四、StageDef：施法阶段的内容逻辑",
+      "section": "\u56DB\u3001StageDef\uFF1A\u65BD\u6CD5\u9636\u6BB5\u7684\u5185\u5BB9\u903B\u8F91",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.1 StageDef 生命周期与 StageResult",
+      "section": "4.1 StageDef \u751F\u547D\u5468\u671F\u4E0E StageResult",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.2 删除 EffectPlan 与 EffectStep",
+      "section": "4.2 \u5220\u9664 EffectPlan \u4E0E EffectStep",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.3 AbilityStageContext：Stage 的统一执行上下文",
+      "section": "4.3 AbilityStageContext\uFF1AStage \u7684\u7EDF\u4E00\u6267\u884C\u4E0A\u4E0B\u6587",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.4 AbilityBlackboard：确定性单次施法数据",
+      "section": "4.4 AbilityBlackboard\uFF1A\u786E\u5B9A\u6027\u5355\u6B21\u65BD\u6CD5\u6570\u636E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.5 Stage 自己持有等级成长配置",
+      "section": "4.5 Stage \u81EA\u5DF1\u6301\u6709\u7B49\u7EA7\u6210\u957F\u914D\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.6 TargetingSpec：Stage 按需使用的目标描述",
+      "section": "4.6 TargetingSpec\uFF1AStage \u6309\u9700\u4F7F\u7528\u7684\u76EE\u6807\u63CF\u8FF0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.7 施法距离作为可选 Constraint",
+      "section": "4.7 \u65BD\u6CD5\u8DDD\u79BB\u4F5C\u4E3A\u53EF\u9009 Constraint",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "4.8 Stage 与外部战斗系统只通过 AbilityPorts 接入",
+      "section": "4.8 Stage \u4E0E\u5916\u90E8\u6218\u6597\u7CFB\u7EDF\u53EA\u901A\u8FC7 AbilityPorts \u63A5\u5165",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "七、典型技能如何落到当前模型",
+      "section": "\u4E03\u3001\u5178\u578B\u6280\u80FD\u5982\u4F55\u843D\u5230\u5F53\u524D\u6A21\u578B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.1 普通圆形范围技能",
+      "section": "7.1 \u666E\u901A\u5706\u5F62\u8303\u56F4\u6280\u80FD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.2 韦鲁斯 Q 一类蓄力技能",
+      "section": "7.2 \u97E6\u9C81\u65AF Q \u4E00\u7C7B\u84C4\u529B\u6280\u80FD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.3 泽拉斯 R 一类持续确认技能",
+      "section": "7.3 \u6CFD\u62C9\u65AF R \u4E00\u7C7B\u6301\u7EED\u786E\u8BA4\u6280\u80FD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.4 卡特琳娜 R 一类引导技能",
+      "section": "7.4 \u5361\u7279\u7433\u5A1C R \u4E00\u7C7B\u5F15\u5BFC\u6280\u80FD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.5 拉克丝 E 一类创建区域后再触发的技能",
+      "section": "7.5 \u62C9\u514B\u4E1D E \u4E00\u7C7B\u521B\u5EFA\u533A\u57DF\u540E\u518D\u89E6\u53D1\u7684\u6280\u80FD",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.6 同一 Session 内的短阶段间隔",
+      "section": "7.6 \u540C\u4E00 Session \u5185\u7684\u77ED\u9636\u6BB5\u95F4\u9694",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.7 亚索 R、纳尔 R 等特殊施法条件",
+      "section": "7.7 \u4E9A\u7D22 R\u3001\u7EB3\u5C14 R \u7B49\u7279\u6B8A\u65BD\u6CD5\u6761\u4EF6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     },
     {
       "path": "Docs/Design/moba_ability_system_design_v15_2.md",
       "sha256": "ded6d5af2f92e983e1c51c8c15675a5e22dd5471bb874824043665766077d952",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "7.8 技能施放回调示例",
+      "section": "7.8 \u6280\u80FD\u65BD\u653E\u56DE\u8C03\u793A\u4F8B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/moba_ability_system_design_v15_2.md"
     }
   ],
@@ -142,7 +144,7 @@
       "symbols": [
         "AbilityBlackboard"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Ability/StageDef.cs",
@@ -150,7 +152,7 @@
       "symbols": [
         "StageDef"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/StageDefBakeTests.cs",
@@ -172,7 +174,7 @@
         "ApplyBuffStageDef_OnExit_DoesNotThrow",
         "DashStageDef_OnExit_DoesNotThrow"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/AbilityCostAndCastTests.cs",
@@ -186,11 +188,18 @@
         "Toggle_FirstCommitActivatesAndSecondCommitTurnsOff",
         "Toggle_TurnOffDoesNotStartCooldown"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "技能"
-  ]
+    "\u6280\u80FD"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u8BC1\u636E\u5DF2\u8FC7\u671F",
+    "checkedAt": "2026-10-11T15:15:16.4272035\u002B08:00",
+    "reasons": [
+      "\u8BC1\u636E\u6587\u4EF6\u5185\u5BB9\u6307\u7EB9\u5DF2\u53D8\u5316\uFF1AAssets/Scripts/Gameplay/Unit/Core/UnitWorld.cs"
+    ]
+  }
 }

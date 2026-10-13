@@ -1,158 +1,160 @@
 {
   "id": "REQ-FEAT-067-PART-3",
-  "title": "冲刺控制位移与传送",
+  "title": "\u51B2\u523A\u63A7\u5236\u4F4D\u79FB\u4E0E\u4F20\u9001",
   "type": "requirement",
-  "status": "激活",
-  "domain": "寻路移动",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "domain": "\u5BFB\u8DEF\u79FB\u52A8",
   "path": "Docs/requirements/pathfinding-movement/REQ-FEAT-067-PART-3_dash-forced-teleport.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 3,
+  "updatedAt": "2026-10-10T23:41:47.8596681\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.1 平级关系",
+      "section": "5.1 \u5E73\u7EA7\u5173\u7CFB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.2 职责边界",
+      "section": "5.2 \u804C\u8D23\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.3 位置和朝向写入",
+      "section": "5.3 \u4F4D\u7F6E\u548C\u671D\u5411\u5199\u5165",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.4 墙体修正接缝",
+      "section": "5.4 \u5899\u4F53\u4FEE\u6B63\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md",
       "sha256": "75a6183b91acb9eda75a0de2490203cdb521ec86b487f7b391999425a019afff",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "5.5 单位形状",
+      "section": "5.5 \u5355\u4F4D\u5F62\u72B6",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_UnitPhysics_RangeQuery_Design_v13.1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.2 核心架构",
+      "section": "1.2 \u6838\u5FC3\u67B6\u6784",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.3 职责一句话版",
+      "section": "1.3 \u804C\u8D23\u4E00\u53E5\u8BDD\u7248",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.4 运行时确定性要求",
+      "section": "1.4 \u8FD0\u884C\u65F6\u786E\u5B9A\u6027\u8981\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "1.5 帧同步标记图例",
+      "section": "1.5 \u5E27\u540C\u6B65\u6807\u8BB0\u56FE\u4F8B",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.1 对象关系",
+      "section": "2.1 \u5BF9\u8C61\u5173\u7CFB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.2 `MovementHandler`：移动提交与执行入口",
+      "section": "2.2 \u0060MovementHandler\u0060\uFF1A\u79FB\u52A8\u63D0\u4EA4\u4E0E\u6267\u884C\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.3 `UnitLocomotionAgent`：寻路入口",
+      "section": "2.3 \u0060UnitLocomotionAgent\u0060\uFF1A\u5BFB\u8DEF\u5165\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.4 空间读取与写入规则",
+      "section": "2.4 \u7A7A\u95F4\u8BFB\u53D6\u4E0E\u5199\u5165\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.5 核心接口",
+      "section": "2.5 \u6838\u5FC3\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.6 移动执行优先级",
+      "section": "2.6 \u79FB\u52A8\u6267\u884C\u4F18\u5148\u7EA7",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.7 帧同步定位",
+      "section": "2.7 \u5E27\u540C\u6B65\u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "2.8 新生单位生成 Tick 的执行边界",
+      "section": "2.8 \u65B0\u751F\u5355\u4F4D\u751F\u6210 Tick \u7684\u6267\u884C\u8FB9\u754C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.1 运行数据",
+      "section": "11.1 \u8FD0\u884C\u6570\u636E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.2 Tick 执行分流",
+      "section": "11.2 Tick \u6267\u884C\u5206\u6D41",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.3 普通路线移动",
+      "section": "11.3 \u666E\u901A\u8DEF\u7EBF\u79FB\u52A8",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.4 静态墙体约束",
+      "section": "11.4 \u9759\u6001\u5899\u4F53\u7EA6\u675F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
@@ -166,217 +168,217 @@
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.6 强制位移：控制系统唯一仲裁，移动系统只执行",
+      "section": "11.6 \u5F3A\u5236\u4F4D\u79FB\uFF1A\u63A7\u5236\u7CFB\u7EDF\u552F\u4E00\u4EF2\u88C1\uFF0C\u79FB\u52A8\u7CFB\u7EDF\u53EA\u6267\u884C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.7 控制打断与寻路关系",
+      "section": "11.7 \u63A7\u5236\u6253\u65AD\u4E0E\u5BFB\u8DEF\u5173\u7CFB",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.8 传送与位置修正",
+      "section": "11.8 \u4F20\u9001\u4E0E\u4F4D\u7F6E\u4FEE\u6B63",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.9 正式空间提交接口",
+      "section": "11.9 \u6B63\u5F0F\u7A7A\u95F4\u63D0\u4EA4\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.10 正式死亡时的移动模块清理接缝",
+      "section": "11.10 \u6B63\u5F0F\u6B7B\u4EA1\u65F6\u7684\u79FB\u52A8\u6A21\u5757\u6E05\u7406\u63A5\u7F1D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "11.11 帧同步定位",
+      "section": "11.11 \u5E27\u540C\u6B65\u5B9A\u4F4D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.1 移动子管线推荐顺序",
+      "section": "13.1 \u79FB\u52A8\u5B50\u7BA1\u7EBF\u63A8\u8350\u987A\u5E8F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.2 新生单位生成 Tick 的统一解释",
+      "section": "13.2 \u65B0\u751F\u5355\u4F4D\u751F\u6210 Tick \u7684\u7EDF\u4E00\u89E3\u91CA",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.3 为什么先计算全部 `LocomotionResult`",
+      "section": "13.3 \u4E3A\u4EC0\u4E48\u5148\u8BA1\u7B97\u5168\u90E8 \u0060LocomotionResult\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.4 为什么 `RvoGrid` 使用移动前位置",
+      "section": "13.4 \u4E3A\u4EC0\u4E48 \u0060RvoGrid\u0060 \u4F7F\u7528\u79FB\u52A8\u524D\u4F4D\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.5 为什么最后构建 `UnitFinalGrid`",
+      "section": "13.5 \u4E3A\u4EC0\u4E48\u6700\u540E\u6784\u5EFA \u0060UnitFinalGrid\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "13.6 恢复后的移动系统重建需求",
+      "section": "13.6 \u6062\u590D\u540E\u7684\u79FB\u52A8\u7CFB\u7EDF\u91CD\u5EFA\u9700\u6C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "15. 帧同步服务标记",
+      "section": "15. \u5E27\u540C\u6B65\u670D\u52A1\u6807\u8BB0",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "15.1 `PhysicsEntity2D` 依赖",
+      "section": "15.1 \u0060PhysicsEntity2D\u0060 \u4F9D\u8D56",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "15.2 `MovementHandler`",
+      "section": "15.2 \u0060MovementHandler\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "15.3 `UnitLocomotionAgent`",
+      "section": "15.3 \u0060UnitLocomotionAgent\u0060",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "15.4 `PhysicsWorld` 与 RVO",
+      "section": "15.4 \u0060PhysicsWorld\u0060 \u4E0E RVO",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "15.5 静态配置",
+      "section": "15.5 \u9759\u6001\u914D\u7F6E",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "15.6 快速审计规则",
+      "section": "15.6 \u5FEB\u901F\u5BA1\u8BA1\u89C4\u5219",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.1 必须保留",
+      "section": "16.1 \u5FC5\u987B\u4FDD\u7559",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.2 删除或弱化",
+      "section": "16.2 \u5220\u9664\u6216\u5F31\u5316",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "16.3 本轮明确删除",
+      "section": "16.3 \u672C\u8F6E\u660E\u786E\u5220\u9664",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段一：冻结职责与接口",
+      "section": "\u9636\u6BB5\u4E00\uFF1A\u51BB\u7ED3\u804C\u8D23\u4E0E\u63A5\u53E3",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段二：单位装配",
+      "section": "\u9636\u6BB5\u4E8C\uFF1A\u5355\u4F4D\u88C5\u914D",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段三：地图与半径通行层",
+      "section": "\u9636\u6BB5\u4E09\uFF1A\u5730\u56FE\u4E0E\u534A\u5F84\u901A\u884C\u5C42",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段四：A* 与路径跟随",
+      "section": "\u9636\u6BB5\u56DB\uFF1AA* \u4E0E\u8DEF\u5F84\u8DDF\u968F",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段五：流场",
+      "section": "\u9636\u6BB5\u4E94\uFF1A\u6D41\u573A",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段六：移动执行",
+      "section": "\u9636\u6BB5\u516D\uFF1A\u79FB\u52A8\u6267\u884C",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段七：控制与 RVO",
+      "section": "\u9636\u6BB5\u4E03\uFF1A\u63A7\u5236\u4E0E RVO",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "阶段八：帧同步联调",
+      "section": "\u9636\u6BB5\u516B\uFF1A\u5E27\u540C\u6B65\u8054\u8C03",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     },
     {
       "path": "Docs/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md",
       "sha256": "e29ceea7486a449e24920574ebf1354d78a4d284017087c7055e2d74dbcf8255",
       "recovery": "20261002-document-revision/Docs.zip",
-      "section": "附录：一帧移动伪代码总览",
+      "section": "\u9644\u5F55\uFF1A\u4E00\u5E27\u79FB\u52A8\u4F2A\u4EE3\u7801\u603B\u89C8",
       "recoveryEntry": "Docs/Archive/PreKarolina/Design/MOBA_FrameSync_Integrated_Pathfinding_Design_v13_1.md"
     }
   ],
@@ -388,7 +390,7 @@
         "DashRuntime",
         "ForcedMoveExecutor"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Movement/MovementHandler.cs",
@@ -396,7 +398,7 @@
       "symbols": [
         "MovementHandler"
       ],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementHandlerTests.cs",
@@ -422,7 +424,7 @@
         "SameInput_SameResult",
         "CaptureRestore_ThenReplay_ProducesSameResult"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/AatroxPrefabPlayModeTests.cs",
@@ -438,7 +440,7 @@
         "OutlineBakeRunsAfterWingVisibility",
         "AttachedVfx_WorldDirectionDoesNotInheritLaterHostTurn"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/ClientBootstrapFirstWavePlayModeTests.cs",
@@ -447,7 +449,7 @@
         "GameScene_FirstWaveUsesFlowFieldsAndMoves",
         "GameScene_MapViewAnchorsToStaticTopologyRootAtWorldOrigin"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Bootstrap/Tests/PlayMode/VarusAnimationPlayModeTests.cs",
@@ -455,7 +457,7 @@
       "testFunctions": [
         "BoundDriver_QFocusMovementChangesResolveLoopSameFrame"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AggregateSnapshotContractTests.cs",
@@ -467,7 +469,7 @@
         "Restore_RejectsMissingGameplayParticipantIdentity",
         "SnapshotStore_WritesExplicitOuterSchemaAndNextTick"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/AuthorityReplicationTests.cs",
@@ -491,7 +493,7 @@
         "RecoveryArchive_FailsWhenRequestedFrameWasEvicted",
         "Recovery_FillsGapThenAcceptsBufferedFrameSequentially"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/FrameSyncPipelineTests.cs",
@@ -508,7 +510,7 @@
         "ReplacedPredictedMove_RestoreThenAuthoritativeMoveMatchesCleanReplay",
         "ExecuteOneTick_LocalAuthority_ReleasesConfirmedHistoryBeyondSnapshotCapacity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/LocalCommandGoldMatchFlowTests.cs",
@@ -520,7 +522,7 @@
         "NaturalGold_IsTickDerivedCanonicalAndInsideOpenBatch",
         "ClientPredictionCannotEnterEnding_ButServerAuthorityCan"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/SnapshotChecksumCompletenessTests.cs",
@@ -537,7 +539,7 @@
         "AutoReleaseRuntime_CapturesAndRestoresReconciledResources",
         "DualCastRuntime_RestoreReplayMatchesContinuousChecksum"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/FrameSync/Tests/UnitAnimationAssetTests.cs",
@@ -548,7 +550,7 @@
         "FormalAnimatedUnits_BindAttackAndMovePlaybackToGameplayStats",
         "FormalStructures_HaveNoAttackAnimation"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/ActionArbiterConcurrencyTests.cs",
@@ -569,7 +571,7 @@
         "MobilityBlock_InterruptsAbilityDash",
         "ControlMove_PreemptsUninterruptibleMovementLockedCast"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/HeroRespawnTests.cs",
@@ -579,7 +581,7 @@
         "RespawnPosition_IsCapturedFromInitialSpawn",
         "CompleteRespawn_TeleportsToHomeSpawnPosition"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/IntegratedPathfindingPipelineTests.cs",
@@ -593,7 +595,7 @@
         "FlowFieldRvoMovement_ProducesRepeatableMotion",
         "RadiusAwareLineOfSight_BlocksLargeUnit"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementConformanceTests.cs",
@@ -607,7 +609,7 @@
         "RvoGrid_IncludesIdleUnitAsObstacle",
         "RvoNeighborSelection_IsInputOrderIndependent"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/MovementIntegrationTests.cs",
@@ -629,7 +631,7 @@
         "IdleUnit_DoesNotMove",
         "TwoWorlds_SameSpawnAndMove_SameResult"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/PlayMode/UnitPrefabCompositionPlayModeTests.cs",
@@ -638,7 +640,7 @@
         "FormalSpawn_InstantiatesLiveComponentGraphAndRegistersPhysicsIdentity",
         "FormalDeathInvalidation_UpdatesAttackOwnersTogether"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitMonoBehaviourCompositionTests.cs",
@@ -648,7 +650,7 @@
         "Death_PreservesGlobalStatAndCombatModifierOwnership",
         "PoolReset_PreservesPrefabTopologyAndClearsRuntimeIdentity"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitRuntimeCatalogAssetTests.cs",
@@ -660,7 +662,7 @@
         "Bake_DuplicatePrototypePresetStatFails",
         "SpawnUnit_UsesBakedAbilityMovementAndPhysicsProfiles"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     },
     {
       "path": "Assets/Scripts/Gameplay/Tests/UnitWorldIntegrationTests.cs",
@@ -673,7 +675,7 @@
         "ResetForPool_ResetsAllDynamicState",
         "ManyUnits_StableReadOrder"
       ],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [
@@ -683,10 +685,17 @@
   "provenance": [
     {
       "date": "2026-10-02",
-      "summary": "按具体功能进一步拆分过长附录"
+      "summary": "\u6309\u5177\u4F53\u529F\u80FD\u8FDB\u4E00\u6B65\u62C6\u5206\u8FC7\u957F\u9644\u5F55"
     }
   ],
   "tags": [
-    "寻路移动"
-  ]
+    "\u5BFB\u8DEF\u79FB\u52A8"
+  ],
+  "implementationEvidenceCheck": {
+    "state": "\u9700\u8981\u590D\u6838",
+    "checkedAt": "2026-10-10T23:41:47.8574936\u002B08:00",
+    "reasons": [
+      "\u6CA1\u6709\u5173\u8054\u7684\u5DF2\u5173\u95ED\u8BA1\u5212\u3002"
+    ]
+  }
 }

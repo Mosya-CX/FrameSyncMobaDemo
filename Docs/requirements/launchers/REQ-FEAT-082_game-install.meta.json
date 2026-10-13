@@ -1,41 +1,261 @@
 {
   "id": "REQ-FEAT-082",
-  "title": "游戏下载校验与完整安装",
+  "title": "\u6E38\u620F\u4E0B\u8F7D\u6821\u9A8C\u4E0E\u5B8C\u6574\u5B89\u88C5",
   "type": "requirement",
-  "status": "激活",
-  "domain": "启动器",
+  "status": "\u6FC0\u6D3B",
+  "implementationStatus": "\u5DF2\u5B9E\u73B0",
+  "domain": "\u542F\u52A8\u5668",
   "path": "Docs/requirements/launchers/REQ-FEAT-082_game-install.md",
-  "version": 1,
-  "implementationState": "存在源码；尚未逐条行为复核",
+  "version": 4,
+  "updatedAt": "2026-10-10T23:46:40.76193\u002B08:00",
+  "implementationState": "\u6E90\u7801\u4E0E\u6D4B\u8BD5\u5F15\u7528\u5F53\u524D\u5B58\u5728\u4E14\u6307\u7EB9\u5339\u914D\uFF1B\u5173\u8054\u8BA1\u5212\u5DF2\u5173\u95ED\uFF1B\u672C\u8F6E\u672A\u91CD\u8DD1 Unity \u884C\u4E3A\u6D4B\u8BD5",
   "sources": [],
   "evidence": [
     {
       "path": "Tools/UosGameLauncher/CdnContracts.cs",
       "sha256": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Tools/UosGameLauncher/CdnUpdater.cs",
       "sha256": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Tools/UosGameLauncher/MainForm.cs",
       "sha256": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
       "symbols": [],
-      "kind": "类型定义"
+      "kind": "\u7C7B\u578B\u5B9A\u4E49"
     },
     {
       "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
       "sha256": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
       "testFunctions": [],
-      "kind": "测试源码（未在本期运行）"
+      "kind": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09"
     }
   ],
   "related": [],
   "tags": [
-    "启动器"
-  ]
+    "\u542F\u52A8\u5668"
+  ],
+  "implementationEvidenceSnapshot": {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-10T23:41:45.2552302\u002B08:00",
+    "requirementBodyHash": "42e6ae529e3200ed78ceeb4ca4b823a46db507be57f87b719821f99a02da52dc",
+    "requirementEvidenceHash": "8327a96100df8bdf23ee15b302d5a8615ce4e31f7b1bc2aa2ac3cbb1a6b43ad2",
+    "plans": [
+      {
+        "id": "PLAN-0155",
+        "status": "\u5173\u95ED",
+        "bodyHash": "8a3b82d2aecee5c1c0205c9277f0669db5c7bfe8da484fd1d281eca633e1d648",
+        "evidenceHash": "a0707cc27b745ac1e67b0d633da52ddc30686546020be2d93ff108cb6eb2f9a4",
+        "requirementHash": "42e6ae529e3200ed78ceeb4ca4b823a46db507be57f87b719821f99a02da52dc"
+      },
+      {
+        "id": "PLAN-0156",
+        "status": "\u5173\u95ED",
+        "bodyHash": "99fca256ef05f9bcd0e9a7126d5f3d68e577567701dc206cebac29e8a581793c",
+        "evidenceHash": "9ccad0c3ea5d75c9781d52b0894623cabdeb568bee76442b723a6a1b9e2510ce",
+        "requirementHash": "42e6ae529e3200ed78ceeb4ca4b823a46db507be57f87b719821f99a02da52dc"
+      },
+      {
+        "id": "PLAN-0157",
+        "status": "\u5173\u95ED",
+        "bodyHash": "9c6c97fdbe391e67616e7e5f4a0858038ae4eaf463915dedb016800ca1557474",
+        "evidenceHash": "c3b1b96788650995c0dfc15510059973f8332f8f20a87c315b7aec10ae317348",
+        "requirementHash": "42e6ae529e3200ed78ceeb4ca4b823a46db507be57f87b719821f99a02da52dc"
+      }
+    ],
+    "files": [
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/CdnContracts.cs|\u003Crequirement\u003E|source",
+        "path": "Tools/UosGameLauncher/CdnContracts.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+        "currentHash": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/CdnUpdater.cs|\u003Crequirement\u003E|source",
+        "path": "Tools/UosGameLauncher/CdnUpdater.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
+        "currentHash": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/LauncherSelfTest.cs|\u003Crequirement\u003E|test",
+        "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6D4B\u8BD5\u6E90\u7801\uFF08\u672A\u5728\u672C\u671F\u8FD0\u884C\uFF09",
+        "recordedHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "currentHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/MainForm.cs|\u003Crequirement\u003E|source",
+        "path": "Tools/UosGameLauncher/MainForm.cs",
+        "repository": null,
+        "planId": null,
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u7C7B\u578B\u5B9A\u4E49",
+        "recordedHash": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
+        "currentHash": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/LauncherModels.cs|PLAN-0155|source",
+        "path": "Tools/UosGameLauncher/LauncherModels.cs",
+        "repository": null,
+        "planId": "PLAN-0155",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b30e8b5967e5adcbda3d14aa84c8b7ab53d682a8de665d467877f54dc909a610",
+        "currentHash": "b30e8b5967e5adcbda3d14aa84c8b7ab53d682a8de665d467877f54dc909a610",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/LauncherSelfTest.cs|PLAN-0155|test",
+        "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+        "repository": null,
+        "planId": "PLAN-0155",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "currentHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/LauncherServices.cs|PLAN-0155|source",
+        "path": "Tools/UosGameLauncher/LauncherServices.cs",
+        "repository": null,
+        "planId": "PLAN-0155",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "c50847dab2aa9cc32da4d002bfdb7de5c993c691ad9b2b72f2ab167533492b30",
+        "currentHash": "c50847dab2aa9cc32da4d002bfdb7de5c993c691ad9b2b72f2ab167533492b30",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/MainForm.cs|PLAN-0155|source",
+        "path": "Tools/UosGameLauncher/MainForm.cs",
+        "repository": null,
+        "planId": "PLAN-0155",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
+        "currentHash": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/BootstrapPackageBuilder.cs|PLAN-0156|source",
+        "path": "Tools/UosGameLauncher/BootstrapPackageBuilder.cs",
+        "repository": null,
+        "planId": "PLAN-0156",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "0c0be6be3961fff27890f4722712cf29c87efa02fa3d6fe19ddde92b194998f0",
+        "currentHash": "0c0be6be3961fff27890f4722712cf29c87efa02fa3d6fe19ddde92b194998f0",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/LauncherSelfTest.cs|PLAN-0156|test",
+        "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+        "repository": null,
+        "planId": "PLAN-0156",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "currentHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/MainForm.cs|PLAN-0156|source",
+        "path": "Tools/UosGameLauncher/MainForm.cs",
+        "repository": null,
+        "planId": "PLAN-0156",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
+        "currentHash": "b813fdfcd9ea88c7d942ae511163b5d110a5e3adb99601f93a9da895df7d42b8",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/CdnContracts.cs|PLAN-0157|source",
+        "path": "Tools/UosGameLauncher/CdnContracts.cs",
+        "repository": null,
+        "planId": "PLAN-0157",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+        "currentHash": "57cb790d1d404c6090b216e88a47c7d6e3e95014b3a753de5ed1df2cca502090",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/CdnUpdater.cs|PLAN-0157|source",
+        "path": "Tools/UosGameLauncher/CdnUpdater.cs",
+        "repository": null,
+        "planId": "PLAN-0157",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
+        "currentHash": "d48ce39edef832d6ca727d13ef3a4cde52bf9fe801f76a02ba9e49e01d2630e3",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/LauncherSelfTest.cs|PLAN-0157|test",
+        "path": "Tools/UosGameLauncher/LauncherSelfTest.cs",
+        "repository": null,
+        "planId": "PLAN-0157",
+        "kind": "\u6D4B\u8BD5\u4EE3\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "currentHash": "dde76c6d6c51285a1ff30964843d2d3706781c26eb6994a348cc275209df3d41",
+        "state": "\u5DF2\u6838\u9A8C"
+      },
+      {
+        "key": "\u003Cproject\u003E|Tools/UosGameLauncher/LauncherServices.cs|PLAN-0157|source",
+        "path": "Tools/UosGameLauncher/LauncherServices.cs",
+        "repository": null,
+        "planId": "PLAN-0157",
+        "kind": "\u6E90\u7801",
+        "operation": null,
+        "evidence": "\u6B63\u6587/\u5DE5\u7A0B\u53D6\u8BC1\u5305\u542B\u7CBE\u786E\u8DEF\u5F84\uFF1B\u8FC1\u79FB\u65F6\u6838\u5BF9\u6587\u4EF6\u5B58\u5728\u548CSHA-256\uFF0C\u4EC5\u4E3A\u8D44\u6E90\u5173\u8054\uFF0C\u4E0D\u8865\u9020\u6267\u884C/\u6D4B\u8BD5\u8BC1\u636E",
+        "recordedHash": "c50847dab2aa9cc32da4d002bfdb7de5c993c691ad9b2b72f2ab167533492b30",
+        "currentHash": "c50847dab2aa9cc32da4d002bfdb7de5c993c691ad9b2b72f2ab167533492b30",
+        "state": "\u5DF2\u6838\u9A8C"
+      }
+    ]
+  },
+  "implementationEvidenceCheck": {
+    "state": "\u6709\u6548",
+    "checkedAt": "2026-10-10T23:46:40.7617282\u002B08:00",
+    "reasons": [
+      "\u5F53\u524D\u9700\u6C42\u6B63\u6587\u3001\u5173\u8054\u8BA1\u5212\u8BC1\u636E\u548C\u5DF2\u767B\u8BB0\u6587\u4EF6\u6307\u7EB9\u4E0E\u5FEB\u7167\u4E00\u81F4\u3002"
+    ]
+  }
 }
