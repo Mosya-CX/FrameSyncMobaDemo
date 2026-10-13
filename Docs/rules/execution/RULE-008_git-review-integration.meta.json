@@ -4,7 +4,7 @@
   "type": "rule",
   "domain": "工程规则",
   "path": "Docs/rules/execution/RULE-008_git-review-integration.md",
-  "version": 3,
+  "version": 6,
   "sources": [
     {
       "path": "AGENTS.md",
@@ -12,6 +12,9 @@
     },
     {
       "kind": "用户本期十五项明确要求"
+    },
+    {
+      "kind": "用户本轮明确确认：待审批回收、一次性回滚、状态栏 Agent 中文分批发布和旧 Karolina 计划结案"
     }
   ],
   "provenance": [
@@ -20,7 +23,7 @@
       "summary": "从既有宪法/工作流和用户本期修订整合为独立中文规则"
     }
   ],
-  "updatedAt": "2026-10-02T21:05:07.839139+08:00",
+  "updatedAt": "2026-10-07T13:14:46.284216+08:00",
   "section": "execution",
   "tags": [
     "工程规则"

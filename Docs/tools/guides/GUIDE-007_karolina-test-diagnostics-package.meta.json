@@ -1,0 +1,17 @@
+{
+  "id": "GUIDE-007",
+  "title": "Karolina 通用测试诊断包",
+  "type": "resource",
+  "domain": "操作指南",
+  "status": "当前资料",
+  "path": "Docs/tools/guides/GUIDE-007_karolina-test-diagnostics-package.md",
+  "version": 7,
+  "tags": [
+    "Karolina",
+    "Unity",
+    "UPM",
+    "测试",
+    "异步诊断"
+  ],
+  "updatedAt": "2026-10-13"
+}

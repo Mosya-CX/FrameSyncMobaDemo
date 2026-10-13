@@ -4,7 +4,7 @@
   "type": "rule",
   "domain": "工程规则",
   "path": "Docs/rules/templates/RULE-004_plan-template.md",
-  "version": 1,
+  "version": 2,
   "sources": [
     {
       "path": "AGENTS.md",
@@ -23,5 +23,6 @@
   "section": "templates",
   "tags": [
     "工程规则"
-  ]
+  ],
+  "updatedAt": "2026-10-11"
 }

@@ -4,7 +4,7 @@
   "type": "rule",
   "domain": "工程规则",
   "path": "Docs/rules/execution/RULE-002_agent-execution-cycle.md",
-  "version": 1,
+  "version": 2,
   "sources": [
     {
       "path": "AGENTS.md",
@@ -23,5 +23,6 @@
   "section": "execution",
   "tags": [
     "工程规则"
-  ]
+  ],
+  "updatedAt": "2026-10-07T12:09:32.668673+08:00"
 }

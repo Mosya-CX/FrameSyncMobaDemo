@@ -1,0 +1,200 @@
+[
+  {
+    "id": "buff-heal-over-time",
+    "runtimeScenarioId": "framesync.buff.heal-over-time",
+    "title": "周期治疗 Buff 的逐 Tick 采样",
+    "testMode": "EditMode",
+    "testMethod": "FrameSyncMoba.Unit.Tests.KarolinaBuffTestPipelineTests.HealOverTimeScenario_UsesProjectRuntimeAndSealsEvidence",
+    "paths": [
+      "Assets/Scripts/Gameplay/Tests/KarolinaBuffTestPipelineTests.cs",
+      "Assets/Scripts/Testing/UnitTestFactory.cs",
+      "Assets/Scripts/Gameplay/Combat/CombatSystem.cs"
+    ],
+    "preparation": "创建隔离UnitWorld与初始生命值50的单位，建立周期治疗Buff。",
+    "input": "BuffHandler.Apply注入HealOverTime，推进Tick 2–5。",
+    "sampling": "逐Tick记录生命值和SimulationTick，核对日志封存与清理。",
+    "assertions": [
+      "生命值高于初始50",
+      "四个Tick均有样本",
+      "Tick 2/3/4/5 的生命值分别为50/60/60/70",
+      "机器断言通过且诊断完整封存",
+      "测试对象与世界夹具清理完成"
+    ],
+    "timeoutSeconds": 120,
+    "capabilities": {
+      "features": [
+        "Buff",
+        "周期治疗",
+        "生命值"
+      ],
+      "adapterPaths": [
+        "Assets/Scripts/Gameplay/Tests/KarolinaBuffTestPipelineTests.cs"
+      ],
+      "actions": [
+        "BuffHandler.Apply",
+        "CombatSystem.BeginTick",
+        "BuffHandler.Advance",
+        "CombatSystem.SettleActiveRequests",
+        "CombatSystem.EndTick"
+      ],
+      "sampleFields": [
+        "health",
+        "SimulationTick"
+      ],
+      "timeDomain": "SimulationTick",
+      "reviewSources": [
+        {
+          "path": "Assets/Scripts/Gameplay/Combat/CombatSystem.cs",
+          "methods": [
+            "BeginTick",
+            "SettleActiveRequests",
+            "EndTick"
+          ]
+        },
+        {
+          "path": "Assets/Scripts/Testing/UnitTestFactory.cs",
+          "methods": [
+            "SpawnUnit",
+            "DestroyWorldFixture",
+            "GetOrCreateWorldFixture",
+            "ConfigureWorldForPrototype",
+            "DestroyTrackedObject",
+            "DestroyTrackedAsset",
+            "EnsureFixturePrefabTableIsStable"
+          ]
+        }
+      ]
+    },
+    "metadata": {
+      "module": "战斗 / Buff",
+      "tags": [
+        "Buff",
+        "治疗",
+        "功能测试"
+      ],
+      "requirements": [
+        "REQ-FEAT-048",
+        "REQ-FEAT-049"
+      ],
+      "plans": [],
+      "cleanup": "注销隔离世界单位，销毁单位、Buff定义和Prefab表，结束逻辑Tick；逐项记录实际清理结果。",
+      "diagnostics": "保留Tick2/3/4/5的生命值50/60/60/70、断言关联样本、运行身份和封存结果，不放宽预期。"
+    }
+  },
+  {
+    "id": "unity-update-clock",
+    "runtimeScenarioId": "karolina.unity.update-frame",
+    "title": "无自有 Tick 的 Unity 生命周期采样",
+    "testMode": "PlayMode",
+    "testMethod": "FrameSyncMoba.Unit.PlayModeTests.KarolinaUnityLifecyclePipelineTests.SamplesUnityUpdateWithoutAProjectTick",
+    "paths": [
+      "Assets/Scripts/Gameplay/Tests/PlayMode/KarolinaUnityLifecyclePipelineTests.cs"
+    ],
+    "preparation": "创建临时GameObject与UnityFrameClock。",
+    "input": "预置生命周期夹具，通过真实Update驱动帧等待。",
+    "sampling": "采样UnityFrame和单调耗时，记录异步诊断。",
+    "assertions": [
+      "真实Update产生帧样本",
+      "流水线机器断言通过",
+      "清理销毁临时对象并封存日志"
+    ],
+    "timeoutSeconds": 120,
+    "capabilities": {
+      "features": [
+        "Unity生命周期",
+        "无Tick采样"
+      ],
+      "adapterPaths": [
+        "Assets/Scripts/Gameplay/Tests/PlayMode/KarolinaUnityLifecyclePipelineTests.cs"
+      ],
+      "actions": [
+        "UnityFrameClock.WaitForNextFrameAsync"
+      ],
+      "sampleFields": [
+        "UnityFrame",
+        "unscaledTime"
+      ],
+      "timeDomain": "UnityFrame"
+    },
+    "metadata": {
+      "module": "Unity / 生命周期",
+      "tags": [
+        "Unity",
+        "PlayMode",
+        "生命周期"
+      ],
+      "requirements": [],
+      "plans": [],
+      "cleanup": "销毁自建UnityFrameClock及GameObject，结束挂起帧等待并封存异步日志。",
+      "diagnostics": "核对实际UnityFrame、单调耗时和等待终态；取消、禁用或销毁必须有明确结果。"
+    }
+  },
+  {
+    "id": "prepared-unit-gameplay",
+    "runtimeScenarioId": "framesync.unit.spawn-runtime",
+    "title": "预编排单位与游戏运行态采样",
+    "testMode": "PlayMode",
+    "testMethod": "FrameSyncMoba.Unit.PlayModeTests.KarolinaFrameSyncGameplayPipelineTests.SpawnedUnitRunsThroughPreparedGameplayPipeline",
+    "paths": [
+      "Assets/Scripts/Gameplay/Tests/PlayMode/KarolinaFrameSyncGameplayPipelineTests.cs",
+      "Assets/Scripts/Testing/UnitTestFactory.cs"
+    ],
+    "preparation": "隔离UnitWorld、单位原型、配置和UnityFrameClock；复现参数记录原型8910、生成Tick20、位置3/8及实际模块版本。",
+    "input": "通用PreparedRuntimeRunner条件满足后一次调用UnitWorld.SpawnUnit，不依赖Agent每帧反馈。",
+    "sampling": "先记录动作前基线，再按真实Unity Update连续读取单位注册、物理所有者、Handler绑定与逻辑位置，生成动作后至少等待三个帧号；每条断言关联具体样本。",
+    "assertions": [
+      "五项运行态断言对全部动作后三帧样本成立，包含生成逻辑位置3/8",
+      "生成和采样事件存在",
+      "测试对象销毁、物理登记清空、自建托管配置与物理引用解除"
+    ],
+    "timeoutSeconds": 120,
+    "capabilities": {
+      "features": [
+        "Gameplay",
+        "单位生成",
+        "预编排运行态"
+      ],
+      "adapterPaths": [
+        "Assets/Scripts/Gameplay/Tests/PlayMode/KarolinaFrameSyncGameplayPipelineTests.cs"
+      ],
+      "actions": [
+        "UnitWorld.SpawnUnit",
+        "UnitWorld.DespawnUnit"
+      ],
+      "sampleFields": [
+        "unitRegistered",
+        "physicsRegistered",
+        "handlersBound",
+        "positionMatches",
+        "position",
+        "phase",
+        "UnityFrame"
+      ],
+      "timeDomain": "UnityFrame",
+      "reviewSources": [
+        {
+          "path": "Assets/Scripts/Testing/UnitTestFactory.cs",
+          "methods": [
+            "DestroyWorldFixture",
+            "DestroyTrackedObject",
+            "DestroyTrackedAsset"
+          ]
+        }
+      ]
+    },
+    "metadata": {
+      "module": "Gameplay / 单位",
+      "tags": [
+        "单位生成",
+        "PlayMode",
+        "预编排"
+      ],
+      "requirements": [
+        "REQ-FEAT-028-PART-1"
+      ],
+      "plans": [],
+      "cleanup": "等待单位、Prefab、Clock和Prefab表实际销毁，核对世界/物理登记清空及自建配置引用解除。",
+      "diagnostics": "保留生成Tick20、位置3/8、动作前基线、全部动作后三帧及原五条断言，不依赖模型实时操控。"
+    }
+  }
+]
