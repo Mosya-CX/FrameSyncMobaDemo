@@ -732,6 +732,11 @@
       "metadata": "Docs/tools/guides/GUIDE-005_game-launcher-cdn.meta.json"
     },
     {
+      "id": "GUIDE-007",
+      "path": "Docs/tools/guides/GUIDE-007_karolina-test-diagnostics-package.md",
+      "metadata": "Docs/tools/guides/GUIDE-007_karolina-test-diagnostics-package.meta.json"
+    },
+    {
       "id": "REQ-FEAT-047",
       "path": "Docs/requirements/game-content/REQ-FEAT-047_varus-test-content.md",
       "metadata": "Docs/requirements/game-content/REQ-FEAT-047_varus-test-content.meta.json"
@@ -1442,17 +1447,161 @@
       "metadata": "Docs/requirements/karolina/REQ-KAR-012_build-and-launcher-tools.meta.json"
     },
     {
-      "id": "PLAN-KAR-009",
-      "path": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.md",
-      "metadata": "Docs/plans/karolina/PLAN-KAR-009_existing-function-polish.meta.json"
+      "id": "REQ-KAR-013",
+      "path": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-013_project-code-resource-graph.meta.json"
     },
     {
-      "id": "PLAN-KAR-010",
-      "path": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.md",
-      "metadata": "Docs/plans/karolina/PLAN-KAR-010_code-quality-refinement.meta.json"
+      "id": "REQ-KAR-014",
+      "path": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-014_agent-verification-repair-loop.meta.json"
+    },
+    {
+      "id": "REQ-KAR-015",
+      "path": "Docs/requirements/karolina/REQ-KAR-015_unified-settings-and-model-profiles.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-015_unified-settings-and-model-profiles.meta.json"
+    },
+    {
+      "id": "REQ-KAR-016",
+      "path": "Docs/requirements/karolina/REQ-KAR-016_standalone-karolina-repository.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-016_standalone-karolina-repository.meta.json"
+    },
+    {
+      "id": "RULE-KAR-001",
+      "path": "Docs/rules/execution/RULE-KAR-001_standalone-engineering.md",
+      "metadata": "Docs/rules/execution/RULE-KAR-001_standalone-engineering.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-012",
+      "path": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-012_graph-visualization-and-agent-query.meta.json"
+    },
+    {
+      "id": "REQ-KAR-017",
+      "path": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-017_project-content-permissions.meta.json"
+    },
+    {
+      "id": "REQ-KAR-018",
+      "path": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-018_agent-git-publication.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-013",
+      "path": "Docs/plans/karolina/PLAN-KAR-013_permissions-and-agent-publication.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-013_permissions-and-agent-publication.meta.json"
+    },
+    {
+      "id": "REQ-KAR-019",
+      "path": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-019_concurrent-conversations.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-014",
+      "path": "Docs/plans/karolina/PLAN-KAR-014_concurrent-conversations-and-workbench-simplification.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-014_concurrent-conversations-and-workbench-simplification.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-015",
+      "path": "Docs/plans/karolina/PLAN-KAR-015_conversation-permission-requests-and-deletion.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-015_conversation-permission-requests-and-deletion.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-016",
+      "path": "Docs/plans/karolina/PLAN-KAR-016_automatic-project-graph-refresh.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-016_automatic-project-graph-refresh.meta.json"
+    },
+    {
+      "id": "REQ-KAR-020",
+      "path": "Docs/requirements/karolina/REQ-KAR-020_automatic-project-retrieval.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-020_automatic-project-retrieval.meta.json"
+    },
+    {
+      "id": "REQ-KAR-021",
+      "path": "Docs/requirements/karolina/REQ-KAR-021_traceable-verification-cycle.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-021_traceable-verification-cycle.meta.json"
+    },
+    {
+      "id": "REQ-KAR-022",
+      "path": "Docs/requirements/karolina/REQ-KAR-022_conversation-and-task-attention.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-022_conversation-and-task-attention.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-017",
+      "path": "Docs/plans/karolina/PLAN-KAR-017_retrieval-verification-and-task-attention.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-017_retrieval-verification-and-task-attention.meta.json"
+    },
+    {
+      "id": "REQ-KAR-023",
+      "path": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-023_project-knowledge-retrieval.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-018",
+      "path": "Docs/plans/karolina/PLAN-KAR-018_project-knowledge-retrieval.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-018_project-knowledge-retrieval.meta.json"
+    },
+    {
+      "id": "REQ-KAR-024",
+      "path": "Docs/requirements/karolina/REQ-KAR-024_connection-responsiveness-and-diagnostics.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-024_connection-responsiveness-and-diagnostics.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-019",
+      "path": "Docs/plans/karolina/PLAN-KAR-019_connection-and-call-chain-retrieval.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-019_connection-and-call-chain-retrieval.meta.json"
+    },
+    {
+      "id": "REQ-KAR-025",
+      "path": "Docs/requirements/karolina/REQ-KAR-025_method-evidence-and-retrieval-efficiency.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-025_method-evidence-and-retrieval-efficiency.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-020",
+      "path": "Docs/plans/karolina/PLAN-KAR-020_method-evidence-and-connection-validation.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-020_method-evidence-and-connection-validation.meta.json"
+    },
+    {
+      "id": "REQ-KAR-026",
+      "path": "Docs/requirements/karolina/REQ-KAR-026_background-testing-and-test-session-cleanup.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-026_background-testing-and-test-session-cleanup.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-021",
+      "path": "Docs/plans/karolina/PLAN-KAR-021_background-testing-and-test-session-cleanup.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-021_background-testing-and-test-session-cleanup.meta.json"
+    },
+    {
+      "id": "REQ-KAR-027",
+      "path": "Docs/requirements/karolina/REQ-KAR-027_requirement-implementation-and-reference-filters.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-027_requirement-implementation-and-reference-filters.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-022",
+      "path": "Docs/plans/karolina/PLAN-KAR-022_requirement-implementation-and-reference-filters.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-022_requirement-implementation-and-reference-filters.meta.json"
+    },
+    {
+      "id": "REQ-KAR-028",
+      "path": "Docs/requirements/karolina/REQ-KAR-028_implementation-evidence-tracking.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-028_implementation-evidence-tracking.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-023",
+      "path": "Docs/plans/karolina/PLAN-KAR-023_implementation-evidence-tracking.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-023_implementation-evidence-tracking.meta.json"
+    },
+    {
+      "id": "REQ-KAR-029",
+      "path": "Docs/requirements/karolina/REQ-KAR-029_project-adaptable-test-pipeline.md",
+      "metadata": "Docs/requirements/karolina/REQ-KAR-029_project-adaptable-test-pipeline.meta.json"
+    },
+    {
+      "id": "PLAN-KAR-024",
+      "path": "Docs/plans/karolina/PLAN-KAR-024_project-adaptable-test-pipeline.md",
+      "metadata": "Docs/plans/karolina/PLAN-KAR-024_project-adaptable-test-pipeline.meta.json"
     }
   ],
-  "activePlan": "PLAN-KAR-010",
   "authority": "当前用户指令优先；已接受需求与规则为现行约束；旧 ID 仅来源别名",
-  "latestCompletedPlan": "PLAN-KAR-003"
+  "latestCompletedPlan": "PLAN-CONTENT-138"
 }
