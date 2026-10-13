@@ -4,9 +4,41 @@
   "type": "rule",
   "domain": "工程事实",
   "path": "Docs/rules/facts/FACT-9CD2F2F2C7BD_open-questions.md",
-  "version": 1,
+  "version": 2,
   "section": "facts",
   "tags": [
     "工程事实"
+  ],
+  "updatedAt": "2026-10-07T22:49:01.485440+08:00",
+  "issues": [
+    {
+      "id": "combat-missing-health-read",
+      "title": "已损生命值附伤读取错误",
+      "resolution": "待修复，用户要求延期",
+      "requirementIds": [
+        "REQ-FEAT-030"
+      ],
+      "sourceRefs": [
+        {
+          "path": "Assets/Scripts/Gameplay/Combat/DamageRecipe.cs",
+          "startLine": 62,
+          "endLine": 66,
+          "hash": "2a73ea86c1b6c32e3525f3fbde1d1ccf0f96feb1b543d800f50305f3ccec9a34"
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/Stats/StatHandler.cs",
+          "startLine": 103,
+          "endLine": 103,
+          "hash": "61fefc93a6d2a59998fa2d5501a42fd12e70db6335ea966eb159055f43a033bd"
+        }
+      ],
+      "sourceInspected": true,
+      "fixed": false,
+      "unityCompiled": false,
+      "behaviorTestsRun": false,
+      "recordedAt": "2026-10-07T22:49:01.485440+08:00",
+      "discoveredByPlan": "PLAN-KAR-018",
+      "detailsSection": "已确认待修复的问题 / 已损生命值附伤读取错误"
+    }
   ]
 }
